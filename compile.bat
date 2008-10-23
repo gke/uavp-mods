@@ -8,7 +8,8 @@ rem OPT_ADXRS150 + OPT_ADXRS300 + OPT_IDG
 rem ESC_PPM + ESC_HOLGER
 rem BOARD_3_0 + BOARD_3_1
 rem DEBUG_MOTORS (nur bei BOARD_3_1)
-
+echo Compiles a single firmware file.
+echo Run 'compile DBG=DEBUG_SENSORS' to build a version with DEBUG_SENSORS set.
 set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
 
@@ -21,8 +22,10 @@ set LEXE="%ProgramFiles%\microchip\MPASM Suite\mplink.exe"
 
 set ZIP="%ProgramFiles%\IZarc\IZarcC.exe" -a
 
-set VS=3.15
-set VG=3.09
+rem We add mX to our firmware to indicate that it has been modified.
+rem The X represents the version of the firmware.
+set VS=3.15m1
+set VG=3.09m1
 
 rem Als erstes Testen ob cmd mit /v aufgerufen wurde
 set F=x
@@ -32,33 +35,22 @@ if  "%F%" == "x b"  goto CMDERR
 rem Fuer die Liste der erzeugten Pakete
 set OF=
 
-echo Loeschen der C-Ausgabe-Dateien...
-for %%i in ( %CSRC% ) do if exist %%i.asm del %%i.asm
-for %%i in ( %CSRC% ) do if exist %%i.err del %%i.err
-for %%i in ( %CSRC% ) do if exist %%i.fcs del %%i.fcs
-for %%i in ( %CSRC% ) do if exist %%i.lst del %%i.lst
-for %%i in ( %CSRC% ) do if exist %%i.o   del %%i.o  
-for %%i in ( %CSRC% ) do if exist %%i.occ del %%i.occ
-for %%i in ( %CSRC% ) do if exist %%i.var del %%i.var
-
-echo Loeschen der ASM-Ausgabe-Dateien...
-for %%i in ( %ASRC% ) do if exist %%i.err del %%i.err
-for %%i in ( %ASRC% ) do if exist %%i.lst del %%i.lst
-for %%i in ( %ASRC% ) do if exist %%i.o   del %%i.o
-
-echo Loeschen von HEX-Files...
-if exist profi-ufo.cod del profi-ufo.cod
-if exist profi-ufo.hex del profi-ufo.hex
-if exist profi-ufo.lst del profi-ufo.lst
-if exist profi-ufo.map del profi-ufo.map
-
 rem Das folgende wird 2x durchlaufen!
 
 SET CAM=CAM_0_DEG
 SET RX=
 
+rem C_NEXT is used to say where to go after going to the cleanup step
+set C_NEXT=STEP01
+
+rem Remove the previously generated firmware. The CLEANUP label takes care
+rem of the rest of the cleanup for us.
+if exist profi-ufo*.hex del profi-ufo*.hex
+goto CLEANUP
+
 :STEP01
-set NEXT=ENDE
+set NEXT=CLEANUP
+set C_NEXT=ENDE
 rem =============================================
 rem C-Compiling, assembling and linking a version
 rem =============================================
@@ -67,7 +59,7 @@ set BOARD=3_1
 set GYRO=OPT_ADXRS300
 set ESC=ESC_PPM
 rem set DBG=NODEBUG_MOTORS
-set DBG=DEBUG_SENSORS
+rem set DBG=DEBUG_SENSORS
 set THC=NO_THROTTLECURVE
 goto DOIT
 
@@ -124,4 +116,31 @@ goto ENDE
 echo Fehler!
 echo CMD wurde nicht mit /V aufgerufen!
 
+:CLEANUP
+echo Deleting the C build related intemediate files...
+for %%i in ( %CSRC% ) do if exist %%i.asm del %%i.asm
+for %%i in ( %CSRC% ) do if exist %%i.err del %%i.err
+for %%i in ( %CSRC% ) do if exist %%i.fcs del %%i.fcs
+for %%i in ( %CSRC% ) do if exist %%i.lst del %%i.lst
+for %%i in ( %CSRC% ) do if exist %%i.o   del %%i.o  
+for %%i in ( %CSRC% ) do if exist %%i.occ del %%i.occ
+for %%i in ( %CSRC% ) do if exist %%i.var del %%i.var
+
+echo Deleting the ASM build related intermediate files...
+for %%i in ( %ASRC% ) do if exist %%i.err del %%i.err
+for %%i in ( %ASRC% ) do if exist %%i.lst del %%i.lst
+for %%i in ( %ASRC% ) do if exist %%i.o   del %%i.o
+
+echo Deleting the HEX build related intermediate files...
+if exist profi-ufo*.cod del profi-ufo*.cod
+if exist profi-ufo*.lst del profi-ufo*.lst
+if exist profi-ufo*.map del profi-ufo*.map
+goto %C_NEXT%
+
 :ENDE
+echo .
+echo .
+echo You now have the following firmware built:
+echo .
+echo .
+dir *.hex
