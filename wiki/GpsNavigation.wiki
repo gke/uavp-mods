@@ -7,9 +7,10 @@ First off, the official UAVP project is also working on adding GPS support. This
 
 == What is involved? ==
    * (Done) Choose a GPS unit
-      * Etek EB-85A is the recommended GPS unit.
-      * It can be purchased through Sparkfun for $99 at: http://www.sparkfun.com/commerce/product_info.php?products_id=8266
-      * It is sometimes available for $55 at: http://www.ohararp.com/products.html
+      * Etek EB-85A (aka FV-M8) is the recommended GPS unit.
+      * Available here for about $82: http://www.dpcav.com/xcart/product.php?productid=16161
+      * Sometimes available for $55: http://www.ohararp.com/products.html
+      * Available here for $99: http://www.sparkfun.com/commerce/product_info.php?products_id=8266
    * To expand or not to expand
       * Many people have commented that the current processor doesn't have much room or many cycles to spare. Should we consider developing a daughterboard? Or using something like the Surveyor SRV-1 Blackfin camera module?
    * Parse NMEA sentences or some binary GPS format
