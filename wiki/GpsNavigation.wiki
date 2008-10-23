@@ -9,10 +9,15 @@ First off, the official UAVP project is also working on adding GPS support. This
    * Choose a GPS unit
       * We need to choose a GPS unit that everyone will standardize on.
       * I've seen references to a Ublox GPS unit that I've heard is expensive. Leave a comment if you have any recommendations.
+   * To expand or not to expand
+      * Many people have commented that the current processor doesn't have much room or many cycles to spare. Should we consider developing a daughterboard? Or using something like the Surveyor SRV-1 Blackfin camera module?
    * Parse NMEA sentences or some binary GPS format
       * In order to know where we are, we need to be able to read the information given to us by the GPS.
       * NMEA is a textual format that most GPS receivers can output. This may require more processing cycles than a binary format. The trouble with binary formats is that not all GPS units support that same binary format. Standardizing on a GPS unit allows us to use either NMEA sentences or whatever binary format our chosen GPS unit supports.
       * We need to write some code for the PIC to read the information from the GPS. This needs to consume as few cycles as possible as I'm told we don't have much room left on our little PIC.
+   * Make the data reliable
+      * Parsing GPS data is just the beginning.
+      * GPS information has been known to bounce around. The code needs to take this into account and reduce the jitter we get when we are not moving.
    * Add a switch to enable or disable GPS navigation. This will allow us to selectively enable the GPS parsing and navigation routes which will prove very helpful during testing.
    * Add GPS navigation routines.
       * This is where the real work comes in.
