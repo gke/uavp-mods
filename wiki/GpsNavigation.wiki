@@ -1,0 +1,26 @@
+#summary GPS Navigation Status
+
+== Introduction ==
+
+First off, the official UAVP project is also working on adding GPS support. This project is just starting out and GPS navigation is not a trivial matter so Wolferl may just beat us to a working implementation as most of us are just beginners at this.
+
+
+== What is involved? ==
+   * Choose a GPS unit
+      * We need to choose a GPS unit that everyone will standardize on.
+      * I've seen references to a Ublox GPS unit that I've heard is expensive. Leave a comment if you have any recommendations.
+   * Parse NMEA sentences or some binary GPS format
+      * In order to know where we are, we need to be able to read the information given to us by the GPS.
+      * NMEA is a textual format that most GPS receivers can output. This may require more processing cycles than a binary format. The trouble with binary formats is that not all GPS units support that same binary format. Standardizing on a GPS unit allows us to use either NMEA sentences or whatever binary format our chosen GPS unit supports.
+      * We need to write some code for the PIC to read the information from the GPS. This needs to consume as few cycles as possible as I'm told we don't have much room left on our little PIC.
+   * Add a switch to enable or disable GPS navigation. This will allow us to selectively enable the GPS parsing and navigation routes which will prove very helpful during testing.
+   * Add GPS navigation routines.
+      * This is where the real work comes in.
+      * A GPS hold routine will probably be the first step. This will allow us to test navigating in a small area before moving onto larger areas. An added benefit is there is less of a chance of the UAVP running away!
+      * More to come later...
+
+== Status ==
+
+We're just starting. The first step is to decide on a GPS unit and start writing code to get data out of it.
+
+Leave a comment if you have suggestions or can help out.
