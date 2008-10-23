@@ -1,4 +1,24 @@
 @echo off
+rem ---------------------------------------------
+rem Explaination of options. Modify these to fit
+rem your UAVP.
+rem ---------------------------------------------
+
+rem Version of the board. May be 3_0 or 3_1.
+set BOARD=3_1
+rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or...
+set GYRO=OPT_ADXRS300
+rem Type of ESC in use. May be ESC_PPM, RX_PPM, ESC_YGE, ESC_HOLGER, etc...
+set ESC=ESC_PPM
+rem Type of debugging to use. May be DEBUG_MOTORS or DEBUG_SENSORS.
+set DBG=
+rem Whether to use throttle curve. May be USE_THROTTLECURVE.
+set THC=
+
+rem ----------------------------------------------
+rem Don't modify anything below this line.
+rem ----------------------------------------------
+
 rem Batch compiliert diverse Möglichkeiten der Ufo-Software
 rem =======================================================
 rem Schalter:
@@ -8,8 +28,6 @@ rem OPT_ADXRS150 + OPT_ADXRS300 + OPT_IDG
 rem ESC_PPM + ESC_HOLGER
 rem BOARD_3_0 + BOARD_3_1
 rem DEBUG_MOTORS (nur bei BOARD_3_1)
-echo Compiles a single firmware file.
-echo Run 'compile DBG=DEBUG_SENSORS' to build a version with DEBUG_SENSORS set.
 set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
 
@@ -51,16 +69,6 @@ goto CLEANUP
 :STEP01
 set NEXT=CLEANUP
 set C_NEXT=ENDE
-rem =============================================
-rem C-Compiling, assembling and linking a version
-rem =============================================
-
-set BOARD=3_1
-set GYRO=OPT_ADXRS300
-set ESC=ESC_PPM
-rem set DBG=NODEBUG_MOTORS
-rem set DBG=DEBUG_SENSORS
-set THC=NO_THROTTLECURVE
 goto DOIT
 
 :DOIT
@@ -140,7 +148,7 @@ goto %C_NEXT%
 :ENDE
 echo .
 echo .
-echo You now have the following firmware built:
+echo You have built the following firmware:
 echo .
 echo .
 dir *.hex
