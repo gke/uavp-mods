@@ -6,9 +6,10 @@ First off, the official UAVP project is also working on adding GPS support. This
 
 
 == What is involved? ==
-   * Choose a GPS unit
-      * We need to choose a GPS unit that everyone will standardize on.
-      * I've seen references to a Ublox GPS unit that I've heard is expensive. Leave a comment if you have any recommendations.
+   * (Done) Choose a GPS unit
+      * Etek EB-85A is the recommended GPS unit.
+      * It can be purchased through Sparkfun for $99 at: http://www.sparkfun.com/commerce/product_info.php?products_id=8266
+      * It is sometimes available for $55 at: http://www.ohararp.com/products.html
    * To expand or not to expand
       * Many people have commented that the current processor doesn't have much room or many cycles to spare. Should we consider developing a daughterboard? Or using something like the Surveyor SRV-1 Blackfin camera module?
    * Parse NMEA sentences or some binary GPS format
@@ -26,6 +27,6 @@ First off, the official UAVP project is also working on adding GPS support. This
 
 == Status ==
 
-We're just starting. The first step is to decide on a GPS unit and start writing code to get data out of it.
+Researching format of GPS data.
 
 Leave a comment if you have suggestions or can help out.
