@@ -1,7 +1,7 @@
 #summary Sensor options, setup, algorithms, etc.
 
 Sensor options:
-   * Current sensor in use: http://www.bosch-sensortec.com/content/language1/html/3477.htm
+   * Current sensor in use: http://www.quadroufo.com/product_info.php?products_id=41&osCsid=81ab2fd57c04dd683a6caa2ab0b250b5
    * Upgraded sensor that we may consider: http://www.bosch-sensortec.com/content/language1/html/3477.htm
 
 Setup:
