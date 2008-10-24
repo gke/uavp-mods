@@ -1,0 +1,9 @@
+#summary Getting rid of the serial cable!
+
+There are at least two options that you can use to get rid of the serial cable on the UAVP.
+
+The first is documented here: 
+
+http://forum.uavp.ch/viewtopic.php?t=1954
+
+The second involved using an XBee module instead of a bluetooth adapter.
