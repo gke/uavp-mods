@@ -15,5 +15,7 @@ The above picture is a sample of the output that you will see:
    * The bottom set of traces are the gyro outputs.
 
 This information was compiled from:
+
 http://www.rcgroups.com/forums/showpost.php?p=10797029&postcount=1387
+
 http://www.rcgroups.com/forums/showpost.php?p=10766063&postcount=1371
