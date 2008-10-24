@@ -12,3 +12,6 @@ Current performance:
 
 Current algorithm:
    * TODO: Add information about current algorithm here...
+
+Sources:
+   * This post contains some useful setting information: http://www.rcgroups.com/forums/showpost.php?p=10467136&postcount=1083
