@@ -1,0 +1,14 @@
+#summary Sensor options, setup, algorithms, etc.
+
+Sensor options:
+   * Current sensor in use: http://www.bosch-sensortec.com/content/language1/html/3477.htm
+   * Upgraded sensor that we may consider: http://www.bosch-sensortec.com/content/language1/html/3477.htm
+
+Setup:
+   * TODO: Add recommendations on how to setup the existing sensor here.
+
+Current performance:
+   * TODO: We need a description of how the current sensor performs.
+
+Current algorithm:
+   * TODO: Add information about current algorithm here...
