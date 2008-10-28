@@ -6,12 +6,20 @@ Sensor options:
 
 Setup:
    * TODO: Add recommendations on how to setup the existing sensor here.
+Current recommended settings are TEMP=13,P=1, D=4 
+The BMP085 upgrade is pin compatable with the SMD500.
 
 Current performance:
    * TODO: We need a description of how the current sensor performs.
+Currrent SMD500 performance is +/- 3-10ft Improved performance expected with the BMP085.
 
 Current algorithm:
    * TODO: Add information about current algorithm here...
+The BMP085 adds higher resolution and speed.  It is a one line change to the code:
+The resolution mode can be set by the variable "oversampling_setting" (0,1,2,3) in the C source code.
+Data sheets:
+BMP085: http://www.bosch-sensortec.de/content/language1/downloads/BMP085_DataSheet_Rev.1.0_01July2008.pdf
+SMD500: http://www.sensorica.ru/pdf/smd500_appl.pdf
 
 Sources:
    * This post contains some useful setting information: http://www.rcgroups.com/forums/showpost.php?p=10467136&postcount=1083
