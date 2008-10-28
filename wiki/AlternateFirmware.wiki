@@ -1,0 +1,7 @@
+#summary The non-ARM way forward.
+
+The current UAVP project is severely limited by the demo C compiler used. The UAVP creators have started work on an ARM based next generation UAVP.
+
+This page describes an alternate firmware being developed that may prove to fit half way between the two while maintaining pin compatibility with the original board. Only the processor would have to be replaced if this solution works.
+
+More information will be coming later...
