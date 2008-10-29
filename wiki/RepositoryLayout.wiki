@@ -9,10 +9,11 @@ The first is a collection of modifications to the original UAVP v3.15 source cod
    * compile.bat - A command line client to ease building the firmware.
    * DEBUG_SENSORS - If using a standard PPM ESC, DEBUG_SENSORS no longer causes the ESCs to beep.
 
-3.15mod2 (hasn't been uploaded yet):
+3.15mod2:
    * Battery latch - Changes the standard low battery alarm to be more forgiving of momentary drops in voltage.
 
 3.15mod3:
+   * Enable and document the parachute trigger? (Issue #2).
    * Do you have ideas? Use the issue tab up above to suggest something!
 
 Code:
