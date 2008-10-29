@@ -215,35 +215,33 @@ void GetEvenValues(void)
 	NeutralUD = Tp.low8;
 }
 
+
 // read accu voltage using 8 bit A/D conversion
 // Bit _LowBatt is set if voltage is below threshold
+// Modified by Ing. Greg Egan
+// Filter battery volts to remove ADC/Motor spikes and set _LoBatt alarm accordingly 
 void GetVbattValue(void)
 {
+	int NewBatteryVolts, Temp;
+
 	ADFM = 0;	// select 8 bit mode
 	ADCON0 = 0b.10.000.0.0.1;	// turn AD on, select CH0(RA0) Ubatt
 	AcqTime();
+	NewBatteryVolts = (int) (ADRESH >> 1);
 #ifndef DEBUG_SENSORS
-#ifdef BOARD_3_0
-	if( LowVoltThres < 0 )
-	{
-		LowVoltThres = -LowVoltThres;
-		if( (ADRESH >>1) > LowVoltThres )
-			_LowBatt = 1;
-	}
-	else
-	if( LowVoltThres > 0 )
-	{
-		if( (ADRESH >>1) < LowVoltThres )
-			_LowBatt = 1;
-	}
-#endif
-#ifdef BOARD_3_1
-	if( (ADRESH >>1) < LowVoltThres )
+
+// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+2)>>2;
+// cc5x limitation	_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
+
+	Temp = BatteryVolts+NewBatteryVolts+2;
+	BatteryVolts = Temp/2;
+
+	if (BatteryVolts < LowVoltThres)
 		_LowBatt = 1;
-#endif
+	else
+		_LowBatt = 0;
 #endif // DEBUG_SENSORS
 }
-
 
 #ifdef BOARD_3_1
 //

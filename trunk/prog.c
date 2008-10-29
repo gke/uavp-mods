@@ -221,6 +221,13 @@ void ReadEEdata(void)
 		EEADR++;
 	}
 
+// modified Ing. Greg Egan
+#ifdef BOARD_3_0
+	if( LowVoltThres < 0 )
+		LowVoltThres = -LowVoltThres;
+#endif
+	BatteryVolts = LowVoltThres;
+
 // Sanity check
 // if timing value is lower than 1, set it to 10ms!
 	if( TimeSlot < 1 )

@@ -172,14 +172,15 @@ extern	shrBank	uns8	BlinkCount;
 
 extern	bank0	long	niltemp1;
 extern	bank0	int		Rw,Nw;	// angles
+extern  bank1	int	BatteryVolts; // added by Greg Egan
 extern	bank1	long	niltemp;
-				int		nitemp @ niltemp;
+int		nitemp @ niltemp;
 
 #ifdef BOARD_3_1				
 // Variables for barometric sensor PD-controller
 extern	bank0	uns16	BasePressure, BaseTemp;
 extern	bank0	uns16	TempCorr;
-extern	bank1	int		VBaroComp;
+extern	bank1	int	VBaroComp;
 extern  bank0	long    BaroCompSum;
 #endif
 

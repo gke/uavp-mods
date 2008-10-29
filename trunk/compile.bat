@@ -7,7 +7,7 @@ rem ---------------------------------------------
 rem Version of the board. May be 3_0 or 3_1.
 set BOARD=3_1
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or...
-set GYRO=OPT_ADXRS300
+set GYRO=OPT_IDG
 rem Type of ESC in use. May be ESC_PPM, RX_PPM, ESC_YGE, ESC_HOLGER, etc...
 set ESC=ESC_PPM
 rem Type of debugging to use. May be DEBUG_MOTORS or DEBUG_SENSORS.
@@ -42,8 +42,8 @@ set ZIP="%ProgramFiles%\IZarc\IZarcC.exe" -a
 
 rem We add mX to our firmware to indicate that it has been modified.
 rem The X represents the version of the firmware.
-set VS=3.15m1
-set VG=3.09m1
+set VS=3.15m2
+set VG=3.09m2
 
 rem Als erstes Testen ob cmd mit /v aufgerufen wurde
 set F=x

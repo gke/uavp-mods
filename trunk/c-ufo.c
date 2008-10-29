@@ -75,6 +75,7 @@ uns8	BlinkCount;
 
 long	niltemp1;
 long	niltemp;
+int	BatteryVolts; // added by Greg Egan
 int		Rw,Nw;
 
 #ifdef BOARD_3_1
@@ -248,6 +249,7 @@ Restart:
 	while(1)
 	{
 		T0IE = 0;		// disable TMR0 interrupt
+		Beeper_OFF;
 		ALL_LEDS_OFF;
 		LedRed_ON;		// red LED on
 		if(_UseLISL)
@@ -601,6 +603,11 @@ DoPID:
 					Beeper_ON;
 					LedRed_ON;
 				}
+			}
+			else
+			{
+				Beeper_OFF;
+				LedRed_OFF;
 			}
 #endif
 			// Output the results to the speed controllers
