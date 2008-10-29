@@ -10,7 +10,7 @@ To compile your own firmware:
    * Unzip mp810.zip into a temp directory. Run Install_MPLAB_v810.exe.
    * Unzip the uavp source into a newly created directory.
    * Launch a command prompt and cd into that directory.
-   * Run: "copy c:\program files\microchip\cc5x\reloc.inc ."
+   * If not using mod2 or later: Run "copy c:\program files\microchip\cc5x\reloc.inc ."
    * Edit compile.bat to match your UAVP. Settings that you can change are labeled at the top of the file. If you are using Profi-UFO-V315-CAM0-ADX300-PPM.hex the defaults will work for your UAVP.
    * Note: compile.bat removes all previously compiled hex files when building so backup any old hex files if you want to build more than one version.
    * Run compile.bat
