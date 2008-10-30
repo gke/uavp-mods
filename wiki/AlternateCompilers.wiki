@@ -1,0 +1,11 @@
+#summary Making the most out of the processor.
+
+The current UAVP firmware has to work around the limitations of the demo compiler on a regular basis. This begs the question: What other options are out there?
+
+Options:
+   * http://sdcc.sourceforge.net/index.php - Small Device C Compiler. This is an open source project that looks like it may have support for the PIC 876. There is an ticket open on the official UAVP project requesting support for this. Making the modifications necessary should allow us to squeeze extra processing power out of the existing chip.
+   * http://www.bknd.com/cc8e/index.shtml - CC8E. Won't work as the UAVP PIC is a PIC 16 series device. The AlternateFirmware may be targeting this compiler.
+   * http://www.bknd.com/cc5x - CC5X (not demo version). This would require everyone who works on the firmware to purchase a license which makes it difficult to involve more people.
+   * Any others?
+
+Feel free to leave a comment. If you have edit rights, feel free to add additional content!
