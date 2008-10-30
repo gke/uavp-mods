@@ -198,6 +198,9 @@
             this.rollInt2Label = new System.Windows.Forms.Label();
             this.rollProp2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.rollProp2Label = new System.Windows.Forms.Label();
+            this.configToolStrip = new System.Windows.Forms.ToolStrip();
+            this.comPortToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
+            this.versionToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
@@ -206,9 +209,6 @@
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
             this.set1Set2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.set2Set1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.configToolStrip = new System.Windows.Forms.ToolStrip();
-            this.comPortToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
-            this.versionToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.statusStripMainWindow = new System.Windows.Forms.StatusStrip();
             this.infoleisteToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
@@ -321,98 +321,44 @@
             ((System.ComponentModel.ISupportInitialize)(this.rollDiff2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.rollInt2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.rollProp2NumericUpDown)).BeginInit();
-            this.toolStripMain.SuspendLayout();
             this.configToolStrip.SuspendLayout();
+            this.toolStripMain.SuspendLayout();
             this.statusStripMainWindow.SuspendLayout();
             this.menuStripMainWindow.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStripContainerMainWindow
             // 
-            this.toolStripContainerMainWindow.AccessibleDescription = null;
-            this.toolStripContainerMainWindow.AccessibleName = null;
-            resources.ApplyResources(this.toolStripContainerMainWindow, "toolStripContainerMainWindow");
-            // 
-            // toolStripContainerMainWindow.BottomToolStripPanel
-            // 
-            this.toolStripContainerMainWindow.BottomToolStripPanel.AccessibleDescription = null;
-            this.toolStripContainerMainWindow.BottomToolStripPanel.AccessibleName = null;
-            this.toolStripContainerMainWindow.BottomToolStripPanel.BackgroundImage = null;
-            resources.ApplyResources(this.toolStripContainerMainWindow.BottomToolStripPanel, "toolStripContainerMainWindow.BottomToolStripPanel");
-            this.toolStripContainerMainWindow.BottomToolStripPanel.Font = null;
             // 
             // toolStripContainerMainWindow.ContentPanel
             // 
-            this.toolStripContainerMainWindow.ContentPanel.AccessibleDescription = null;
-            this.toolStripContainerMainWindow.ContentPanel.AccessibleName = null;
-            resources.ApplyResources(this.toolStripContainerMainWindow.ContentPanel, "toolStripContainerMainWindow.ContentPanel");
-            this.toolStripContainerMainWindow.ContentPanel.BackgroundImage = null;
             this.toolStripContainerMainWindow.ContentPanel.Controls.Add(this.splitContainer1);
-            this.toolStripContainerMainWindow.ContentPanel.Font = null;
-            this.toolStripContainerMainWindow.Font = null;
-            // 
-            // toolStripContainerMainWindow.LeftToolStripPanel
-            // 
-            this.toolStripContainerMainWindow.LeftToolStripPanel.AccessibleDescription = null;
-            this.toolStripContainerMainWindow.LeftToolStripPanel.AccessibleName = null;
-            this.toolStripContainerMainWindow.LeftToolStripPanel.BackgroundImage = null;
-            resources.ApplyResources(this.toolStripContainerMainWindow.LeftToolStripPanel, "toolStripContainerMainWindow.LeftToolStripPanel");
-            this.toolStripContainerMainWindow.LeftToolStripPanel.Font = null;
+            resources.ApplyResources(this.toolStripContainerMainWindow.ContentPanel, "toolStripContainerMainWindow.ContentPanel");
+            resources.ApplyResources(this.toolStripContainerMainWindow, "toolStripContainerMainWindow");
             this.toolStripContainerMainWindow.Name = "toolStripContainerMainWindow";
-            // 
-            // toolStripContainerMainWindow.RightToolStripPanel
-            // 
-            this.toolStripContainerMainWindow.RightToolStripPanel.AccessibleDescription = null;
-            this.toolStripContainerMainWindow.RightToolStripPanel.AccessibleName = null;
-            this.toolStripContainerMainWindow.RightToolStripPanel.BackgroundImage = null;
-            resources.ApplyResources(this.toolStripContainerMainWindow.RightToolStripPanel, "toolStripContainerMainWindow.RightToolStripPanel");
-            this.toolStripContainerMainWindow.RightToolStripPanel.Font = null;
             // 
             // toolStripContainerMainWindow.TopToolStripPanel
             // 
-            this.toolStripContainerMainWindow.TopToolStripPanel.AccessibleDescription = null;
-            this.toolStripContainerMainWindow.TopToolStripPanel.AccessibleName = null;
-            this.toolStripContainerMainWindow.TopToolStripPanel.BackgroundImage = null;
-            resources.ApplyResources(this.toolStripContainerMainWindow.TopToolStripPanel, "toolStripContainerMainWindow.TopToolStripPanel");
-            this.toolStripContainerMainWindow.TopToolStripPanel.Controls.Add(this.configToolStrip);
             this.toolStripContainerMainWindow.TopToolStripPanel.Controls.Add(this.toolStripMain);
-            this.toolStripContainerMainWindow.TopToolStripPanel.Font = null;
+            this.toolStripContainerMainWindow.TopToolStripPanel.Controls.Add(this.configToolStrip);
             // 
             // splitContainer1
             // 
-            this.splitContainer1.AccessibleDescription = null;
-            this.splitContainer1.AccessibleName = null;
             resources.ApplyResources(this.splitContainer1, "splitContainer1");
-            this.splitContainer1.BackgroundImage = null;
-            this.splitContainer1.Font = null;
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.AccessibleDescription = null;
-            this.splitContainer1.Panel1.AccessibleName = null;
-            resources.ApplyResources(this.splitContainer1.Panel1, "splitContainer1.Panel1");
-            this.splitContainer1.Panel1.BackgroundImage = null;
             this.splitContainer1.Panel1.Controls.Add(this.listViewJobs);
-            this.splitContainer1.Panel1.Font = null;
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.AccessibleDescription = null;
-            this.splitContainer1.Panel2.AccessibleName = null;
-            resources.ApplyResources(this.splitContainer1.Panel2, "splitContainer1.Panel2");
-            this.splitContainer1.Panel2.BackgroundImage = null;
             this.splitContainer1.Panel2.Controls.Add(this.tabControlInfo);
             this.splitContainer1.Panel2.Controls.Add(this.tabControlParameter);
-            this.splitContainer1.Panel2.Font = null;
             // 
             // listViewJobs
             // 
-            this.listViewJobs.AccessibleDescription = null;
-            this.listViewJobs.AccessibleName = null;
             resources.ApplyResources(this.listViewJobs, "listViewJobs");
-            this.listViewJobs.BackgroundImage = null;
-            this.listViewJobs.Font = null;
             this.listViewJobs.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
             ((System.Windows.Forms.ListViewItem)(resources.GetObject("listViewJobs.Items"))),
             ((System.Windows.Forms.ListViewItem)(resources.GetObject("listViewJobs.Items1"))),
@@ -438,24 +384,16 @@
             // 
             // tabControlInfo
             // 
-            this.tabControlInfo.AccessibleDescription = null;
-            this.tabControlInfo.AccessibleName = null;
-            resources.ApplyResources(this.tabControlInfo, "tabControlInfo");
-            this.tabControlInfo.BackgroundImage = null;
             this.tabControlInfo.Controls.Add(this.tabPageInfo);
             this.tabControlInfo.Controls.Add(this.tabPageLog);
-            this.tabControlInfo.Font = null;
+            resources.ApplyResources(this.tabControlInfo, "tabControlInfo");
             this.tabControlInfo.Name = "tabControlInfo";
             this.tabControlInfo.SelectedIndex = 0;
             // 
             // tabPageInfo
             // 
-            this.tabPageInfo.AccessibleDescription = null;
-            this.tabPageInfo.AccessibleName = null;
-            resources.ApplyResources(this.tabPageInfo, "tabPageInfo");
-            this.tabPageInfo.BackgroundImage = null;
             this.tabPageInfo.Controls.Add(this.infoTextBox);
-            this.tabPageInfo.Font = null;
+            resources.ApplyResources(this.tabPageInfo, "tabPageInfo");
             this.tabPageInfo.Name = "tabPageInfo";
             this.tabPageInfo.UseVisualStyleBackColor = true;
             // 
@@ -463,23 +401,15 @@
             // 
             this.infoTextBox.AcceptsReturn = true;
             this.infoTextBox.AcceptsTab = true;
-            this.infoTextBox.AccessibleDescription = null;
-            this.infoTextBox.AccessibleName = null;
-            resources.ApplyResources(this.infoTextBox, "infoTextBox");
             this.infoTextBox.BackColor = System.Drawing.SystemColors.Window;
-            this.infoTextBox.BackgroundImage = null;
-            this.infoTextBox.Font = null;
+            resources.ApplyResources(this.infoTextBox, "infoTextBox");
             this.infoTextBox.Name = "infoTextBox";
             this.infoTextBox.ReadOnly = true;
             // 
             // tabPageLog
             // 
-            this.tabPageLog.AccessibleDescription = null;
-            this.tabPageLog.AccessibleName = null;
-            resources.ApplyResources(this.tabPageLog, "tabPageLog");
-            this.tabPageLog.BackgroundImage = null;
             this.tabPageLog.Controls.Add(this.logTextBox);
-            this.tabPageLog.Font = null;
+            resources.ApplyResources(this.tabPageLog, "tabPageLog");
             this.tabPageLog.Name = "tabPageLog";
             this.tabPageLog.UseVisualStyleBackColor = true;
             // 
@@ -487,49 +417,33 @@
             // 
             this.logTextBox.AcceptsReturn = true;
             this.logTextBox.AcceptsTab = true;
-            this.logTextBox.AccessibleDescription = null;
-            this.logTextBox.AccessibleName = null;
-            resources.ApplyResources(this.logTextBox, "logTextBox");
             this.logTextBox.BackColor = System.Drawing.SystemColors.Window;
-            this.logTextBox.BackgroundImage = null;
-            this.logTextBox.Font = null;
+            resources.ApplyResources(this.logTextBox, "logTextBox");
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ReadOnly = true;
             // 
             // tabControlParameter
             // 
-            this.tabControlParameter.AccessibleDescription = null;
-            this.tabControlParameter.AccessibleName = null;
-            resources.ApplyResources(this.tabControlParameter, "tabControlParameter");
-            this.tabControlParameter.BackgroundImage = null;
             this.tabControlParameter.Controls.Add(this.tabPageParameterSet1);
             this.tabControlParameter.Controls.Add(this.tabPageParameterSet2);
-            this.tabControlParameter.Font = null;
+            resources.ApplyResources(this.tabControlParameter, "tabControlParameter");
             this.tabControlParameter.Name = "tabControlParameter";
             this.tabControlParameter.SelectedIndex = 0;
             // 
             // tabPageParameterSet1
             // 
-            this.tabPageParameterSet1.AccessibleDescription = null;
-            this.tabPageParameterSet1.AccessibleName = null;
-            resources.ApplyResources(this.tabPageParameterSet1, "tabPageParameterSet1");
-            this.tabPageParameterSet1.BackgroundImage = null;
             this.tabPageParameterSet1.Controls.Add(this.sonst1GroupBox);
             this.tabPageParameterSet1.Controls.Add(this.linear1GroupBox);
             this.tabPageParameterSet1.Controls.Add(this.gier1GroupBox);
             this.tabPageParameterSet1.Controls.Add(this.nick1GroupBox);
             this.tabPageParameterSet1.Controls.Add(this.roll1GroupBox);
-            this.tabPageParameterSet1.Font = null;
             this.tabPageParameterSet1.ForeColor = System.Drawing.SystemColors.ControlText;
+            resources.ApplyResources(this.tabPageParameterSet1, "tabPageParameterSet1");
             this.tabPageParameterSet1.Name = "tabPageParameterSet1";
             this.tabPageParameterSet1.UseVisualStyleBackColor = true;
             // 
             // sonst1GroupBox
             // 
-            this.sonst1GroupBox.AccessibleDescription = null;
-            this.sonst1GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.sonst1GroupBox, "sonst1GroupBox");
-            this.sonst1GroupBox.BackgroundImage = null;
             this.sonst1GroupBox.Controls.Add(this.kameraRoll1NumericUpDown);
             this.sonst1GroupBox.Controls.Add(this.kameraRoll1Label);
             this.sonst1GroupBox.Controls.Add(this.kameraNick1Label);
@@ -558,14 +472,12 @@
             this.sonst1GroupBox.Controls.Add(this.bit01CheckBox);
             this.sonst1GroupBox.Controls.Add(this.bit0Header1Label);
             this.sonst1GroupBox.Controls.Add(this.akku1GroupBox);
-            this.sonst1GroupBox.Font = null;
+            resources.ApplyResources(this.sonst1GroupBox, "sonst1GroupBox");
             this.sonst1GroupBox.Name = "sonst1GroupBox";
             this.sonst1GroupBox.TabStop = false;
             // 
             // kameraRoll1NumericUpDown
             // 
-            this.kameraRoll1NumericUpDown.AccessibleDescription = null;
-            this.kameraRoll1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.kameraRoll1NumericUpDown, "kameraRoll1NumericUpDown");
             this.kameraRoll1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -585,24 +497,16 @@
             // 
             // kameraRoll1Label
             // 
-            this.kameraRoll1Label.AccessibleDescription = null;
-            this.kameraRoll1Label.AccessibleName = null;
             resources.ApplyResources(this.kameraRoll1Label, "kameraRoll1Label");
-            this.kameraRoll1Label.Font = null;
             this.kameraRoll1Label.Name = "kameraRoll1Label";
             // 
             // kameraNick1Label
             // 
-            this.kameraNick1Label.AccessibleDescription = null;
-            this.kameraNick1Label.AccessibleName = null;
             resources.ApplyResources(this.kameraNick1Label, "kameraNick1Label");
-            this.kameraNick1Label.Font = null;
             this.kameraNick1Label.Name = "kameraNick1Label";
             // 
             // baroInt1NumericUpDown
             // 
-            this.baroInt1NumericUpDown.AccessibleDescription = null;
-            this.baroInt1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.baroInt1NumericUpDown, "baroInt1NumericUpDown");
             this.baroInt1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -622,16 +526,11 @@
             // 
             // baroInt1Label
             // 
-            this.baroInt1Label.AccessibleDescription = null;
-            this.baroInt1Label.AccessibleName = null;
             resources.ApplyResources(this.baroInt1Label, "baroInt1Label");
-            this.baroInt1Label.Font = null;
             this.baroInt1Label.Name = "baroInt1Label";
             // 
             // baro1NumericUpDown
             // 
-            this.baro1NumericUpDown.AccessibleDescription = null;
-            this.baro1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.baro1NumericUpDown, "baro1NumericUpDown");
             this.baro1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -651,16 +550,11 @@
             // 
             // baro1Label
             // 
-            this.baro1Label.AccessibleDescription = null;
-            this.baro1Label.AccessibleName = null;
             resources.ApplyResources(this.baro1Label, "baro1Label");
-            this.baro1Label.Font = null;
             this.baro1Label.Name = "baro1Label";
             // 
             // baroTemp1NumericUpDown
             // 
-            this.baroTemp1NumericUpDown.AccessibleDescription = null;
-            this.baroTemp1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.baroTemp1NumericUpDown, "baroTemp1NumericUpDown");
             this.baroTemp1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -685,16 +579,11 @@
             // 
             // baroTemp1Label
             // 
-            this.baroTemp1Label.AccessibleDescription = null;
-            this.baroTemp1Label.AccessibleName = null;
             resources.ApplyResources(this.baroTemp1Label, "baroTemp1Label");
-            this.baroTemp1Label.Font = null;
             this.baroTemp1Label.Name = "baroTemp1Label";
             // 
             // compass1NumericUpDown
             // 
-            this.compass1NumericUpDown.AccessibleDescription = null;
-            this.compass1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.compass1NumericUpDown, "compass1NumericUpDown");
             this.compass1NumericUpDown.Maximum = new decimal(new int[] {
             16,
@@ -714,16 +603,11 @@
             // 
             // compass1Label
             // 
-            this.compass1Label.AccessibleDescription = null;
-            this.compass1Label.AccessibleName = null;
             resources.ApplyResources(this.compass1Label, "compass1Label");
-            this.compass1Label.Font = null;
             this.compass1Label.Name = "compass1Label";
             // 
             // kamera1NumericUpDown
             // 
-            this.kamera1NumericUpDown.AccessibleDescription = null;
-            this.kamera1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.kamera1NumericUpDown, "kamera1NumericUpDown");
             this.kamera1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -743,16 +627,11 @@
             // 
             // kameraLabel
             // 
-            this.kameraLabel.AccessibleDescription = null;
-            this.kameraLabel.AccessibleName = null;
             resources.ApplyResources(this.kameraLabel, "kameraLabel");
-            this.kameraLabel.Font = null;
             this.kameraLabel.Name = "kameraLabel";
             // 
             // leerlaufgas1NumericUpDown
             // 
-            this.leerlaufgas1NumericUpDown.AccessibleDescription = null;
-            this.leerlaufgas1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.leerlaufgas1NumericUpDown, "leerlaufgas1NumericUpDown");
             this.leerlaufgas1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -777,16 +656,11 @@
             // 
             // leerlaufgasLabel
             // 
-            this.leerlaufgasLabel.AccessibleDescription = null;
-            this.leerlaufgasLabel.AccessibleName = null;
             resources.ApplyResources(this.leerlaufgasLabel, "leerlaufgasLabel");
-            this.leerlaufgasLabel.Font = null;
             this.leerlaufgasLabel.Name = "leerlaufgasLabel";
             // 
             // impulseAusgabe1NumericUpDown
             // 
-            this.impulseAusgabe1NumericUpDown.AccessibleDescription = null;
-            this.impulseAusgabe1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.impulseAusgabe1NumericUpDown, "impulseAusgabe1NumericUpDown");
             this.impulseAusgabe1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -811,18 +685,12 @@
             // 
             // impulse1Label
             // 
-            this.impulse1Label.AccessibleDescription = null;
-            this.impulse1Label.AccessibleName = null;
             resources.ApplyResources(this.impulse1Label, "impulse1Label");
-            this.impulse1Label.Font = null;
             this.impulse1Label.Name = "impulse1Label";
             // 
             // bit41CheckBox
             // 
-            this.bit41CheckBox.AccessibleDescription = null;
-            this.bit41CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit41CheckBox, "bit41CheckBox");
-            this.bit41CheckBox.BackgroundImage = null;
             this.bit41CheckBox.Name = "bit41CheckBox";
             this.bit41CheckBox.Tag = "16_4";
             this.bit41CheckBox.UseVisualStyleBackColor = true;
@@ -832,19 +700,13 @@
             // 
             // bit4Header1Label
             // 
-            this.bit4Header1Label.AccessibleDescription = null;
-            this.bit4Header1Label.AccessibleName = null;
             resources.ApplyResources(this.bit4Header1Label, "bit4Header1Label");
-            this.bit4Header1Label.Font = null;
             this.bit4Header1Label.ForeColor = System.Drawing.Color.Black;
             this.bit4Header1Label.Name = "bit4Header1Label";
             // 
             // bit31CheckBox
             // 
-            this.bit31CheckBox.AccessibleDescription = null;
-            this.bit31CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit31CheckBox, "bit31CheckBox");
-            this.bit31CheckBox.BackgroundImage = null;
             this.bit31CheckBox.Name = "bit31CheckBox";
             this.bit31CheckBox.Tag = "16_3";
             this.bit31CheckBox.UseVisualStyleBackColor = true;
@@ -854,19 +716,13 @@
             // 
             // bit3Header1Label
             // 
-            this.bit3Header1Label.AccessibleDescription = null;
-            this.bit3Header1Label.AccessibleName = null;
             resources.ApplyResources(this.bit3Header1Label, "bit3Header1Label");
-            this.bit3Header1Label.Font = null;
             this.bit3Header1Label.ForeColor = System.Drawing.Color.Black;
             this.bit3Header1Label.Name = "bit3Header1Label";
             // 
             // bit21CheckBox
             // 
-            this.bit21CheckBox.AccessibleDescription = null;
-            this.bit21CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit21CheckBox, "bit21CheckBox");
-            this.bit21CheckBox.BackgroundImage = null;
             this.bit21CheckBox.Name = "bit21CheckBox";
             this.bit21CheckBox.Tag = "16_2";
             this.bit21CheckBox.UseVisualStyleBackColor = true;
@@ -876,20 +732,14 @@
             // 
             // bit2Header1Label
             // 
-            this.bit2Header1Label.AccessibleDescription = null;
-            this.bit2Header1Label.AccessibleName = null;
             resources.ApplyResources(this.bit2Header1Label, "bit2Header1Label");
-            this.bit2Header1Label.Font = null;
             this.bit2Header1Label.ForeColor = System.Drawing.Color.Black;
             this.bit2Header1Label.Name = "bit2Header1Label";
             // 
             // bit11CheckBox
             // 
-            this.bit11CheckBox.AccessibleDescription = null;
-            this.bit11CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit11CheckBox, "bit11CheckBox");
             this.bit11CheckBox.BackColor = System.Drawing.Color.Transparent;
-            this.bit11CheckBox.BackgroundImage = null;
             this.bit11CheckBox.Name = "bit11CheckBox";
             this.bit11CheckBox.Tag = "16_1";
             this.bit11CheckBox.UseVisualStyleBackColor = false;
@@ -899,19 +749,13 @@
             // 
             // bit1Header1Label
             // 
-            this.bit1Header1Label.AccessibleDescription = null;
-            this.bit1Header1Label.AccessibleName = null;
             resources.ApplyResources(this.bit1Header1Label, "bit1Header1Label");
-            this.bit1Header1Label.Font = null;
             this.bit1Header1Label.ForeColor = System.Drawing.Color.Black;
             this.bit1Header1Label.Name = "bit1Header1Label";
             // 
             // bit01CheckBox
             // 
-            this.bit01CheckBox.AccessibleDescription = null;
-            this.bit01CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit01CheckBox, "bit01CheckBox");
-            this.bit01CheckBox.BackgroundImage = null;
             this.bit01CheckBox.Name = "bit01CheckBox";
             this.bit01CheckBox.Tag = "16_0";
             this.bit01CheckBox.UseVisualStyleBackColor = true;
@@ -921,46 +765,31 @@
             // 
             // bit0Header1Label
             // 
-            this.bit0Header1Label.AccessibleDescription = null;
-            this.bit0Header1Label.AccessibleName = null;
             resources.ApplyResources(this.bit0Header1Label, "bit0Header1Label");
-            this.bit0Header1Label.Font = null;
             this.bit0Header1Label.ForeColor = System.Drawing.Color.Black;
             this.bit0Header1Label.Name = "bit0Header1Label";
             // 
             // akku1GroupBox
             // 
-            this.akku1GroupBox.AccessibleDescription = null;
-            this.akku1GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.akku1GroupBox, "akku1GroupBox");
-            this.akku1GroupBox.BackgroundImage = null;
             this.akku1GroupBox.Controls.Add(this.akkuValue1Label);
             this.akku1GroupBox.Controls.Add(this.akku1Label);
             this.akku1GroupBox.Controls.Add(this.akku1NumericUpDown);
-            this.akku1GroupBox.Font = null;
+            resources.ApplyResources(this.akku1GroupBox, "akku1GroupBox");
             this.akku1GroupBox.Name = "akku1GroupBox";
             this.akku1GroupBox.TabStop = false;
             // 
             // akkuValue1Label
             // 
-            this.akkuValue1Label.AccessibleDescription = null;
-            this.akkuValue1Label.AccessibleName = null;
             resources.ApplyResources(this.akkuValue1Label, "akkuValue1Label");
-            this.akkuValue1Label.Font = null;
             this.akkuValue1Label.Name = "akkuValue1Label";
             // 
             // akku1Label
             // 
-            this.akku1Label.AccessibleDescription = null;
-            this.akku1Label.AccessibleName = null;
             resources.ApplyResources(this.akku1Label, "akku1Label");
-            this.akku1Label.Font = null;
             this.akku1Label.Name = "akku1Label";
             // 
             // akku1NumericUpDown
             // 
-            this.akku1NumericUpDown.AccessibleDescription = null;
-            this.akku1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.akku1NumericUpDown, "akku1NumericUpDown");
             this.akku1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -975,10 +804,6 @@
             // 
             // linear1GroupBox
             // 
-            this.linear1GroupBox.AccessibleDescription = null;
-            this.linear1GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.linear1GroupBox, "linear1GroupBox");
-            this.linear1GroupBox.BackgroundImage = null;
             this.linear1GroupBox.Controls.Add(this.gierA1NumericUpDown);
             this.linear1GroupBox.Controls.Add(this.gierA1Label);
             this.linear1GroupBox.Controls.Add(this.gierMa1NumericUpDown);
@@ -991,14 +816,12 @@
             this.linear1GroupBox.Controls.Add(this.rollA1Label);
             this.linear1GroupBox.Controls.Add(this.rollMa1NumericUpDown);
             this.linear1GroupBox.Controls.Add(this.rollMa1label);
-            this.linear1GroupBox.Font = null;
+            resources.ApplyResources(this.linear1GroupBox, "linear1GroupBox");
             this.linear1GroupBox.Name = "linear1GroupBox";
             this.linear1GroupBox.TabStop = false;
             // 
             // gierA1NumericUpDown
             // 
-            this.gierA1NumericUpDown.AccessibleDescription = null;
-            this.gierA1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierA1NumericUpDown, "gierA1NumericUpDown");
             this.gierA1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1018,16 +841,11 @@
             // 
             // gierA1Label
             // 
-            this.gierA1Label.AccessibleDescription = null;
-            this.gierA1Label.AccessibleName = null;
             resources.ApplyResources(this.gierA1Label, "gierA1Label");
-            this.gierA1Label.Font = null;
             this.gierA1Label.Name = "gierA1Label";
             // 
             // gierMa1NumericUpDown
             // 
-            this.gierMa1NumericUpDown.AccessibleDescription = null;
-            this.gierMa1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierMa1NumericUpDown, "gierMa1NumericUpDown");
             this.gierMa1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1047,16 +865,11 @@
             // 
             // gierMa1Label
             // 
-            this.gierMa1Label.AccessibleDescription = null;
-            this.gierMa1Label.AccessibleName = null;
             resources.ApplyResources(this.gierMa1Label, "gierMa1Label");
-            this.gierMa1Label.Font = null;
             this.gierMa1Label.Name = "gierMa1Label";
             // 
             // nickA1NumericUpDown
             // 
-            this.nickA1NumericUpDown.AccessibleDescription = null;
-            this.nickA1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickA1NumericUpDown, "nickA1NumericUpDown");
             this.nickA1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1076,16 +889,11 @@
             // 
             // nickA1Label
             // 
-            this.nickA1Label.AccessibleDescription = null;
-            this.nickA1Label.AccessibleName = null;
             resources.ApplyResources(this.nickA1Label, "nickA1Label");
-            this.nickA1Label.Font = null;
             this.nickA1Label.Name = "nickA1Label";
             // 
             // nickMa1NumericUpDown
             // 
-            this.nickMa1NumericUpDown.AccessibleDescription = null;
-            this.nickMa1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickMa1NumericUpDown, "nickMa1NumericUpDown");
             this.nickMa1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1105,16 +913,11 @@
             // 
             // nickMa1Label
             // 
-            this.nickMa1Label.AccessibleDescription = null;
-            this.nickMa1Label.AccessibleName = null;
             resources.ApplyResources(this.nickMa1Label, "nickMa1Label");
-            this.nickMa1Label.Font = null;
             this.nickMa1Label.Name = "nickMa1Label";
             // 
             // rollA1NumericUpDown
             // 
-            this.rollA1NumericUpDown.AccessibleDescription = null;
-            this.rollA1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollA1NumericUpDown, "rollA1NumericUpDown");
             this.rollA1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1134,16 +937,11 @@
             // 
             // rollA1Label
             // 
-            this.rollA1Label.AccessibleDescription = null;
-            this.rollA1Label.AccessibleName = null;
             resources.ApplyResources(this.rollA1Label, "rollA1Label");
-            this.rollA1Label.Font = null;
             this.rollA1Label.Name = "rollA1Label";
             // 
             // rollMa1NumericUpDown
             // 
-            this.rollMa1NumericUpDown.AccessibleDescription = null;
-            this.rollMa1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollMa1NumericUpDown, "rollMa1NumericUpDown");
             this.rollMa1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1163,18 +961,11 @@
             // 
             // rollMa1label
             // 
-            this.rollMa1label.AccessibleDescription = null;
-            this.rollMa1label.AccessibleName = null;
             resources.ApplyResources(this.rollMa1label, "rollMa1label");
-            this.rollMa1label.Font = null;
             this.rollMa1label.Name = "rollMa1label";
             // 
             // gier1GroupBox
             // 
-            this.gier1GroupBox.AccessibleDescription = null;
-            this.gier1GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.gier1GroupBox, "gier1GroupBox");
-            this.gier1GroupBox.BackgroundImage = null;
             this.gier1GroupBox.Controls.Add(this.gierIntLimit1NumericUpDown);
             this.gier1GroupBox.Controls.Add(this.gierIntLimit1Label);
             this.gier1GroupBox.Controls.Add(this.gierLimit1NumericUpDown);
@@ -1185,14 +976,12 @@
             this.gier1GroupBox.Controls.Add(this.gierInt1Label);
             this.gier1GroupBox.Controls.Add(this.gierProp1NumericUpDown);
             this.gier1GroupBox.Controls.Add(this.gierProp1Label);
-            this.gier1GroupBox.Font = null;
+            resources.ApplyResources(this.gier1GroupBox, "gier1GroupBox");
             this.gier1GroupBox.Name = "gier1GroupBox";
             this.gier1GroupBox.TabStop = false;
             // 
             // gierIntLimit1NumericUpDown
             // 
-            this.gierIntLimit1NumericUpDown.AccessibleDescription = null;
-            this.gierIntLimit1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierIntLimit1NumericUpDown, "gierIntLimit1NumericUpDown");
             this.gierIntLimit1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1217,16 +1006,11 @@
             // 
             // gierIntLimit1Label
             // 
-            this.gierIntLimit1Label.AccessibleDescription = null;
-            this.gierIntLimit1Label.AccessibleName = null;
             resources.ApplyResources(this.gierIntLimit1Label, "gierIntLimit1Label");
-            this.gierIntLimit1Label.Font = null;
             this.gierIntLimit1Label.Name = "gierIntLimit1Label";
             // 
             // gierLimit1NumericUpDown
             // 
-            this.gierLimit1NumericUpDown.AccessibleDescription = null;
-            this.gierLimit1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierLimit1NumericUpDown, "gierLimit1NumericUpDown");
             this.gierLimit1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1251,16 +1035,11 @@
             // 
             // gierLimit1Label
             // 
-            this.gierLimit1Label.AccessibleDescription = null;
-            this.gierLimit1Label.AccessibleName = null;
             resources.ApplyResources(this.gierLimit1Label, "gierLimit1Label");
-            this.gierLimit1Label.Font = null;
             this.gierLimit1Label.Name = "gierLimit1Label";
             // 
             // gierDiff1NumericUpDown
             // 
-            this.gierDiff1NumericUpDown.AccessibleDescription = null;
-            this.gierDiff1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierDiff1NumericUpDown, "gierDiff1NumericUpDown");
             this.gierDiff1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1280,16 +1059,11 @@
             // 
             // gierDiff1Label
             // 
-            this.gierDiff1Label.AccessibleDescription = null;
-            this.gierDiff1Label.AccessibleName = null;
             resources.ApplyResources(this.gierDiff1Label, "gierDiff1Label");
-            this.gierDiff1Label.Font = null;
             this.gierDiff1Label.Name = "gierDiff1Label";
             // 
             // gierInt1NumericUpDown
             // 
-            this.gierInt1NumericUpDown.AccessibleDescription = null;
-            this.gierInt1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierInt1NumericUpDown, "gierInt1NumericUpDown");
             this.gierInt1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1309,16 +1083,11 @@
             // 
             // gierInt1Label
             // 
-            this.gierInt1Label.AccessibleDescription = null;
-            this.gierInt1Label.AccessibleName = null;
             resources.ApplyResources(this.gierInt1Label, "gierInt1Label");
-            this.gierInt1Label.Font = null;
             this.gierInt1Label.Name = "gierInt1Label";
             // 
             // gierProp1NumericUpDown
             // 
-            this.gierProp1NumericUpDown.AccessibleDescription = null;
-            this.gierProp1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierProp1NumericUpDown, "gierProp1NumericUpDown");
             this.gierProp1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1338,18 +1107,11 @@
             // 
             // gierProp1Label
             // 
-            this.gierProp1Label.AccessibleDescription = null;
-            this.gierProp1Label.AccessibleName = null;
             resources.ApplyResources(this.gierProp1Label, "gierProp1Label");
-            this.gierProp1Label.Font = null;
             this.gierProp1Label.Name = "gierProp1Label";
             // 
             // nick1GroupBox
             // 
-            this.nick1GroupBox.AccessibleDescription = null;
-            this.nick1GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.nick1GroupBox, "nick1GroupBox");
-            this.nick1GroupBox.BackgroundImage = null;
             this.nick1GroupBox.Controls.Add(this.nickIntLimit1NumericUpDown);
             this.nick1GroupBox.Controls.Add(this.nickIntLimit1Label);
             this.nick1GroupBox.Controls.Add(this.nickLimit1NumericUpDown);
@@ -1360,14 +1122,12 @@
             this.nick1GroupBox.Controls.Add(this.nickInt1Label);
             this.nick1GroupBox.Controls.Add(this.nickProp1NumericUpDown);
             this.nick1GroupBox.Controls.Add(this.nickProp1Label);
-            this.nick1GroupBox.Font = null;
+            resources.ApplyResources(this.nick1GroupBox, "nick1GroupBox");
             this.nick1GroupBox.Name = "nick1GroupBox";
             this.nick1GroupBox.TabStop = false;
             // 
             // nickIntLimit1NumericUpDown
             // 
-            this.nickIntLimit1NumericUpDown.AccessibleDescription = null;
-            this.nickIntLimit1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickIntLimit1NumericUpDown, "nickIntLimit1NumericUpDown");
             this.nickIntLimit1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1392,16 +1152,11 @@
             // 
             // nickIntLimit1Label
             // 
-            this.nickIntLimit1Label.AccessibleDescription = null;
-            this.nickIntLimit1Label.AccessibleName = null;
             resources.ApplyResources(this.nickIntLimit1Label, "nickIntLimit1Label");
-            this.nickIntLimit1Label.Font = null;
             this.nickIntLimit1Label.Name = "nickIntLimit1Label";
             // 
             // nickLimit1NumericUpDown
             // 
-            this.nickLimit1NumericUpDown.AccessibleDescription = null;
-            this.nickLimit1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickLimit1NumericUpDown, "nickLimit1NumericUpDown");
             this.nickLimit1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1426,16 +1181,11 @@
             // 
             // nickLimit1Label
             // 
-            this.nickLimit1Label.AccessibleDescription = null;
-            this.nickLimit1Label.AccessibleName = null;
             resources.ApplyResources(this.nickLimit1Label, "nickLimit1Label");
-            this.nickLimit1Label.Font = null;
             this.nickLimit1Label.Name = "nickLimit1Label";
             // 
             // nickDiff1NumericUpDown
             // 
-            this.nickDiff1NumericUpDown.AccessibleDescription = null;
-            this.nickDiff1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickDiff1NumericUpDown, "nickDiff1NumericUpDown");
             this.nickDiff1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1455,16 +1205,11 @@
             // 
             // nickDiff1Label
             // 
-            this.nickDiff1Label.AccessibleDescription = null;
-            this.nickDiff1Label.AccessibleName = null;
             resources.ApplyResources(this.nickDiff1Label, "nickDiff1Label");
-            this.nickDiff1Label.Font = null;
             this.nickDiff1Label.Name = "nickDiff1Label";
             // 
             // nickInt1NumericUpDown
             // 
-            this.nickInt1NumericUpDown.AccessibleDescription = null;
-            this.nickInt1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickInt1NumericUpDown, "nickInt1NumericUpDown");
             this.nickInt1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1484,16 +1229,11 @@
             // 
             // nickInt1Label
             // 
-            this.nickInt1Label.AccessibleDescription = null;
-            this.nickInt1Label.AccessibleName = null;
             resources.ApplyResources(this.nickInt1Label, "nickInt1Label");
-            this.nickInt1Label.Font = null;
             this.nickInt1Label.Name = "nickInt1Label";
             // 
             // nickProp1NumericUpDown
             // 
-            this.nickProp1NumericUpDown.AccessibleDescription = null;
-            this.nickProp1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickProp1NumericUpDown, "nickProp1NumericUpDown");
             this.nickProp1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1513,18 +1253,11 @@
             // 
             // nickProp1Label
             // 
-            this.nickProp1Label.AccessibleDescription = null;
-            this.nickProp1Label.AccessibleName = null;
             resources.ApplyResources(this.nickProp1Label, "nickProp1Label");
-            this.nickProp1Label.Font = null;
             this.nickProp1Label.Name = "nickProp1Label";
             // 
             // roll1GroupBox
             // 
-            this.roll1GroupBox.AccessibleDescription = null;
-            this.roll1GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.roll1GroupBox, "roll1GroupBox");
-            this.roll1GroupBox.BackgroundImage = null;
             this.roll1GroupBox.Controls.Add(this.rollIntLimit1NumericUpDown);
             this.roll1GroupBox.Controls.Add(this.rollIntLimit1Label);
             this.roll1GroupBox.Controls.Add(this.rollLimit1NumericUpDown);
@@ -1535,14 +1268,12 @@
             this.roll1GroupBox.Controls.Add(this.rollInt1Label);
             this.roll1GroupBox.Controls.Add(this.rollProp1NumericUpDown);
             this.roll1GroupBox.Controls.Add(this.rollProp1Label);
-            this.roll1GroupBox.Font = null;
+            resources.ApplyResources(this.roll1GroupBox, "roll1GroupBox");
             this.roll1GroupBox.Name = "roll1GroupBox";
             this.roll1GroupBox.TabStop = false;
             // 
             // rollIntLimit1NumericUpDown
             // 
-            this.rollIntLimit1NumericUpDown.AccessibleDescription = null;
-            this.rollIntLimit1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollIntLimit1NumericUpDown, "rollIntLimit1NumericUpDown");
             this.rollIntLimit1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1567,16 +1298,11 @@
             // 
             // rollIntLimit1Label
             // 
-            this.rollIntLimit1Label.AccessibleDescription = null;
-            this.rollIntLimit1Label.AccessibleName = null;
             resources.ApplyResources(this.rollIntLimit1Label, "rollIntLimit1Label");
-            this.rollIntLimit1Label.Font = null;
             this.rollIntLimit1Label.Name = "rollIntLimit1Label";
             // 
             // rollLimit1NumericUpDown
             // 
-            this.rollLimit1NumericUpDown.AccessibleDescription = null;
-            this.rollLimit1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollLimit1NumericUpDown, "rollLimit1NumericUpDown");
             this.rollLimit1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1601,16 +1327,11 @@
             // 
             // rollLimit1Label
             // 
-            this.rollLimit1Label.AccessibleDescription = null;
-            this.rollLimit1Label.AccessibleName = null;
             resources.ApplyResources(this.rollLimit1Label, "rollLimit1Label");
-            this.rollLimit1Label.Font = null;
             this.rollLimit1Label.Name = "rollLimit1Label";
             // 
             // rollDiff1NumericUpDown
             // 
-            this.rollDiff1NumericUpDown.AccessibleDescription = null;
-            this.rollDiff1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollDiff1NumericUpDown, "rollDiff1NumericUpDown");
             this.rollDiff1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1630,16 +1351,11 @@
             // 
             // rollDiff1Label
             // 
-            this.rollDiff1Label.AccessibleDescription = null;
-            this.rollDiff1Label.AccessibleName = null;
             resources.ApplyResources(this.rollDiff1Label, "rollDiff1Label");
-            this.rollDiff1Label.Font = null;
             this.rollDiff1Label.Name = "rollDiff1Label";
             // 
             // rollInt1NumericUpDown
             // 
-            this.rollInt1NumericUpDown.AccessibleDescription = null;
-            this.rollInt1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollInt1NumericUpDown, "rollInt1NumericUpDown");
             this.rollInt1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1659,16 +1375,11 @@
             // 
             // rollInt1Label
             // 
-            this.rollInt1Label.AccessibleDescription = null;
-            this.rollInt1Label.AccessibleName = null;
             resources.ApplyResources(this.rollInt1Label, "rollInt1Label");
-            this.rollInt1Label.Font = null;
             this.rollInt1Label.Name = "rollInt1Label";
             // 
             // rollProp1NumericUpDown
             // 
-            this.rollProp1NumericUpDown.AccessibleDescription = null;
-            this.rollProp1NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollProp1NumericUpDown, "rollProp1NumericUpDown");
             this.rollProp1NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1688,33 +1399,22 @@
             // 
             // rollProp1Label
             // 
-            this.rollProp1Label.AccessibleDescription = null;
-            this.rollProp1Label.AccessibleName = null;
             resources.ApplyResources(this.rollProp1Label, "rollProp1Label");
-            this.rollProp1Label.Font = null;
             this.rollProp1Label.Name = "rollProp1Label";
             // 
             // tabPageParameterSet2
             // 
-            this.tabPageParameterSet2.AccessibleDescription = null;
-            this.tabPageParameterSet2.AccessibleName = null;
-            resources.ApplyResources(this.tabPageParameterSet2, "tabPageParameterSet2");
-            this.tabPageParameterSet2.BackgroundImage = null;
             this.tabPageParameterSet2.Controls.Add(this.sonst2GroupBox);
             this.tabPageParameterSet2.Controls.Add(this.linear2GroupBox);
             this.tabPageParameterSet2.Controls.Add(this.gier2GroupBox);
             this.tabPageParameterSet2.Controls.Add(this.nick2GroupBox);
             this.tabPageParameterSet2.Controls.Add(this.roll2GroupBox);
-            this.tabPageParameterSet2.Font = null;
+            resources.ApplyResources(this.tabPageParameterSet2, "tabPageParameterSet2");
             this.tabPageParameterSet2.Name = "tabPageParameterSet2";
             this.tabPageParameterSet2.UseVisualStyleBackColor = true;
             // 
             // sonst2GroupBox
             // 
-            this.sonst2GroupBox.AccessibleDescription = null;
-            this.sonst2GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.sonst2GroupBox, "sonst2GroupBox");
-            this.sonst2GroupBox.BackgroundImage = null;
             this.sonst2GroupBox.Controls.Add(this.kameraRoll2NumericUpDown);
             this.sonst2GroupBox.Controls.Add(this.kameraRoll2Label);
             this.sonst2GroupBox.Controls.Add(this.kameraNick2Label);
@@ -1743,14 +1443,12 @@
             this.sonst2GroupBox.Controls.Add(this.bit02CheckBox);
             this.sonst2GroupBox.Controls.Add(this.bit0Header2Label);
             this.sonst2GroupBox.Controls.Add(this.akku2GroupBox);
-            this.sonst2GroupBox.Font = null;
+            resources.ApplyResources(this.sonst2GroupBox, "sonst2GroupBox");
             this.sonst2GroupBox.Name = "sonst2GroupBox";
             this.sonst2GroupBox.TabStop = false;
             // 
             // kameraRoll2NumericUpDown
             // 
-            this.kameraRoll2NumericUpDown.AccessibleDescription = null;
-            this.kameraRoll2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.kameraRoll2NumericUpDown, "kameraRoll2NumericUpDown");
             this.kameraRoll2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1770,24 +1468,16 @@
             // 
             // kameraRoll2Label
             // 
-            this.kameraRoll2Label.AccessibleDescription = null;
-            this.kameraRoll2Label.AccessibleName = null;
             resources.ApplyResources(this.kameraRoll2Label, "kameraRoll2Label");
-            this.kameraRoll2Label.Font = null;
             this.kameraRoll2Label.Name = "kameraRoll2Label";
             // 
             // kameraNick2Label
             // 
-            this.kameraNick2Label.AccessibleDescription = null;
-            this.kameraNick2Label.AccessibleName = null;
             resources.ApplyResources(this.kameraNick2Label, "kameraNick2Label");
-            this.kameraNick2Label.Font = null;
             this.kameraNick2Label.Name = "kameraNick2Label";
             // 
             // baroInt2NumericUpDown
             // 
-            this.baroInt2NumericUpDown.AccessibleDescription = null;
-            this.baroInt2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.baroInt2NumericUpDown, "baroInt2NumericUpDown");
             this.baroInt2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1807,16 +1497,11 @@
             // 
             // baroInt2Label
             // 
-            this.baroInt2Label.AccessibleDescription = null;
-            this.baroInt2Label.AccessibleName = null;
             resources.ApplyResources(this.baroInt2Label, "baroInt2Label");
-            this.baroInt2Label.Font = null;
             this.baroInt2Label.Name = "baroInt2Label";
             // 
             // baro2NumericUpDown
             // 
-            this.baro2NumericUpDown.AccessibleDescription = null;
-            this.baro2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.baro2NumericUpDown, "baro2NumericUpDown");
             this.baro2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1836,16 +1521,11 @@
             // 
             // baro2Label
             // 
-            this.baro2Label.AccessibleDescription = null;
-            this.baro2Label.AccessibleName = null;
             resources.ApplyResources(this.baro2Label, "baro2Label");
-            this.baro2Label.Font = null;
             this.baro2Label.Name = "baro2Label";
             // 
             // baroTemp2NumericUpDown
             // 
-            this.baroTemp2NumericUpDown.AccessibleDescription = null;
-            this.baroTemp2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.baroTemp2NumericUpDown, "baroTemp2NumericUpDown");
             this.baroTemp2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1870,16 +1550,11 @@
             // 
             // baroTemp2Label
             // 
-            this.baroTemp2Label.AccessibleDescription = null;
-            this.baroTemp2Label.AccessibleName = null;
             resources.ApplyResources(this.baroTemp2Label, "baroTemp2Label");
-            this.baroTemp2Label.Font = null;
             this.baroTemp2Label.Name = "baroTemp2Label";
             // 
             // compass2NumericUpDown
             // 
-            this.compass2NumericUpDown.AccessibleDescription = null;
-            this.compass2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.compass2NumericUpDown, "compass2NumericUpDown");
             this.compass2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1899,16 +1574,11 @@
             // 
             // compass2label
             // 
-            this.compass2label.AccessibleDescription = null;
-            this.compass2label.AccessibleName = null;
             resources.ApplyResources(this.compass2label, "compass2label");
-            this.compass2label.Font = null;
             this.compass2label.Name = "compass2label";
             // 
             // kamera2NumericUpDown
             // 
-            this.kamera2NumericUpDown.AccessibleDescription = null;
-            this.kamera2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.kamera2NumericUpDown, "kamera2NumericUpDown");
             this.kamera2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1928,16 +1598,11 @@
             // 
             // kamera2Label
             // 
-            this.kamera2Label.AccessibleDescription = null;
-            this.kamera2Label.AccessibleName = null;
             resources.ApplyResources(this.kamera2Label, "kamera2Label");
-            this.kamera2Label.Font = null;
             this.kamera2Label.Name = "kamera2Label";
             // 
             // leerlaufgas2NumericUpDown
             // 
-            this.leerlaufgas2NumericUpDown.AccessibleDescription = null;
-            this.leerlaufgas2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.leerlaufgas2NumericUpDown, "leerlaufgas2NumericUpDown");
             this.leerlaufgas2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1962,16 +1627,11 @@
             // 
             // leerlaufgas2Label
             // 
-            this.leerlaufgas2Label.AccessibleDescription = null;
-            this.leerlaufgas2Label.AccessibleName = null;
             resources.ApplyResources(this.leerlaufgas2Label, "leerlaufgas2Label");
-            this.leerlaufgas2Label.Font = null;
             this.leerlaufgas2Label.Name = "leerlaufgas2Label";
             // 
             // impulseAusgabe2NumericUpDown
             // 
-            this.impulseAusgabe2NumericUpDown.AccessibleDescription = null;
-            this.impulseAusgabe2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.impulseAusgabe2NumericUpDown, "impulseAusgabe2NumericUpDown");
             this.impulseAusgabe2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -1996,18 +1656,12 @@
             // 
             // impulse2Label
             // 
-            this.impulse2Label.AccessibleDescription = null;
-            this.impulse2Label.AccessibleName = null;
             resources.ApplyResources(this.impulse2Label, "impulse2Label");
-            this.impulse2Label.Font = null;
             this.impulse2Label.Name = "impulse2Label";
             // 
             // bit42CheckBox
             // 
-            this.bit42CheckBox.AccessibleDescription = null;
-            this.bit42CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit42CheckBox, "bit42CheckBox");
-            this.bit42CheckBox.BackgroundImage = null;
             this.bit42CheckBox.Name = "bit42CheckBox";
             this.bit42CheckBox.Tag = "16_4";
             this.bit42CheckBox.UseVisualStyleBackColor = true;
@@ -2017,19 +1671,13 @@
             // 
             // bit4Header2Label
             // 
-            this.bit4Header2Label.AccessibleDescription = null;
-            this.bit4Header2Label.AccessibleName = null;
             resources.ApplyResources(this.bit4Header2Label, "bit4Header2Label");
-            this.bit4Header2Label.Font = null;
             this.bit4Header2Label.ForeColor = System.Drawing.Color.Black;
             this.bit4Header2Label.Name = "bit4Header2Label";
             // 
             // bit32CheckBox
             // 
-            this.bit32CheckBox.AccessibleDescription = null;
-            this.bit32CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit32CheckBox, "bit32CheckBox");
-            this.bit32CheckBox.BackgroundImage = null;
             this.bit32CheckBox.Name = "bit32CheckBox";
             this.bit32CheckBox.Tag = "16_3";
             this.bit32CheckBox.UseVisualStyleBackColor = true;
@@ -2039,19 +1687,13 @@
             // 
             // bit3Header2Label
             // 
-            this.bit3Header2Label.AccessibleDescription = null;
-            this.bit3Header2Label.AccessibleName = null;
             resources.ApplyResources(this.bit3Header2Label, "bit3Header2Label");
-            this.bit3Header2Label.Font = null;
             this.bit3Header2Label.ForeColor = System.Drawing.Color.Black;
             this.bit3Header2Label.Name = "bit3Header2Label";
             // 
             // bit22CheckBox
             // 
-            this.bit22CheckBox.AccessibleDescription = null;
-            this.bit22CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit22CheckBox, "bit22CheckBox");
-            this.bit22CheckBox.BackgroundImage = null;
             this.bit22CheckBox.Name = "bit22CheckBox";
             this.bit22CheckBox.Tag = "16_2";
             this.bit22CheckBox.UseVisualStyleBackColor = true;
@@ -2061,19 +1703,13 @@
             // 
             // bit2Header2Label
             // 
-            this.bit2Header2Label.AccessibleDescription = null;
-            this.bit2Header2Label.AccessibleName = null;
             resources.ApplyResources(this.bit2Header2Label, "bit2Header2Label");
-            this.bit2Header2Label.Font = null;
             this.bit2Header2Label.ForeColor = System.Drawing.Color.Black;
             this.bit2Header2Label.Name = "bit2Header2Label";
             // 
             // bit12CheckBox
             // 
-            this.bit12CheckBox.AccessibleDescription = null;
-            this.bit12CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit12CheckBox, "bit12CheckBox");
-            this.bit12CheckBox.BackgroundImage = null;
             this.bit12CheckBox.Name = "bit12CheckBox";
             this.bit12CheckBox.Tag = "16_1";
             this.bit12CheckBox.UseVisualStyleBackColor = true;
@@ -2083,19 +1719,13 @@
             // 
             // bit1Header2Label
             // 
-            this.bit1Header2Label.AccessibleDescription = null;
-            this.bit1Header2Label.AccessibleName = null;
             resources.ApplyResources(this.bit1Header2Label, "bit1Header2Label");
-            this.bit1Header2Label.Font = null;
             this.bit1Header2Label.ForeColor = System.Drawing.Color.Black;
             this.bit1Header2Label.Name = "bit1Header2Label";
             // 
             // bit02CheckBox
             // 
-            this.bit02CheckBox.AccessibleDescription = null;
-            this.bit02CheckBox.AccessibleName = null;
             resources.ApplyResources(this.bit02CheckBox, "bit02CheckBox");
-            this.bit02CheckBox.BackgroundImage = null;
             this.bit02CheckBox.Name = "bit02CheckBox";
             this.bit02CheckBox.Tag = "16_0";
             this.bit02CheckBox.UseVisualStyleBackColor = true;
@@ -2105,46 +1735,31 @@
             // 
             // bit0Header2Label
             // 
-            this.bit0Header2Label.AccessibleDescription = null;
-            this.bit0Header2Label.AccessibleName = null;
             resources.ApplyResources(this.bit0Header2Label, "bit0Header2Label");
-            this.bit0Header2Label.Font = null;
             this.bit0Header2Label.ForeColor = System.Drawing.Color.Black;
             this.bit0Header2Label.Name = "bit0Header2Label";
             // 
             // akku2GroupBox
             // 
-            this.akku2GroupBox.AccessibleDescription = null;
-            this.akku2GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.akku2GroupBox, "akku2GroupBox");
-            this.akku2GroupBox.BackgroundImage = null;
             this.akku2GroupBox.Controls.Add(this.akkuValue2Label);
             this.akku2GroupBox.Controls.Add(this.akku2Label);
             this.akku2GroupBox.Controls.Add(this.akku2NumericUpDown);
-            this.akku2GroupBox.Font = null;
+            resources.ApplyResources(this.akku2GroupBox, "akku2GroupBox");
             this.akku2GroupBox.Name = "akku2GroupBox";
             this.akku2GroupBox.TabStop = false;
             // 
             // akkuValue2Label
             // 
-            this.akkuValue2Label.AccessibleDescription = null;
-            this.akkuValue2Label.AccessibleName = null;
             resources.ApplyResources(this.akkuValue2Label, "akkuValue2Label");
-            this.akkuValue2Label.Font = null;
             this.akkuValue2Label.Name = "akkuValue2Label";
             // 
             // akku2Label
             // 
-            this.akku2Label.AccessibleDescription = null;
-            this.akku2Label.AccessibleName = null;
             resources.ApplyResources(this.akku2Label, "akku2Label");
-            this.akku2Label.Font = null;
             this.akku2Label.Name = "akku2Label";
             // 
             // akku2NumericUpDown
             // 
-            this.akku2NumericUpDown.AccessibleDescription = null;
-            this.akku2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.akku2NumericUpDown, "akku2NumericUpDown");
             this.akku2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2159,10 +1774,6 @@
             // 
             // linear2GroupBox
             // 
-            this.linear2GroupBox.AccessibleDescription = null;
-            this.linear2GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.linear2GroupBox, "linear2GroupBox");
-            this.linear2GroupBox.BackgroundImage = null;
             this.linear2GroupBox.Controls.Add(this.gierA2NumericUpDown);
             this.linear2GroupBox.Controls.Add(this.gierA2Label);
             this.linear2GroupBox.Controls.Add(this.gierMa2NumericUpDown);
@@ -2175,14 +1786,12 @@
             this.linear2GroupBox.Controls.Add(this.rollA2Label);
             this.linear2GroupBox.Controls.Add(this.rollMa2NumericUpDown);
             this.linear2GroupBox.Controls.Add(this.rollMa2Label);
-            this.linear2GroupBox.Font = null;
+            resources.ApplyResources(this.linear2GroupBox, "linear2GroupBox");
             this.linear2GroupBox.Name = "linear2GroupBox";
             this.linear2GroupBox.TabStop = false;
             // 
             // gierA2NumericUpDown
             // 
-            this.gierA2NumericUpDown.AccessibleDescription = null;
-            this.gierA2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierA2NumericUpDown, "gierA2NumericUpDown");
             this.gierA2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2202,16 +1811,11 @@
             // 
             // gierA2Label
             // 
-            this.gierA2Label.AccessibleDescription = null;
-            this.gierA2Label.AccessibleName = null;
             resources.ApplyResources(this.gierA2Label, "gierA2Label");
-            this.gierA2Label.Font = null;
             this.gierA2Label.Name = "gierA2Label";
             // 
             // gierMa2NumericUpDown
             // 
-            this.gierMa2NumericUpDown.AccessibleDescription = null;
-            this.gierMa2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierMa2NumericUpDown, "gierMa2NumericUpDown");
             this.gierMa2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2231,16 +1835,11 @@
             // 
             // gierMa2Label
             // 
-            this.gierMa2Label.AccessibleDescription = null;
-            this.gierMa2Label.AccessibleName = null;
             resources.ApplyResources(this.gierMa2Label, "gierMa2Label");
-            this.gierMa2Label.Font = null;
             this.gierMa2Label.Name = "gierMa2Label";
             // 
             // nickA2NumericUpDown
             // 
-            this.nickA2NumericUpDown.AccessibleDescription = null;
-            this.nickA2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickA2NumericUpDown, "nickA2NumericUpDown");
             this.nickA2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2260,16 +1859,11 @@
             // 
             // nickA2Label
             // 
-            this.nickA2Label.AccessibleDescription = null;
-            this.nickA2Label.AccessibleName = null;
             resources.ApplyResources(this.nickA2Label, "nickA2Label");
-            this.nickA2Label.Font = null;
             this.nickA2Label.Name = "nickA2Label";
             // 
             // nickMa2NumericUpDown
             // 
-            this.nickMa2NumericUpDown.AccessibleDescription = null;
-            this.nickMa2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickMa2NumericUpDown, "nickMa2NumericUpDown");
             this.nickMa2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2289,16 +1883,11 @@
             // 
             // nickMa2Label
             // 
-            this.nickMa2Label.AccessibleDescription = null;
-            this.nickMa2Label.AccessibleName = null;
             resources.ApplyResources(this.nickMa2Label, "nickMa2Label");
-            this.nickMa2Label.Font = null;
             this.nickMa2Label.Name = "nickMa2Label";
             // 
             // rollA2NumericUpDown
             // 
-            this.rollA2NumericUpDown.AccessibleDescription = null;
-            this.rollA2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollA2NumericUpDown, "rollA2NumericUpDown");
             this.rollA2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2318,16 +1907,11 @@
             // 
             // rollA2Label
             // 
-            this.rollA2Label.AccessibleDescription = null;
-            this.rollA2Label.AccessibleName = null;
             resources.ApplyResources(this.rollA2Label, "rollA2Label");
-            this.rollA2Label.Font = null;
             this.rollA2Label.Name = "rollA2Label";
             // 
             // rollMa2NumericUpDown
             // 
-            this.rollMa2NumericUpDown.AccessibleDescription = null;
-            this.rollMa2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollMa2NumericUpDown, "rollMa2NumericUpDown");
             this.rollMa2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2347,18 +1931,11 @@
             // 
             // rollMa2Label
             // 
-            this.rollMa2Label.AccessibleDescription = null;
-            this.rollMa2Label.AccessibleName = null;
             resources.ApplyResources(this.rollMa2Label, "rollMa2Label");
-            this.rollMa2Label.Font = null;
             this.rollMa2Label.Name = "rollMa2Label";
             // 
             // gier2GroupBox
             // 
-            this.gier2GroupBox.AccessibleDescription = null;
-            this.gier2GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.gier2GroupBox, "gier2GroupBox");
-            this.gier2GroupBox.BackgroundImage = null;
             this.gier2GroupBox.Controls.Add(this.gierIntLimit2NumericUpDown);
             this.gier2GroupBox.Controls.Add(this.gierIntLimit2Label);
             this.gier2GroupBox.Controls.Add(this.gierLimit2NumericUpDown);
@@ -2369,14 +1946,12 @@
             this.gier2GroupBox.Controls.Add(this.gierInt2Label);
             this.gier2GroupBox.Controls.Add(this.gierProp2NumericUpDown);
             this.gier2GroupBox.Controls.Add(this.gierProp2Label);
-            this.gier2GroupBox.Font = null;
+            resources.ApplyResources(this.gier2GroupBox, "gier2GroupBox");
             this.gier2GroupBox.Name = "gier2GroupBox";
             this.gier2GroupBox.TabStop = false;
             // 
             // gierIntLimit2NumericUpDown
             // 
-            this.gierIntLimit2NumericUpDown.AccessibleDescription = null;
-            this.gierIntLimit2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierIntLimit2NumericUpDown, "gierIntLimit2NumericUpDown");
             this.gierIntLimit2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2401,16 +1976,11 @@
             // 
             // gierIntLimit2Label
             // 
-            this.gierIntLimit2Label.AccessibleDescription = null;
-            this.gierIntLimit2Label.AccessibleName = null;
             resources.ApplyResources(this.gierIntLimit2Label, "gierIntLimit2Label");
-            this.gierIntLimit2Label.Font = null;
             this.gierIntLimit2Label.Name = "gierIntLimit2Label";
             // 
             // gierLimit2NumericUpDown
             // 
-            this.gierLimit2NumericUpDown.AccessibleDescription = null;
-            this.gierLimit2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierLimit2NumericUpDown, "gierLimit2NumericUpDown");
             this.gierLimit2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2435,16 +2005,11 @@
             // 
             // gierLimit2Label
             // 
-            this.gierLimit2Label.AccessibleDescription = null;
-            this.gierLimit2Label.AccessibleName = null;
             resources.ApplyResources(this.gierLimit2Label, "gierLimit2Label");
-            this.gierLimit2Label.Font = null;
             this.gierLimit2Label.Name = "gierLimit2Label";
             // 
             // gierDiff2NumericUpDown
             // 
-            this.gierDiff2NumericUpDown.AccessibleDescription = null;
-            this.gierDiff2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierDiff2NumericUpDown, "gierDiff2NumericUpDown");
             this.gierDiff2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2464,16 +2029,11 @@
             // 
             // gierDiff2Label
             // 
-            this.gierDiff2Label.AccessibleDescription = null;
-            this.gierDiff2Label.AccessibleName = null;
             resources.ApplyResources(this.gierDiff2Label, "gierDiff2Label");
-            this.gierDiff2Label.Font = null;
             this.gierDiff2Label.Name = "gierDiff2Label";
             // 
             // gierInt2NumericUpDown
             // 
-            this.gierInt2NumericUpDown.AccessibleDescription = null;
-            this.gierInt2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierInt2NumericUpDown, "gierInt2NumericUpDown");
             this.gierInt2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2493,16 +2053,11 @@
             // 
             // gierInt2Label
             // 
-            this.gierInt2Label.AccessibleDescription = null;
-            this.gierInt2Label.AccessibleName = null;
             resources.ApplyResources(this.gierInt2Label, "gierInt2Label");
-            this.gierInt2Label.Font = null;
             this.gierInt2Label.Name = "gierInt2Label";
             // 
             // gierProp2NumericUpDown
             // 
-            this.gierProp2NumericUpDown.AccessibleDescription = null;
-            this.gierProp2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.gierProp2NumericUpDown, "gierProp2NumericUpDown");
             this.gierProp2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2522,18 +2077,11 @@
             // 
             // gierProp2Label
             // 
-            this.gierProp2Label.AccessibleDescription = null;
-            this.gierProp2Label.AccessibleName = null;
             resources.ApplyResources(this.gierProp2Label, "gierProp2Label");
-            this.gierProp2Label.Font = null;
             this.gierProp2Label.Name = "gierProp2Label";
             // 
             // nick2GroupBox
             // 
-            this.nick2GroupBox.AccessibleDescription = null;
-            this.nick2GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.nick2GroupBox, "nick2GroupBox");
-            this.nick2GroupBox.BackgroundImage = null;
             this.nick2GroupBox.Controls.Add(this.nickIntLimit2NumericUpDown);
             this.nick2GroupBox.Controls.Add(this.nickIntLimit2Label);
             this.nick2GroupBox.Controls.Add(this.nickLimit2NumericUpDown);
@@ -2544,14 +2092,12 @@
             this.nick2GroupBox.Controls.Add(this.nickInt2Label);
             this.nick2GroupBox.Controls.Add(this.nickProp2NumericUpDown);
             this.nick2GroupBox.Controls.Add(this.nickProp2Label);
-            this.nick2GroupBox.Font = null;
+            resources.ApplyResources(this.nick2GroupBox, "nick2GroupBox");
             this.nick2GroupBox.Name = "nick2GroupBox";
             this.nick2GroupBox.TabStop = false;
             // 
             // nickIntLimit2NumericUpDown
             // 
-            this.nickIntLimit2NumericUpDown.AccessibleDescription = null;
-            this.nickIntLimit2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickIntLimit2NumericUpDown, "nickIntLimit2NumericUpDown");
             this.nickIntLimit2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2576,16 +2122,11 @@
             // 
             // nickIntLimit2Label
             // 
-            this.nickIntLimit2Label.AccessibleDescription = null;
-            this.nickIntLimit2Label.AccessibleName = null;
             resources.ApplyResources(this.nickIntLimit2Label, "nickIntLimit2Label");
-            this.nickIntLimit2Label.Font = null;
             this.nickIntLimit2Label.Name = "nickIntLimit2Label";
             // 
             // nickLimit2NumericUpDown
             // 
-            this.nickLimit2NumericUpDown.AccessibleDescription = null;
-            this.nickLimit2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickLimit2NumericUpDown, "nickLimit2NumericUpDown");
             this.nickLimit2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2610,16 +2151,11 @@
             // 
             // nickLimit2Label
             // 
-            this.nickLimit2Label.AccessibleDescription = null;
-            this.nickLimit2Label.AccessibleName = null;
             resources.ApplyResources(this.nickLimit2Label, "nickLimit2Label");
-            this.nickLimit2Label.Font = null;
             this.nickLimit2Label.Name = "nickLimit2Label";
             // 
             // nickDiff2NumericUpDown
             // 
-            this.nickDiff2NumericUpDown.AccessibleDescription = null;
-            this.nickDiff2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickDiff2NumericUpDown, "nickDiff2NumericUpDown");
             this.nickDiff2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2639,16 +2175,11 @@
             // 
             // nickDiff2Label
             // 
-            this.nickDiff2Label.AccessibleDescription = null;
-            this.nickDiff2Label.AccessibleName = null;
             resources.ApplyResources(this.nickDiff2Label, "nickDiff2Label");
-            this.nickDiff2Label.Font = null;
             this.nickDiff2Label.Name = "nickDiff2Label";
             // 
             // nickInt2NumericUpDown
             // 
-            this.nickInt2NumericUpDown.AccessibleDescription = null;
-            this.nickInt2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickInt2NumericUpDown, "nickInt2NumericUpDown");
             this.nickInt2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2668,16 +2199,11 @@
             // 
             // nickInt2Label
             // 
-            this.nickInt2Label.AccessibleDescription = null;
-            this.nickInt2Label.AccessibleName = null;
             resources.ApplyResources(this.nickInt2Label, "nickInt2Label");
-            this.nickInt2Label.Font = null;
             this.nickInt2Label.Name = "nickInt2Label";
             // 
             // nickProp2NumericUpDown
             // 
-            this.nickProp2NumericUpDown.AccessibleDescription = null;
-            this.nickProp2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.nickProp2NumericUpDown, "nickProp2NumericUpDown");
             this.nickProp2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2697,18 +2223,11 @@
             // 
             // nickProp2Label
             // 
-            this.nickProp2Label.AccessibleDescription = null;
-            this.nickProp2Label.AccessibleName = null;
             resources.ApplyResources(this.nickProp2Label, "nickProp2Label");
-            this.nickProp2Label.Font = null;
             this.nickProp2Label.Name = "nickProp2Label";
             // 
             // roll2GroupBox
             // 
-            this.roll2GroupBox.AccessibleDescription = null;
-            this.roll2GroupBox.AccessibleName = null;
-            resources.ApplyResources(this.roll2GroupBox, "roll2GroupBox");
-            this.roll2GroupBox.BackgroundImage = null;
             this.roll2GroupBox.Controls.Add(this.rollIntLimit2NumericUpDown);
             this.roll2GroupBox.Controls.Add(this.rollIntLimit2Label);
             this.roll2GroupBox.Controls.Add(this.rollLimit2NumericUpDown);
@@ -2719,14 +2238,12 @@
             this.roll2GroupBox.Controls.Add(this.rollInt2Label);
             this.roll2GroupBox.Controls.Add(this.rollProp2NumericUpDown);
             this.roll2GroupBox.Controls.Add(this.rollProp2Label);
-            this.roll2GroupBox.Font = null;
+            resources.ApplyResources(this.roll2GroupBox, "roll2GroupBox");
             this.roll2GroupBox.Name = "roll2GroupBox";
             this.roll2GroupBox.TabStop = false;
             // 
             // rollIntLimit2NumericUpDown
             // 
-            this.rollIntLimit2NumericUpDown.AccessibleDescription = null;
-            this.rollIntLimit2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollIntLimit2NumericUpDown, "rollIntLimit2NumericUpDown");
             this.rollIntLimit2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2751,16 +2268,11 @@
             // 
             // rollIntLimit2Label
             // 
-            this.rollIntLimit2Label.AccessibleDescription = null;
-            this.rollIntLimit2Label.AccessibleName = null;
             resources.ApplyResources(this.rollIntLimit2Label, "rollIntLimit2Label");
-            this.rollIntLimit2Label.Font = null;
             this.rollIntLimit2Label.Name = "rollIntLimit2Label";
             // 
             // rollLimit2NumericUpDown
             // 
-            this.rollLimit2NumericUpDown.AccessibleDescription = null;
-            this.rollLimit2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollLimit2NumericUpDown, "rollLimit2NumericUpDown");
             this.rollLimit2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2785,16 +2297,11 @@
             // 
             // rollLimit2Label
             // 
-            this.rollLimit2Label.AccessibleDescription = null;
-            this.rollLimit2Label.AccessibleName = null;
             resources.ApplyResources(this.rollLimit2Label, "rollLimit2Label");
-            this.rollLimit2Label.Font = null;
             this.rollLimit2Label.Name = "rollLimit2Label";
             // 
             // rollDiff2NumericUpDown
             // 
-            this.rollDiff2NumericUpDown.AccessibleDescription = null;
-            this.rollDiff2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollDiff2NumericUpDown, "rollDiff2NumericUpDown");
             this.rollDiff2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2814,16 +2321,11 @@
             // 
             // rollDiff2Label
             // 
-            this.rollDiff2Label.AccessibleDescription = null;
-            this.rollDiff2Label.AccessibleName = null;
             resources.ApplyResources(this.rollDiff2Label, "rollDiff2Label");
-            this.rollDiff2Label.Font = null;
             this.rollDiff2Label.Name = "rollDiff2Label";
             // 
             // rollInt2NumericUpDown
             // 
-            this.rollInt2NumericUpDown.AccessibleDescription = null;
-            this.rollInt2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollInt2NumericUpDown, "rollInt2NumericUpDown");
             this.rollInt2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2843,16 +2345,11 @@
             // 
             // rollInt2Label
             // 
-            this.rollInt2Label.AccessibleDescription = null;
-            this.rollInt2Label.AccessibleName = null;
             resources.ApplyResources(this.rollInt2Label, "rollInt2Label");
-            this.rollInt2Label.Font = null;
             this.rollInt2Label.Name = "rollInt2Label";
             // 
             // rollProp2NumericUpDown
             // 
-            this.rollProp2NumericUpDown.AccessibleDescription = null;
-            this.rollProp2NumericUpDown.AccessibleName = null;
             resources.ApplyResources(this.rollProp2NumericUpDown, "rollProp2NumericUpDown");
             this.rollProp2NumericUpDown.Maximum = new decimal(new int[] {
             99,
@@ -2872,19 +2369,37 @@
             // 
             // rollProp2Label
             // 
-            this.rollProp2Label.AccessibleDescription = null;
-            this.rollProp2Label.AccessibleName = null;
             resources.ApplyResources(this.rollProp2Label, "rollProp2Label");
-            this.rollProp2Label.Font = null;
             this.rollProp2Label.Name = "rollProp2Label";
+            // 
+            // configToolStrip
+            // 
+            resources.ApplyResources(this.configToolStrip, "configToolStrip");
+            this.configToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.comPortToolStripComboBox,
+            this.versionToolStripComboBox});
+            this.configToolStrip.Name = "configToolStrip";
+            // 
+            // comPortToolStripComboBox
+            // 
+            this.comPortToolStripComboBox.Name = "comPortToolStripComboBox";
+            resources.ApplyResources(this.comPortToolStripComboBox, "comPortToolStripComboBox");
+            this.comPortToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.comPortToolStripComboBox_SelectedIndexChanged);
+            // 
+            // versionToolStripComboBox
+            // 
+            this.versionToolStripComboBox.Items.AddRange(new object[] {
+            resources.GetString("versionToolStripComboBox.Items"),
+            resources.GetString("versionToolStripComboBox.Items1"),
+            resources.GetString("versionToolStripComboBox.Items2"),
+            resources.GetString("versionToolStripComboBox.Items3")});
+            this.versionToolStripComboBox.Name = "versionToolStripComboBox";
+            resources.ApplyResources(this.versionToolStripComboBox, "versionToolStripComboBox");
+            this.versionToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.versionToolStripComboBox_SelectedIndexChanged);
             // 
             // toolStripMain
             // 
-            this.toolStripMain.AccessibleDescription = null;
-            this.toolStripMain.AccessibleName = null;
             resources.ApplyResources(this.toolStripMain, "toolStripMain");
-            this.toolStripMain.BackgroundImage = null;
-            this.toolStripMain.Font = null;
             this.toolStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton1,
             this.toolStripButton2,
@@ -2895,238 +2410,137 @@
             // 
             // toolStripButton1
             // 
-            this.toolStripButton1.AccessibleDescription = null;
-            this.toolStripButton1.AccessibleName = null;
-            resources.ApplyResources(this.toolStripButton1, "toolStripButton1");
-            this.toolStripButton1.BackgroundImage = null;
             this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton1.Image = global::UAVP.UAVPSet.Properties.Resources.dateioeffnen;
+            resources.ApplyResources(this.toolStripButton1, "toolStripButton1");
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Click += new System.EventHandler(this.configLadenToolStripMenuItem_Click);
             // 
             // toolStripButton2
             // 
-            this.toolStripButton2.AccessibleDescription = null;
-            this.toolStripButton2.AccessibleName = null;
-            resources.ApplyResources(this.toolStripButton2, "toolStripButton2");
-            this.toolStripButton2.BackgroundImage = null;
             this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton2.Image = global::UAVP.UAVPSet.Properties.Resources.dateispeichern;
+            resources.ApplyResources(this.toolStripButton2, "toolStripButton2");
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Click += new System.EventHandler(this.configSpeichernToolStripMenuItem_Click);
             // 
             // toolStripButton3
             // 
-            this.toolStripButton3.AccessibleDescription = null;
-            this.toolStripButton3.AccessibleName = null;
-            resources.ApplyResources(this.toolStripButton3, "toolStripButton3");
-            this.toolStripButton3.BackgroundImage = null;
             this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton3.Image = global::UAVP.UAVPSet.Properties.Resources.eigenschaften;
+            resources.ApplyResources(this.toolStripButton3, "toolStripButton3");
             this.toolStripButton3.Name = "toolStripButton3";
             this.toolStripButton3.Click += new System.EventHandler(this.cOMPortToolStripMenuItem_Click);
             // 
             // burnPicToolStripButton
             // 
-            this.burnPicToolStripButton.AccessibleDescription = null;
-            this.burnPicToolStripButton.AccessibleName = null;
-            resources.ApplyResources(this.burnPicToolStripButton, "burnPicToolStripButton");
-            this.burnPicToolStripButton.BackgroundImage = null;
             this.burnPicToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.burnPicToolStripButton.Image = global::UAVP.UAVPSet.Properties.Resources.burn;
+            resources.ApplyResources(this.burnPicToolStripButton, "burnPicToolStripButton");
             this.burnPicToolStripButton.Name = "burnPicToolStripButton";
             this.burnPicToolStripButton.Click += new System.EventHandler(this.burnPicToolStripMenuItem_Click);
             // 
             // toolStripSplitButton1
             // 
-            this.toolStripSplitButton1.AccessibleDescription = null;
-            this.toolStripSplitButton1.AccessibleName = null;
-            resources.ApplyResources(this.toolStripSplitButton1, "toolStripSplitButton1");
-            this.toolStripSplitButton1.BackgroundImage = null;
             this.toolStripSplitButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripSplitButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.set1Set2ToolStripMenuItem,
             this.set2Set1ToolStripMenuItem});
+            resources.ApplyResources(this.toolStripSplitButton1, "toolStripSplitButton1");
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
             // 
             // set1Set2ToolStripMenuItem
             // 
-            this.set1Set2ToolStripMenuItem.AccessibleDescription = null;
-            this.set1Set2ToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.set1Set2ToolStripMenuItem, "set1Set2ToolStripMenuItem");
-            this.set1Set2ToolStripMenuItem.BackgroundImage = null;
             this.set1Set2ToolStripMenuItem.Name = "set1Set2ToolStripMenuItem";
-            this.set1Set2ToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.set1Set2ToolStripMenuItem, "set1Set2ToolStripMenuItem");
             this.set1Set2ToolStripMenuItem.Click += new System.EventHandler(this.set1Set2ToolStripMenuItem_Click);
             // 
             // set2Set1ToolStripMenuItem
             // 
-            this.set2Set1ToolStripMenuItem.AccessibleDescription = null;
-            this.set2Set1ToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.set2Set1ToolStripMenuItem, "set2Set1ToolStripMenuItem");
-            this.set2Set1ToolStripMenuItem.BackgroundImage = null;
             this.set2Set1ToolStripMenuItem.Name = "set2Set1ToolStripMenuItem";
-            this.set2Set1ToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.set2Set1ToolStripMenuItem, "set2Set1ToolStripMenuItem");
             this.set2Set1ToolStripMenuItem.Click += new System.EventHandler(this.set2Set1ToolStripMenuItem_Click);
-            // 
-            // configToolStrip
-            // 
-            this.configToolStrip.AccessibleDescription = null;
-            this.configToolStrip.AccessibleName = null;
-            resources.ApplyResources(this.configToolStrip, "configToolStrip");
-            this.configToolStrip.BackgroundImage = null;
-            this.configToolStrip.Font = null;
-            this.configToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.comPortToolStripComboBox,
-            this.versionToolStripComboBox});
-            this.configToolStrip.Name = "configToolStrip";
-            // 
-            // comPortToolStripComboBox
-            // 
-            this.comPortToolStripComboBox.AccessibleDescription = null;
-            this.comPortToolStripComboBox.AccessibleName = null;
-            resources.ApplyResources(this.comPortToolStripComboBox, "comPortToolStripComboBox");
-            this.comPortToolStripComboBox.Name = "comPortToolStripComboBox";
-            this.comPortToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.comPortToolStripComboBox_SelectedIndexChanged);
-            // 
-            // versionToolStripComboBox
-            // 
-            this.versionToolStripComboBox.AccessibleDescription = null;
-            this.versionToolStripComboBox.AccessibleName = null;
-            resources.ApplyResources(this.versionToolStripComboBox, "versionToolStripComboBox");
-            this.versionToolStripComboBox.Items.AddRange(new object[] {
-            resources.GetString("versionToolStripComboBox.Items"),
-            resources.GetString("versionToolStripComboBox.Items1"),
-            resources.GetString("versionToolStripComboBox.Items2"),
-            resources.GetString("versionToolStripComboBox.Items3")});
-            this.versionToolStripComboBox.Name = "versionToolStripComboBox";
-            this.versionToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.versionToolStripComboBox_SelectedIndexChanged);
             // 
             // statusStripMainWindow
             // 
-            this.statusStripMainWindow.AccessibleDescription = null;
-            this.statusStripMainWindow.AccessibleName = null;
-            resources.ApplyResources(this.statusStripMainWindow, "statusStripMainWindow");
-            this.statusStripMainWindow.BackgroundImage = null;
-            this.statusStripMainWindow.Font = null;
             this.statusStripMainWindow.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.infoleisteToolStripStatusLabel,
             this.toolStripProgressBar});
+            resources.ApplyResources(this.statusStripMainWindow, "statusStripMainWindow");
             this.statusStripMainWindow.Name = "statusStripMainWindow";
             // 
             // infoleisteToolStripStatusLabel
             // 
-            this.infoleisteToolStripStatusLabel.AccessibleDescription = null;
-            this.infoleisteToolStripStatusLabel.AccessibleName = null;
-            resources.ApplyResources(this.infoleisteToolStripStatusLabel, "infoleisteToolStripStatusLabel");
-            this.infoleisteToolStripStatusLabel.BackgroundImage = null;
             this.infoleisteToolStripStatusLabel.Name = "infoleisteToolStripStatusLabel";
+            resources.ApplyResources(this.infoleisteToolStripStatusLabel, "infoleisteToolStripStatusLabel");
             // 
             // toolStripProgressBar
             // 
-            this.toolStripProgressBar.AccessibleDescription = null;
-            this.toolStripProgressBar.AccessibleName = null;
-            resources.ApplyResources(this.toolStripProgressBar, "toolStripProgressBar");
             this.toolStripProgressBar.Name = "toolStripProgressBar";
+            resources.ApplyResources(this.toolStripProgressBar, "toolStripProgressBar");
             // 
             // menuStripMainWindow
             // 
-            this.menuStripMainWindow.AccessibleDescription = null;
-            this.menuStripMainWindow.AccessibleName = null;
-            resources.ApplyResources(this.menuStripMainWindow, "menuStripMainWindow");
-            this.menuStripMainWindow.BackgroundImage = null;
-            this.menuStripMainWindow.Font = null;
             this.menuStripMainWindow.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.configurationToolStripMenuItem,
             this.befehleToolStripMenuItem,
             this.toolsToolStripMenuItem,
             this.toolStripMenuItem1});
+            resources.ApplyResources(this.menuStripMainWindow, "menuStripMainWindow");
             this.menuStripMainWindow.Name = "menuStripMainWindow";
             // 
             // fileToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.AccessibleDescription = null;
-            this.fileToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.fileToolStripMenuItem, "fileToolStripMenuItem");
-            this.fileToolStripMenuItem.BackgroundImage = null;
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.configLadenToolStripMenuItem,
             this.configSpeichernToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.fileToolStripMenuItem, "fileToolStripMenuItem");
             // 
             // configLadenToolStripMenuItem
             // 
-            this.configLadenToolStripMenuItem.AccessibleDescription = null;
-            this.configLadenToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.configLadenToolStripMenuItem, "configLadenToolStripMenuItem");
-            this.configLadenToolStripMenuItem.BackgroundImage = null;
             this.configLadenToolStripMenuItem.Image = global::UAVP.UAVPSet.Properties.Resources.dateioeffnen;
             this.configLadenToolStripMenuItem.Name = "configLadenToolStripMenuItem";
-            this.configLadenToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.configLadenToolStripMenuItem, "configLadenToolStripMenuItem");
             this.configLadenToolStripMenuItem.Click += new System.EventHandler(this.configLadenToolStripMenuItem_Click);
             // 
             // configSpeichernToolStripMenuItem
             // 
-            this.configSpeichernToolStripMenuItem.AccessibleDescription = null;
-            this.configSpeichernToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.configSpeichernToolStripMenuItem, "configSpeichernToolStripMenuItem");
-            this.configSpeichernToolStripMenuItem.BackgroundImage = null;
             this.configSpeichernToolStripMenuItem.Image = global::UAVP.UAVPSet.Properties.Resources.dateispeichern;
             this.configSpeichernToolStripMenuItem.Name = "configSpeichernToolStripMenuItem";
-            this.configSpeichernToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.configSpeichernToolStripMenuItem, "configSpeichernToolStripMenuItem");
             this.configSpeichernToolStripMenuItem.Click += new System.EventHandler(this.configSpeichernToolStripMenuItem_Click);
             // 
             // configurationToolStripMenuItem
             // 
-            this.configurationToolStripMenuItem.AccessibleDescription = null;
-            this.configurationToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.configurationToolStripMenuItem, "configurationToolStripMenuItem");
-            this.configurationToolStripMenuItem.BackgroundImage = null;
             this.configurationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cOMPortToolStripMenuItem,
             this.logLevelToolStripMenuItem,
             this.miscellaneousToolStripMenuItem});
             this.configurationToolStripMenuItem.Name = "configurationToolStripMenuItem";
-            this.configurationToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.configurationToolStripMenuItem, "configurationToolStripMenuItem");
             // 
             // cOMPortToolStripMenuItem
             // 
-            this.cOMPortToolStripMenuItem.AccessibleDescription = null;
-            this.cOMPortToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.cOMPortToolStripMenuItem, "cOMPortToolStripMenuItem");
-            this.cOMPortToolStripMenuItem.BackgroundImage = null;
             this.cOMPortToolStripMenuItem.Name = "cOMPortToolStripMenuItem";
-            this.cOMPortToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.cOMPortToolStripMenuItem, "cOMPortToolStripMenuItem");
             this.cOMPortToolStripMenuItem.Click += new System.EventHandler(this.cOMPortToolStripMenuItem_Click);
             // 
             // logLevelToolStripMenuItem
             // 
-            this.logLevelToolStripMenuItem.AccessibleDescription = null;
-            this.logLevelToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.logLevelToolStripMenuItem, "logLevelToolStripMenuItem");
-            this.logLevelToolStripMenuItem.BackgroundImage = null;
             this.logLevelToolStripMenuItem.Name = "logLevelToolStripMenuItem";
-            this.logLevelToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.logLevelToolStripMenuItem, "logLevelToolStripMenuItem");
             this.logLevelToolStripMenuItem.Click += new System.EventHandler(this.logLevelToolStripMenuItem_Click);
             // 
             // miscellaneousToolStripMenuItem
             // 
-            this.miscellaneousToolStripMenuItem.AccessibleDescription = null;
-            this.miscellaneousToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.miscellaneousToolStripMenuItem, "miscellaneousToolStripMenuItem");
-            this.miscellaneousToolStripMenuItem.BackgroundImage = null;
             this.miscellaneousToolStripMenuItem.Name = "miscellaneousToolStripMenuItem";
-            this.miscellaneousToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.miscellaneousToolStripMenuItem, "miscellaneousToolStripMenuItem");
             this.miscellaneousToolStripMenuItem.Click += new System.EventHandler(this.miscellaneousToolStripMenuItem_Click);
             // 
             // befehleToolStripMenuItem
             // 
-            this.befehleToolStripMenuItem.AccessibleDescription = null;
-            this.befehleToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.befehleToolStripMenuItem, "befehleToolStripMenuItem");
-            this.befehleToolStripMenuItem.BackgroundImage = null;
             this.befehleToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectToolStripMenuItem,
             this.parameterToolStripMenuItem,
@@ -3136,166 +2550,98 @@
             this.peceiverToolStripMenuItem,
             this.burnPicToolStripMenuItem});
             this.befehleToolStripMenuItem.Name = "befehleToolStripMenuItem";
-            this.befehleToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.befehleToolStripMenuItem, "befehleToolStripMenuItem");
             // 
             // connectToolStripMenuItem
             // 
-            this.connectToolStripMenuItem.AccessibleDescription = null;
-            this.connectToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.connectToolStripMenuItem, "connectToolStripMenuItem");
-            this.connectToolStripMenuItem.BackgroundImage = null;
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
-            this.connectToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.connectToolStripMenuItem, "connectToolStripMenuItem");
             this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
             // 
             // parameterToolStripMenuItem
             // 
-            this.parameterToolStripMenuItem.AccessibleDescription = null;
-            this.parameterToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.parameterToolStripMenuItem, "parameterToolStripMenuItem");
-            this.parameterToolStripMenuItem.BackgroundImage = null;
             this.parameterToolStripMenuItem.Name = "parameterToolStripMenuItem";
-            this.parameterToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.parameterToolStripMenuItem, "parameterToolStripMenuItem");
             this.parameterToolStripMenuItem.Click += new System.EventHandler(this.parameterToolStripMenuItem_Click);
             // 
             // readConfigToolStripMenuItem
             // 
-            this.readConfigToolStripMenuItem.AccessibleDescription = null;
-            this.readConfigToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.readConfigToolStripMenuItem, "readConfigToolStripMenuItem");
-            this.readConfigToolStripMenuItem.BackgroundImage = null;
             this.readConfigToolStripMenuItem.Name = "readConfigToolStripMenuItem";
-            this.readConfigToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.readConfigToolStripMenuItem, "readConfigToolStripMenuItem");
             this.readConfigToolStripMenuItem.Click += new System.EventHandler(this.readConfigToolStripMenuItem_Click);
             // 
             // writeConfigToolStripMenuItem
             // 
-            this.writeConfigToolStripMenuItem.AccessibleDescription = null;
-            this.writeConfigToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.writeConfigToolStripMenuItem, "writeConfigToolStripMenuItem");
-            this.writeConfigToolStripMenuItem.BackgroundImage = null;
             this.writeConfigToolStripMenuItem.Name = "writeConfigToolStripMenuItem";
-            this.writeConfigToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.writeConfigToolStripMenuItem, "writeConfigToolStripMenuItem");
             this.writeConfigToolStripMenuItem.Click += new System.EventHandler(this.writeConfigToolStripMenuItem_Click);
             // 
             // neutralToolStripMenuItem
             // 
-            this.neutralToolStripMenuItem.AccessibleDescription = null;
-            this.neutralToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.neutralToolStripMenuItem, "neutralToolStripMenuItem");
-            this.neutralToolStripMenuItem.BackgroundImage = null;
             this.neutralToolStripMenuItem.Name = "neutralToolStripMenuItem";
-            this.neutralToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.neutralToolStripMenuItem, "neutralToolStripMenuItem");
             this.neutralToolStripMenuItem.Click += new System.EventHandler(this.neutralToolStripMenuItem_Click);
             // 
             // peceiverToolStripMenuItem
             // 
-            this.peceiverToolStripMenuItem.AccessibleDescription = null;
-            this.peceiverToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.peceiverToolStripMenuItem, "peceiverToolStripMenuItem");
-            this.peceiverToolStripMenuItem.BackgroundImage = null;
             this.peceiverToolStripMenuItem.Name = "peceiverToolStripMenuItem";
-            this.peceiverToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.peceiverToolStripMenuItem, "peceiverToolStripMenuItem");
             this.peceiverToolStripMenuItem.Click += new System.EventHandler(this.peceiverToolStripMenuItem_Click);
             // 
             // burnPicToolStripMenuItem
             // 
-            this.burnPicToolStripMenuItem.AccessibleDescription = null;
-            this.burnPicToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.burnPicToolStripMenuItem, "burnPicToolStripMenuItem");
-            this.burnPicToolStripMenuItem.BackgroundImage = null;
             this.burnPicToolStripMenuItem.Image = global::UAVP.UAVPSet.Properties.Resources.burn;
             this.burnPicToolStripMenuItem.Name = "burnPicToolStripMenuItem";
-            this.burnPicToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.burnPicToolStripMenuItem, "burnPicToolStripMenuItem");
             this.burnPicToolStripMenuItem.Click += new System.EventHandler(this.burnPicToolStripMenuItem_Click);
             // 
             // toolsToolStripMenuItem
             // 
-            this.toolsToolStripMenuItem.AccessibleDescription = null;
-            this.toolsToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.toolsToolStripMenuItem, "toolsToolStripMenuItem");
-            this.toolsToolStripMenuItem.BackgroundImage = null;
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.parameterToolStripMenuItem1,
             this.testsoftwareToolStripMenuItem,
             this.debugToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.toolsToolStripMenuItem, "toolsToolStripMenuItem");
             // 
             // parameterToolStripMenuItem1
             // 
-            this.parameterToolStripMenuItem1.AccessibleDescription = null;
-            this.parameterToolStripMenuItem1.AccessibleName = null;
-            resources.ApplyResources(this.parameterToolStripMenuItem1, "parameterToolStripMenuItem1");
-            this.parameterToolStripMenuItem1.BackgroundImage = null;
             this.parameterToolStripMenuItem1.Name = "parameterToolStripMenuItem1";
-            this.parameterToolStripMenuItem1.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.parameterToolStripMenuItem1, "parameterToolStripMenuItem1");
             this.parameterToolStripMenuItem1.Click += new System.EventHandler(this.parameterToolStripMenuItem1_Click_1);
             // 
             // testsoftwareToolStripMenuItem
             // 
-            this.testsoftwareToolStripMenuItem.AccessibleDescription = null;
-            this.testsoftwareToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.testsoftwareToolStripMenuItem, "testsoftwareToolStripMenuItem");
-            this.testsoftwareToolStripMenuItem.BackgroundImage = null;
             this.testsoftwareToolStripMenuItem.Name = "testsoftwareToolStripMenuItem";
-            this.testsoftwareToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.testsoftwareToolStripMenuItem, "testsoftwareToolStripMenuItem");
             this.testsoftwareToolStripMenuItem.Click += new System.EventHandler(this.testsoftwareToolStripMenuItem_Click);
             // 
             // debugToolStripMenuItem
             // 
-            this.debugToolStripMenuItem.AccessibleDescription = null;
-            this.debugToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.debugToolStripMenuItem, "debugToolStripMenuItem");
-            this.debugToolStripMenuItem.BackgroundImage = null;
             this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
-            this.debugToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.debugToolStripMenuItem, "debugToolStripMenuItem");
             this.debugToolStripMenuItem.Click += new System.EventHandler(this.debugToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
-            this.toolStripMenuItem1.AccessibleDescription = null;
-            this.toolStripMenuItem1.AccessibleName = null;
-            resources.ApplyResources(this.toolStripMenuItem1, "toolStripMenuItem1");
-            this.toolStripMenuItem1.BackgroundImage = null;
             this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.infoToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.toolStripMenuItem1, "toolStripMenuItem1");
             // 
             // infoToolStripMenuItem
             // 
-            this.infoToolStripMenuItem.AccessibleDescription = null;
-            this.infoToolStripMenuItem.AccessibleName = null;
-            resources.ApplyResources(this.infoToolStripMenuItem, "infoToolStripMenuItem");
-            this.infoToolStripMenuItem.BackgroundImage = null;
             this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
-            this.infoToolStripMenuItem.ShortcutKeyDisplayString = null;
+            resources.ApplyResources(this.infoToolStripMenuItem, "infoToolStripMenuItem");
             this.infoToolStripMenuItem.Click += new System.EventHandler(this.infoToolStripMenuItem_Click);
-            // 
-            // parameterOpenFileDialog
-            // 
-            resources.ApplyResources(this.parameterOpenFileDialog, "parameterOpenFileDialog");
-            // 
-            // parameterSaveFileDialog
-            // 
-            resources.ApplyResources(this.parameterSaveFileDialog, "parameterSaveFileDialog");
-            // 
-            // hexOpenFileDialog
-            // 
-            resources.ApplyResources(this.hexOpenFileDialog, "hexOpenFileDialog");
             // 
             // FormMain
             // 
-            this.AccessibleDescription = null;
-            this.AccessibleName = null;
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackgroundImage = null;
             this.Controls.Add(this.toolStripContainerMainWindow);
             this.Controls.Add(this.statusStripMainWindow);
             this.Controls.Add(this.menuStripMainWindow);
-            this.Font = null;
             this.MainMenuStrip = this.menuStripMainWindow;
             this.Name = "FormMain";
             this.Deactivate += new System.EventHandler(this.FormMain_Deactivate);
@@ -3401,10 +2747,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.rollDiff2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.rollInt2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.rollProp2NumericUpDown)).EndInit();
-            this.toolStripMain.ResumeLayout(false);
-            this.toolStripMain.PerformLayout();
             this.configToolStrip.ResumeLayout(false);
             this.configToolStrip.PerformLayout();
+            this.toolStripMain.ResumeLayout(false);
+            this.toolStripMain.PerformLayout();
             this.statusStripMainWindow.ResumeLayout(false);
             this.statusStripMainWindow.PerformLayout();
             this.menuStripMainWindow.ResumeLayout(false);
