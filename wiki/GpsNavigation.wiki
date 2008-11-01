@@ -8,21 +8,22 @@ First off, the official UAVP project is also working on adding GPS support. This
 == What is involved? ==
    * (Done) Choose a GPS unit
       * Etek EB-85A (aka FV-M8) is the recommended GPS unit.
+      * Since we plan on supporting NMEA, other GPS units will be supported as well.
       * Available here for about $82: http://www.dpcav.com/xcart/product.php?productid=16161
       * Sometimes available for $55: http://www.ohararp.com/products.html
       * Available here for $99: http://www.sparkfun.com/commerce/product_info.php?products_id=8266
-   * To expand or not to expand
-      * Many people have commented that the current processor doesn't have much room or many cycles to spare. Should we consider developing a daughterboard? Or using something like the Surveyor SRV-1 Blackfin camera module?
-   * Parse NMEA sentences or some binary GPS format
+   * Ways forward:
+      * Use the 18F2520 PIC instead of the current 876 (See AlternateFirmware): This is the approach that is the farthest along.
+      * Use the existing PIC: This is challenging due to compiler and space restrictions and is currently not being pursued.
+      * Use another processor: Other options include an ARM processor, an Atmel processor, etc.
+      * Create a daughterboard: This is the approach chosen by the Mikrokopter.
+   * Parse NMEA sentences
       * In order to know where we are, we need to be able to read the information given to us by the GPS.
-      * NMEA is a textual format that most GPS receivers can output. This may require more processing cycles than a binary format. The trouble with binary formats is that not all GPS units support that same binary format. Standardizing on a GPS unit allows us to use either NMEA sentences or whatever binary format our chosen GPS unit supports.
-      * We need to write some code for the PIC to read the information from the GPS. This needs to consume as few cycles as possible as I'm told we don't have much room left on our little PIC.
-   * Make the data reliable
-      * Parsing GPS data is just the beginning.
-      * GPS information has been known to bounce around. The code needs to take this into account and reduce the jitter we get when we are not moving.
+      * NMEA is a textual format that most GPS receivers can output.
+         * TODO: Add links to NMEA format here...
+      * We need to write some code for the PIC to read the information from the GPS.
    * Add a switch to enable or disable GPS navigation. This will allow us to selectively enable the GPS parsing and navigation routes which will prove very helpful during testing.
    * Add GPS navigation routines.
-      * This is where the real work comes in.
       * A GPS hold routine will probably be the first step. This will allow us to test navigating in a small area before moving onto larger areas. An added benefit is there is less of a chance of the UAVP running away!
       * More to come later...
 
