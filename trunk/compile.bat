@@ -8,12 +8,14 @@ rem Version of the board. May be 3_0 or 3_1.
 set BOARD=3_1
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or...
 set GYRO=OPT_IDG
-rem Type of ESC in use. May be ESC_PPM, RX_PPM, ESC_YGE, ESC_HOLGER, etc...
+rem Type of ESC in use. May be ESC_PPM, ESC_YGE, ESC_HOLGER, etc...
 set ESC=ESC_PPM
 rem Type of debugging to use. May be DEBUG_MOTORS or DEBUG_SENSORS.
 set DBG=
 rem Whether to use throttle curve. May be USE_THROTTLECURVE.
 set THC=
+rem Type of receiver. May be blank or RX_PPM.
+set RX=RX_PPM
 
 rem ----------------------------------------------
 rem Don't modify anything below this line.
@@ -56,7 +58,6 @@ set OF=
 rem Das folgende wird 2x durchlaufen!
 
 SET CAM=CAM_0_DEG
-SET RX=
 
 rem C_NEXT is used to say where to go after going to the cleanup step
 set C_NEXT=STEP01
