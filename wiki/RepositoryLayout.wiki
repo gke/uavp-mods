@@ -13,6 +13,10 @@ The first is a collection of modifications to the original UAVP v3.15 source cod
    * Battery latch - Changes the standard low battery alarm to be more forgiving of momentary drops in voltage.
 
 3.15mod3:
+   * Added in the Spektrum support code. Set RX=RX_SPK.
+   * Fixed the ability to use the RX parameter.
+
+3.15mod4:
    * Enable and document the parachute trigger? (Issue #2).
    * Do you have ideas? Use the issue tab up above to suggest something!
 
