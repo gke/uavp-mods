@@ -14,8 +14,8 @@ rem Type of debugging to use. May be DEBUG_MOTORS or DEBUG_SENSORS.
 set DBG=
 rem Whether to use throttle curve. May be USE_THROTTLECURVE.
 set THC=
-rem Type of receiver. May be blank or RX_PPM.
-set RX=RX_PPM
+rem Type of receiver. May be blank or RX_PPM or RX_SPK.
+set RX=
 
 rem ----------------------------------------------
 rem Don't modify anything below this line.
@@ -30,7 +30,10 @@ rem OPT_ADXRS150 + OPT_ADXRS300 + OPT_IDG
 rem ESC_PPM + ESC_HOLGER
 rem BOARD_3_0 + BOARD_3_1
 rem DEBUG_MOTORS (nur bei BOARD_3_1)
-set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
+
+set IRQ=irq
+if "%RX%"    == "RX_SPK" set IRQ=irq_spk
+set CSRC=accel c-ufo %IRQ% lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
 
 set CEXE="%ProgramFiles%\microchip\cc5x\cc5x.exe"
@@ -44,8 +47,8 @@ set ZIP="%ProgramFiles%\IZarc\IZarcC.exe" -a
 
 rem We add mX to our firmware to indicate that it has been modified.
 rem The X represents the version of the firmware.
-set VS=3.15m2
-set VG=3.09m2
+set VS=3.15m3
+set VG=3.09m3
 
 rem Als erstes Testen ob cmd mit /v aufgerufen wurde
 set F=x
@@ -106,6 +109,7 @@ if "%DBG%"   == "DEBUG_SENSORS"     set D=SEN-
 if "%THC%"   == "USE_THROTTLECURVE" set T=THC-
 if "%CAM%"   == "CAM_45_DEG"        set C=CAM45-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
+if "%RX%"    == "RX_SPK"            set R=RXSPK-
 
 echo Linke Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%
 %LEXE% %LCMD% *.o /o Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.hex

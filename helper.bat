@@ -13,6 +13,7 @@ if %2 == c-ufo.c set EP=-ro9
 if %2 == mathlib.c set EP=-ro4
 if %2 == trig.c set EP=-ro5
 if %2 == utils.c set EP=-ro6
+if %2 == spk_irq.c set EP=-ro7
 echo %CEXE% %2 %CCMD% %3 %4 %5 %6 %7 %8 %9 %EP%
 %CEXE% %2 %CCMD% %3 %4 %5 %6 %7 %8 %9 %EP% >NUL:
 goto ENDE
