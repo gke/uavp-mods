@@ -71,6 +71,7 @@
 // register number flashes yellow
 // positive register value flashes green, negative flashes red.
 // direction is controlled by throttle stick. Throttle to 0 is exit.
+
 void ShowMode(uns8 Count, int size1 *pvalue)
 {
 	int nv,v;

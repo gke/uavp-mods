@@ -433,6 +433,7 @@ if "%DBG%"   == "DEBUG_MOTORS"      set D=DBG-
 if "%THC%"   == "USE_THROTTLECURVE" set T=THC-
 if "%CAM%"   == "CAM_45_DEG"        set C=CAM45-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
+if "%RX%"    == "RX_AR7000"            set R=AR7000-
 
 echo Linke Tricopter-Ufo-V%V%-%D%%T%%C%%G%%R%%E%
 %LEXE% %LCMD% %F% /o Tricopter-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.hex

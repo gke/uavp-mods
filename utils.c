@@ -147,12 +147,6 @@ SendComChar(0x0d);
 SendComChar(0x0a);
 #endif
 
-#ifdef DEBUG_SENSORS
-    #ifdef ESC_PPM
-        ALL_PULSE_ON;	// turn on all motor outputs
-    #endif
-#endif
-
 #ifndef DEBUG_SENSORS
 
 #ifdef DEBUG_MOTORS
