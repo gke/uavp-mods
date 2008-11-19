@@ -68,7 +68,7 @@
 
 // defined: serial PPM pulse train from receiver
 // undefined: standard servo pulses from CH1, 3, 5 and 7
-//#define RX_PPM
+#define RX_PPM
 
 // uncomment this to enable Tri-Copter Mixing.
 // connector K1 = front motor

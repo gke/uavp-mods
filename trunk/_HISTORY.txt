@@ -130,6 +130,11 @@ First public released version.
 - A/D conversion now uses more A/D setup time to
   yield better, more accurate results
 
+19.11.2008 V3.15m3 released by Greg Egan
+- added non-latching battery alarm and support for 
+- Spektrum AR7000 Rx
+- removed redundant source from Interrupt routine
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
