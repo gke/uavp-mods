@@ -22,6 +22,11 @@ rem ----------------------------------------------
 rem Don't modify anything below this line.
 rem ----------------------------------------------
 
+rem To see why we do the setlocal, see:
+rem http://www.robvanderwoude.com/variableexpansion.html
+rem http://www.robvanderwoude.com/ntset.html
+SETLOCAL ENABLEDELAYEDEXPANSION
+
 rem Batch compiliert diverse Möglichkeiten der Ufo-Software
 rem =======================================================
 rem Schalter:
@@ -46,7 +51,7 @@ set ZIP="%ProgramFiles%\IZarc\IZarcC.exe" -a
 rem We add mX to our firmware to indicate that it has been modified.
 rem The X represents the version of the firmware.
 set VS=3.15m3
-set VG=3.09m2
+set VG=3.09m3
 
 rem Als erstes Testen ob cmd mit /v aufgerufen wurde
 set F=x
@@ -82,6 +87,9 @@ echo NEXT= %NEXT%
 echo.
 for %%i in ( %CSRC% ) do call helper.bat CC5X %%i.c   -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%RX% -D%DBG% -D%THC% -D%CAM% -D%RX%
 for %%i in ( %ASRC% ) do call helper.bat ASM  %%i.asm /dBOARD_%BOARD%
+set F=
+for %%i in ( %CSRC% ) do set F=!F! %%i.o
+for %%i in ( %ASRC% ) do set F=!F! %%i.o
 
 rem =============================================
 rem = set all the name tokens for the HEX files
@@ -110,8 +118,8 @@ if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_AR7000"            set R=AR7000-
 
 echo Linke Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%
-%LEXE% %LCMD% *.o /o Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.hex
-if %ERRORLEVEL% == 1 goto ENDE
+%LEXE% %LCMD% %F% /o Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.hex
+if %ERRORLEVEL% == 1 goto ERROR
 del Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.cod
 set OF=!OF! Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%
 
@@ -155,3 +163,11 @@ echo You have built the following firmware:
 echo .
 echo .
 dir *.hex
+
+:ERROR
+rem Delete any partial hex files on error...
+if %ERRORLEVEL% == 1 echo Error detected, deleting hex files.
+if %ERRORLEVEL% == 1 if exist profi-ufo*.hex del profi-ufo*.hex
+set C_NEXT=EOF
+goto CLEANUP
+:EOF

@@ -1,4 +1,9 @@
 @echo off
+rem To see why we do the setlocal, see:
+rem http://www.robvanderwoude.com/variableexpansion.html
+rem http://www.robvanderwoude.com/ntset.html
+SETLOCAL ENABLEDELAYEDEXPANSION
+
 rem Batch compiliert diverse Möglichkeiten der Ufo-Software
 rem =======================================================
 rem Schalter:
@@ -534,6 +539,7 @@ if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_AR7000"            set R=AR7000-
 
 echo Linke Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%
+echo %LEXE% %LCMD% %F% /o Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.hex
 %LEXE% %LCMD% %F% /o Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.hex
 if %ERRORLEVEL% == 1 goto ENDE
 del Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.cod
