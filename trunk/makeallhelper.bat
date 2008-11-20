@@ -67,7 +67,7 @@ rem recompiling sensor.c with -r01 to avoid the use of a separate batch file wit
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% 
 
-%LEXE% %LCMD% %F% /o Profi-Ufo-V%VERSION%-%D%%T%%G%%R%%E%.hex
+%LEXE% %LCMD% %F% /o Profi-Ufo-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex
 
 if %ERRORLEVEL% == 1 goto FINISH
 

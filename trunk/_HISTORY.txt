@@ -134,7 +134,7 @@ First public released version.
 - added non-latching battery alarm and support for 
 - Spektrum AR7000 Rx
 - removed redundant source from Interrupt routine
-
+- rewrote makefiles (makeall)
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
