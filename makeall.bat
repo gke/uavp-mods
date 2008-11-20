@@ -10,7 +10,7 @@ rem Uses: makeallhelper.bat and makeclean.bat
 rem =======================================================
 rem Version of the board. May be 3_0 or 3_1.
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or IDG300.
-rem Type of ESC in use. May be ESC_PPM,  ESC_YGE, ESC_HOLGER, etc...
+rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER, etc...
 rem Type of Rx. RX_AR7000 for Spektrum Rx, RX_PPM for serial PPM frame,
 rem or RX_DEFAULT for default PPM Graupner/JR etc Rx
 rem Throttle curve USE_THROTTLECURVE for better control around hover.
@@ -22,18 +22,10 @@ set VERSION=m3
 rem Add required combinations to these sets
 set BOARDS= 3_0 3_1
 set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
-set ESCS=ESC_PPM ESC_HOLGER ESC_YGE
+set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
 set DBGS=NO_DBG DBG_SENSOR DBG_MOTOR
 set THCS=NO_THROTTLECURVE USE_THROTTLECURVE 
 set CAMS=CAM_0_DEG CAM_45_DEG
-set RXS=RX_DEFAULT RX_PPM RX_AR7000
-
-set BOARDS= 3_1
-set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
-set ESCS=ESC_PPM
-set DBGS=NO_DBG DBG_SENSOR
-set THCS=NO_THROTTLECURVE 
-set CAMS=CAM_45_DEG
 set RXS=RX_DEFAULT RX_PPM RX_AR7000
 
 rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG THC CAM RX
