@@ -34,7 +34,6 @@ set G=
 set E=
 set D=
 set T=
-set C=CAM0-
 set R=
 if "%GYRO%"  == "OPT_ADXRS300"      set G=ADX300-
 if "%GYRO%"  == "OPT_ADXRS150"      set G=ADX150-
@@ -47,7 +46,6 @@ if "%BOARD%" == "3_1"	            set V=%VS%
 if "%BOARD%" == "3_0"	            set V=%VG%
 if "%DBG%"   == "DEBUG_MOTORS"      set D=DBG-
 if "%THC%"   == "USE_THROTTLECURVE" set T=THC-
-if "%CAM%"   == "CAM_45_DEG"        set C=CAM45-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_AR7000"            set R=AR7000-
 
@@ -62,14 +60,14 @@ echo the mathematics module.
 echo Wolfgang has used a local variable offset -ro1 for sensor.c only. No idea why?
 echo As a consequence there are several warnings on bank allocation in the compile.
 
-for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -D%CAM% -D%RX%
+for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX%
 
 rem recompiling sensor.c with -r01 to avoid the use of a separate batch file with conditionals.
-%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -D%CAM% -D%RX% -ro1
+%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX% -ro1
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% 
 
-%LEXE% %LCMD% %F% /o Profi-Ufo-V%VERSION%-%D%%T%%C%%G%%R%%E%.hex
+%LEXE% %LCMD% %F% /o Profi-Ufo-V%VERSION%-%D%%T%%G%%R%%E%.hex
 
 if %ERRORLEVEL% == 1 goto FINISH
 
