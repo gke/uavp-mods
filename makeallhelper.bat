@@ -52,21 +52,19 @@ set F=
 for %%i in ( %CSRC% ) do set F=!F! %%i.o
 for %%i in ( %ASRC% ) do set F=!F! %%i.o
 
-echo The warnings etc. previously directed to NUL have been reinstated. These include
-echo a number associated with argument passing other than by function parameters to
+echo The warnings etc. previously directed to NUL have been reinstated to log.txt. These 
+echo include a number associated with argument passing other than by function parameters to
 echo the mathematics module.
 echo The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 echo As a consequence there are several warnings on bank allocation in the compile.
 
-echo %CEXE% <cfile>  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX%
-for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX%
-
+for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX% >> log.txt
 rem recompiling sensor.c with -r01 to avoid the use of a separate batch file with conditionals.
-%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX% -ro1
+%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX% -ro1 >> log.txt
 
-for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% 
+for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% >> log.txt
 
-%LEXE% %LCMD% %F% /o Profi-Ufo-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex
+%LEXE% %LCMD% %F% /o Profi-Ufo-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex >> log.txt 
 
 if %ERRORLEVEL% == 1 goto FINISH
 
