@@ -25,18 +25,17 @@ set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
 set DBGS=NO_DBG DBG_SENSOR DBG_MOTOR
 set THCS=NO_THROTTLECURVE USE_THROTTLECURVE 
-set CAMS=CAM_0_DEG CAM_45_DEG
 set RXS=RX_DEFAULT RX_PPM RX_AR7000
 
-rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG THC CAM RX
+rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG THC RX
 
 set DBG=NO_DBG
 set BOARD=3_1
-for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%c in (%CAMS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %BOARD% %%g %%e %DBG% %%t %%c %%r 
+for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %BOARD% %%g %%e %DBG% %%t %%r 
 
 set DBG=DBG_SENSORS
 set BOARD=3_0
-rem for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%c in (%CAMS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %BOARD% %%g %%e %DBG% %%t %%c %%r 
+rem for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %BOARD% %%g %%e %DBG% %%t %%r 
 
 
 
