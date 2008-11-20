@@ -22,23 +22,29 @@ rem in the 876 PIC.
 
 set VERSION=3_15m3
 
-rem Add required combinations to these sets
+rem Add/Delete required combinations to these sets
 set BOARDS= 3_0 3_1
 set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
-set DBGS=NO_DBG DBG_SENSORS DBG_MOTORS
+set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS
 set THCS=NO_THROTTLECURVE USE_THROTTLECURVE 
 set RXS=RX_DEFAULT RX_PPM RX_AR7000
 
+rem Personal choice
+set BOARDS= 3_1
+set GYROS=OPT_IDG
+set ESCS=ESC_PPM
+set DBGS=NO_DEBUG
+set THCS=NO_THROTTLECURVE 
+set RXS=RX_DEFAULT
+
 rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG THC RX
 
-set DBG=NO_DBG
 set BOARD=3_1
-for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %BOARD% %%g %%e %DBG% %%t %%r 
+for %%b in (%BOARDS%) do for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%d in (%DBGS%) do for %%t in (%THCS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %%b %%g %%e %%d %%t %%r 
 
-set DBG=DBG_SENSORS
-set BOARD=3_0
-for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %BOARD% %%g %%e %DBG% %%t %%r 
+rem set BOARD=3_0
+rem for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%d in (%DBGS%) do for %%t in (%THCS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %%BOARDS %%g %%e %%d %%t %%r 
 
 
 

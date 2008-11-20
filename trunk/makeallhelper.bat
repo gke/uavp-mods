@@ -13,8 +13,7 @@ set 	GYRO=%3
 set 	ESC=%4
 set 	DBG=%5
 set 	THC=%6
-set 	CAM=%7
-set 	RX=%8
+set 	RX=%7
 
 set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
@@ -42,9 +41,8 @@ if "%ESC%"   == "ESC_PPM"           set E=PPM
 if "%ESC%"   == "ESC_HOLGER"        set E=HOL
 if "%ESC%"   == "ESC_X3D"           set E=X3D
 if "%ESC%"   == "ESC_YGEI2C"        set E=YGE
-if "%BOARD%" == "3_1"	            set V=%VS%
-if "%BOARD%" == "3_0"	            set V=%VG%
-if "%DBG%"   == "DEBUG_MOTORS"      set D=DBG-
+if "%DBG%"   == "DEBUG_MOTORS"      set D=DMOTS-
+if "%DBG%"   == "DEBUG_SENSORS"      set D=DSENS-
 if "%THC%"   == "USE_THROTTLECURVE" set T=THC-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_AR7000"            set R=AR7000-
@@ -57,9 +55,10 @@ for %%i in ( %ASRC% ) do set F=!F! %%i.o
 echo The warnings etc. previously directed to NUL have been reinstated. These include
 echo a number associated with argument passing other than by function parameters to
 echo the mathematics module.
-echo Wolfgang has used a local variable offset -ro1 for sensor.c only. No idea why?
+echo The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 echo As a consequence there are several warnings on bank allocation in the compile.
 
+echo %CEXE% <cfile>  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX%
 for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX%
 
 rem recompiling sensor.c with -r01 to avoid the use of a separate batch file with conditionals.
