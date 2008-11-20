@@ -47,8 +47,8 @@ PPM.......version for standard PPM speed controllers (Arkai, YGE etc)
 HOL.......version for boards with Holger's Speed Controllers
 THC.......version with a throttle curve
 DBG.......debugging version, allows for value monitoring via UAVPset
-CAM0......Cam servo control for cameras looking out towards front motor
-RXCOM.....version using RX composite signal instead of servo outputs
+CAM.......Cam servo control for cameras looking out towards front motor (superseded by X mode)
+RX........version using RX composite signal instead of servo outputs
 
 If you flash the wrong one, no problem. 
 You can still update by flashing it again.
