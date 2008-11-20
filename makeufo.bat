@@ -4,7 +4,7 @@ rem http://www.robvanderwoude.com/variableexpansion.html
 rem http://www.robvanderwoude.com/ntset.html
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-rem Batch compiliert diverse Möglichkeiten der Ufo-Software
+Batch compiles various possibilities of the UFO software
 rem =======================================================
 rem Schalter:
 rem NOLEDGAME immer
@@ -26,20 +26,20 @@ set LEXE="%ProgramFiles%\microchip\MPASM Suite\mplink.exe"
 
 set ZIP="%ProgramFiles%\IZarc\IZarcC.exe" -a
 
-rem Testen ob die Versionsnummern da sind
+rem Tests whether the board version numbers are there
 if "%2" == "" goto SYNTAX
 set VS=%1
 set VG=%2
 
-rem Als erstes Testen ob cmd mit /v aufgerufen wurde
+rem Tests whether cmd with /v called
 set F=x
 for %%i in (a b) do set F=!F! %%i
 if  "%F%" == "x b"  goto CMDERR
 
-rem Fuer die Liste der erzeugten Pakete
+rem Initialise the list of the produced packages
 set OF=
 
-echo Loeschen der C-Ausgabe-Dateien...
+echo Delete the C working files...
 for %%i in ( %CSRC% ) do if exist %%i.asm del %%i.asm
 for %%i in ( %CSRC% ) do if exist %%i.err del %%i.err
 for %%i in ( %CSRC% ) do if exist %%i.fcs del %%i.fcs
@@ -48,18 +48,18 @@ for %%i in ( %CSRC% ) do if exist %%i.o   del %%i.o
 for %%i in ( %CSRC% ) do if exist %%i.occ del %%i.occ
 for %%i in ( %CSRC% ) do if exist %%i.var del %%i.var
 
-echo Loeschen der ASM-Ausgabe-Dateien...
+echo Delete the assembly working files...
 for %%i in ( %ASRC% ) do if exist %%i.err del %%i.err
 for %%i in ( %ASRC% ) do if exist %%i.lst del %%i.lst
 for %%i in ( %ASRC% ) do if exist %%i.o   del %%i.o
 
-echo Loeschen von HEX-Files...
+echo delete the linker working files...
 if exist profi-ufo.cod del profi-ufo.cod
 if exist profi-ufo.hex del profi-ufo.hex
 if exist profi-ufo.lst del profi-ufo.lst
 if exist profi-ufo.map del profi-ufo.map
 
-rem Das folgende wird 2x durchlaufen!
+rem The following is gone through 2x!
 
 SET CAM=CAM_0_DEG
 SET RX=
@@ -494,7 +494,14 @@ set THC=NO_THROTTLECURVE
 goto DOIT
 
 :STEP34
+
 :STEP35
+if "%RX%" == "RX_AR7000" goto STEP36
+set RX=RX_AR7000
+SET CAM=CAM_0_DEG
+goto STEP01
+
+:STEP36
 if "%RX%" == "RX_PPM" goto LAST
 set RX=RX_PPM
 SET CAM=CAM_0_DEG
@@ -548,19 +555,19 @@ set OF=!OF! Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%
 goto %NEXT%
 
 :LAST
-echo ALLE PAKETE ERFOLGREICH ERZEUGT!!!!
+echo All packages successfuly produced!!!!
 for %%i in (%OF%) do echo %%i
 
-echo Erzeuge Archive...
+echo Produce archives...
 set ADDF=Release\_HISTORY.txt Release\_VERSIONS.txt Release\gpl-*.txt
 echo %ZIP% .\Profi-Ufo-V%VG%.zip Profi-Ufo-V%VG%-*.hex %ADDF%
 %ZIP% .\Profi-Ufo-V%VG%.zip Profi-Ufo-V%VG%-*.hex %ADDF%
 %ZIP% .\Profi-Ufo-V%VS%.zip Profi-Ufo-V%VS%-*.hex %ADDF%
 
-echo Fertig!
+echo Finished!
 dir Profi-Ufo-V%VG%.zip Profi-Ufo-V%VS%.zip
 
-echo Loesche HEX und LST files
+echo Delete list and hex files
 del Profi-Ufo-V%VG%-*.hex
 del Profi-Ufo-V%VG%-*.lst
 del Profi-Ufo-V%VS%-*.hex
@@ -569,14 +576,14 @@ del Profi-Ufo-V%VS%-*.lst
 goto ENDE
 
 :SYNTAX
-echo Fehler!
-echo Aufruf mit MAKEUFO BBB GGG
-echo wobei BBB die Versionsnummer der schwarzen und GGG der gruenen Platine ist!
+echo Error!
+echo Call with MAKEUFO BBB GGG
+echo where BBB is the version number of the black board and GGG of the green!
 goto ENDE
 
 :CMDERR
-echo Fehler!
-echo CMD wurde nicht mit /V aufgerufen!
+echo Error!
+echo CMD did not call with /V!
 
 :ENDE
 
