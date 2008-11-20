@@ -238,8 +238,9 @@ ErrorRestart:
 					CCP1M0 = 0;	// wait for negative edge next
 #endif
 			}	
-
+#ifndef RX_PPM
 		}
+#endif
 		CCP1IF = 0;				// quit int
 		RecFlags++;
 	}
