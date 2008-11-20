@@ -17,7 +17,7 @@ rem Throttle curve USE_THROTTLECURVE for better control around hover.
 rem Type of debugging to use. May be DEBUG_MOTORS (3.1 only) or DEBUG_SENSORS.
 rem Motors are disabled for DEBUG_SENSORS as there is not enough program space.
 
-set V=m3 
+set VERSION=m3 
 
 rem Add required combinations to these sets
 set BOARDS= 3_0 3_1
@@ -28,26 +28,23 @@ set THCS=NO_THROTTLECURVE USE_THROTTLECURVE
 set CAMS=CAM_0_DEG CAM_45_DEG
 set RXS=RX_DEFAULT RX_PPM RX_AR7000
 
-set BOARDS= 3_0 3_1
-set GYROS=OPT_IDG
+set BOARDS= 3_1
+set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESCS=ESC_PPM
-set DBGS=NO_DBG
+set DBGS=NO_DBG DBG_SENSOR
 set THCS=NO_THROTTLECURVE 
-set CAMS=CAM_0_DEG
-set RXS=RX_AR7000
+set CAMS=CAM_45_DEG
+set RXS=RX_DEFAULT RX_PPM RX_AR7000
 
-rem Cleanup directory
-call makeclean.bat
-
-rem Parameters for makeallhelper.bat are V BOARD GYRO ESC DBG THC CAM RX
+rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG THC CAM RX
 
 set DBG=NO_DBG
 set BOARD=3_1
-for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%c in (%CAMS%) do for %%r in (%RXS%) do call makeallhelper.bat %V% %BOARD% %%g %%e %DBG% %%t %%c %%r 
+for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%c in (%CAMS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %BOARD% %%g %%e %DBG% %%t %%c %%r 
 
 set DBG=DBG_SENSORS
 set BOARD=3_0
-rem for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%c in (%CAMS%) do for %%r in (%RXS%) do call makeallhelper.bat %V% %BOARD% %%g %%e %DBG% %%t %%c %%r 
+rem for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%t in (%THCS%) do for %%c in (%CAMS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %BOARD% %%g %%e %DBG% %%t %%c %%r 
 
 
 
