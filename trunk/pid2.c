@@ -187,46 +187,32 @@ void MixAndLimit(void)
 {
 
 	GIE=0;	// enter critical section, block interrupts
-#ifdef USE_THROTTLECURVE
-// TC_ADDER MUST BE >= TC_LINEAR !
-#define TC_FPSTART	90U	// flat curve start point 
-#define TC_LINEAR	20U
-// horizontal distance of the first and the second steep curves
-// 120 = (256 - TC_LINEAR/2)/2
-#define TC_SCSTART	((100U*2)/3)	// steep curve start point adder
 
-// calculate the dynamic throttle curve
+#ifdef USE_THROTTLECURVE
+// Lookup table based throttle curve - Greg Egan 2008
+// low gain at hover
+static const uns8 ThrottleTable[16]={
+	0, 16, 32, 36, 40, 44, 48, 52,
+	56, 60, 64, 80, 96, 112, 128, 144
+	};
+
+	uns8 Index, Low, High, Offset;
+	uns16 Temp;
 
 	if( _NewValues )
 	{
-	//	IGas -= _Minimum;
-		_NewValues = 0;
-		if( IGas > TC_LINEAR )
-		{
-			IGas -= TC_LINEAR;
-			if( IGas <= (TC_FPSTART-TC_LINEAR)/2)
-			{
-				IGas <<= 1;		// steep slope
-				IGas += TC_LINEAR;
-			}
-			else
-			{
-				IGas -= (TC_FPSTART-TC_LINEAR)/2;
-				if( IGas <= 2*TC_SCSTART )
-				{			
-					IGas >>= 1;		// flat slope
-					IGas += TC_FPSTART;
-				}
-				else
-				{
-					IGas -= 2*TC_SCSTART;
-					IGas <<= 1;		// steep slope
-					IGas += TC_FPSTART +  TC_SCSTART;
-				}
-			}
-		}
-	}
-#endif	// USE_THROTTLECURVE end
+		if (IGas > 127) IGas=127;
+		Index = IGas>>3;
+		Offset = IGas&0x07;
+		Low = ThrottleTable[Index];
+		High = ThrottleTable[++Index];
+		Temp = (High-Low)*Offset;
+		Temp >>= 3;
+		IGas = Low + Temp; 
+	}     
+
+#endif	// USE_THROTTLECURVE 
+
 
 #ifndef TRICOPTER
 	if( FlyCrossMode )

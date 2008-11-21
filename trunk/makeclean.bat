@@ -6,7 +6,10 @@ rem ---------------------------------------------
 set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
 
-echo Deleting the C build related intemediate files...
+rem general error listing file
+if exist log.lst del log.lst
+
+rem compiler working files...
 for %%i in ( %CSRC% ) do if exist %%i.asm del %%i.asm
 for %%i in ( %CSRC% ) do if exist %%i.err del %%i.err
 for %%i in ( %CSRC% ) do if exist %%i.fcs del %%i.fcs
@@ -15,12 +18,12 @@ for %%i in ( %CSRC% ) do if exist %%i.o   del %%i.o
 for %%i in ( %CSRC% ) do if exist %%i.occ del %%i.occ
 for %%i in ( %CSRC% ) do if exist %%i.var del %%i.var
 
-echo Deleting the ASM build related intermediate files...
+rem assembler working files...
 for %%i in ( %ASRC% ) do if exist %%i.err del %%i.err
 for %%i in ( %ASRC% ) do if exist %%i.lst del %%i.lst
 for %%i in ( %ASRC% ) do if exist %%i.o   del %%i.o
 
-echo Deleting the HEX build related intermediate files...
+rem linker working files...
 if exist profi-ufo*.cod del profi-ufo*.cod
 if exist profi-ufo*.lst del profi-ufo*.lst
 if exist profi-ufo*.map del profi-ufo*.map

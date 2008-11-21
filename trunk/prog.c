@@ -2,6 +2,7 @@
 // =      U.A.V.P Brushless UFO Controller      =
 // =           Professional Version             =
 // = Copyright (c) 2007 Ing. Wolfgang Mahringer =
+// = Ported 2008 to 18F2520 by Ing. Greg Egan   =
 // ==============================================
 //
 //  This program is free software; you can redistribute it and/or modify
@@ -25,12 +26,8 @@
 
 // Program Mode
 
-#pragma codepage=2
 #include "c-ufo.h"
 #include "bits.h"
-
-// Math Library
-#include "mymath16.h"
 
 #ifdef XMIT_PROG
 //
@@ -206,10 +203,12 @@ void DoProgMode(void)
 #endif
 
 // read the current parameter set into the RAM variables
-void ReadEEdata(void)
+void ReadEEdata(void) // 245 uSec @ 16MHz
 {
-	int size1 *p;
-
+	int *p;
+#ifdef MOCK_PPM
+	TimeSlot=6;
+#else
 	EEADR = _EESet1;	// default 1st parameter set
 	if( IK5 > _Neutral )
 		EEADR = _EESet2;	// user selected 2nd parameter set
@@ -230,8 +229,9 @@ void ReadEEdata(void)
 	BatteryVolts = LowVoltThres;
 
 // Sanity check
-// if timing value is lower than 1, set it to 10ms!
+// ??? if timing value is lower than 1, set it to 10ms!
 	if( TimeSlot < 1 )
 		TimeSlot = 10;
+#endif
 }
 

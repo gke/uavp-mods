@@ -135,6 +135,11 @@ First public released version.
 - Spektrum AR7000 Rx
 - removed redundant source from Interrupt routine
 - rewrote makefiles (makeall)
+
+22.11.2008 v3.15m3 released by Greg Egan
+- added lookupup table based throttle curve and range
+- checking on maximum throttle.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
