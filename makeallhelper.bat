@@ -73,7 +73,6 @@ goto FINISH
 :FAILED
 echo failed - Profi-Ufo-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex
 rem don't delete working files
-goto EXIT
 
 :FINISH
 

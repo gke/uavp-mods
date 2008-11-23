@@ -214,17 +214,8 @@ void PID(void)
 	if( (IntegralCount == 0) && 
 		(CamRollFactor != 0) && (CamNickFactor != 0) )
 	{
-#ifdef CAM_45_DEG
-	// camera looks in 45° angle, between landing gears.
-		Rp = RollSum + NickSum;
-		Rp /= (long)CamRollFactor;
-		Np = RollSum - NickSum;
-		Np /= (long)CamNickFactor;
-#endif
-#ifdef CAM_0_DEG
 		Rp = RollSum / (long)CamRollFactor;
 		Np = NickSum / (long)CamNickFactor;
-#endif
 	}
 	else
 	{
