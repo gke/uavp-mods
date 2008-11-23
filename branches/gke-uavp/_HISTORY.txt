@@ -11,6 +11,9 @@
 =      U.A.V.P Brushless UFO Controller      =
 =           Professional Version             =
 = Copyright (c) 2007 Ing. Wolfgang Mahringer =
+=                                            =
+=      Modified by others (see below)        =
+=                                            =
 ==============================================
 
   This program is free software; you can redistribute it and/or modify
@@ -28,21 +31,27 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ==============================================
-=  please visit http://www.uavp.org          =
-=               http://www.mahringer.co.at   =
+=  Reference Sites                           =
 ==============================================
 
-==============================================
-= Contact the author:                        =
-==============================================
-email: wolfgang@opensourcequadrocopter.de
-snail: Ing. Wolfgang Mahringer
-       Wiesersberg 54
-       5760 Saalfelden
-       AUSTRIA/EUROPE
+The original project may be found at:
+
+	http://www.uavp.org 
+
+The variants of UAVP to which this readme applies are hosted
+at http:
+
+	http://code.google.com/p/uavp-mods/ 
+
+The related RCGroups thread is at:
+
+	http://www.rcgroups.com/forums/showthread.php?t=811550
+
+Disclaimer: The project at the Google Site is not endorsed by 
+nor is it part of the official UAVP project.
 
 ==============================================
-= The GNU GENERAL PUBLUC LICENSE             =
+= The GNU GENERAL PUBLIC LICENSE             =
 ==============================================
 
 This software is released under GNU GPL license.

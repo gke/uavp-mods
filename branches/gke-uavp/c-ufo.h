@@ -78,12 +78,6 @@
 // Camera controlling can be used!
 //#define TRICOPTER
 
-// select how camera stabilization works
-// 0-degree = cam looks to front motor
-// 45-deree = cam looks between front and right motor
-#define CAM_0_DEG
-//#define CAM_45_DEG	/* OBSOLETE! */
-
 // PCB mounted 45 deg rotated, "VORNE" points between FL and FR
 // special version for Willi Pirngruber :-)
 //#define MOUNT_45
@@ -332,6 +326,11 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 // check ESC model
 #if defined ESC_PPM + defined ESC_X3D + defined ESC_HOLGER + defined ESC_YGEI2C != 1
 #error Define only ONE out of ESC_PPM ESC_X3D ESC_HOLGER ESC_YGEI2C
+#endif
+
+// check RX model
+#if defined RX_DEFAULT + defined RX_PPM + defined RX_AR7000 != 1
+#error Define only ONE out of RX_DEFAULT RX_PPM RX_AR7000
 #endif
 
 // check debug settings
