@@ -2,7 +2,7 @@
 // =      U.A.V.P Brushless UFO Controller      =
 // =           Professional Version             =
 // = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// =      Modified 2008 Ing. Greg Egan          =
+// =      Rewritten 2008 Ing. Greg Egan         =
 // ==============================================
 //
 //  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 //
 // ==============================================
 // =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
 // ==============================================
 
 // Interrupt routine
@@ -35,22 +34,26 @@
 
 // Interrupt Routine
 
-bank1 uns16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
+bank1 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 
 uns8	RecFlags;
 
 #pragma interruptSaveCheck w
 
+
+#define Filter(O,N) (( O + N + 1) >> 1)
+
+
 interrupt irq(void)
 {
-uns8	NewRoll, NewNick, NewTurn;
-uns16	Temp;
+int8	NewRoll, NewNick, NewTurn;	
+int16 	Temp;
 uns16 	CCPR1 @0x15;
 
 // Spektrum equipment uses a different servo output so the following outputs of the
 // Rx must be connected to the UAVP board: 
 //   AR7000 - Aileron, Gear, Aux2 and Rudder 
-//   AR6100 - Aileron, Gear and Throttle
+//   Futaba Spektrum - Aileron, Throttle, Aux2 and Rudder
 // The model type must be ACTRO and the servo ranges generally set at +-100% except for 
 // throttle which must have -100%. 
 // Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
@@ -97,26 +100,25 @@ uns16 	CCPR1 @0x15;
 			if( RecFlags == 2 )
 			{
 				NewK3 = CCPR1;
-				NewK2 = CCPR1 - NewK2;
+				NewK2 = NewK3 - NewK2;
 				NewK2 >>= 1;
 			}
 			else
 			if( RecFlags == 4 )
 			{
 				NewK5 = CCPR1;
-				NewK4 = CCPR1 - NewK4;
+				NewK4 = NewK5 - NewK4;
 				NewK4 >>= 1;
 			}
 			else
 			if( RecFlags == 6 )
 			{
 				NewK7 = CCPR1;
-				NewK6 = CCPR1 - NewK6;
+				NewK6 = NewK7 - NewK6;
 				NewK6 >>= 1; 		
 #ifdef RX_AR7000
 				if (NewK6.high8 !=1) 	// add glitch detection to 6 & 7
 					goto ErrorRestart;
-				IGas = NewK6.low8;
 #else
 				IK6 = NewK6.low8;
 #endif // RX_AR7000	
@@ -133,21 +135,21 @@ uns16 	CCPR1 @0x15;
 			if( RecFlags == 1 )
 			{
 				NewK2 = CCPR1;
-				NewK1 = CCPR1 - NewK1;
+				NewK1 = NewK2 - NewK1;
 				NewK1 >>= 1;
 			}
 			else
 			if( RecFlags == 3 )
 			{
 				NewK4 = CCPR1;
-				NewK3 = CCPR1 - NewK3;
+				NewK3 = NewK4 - NewK3;
 				NewK3 >>= 1;
 			}
 			else
 			if( RecFlags == 5 )
 			{
 				NewK6 = CCPR1;
-				NewK5 = CCPR1 - NewK5;
+				NewK5 = NewK6 - NewK5;
 				NewK5 >>= 1;
 
 				// sanity check - NewKx has values in 4us units now. 
@@ -158,13 +160,7 @@ uns16 	CCPR1 @0x15;
 				    (NewK4.high8 == 1) &&
 				    (NewK5.high8 == 1) )
 				{
-#ifdef RX_AR7000
-					NewRoll = NewK1.low8;
-					NewNick = NewK4.low8;				
-
-					IK5 = NewK3.low8; // do not filter
-					IK6 = NewK5.low8;				
-#else
+#ifndef RX_AR7000									
 					if( FutabaMode )
 					{
 						IGas = NewK3.low8;
@@ -181,22 +177,19 @@ uns16 	CCPR1 @0x15;
 						IGas  = NewK1.low8;
 						NewRoll = NewK2.low8;
 						NewNick = NewK3.low8;
-					}
-					
-					NewTurn = NewK4.low8;
-					IK5 = NewK5.low8; // do not filter
+					}					
 
-					W = _Neutral;
-					NewRoll -= W;
-					NewNick -= W;
-					NewTurn -= W;
-					IRoll = NewRoll; // no smoothing filters for now
-					INick = NewNick;
-					ITurn = NewTurn;
+					IRoll = NewRoll - _Neutral; // no smoothing filters for now
+					INick = NewNick - _Neutral;
+					ITurn = NewK4.low8 - _Neutral;
+					
+					IK5 = NewK5.low8;
+					IK6 = - _Neutral;
+					IK7 = - _Neutral;
 
 					_NoSignal = 0;
 					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
-#endif // RX_AR7000
+#endif // !RX_AR7000
 				}
 				else	// values are unsafe
 					goto ErrorRestart;
@@ -209,20 +202,36 @@ uns16 	CCPR1 @0x15;
 #ifdef RX_AR7000
 				if (NewK7.high8 !=1)	
 					goto ErrorRestart;
-				NewTurn = NewK7.low8;
-				W = _Neutral;
-				NewRoll -= W;
-				NewNick -= W;
-				NewTurn -= W;
-				IRoll = NewRoll; // no smoothing filter for now
-				INick = NewNick;
-				ITurn = NewTurn;
+				if( FutabaMode )
+				{
+					IGas = NewK3.low8;
+
+					IRoll = NewK1.low8 - _Neutral; // no smoothing filter for now
+					INick = NewK6.low8 - _Neutral;
+					ITurn = NewK7.low8 - _Neutral;
+
+					IK5 = NewK4.low8; // do not filter
+					IK6 = NewK2.low8;
+					IK7 = NewK5.low8;
+				}
+				else
+				{
+					IGas = NewK6.low8;
+
+					IRoll = NewK1.low8 - _Neutral; // no smoothing filter for now
+					INick = NewK4.low8 - _Neutral;
+					ITurn = NewK7.low8 - _Neutral;
+
+					IK5 = NewK3.low8; // do not filter
+					IK6 = NewK5.low8;
+					IK7 = NewK2.low8;
+				}
 
 				_NoSignal = 0;
-				_NewValues = 1;							
+				_NewValues = 1;
 #else				
 				IK7 = NewK7.low8;
-#endif 
+#endif // RX_AR7000 
 				RecFlags = -1;
 			}
 			else

@@ -11,6 +11,9 @@
 =      U.A.V.P Brushless UFO Controller      =
 =           Professional Version             =
 = Copyright (c) 2007 Ing. Wolfgang Mahringer =
+=                                            =
+=      Modified by others (see below)        =
+=                                            =
 ==============================================
 
   This program is free software; you can redistribute it and/or modify
@@ -28,87 +31,74 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ==============================================
-=  please visit http://www.uavp.org          =
-=               http://www.mahringer.co.at   =
+=  Reference Sites                           =
 ==============================================
 
-==============================================
-= Contact the author:                        =
-==============================================
-email: wolfgang@opensourcequadrocopter.de
-snail: Ing. Wolfgang Mahringer
-       Wiesersberg 54
-       5760 Saalfelden
-       AUSTRIA/EUROPE
+The original project may be found at:
+
+	http://www.uavp.org 
+
+The variants of UAVP to which this readme applies are hosted
+at http:
+
+	http://code.google.com/p/uavp-mods/ 
+
+The related RCGroups thread is at:
+
+	http://www.rcgroups.com/forums/showthread.php?t=811550
+
+Disclaimer: The project at the Google Site is not endorsed by 
+nor is it part of the official UAVP project.
 
 ==============================================
-= The GNU GENERAL PUBLUC LICENSE             =
+= The GNU GENERAL PUBLIC LICENSE             =
 ==============================================
 
 This software is released under GNU GPL license.
 The GPL license is contained in the files
 gpl-en.txt (in English) and gpl-de.txt (in German).
 
-
 ==============================================
-= How to setup the project                   =
-==============================================
-
-In order to work with this firmware you need:
-- MPLAB IDE, at least version 7.40
-  free download at http://www.microchip.com
-- CC5X Compiler, at least version 3.3a
-  free download at http://wwww.bknd.com
-- The free UAVPset software (for Windows)
-
-Follow the instructions found in the CC5X package on how to integrate 
-this language toolset into MPLAB
-
-Create a project, which creates a project directory for the source files.
-Put the contents of this ZIP file into that directory.
-
-Add all .c files and bootloader.asm to the "Source Files" tag
-Add all .h-Files to the "Header Files" tag
-Add p16f876i.lkr-Files to the "Linker Scripts" tag
-
-Setup your Build options:
-Set "Include-Path" and "Library Path" to the directory where you installed CC5X
-Set "Linker-Script Path" to your project directory.
-Set your Assembler options to
-    /e+ /l+ /x- /c+ /q
-    Additionally, you must define your PCB board version: BOARD_3_0 or BOARD_3_1
-Set your CC5X-C-Compiler options to 
-    "-CC -fINHX8M -a -L -Q -V -FM -DMATHBANK_VARS=0 -DMATHBANK_PROG=2"
-    The selected output format is not important here.
-    Additionally, you must define your PCB board version: BOARD_3_0 or BOARD_3_1
-Set "MPLINK" options to
-    "/m profi-ufo.map /aINHX8M"
-Select the output format that suits your PIC programmer
-Add an option "-ro1" to the build options for "sensor.c" only
-
-BOARD_3_0 selects the green PCB (older version)
-BOARD_3_1 selects the black PCB (current version)
-
-Caution: There is a bug in MPLAB (still in 7.60) which does not correctly promote
-the BOARD_3_x symbol to all the nodes. 
-Please check the files own build options if BOARD_3_x is set correctly.
-
-==============================================
-= How to build the firmware                  =
+= Pre-compiled Firmware                      =
 ==============================================
 
-Open "c-ufo.h" and setup all #defines found
-in "Global compiler switches" to suit your hardware.
+Firmware HEX files for most configurations are available at
+the project sites if you wish to use them rather than going
+through the following procedures. If you choose to do this you
+should download an appropriate HEX file and skip to:
 
-Press Ctrl+F10 to compile and link the project.
-If all went fine, a HEX files has been created.
-Use your PIC programmer to burn it into the PIC.
-If your PIC already has a version with bootloader in it, you can also 
-use UAVPset to flash the new HEX-file on the board, so there is no 
-special programming hardware needed.
+    * Transferring firmware to the PIC (below). 
 
 ==============================================
-= Transferring firmware to the PIC           =
+= How to setup the Compilation Software      =
+==============================================
+
+    * Download the cc5x compiler (http://www.bknd.com/cc5xfree.exe).
+    * Run the executable to install the compiler. 
+      Install it into c:\program files\microchip\cc5x.
+    * Download MPLAB (http://ww1.microchip.com/downloads/...eDoc/mp810.zip).
+    * Unzip mp810.zip into a temp directory. Run Install_MPLAB_v810.exe.
+    * Unzip the uavp source into a newly created directory.
+    * Launch a command prompt and cd into that directory.
+    * If not using mod2 or later: Run "copy c:\program files\microchip\cc5x\reloc.inc ."
+
+==============================================
+= How to Build Versions of UAVP              =
+==============================================
+
+    * Download the latest release source from the Downloads section
+      (http://code.google.com/p/uavp-mods/). See various Disclaimers.
+
+    * Edit "makeall.bat". There are sets of parameters including 
+      those for all possible versions of UAVP. 
+      Change the "personal" sets to cover the range of 
+      versions you are interest in.
+    * Run makeall.bat (this does not delete old hex files 
+      so check the creation dates)
+    * Done! 
+
+==============================================
+= Transferring Firmware to the PIC           =
 ==============================================
 
 If you already have a PIC with at least software version 3.05,
@@ -116,8 +106,8 @@ You can upload your new version using the bootloader.
 Use UAVPset.exe to do that.
 
 But be careful: If you mock up things completely, you can lock
-yourself out. Then you would need a PIC programmer to get things working again.
-
+yourself out. Then you would need a PIC programmer to get things 
+working again.
 
 ==============================================
 = SAFETY FIRST!                              =
@@ -138,8 +128,9 @@ Safety measures:
 - When using your transmitter, be sure to use the correct model memory on it.
 - Be sure to have no other transmitters on your channel on air.
 
-The author will NOT BE RESPONSIBLE FOR ANY ACCIDENTS OR
-INJURIES IN ANY WAY!
+The original author and those modifying the program based on
+the original V3.15 will NOT BE RESPONSIBLE FOR ANY ACCIDENTS 
+OR INJURIES IN ANY WAY!
 
 PLEASE do yourself a favour and get an insurance which covers risks by doing model flight!
 Imaging what happens if you only damage someone elses car or something....
@@ -149,21 +140,32 @@ Imaging what happens if you only damage someone elses car or something....
 = Questions?                                 =
 ==============================================
 
-If you have any questions, please go to the forum at 
-http://www.opensourcequadrocopter.de 
-and feel free to ask. There are a lot of people that will happily help you,
-including the author (his nickname is "Wolferl").
-
-However, a registration is required to gain access to the forum.
-
-Alternatively, you can contact the author by e-mail at
-wolfgang@opensourcequadrocopter.de
-
-BUT PLEASE, BEFORE YOU ASK, READ THE MANUAL.
-It is all in there, really!
+BUT PLEASE, BEFORE YOU ASK, READ THE MANUAL. It is all in there, really! 
+The manual may be found at the original project site.
 
 Also, if you have some hardware related questions, please download the 
 datasheets for the chips and read them thoroughly!
+
+The variants of UAVP to which this readme applies are hosted
+at:
+	 http://code.google.com/p/uavp-mods/
+
+There is an active RCGroups thread at:
+
+	http://www.rcgroups.com/forums/showthread.php?t=811550
+
+If you have any questions on the Official UAVP Project, please go to the forum at:
+ 
+	http://forum.uavp.ch 
+
+or the original project site at:
+
+	http://www.uavp.org 
+
+There are a lot of people that will happily help you,
+including the original author (his nickname is "Wolferl").
+
+However, a registration is required to gain access to the forum.
 
 Make sure you have the most recent version of the firmware!
 
