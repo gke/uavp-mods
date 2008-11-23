@@ -39,16 +39,15 @@
 Only one HEX file is suitable for your quadrocopter or tricopter.
 The names are composed of the following tokens:
 
+Bxxx......xxx is the board version number
 Vxxx......xxx is the software version number
 ADX150....version for boards with 3x ADXRS150 gyros
 ADX300....version for boards with 3x ADXRS300 gyros
 IDG.......version for boards with 1x IDG300 and 1x ADXRS300 gyros
 PPM.......version for standard PPM speed controllers (Arkai, YGE etc)
 HOL.......version for boards with Holger's Speed Controllers
-THC.......version with a throttle curve
-DBG.......debugging version, allows for value monitoring via UAVPset
+DSENS.....sensor debugging version, allows for value monitoring via UAVPset
 CAM.......Cam servo control for cameras looking out towards front motor (superseded by X mode)
-RX........version using RX composite signal instead of servo outputs
 
 If you flash the wrong one, no problem. 
 You can still update by flashing it again.
