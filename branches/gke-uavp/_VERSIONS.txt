@@ -46,7 +46,6 @@ ADX300....version for boards with 3x ADXRS300 gyros
 IDG.......version for boards with 1x IDG300 and 1x ADXRS300 gyros
 PPM.......version for standard PPM speed controllers (Arkai, YGE etc)
 HOL.......version for boards with Holger's Speed Controllers
-THC.......version with a throttle curve
 DSENS.....sensor debugging version, allows for value monitoring via UAVPset
 CAM.......Cam servo control for cameras looking out towards front motor (superseded by X mode)
 

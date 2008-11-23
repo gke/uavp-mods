@@ -188,12 +188,14 @@ void MixAndLimit(void)
 
 	GIE=0;	// enter critical section, block interrupts
 
-#ifdef USE_THROTTLECURVE
+#ifdef ABANDONED_USE_THROTTLECURVE
 // Lookup table based throttle curve - Greg Egan 2008
 // low gain at hover
+// Working but ABANDONED - use Tx based throttle curve shaping
 static const uns8 ThrottleTable[16]={
-	0, 16, 32, 36, 40, 44, 48, 52,
-	56, 60, 64, 80, 96, 112, 128, 144
+	0, 16, 32,
+	36, 40, 44, 48, 52,56, 60, 64, 80, 
+	96, 112, 128, 144
 	};
 
 	uns8 Index, Low, High, Offset;
@@ -210,7 +212,6 @@ static const uns8 ThrottleTable[16]={
 		Temp >>= 3;
 		IGas = Low + Temp; 
 	}     
-
 #endif	// USE_THROTTLECURVE 
 
 
