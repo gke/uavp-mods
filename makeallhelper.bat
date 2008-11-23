@@ -12,8 +12,7 @@ set	BOARD=%2
 set 	GYRO=%3
 set 	ESC=%4
 set 	DBG=%5
-set 	THC=%6
-set 	RX=%7
+set 	RX=%6
 
 set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
@@ -38,11 +37,10 @@ if "%ESC%"   == "ESC_PPM"           set E=PPM
 if "%ESC%"   == "ESC_HOLGER"        set E=HOL
 if "%ESC%"   == "ESC_X3D"           set E=X3D
 if "%ESC%"   == "ESC_YGEI2C"        set E=YGE
-if "%DBG%"   == "DEBUG_MOTORS"      set D=DMOTS-
-if "%DBG%"   == "DEBUG_SENSORS"      set D=DSENS-
-if "%THC%"   == "USE_THROTTLECURVE" set T=THC-
+if "%DBG%"   == "DEBUG_MOTORS"      set D=Debug_MOTORS-
+if "%DBG%"   == "DEBUG_SENSORS"     set D=Debug_SENSORS-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
-if "%RX%"    == "RX_AR7000"            set R=AR7000-
+if "%RX%"    == "RX_AR7000"         set R=AR7000-
 
 rem Build the list of expected object files
 set F=
@@ -55,9 +53,9 @@ rem the mathematics module.
 rem The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 rem As a consequence there are several warnings on bank allocation in the compile.
 
-for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX% >> log.lst
+for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% >> log.lst
 rem recompiling sensor.c with -r01 to avoid the use of a separate batch file with conditionals.
-%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%THC% -DCAM_0_DEG -D%RX% -ro1 >> log.lst
+%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -ro1 >> log.lst
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% >> log.lst
 

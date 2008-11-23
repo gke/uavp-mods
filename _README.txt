@@ -143,6 +143,9 @@ Imaging what happens if you only damage someone elses car or something....
 BUT PLEASE, BEFORE YOU ASK, READ THE MANUAL. It is all in there, really! 
 The manual may be found at the original project site.
 
+Also, if you have some hardware related questions, please download the 
+datasheets for the chips and read them thoroughly!
+
 The variants of UAVP to which this readme applies are hosted
 at:
 	 http://code.google.com/p/uavp-mods/
@@ -163,9 +166,6 @@ There are a lot of people that will happily help you,
 including the original author (his nickname is "Wolferl").
 
 However, a registration is required to gain access to the forum.
-
-Also, if you have some hardware related questions, please download the 
-datasheets for the chips and read them thoroughly!
 
 Make sure you have the most recent version of the firmware!
 

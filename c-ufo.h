@@ -103,9 +103,6 @@
 // Switched Roll and Nick channels for Conrad mc800 transmitter
 //#define EXCHROLLNICK
 
-// Enable throttle curve
-//#define USE_THROTTLECURVE
-
 // internal test switch...DO NOT USE FOR REAL UFO'S!
 //#define INTTEST
 
