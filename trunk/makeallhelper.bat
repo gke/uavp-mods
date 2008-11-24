@@ -40,7 +40,7 @@ if "%ESC%"   == "ESC_YGEI2C"        set E=YGE
 if "%DBG%"   == "DEBUG_MOTORS"      set D=Debug_MOTORS-
 if "%DBG%"   == "DEBUG_SENSORS"     set D=Debug_SENSORS-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
-if "%RX%"    == "RX_AR7000"         set R=AR7000-
+if "%RX%"    == "RX_DSM2"           set R=DSM2-
 
 rem Build the list of expected object files
 set F=
