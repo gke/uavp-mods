@@ -326,8 +326,8 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 #endif
 
 // check RX model
-#if defined RX_DEFAULT + defined RX_PPM + defined RX_AR7000 != 1
-#error Define only ONE out of RX_DEFAULT RX_PPM RX_AR7000
+#if defined RX_DEFAULT + defined RX_PPM + defined RX_DSM2 != 1
+#error Define only ONE out of RX_DEFAULT RX_PPM RX_DSM2
 #endif
 
 // check debug settings
