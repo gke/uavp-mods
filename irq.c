@@ -24,6 +24,8 @@
 // ==============================================
 
 // Interrupt routine
+// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
+// use at your own risk - see GPL.
 
 #include "c-ufo.h"
 #include "bits.h"
@@ -40,9 +42,7 @@ uns8	RecFlags;
 
 #pragma interruptSaveCheck w
 
-
 #define Filter(O,N) (( O + N + 1) >> 1)
-
 
 interrupt irq(void)
 {
@@ -50,15 +50,38 @@ int8	NewRoll, NewNick, NewTurn;
 int16 	Temp;
 uns16 	CCPR1 @0x15;
 
-// Spektrum equipment uses a different servo output so the following outputs of the
-// Rx must be connected to the UAVP board: 
-//   AR7000 - Aileron, Gear, Aux2 and Rudder 
-//   Futaba Spektrum - Aileron, Throttle, Aux2 and Rudder
-// The model type must be ACTRO and the servo ranges generally set at +-100% except for 
-// throttle which must have -100%. 
-// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
-// use at your own risk - see GPL.
+// 2.4GHz systems vary the order in which their Receivers (Rx) emit their servo control 
+// signals. The order does NOT correspond to the physical ordering of servo sockets on 
+// the Rx. You should try the default DSM2 configuration first which is known to work 
+// for the DX7/AR7000 combination. Use UAVPSet to select Throttle on 1 and 
+// Positive Impulse. In general your Transmitter (Tx) should be set to ACTRO with 
+// absolutely NO MIXES.
 
+// To determine the order for your Tx/Rx combination you need to use UAVPSet and the 
+// TestSoftware appropriate to your configuration e.g. TestSoftware-V315-ADX-PPM. 
+// The Test software you use at this stage is not specific to your 2.4GHz system.
+// This software (when selecting display Rx values), displays channels in time-order 
+// of arrival from the Rx. These channels from 1-7  correspond to the variables 
+// NewK1-NewK7. Initially, unless you are very lucky, one or more will be shown as invalid.
+
+// The first step is to determine the combination of 4 servo channels that shows all 
+// channels to be valid. These will correspond to the odd numbered channels as the Rx 
+// emits them. You need to re-display each time you make a change. This is the 
+// tedious part.
+
+// Next Work through the controls on your Tx re-displaying the channels
+// each time noting which channel has changed and what the associated control is. 
+// If necessary edit the section of irq.c marked as EDIT HERE -> to reflect the actual 
+// order for your Tx/Rx combination. Do this by changing only the NewKx names.   
+
+// Finally for your particular mix to work you must have Ch3 selected for Throttle 
+// under UAVPSet. Make sure you do a write to update it on the UAVP board.
+ 
+// For the particular combination of the DSM2 signaling,  DX7 Tx and AR7000 Rx the 
+// servo channels which must be connected to the UAVP board are known to be:
+
+//   * Aileron, Gear, Aux2 and Rudder
+ 
 	int_save_registers;	// save W and STATUS
 
 	if( TMR2IF )	// 5 or 14 ms have elapsed without an active edge
@@ -116,12 +139,12 @@ uns16 	CCPR1 @0x15;
 				NewK7 = CCPR1;
 				NewK6 = NewK7 - NewK6;
 				NewK6 >>= 1; 		
-#ifdef RX_AR7000
+#ifdef RX_DSM2
 				if (NewK6.high8 !=1) 	// add glitch detection to 6 & 7
 					goto ErrorRestart;
 #else
 				IK6 = NewK6.low8;
-#endif // RX_AR7000	
+#endif // RX_DSM2	
 			}
 #ifdef RX_PPM
 			else
@@ -160,8 +183,8 @@ uns16 	CCPR1 @0x15;
 				    (NewK4.high8 == 1) &&
 				    (NewK5.high8 == 1) )
 				{
-#ifndef RX_AR7000									
-					if( FutabaMode )
+#ifndef RX_DSM2									
+					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 					{
 						IGas = NewK3.low8;
 #ifdef EXCHROLLNICK
@@ -179,7 +202,7 @@ uns16 	CCPR1 @0x15;
 						NewNick = NewK3.low8;
 					}					
 
-					IRoll = NewRoll - _Neutral; // no smoothing filters for now
+					IRoll = NewRoll - _Neutral; 
 					INick = NewNick - _Neutral;
 					ITurn = NewK4.low8 - _Neutral;
 					
@@ -189,7 +212,7 @@ uns16 	CCPR1 @0x15;
 
 					_NoSignal = 0;
 					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
-#endif // !RX_AR7000
+#endif // !RX_DSM2
 				}
 				else	// values are unsafe
 					goto ErrorRestart;
@@ -199,26 +222,31 @@ uns16 	CCPR1 @0x15;
 			{
 				NewK7 = CCPR1 - NewK7;
 				NewK7 >>= 1;	
-#ifdef RX_AR7000
+#ifdef RX_DSM2
 				if (NewK7.high8 !=1)	
 					goto ErrorRestart;
-				if( FutabaMode )
+
+				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 				{
-					IGas = NewK3.low8;
 
-					IRoll = NewK1.low8 - _Neutral; // no smoothing filter for now
-					INick = NewK6.low8 - _Neutral;
-					ITurn = NewK7.low8 - _Neutral;
+//EDIT FROM HERE ->
+// CURRENTLY JESOLINS - Futaba 9C with the Spektrum DM8
+					IGas = NewK5.low8;
 
-					IK5 = NewK4.low8; // do not filter
-					IK6 = NewK2.low8;
-					IK7 = NewK5.low8;
+					IRoll = NewK3.low8 - _Neutral; 
+					INick = NewK2.low8 - _Neutral;
+					ITurn = NewK1.low8 - _Neutral;
+					IK5 = NewK6.low8; // do not filter
+					IK6 = NewK4.low8;
+					IK7 = NewK7.low8;
+// TO HERE
 				}
-				else
+				else // Reference 2.4GHz configuration DX7 and AR7000 Rx
+
 				{
 					IGas = NewK6.low8;
 
-					IRoll = NewK1.low8 - _Neutral; // no smoothing filter for now
+					IRoll = NewK1.low8 - _Neutral; 
 					INick = NewK4.low8 - _Neutral;
 					ITurn = NewK7.low8 - _Neutral;
 
@@ -231,7 +259,7 @@ uns16 	CCPR1 @0x15;
 				_NewValues = 1;
 #else				
 				IK7 = NewK7.low8;
-#endif // RX_AR7000 
+#endif // RX_DSM2 
 				RecFlags = -1;
 			}
 			else

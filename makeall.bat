@@ -13,8 +13,8 @@ rem
 rem Version of the board. May be 3_0 or 3_1.
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or IDG300.
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.
-rem Type of Rx. May be RX_AR7000 for Spektrum Rx, RX_PPM for serial PPM frame,
-rem or RX_DEFAULT for default PPM Graupner/JR etc Rx
+rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
+rem RX_PPM for serial PPM frame, or RX_DEFAULT for default PPM Graupner/JR etc Rx.
 rem Type of debugging to use. May be DEBUG_MOTORS (3.1 only) or DEBUG_SENSORS.
 rem Motors are disabled for DEBUG_SENSORS as there is not enough program space
 rem in the 876 PIC.
@@ -28,14 +28,14 @@ set BOARDS= 3_1
 set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
 set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
-set RXS=RX_DEFAULT RX_PPM RX_AR7000
+set RXS=RX_DEFAULT RX_PPM RX_DSM2
 
 rem Personal choice
 set BOARDS= 3_1
-set GYROS=OPT_IDG
+set GYROS=OPT_ADXRS300
 set ESCS=ESC_PPM
 set DBGS=NO_DEBUG 
-set RXS=RX_DEFAULT
+set RXS=RX_DEFAULT RX_DSM2
 
 rem Delete working files
 call makeclean.bat
