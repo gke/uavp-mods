@@ -69,7 +69,13 @@ for the DX7/AR7000 combination. Use UAVPSet to select Throttle on 1 and
 Positive Impulse. In general your Transmitter (Tx) should be set to ACTRO with 
 absolutely NO MIXES.
 
-To determine the order for your Tx/Rx combination you need to use UAVPSet and the 
+It it is highly probable that your Tx/Rx combination will have more than one servo 
+output active simultaneously. For example all of the control surface servos 
+may be active at the same time. If this proves to be the case then ytou will not be 
+able to use the Rx/Tx combination without external aditional hardware.
+
+There two methods to determine the servo output order for your Tx/Rx combination.
+The first is to use a logic analyser and the secondis to use UAVPSet and the 
 TestSoftware appropriate to your configuration e.g. TestSoftware-V315-ADX-PPM. 
 The Test software you use at this stage is not specific to your 2.4GHz system.
 This software (when selecting display Rx values), displays channels in time-order 
