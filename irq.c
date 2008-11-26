@@ -50,37 +50,7 @@ int8	NewRoll, NewNick, NewTurn;
 int16 	Temp;
 uns16 	CCPR1 @0x15;
 
-// 2.4GHz systems vary the order in which their Receivers (Rx) emit their servo control 
-// signals. The order does NOT correspond to the physical ordering of servo sockets on 
-// the Rx. You should try the default DSM2 configuration first which is known to work 
-// for the DX7/AR7000 combination. Use UAVPSet to select Throttle on 1 and 
-// Positive Impulse. In general your Transmitter (Tx) should be set to ACTRO with 
-// absolutely NO MIXES.
-
-// To determine the order for your Tx/Rx combination you need to use UAVPSet and the 
-// TestSoftware appropriate to your configuration e.g. TestSoftware-V315-ADX-PPM. 
-// The Test software you use at this stage is not specific to your 2.4GHz system.
-// This software (when selecting display Rx values), displays channels in time-order 
-// of arrival from the Rx. These channels from 1-7  correspond to the variables 
-// NewK1-NewK7. Initially, unless you are very lucky, one or more will be shown as invalid.
-
-// The first step is to determine the combination of 4 servo channels that shows all 
-// channels to be valid. These will correspond to the odd numbered channels as the Rx 
-// emits them. You need to re-display each time you make a change. This is the 
-// tedious part.
-
-// Next Work through the controls on your Tx re-displaying the channels
-// each time noting which channel has changed and what the associated control is. 
-// If necessary edit the section of irq.c marked as EDIT HERE -> to reflect the actual 
-// order for your Tx/Rx combination. Do this by changing only the NewKx names.   
-
-// Finally for your particular mix to work you must have Ch3 selected for Throttle 
-// under UAVPSet. Make sure you do a write to update it on the UAVP board.
- 
-// For the particular combination of the DSM2 signaling,  DX7 Tx and AR7000 Rx the 
-// servo channels which must be connected to the UAVP board are known to be:
-
-//   * Aileron, Gear, Aux2 and Rudder
+// For 2.4GHz systems see README_DSM2_ETC.
  
 	int_save_registers;	// save W and STATUS
 
