@@ -59,55 +59,42 @@ The GPL license is contained in the files
 gpl-en.txt (in English) and gpl-de.txt (in German).
 
 ==============================================
-= Pre-compiled Firmware                      =
+= 2.4GHz and other Diversity Systems                               =
 ==============================================
 
-Firmware HEX files for most configurations are available at
-the project sites if you wish to use them rather than going
-through the following procedures. If you choose to do this you
-should download an appropriate HEX file and skip to:
+2.4GHz systems vary the order in which their Receivers (Rx) emit their servo control 
+signals. The order does NOT correspond to the physical ordering of servo sockets on 
+the Rx. You should try the default DSM2 configuration first which is known to work 
+for the DX7/AR7000 combination. Use UAVPSet to select Throttle on 1 and 
+Positive Impulse. In general your Transmitter (Tx) should be set to ACTRO with 
+absolutely NO MIXES.
 
-    * Transferring firmware to the PIC (below). 
+To determine the order for your Tx/Rx combination you need to use UAVPSet and the 
+TestSoftware appropriate to your configuration e.g. TestSoftware-V315-ADX-PPM. 
+The Test software you use at this stage is not specific to your 2.4GHz system.
+This software (when selecting display Rx values), displays channels in time-order 
+of arrival from the Rx. These channels from 1-7  correspond to the variables 
+NewK1-NewK7. Initially, unless you are very lucky, one or more will be shown as invalid.
 
-==============================================
-= How to setup the Compilation Software      =
-==============================================
+The first step is to determine the combination of 4 servo channels that shows all 
+channels to be valid. These will correspond to the odd numbered channels as the Rx 
+emits them. You need to re-display each time you make a change. This is the 
+tedious part.
 
-    * Download the cc5x compiler (http://www.bknd.com/cc5xfree.exe).
-    * Run the executable to install the compiler. 
-      Install it into c:\program files\microchip\cc5x.
-    * Download MPLAB (http://ww1.microchip.com/downloads/...eDoc/mp810.zip).
-    * Unzip mp810.zip into a temp directory. Run Install_MPLAB_v810.exe.
-    * Unzip the uavp source into a newly created directory.
-    * Launch a command prompt and cd into that directory.
-    * If not using mod2 or later: Run "copy c:\program files\microchip\cc5x\reloc.inc ."
+Next Work through the controls on your Tx re-displaying the channels
+each time noting which channel has changed and what the associated control is. 
+If necessary edit the section of irq.c marked as EDIT HERE -> to reflect the actual 
+order for your Tx/Rx combination. Do this by changing only the NewKx names.   
 
-==============================================
-= How to Build Versions of UAVP              =
-==============================================
+Finally for your particular mix to work you must have Ch3 selected for Throttle 
+under UAVPSet. Make sure you do a write to update it on the UAVP board.
+ 
+For the particular combination of the DSM2 signaling,  DX7 Tx and AR7000 Rx the 
+servo channels which must be connected to the UAVP board are known to be:
 
-    * Download the latest release source from the Downloads section
-      (http://code.google.com/p/uavp-mods/). See various Disclaimers.
+   * Aileron, Gear, Aux2 and Rudder
 
-    * Edit "makeall.bat". There are sets of parameters including 
-      those for all possible versions of UAVP. 
-      Change the "personal" sets to cover the range of 
-      versions you are interest in.
-    * Run makeall.bat (this does not delete old hex files 
-      so check the creation dates)
-    * Done! 
-
-==============================================
-= Transferring Firmware to the PIC           =
-==============================================
-
-If you already have a PIC with at least software version 3.05,
-You can upload your new version using the bootloader.
-Use UAVPset.exe to do that.
-
-But be careful: If you mock up things completely, you can lock
-yourself out. Then you would need a PIC programmer to get things 
-working again.
+Greg Egan Nov 2008
 
 ==============================================
 = SAFETY FIRST!                              =
