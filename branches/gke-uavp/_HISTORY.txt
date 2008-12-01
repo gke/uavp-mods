@@ -150,9 +150,11 @@ First public released version.
   checking on maximum throttle. Commissioned but
   abandoned in favour of Tx based throttle shaping.
 
-23.11.2008 v3.15m3 released by Greg Egan
-- added support for Futaba channel ordering and
-  Spektrum AR7000 Rx.  
+27.11.2008 v3.15m3 released by Greg Egan
+- DSM2 support for AR7000 Rx includes:
+  * Spektrum DX7
+  * Futaba 9C with Spektrum DM8
+  * JR 9XII with DM9 module  
 
 ==============================================
 = Transferring firmware to the PIC           =
