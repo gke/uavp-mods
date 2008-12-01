@@ -177,8 +177,8 @@ uns16 	CCPR1 @0x15;
 					ITurn = NewK4.low8 - _Neutral;
 					
 					IK5 = NewK5.low8;
-					IK6 = - _Neutral;
-					IK7 = - _Neutral;
+					IK6 = 0;
+					IK7 = 0;
 
 					_NoSignal = 0;
 					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
@@ -200,7 +200,7 @@ uns16 	CCPR1 @0x15;
 				{
 
 //EDIT FROM HERE ->
-// CURRENTLY JESOLINS - Futaba 9C with the Spektrum DM8
+// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
 					IGas = NewK5.low8;
 
 					IRoll = NewK3.low8 - _Neutral; 
