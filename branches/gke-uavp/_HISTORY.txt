@@ -139,22 +139,29 @@ First public released version.
 - A/D conversion now uses more A/D setup time to
   yield better, more accurate results
 
-19.11.2008 V3.15m3 released by Greg Egan
+19.11.2008 V3.15m3 Greg Egan
 - added non-latching battery alarm and support for 
   Spektrum AR7000 Rx
 - removed redundant source from Interrupt routine
 - rewrote makefiles (makeall)
 
-22.11.2008 v3.15m3 released by Greg Egan
+22.11.2008 v3.15m3 Greg Egan
 - added lookupup table based throttle curve and range
   checking on maximum throttle. Commissioned but
   abandoned in favour of Tx based throttle shaping.
 
-27.11.2008 v3.15m3 released by Greg Egan
+27.11.2008 v3.15m3 Greg Egan
 - DSM2 support for AR7000 Rx includes:
   * Spektrum DX7
   * Futaba 9C with Spektrum DM8
-  * JR 9XII with DM9 module  
+  * JR 9XII with DM9 module
+
+13.12.2008 v3.15m3 Greg Egan
+- added checking for interrupt masking by drive pulse
+  output of arriving Rx pulse edges. Potentially bad Rx 
+  frames rejected with Blue LED debug announcement.
+- Limited impulse to minimum 4 as values of 1 through 
+  UAVPSet were causing motor spontaneous start!
 
 ==============================================
 = Transferring firmware to the PIC           =

@@ -72,6 +72,11 @@ uns16 	CCPR1 @0x15;
 	{
 		TMR2 = 0;				// re-set timer and postscaler
 		TMR2IF = 0;				// quit int
+			
+		if ( _IntIsMasked )
+			_RxFrameOK = 0;
+
+
 		_FirstTimeout = 0;
 
 #ifndef RX_PPM	// single PPM pulse train from receiver
@@ -85,6 +90,7 @@ uns16 	CCPR1 @0x15;
 		{
 #endif
 			// could be replaced by a switch ???
+
 			if( RecFlags == 0 )
 			{
 				NewK1 = CCPR1;
@@ -181,7 +187,18 @@ uns16 	CCPR1 @0x15;
 					IK7 = 0;
 
 					_NoSignal = 0;
-					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
+					_NewValues = _RxFrameOK; // potentially IK6 & IK7 are still about to change ???
+#ifdef DEBUG_RXERRORS
+					if ( _RxFrameOK )
+					{
+						LedBlue_OFF;
+					}
+					else
+					{
+						LedBlue_ON;
+					}
+#endif // DEBUG_RXERRORS
+					_RxFrameOK = 1;
 #endif // !RX_DSM2
 				}
 				else	// values are unsafe
@@ -226,7 +243,18 @@ uns16 	CCPR1 @0x15;
 				}
 
 				_NoSignal = 0;
-				_NewValues = 1;
+				_NewValues = _RxFrameOK;
+#ifdef DEBUG_RXERRORS
+				if ( _RxFrameOK )
+				{
+					LedBlue_OFF;
+				}
+				else
+				{
+				LedBlue_ON;
+				}
+#endif // DEBUG_RXERRORS
+				_RxFrameOK = 1;
 #else				
 				IK7 = NewK7.low8;
 #endif // RX_DSM2 
@@ -236,6 +264,7 @@ uns16 	CCPR1 @0x15;
 			{
 ErrorRestart:
 				_NewValues = 0;
+				_RxFrameOK = 1;
 				_NoSignal = 1;		// Signal lost
 				RecFlags = -1;
 #ifndef RX_PPM
