@@ -24,21 +24,23 @@ rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
 set VERSION=3_15m3
 
 rem Add/Delete required combinations to these sets
+set BOARDS= 3_0 3_1
+set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
+set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
+set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
+set RXS=RX_DEFAULT RX_DSM2 RX_PPM
+
+rem Personal choice
 set BOARDS= 3_1
 set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
 set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
-set RXS=RX_DEFAULT RX_PPM RX_DSM2
-
-rem Personal choice
-set BOARDS= 3_1
-set GYROS=OPT_ADXRS300
-set ESCS=ESC_PPM
-set DBGS=NO_DEBUG 
-set RXS=RX_DEFAULT RX_DSM2
+set RXS=RX_DEFAULT RX_DSM2 RX_PPM 
 
 rem Delete working files
 call makeclean.bat
+echo Starting makeall uavp > gen.lst
+echo Starting makeall uavp > log.lst
 
 rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG RX
 

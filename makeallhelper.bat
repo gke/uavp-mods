@@ -55,7 +55,7 @@ rem As a consequence there are several warnings on bank allocation in the compil
 
 for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% >> log.lst
 rem recompiling sensor.c with -r01 to avoid the use of a separate batch file with conditionals.
-%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -ro1 >> log.lst
+%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -ro1 >> log.lst 
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% >> log.lst
 
@@ -65,11 +65,13 @@ for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% >> log.lst
 if %ERRORLEVEL% == 1 goto FAILED
 
 echo compiled - Profi-Ufo-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex
+echo compiled - Profi-Ufo-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
 echo failed - Profi-Ufo-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex
+echo failed - Profi-Ufo-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH
