@@ -157,11 +157,10 @@ First public released version.
   * JR 9XII with DM9 module
 
 13.12.2008 v3.15m3 Greg Egan
-- added checking for interrupt masking by drive pulse
-  output of arriving Rx pulse edges. Potentially bad Rx 
-  frames rejected with Blue LED debug announcement.
-- Limited impulse to minimum 4 as values of 1 through 
-  UAVPSet were causing motor spontaneous start!
+- Limited Impulse to minimum 4 as values of 1 through 
+  UAVPSet were causing spontaneous motor intermittent
+  start!
+- Restored filters on Roll, Pitch and Yaw Rx inputs
 
 ==============================================
 = Transferring firmware to the PIC           =
