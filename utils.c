@@ -218,7 +218,11 @@ SendComChar(0x0a);
 	// now stop CCP1 interrupt
 	// capture can survive 1ms without service!
 
-	GIE = 0;	// BLOCK ALL INTERRUPTS
+	// Strictly only if the masked interrupt region below is
+	// less than the minimum valid Rx pulse/gap width which
+	// is 1027uS less capture time overheads
+
+	GIE = 0;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
 	while( T0IF == 0 ) ;	// wait for first overflow
 	T0IF=0;		// quit TMR0 interrupt
 
@@ -273,6 +277,7 @@ OS006
 //	}
 
 	GIE = 1;	// Re-enable interrupt
+
 #endif	// ESC_PPM
 
 #if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
@@ -345,7 +350,7 @@ OS006
 #ifndef DEBUG_MOTORS
 	while( TMR0 < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
 
-	GIE = 0;	// Int wieder sperren, wegen Jitter
+	GIE = 0;					// Int wieder sperren, wegen Jitter
 
 	while( T0IF == 0 ) ;	// wait for 2nd overflow (2 ms)
 
@@ -384,6 +389,7 @@ OS002
 #endasm
 #endif	// DEBUG
 	GIE = 1;	// re-enable interrupt
+
 	while( T0IF == 0 ) ;	// wait for 3rd TMR2 overflow
 #endif	// DEBUG_MOTORS
 
