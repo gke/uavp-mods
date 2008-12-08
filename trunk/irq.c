@@ -42,7 +42,7 @@ uns8	RecFlags;
 
 #pragma interruptSaveCheck w
 
-#define Filter(O,N) (( O + N + 1) >> 1)
+#define USE_FILTERS
 
 interrupt irq(void)
 {
@@ -74,8 +74,8 @@ uns16 	CCPR1 @0x15;
 		TMR2IF = 0;				// quit int
 		_FirstTimeout = 0;
 
-#ifndef RX_PPM	// single PPM pulse train from receiver
-		// standard usage (PPM, 3 or 4 channels input)
+#ifndef RX_PPM						// single PPM pulse train from receiver
+							// standard usage (PPM, 3 or 4 channels input)
 		CCPR1.low8 = CCPR1L;
 		CCPR1.high8 = CCPR1H;
 		CCP1M0 ^= 1;	// toggle edge bit
@@ -85,6 +85,7 @@ uns16 	CCPR1 @0x15;
 		{
 #endif
 			// could be replaced by a switch ???
+
 			if( RecFlags == 0 )
 			{
 				NewK1 = CCPR1;
@@ -158,24 +159,48 @@ uns16 	CCPR1 @0x15;
 					{
 						IGas = NewK3.low8;
 #ifdef EXCHROLLNICK
-						NewRoll = NewK2.low8;
-						NewNick = NewK1.low8;
+						NewRoll = NewK2.low8 - _Neutral;
+						NewNick = NewK1.low8- _Neutral;
 #else
-						NewRoll = NewK1.low8;
-						NewNick = NewK2.low8;
+						NewRoll = NewK1.low8- _Neutral;
+						NewNick = NewK2.low8- _Neutral;
 #endif // EXCHROLLNICK
 					}
 					else
 					{
 						IGas  = NewK1.low8;
-						NewRoll = NewK2.low8;
-						NewNick = NewK3.low8;
-					}					
+						NewRoll = NewK2.low8- _Neutral;
+						NewNick = NewK3.low8- _Neutral;
+					}
+					NewTurn = NewK4.low8 - _Neutral;
+										
+#ifdef USE_FILTERS					
+					Temp = IRoll << 1;
+					Temp += IRoll;
+					Temp += NewRoll;
+					Temp += 2;	
+					Temp >>= 2;
+					IRoll = Temp;
 
-					IRoll = NewRoll - _Neutral; 
-					INick = NewNick - _Neutral;
-					ITurn = NewK4.low8 - _Neutral;
-					
+					Temp = INick << 1;
+					Temp += INick;
+					Temp += NewNick;
+					Temp += 2;
+					Temp >>= 2;
+					INick = Temp;
+
+
+					Temp = ITurn << 1;
+					Temp += ITurn;
+					Temp += NewTurn;
+					Temp += 2; 
+					Temp >>= 2;
+					ITurn = Temp;
+#else
+					IRoll = NewRoll; 
+					INick = NewNick;
+					ITurn = NewTurn;
+#endif // USE_FILTERS	
 					IK5 = NewK5.low8;
 					IK6 = - _Neutral;
 					IK7 = - _Neutral;
@@ -198,33 +223,58 @@ uns16 	CCPR1 @0x15;
 
 				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 				{
-
 //EDIT FROM HERE ->
-// CURRENTLY JESOLINS - Futaba 9C with the Spektrum DM8
+// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
 					IGas = NewK5.low8;
 
-					IRoll = NewK3.low8 - _Neutral; 
-					INick = NewK2.low8 - _Neutral;
-					ITurn = NewK1.low8 - _Neutral;
+					NewRoll = NewK3.low8 - _Neutral; 
+					NewNick = NewK2.low8 - _Neutral;
+					NewTurn = NewK1.low8 - _Neutral;
+
 					IK5 = NewK6.low8; // do not filter
 					IK6 = NewK4.low8;
 					IK7 = NewK7.low8;
 // TO HERE
 				}
-				else // Reference 2.4GHz configuration DX7 and AR7000 Rx
-
+				else // Reference 2.4GHz configuration DX7 Tx and AR7000 Rx
 				{
 					IGas = NewK6.low8;
 
-					IRoll = NewK1.low8 - _Neutral; 
-					INick = NewK4.low8 - _Neutral;
-					ITurn = NewK7.low8 - _Neutral;
+					NewRoll = NewK1.low8 - _Neutral; 
+					NewNick = NewK4.low8 - _Neutral;
+					NewTurn = NewK7.low8 - _Neutral;
 
 					IK5 = NewK3.low8; // do not filter
 					IK6 = NewK5.low8;
 					IK7 = NewK2.low8;
 				}
 
+#ifdef USE_FILTERS
+				Temp = IRoll << 1;
+				Temp += IRoll;
+				Temp += NewRoll;
+				//Temp += 2; 		// rounding - not enough code space!
+				Temp >>= 2;
+				IRoll = Temp;
+
+				Temp = INick << 1;
+				Temp += INick;
+				Temp += NewNick;
+				//Temp += 2;
+				Temp >>= 2;
+				INick = Temp;
+
+				Temp = ITurn << 1;
+				Temp += ITurn;
+				Temp += NewTurn;
+				//Temp += 2;
+				Temp >>= 2;
+				ITurn = Temp;
+#else
+				IRoll = NewRoll; 
+				INick = NewNick;
+				ITurn = NewTurn;		
+#endif // USE_FILTERS
 				_NoSignal = 0;
 				_NewValues = 1;
 #else				

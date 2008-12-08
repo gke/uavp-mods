@@ -6,9 +6,6 @@ rem ---------------------------------------------
 set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
 
-rem general error listing file
-if exist log.lst del log.lst
-
 rem compiler working files...
 for %%i in ( %CSRC% ) do if exist %%i.asm del %%i.asm
 for %%i in ( %CSRC% ) do if exist %%i.err del %%i.err

@@ -229,9 +229,12 @@ void ReadEEdata(void) // 245 uSec @ 16MHz
 	BatteryVolts = LowVoltThres;
 
 // Sanity check
-// ??? if timing value is lower than 1, set it to 10ms!
-	if( TimeSlot < 1 )
-		TimeSlot = 10;
+//if timing value is lower than 1, set it to 10ms!
+	if( TimeSlot < 4 )
+		TimeSlot = 4;
+	else
+	if ( TimeSlot > 20 )
+		TimeSlot = 20;
 #endif
 }
 

@@ -341,7 +341,8 @@ void ProcessComCommand(void)
 			nireg = RecvComNumU();
 			nireg--;
 			SendComText(SerReg2);	// = 
-			EEDATA = RecvComNumS();
+			nival = RecvComNumS();
+			EEDATA = nival;
 			if( IK5 > _Neutral )
 				nireg += _EESet2;
 			EEADR = nireg;

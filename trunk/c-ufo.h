@@ -44,6 +44,7 @@
 //#define DEBUGOUT
 //#define DEBUGOUTG
 //#define DEBUGSSP
+#DEBUG_RXERRORS
 
 // Only one of the following 3 defines must be activated:
 // When using 3 ADXRS300 gyros

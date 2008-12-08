@@ -204,6 +204,9 @@ bit _UseCh7Trigger	@Flags2.3;	// 1: don't use Ch7
 								// 0: use Ch7 as Cam Roll trim
 bit _TrigSign		@Flags2.4;	// used in trig.c
 
+bit _IntIsMasked		@Flags2.6;	// Masking of Rx edge interrupt
+bit _RxFrameOK		@Flags2.7;	// Rx Frame may be bad
+
 // Mask Bits of ConfigParam
 bit FlyCrossMode 	@ConfigParam.0;
 bit FutabaMode		@ConfigParam.1;
