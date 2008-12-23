@@ -161,6 +161,8 @@ First public released version.
   UAVPSet were causing spontaneous motor intermittent
   start!
 - Restored filters on Roll, Pitch and Yaw Rx inputs
+  with some concern about interrupt overheads and
+  PPM motor control timing assumptions.
 
 ==============================================
 = Transferring firmware to the PIC           =
