@@ -174,8 +174,10 @@ uns16 	CCPR1 @0x15;
 					}
 					NewTurn = NewK4.low8 - _Neutral;
 										
-#ifdef USE_FILTERS					
-					Temp = IRoll << 1;
+#ifdef USE_FILTERS	
+					// this may cause interrupt service routine time assumptions 
+					// of output routines to be invalid ???				
+					Temp = IRoll << 1; 
 					Temp += IRoll;
 					Temp += NewRoll;
 					Temp += 2;	
@@ -253,7 +255,7 @@ uns16 	CCPR1 @0x15;
 				Temp = IRoll << 1;
 				Temp += IRoll;
 				Temp += NewRoll;
-				//Temp += 2; 		// rounding - not enough code space!
+				//Temp += 2; 		// forget rounding - not enough code space!
 				Temp >>= 2;
 				IRoll = Temp;
 
