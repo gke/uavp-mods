@@ -31,11 +31,11 @@ set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS
 set RXS=RX_DEFAULT RX_DSM2 RX_PPM
 
 rem Personal choice
-//set BOARDS= 3_1
-//set GYROS=OPT_IDG
-//set ESCS=ESC_PPM
-//set DBGS=DEBUG_MOTORS DEBUG_SENSORS 
-//set RXS=RX_DEFAULT
+set BOARDS= 3_1
+set GYROS=OPT_IDG
+set ESCS=ESC_PPM
+set DBGS=NO_DEBUG DEBUG_SENSORS 
+set RXS=RX_DEFAULT
 
 rem Delete working files
 call makeclean.bat
