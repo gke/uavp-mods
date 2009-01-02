@@ -234,7 +234,7 @@ void GetVbattValue(void)
 // cc5x limitation	_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
 
 	Temp = BatteryVolts+NewBatteryVolts+1;
-	BatteryVolts = Temp/2;
+	BatteryVolts = Temp>>1;
 
 	if (BatteryVolts < LowVoltThres)
 		_LowBatt = 1;
