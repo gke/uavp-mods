@@ -42,7 +42,7 @@ uns8	RecFlags;
 
 #pragma interruptSaveCheck w
 
-#define USE_FILTERS
+//#define USE_FILTERS
 
 interrupt irq(void)
 {
