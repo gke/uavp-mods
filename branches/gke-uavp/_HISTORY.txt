@@ -160,7 +160,6 @@ First public released version.
 - Limited Impulse to minimum 4 as values of 1 through 
   UAVPSet were causing spontaneous motor intermittent
   start!
-- Restored filters on Roll, Pitch and Yaw Rx inputs
 
 ==============================================
 = Transferring firmware to the PIC           =
