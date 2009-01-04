@@ -42,7 +42,7 @@ uns8	RecFlags;
 
 #pragma interruptSaveCheck w
 
-//#define USE_FILTERS
+#define USE_FILTERS
 
 interrupt irq(void)
 {
@@ -173,25 +173,27 @@ uns16 	CCPR1 @0x15;
 						NewNick = NewK3.low8- _Neutral;
 					}
 					NewTurn = NewK4.low8 - _Neutral;
+					
+					// DoubleRate removed
 										
-#ifdef USE_FILTERS					
-					Temp = IRoll << 1;
-					Temp += IRoll;
+#ifdef USE_FILTERS
+					Temp = (int16)IRoll << 1;// UGLY code forced by cc5x compiler
+					Temp += (int16)IRoll;
 					Temp += NewRoll;
 					Temp += 2;	
 					Temp >>= 2;
 					IRoll = Temp;
 
-					Temp = INick << 1;
-					Temp += INick;
+					Temp = (int16)INick << 1;
+					Temp += (int16)INick;
 					Temp += NewNick;
 					Temp += 2;
 					Temp >>= 2;
 					INick = Temp;
 
 
-					Temp = ITurn << 1;
-					Temp += ITurn;
+					Temp = (int16)ITurn << 1;
+					Temp += (int16)ITurn;
 					Temp += NewTurn;
 					Temp += 2; 
 					Temp >>= 2;
@@ -249,23 +251,25 @@ uns16 	CCPR1 @0x15;
 					IK7 = NewK2.low8;
 				}
 
+				// DoubleRate removed
+
 #ifdef USE_FILTERS
-				Temp = IRoll << 1;
-				Temp += IRoll;
+				Temp = (int)IRoll << 1;
+				Temp += (int)IRoll;
 				Temp += NewRoll;
-				//Temp += 2; 		// rounding - not enough code space!
+				//Temp += 2;		// run out of code space!
 				Temp >>= 2;
 				IRoll = Temp;
 
-				Temp = INick << 1;
-				Temp += INick;
+				Temp = (int)INick << 1;
+				Temp += (int)INick;
 				Temp += NewNick;
 				//Temp += 2;
 				Temp >>= 2;
 				INick = Temp;
 
-				Temp = ITurn << 1;
-				Temp += ITurn;
+				Temp = (int)ITurn << 1;
+				Temp += (int)ITurn;
 				Temp += NewTurn;
 				//Temp += 2;
 				Temp >>= 2;
