@@ -230,7 +230,7 @@ void GetVbattValue(void)
 	NewBatteryVolts = (int) (ADRESH >> 1);
 #ifndef DEBUG_SENSORS
 
-// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+2)>>2;
+// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+1)>>1;
 // cc5x limitation	_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
 
 	Temp = BatteryVolts+NewBatteryVolts+1;
