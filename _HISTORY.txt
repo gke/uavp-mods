@@ -161,6 +161,11 @@ First public released version.
   UAVPSet were causing spontaneous motor intermittent
   start!
 
+07.1.2009 v3.15m3 Greg Egan
+- Reduced _Maximum output pulse width to prevent 
+  minimum width Rx pulses from being missed with
+  interrupts masked.  
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
