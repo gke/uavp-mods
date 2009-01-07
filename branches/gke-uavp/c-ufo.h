@@ -271,7 +271,7 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 //                    vvv   ACHTUNG: Auf numerischen Überlauf achten!
 #ifdef ESC_PPM
 #define	_Minimum	((105* _ClkOut/(2*_PreScale1))&0xFF)	/*-100% */
-#define _Maximum	255
+#define _Maximum	240					/* reduced from 255 */
 #endif
 #ifdef ESC_X3D
 #define _Minimum	0
