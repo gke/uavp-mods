@@ -4,7 +4,8 @@
 ; mit PIC16F876
 ;*************************************************************************
 
-; BOARD_3_0 or BOARD_3_1 must be defined by commadn line!
+;#define BOARD_3_1
+
         LIST C=200,R=dec
 
         errorlevel -302         ;avoid "ensure page bits are set" warning
@@ -63,13 +64,7 @@ BootStart
 
 		movlw	10010000b	;receive async on
 		movwf	RCSTA
-#ifdef BOARD_3_0
-		movlw	10000000b
-		movwf	PORTB		;SERVOS OFF, only LISL_CS=1
-#endif
-#ifdef BOARD_3_1
  		clrf	PORTB		;SERVOS OFF!
-#endif
 
 ;		clrf	Reset+2		;=nop
 ;		clrf	Reset+3
@@ -87,8 +82,7 @@ MainLoop
 		movwf	FSR
 
 #ifdef BOARD_3_0
-		movlw	00000001b
-		movwf	PORTC		;all outputs off, only yellow LED on
+		bcf		PORTC,1		;green LED off
 #endif
 #ifdef BOARD_3_1
 		movlw	00100000b	;yellow LED on, green off

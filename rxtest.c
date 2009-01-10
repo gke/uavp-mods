@@ -1,5 +1,5 @@
 // ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
+// =    U.A.V.P Brushless UFO Test software     =
 // =           Professional Version             =
 // = Copyright (c) 2007 Ing. Wolfgang Mahringer =
 // ==============================================
@@ -19,59 +19,70 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // ==============================================
-// =  please visit http://www.uavp.org          =
+// =  please visit http://www.uavp.de           =
 // =               http://www.mahringer.co.at   =
 // ==============================================
 
-// roll/nick matrix compensation
+// Receiver signal test
 
-#pragma codepage = 2
+#pragma codepage=1
+#pragma sharedAllocation
 
-#include "c-ufo.h"
+#include "pu-test.h"
 #include "bits.h"
 
 // Math Library
 #include "mymath16.h"
 
 
-// compute new RE and NE
-void MatrixCompensate(void)
+// output all the signal values and the validity of signal
+void ReceiverTest(void)
 {
-// Rnew = cos(Nick)*RE + 
-//        sin(Nick)*sin(Roll)*NE
-//
-// Nnew = cos(Roll)*NE
-//        
-#if 0
-	long nila1@nilarg1;
-	int ni1,ni2;
+	uns8 nii;
+	uns16 *p;
 
-	nila1=Nw;
-	niltemp1 = (int)Cos();
-	niltemp1 *= (long)RE;
+	p=&CurrK1;
+	for( nii=1; nii <= 7; nii++ )
+	{
+		SendComChar(nii+'0');
+		SendComChar(':');
+		nilgval = *p;
+		SendComChar('0');
+		SendComChar('x');
+		SendComValH(nilgval.high8);
+		SendComValH(nilgval.low8);
+		if( (nilgval.high8 < 1) || (nilgval.high8 > 1) ) 
+		{
+			SendComText(_SerFail);
+		}
+		SendComCRLF();
+		p++;
+	}
+// show pause time
+	SendComChar('P');
+	SendComChar(':');
+	nilgval = 2*PauseTime;
+ 	nilgval += (uns16)TMR2_5MS * 64;	// 78 * 16*16/4 us
+	SendComValUL(NKS3+LEN5);	// print from nilgval
+	SendComText(_SerMS);
+}
 
-	nila1=Nw;
-	ni1 = Sin();
-	nila1=Rw;
-	ni2 = Sin();
-	niltemp = (long)ni1 * (long)ni2;
-	niltemp += 64;
-	niltemp /= 128;
-	niltemp *= (long)NE;
+void TogglePPMPolarity(void)
+{
+	NegativePPM ^= 1;	// toggle bit
+	if( NegativePPM )
+		SendComText(_SerPPMN);
+	else
+		SendComText(_SerPPMP);
 
-	niltemp += niltemp1;
-	niltemp += 64;
-	niltemp /= 128;
-	RE = niltemp.low8;
-
-
-	nila1=Rw;
-	niltemp = Cos();
-	niltemp *= NE;
-	niltemp += 64;
-	niltemp /= 128;
-	NE = niltemp.low8;
-SendComValS(RE);
-SendComValS(NE);
-#endif
+	CurrK1 =
+	CurrK2 =
+	CurrK3 =
+	CurrK4 =
+	CurrK5 =
+	CurrK6 =
+	CurrK7 = 0xFFFF;
+	PauseTime = 0;
+	_NewValues = 0;
+	_NoSignal = 1;
 }

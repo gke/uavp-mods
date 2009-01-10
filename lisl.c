@@ -19,7 +19,7 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // ==============================================
-// =  please visit http://www.uavp.org          =
+// =  please visit http://www.uavp.de           =
 // =               http://www.mahringer.co.at   =
 // ==============================================
 
@@ -27,46 +27,25 @@
 
 //#pragma codepage=0
 #pragma codepage=2
-#include "c-ufo.h"
+#include "pu-test.h"
 #include "bits.h"
-
-// Math Library
-#include "mymath16.h"
 
 #pragma sharedAllocation
 
-static uns8	nii;
-static uns8 niaddr;
+bank2 uns8	nii;
 
-bit SSP_CLK @PORTB.4;
-bit SSP_SDA @PORTB.5;
 
-#ifdef DEBUGSSP
-// SSP output for datalogger
-// define DEBUG must be set to use it!
-void OutSSP(bank2 uns8 nidata)
+// send an address byte (niaddr) to linear sensor
+// read the answer and return it
+uns8 ReadLISL(uns8 niaddr)
 {
-	for( nii=0; nii<8; nii++ )
-	{
-		if( nidata.7 )
-			SSP_SDA = 1;
-		else
-			SSP_SDA = 0;
-		nop();
-		SSP_CLK = 1;
-		nidata <<= 1;
-		SSP_CLK = 0;
-	}
-}
-#endif
 
-// send a command byte to linear sensor, address = niaddr
-void SendCommand(void)
-{
+//	SendCommand(niaddr);
+	LISL_SDA = 1;	// very important!! really!! LIS3L likes it
 	LISL_IO = 0;	// SDA is output
 	LISL_SCL = 0;
 	LISL_CS = 0;	// CS to 0
-	for( W = 8; W != 0; W-- )
+	for( nii = 0; nii < 8; nii++ )
 	{
 		LISL_SCL = 0;
 		if( niaddr & 0x80 )
@@ -76,29 +55,11 @@ void SendCommand(void)
 		niaddr <<= 1;
 		LISL_SCL = 1;
 	}
-}
 
-// send an address byte (niaddr) to linear sensor
-// read the answer and return it
-uns8 ReadLISL(uns8 W)
-{
-	niaddr = W;
-	nii = W;
-	LISL_SDA = 1;	// very important!! really!! LIS3L likes it
-	SendCommand();
+
 	LISL_IO = 1;	// SDA is input
-	W=ReadLISLNext();
-	
-	if( (nii & LISL_INCR_ADDR) == 0 )
-		LISL_CS = 1;	// end transmission
-	return(W);
-}
-
-// read a data byte from linear sensor and return it
-uns8 ReadLISLNext(void)
-{
-//	niaddr = 0;		// not really necessary
-	for( W = 8; W != 0; W-- )
+	niaddr = 0;
+	for( nii = 0; nii < 8; nii++ )
 	{
 		LISL_SCL = 0;
 		niaddr <<= 1;
@@ -106,15 +67,31 @@ uns8 ReadLISLNext(void)
 			niaddr |= 1;	// set LSB
 		LISL_SCL = 1;
 	}
+	LISL_CS = 1;
 	return(niaddr);
 }
 
-// send an address byte (niaddr) to linear sensor
+// only needed for CC5X version 3.3 and earlier
+page2 void WriteLISL(uns8, uns8);
+
+// send an address byte (niaddr) to lienar sensor
 // and write data byte (nidata)
-void WriteLISL(uns8 nidata, uns8 W)
+void WriteLISL(uns8 niaddr, uns8 nidata)
 {
-	niaddr = W;
-	SendCommand();
+
+	LISL_IO = 0;	// SDA is output
+	LISL_SCL = 0;
+	LISL_CS = 0;	// CS to 0
+	for( nii = 0; nii < 8; nii++ )
+	{
+		LISL_SCL = 0;
+		if( niaddr & 0x80 )
+			LISL_SDA = 1;
+		else
+			LISL_SDA = 0;
+		niaddr <<= 1;
+		LISL_SCL = 1;
+	}
 
 	for( nii = 0; nii < 8; nii++ )
 	{
@@ -137,20 +114,18 @@ void IsLISLactive(void)
 {
 
 	LISL_CS = 1;
-	WriteLISL(0b.01001010, LISL_CTRLREG_2); // enable 3-wire, BDU=1, +/-2g
+	WriteLISL(LISL_CTRLREG_2, 0b.01001010); // enable 3-wire, BDU=1, +/-2g
 
-	W = ReadLISL(LISL_WHOAMI + LISL_READ);
-	if( W == 0x3A )	// a LIS03L sensor is there!
+	nii = ReadLISL(LISL_WHOAMI + LISL_READ);
+	if( nii == 0x3A )	// a LIS03L sensor is there!
 	{
-//		WriteLISL(0b.11010111, LISL_CTRLREG_1); // startup, enable all axis
-// use 40Hz data rate, thanks to Tom Poub!
-		WriteLISL(0b.11000111, LISL_CTRLREG_1); // startup, enable all axis
-		WriteLISL(0b.00000000, LISL_CTRLREG_3);
-		WriteLISL(0b.01001000, LISL_FF_CFG); // Y-axis is height
-		WriteLISL(0b.00000000, LISL_FF_THS_L);
-		WriteLISL(0b.11111100, LISL_FF_THS_H); // -0,5g threshold
-		WriteLISL(255, LISL_FF_DUR);
-		WriteLISL(0b.00000000, LISL_DD_CFG);
+		WriteLISL(LISL_CTRLREG_1, 0b.11010111); // startup, enable all axis
+		WriteLISL(LISL_CTRLREG_3, 0b.00000000);
+		WriteLISL(LISL_FF_CFG,    0b.01001000); // Y-axis is height
+		WriteLISL(LISL_FF_THS_L,  0b.00000000);
+		WriteLISL(LISL_FF_THS_H,  0b.11111100); // -0,5g threshold
+		WriteLISL(LISL_FF_DUR,    255);
+		WriteLISL(LISL_DD_CFG,    0b.00000000);
 		_UseLISL = 1;
 	}
 #ifdef BOARD_3_0
@@ -159,3 +134,38 @@ void IsLISLactive(void)
 #endif
 }
 
+#ifdef BOARD_3_1
+void LinearTest(void)
+{
+
+	nii = ReadLISL(LISL_STATUS + LISL_READ);
+	SendComChar('S');
+	SendComChar(':');
+	SendComChar('0');
+	SendComChar('x');
+	SendComValH(nii);
+	SendComCRLF();
+
+	nilgval.high8 = (int)ReadLISL(LISL_OUTX_H + LISL_READ);
+	nilgval.low8  = (int)ReadLISL(LISL_OUTX_L + LISL_READ);
+	SendComChar('X');
+	SendComChar(':');
+	SendComValUL(NKS3+LEN5+VZ);
+	SendComText(_SerLinG);
+
+	nilgval.high8 = (int)ReadLISL(LISL_OUTZ_H + LISL_READ);
+	nilgval.low8  = (int)ReadLISL(LISL_OUTZ_L + LISL_READ);
+	SendComChar('Y');
+	SendComChar(':');
+	SendComValUL(NKS3+LEN5+VZ);
+	SendComText(_SerLinG);
+
+	nilgval.high8 = (int)ReadLISL(LISL_OUTY_H + LISL_READ);
+	nilgval.low8  = (int)ReadLISL(LISL_OUTY_L + LISL_READ);
+	SendComChar('Z');
+	SendComChar(':');
+	SendComValUL(NKS3+LEN5+VZ);
+	SendComText(_SerLinG);
+	
+}
+#endif

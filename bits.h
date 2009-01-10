@@ -19,7 +19,7 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // ==============================================
-// =  please visit http://www.uavp.org          =
+// =  please visit http://www.uavp.de           =
 // =               http://www.mahringer.co.at   =
 // ==============================================
 
@@ -28,18 +28,27 @@
 #define	NULL	0
 
 // when changing, see OutSignal() in utils.c
-#ifdef ESC_PPM
+#ifdef ESC_PWM
 bit	PulseVorne		@PORTB.0;
 bit	PulseLinks		@PORTB.1;
 bit	PulseRechts		@PORTB.2;
 bit	PulseHinten		@PORTB.3;
 #endif
-#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
+#if defined ESC_X3D || defined ESC_HOLGER
 bit ESC_SDA			@PORTB.1;
 bit ESC_SCL			@PORTB.2;
 bit ESC_DIO			@TRISB.1;
 bit ESC_CIO			@TRISB.2;
 #endif
+
+// the sensor bus lines
+bit I2C_SDA			@PORTB.6;
+bit I2C_DIO			@TRISB.6;
+bit I2C_SCL			@PORTB.7;
+bit	I2C_CIO			@TRISB.7;
+
+#define	I2C_ACK		0
+#define	I2C_NACK	1
 
 
 bit PulseCamRoll	@PORTB.4;
@@ -64,17 +73,6 @@ bit LISL_SDA	@PORTC.4;
 bit LISL_SCL	@PORTC.3;
 bit	LISL_IO		@TRISC.4;
 #endif
-
-#ifdef BOARD_3_1
-// the sensor bus lines
-bit I2C_SDA			@PORTB.6;
-bit I2C_DIO			@TRISB.6;
-bit I2C_SCL			@PORTB.7;
-bit	I2C_CIO			@TRISB.7;
-#endif
-
-#define	I2C_ACK		0
-#define	I2C_NACK	1
 
 
 
@@ -129,9 +127,6 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define LedGreen	LED4
 #define	LedBlue		LED2
 #define LedRed		LED3
-#define LedAUX1		LED5
-#define LedAUX2		LED1
-#define LedAUX3		LED7
 
 #define LED1	0x01	/* Aux2 */
 #define LED2	0x02	/* blue */
@@ -143,10 +138,8 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define Beeper	0x80
 
 #define ALL_LEDS_ON		SwitchLedsOn(LedBlue|LedRed|LedGreen|LedYellow)
-#define AUX_LEDS_ON		SwitchLedsOn(LedAUX1|LedAUX2|LedAUX3)
 
 #define ALL_LEDS_OFF	SwitchLedsOff(LedBlue|LedRed|LedGreen|LedYellow)
-#define AUX_LEDS_OFF	SwitchLedsOff(LedAUX1|LedAUX2|LedAUX3)
 
 #define ARE_ALL_LEDS_OFF if((LedShadow&(LedBlue|LedRed|LedGreen|LedYellow))==0)
 
@@ -154,9 +147,6 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define LedBlue_ON		SwitchLedsOn(LedBlue);
 #define LedGreen_ON		SwitchLedsOn(LedGreen);
 #define LedYellow_ON	SwitchLedsOn(LedYellow);
-#define LedAUX1_ON		SwitchLedsOn(LedAUX1);
-#define LedAUX2_ON		SwitchLedsOn(LedAUX2);
-#define LedAUX3_ON		SwitchLedsOn(LedAUX3);
 #define LedRed_OFF		SwitchLedsOff(LedRed);
 #define LedBlue_OFF		SwitchLedsOff(LedBlue);
 #define LedGreen_OFF	SwitchLedsOff(LedGreen);
@@ -167,18 +157,6 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define Beeper_ON		SwitchLedsOn(Beeper);
 #define Beeper_TOG		if( (LedShadow&Beeper) == 0 ) SwitchLedsOn(Beeper); else SwitchLedsOff(Beeper);
 
-// compass sensor
-#define COMPASS_ADDR	0x42	/* I2C slave address */
-#define COMPASS_MAXDEV	30	/* maximum yaw compensation of compass heading */
-#define COMPASS_MAX		240	/* means 360 degrees */
-#define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
-#define COMPASS_MIDDLE	10	/* yaw stick neutral dead zone */
-
-// baro (altimeter) sensor
-#define BARO_ADDR		0xee	/* I2C slave address */
-#define THR_DOWNCOUNT	255	// 128 PID-cycles (=3 sec) until current throttle is fixed
-#define THR_MIDDLE		10  /* throttle stick dead zone for baro */
-#define THR_HOVER		75	/* min throttle stick for alti lock */
 #endif	/* BOARD_3_1 */
 
 
@@ -189,33 +167,8 @@ bit _FirstTimeout	@Flags.3;	// is 1 after first 9ms TO expired
 bit _NegIn			@Flags.4;	// negative signed input (serial.c)
 bit _LowBatt		@Flags.5;	// if Batt voltage is low
 bit	_UseLISL		@Flags.6;	// 1 if LISL Sensor is used
-#ifdef BOARD_3_0
 bit _SerEnabled		@Flags.7;	// 1 if RS232 is enabled
-#endif
-#ifdef BOARD_3_1
-bit	_UseCompass		@Flags.7;	// 1 if compass sensor is enabled
-#endif
 
-bit _UseBaro		@Flags2.0;	// 1 if baro sensor active
-bit _BaroTempRun	@Flags2.1;	// 1 if baro temp a/d conversion is running
-								// 0 means: pressure a/d conversion is running
-bit _OutToggle		@Flags2.2;	// cam servos only evers 2nd output pulse								
-bit _UseCh7Trigger	@Flags2.3;	// 1: don't use Ch7
-								// 0: use Ch7 as Cam Roll trim
-bit _TrigSign		@Flags2.4;	// used in trig.c
-
-bit _IntIsMasked		@Flags2.6;	// Masking of Rx edge interrupt
-bit _RxFrameOK		@Flags2.7;	// Rx Frame may be bad
-
-// Mask Bits of ConfigParam
-bit FlyCrossMode 	@ConfigParam.0;
-bit FutabaMode		@ConfigParam.1;
-bit IntegralTest	@ConfigParam.2;
-bit DoubleRate		@ConfigParam.3;	// Speckys bit :-)
-bit NegativePPM		@ConfigParam.4;
-#ifdef BOARD_3_1
-bit CompassTest		@ConfigParam.5;
-#endif
 
 // LISL-Register mapping
 #define	LISL_WHOAMI		(0x0f)
@@ -242,5 +195,4 @@ bit CompassTest		@ConfigParam.5;
 #define LISL_FF_THS_H	(0x35)
 #define LISL_FF_DUR		(0x36)
 #define LISL_DD_CFG		(0x38)
-#define LISL_INCR_ADDR	(0x40)
 #define LISL_READ		(0x80)

@@ -19,7 +19,7 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // ==============================================
-// =  please visit http://www.uavp.org          =
+// =  please visit http://www.uavp.de           =
 // =               http://www.mahringer.co.at   =
 // ==============================================
 
@@ -34,24 +34,11 @@
 
 // Sanity checks
 #ifndef MATHBANK_VARS
-#define MATHBANK_VARS 0
-#endif
-#ifndef MATHBANK_PROG
-#define MATHBANK_PROG 0
+#define MATHBANK_VARS bank0
 #endif
 
-// don't touch these defines!
-#if MATHBANK_VARS == 0
-#define MATHBANK_RAM bank0
-#endif
-#if MATHBANK_VARS == 1
-#define MATHBANK_RAM bank1
-#endif
-#if MATHBANK_VARS == 2
-#define MATHBANK_RAM bank2
-#endif
-#if MATHBANK_VARS == 3
-#define MATHBANK_RAM bank3
+#ifndef MATHBANK_PROG
+#define MATHBANK_PROG 0
 #endif
 
 #if MATHBANK_PROG == 0
@@ -69,26 +56,27 @@
 
 //extern MATHBANK_VARS uns16 nilarg1;
 //extern MATHBANK_VARS uns16 nilarg2;
-extern MATHBANK_RAM uns16 nilrval;
-extern MATHBANK_RAM uns8  rm;
-extern MATHBANK_RAM uns16 rm16;
-extern MATHBANK_RAM int8  tmpArg2;
-extern MATHBANK_RAM char  sign;
+extern MATHBANK_VARS uns16 nilrval;
+extern MATHBANK_VARS uns8  rm;
+extern MATHBANK_VARS uns16 rm16;
+extern MATHBANK_VARS int8  tmpArg2;
+extern MATHBANK_VARS char  sign;
 
-// outside of math calls, these 2 longs can be used as temp stores
-#if MATHBANK_VARS == 0
+#define MBV 1
+
+#if MBV == 0
 #define nilarg1	0x6C
 #define nilarg2 0x6E
 #endif
-#if MATHBANK_VARS == 1
+#if MBV == 1
 #define nilarg1	0xDC
 #define nilarg2 0xDE
 #endif
-#if MATHBANK_VARS == 2
+#if MBV == 2
 #define nilarg1	0x16C
 #define nilarg2 0x16E
 #endif
-#if MATHBANK_VARS == 3
+#if MBV == 3
 #define nilarg1	0x1DC
 #define nilarg2 0x1DE
 #endif
@@ -101,29 +89,37 @@ extern MATHBANK_PAGE void MathDivU16_8(void);
 extern MATHBANK_PAGE void MathDivU16_16(void);
 extern MATHBANK_PAGE void MathDivS16_8(void);
 extern MATHBANK_PAGE void MathDivS16_16(void);
-extern MATHBANK_PAGE void MathModU8_8(void);
-
-// All the math routines ensure that the bankbits
-// are set to access the math vars!
-#pragma updateBank 0	// saves a lot of prog memory!
 
 
 uns16 operator* (uns8 arg1@nilarg1, uns8 arg2@nilarg2) @
 int8 operator* (int8 arg1@nilarg1, int8 arg2@nilarg2)
 {
+//	nilarg1.low8 = arg1;
+//	nilarg2.low8 = arg2;
 	MathMultU8x8();	// passt scho so!
 	return nilrval;
 }
 
 int16 operator* (int8 arg1@nilarg1, int8 arg2@nilarg2)
 {
+//	nilarg1.low8 = arg1;
+//	nilarg2.low8 = arg2;
 	MathMultS8x8();
 	return nilrval;
 }
 
-uns16 operator* (uns8 arg1@nilarg2, uns16 arg2@nilarg1) @
+uns16 operator* (uns8 arg1@nilarg2, uns16 arg2@nilarg1)
+{
+//	nilarg2.low8 = arg1;
+//	nilarg1 = arg2;
+	MathMultU16x8();
+	return nilrval;
+}
+
 uns16 operator* (uns16 arg1@nilarg1, uns8 arg2@nilarg2)
 {
+//	nilarg2.low8 = arg2;
+//	nilarg1 = arg1;
 	MathMultU16x8();
 	return nilrval;
 }
@@ -131,39 +127,51 @@ uns16 operator* (uns16 arg1@nilarg1, uns8 arg2@nilarg2)
 uns16 operator* (uns16 arg1@nilarg1, uns16 arg2@nilarg2) @
 int16 operator* (int16 arg1@nilarg1, int16 arg2@nilarg2)
 {
+//	nilarg1 = arg1;
+//	nilarg2 = arg2;
 	MathMultU16x16();
 	return nilrval;
 }
 
 uns16 operator/ (uns16 arg1@nilarg1, uns8 arg2@nilarg2)
 {
+//	nilarg2 = W;
+//	nilarg1 = arg1;
 	MathDivU16_8();
-	return arg1;
+	return nilrval;
 } 
 
 uns16 operator/ (uns16 arg1@nilarg1, uns16 arg2@nilarg2)
 {
+//	nilarg1 = arg1;
+//	nilarg2 = arg2;
 	MathDivU16_16();
 	return arg1;
 }
 
-int8  operator/ (int8 arg1@nilarg1, int8 arg2@nilarg2) @
-int16 operator/ (int16 arg1@nilarg1, int8 arg2@nilarg2)
+int8  operator/ (int8 arg1@nilarg1, int8 arg2@nilarg2)
 {
+//	nilarg2.low8 = arg2;
+//	(long)nilarg1 = arg1;	
+// CHECK!
 	MathDivS16_8();
 	return arg1.low8;
 }
 
+int16 operator/ (int16 arg1@nilarg1, int8 arg2@nilarg2)
+{
+//	nilarg2.low8 = arg2;
+//	nilarg1 = arg1;
+	MathDivS16_8();
+	return arg1;
+}
+
 int16 operator/ (int16 arg1@nilarg1, int16 arg2@nilarg2)
 {
+//	nilarg1 = arg1;
+//	nilarg2 = arg2;
 	MathDivS16_16();
 	return arg1;
 }
 
-uns8 operator% (uns8 arg1@nilarg1, uns8 arg2@nilarg2)
-{
-	MathModU8_8();
-	return arg1;
-}
 
-#pragma updateBank 1

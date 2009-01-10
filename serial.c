@@ -1,5 +1,5 @@
 // ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
+// =    U.A.V.P Brushless UFO Test software     =
 // =           Professional Version             =
 // = Copyright (c) 2007 Ing. Wolfgang Mahringer =
 // ==============================================
@@ -19,86 +19,33 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // ==============================================
-// =  please visit http://www.uavp.org          =
+// =  please visit http://www.uavp.de           =
 // =               http://www.mahringer.co.at   =
 // ==============================================
 
 // Serial support (RS232 option)
 
-// this is required on CC5X V3.3
-typedef char CHAR;
-
-#pragma codepage=3
+#pragma codepage=0
 #pragma sharedAllocation
 
-#include "c-ufo.h"
+#include "pu-test.h"
 #include "bits.h"
-
 // Math Library
 #include "mymath16.h"
 
+bank1 uns16	nilgval;
+
 // data strings
 
-const char page2 SerHello[] = "\r\nU.A.V.P. V" Version " (c) 2007"
-							  " Ing. Wolfgang Mahringer\r\n"
-							  "This is FREE SOFTWARE, see GPL license!\r\n";
-
-const char page2 SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
-							  "Gyro: "
-#ifdef OPT_ADXRS300
-							  "3x ADXRS300\r\n"
-#endif
-#ifdef OPT_ADXRS150
-							  "3x ADXRS150\r\n"
-#endif
-#ifdef OPT_IDG
-							  "1x ADXRS300, 1x IDG300\r\n"
-#endif
-							  "Linear sensors ";
-const char page2 SerLSavail[]="ONLINE\r\n";
-const char page2 SerLSnone[]= "not available\r\n";
-const char page2 SerBaro[]=   "Baro sensor ";
-const char page2 SerChannel[]="Channel mode: Throttle Ch";
-const char page2 SerFM_Fut[]= "3";
-const char page2 SerFM_Grp[]= "1";
-
-#ifdef BOARD_3_1
-const char page2 SerCompass[]="Compass sensor ";
-#endif
-
-const char page2 SerHelp[]  = "\r\nCommands:\r\n"
-					 		  "L...List param\r\n"
-							  "M...Modify param\r\n"
-							  "S...Show setup\r\n"
-							  "N...Neutral values\r\n"
-							  "R...Show receiver channels\r\n"
-							  "B...start Boot-Loader\r\n";
-const char page2 SerReg1[]  = "\r\nRegister ";
-const char page2 SerReg2[]  = " = ";
-const char page2 SerPrompt[]= "\r\n>";
-// THE FOLLOWING LINE NOT TO BE CHANGED, it is important for UAVPset
-const char page2 SerList[]  = "\r\nParameter list for set #";
-const char page2 SerSelSet[]= "\r\nSelected parameter set: ";
-
-const char page2 SerNeutralR[]="\r\nNeutral Roll:";
-const char page2 SerNeutralN[]=" Nick:";
-const char page2 SerNeutralY[]=" Yaw:";
-
-const char page2 SerRecvCh[]=  "\r\nT:";
-
-// transmit a fix text from a table
-void SendComText(const char *pch)
+void SendComCRLF(void)
 {
-	while( *pch != '\0' )
-	{
-		SendComChar(*pch);
-		pch++;
-	}
+	SendComChar(0x0D);
+	SendComChar(0x0A);
 }
 
 void ShowPrompt(void)
 {
-	SendComText(SerPrompt);
+	SendComText(_SerPrompt);
 }
 
 // send a character to the serial port
@@ -106,20 +53,16 @@ void SendComChar(char W)
 {
 	while( TXIF == 0 ) ;	// wait for transmit ready
 	TXREG = W;		// put new char
-	// register W must be retained on exit!!!!
 }
 
-static uns8 nival;
-static char ch;
 
 // converts an unsigned byte to decimal and send it
-void SendComValU(uns8 W)
+void SendComValU(uns8 nival)
 {
-	nival = W;
 
 	W = nival / 100;
-	SendComChar(W+'0');
-	nival %= 100;		// Einsparpotential: Modulo als Mathlib
+	SendComChar(W +'0');
+	nival %= 100;
 
 	W = nival / 10;
 	SendComChar(W+'0');
@@ -128,46 +71,132 @@ void SendComValU(uns8 W)
 	SendComChar(nival+'0');
 }
 
+
 // converts a nibble to HEX and sends it
-void SendComNibble(uns8 W)
+void SendComNibble(uns8 nival)
 {
-	nival = W + '0';
+	nival += '0';
 	if( nival > '9' )
 		nival += 7;		// A to F
 	SendComChar(nival);
 }
 
 // converts an unsigned byte to HEX and sends it
-void SendComValH(uns8 W)
+void SendComValH(uns8 nival)
 {
-	uns8 nival2;
-
-	nival2 = W;
-	SendComNibble(nival2 >> 4);
-	SendComNibble(nival2 & 0x0F);
+	SendComNibble(nival >> 4);
+	SendComNibble(nival & 0x0F);
 }
 
+/*
 // converts a signed byte to decimal and send it
-// because of dumb compiler nival must be declared as unsigned :-(
-void SendComValS(uns8 W)
+void SendComValS(int nival)
 {
-	nival = W;
-	if( (int)nival < 0 )
+	if( nival < 0 )
 	{
 		SendComChar('-');	// send sign
-		nival = -(int)nival;
+		nival = -nival;
 	}
 	else
 		SendComChar('+');	// send sign
 
-	SendComValU(nival);
+	SendComValU((uns8)nival);
+}
+*/
+// converts an unsigned long to decimal and send it
+void SendComValUL(uns8 niformat)
+{
+//	bank1 char nidigit;
+	bank1 bit ninull=1;
+
+	if( niformat & VZ )
+	{
+		if( (long)nilgval >= 0 )
+			SendComChar('+');
+		else
+		{
+			SendComChar('-');
+			(long)nilgval = -(long)nilgval;
+		}
+	}
+	
+	W = nilgval / 10000;
+	if( (W == 0) && (ninull == 1) && 
+		((niformat & NKSMASK) < NKS4) )
+	{
+		if( (niformat & LENMASK) >= LEN5 )
+			SendComChar(' ');
+	}
+	else
+	{
+		SendComChar(W+'0');
+		ninull = 0;
+	}
+	nilgval %= 10000;
+
+	if( (niformat & NKSMASK) == NKS4 )
+		SendComChar('.');
+
+	W = nilgval / 1000;
+	if( (W == 0) && (ninull == 1)  && 
+		((niformat & NKSMASK) < NKS3) )
+	{
+		if( (niformat & LENMASK) >= LEN4 )
+			SendComChar(' ');
+	}
+	else
+	{
+		SendComChar(W+'0');
+		ninull = 0;
+	}
+	nilgval %= 1000;
+
+	if( (niformat & NKSMASK) == NKS3 )
+		SendComChar('.');
+
+	W = nilgval / 100;
+	if( (W == 0) && (ninull == 1) && 
+		((niformat & NKSMASK) < NKS2) )
+	{
+		if( (niformat & LENMASK) >= LEN3 )
+			SendComChar(' ');
+	}
+	else
+	{
+		SendComChar(W+'0');
+		ninull = 0;
+	}
+	nilgval %= 100;
+
+	if( (niformat & NKSMASK) == NKS2 )
+		SendComChar('.');
+
+	W = nilgval / 10;
+	if( (W == 0) && (ninull == 1) && 
+		((niformat & NKSMASK) < NKS1)  )
+	{
+		if( (niformat & LENMASK) >= LEN2 )
+			SendComChar(' ');
+	}
+	else
+	{
+		SendComChar(W+'0');
+		ninull = 0;
+	}
+	nilgval %= 10;
+
+	if( (niformat & NKSMASK) == NKS1 )
+		SendComChar('.');
+
+	SendComChar(nilgval+'0');
 }
 
 // if a character is in the buffer
 // return it. Else return the NUL character
 char RecvComChar(void)
 {
-	
+	char chread;
+
 	if( RCIF )	// a character is waiting in the buffer
 	{
 		if( OERR || FERR )	// overrun or framing error?
@@ -178,261 +207,231 @@ char RecvComChar(void)
 		}
 		else
 		{
-			W = RCREG;	// get the character
-			SendComChar(W);	// echo it
-			return(W);		// and return it
+			chread = RCREG;	// get the character
+			SendComChar(chread);	// echo it
+			return(chread);		// and return it
 		}
 	}
 	return( '\0' );	// nothing in buffer
 }
 
+/*
+static bank0 uns8 i;
+static bank0 char chread;
 
 // enter an unsigned number 00 to 99
 uns8 RecvComNumU(void)
 {
 
-	nival = 0;
+	i = 0;
 	do
 	{
-		ch = RecvComChar();
+		chread = RecvComChar();
 	}
-	while( (ch < '0') || (ch > '9') );
-	nival = ch - '0';
-	nival *= 10;
+	while( (chread < '0') || (chread > '9') );
+	i = chread - '0';
 	do
 	{
-		ch = RecvComChar();
+		chread = RecvComChar();
 	}
-	while( (ch < '0') || (ch > '9') );
-	nival += ch - '0';
-	return(nival);
+	while( (chread < '0') || (chread > '9') );
+	i *= 10;
+	i += chread - '0';
+	return(i);
 }
-
 
 // enter a signed number -99 to 99 (always 2 digits)!
 int RecvComNumS(void)
 {
-	nival = 0;
+	i = 0;
 
 	_NegIn = 0;
 	do
 	{
-		ch = RecvComChar();
+		chread = RecvComChar();
 	}
-	while( ((ch < '0') || (ch > '9')) &&
-           (ch != '-') );
-	if( ch == '-' )
+	while( ((chread < '0') || (chread > '9')) &&
+           (chread != '-') );
+	if( chread == '-' )
 	{
 		_NegIn = 1;
 		do
 		{
-			ch = RecvComChar();
+			chread = RecvComChar();
 		}
-		while( (ch < '0') || (ch > '9') );
+		while( (chread < '0') || (chread > '9') );
 	}
-	nival = ch - '0';
-	nival *= 10;
-
+	i = chread - '0';
 	do
 	{
-		ch = RecvComChar();
+		chread = RecvComChar();
 	}
-	while( (ch < '0') || (ch > '9') );
-	nival += ch - '0';
+	while( (chread < '0') || (chread > '9') );
+	i *= 10;
+	i += chread - '0';
 	if( _NegIn )
-		nival = -nival;
-	return(nival);
+		i = -i;
+	return(i);
 }
+*/
 
 // send the current configuration setup to serial port
 void ShowSetup(uns8 W)
 {
 	if( W )
 	{
-		SendComText(SerHello);
-		IK5 = _Minimum;	
+		SendComText(_SerHello);
 	}
 
-	SendComText(SerSetup);	// send hello message
+	SendComText(_SerSetup);	// send hello message
 	if( _UseLISL )
-		SendComText(SerLSavail);
+		SendComText(_SerLSavail);
 	else
-		SendComText(SerLSnone);
+		SendComText(_SerLSnone);
 
 #ifdef BOARD_3_1
-	SendComText(SerCompass);
-	if( _UseCompass )
-		SendComText(SerLSavail);
+// check for compass device
+	SendComText(_SerCompass);	// send hello message
+	I2CStart();
+	if( SendI2CByte(0x42) == I2C_ACK ) 
+		SendComText(_SerLSavail);
 	else
-		SendComText(SerLSnone);
+		SendComText(_SerLSnone);
+	I2CStop();
 
-	SendComText(SerBaro);
-	if( _UseBaro )
-		SendComText(SerLSavail);
+// check for altimeter device
+	SendComText(_SerAlti);	// send hello message
+	I2CStart();
+	if( SendI2CByte(0xee) == I2C_ACK ) 
+		SendComText(_SerLSavail);
 	else
-		SendComText(SerLSnone);
+		SendComText(_SerLSnone);
+	I2CStop();
+
 #endif
-
-	ReadEEdata();
-	SendComText(SerChannel);
-	if( FutabaMode )
-		SendComText(SerFM_Fut);
-	else
-		SendComText(SerFM_Grp);
-
-	SendComText(SerSelSet);
-	if( IK5 > _Neutral )
-		SendComChar('2');
-	else
-		SendComChar('1');
-	
 	ShowPrompt();
 }
-
-void ProgRegister(void)
-{
-	EEPGD = 0;
-	WREN = 1;		// enable eeprom writes
-	GIE = 0;
-	EECON2 = 0x55;	// fix prog sequence (see 16F628A datasheet)
-	EECON2 = 0xAA;
-	WR = 1;			// start write cycle
-	GIE = 1;
-	while( WR == 1 );	// wait to complete
-	WREN = 0;	// disable EEPROM write
-}
-
-long nila1@nilarg1;
 
 // if a command is waiting, read and process it.
 // Do NOT call this routine while in flight!
 void ProcessComCommand(void)
 {
     int size1 *p;
-	uns8 nireg;
-	
-	nireg = RecvComChar();
-	if( nireg.6 )	// 0x40..0x7F, a character
-		nireg.5=0;
-	switch( nireg )
+	char chcmd;
+
+	chcmd = RecvComChar();
+	if( chcmd.6 )	// 0x40..0x7F, a character
+		chcmd.5=0;	// convert to uppercase
+	switch( chcmd )
 	{
 		case '\0' : break;
-		case 'L'  :	// List parameters
-			SendComText(SerList);	// must send it (UAVPset!)
-			if( IK5 > _Neutral )
-				SendComChar('2');
+		case 'R'  :	// Receiver test
+			SendComText(_SerRxTest);
+			if( _NewValues )
+			{
+				ReceiverTest();
+				_NewValues = 0;
+				SendComText(_SerRxRes);
+				if( _NoSignal )
+					SendComText(_SerRxFail);
+				else
+					SendComText(_SerRxOK);
+			}
 			else
-				SendComChar('1');
-			ReadEEdata();
-			nireg = 1;
-			for(p = &FirstProgReg; p <= &LastProgReg; p++)
-			{
-				SendComText(SerReg1);
-				SendComValU(nireg);
-				SendComText(SerReg2);
-				SendComValS(*p);
-				nireg++;
-			}
+				SendComText(_SerRxNN);
 			ShowPrompt();
 			break;
-		case 'M'  : // modify parameters
-			LedBlue_ON;
-			SendComText(SerReg1);
-			nireg = RecvComNumU();
-			nireg--;
-			SendComText(SerReg2);	// = 
-			nival = RecvComNumS();
-			EEDATA = nival;
-			if( IK5 > _Neutral )
-				nireg += _EESet2;
-			EEADR = nireg;
-// prog values into data flash
-			ProgRegister();
-
-// if config register on set #1 is progged,
-// write through the transmitter config bits to set #2
-			if( nireg == 15 /* = &ConfigParam - &FirstProgReg */ )
-			{
-				nival &= 0x12;	// read the programmed value
-					// mask only bits _FutabaMode and _NegativePPM
-				EEADR += _EESet2;	// goto set #2
-// da gehts no
-				RD = 1;
-// da niimer
-				EEDATA &= 0xED;
-				EEDATA |= nival;
-
-				ProgRegister();	// write to set#2 config reg
-			}
-			LedBlue_OFF;
+		case 'A' :	// analog test
+			SendComText(_SerAnTest);
+			AnalogTest();
 			ShowPrompt();
 			break;
+#ifdef BOARD_3_1
+		case 'L' :	// linear sensor
+			SendComText(_SerLinTst);
+			if( _UseLISL )
+				LinearTest();
+			else
+				SendComText(_SerLinErr);
+			ShowPrompt();
+			break;
+		case 'I':
+			SendComText(_SerI2CRun);
+//			i = ScanI2CBus();
+			SendComValU(ScanI2CBus());
+			SendComText(_SerI2CCnt);
+			ShowPrompt();
+			break;
+		case 'C':
+			SendComText(_SerMagTst);
+			CompassTest();
+			ShowPrompt();
+			break;
+		case 'H':	// barometer
+			BaroTest();
+			ShowPrompt();
+			break;
+
+#endif	
 		case 'S' :	// show status
 			ShowSetup(0);
+//			ShowPrompt();
 			break;
-		case 'N' :	// neutral values
-			SendComText(SerNeutralR);
-			SendComValS(NeutralLR);
-
-			SendComText(SerNeutralN);
-			SendComValS(NeutralFB);
-
-			SendComText(SerNeutralY);
-			Tp -= 1024;		// subtract 1g (vertical sensor)
-			SendComValS(NeutralUD);
+		case 'V' :	// servo test
+			SendComText(_SerSrvRun);
+			TestServos();
+			SendComText(_SerSrvOK);
 			ShowPrompt();
 			break;
-		case 'R':	// receiver values
-			SendComText(SerRecvCh);
-			SendComValU(IGas);
-			SendComChar(',');
-			SendComChar('R');
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+#ifdef BOARD_3_1
+		case '8':
+#endif
+			SendComText(_SerPowTst);
+			SendComChar(chcmd);
 			SendComChar(':');
-			SendComValS(IRoll);
-			SendComChar(',');
-			SendComChar('N');
-			SendComChar(':');
-			SendComValS(INick);
-			SendComChar(',');
-			SendComChar('Y');
-			SendComChar(':');
-			SendComValS(ITurn);
-			SendComChar(',');
-			SendComChar('5');
-			SendComChar(':');
-			SendComValU(IK5);
-			SendComChar(',');
-			SendComChar('6');
-			SendComChar(':');
-			SendComValU(IK6);
-			SendComChar(',');
-			SendComChar('7');
-			SendComChar(':');
-			SendComValU(IK7);
+			switch( chcmd )
+			{
+				case '1': SendComText(_SerPowAux2);  break;
+				case '2': SendComText(_SerPowBlue);  break;
+				case '3': SendComText(_SerPowRed);   break;
+				case '4': SendComText(_SerPowGreen); break;
+				case '5': SendComText(_SerPowAux1);  break;
+				case '6': SendComText(_SerPowYellow);break;
+#ifdef BOARD_3_0
+				case '7': SendComText(_SerPowBeep);  break;
+#endif
+#ifdef BOARD_3_1
+				case '7': SendComText(_SerPowAux3);  break;
+				case '8': SendComText(_SerPowBeep);  break;
+#endif
+			}
+			SendComCRLF();
+			PowerOutput(chcmd-'1');
+			ShowPrompt();
+			break;
+
+		case 'N':	// toggle PPM polarity
+			TogglePPMPolarity();
 			ShowPrompt();
 			break;
 
 		case 'B':	// call bootloader
+			SendComCRLF();
 #asm
 			movlw	0x1f
 			movwf	PCLATH
 			dw	0x2F00
 #endasm
 //			BootStart();	// never comes back!
-		
-#ifndef TESTOUT	
-		case 'T':
-			RE = 10;
-			NE = 20;
-			Rw = 30;
-			Nw = 40;
-			MatrixCompensate();
-			ShowPrompt();
-			break;
-#endif
-
 		case '?'  : // help
-			SendComText(SerHelp);
+			SendComText(_SerHelp);
 			ShowPrompt();
 	}
 }

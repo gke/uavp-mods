@@ -19,7 +19,7 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // ==============================================
-// =  please visit http://www.uavp.org          =
+// =  please visit http://www.uavp.de           =
 // =               http://www.mahringer.co.at   =
 // ==============================================
 
@@ -64,7 +64,6 @@ char  sign @tmpArg2;
 void MathMultU8x8(void)	
 {
     counter = 8;
-#pragma updateBank 0
     nilrval = 0;
     W = nilgarg1.low8;
     do  {
@@ -76,13 +75,11 @@ void MathMultU8x8(void)
     } while (1);
 	return;
 }
-#pragma updateBank 1
 
-
+// OK
 void MathMultS8x8(void)
 {
     counter = 8;
-#pragma updateBank 0
     tmpArg2 = nilgarg2.low8;
     nilrval = 0;
     W = nilgarg1.low8;
@@ -101,13 +98,11 @@ void MathMultS8x8(void)
         nilrval.high8 -= W;
 	return;
 }
-#pragma updateBank 1
 
-
+// OK
 void MathMultU16x8(void)
 {
     counter = 16;
-#pragma updateBank 0
     do  {
         Carry = 0;
         nilrval = rl( nilrval);
@@ -118,13 +113,11 @@ void MathMultU16x8(void)
     } while (1);
 	return;
 }
-#pragma updateBank 1
 
-
+// OK
 void MathMultU16x16(void)
 {
     counter = 16;
-#pragma updateBank 0
     do  {
         Carry = 0;
         nilrval = rl( nilrval);
@@ -135,13 +128,11 @@ void MathMultU16x16(void)
     } while (1);
 	return;
 }
-#pragma updateBank 1
 
-
+// OK
 void MathDivU16_8(void)
 {
     rm = 0;
-#pragma updateBank 0
     counter = 16+1;
     goto ENTRY;
     do  {
@@ -156,16 +147,14 @@ void MathDivU16_8(void)
         nilgarg1 = rl( nilgarg1);
         counter = decsz(counter);
     } while (1);
-//	nilrval = nilgarg1;	
+	nilrval = nilgarg1;	
 	return;
 }
-#pragma updateBank 1
 
-
+// OK
 void MathDivU16_16(void)
 {
     rm16 = 0;
-#pragma updateBank 0
     counter = 16+1;
     goto ENTRY;
     do  {
@@ -183,13 +172,11 @@ void MathDivU16_16(void)
     } while (1);
     return;
 }
-#pragma updateBank 1
 
-
+// OK
 void MathDivS16_8(void)
 {
     rm = 0;
-#pragma updateBank 0
     counter = 16+1;
     sign = nilgarg1.high8 ^ nilgarg2.low8;
     if ((long)nilgarg1 < 0)  {
@@ -217,13 +204,11 @@ void MathDivS16_8(void)
         goto INVERT;
 	return;
 }
-#pragma updateBank 1
 
-
+// OK
 void MathDivS16_16(void)
 {
     rm16 = 0;
-#pragma updateBank 0
     counter = 16+1;
     sign = nilgarg1.high8 ^ nilgarg2.high8;
     if ((long)nilgarg1 < 0)  {
@@ -256,25 +241,3 @@ void MathDivS16_16(void)
 	nilrval = nilgarg1;
 	return;
 }
-#pragma updateBank 1
-
-void MathModU8_8(void)
-{
-    uns8 rm = 0;
-#pragma updateBank 0
-    counter = 8;
-    do  {
-        nilgarg1.low8 = rl( nilgarg1.low8);
-        rm = rl( rm);
-        tmpArg2 = rl( tmpArg2);	// shift in carry from previous operation
-        W = rm - nilgarg2.low8;
-        if (tmpArg2&1)
-            Carry = 1;
-        if (Carry)
-            rm = W;
-        counter = decsz(counter);
-    } while (1);
-    nilgarg1.low8 = rm;
-	return;
-}	
-#pragma updateBank 1
