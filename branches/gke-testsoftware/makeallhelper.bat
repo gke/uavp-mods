@@ -49,7 +49,11 @@ rem the mathematics module.
 rem The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 rem As a consequence there are several warnings on bank allocation in the compile.
 
-for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% >> log.lst
+for %%i in ( %CSRC% ) do (
+    set OFFSET=
+    if %%i == text set OFFSET=-ro3
+    %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% !OFFSET! >> log.lst
+)
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% >> log.lst
 
