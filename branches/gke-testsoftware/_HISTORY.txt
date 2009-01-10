@@ -1,0 +1,64 @@
+==============================================
+=   U    U      AA     V     V   PPPPP       =
+=   U    U     A  A    V     V   P    P      =
+=   U    U    A    A   V     V   P    P      =
+=   U    U    AAAAAA    V   V    PPPPP       =
+=   U    U    A    A     V V     P           =
+=    UUUU  U  A    A A    V  V   P    P      =
+=                                            =
+=   Univeral  Airial   Video     Platform    =
+=                                            =
+=    U.A.V.P Brushless UFO Testsoftware      =
+=           Professional Version             =
+= Copyright (c) 2007 Ing. Wolfgang Mahringer =
+==============================================
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+==============================================
+=  please visit http://www.uavp.de           =
+=               http://www.mahringer.co.at   =
+==============================================
+
+==============================================
+= Contact the author:                        =
+==============================================
+email: wolfgang@opensourcequadrocopter.de
+snail: Ing. Wolfgang Mahringer
+       Wiesersberg 54
+       5760 Saalfelden
+       AUSTRIA/EUROPE
+
+==============================================
+= The GNU GENERAL PUBLUC LICENSE             =
+==============================================
+
+This software is released under GNU GPL license.
+The GPL license is contained in the files
+gpl-en.txt (in English) and gpl-de.txt (in German).
+
+
+==============================================
+= VERSION HISTORY                            =
+==============================================
+
+4.4.2007 V1.00 released by Wolferl
+First public released version.
+
+22.7.2007 V1.01 released by Wolferl
+supports Holgers ESCs (OS speed controllers)
+supports YGEs I2C ESCs (configure with "Y" command)
+
+
