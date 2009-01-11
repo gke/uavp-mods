@@ -1,3 +1,4 @@
+#ifndef BATCHMODE
 // ==============================================
 // =    U.A.V.P Brushless UFO Test-Software     =
 // =           Professional Version             =
@@ -39,27 +40,31 @@
 //
 // Only one of the following 2 defines must be activated:
 // When using 3 ADXRS300 or -150 gyros
-//#define OPT_ADXRS
+#define OPT_ADXRS
 // When using 1 ADXRS300 and 1 IDG300 gyro
 //#define OPT_IDG
+
+//
+// Select what speeed controllers to use
+// to use standard PPM pulse
+#define ESC_PPM
+// to use X3D BL controllers (courtesy to Jast :-) not yet tested!)
+// #define ESC_X3D
+// to use Holgers ESCs (tested by ufo-hans)
+//#define ESC_HOLGER
+// to use YGE I2C controllers (for standard YGEs use ESC_PPM)
+//#define ESC_YGEI2C
+
+#endif // !BATCHMODE
 
 
 // Board version
 #ifdef BOARD_3_0
-#define Version	"3.02"
+#define Version	"3.04"
 #endif
 #ifdef BOARD_3_1
-#define Version	"3.13"
+#define Version	"3.14"
 #endif
-
-//
-// Select what speeed controllers to use
-// to use standard PWM pulse
-//#define ESC_PWM
-// to use X3D BL controllers (courtesy to Jast :-)
-// #define ESC_X3D
-// to use Holgers ESCs (tested by ufo-hans)
-//#define ESC_HOLGER
 
 
 // ==============================================
@@ -81,7 +86,7 @@ bit NegativePPM		@ConfigReg.0;
 // the CurrK1..CurrK7 variables MUST be in this order!
 extern	bank0	uns16	CurrK1,CurrK2,CurrK3,CurrK4;
 extern	bank0	uns16	CurrK5,CurrK6,CurrK7;
-extern	bank1	uns16	PauseTime;
+extern	bank1	uns16	PauseTime; 
 extern	bank1	uns8	TimeSlot;
 extern	bank1	uns8	MVorne, MHinten, MLinks, MRechts;
 extern	bank1	uns8	MCamRoll, MCamNick;
@@ -103,7 +108,7 @@ extern	bank1	uns16	nilgval;
 
 //                    RX impuls times in 10-microseconds units
 //                    vvv   ACHTUNG: Auf numerischen Überlauf achten!
-#ifdef ESC_PWM
+#ifdef ESC_PPM
 #define	_Minimum	((105* _ClkOut/(2*_PreScale1))&0xFF)	/*-100% */
 #endif
 #ifdef ESC_X3D
@@ -112,6 +117,10 @@ extern	bank1	uns16	nilgval;
 #ifdef ESC_HOLGER
 #define _Minimum	0
 #endif
+#ifdef ESC_YGEI2C
+#define _Minimum	0
+#endif
+
 #define _Neutral	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
 #define _Maximum	((195* _ClkOut/(2*_PreScale1))&0xFF)	/*+100% */
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
@@ -156,58 +165,62 @@ extern	bank1	uns16	nilgval;
 
 
 // Parameters for SendComText()
-#define _SerHello	1
-#define _SerSetup	2
-#define _SerLSavail	3
-#define _SerLSnone	4
-#define _SerCompass	5
-//#define _SerCMavail	6
-//#define _SerCMnone	7
+#define _SerHello	0
+#define _SerSetup	1
+#define _SerLSavail	2
+#define _SerLSnone	3
+#define _SerCompass	4
+#define _SerAlti	5
 
-#define _SerHelp	8
-#define _SerRxTest	9
-#define _SerRxNN	10
-#define _SerRxRes	11
-#define _SerRxFail	12
-#define _SerRxOK	13
+#define _SerHelp	6
+#define _SerRxTest	7
+#define _SerRxNN	8
+#define _SerRxRes	9
+#define _SerRxFail	10
+#define _SerRxOK	11
 
-#define _SerAnTest	14
-#define _SerLinTst	15
-#define _SerLinErr	16
+#define _SerAnTest	12
+#define _SerLinTst	13
+#define _SerLinErr	14
 
-#define _SerSrvRun	17
+#define _SerSrvRun	15
 
-#define _SerI2CRun	18
-#define _SerI2CCnt	19
+#define _SerI2CRun	16
+#define _SerI2CCnt	17
 
-#define _SerMagTst	20
+#define _SerMagTst	18
 
-#define _SerPowTst	21
-#define _SerPowAux1	22
-#define _SerPowAux2	23
-#define _SerPowAux3	24
-#define _SerPowBlue	25
-#define _SerPowRed	26
-#define _SerPowGreen	27
-#define _SerPowYellow	28
-#define _SerPowBeep		29
+#define _SerPowTst	19
+#define _SerPowAux1	20
+#define _SerPowAux2	21
+#define _SerPowAux3	22
+#define _SerPowBlue	23
+#define _SerPowRed	24
+#define _SerPowGreen	25
+#define _SerPowYellow	26
+#define _SerPowBeep		27
 
-#define _SerSrvOK	30
-#define _SerPrompt	31
+#define _SerSrvOK	28
+#define _SerPrompt	29
 
-#define _SerVolt	32
-#define _SerFail	33
-#define _SerGrad	34
-#define _SerI2CFail	35
-#define _SerMS		36
+#define _SerVolt	30
+#define _SerFail	31
+#define _SerGrad	32
+#define _SerI2CFail	33
+#define _SerMS		34
 
-#define _SerPPMP	37
-#define _SerPPMN	38
+#define _SerPPMP	35
+#define _SerPPMN	36
 
-#define _SerLinG	39
+#define _SerLinG	37
 
-#define	_SerBaroOK	40
-#define _SerAlti	41
+#define	_SerBaroOK	38
+#define	_SerBaroT	39
+
+#define _SerCCalib1 40
+#define _SerCCalib2 41
+#define _SerCCalib3 42
+#define _SerCCalibE 43
 
 
 // defines for SendComValUL
@@ -239,6 +252,7 @@ extern	page0	void SendComValUL(uns8);
 extern	page1	void AnalogTest(void);
 extern	page0	void OutSignals(void);
 extern	page0	void TestServos(void);
+extern	page0	void ConfigureESCs(void);
 
 // Bank 1
 extern	page1	void ReceiverTest(void);
@@ -252,6 +266,7 @@ extern	page1	void SwitchLedsOn(uns8);
 extern	page1	void SwitchLedsOff(uns8);
 extern	page1	uns8 ScanI2CBus(void);
 extern	page1	void CompassTest(void);
+extern	page1	void CalibrateCompass(void);
 extern	page1	void BaroTest(void);
 extern	page1	void I2CStart(void);
 extern	page1	void I2CStop(void);

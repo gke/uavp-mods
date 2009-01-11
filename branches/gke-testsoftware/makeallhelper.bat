@@ -14,7 +14,7 @@ set 	ESC=%4
 set 	DBG=%5
 set 	RX=%6
 
-set CSRC=pu-test an-test irq lisl rxtest serial text utils i2c-scan output
+set CSRC=pu-test an-test irq lisl mathlib rxtest serial text utils utils2 i2c-scan output
 set ASRC=bootloader
 
 set CEXE="%ProgramFiles%\microchip\cc5x\cc5x.exe"
@@ -52,6 +52,7 @@ rem As a consequence there are several warnings on bank allocation in the compil
 for %%i in ( %CSRC% ) do (
     set OFFSET=
     if %%i == text set OFFSET=-ro3
+    if %%i == output set OFFSET=-ro4
     %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% !OFFSET! >> log.lst
 )
 

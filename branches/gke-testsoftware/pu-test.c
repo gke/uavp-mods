@@ -56,6 +56,8 @@ uns16	CurrK1,CurrK2,CurrK3,CurrK4,CurrK5,CurrK6,CurrK7;
 
 uns8	TimeSlot;
 
+uns16	PauseTime;
+
 uns8	MVorne, MHinten, MLinks, MRechts;
 uns8	MCamRoll, MCamNick;
 
@@ -102,7 +104,6 @@ void main(void)
 
 // setup flags register
 	Flags = 0;
-	EscI2CFlags = 0;
 	_NoSignal = 1;		// assume no signal present
 
 	LedRed_ON;		// red LED on

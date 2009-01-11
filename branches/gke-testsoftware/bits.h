@@ -28,13 +28,13 @@
 #define	NULL	0
 
 // when changing, see OutSignal() in utils.c
-#ifdef ESC_PWM
+#ifdef ESC_PPM
 bit	PulseVorne		@PORTB.0;
 bit	PulseLinks		@PORTB.1;
 bit	PulseRechts		@PORTB.2;
 bit	PulseHinten		@PORTB.3;
 #endif
-#if defined ESC_X3D || defined ESC_HOLGER
+#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 bit ESC_SDA			@PORTB.1;
 bit ESC_SCL			@PORTB.2;
 bit ESC_DIO			@TRISB.1;

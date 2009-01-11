@@ -82,10 +82,10 @@ void SendComNibble(uns8 nival)
 }
 
 // converts an unsigned byte to HEX and sends it
-void SendComValH(uns8 nival)
+void SendComValH(uns8 nihex)
 {
-	SendComNibble(nival >> 4);
-	SendComNibble(nival & 0x0F);
+	SendComNibble(nihex >> 4);
+	SendComNibble(nihex & 0x0F);
 }
 
 /*
@@ -278,6 +278,7 @@ int RecvComNumS(void)
 // send the current configuration setup to serial port
 void ShowSetup(uns8 W)
 {
+
 	if( W )
 	{
 		SendComText(_SerHello);
@@ -367,6 +368,11 @@ void ProcessComCommand(void)
 			CompassTest();
 			ShowPrompt();
 			break;
+		case 'K':
+			SendComText(_SerCCalib1);
+			CalibrateCompass();
+			ShowPrompt();
+			break;
 		case 'H':	// barometer
 			BaroTest();
 			ShowPrompt();
@@ -422,6 +428,12 @@ void ProcessComCommand(void)
 			ShowPrompt();
 			break;
 
+#ifdef ESC_YGEI2C
+		case 'Y':	// configure YGE30i EScs
+			ConfigureESCs();
+			ShowPrompt();
+			break;
+#endif
 		case 'B':	// call bootloader
 			SendComCRLF();
 #asm

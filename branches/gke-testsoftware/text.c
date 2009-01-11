@@ -34,10 +34,10 @@
 const char page2 SerHello[] = "\r\nU.A.V.P. TESTSOFTWARE V" Version " Copyright (c) 2007"
 							  " Ing. Wolfgang Mahringer\r\n"
 							  "U.A.V.P. comes with ABSOLUTELY NO WARRANTY\r\n"
-							  "This is FREE SOFTWARE, see GPL license!\r\n";
+							  "This is FREE SOFTWARE, see GPL license!\r\n\0"
 
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
-const char page2 SerSetup[] = "\r\nProfi-Ufo TEST V" Version " ready.\r\n"
+/* SerSetup */ 				  "\r\nProfi-Ufo TEST V" Version " ready.\r\n"
 							  "Gyro: "
 #ifdef OPT_ADXRS
 							  "3x ADXRS300\r\n"
@@ -45,18 +45,19 @@ const char page2 SerSetup[] = "\r\nProfi-Ufo TEST V" Version " ready.\r\n"
 #ifdef OPT_IDG
 							  "1x ADXRS300, 1x IDG300\r\n"
 #endif
-							  "Linear sensors ";
-const char page2 SerLSavail[]="ONLINE\r\n";
-const char page2 SerLSnone[]= "not available\r\n";
+							  "Linear sensors \0"
+/* SerLSavail */			  "ONLINE\r\n\0"
+/* SerLSnone */				  "not available\r\n\0"
 
-const char page2 SerCompass[]="Compass sensor ";
-const char page2 SerAlti[]   ="Altimeter sensor ";
+/* SerCompass */			  "Compass sensor \0"
+/* SerAlti */   			  "Altimeter sensor \0"
 
-const char page2 SerHelp[]  = "\r\nCommands:\r\n"
+/* SerHelp */  				  "\r\nCommands:\r\n"
 							  "A....analog voltages\r\n"
 							  "B....call Bootloader\r\n"
 #ifdef BOARD_3_1
 							  "C....Compass test\r\n"
+							  "K....Calibrate Compass sensor\r\n"
 							  "I....I2C sensor bus scan\r\n"
 							  "L....Linear sensor test\r\n"
 							  "H....Barometer sensor test\r\n"
@@ -65,123 +66,85 @@ const char page2 SerHelp[]  = "\r\nCommands:\r\n"
 							  "R....RX test\r\n"
 							  "S....Show setup\r\n"
 							  "V....Servo test (CAUTION!)\r\n"
+#ifdef ESC_YGEI2C
+							  "Y....Configure YGE I2C ESCs\r\n"
+#endif
 #ifdef BOARD_3_0
 							  "1-7.."
 #endif
 #ifdef BOARD_3_1
 							  "1-8.."
 #endif
-/* CAUTION: The following line MUST REMAIN THE LAST in thas string!
+/* CAUTION: The following line MUST REMAIN THE LAST in that help string!
             This is for UAVPset to correctly read the available commands! */
-							       "Power output test\r\n";
+							  "Power output test\r\n\0"
 
-const char page2 SerRxTest[]= "\r\nLast RX values received:\r\n";
-const char page2 SerRxNN[]  = "(no new values)\r\n";
-const char page2 SerRxRes[] = "received values are ";
-const char page2 SerRxFail[]= "NOT valid!\r\n";
-const char page2 SerRxOK[]  = "OK!\r\n";
+/* SerRxTest */				  "\r\nLast RX values received:\r\n\0"
+/* SerRxNN */   			  "(no new values)\r\n\0"
+/* SerRxRes */				  "received values are \0"
+/* SerRxFail */				  "NOT valid!\r\n\0"
+/* SerRxOK */ 				  "OK!\r\n\0"
 
-const char page2 SerAnTest[]= "\r\nAnalog channels test:\r\n";
-const char page2 SerLinTst[]= "\r\nLinear sensor test:\r\n";
-const char page2 SerLinErr[]= "\r\n(linear sensor not present)\r\n";
+/* SerAnTest */				  "\r\nAnalog channels test:\r\n\0"
+/* SerLinTst */				  "\r\nLinear sensor test:\r\n\0"
+/* SerLinErr */				  "\r\n(linear sensor not present)\r\n\0"
 
-const char page2 SerSrvRun[]= "\r\nServo test running...\r\n";
+/* SerSrvRun */				  "\r\nServo test running...\r\n\0"
 
-const char page2 SerI2CRun[]= "\r\nI2C bus scan running, listing slave addresses...\r\n";
-const char page2 SerI2CCnt[]= " device(s) found\r\n";
+/* SerI2CRun */				  "\r\nI2C bus scan running, listing slave addresses...\r\n\0"
+/* SerI2CCnt */				  " device(s) found\r\n\0"
 
-const char page2 SerMagTst[]= "\r\nCompass device test\r\n";
+/* SerMagTst */				  "\r\nCompass device test\r\n\0"
 
-const char page2 SerPowTst[]= "\r\nPower output test\r\n";
-const char page2 SerPowAux1[]   = "Aux 1";
-const char page2 SerPowAux2[]   = "Aux 2";
-#ifdef BOARD_3_1
-const char page2 SerPowAux3[]   = "Aux 3";
-#endif
-const char page2 SerPowBlue[]   = "Blue LED";
-const char page2 SerPowRed[]    = "Red LED";
-const char page2 SerPowGreen[]  = "Green LED";
-const char page2 SerPowYellow[] = "Yellow LED";
-const char page2 SerPowBeep[]   = "Beeper";
+/* SerPowTst */				  "\r\nPower output test\r\n\0"
+/* SerPowAux1 */  			  "Aux 1\0"
+/* SerPowAux2 */  			  "Aux 2\0"
+/* SerPowAux3 */  			  "Aux 3\0"
+/* SerPowBlue */  			  "Blue LED\0"
+/* SerPowRed */   			  "Red LED\0"
+/* SerPowGreen */ 			  "Green LED\0"
+/* SerPowYellow */			  "Yellow LED\0"
+/* SerPowBeep */  			  "Beeper\0"
 
-const char page2 SerSrvOK[] = "\r\nDone.\r\n";
-const char page2 SerPrompt[]= "\r\n# ";
-const char page2 SerVolt[]=	  " Volt\r\n";
-const char page2 SerFail[]=   " FAILED";
-// not possible because of dumb compiler CC5X
-//const char page2 SerGrad[]=	  " °\r\n";
-const char page2 SerGrad[]=	  " deg\r\n";
-const char page2 SerI2CFail[]="I2C comm failed!\r\n";
-const char page2 SerMS[]=	  " ms\r\n";
+/* SerSrvOK */				  "\r\nDone.\r\n\0"
+/* SerPrompt */				  "\r\n# \0"
+/* SerVolt */				  " Volt\r\n\0"
+/* SerFail */				  " FAILED\0"
+/* SerGrad */				  " deg\r\n\0"
+/* SerI2CFail */			  "I2C comm failed!\r\n\0"
+/* SerMS */					  " ms\r\n\0"
 
-const char page2 SerPPMP[]=  "\r\nSetting pos. RX PPM\r\n";
-const char page2 SerPPMN[]=  "\r\nSetting neg. RX PPM\r\n";
+/* SerPPMP */				  "\r\nSetting pos. RX PPM\r\n\0"
+/* SerPPMN */				  "\r\nSetting neg. RX PPM\r\n\0"
 
-const char page2 SerLinG[]=  " G\r\n";
+/* SerLinG */				  " G\r\n\0"
 
-const char page2 SerBaroOK[]="\r\nAir pressure is:";
+/* SerBaroOK */				  "\r\nAir pressure is:\0"
+/* SerBaroT */				  "; Temp is:\0"
+
+/* SerCCalib1 */			  "\r\nCalibrate compass sensor. Press any key to continue\r\n\0"
+/* SerCCalib2 */			  "\r\n720 deg turn in ca. 30 seconds!\r\nPress any key when done\r\n\0"
+/* SerCCalib3 */			  "\r\nCalibration complete\r\n\0"
+/* SerCCalibE */			  "\r\nCalibration error!\r\n";
 
 // transmit a fix text from a table
 void SendComText(uns8 nitext)
 {
 	bank1 const char *pch;
 
-	switch(nitext)
-	{
-        case _SerHello:		pch = SerHello; 	break;
-        case _SerSetup:		pch = SerSetup; 	break;
-        case _SerLSavail:	pch = SerLSavail; 	break;
-        case _SerLSnone:	pch = SerLSnone; 	break;
-		case _SerCompass:	pch = SerCompass;	break;
-        case _SerHelp:		pch = SerHelp; 		break;
-        case _SerRxTest:	pch = SerRxTest; 	break;
-        case _SerRxNN:		pch = SerRxNN; 		break;
-        case _SerRxRes:		pch = SerRxRes; 	break;
-        case _SerRxFail:	pch = SerRxFail; 	break;
-        case _SerRxOK:		pch = SerRxOK; 		break;
-        case _SerAnTest:	pch = SerAnTest; 	break;
+	pch = SerHello;
 
-#ifdef BOARD_3_1
-        case _SerLinTst:	pch = SerLinTst; 	break;
-        case _SerLinErr:	pch = SerLinErr; 	break;
-        case _SerI2CRun:	pch = SerI2CRun; 	break;
-        case _SerI2CCnt:	pch = SerI2CCnt; 	break;
-        case _SerMagTst:	pch = SerMagTst;	break;
-#endif
-        case _SerSrvRun:	pch = SerSrvRun; 	break;
-        case _SerPowTst:	pch = SerPowTst;	break;
-        case _SerPowAux1:	pch = SerPowAux1; 	break;
-        case _SerPowAux2:	pch = SerPowAux2; 	break;
-#ifdef BOARD_3_1
-        case _SerPowAux3:	pch = SerPowAux3; 	break;
-#endif
-        case _SerPowBlue:	pch = SerPowBlue; 	break;
-        case _SerPowRed:	pch = SerPowRed; 	break;
-        case _SerPowGreen:	pch = SerPowGreen; 	break;
-        case _SerPowYellow:	pch = SerPowYellow; break;
-        case _SerPowBeep:	pch = SerPowBeep; 	break;
-        case _SerSrvOK:		pch = SerSrvOK;		break;
-        case _SerPrompt:	pch = SerPrompt; 	break;
-        case _SerVolt:		pch = SerVolt;	 	break;
-		case _SerFail:		pch = SerFail;		break;
-#ifdef BOARD_3_1
-		case _SerGrad:		pch = SerGrad;		break;
-		case _SerI2CFail:	pch = SerI2CFail;	break;
-#endif
-		case _SerMS:		pch = SerMS;		break;
-		case _SerPPMP:		pch = SerPPMP;		break;
-		case _SerPPMN:		pch = SerPPMN;		break;
-		case _SerLinG:		pch = SerLinG;		break;
-#ifdef BOARD_3_1
-		case _SerAlti:		pch = SerAlti;		break;
-		case _SerBaroOK:	pch = SerBaroOK;	break;
-#endif
+	while( nitext )
+	{
+		if( *pch == '\0' )
+			nitext--;
+		pch++;
 	}
+
 	while( *pch != '\0' )
 	{
 		SendComChar(*pch);
 		pch++;
 	}
 }
-
 

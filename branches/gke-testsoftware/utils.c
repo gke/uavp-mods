@@ -26,6 +26,7 @@
 // Utilities and subroutines
 
 #pragma codepage=0
+#pragma sharedAllocation
 
 #include "pu-test.h"
 #include "bits.h"
@@ -33,21 +34,10 @@
 // Math Library
 #include "mymath16.h"
 
-#if defined ESC_X3D || defined ESC_HOLGER
+#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 
 void EscI2CDelay(void)
 {
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
 	nop2();
 }
 
@@ -123,7 +113,7 @@ uns8 SendEscI2CByte(uns8 nidata)
 	return(nii);
 }
 
-#endif	// ESC_X3D || ESC_HOLGER
+#endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
 
 
 // Outputs signals to the speed controllers
@@ -146,14 +136,16 @@ void OutSignals(void){
 	bank0 uns8 MV, MH, ML, MR;	// must reside on bank0
 	uns8 MT@MV;	// cam tilt servo
 	uns8 ME@MH; // cam tilt servo
-#if defined ESC_HOLGER || defined ESC_X3D
+#if defined ESC_HOLGER || defined ESC_X3D || defined ESC_YGEI2C
 	uns8 niret;	// return status
+
+	EscI2CFlags = 0;
 #endif
 
 	TMR0 = 0;
 	T0IF = 0;
 
-#ifdef ESC_PWM
+#ifdef ESC_PPM
 	ALL_PULSE_ON;	// turn on all motor outputs
 
 	MV = MVorne;
@@ -221,7 +213,7 @@ OS006
 	GIE = 1;	// Re-enable interrupt
 #endif
 
-#if defined ESC_X3D || defined ESC_HOLGER
+#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 
 #ifndef DEBUG
 	CAM_PULSE_ON;	// now turn camera servo pulses on too
@@ -280,7 +272,45 @@ OS006
 	EscI2CStop();
 #endif	// ESC_HOLGER
 
-#endif	// ESC_X3D or ESC_HOLGER
+#ifdef ESC_YGEI2C
+	EscI2CStart();
+	niret = SendEscI2CByte(0x62);	// one cmd, one data byte per motor
+	if( niret == 0 )
+	{
+		SendEscI2CByte(MVorne>>1); // for all motors
+		EscI2CFlags |= 0x01;
+	}
+	EscI2CStop();
+
+	EscI2CStart();
+	niret = SendEscI2CByte(0x64);
+	if( niret == 0 )
+	{
+		SendEscI2CByte(MHinten>>1);
+		EscI2CFlags |= 0x02;
+	}
+	EscI2CStop();
+
+	EscI2CStart();
+	niret = SendEscI2CByte(0x68);
+	if( niret == 0 )
+	{
+		SendEscI2CByte(MLinks>>1);
+		EscI2CFlags |= 0x04;
+	}
+	EscI2CStop();
+
+	EscI2CStart();
+	niret = SendEscI2CByte(0x66);
+	if( niret == 0 )
+	{
+		SendEscI2CByte(MRechts>>1);
+		EscI2CFlags |= 0x08;
+	}
+	EscI2CStop();
+#endif	// ESC_YGEI2C
+
+#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
 	while( TMR0 < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
 
@@ -327,14 +357,14 @@ OS002
 	while( T0IF == 0 ) ;	// wait for 3rd TMR2 overflow
 }
 
-#ifdef ESC_HOLGER
-const char page2 SerHolFOK[] = "Front ESC OK\r\n";
-const char page2 SerHolHOK[] = "Rear  ESC OK\r\n";
-const char page2 SerHolLOK[] = "Left  ESC OK\r\n";
-const char page2 SerHolROK[] = "Right ESC OK\r\n";
+#if defined ESC_HOLGER || defined ESC_YGEI2C
+const char page2 SerHolFOK[] = "\rFront ESC OK\r\n";
+const char page2 SerHolHOK[] = "\rRear  ESC OK\r\n";
+const char page2 SerHolLOK[] = "\rLeft  ESC OK\r\n";
+const char page2 SerHolROK[] = "\rRight ESC OK\r\n";
 #endif
 #ifdef ESC_X3D
-const char page2 SerX3DOK[] = "X3D ESC OK\r\n";
+const char page2 SerX3DOK[] = "\rX3D ESCs OK\r\n";
 #endif
 
 void MySendComText(const char *pch)
@@ -389,7 +419,7 @@ EmergStop:
 
 	MCamRoll = 
 	MCamNick = _Neutral;
-#ifdef ESC_HOLGER
+#if defined ESC_HOLGER || defined ESC_YGEI2C
 	if( EscI2CFlags & 0x01 )
 		MySendComText(SerHolFOK);
 	if( EscI2CFlags & 0x02 )
@@ -404,3 +434,79 @@ EmergStop:
 		MySendComText(SerX3DOK);
 #endif
 }
+
+#ifdef ESC_YGEI2C
+const char page2 SerYGEConf1[] = "\r\nConnect ONLY ";
+const char page2 SerYGEFront[] = "front";
+const char page2 SerYGERear[]  = "rear";
+const char page2 SerYGELeft[]  = "left";
+const char page2 SerYGERight[] = "right";
+const char page2 SerYGEConf2[] = " controller, then press any key\r\n";
+const char page2 SerYGEConf3[] = "\rprogramming the controller...\r\n";
+const char page2 SerYGEConf4[] = "controller at SLA 0x";
+const char page2 SerYGEConf5[] = " reprogrammed to SLA 0x";
+const char page2 SerYGEConf6[] = "no controller found or reprogram failed\r\n";
+const char page2 SerYGEConf7[] = " is already programmed OK\r\n";
+
+void Program_SLA(uns8 niaddr)
+{
+	uns8 nii;
+
+	for(nii = 0x10; nii<0xF0; nii+=2)
+	{
+		EscI2CStart();
+		if( SendEscI2CByte(nii) == 0 )
+		{
+			if( nii == niaddr )
+			{	// controller is already programmed OK
+				EscI2CStop();
+				MySendComText(SerYGEConf4);
+				SendComValH(nii);
+				MySendComText(SerYGEConf7);
+				return;
+			}
+			else
+			{
+				if( SendEscI2CByte(0x87) == 0 ) // select register 0x07
+				{
+					if( SendEscI2CByte(niaddr) == 0 ) // new slave address
+					{
+						EscI2CStop();
+						MySendComText(SerYGEConf4);
+						SendComValH(nii);
+						MySendComText(SerYGEConf5);
+						SendComValH(niaddr);
+						SendComChar('\r');
+						SendComChar('\n');
+						return;
+					}
+				}
+			}
+		}
+		EscI2CStop();
+	}
+	MySendComText(SerYGEConf6);
+}
+
+void ConfigureESCs(void)
+{
+	uns8 nic;
+
+	for( nic=0; nic<4; nic++)
+	{
+		MySendComText(SerYGEConf1);
+		switch(nic)
+		{
+			case 0 : MySendComText(SerYGEFront); break;
+			case 1 : MySendComText(SerYGERear);  break;
+			case 2 : MySendComText(SerYGERight); break;
+			case 3 : MySendComText(SerYGELeft);  break;
+		}
+		MySendComText(SerYGEConf2);
+		while( RecvComChar() == '\0' );
+		MySendComText(SerYGEConf3);
+
+		Program_SLA(0x62+nic+nic);
+	}
+}
+#endif
