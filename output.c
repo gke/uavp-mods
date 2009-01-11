@@ -37,28 +37,27 @@ void PowerOutput(uns8 niout)
 
 	for( nij=0; nij < 10; nij++ )	// 10 flashes (count MUST be even!)
 	{
-		switch(niout)
-		{
+	
 #ifdef BOARD_3_0
-			case 0:	PORTB.7 ^= 1; break;	// toggle AUX
-			case 1:	PORTC.3 ^= 1; break;	// toggle BLUE
-			case 2:	PORTC.4 ^= 1; break;	// toggle RED
-			case 3:	PORTC.1 ^= 1; break;	// toggle GREEN
-			case 4:	PORTC.5 ^= 1; break;	// toggle AUX
-			case 5:	PORTC.0 ^= 1; break;	// toggle YELLOW
-			case 6:	PORTB.6 ^= 1; break;	// toggle BEEPER
+		if (niout == 0 ) PORTB.7 ^= 1; else	// toggle AUX
+		if (niout == 1 ) PORTC.3 ^= 1; else	// toggle BLUE
+		if (niout == 2 ) PORTC.4 ^= 1; else	// toggle RED
+		if (niout == 3 ) PORTC.1 ^= 1; else	// toggle GREEN
+		if (niout == 4 ) PORTC.5 ^= 1; else	// toggle AUX
+		if (niout == 5 ) PORTC.0 ^= 1; else	// toggle YELLOW
+		if (niout == 6 ) PORTB.6 ^= 1; 		// toggle BEEPER
 #endif
 #ifdef BOARD_3_1
-			case 0:	LedShadow ^= 0x01; break;	// toggle AUX
-			case 1:	LedShadow ^= 0x02; break;	// toggle BLUE
-			case 2:	LedShadow ^= 0x04; break;	// toggle RED
-			case 3:	LedShadow ^= 0x08; break;	// toggle GREEN
-			case 4:	LedShadow ^= 0x10; break;	// toggle AUX
-			case 5:	LedShadow ^= 0x20; break;	// toggle YELLOW
-			case 6:	LedShadow ^= 0x40; break;	// toggle AUX
-			case 7:	LedShadow ^= 0x80; break;	// toggle BEEPER
+		if (niout == 0 ) LedShadow ^= 0x01; else 	// toggle AUX
+		if (niout == 1 ) LedShadow ^= 0x02; else 	// toggle BLUE
+		if (niout == 2 ) LedShadow ^= 0x04; else 	// toggle RED
+		if (niout == 3 ) LedShadow ^= 0x08; else 	// toggle GREEN
+		if (niout == 4 ) LedShadow ^= 0x10; else 	// toggle AUX
+		if (niout == 5 ) LedShadow ^= 0x20; else 	// toggle YELLOW
+		if (niout == 7 ) LedShadow ^= 0x40; else 	// toggle AUX
+		if (niout == 7 ) LedShadow ^= 0x80; 		// toggle BEEPER
 #endif
-		}	
+		
 #ifdef BOARD_3_1
 		SendLeds();	// send LEDs to bus
 #endif

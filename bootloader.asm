@@ -4,8 +4,6 @@
 ; mit PIC16F876
 ;*************************************************************************
 
-;#define BOARD_3_1
-
         LIST C=200,R=dec
 
         errorlevel -302         ;avoid "ensure page bits are set" warning

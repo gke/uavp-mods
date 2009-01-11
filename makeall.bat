@@ -26,7 +26,7 @@ set VERSION=3_15m3
 rem Add/Delete required combinations to these sets
 set BOARDS= 3_1
 set GYROS=OPT_IDG OPT_ADXRS
-set ESCS=ESC_PWM ESC_HOLGER
+set ESCS=ESC_PPM ESC_HOLGER
 set DBGS=NO_DEBUG 
 set RXS=RX_DEFAULT RX_DSM2 RX_PPM
 

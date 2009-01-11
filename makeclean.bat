@@ -3,7 +3,7 @@ rem ---------------------------------------------
 rem Delete all working files but not hex files
 rem ---------------------------------------------
 
-set CSRC=pu-test an-test irq lisl rxtest serial text utils utils2 i2c-scan output
+set CSRC=pu-test an-test irq lisl mathlib rxtest serial text utils utils2 i2c-scan output
 set ASRC=bootloader
 
 rem compiler working files...
