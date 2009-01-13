@@ -160,20 +160,20 @@ void CheckThrottleMoved(void)
 		if( LedCount & 1 )
 			ThrDownCount--;
 		if( ThrDownCount == 0 )
-			CurrThrottle = IThrottle;						// remember current Throttle level
+			CurrThrottle = IThrottle;			// remember current Throttle level
 	}
 	else
 	{
-		if( CurrThrottle < THR_MIDDLE ) 				// ??? tidy up
+		if( CurrThrottle < THR_MIDDLE ) 		// ??? tidy up
 			Temp = 0;
 		else
 			Temp = CurrThrottle - THR_MIDDLE;
 		if( IThrottle < THR_HOVER )
-			ThrDownCount = THR_DOWNCOUNT;			// left dead area
+			ThrDownCount = THR_DOWNCOUNT;		// left dead area
 		if( IThrottle < Temp )
-			ThrDownCount = THR_DOWNCOUNT;			// left dead area
+			ThrDownCount = THR_DOWNCOUNT;		// left dead area
 		if( IThrottle > CurrThrottle + THR_MIDDLE )
-			ThrDownCount = THR_DOWNCOUNT;			// left dead area
+			ThrDownCount = THR_DOWNCOUNT;		// left dead area
 	}
 } // CheckThrottleMoved
 
@@ -183,7 +183,7 @@ void main(void)
 	uint8	LowThrottleCount;
 	uint8	i, ch;
 
-	DisableInterrupts;								// disable all interrupts
+	DisableInterrupts;							// disable all interrupts
 
 	InitPorts();
 
@@ -195,7 +195,7 @@ void main(void)
 	
 	InitADC();
 						
-	for (i=8; i ; i--)								// clear flags ???
+	for (i=8; i ; i--)							// clear flags ???
 	{
 		Flags[i] = false;
 		Flags2[i] = false;
@@ -209,9 +209,9 @@ void main(void)
 	RollFailsafe = PitchFailsafe = YawFailsafe = 0;
 
 #ifdef COMMISSIONING
-	for (i=_EESet2*2; i ; i--)						// clear EEPROM parameter space
+	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
 		WriteEE(i, -1);
-	WriteParametersEE(1);							// Copy RAM initial values to EE
+	WriteParametersEE(1);						// Copy RAM initial values to EE
 	WriteParametersEE(2);
 #endif
 	ReadParametersEE();
@@ -220,14 +220,14 @@ void main(void)
 								
 #ifdef BOOTONLY
 	ShowSetup(1);
-	Delay100mSec(2);								// wait 2/10 sec until signal is there	
+	Delay100mSec(2);							// wait 2/10 sec until signal is there	
 	while(1)ProcessCommand();
 #else
 
 	// DON'T MOVE THE UFO!
 	// ES KANN LOSGEHEN!
 	LedRed_ON;
-	Delay100mSec(20);								// time to get hands away after power up
+	Delay100mSec(20);							// time to get hands away after power up
 	Beeper_ON;
 	InitDirection();		
 	InitAltimeter();
@@ -240,7 +240,7 @@ void main(void)
 	ShowSetup(1);
 	
 Restart:
-	IThrottle = IK5 = _Minimum;							// Kill throttle assume parameter set #1
+	IThrottle = IK5 = _Minimum;					// Kill throttle assume parameter set #1
 
 	while(1)
 	{
@@ -249,7 +249,7 @@ Restart:
 
 		LedRed_ON;
 		if(_UseLISL)
-			LedYellow_ON;							// to signal LISL sensor is active
+			LedYellow_ON;						// to signal LISL sensor is active
 
 		InitArrays();
 
@@ -257,7 +257,7 @@ Restart:
 		DropoutCount = MODELLOSTTIMER;
 		do
 		{
-			Delay100mSec(2);						// wait 2/10 sec until signal is there
+			Delay100mSec(2);					// wait 2/10 sec until signal is there
 			ProcessCommand();
 			if( _NoSignal )
 			{
@@ -265,7 +265,7 @@ Restart:
 				{
 					if( --DropoutCount == 0 )
 					{
-						Beeper_TOG;					// toggle beeper "model lost"
+						Beeper_TOG;				// toggle beeper "model lost"
 						DropoutCount = MODELLOSTTIMERINT;
 					}
 				}
@@ -273,11 +273,11 @@ Restart:
 					Beeper_OFF;
 			}
 		}
-		while( _NoSignal || !Switch );				// no signal or switch is off
+		while( _NoSignal || !Switch );			// no signal or switch is off
 		Beeper_OFF;
-		LedRed_OFF;									// Rx Signal is OK
+		LedRed_OFF;								// Rx Signal is OK
 		
-		ReadParametersEE();							// in case param set changed
+		ReadParametersEE();						// in case param set changed
 
 		// Just for safety: don't let motors start if throttle is open!
 		DropoutCount = 1;
@@ -293,11 +293,11 @@ Restart:
 				// if Ch7 below midpoint assume use for camera trigger
 				// else assume use for camera roll trim	
 				_UseCh7Trigger =  IK7 < _Neutral;
-				OutSignals();						// while waiting sync to Rx frame
+				OutSignals();					// while waiting sync to Rx frame
 				if( (--DropoutCount) <= 0 )
 				{
-					LedRed_TOG;						// toggle red LED 
-					DropoutCount = 10;				// to signal: THROTTLE OPEN
+					LedRed_TOG;					// toggle red LED 
+					DropoutCount = 10;			// to signal: THROTTLE OPEN
 				}
 			}
 			ProcessCommand();
@@ -309,11 +309,11 @@ Restart:
 							
 		DropoutCount = 0;
 		
-		while( Switch )								// as int32 as power switch is ON
+		while( Switch )							// as int32 as power switch is ON
 		{
 			_MotorsEnabled = true;
 
-			RollRate = GetRollRate();				// first of two samples per cycle
+			RollRate = GetRollRate();			// first of two samples per cycle
 			PitchRate = GetPitchRate();
 
 			while( TimeSlot > 0 )
@@ -327,7 +327,7 @@ Restart:
 			GetDirection();
 			GetAltitude();
 	
-			ReadParametersEE();						// re-sets TimeSlot
+			ReadParametersEE();					// re-sets TimeSlot
 
 			// second gyro sample delayed roughly by intervening routines!
 			// no obvious reason for this except minor filtering by averaging.
@@ -344,7 +344,7 @@ Restart:
 				else
 					if( (BlinkCount & 0x0F) == 0 )
 						DropoutCount++;
-				if( DropoutCount < MAXDROPOUT )		// Failsafe - currently a minute or so!
+				if( DropoutCount < MAXDROPOUT )	// Failsafe - currently a minute or so!
 				{
 					ALL_LEDS_OFF;
 					IThrottle = Limit(IThrottle, IThrottle, THR_HOVER); // stop high-power runaways
@@ -365,12 +365,12 @@ Restart:
 			if( _NoSignal||((_Flying&&(IThrottle<=_ThresStop))||(!_Flying&&(IThrottle<=_ThresStart))))
 			{						
 				// Quadrocopter has "landed", stop all motors									
-				TimeSlot += 2; 						// ??? kludge to compensate PID() calc time!
+				TimeSlot += 2; 					// ??? kludge to compensate PID() calc time!
 
-				InitArrays();						// resets _Flying flag!
+				InitArrays();					// resets _Flying flag!
 				
-				if( _NoSignal && Switch )			// _NoSignal set, but Switch is on?
-					break;							// then Rx signal was lost
+				if( _NoSignal && Switch )		// _NoSignal set, but Switch is on?
+					break;						// then Rx signal was lost
 
 				ALL_LEDS_OFF;				
 				AUX_LEDS_OFF;
@@ -381,9 +381,9 @@ Restart:
 			}
 			else
 			{	// Quadrocopter is flying!
-				if( !_Flying )						// about to start
+				if( !_Flying )					// about to start
 				{	// set current stick values as midpoints
-					RollFailsafe = IRoll;			// ??? best place to do this
+					RollFailsafe = IRoll;		// ??? best place to do this
 					PitchFailsafe = IPitch;
 					YawFailsafe  = IYaw;
 
@@ -396,7 +396,7 @@ Restart:
 
 				_Flying = true;
 				if( DropoutCount )
-					Beeper_OFF;						// turn off signal lost beeper
+					Beeper_OFF;					// turn off signal lost beeper
 
 				DropoutCount = 0;
 				LowThrottleCount = 100;
@@ -412,12 +412,12 @@ DoPID:
 
 				PID();
 	
-				REp = RE;							// remember old gyro values
+				REp = RE;						// remember old gyro values
 				PEp = PE;
 				YEp = YE;
 			}			
 
-			OutSignals();							// update motors and cam servos
+			OutSignals();						// update motors and cam servos
 
 			// do housekeeping after main control and motor/servo drive output
 			CheckLowBattery();			

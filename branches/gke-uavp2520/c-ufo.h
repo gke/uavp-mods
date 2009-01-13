@@ -92,7 +92,7 @@
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-//#define DEBUG_SENSORS
+#define DEBUG_SENSORS
 
 // Switched Roll and Pitch channels for Conrad mc800 transmitter
 //#define EXCHROLLNICK

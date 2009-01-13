@@ -461,7 +461,7 @@ TxChar
 		btfss	PIR1,TXIF			;wait until shift register is empty
 		goto	TxChar
 		movwf	TXREG				;send char
-#endif // RAW_BOOT
+#endif
 		return
 	
 		end

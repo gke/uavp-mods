@@ -67,7 +67,7 @@ int16 GetYawRate(void)
 #ifdef SIMULATION
 	return(Limit(YawX, -5, 5));
 #else
-	return(SRS16(GYROSIGN_YAW * ADC(ADCYawChan, ADCEXTVREF_YAW) + 2, 2));		
+	return(GYROSIGN_YAW * ADC(ADCYawChan, ADCEXTVREF_YAW));		
 #endif
 } // GetYawRate
 
@@ -270,11 +270,11 @@ void DetermineAttitude(void)
 
 	PitchAngle += (int32)PitchRate;
 	PitchAngle = Limit(PitchAngle, -(PitchIntLimit*256), PitchIntLimit*256);
-	PitchAngle = Decay(PitchAngle + FBIntKorr);			// ??? Decay(PitchAngle) + FBIntKorr;
+	PitchAngle = Decay(PitchAngle + FBIntKorr);		// ??? Decay(PitchAngle) + FBIntKorr;
  
 	// Yaw + CW  sample once per cycle
 
-	YE = YawRate;										// make yaw rate zero	
+	YE = SRS16(YawRate + 2, 2);						// make yaw rate zero
 	DoHeadingLock();
 	YawAngle=Limit(YawAngle + YE, -(YawIntLimit*256), YawIntLimit*256);
 
