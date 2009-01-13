@@ -35,7 +35,7 @@ if "%GYRO%"  == "OPT_IDG"           set G=IDG-
 if "%ESC%"   == "ESC_PPM"           set E=PPM
 if "%ESC%"   == "ESC_HOLGER"        set E=HOL
 if "%ESC%"   == "ESC_YGEI2C"        set E=YGE
-if "%RX%"    == "RX_PPM"            set R=RXC-
+if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_DSM2"           set R=DSM2-
 
 rem Build the list of expected object files

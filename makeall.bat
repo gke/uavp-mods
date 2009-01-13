@@ -15,13 +15,8 @@ rem Type of gyros in use. May be OPT_ADXRS or IDG300.
 rem Type of ESC in use. May be ESC_PWM,  ESC_HOLGER.
 rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
 rem RX_PPM for serial PPM frame, or RX_DEFAULT for default PPM Graupner/JR etc Rx.
-rem Type of debugging to use. May be DEBUG_MOTORS (3.1 only) or DEBUG_SENSORS.
-rem Motors are disabled for DEBUG_SENSORS as there is not enough program space
-rem in the 876 PIC.
-rem Prevous switches THC and CAM have been abandoned in favour of Tx based
-rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
 
-set VERSION=3_15m3
+set VERSION=3_14m3
 
 rem Add/Delete required combinations to these sets
 set BOARDS= 3_1
