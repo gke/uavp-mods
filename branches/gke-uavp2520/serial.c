@@ -82,83 +82,83 @@ void InitUSART(uint8 Rate)
 } // InitUSART
 			
 // transmit a fix text from a table
-void SendComText(const uint8 *pch)
+void TxText(const uint8 *pch)
 {
 	while( *pch != '\0' )
-		SendComChar(*pch++);
-}// SendComText
+		TxChar(*pch++);
+}// TxText
 
 void ShowPrompt(void)
 {
-	SendComText(SerPrompt);
+	TxText(SerPrompt);
 } // ShowPrompt
 
 // send a character to the serial port
-void SendComChar(char ch)
+void TxChar(char ch)
 {
 	while( !PIR1bits.TXIF ) ;						// wait for transmit ready
 	TXREG = ch;										// put new char
 }
 
 // converts an unsigned byte to decimal and send it
-void SendComValU(uint8 v)
+void TxValU(uint8 v)
 {
 	uint8 ch;
 
 	ch = v / 100;
-	SendComChar(ch + '0');
+	TxChar(ch + '0');
 	v %= 100;										// extract remainder
 	
 	ch = v / 10;
-	SendComChar(ch + '0');
+	TxChar(ch + '0');
 	v %= 10;
 
-	SendComChar(v + '0');
-} // SendComValU
+	TxChar(v + '0');
+} // TxValU
 
 // converts a nibble to HEX and sends it
-void SendComNibble(uint8 v)
+void TxNibble(uint8 v)
 {
 	if( v > 9 )
 		v += ('A'-10);
 	else
 		v += '0';
-	SendComChar(v);
-} // SendComNibble 
+	TxChar(v);
+} // TxNibble 
 
 // converts an unsigned byte to HEX and sends it
-void SendComValH(uint8 v)
+void TxValH(uint8 v)
 {
-	SendComNibble(v >> 4);
-	SendComNibble(v & 0x0f);
-} // SendComValH
+	TxNibble(v >> 4);
+	TxNibble(v & 0x0f);
+} // TxValH
 
 // converts an unsigned double byte to HEX and sends it
-void SendComValH16(uint16 v)
+void TxValH16(uint16 v)
 {
-	SendComValH(Upper8(v));
-	SendComValH(Lower8(v));
-} // SendComValH16
+	TxValH(Upper8(v));
+	TxValH(Lower8(v));
+} // TxValH16
 
 // converts a signed byte to decimal and send it
-void SendComValS(int8 v)
+void TxValS(int8 v)
 {
 	if( v < 0 )
 	{
-		SendComChar('-');							// send sign
+		TxChar('-');							// send sign
 		v = -v;
 	}
 	else
-		SendComChar('+');
+		TxChar('+');
 
-	SendComValU(v);
-} // SendComValS
+	TxValU(v);
+} // TxValS
 
-void SendComNextLine(void)
+void TxNextLine(void)
 {
-	SendComChar(0x0d);
-	SendComChar(0x0a);
-} // SendComNextLine
+	TxChar(0x0d);
+	TxChar(0x0a);
+} // TxNextLine
 
 #ifdef READABLE
 void TxVal(int32 v, uint8 dp, uint8 sep)
@@ -169,7 +169,7 @@ void TxVal(int32 v, uint8 dp, uint8 sep)
  
   if (v<0)
     {
-    SendComChar('-');
+    TxChar('-');
     v=-v;
     }
 
@@ -186,25 +186,25 @@ void TxVal(int32 v, uint8 dp, uint8 sep)
   
   if ((c==dp) && (dp>0))
     {
-    SendComChar('0');
-    SendComChar('.');
+    TxChar('0');
+    TxChar('.');
     }
   do
     {
     c--;
-    SendComChar(s[c]);
+    TxChar(s[c]);
     if ((c==dp)&&(c>0)) 
-      SendComChar('.');
+      TxChar('.');
     }
   while (c>0);
   if (sep!=0)
-    SendComChar(sep);
+    TxChar(sep);
 } // TxVal
 #endif // READABLE
 
 // if a character is in the buffer
 // return it. Else return the NUL character
-uint8 RecvComChar(void)
+uint8 RxChar(void)
 {
 	uint8	ch;	
 
@@ -219,32 +219,32 @@ uint8 RecvComChar(void)
 		else
 		{
 			ch = RCREG;								// get the character
-			SendComChar(ch);						// echo it
+			TxChar(ch);						// echo it
 			return(ch);								// and return it
 		}
 	}
 	return( '\0' );									// nothing in buffer
-} // RecvComChar
+} // RxChar
 
 // enter an unsigned number 00 to 99
-uint8 RecvComNumU(void)
+uint8 RxNumU(void)
 {
 	char ch;
 	uint8 v;
 
 	do
-		ch = RecvComChar();
+		ch = RxChar();
 	while( (ch < '0') || (ch > '9') );
 	v = (ch - '0') * 10;
 	do
-		ch = RecvComChar();
+		ch = RxChar();
 	while( (ch < '0') || (ch > '9') );
 	v += ch - '0';
 	return(v);
-} // RecvComNumU
+} // RxNumU
 
 // enter a signed number -99 to 99 (always 2 digits)!
-int16 RecvComNumS(void)
+int16 RxNumS(void)
 {
 	char ch;
 	uint8 v;
@@ -252,71 +252,71 @@ int16 RecvComNumS(void)
 
 	neg = false;
 	do
-		ch = RecvComChar();
+		ch = RxChar();
 	while( ((ch < '0') || (ch > '9')) && (ch != '-') );
 	if( ch == '-' )
 	{
 		neg = true;
 		do
-			ch = RecvComChar();
+			ch = RxChar();
 		while( (ch < '0') || (ch > '9') );
 	}
 	v = (ch - '0') * 10;
 	do
-		ch = RecvComChar();
+		ch = RxChar();
 	while( (ch < '0') || (ch > '9') );
 	v += ch - '0';
 	if ( neg )
 		v = -v;
 	return(v);
-} // RecvComNumS
+} // RxNumS
 
 // send the current configuration setup to serial port
 void ShowSetup(uint8 Hello)
 {
 	if( Hello )
 	{
-		SendComText(SerHello);
+		TxText(SerHello);
 		IK5 = _Minimum;	
 	}
 
-	SendComText(SerSetup);							// send hello message
+	TxText(SerSetup);							// send hello message
 	if( _UseLISL )
-		SendComText(SerLSavail);
+		TxText(SerLSavail);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 
-	SendComText(SerCompass);
+	TxText(SerCompass);
 	if( _UseCompass )
-		SendComText(SerLSavail);
+		TxText(SerLSavail);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 
-	SendComText(SerBaro);
+	TxText(SerBaro);
 	if( _UseBaro )
-		SendComText(SerLSavail);
+		TxText(SerLSavail);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 
 	ReadParametersEE();
-	SendComText(SerChannel);
+	TxText(SerChannel);
 	if( FutabaMode )
-		SendComText(SerFM_Fut);
+		TxText(SerFM_Fut);
 	else
-		SendComText(SerFM_Grp);
+		TxText(SerFM_Grp);
 
-	SendComText(SerSelSet);
+	TxText(SerSelSet);
 	if( IK5 > _Neutral )
-		SendComChar('2');
+		TxChar('2');
 	else
-		SendComChar('1');
+		TxChar('1');
 	
 	ShowPrompt();
 } // ShowSetup
 
 // if a command is waiting, read and process it.
 // Do NOT call this routine while in flight!
-void ProcessComCommand(void)
+void ProcessCommand(void)
 {
 	int8 *p;
 	uint8 ch;
@@ -324,9 +324,9 @@ void ProcessComCommand(void)
 	uint16 addrbase, curraddr;
 	int8 d;
 
-	ch = RecvComChar();
+	ch = RxChar();
 
-	if( islower(ch))								// check lower case
+	if( islower(ch))							// check lower case
 		ch=toupper(ch);
 
 	if (ch == '\0') // switch would have been more elegant but code too big/slow!
@@ -336,20 +336,20 @@ void ProcessComCommand(void)
 	else
 	if (ch == 'L')	// List parameters
 	{
-			SendComText(SerList);					// must send it (UAVPset!)
+			TxText(SerList);					// must send it (UAVPset!)
 			if( IK5 > _Neutral )
-				SendComChar('2');
+				TxChar('2');
 			else
-				SendComChar('1');
+				TxChar('1');
 			ReadParametersEE();
 			addr = 1;
 			for(p = &FirstProgReg; p <= &LastProgReg; p++)
 			{
-				SendComText(SerReg1);
-				SendComValU(addr++);
-				SendComText(SerReg2);
+				TxText(SerReg1);
+				TxValU(addr++);
+				TxText(SerReg2);
 				d = *p;
-				SendComValS(d);
+				TxValS(d);
 			}
 			ShowPrompt();
 	}
@@ -357,10 +357,10 @@ void ProcessComCommand(void)
 	if (ch == 'M')// modify parameters
 	{ 
 			LedBlue_ON;
-			SendComText(SerReg1);
-			addr = RecvComNumU()-1;
-			SendComText(SerReg2);
-			d = RecvComNumS();
+			TxText(SerReg1);
+			addr = RxNumU()-1;
+			TxText(SerReg2);
+			d = RxNumS();
 			if( IK5 > _Neutral )
 				addrbase = _EESet2;
 			else
@@ -390,45 +390,45 @@ void ProcessComCommand(void)
 	else
 	if (ch == 'N')	// neutral values
 	{
-			SendComText(SerNeutralR);
-			SendComValS(NeutralLR);
+			TxText(SerNeutralR);
+			TxValS(NeutralLR);
 
-			SendComText(SerNeutralN);
-			SendComValS(NeutralFB);
+			TxText(SerNeutralN);
+			TxValS(NeutralFB);
 
-			SendComText(SerNeutralY);
-			SendComValS(NeutralUD);
+			TxText(SerNeutralY);
+			TxValS(NeutralUD);
 			ShowPrompt();
 	}
 	else
 	if (ch == 'R')// receiver values
 	{
-			SendComText(SerRecvCh);
-			SendComValU(IThrottle);
-			SendComChar(',');
-			SendComChar('R');
-			SendComChar(':');
-			SendComValS(IRoll);
-			SendComChar(',');
-			SendComChar('N');
-			SendComChar(':');
-			SendComValS(IPitch);
-			SendComChar(',');
-			SendComChar('Y');
-			SendComChar(':');
-			SendComValS(IYaw);
-			SendComChar(',');
-			SendComChar('5');
-			SendComChar(':');
-			SendComValU(IK5);
-			SendComChar(',');
-			SendComChar('6');
-			SendComChar(':');
-			SendComValU(IK6);
-			SendComChar(',');
-			SendComChar('7');
-			SendComChar(':');
-			SendComValU(IK7);
+			TxText(SerRecvCh);
+			TxValU(IThrottle);
+			TxChar(',');
+			TxChar('R');
+			TxChar(':');
+			TxValS(IRoll);
+			TxChar(',');
+			TxChar('N');
+			TxChar(':');
+			TxValS(IPitch);
+			TxChar(',');
+			TxChar('Y');
+			TxChar(':');
+			TxValS(IYaw);
+			TxChar(',');
+			TxChar('5');
+			TxChar(':');
+			TxValU(IK5);
+			TxChar(',');
+			TxChar('6');
+			TxChar(':');
+			TxValU(IK6);
+			TxChar(',');
+			TxChar('7');
+			TxChar(':');
+			TxValU(IK7);
 			ShowPrompt();
 	}
 	else
@@ -445,7 +445,7 @@ void ProcessComCommand(void)
 	else
 	if (ch == '?') // Help
 	{
-			SendComText(SerHelp);
+			TxText(SerHelp);
 			ShowPrompt();
 	}
-} // ProcessComCommand
+} // ProcessCommand

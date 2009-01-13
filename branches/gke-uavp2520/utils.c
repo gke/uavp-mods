@@ -298,51 +298,51 @@ void DoDebugTraces()
 		TxVal((int32)MLeft, 0, ';');
 		TxVal((int32)MRight, 0, ';');
 #else
-		SendComValH(AbsDirection);
-		SendComChar(';');
+		TxValH(AbsDirection);
+		TxChar(';');
 
-		SendComValH(VBaroComp);
-		SendComChar(';');
-		SendComValH16(BaroCompSum);
-		SendComChar(';');
+		TxValH(VBaroComp);
+		TxChar(';');
+		TxValH16(BaroCompSum);
+		TxChar(';');
 
 		// accelerations
-		SendComValH16(ACCSIGN_X * Ax);
-		SendComChar(';');
-		SendComValH16(ACCSIGN_Z * Az);
-		SendComChar(';');
-		SendComValH16(ACCSIGN_Y * Ay);
-		SendComChar(';');
+		TxValH16(ACCSIGN_X * Ax);
+		TxChar(';');
+		TxValH16(ACCSIGN_Z * Az);
+		TxChar(';');
+		TxValH16(ACCSIGN_Y * Ay);
+		TxChar(';');
 
 		// rates
-		SendComValH16(RollRate);
-		SendComChar(';');
-		SendComValH16(PitchRate);
-		SendComChar(';');
-		SendComValH(YawRate);
-		SendComChar(';');
+		TxValH16(RollRate);
+		TxChar(';');
+		TxValH16(PitchRate);
+		TxChar(';');
+		TxValH(YawRate);
+		TxChar(';');
 
 		// angles
-		SendComValH16(RollAngle);
-		SendComChar(';');
-		SendComValH16(PitchAngle);
-		SendComChar(';');
-		SendComValH16(YawAngle);
-		SendComChar(';');
+		TxValH16(RollAngle);
+		TxChar(';');
+		TxValH16(PitchAngle);
+		TxChar(';');
+		TxValH16(YawAngle);
+		TxChar(';');
 
 #ifdef SIMULATION
-		SendComValH16(MFront);
-		SendComChar(';');
-		SendComValH16(Mback);
-		SendComChar(';');
-		SendComValH16(MLeft);
-		SendComChar(';');
-		SendComValH16(MRight);
-		SendComChar(';');
+		TxValH16(MFront);
+		TxChar(';');
+		TxValH16(Mback);
+		TxChar(';');
+		TxValH16(MLeft);
+		TxChar(';');
+		TxValH16(MRight);
+		TxChar(';');
 #endif // SIMULATION
 
 #endif // READABLE
-		SendComNextLine();
+		TxNextLine();
 
 	};
 #else
@@ -350,33 +350,33 @@ void DoDebugTraces()
 
 	if( _Flying ) //&& IsSet(CamNickFactor,4) )
 	{
-		SendComValU(IGas);
-		SendComChar(';');
-		SendComValS(IRoll);
-		SendComChar(';');
-		SendComValS(INick);
-		SendComChar(';');
-		SendComValS(ITurn);
-		SendComChar(';');
-		SendComValU(MVorne);
-		SendComChar(';');
-		SendComValU(MHinten);
-		SendComChar(';');
-		SendComValU(MLinks);
-		SendComChar(';');
-		SendComValU(MRechts);
-		SendComChar(';');
+		TxValU(IGas);
+		TxChar(';');
+		TxValS(IRoll);
+		TxChar(';');
+		TxValS(INick);
+		TxChar(';');
+		TxValS(ITurn);
+		TxChar(';');
+		TxValU(MVorne);
+		TxChar(';');
+		TxValU(MHinten);
+		TxChar(';');
+		TxValU(MLinks);
+		TxChar(';');
+		TxValU(MRechts);
+		TxChar(';');
 #ifdef DEBUG_CAMERAS
-		SendComValU(IK6);
-		SendComChar(';');
-		SendComValU(MCamRoll);
-		SendComChar(';');
-		SendComValU(IK7);
-		SendComChar(';');
-		SendComValU(MCamNick);
-		SendComChar(';');
+		TxValU(IK6);
+		TxChar(';');
+		TxValU(MCamRoll);
+		TxChar(';');
+		TxValU(IK7);
+		TxChar(';');
+		TxValU(MCamNick);
+		TxChar(';');
 #endif
-		SendComNextLine();
+		TxNextLine();
 	}
 #endif
 #endif

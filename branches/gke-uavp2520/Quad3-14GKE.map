@@ -1,5 +1,5 @@
 MPLINK 4.21, Linker
-Linker Map File - Created Tue Jan 13 14:16:48 2009
+Linker Map File - Created Tue Jan 13 14:55:18 2009
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
@@ -10,98 +10,101 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
           .code_adcbusy.o       code   0x00000e    program   0x00000a
                   low_isr       code   0x000018    program   0x000006
             .code_gyros.o       code   0x00001e    program   0x0012b2
-          .code_outputs.o       code   0x0012d0    program   0x000f56
-           .code_serial.o       code   0x002226    program   0x000f48
-.code_compass_altimeter.o       code   0x00316e    program   0x000ba8
-            .code_utils.o       code   0x003d16    program   0x000a78
-            .code_c-ufo.o       code   0x00478e    program   0x0007c2
-              .code_irq.o       code   0x004f50    program   0x00079c
-              .code_pid.o       code   0x0056ec    program   0x000678
-              .code_spi.o       code   0x005d64    program   0x000306
-              .code_i2c.o       code   0x00606a    program   0x0001a2
-                     PROG       code   0x00620c    program   0x00010e
-               _cinit_scn       code   0x00631a    program   0x00009e
-            .code_uopen.o       code   0x0063b8    program   0x00008a
-          .code_fxm3232.o       code   0x006442    program   0x000070
-          .code_adcopen.o       code   0x0064b2    program   0x00006e
-                    CTYPE       code   0x006520    program   0x00004c
-         .code_fxd3232u.o       code   0x00656c    program   0x000048
-            .code_uread.o       code   0x0065b4    program   0x00003e
-           .code_t0open.o       code   0x0065f2    program   0x000038
-           .code_t2open.o       code   0x00662a    program   0x000036
-          .code_cp1open.o       code   0x006660    program   0x000030
-         .code_adcsetch.o       code   0x006690    program   0x00002e
-         .code_fxd1616u.o       code   0x0066be    program   0x00002c
-             _startup_scn       code   0x0066ea    program   0x00001c
-         .code_fxd0808u.o       code   0x006706    program   0x00001c
-              D10TCYXCODE       code   0x006722    program   0x000016
-          .code_adcread.o       code   0x006738    program   0x000012
-                    .code       code   0x00674a    program   0x00000e
-          .code_adcconv.o       code   0x006758    program   0x000004
-                 params_i    romdata   0x00675c    program   0x00001c
-                  menu2_i    romdata   0x006778    program   0x0000f3
-                  menu1_i    romdata   0x00686b    program   0x0000ff
-      .romdata_fxd0808u.o    romdata   0x00696a    program   0x000000
-         .romdata_uread.o    romdata   0x00696a    program   0x000000
-         .idata_uopen.o_i    romdata   0x00696a    program   0x000000
-         .idata_uread.o_i    romdata   0x00696a    program   0x000000
-      .romdata_fxd1616u.o    romdata   0x00696a    program   0x000000
-      .romdata_fxd3232u.o    romdata   0x00696a    program   0x000000
-        .romdata_t2open.o    romdata   0x00696a    program   0x000000
-       .romdata_adcread.o    romdata   0x00696a    program   0x000000
-       .romdata_fxm3232.o    romdata   0x00696a    program   0x000000
-        .idata_t2open.o_i    romdata   0x00696a    program   0x000000
-         .romdata_uopen.o    romdata   0x00696a    program   0x000000
-       .romdata_adcopen.o    romdata   0x00696a    program   0x000000
-        .romdata_t1open.o    romdata   0x00696a    program   0x000000
-        .idata_t1open.o_i    romdata   0x00696a    program   0x000000
-       .romdata_cp1open.o    romdata   0x00696a    program   0x000000
-        .idata_t0open.o_i    romdata   0x00696a    program   0x000000
-        .romdata_t0open.o    romdata   0x00696a    program   0x000000
-         .romdata_c018i.o    romdata   0x00696a    program   0x000000
-        .romdata___init.o    romdata   0x00696a    program   0x000000
-         .romdata_c-ufo.o    romdata   0x00696a    program   0x000000
-           .idata_irq.o_i    romdata   0x00696a    program   0x000002
-           .romdata_irq.o    romdata   0x00696a    program   0x000000
-           .idata_pid.o_i    romdata   0x00696a    program   0x000000
-           .romdata_pid.o    romdata   0x00696a    program   0x000000
-        .idata_serial.o_i    romdata   0x00696a    program   0x000000
-        .romdata_serial.o    romdata   0x00696a    program   0x000000
-             .stringtable    romdata   0x00696a    program   0x000000
-       .idata_outputs.o_i    romdata   0x00696a    program   0x000000
-       .romdata_outputs.o    romdata   0x00696a    program   0x000000
-         .idata_utils.o_i    romdata   0x00696a    program   0x000000
-         .romdata_utils.o    romdata   0x00696a    program   0x000000
-         .romdata_gyros.o    romdata   0x00696a    program   0x000000
-         .romdata_udefs.o    romdata   0x00696a    program   0x000000
-.romdata_compass_altimeter.o    romdata   0x00696a    program   0x000000
-         .idata_udefs.o_i    romdata   0x00696a    program   0x000000
-           .romdata_i2c.o    romdata   0x00696a    program   0x000000
-           .idata_spi.o_i    romdata   0x00696a    program   0x000000
-           .romdata_spi.o    romdata   0x00696a    program   0x000000
-           .romdata_adc.o    romdata   0x00696a    program   0x000000
-      .romdata_adcsetch.o    romdata   0x00696a    program   0x000000
-       .romdata_adcbusy.o    romdata   0x00696a    program   0x000000
-       .romdata_adcconv.o    romdata   0x00696a    program   0x000000
-       .idata_adcread.o_i    romdata   0x00696c    program   0x000000
-            .code_udefs.o       code   0x00696c    program   0x000000
-        .idata___init.o_i    romdata   0x00696c    program   0x000000
-      .idata_adcsetch.o_i    romdata   0x00696c    program   0x000000
-            .code_c018i.o       code   0x00696c    program   0x000000
-         .idata_c-ufo.o_i    romdata   0x00696c    program   0x000000
-         .idata_gyros.o_i    romdata   0x00696c    program   0x000000
-.idata_compass_altimeter.o_i    romdata   0x00696c    program   0x000000
-           .idata_i2c.o_i    romdata   0x00696c    program   0x000000
-           .idata_adc.o_i    romdata   0x00696c    program   0x000000
-         .idata_c018i.o_i    romdata   0x00696c    program   0x000000
-       .idata_adcbusy.o_i    romdata   0x00696c    program   0x000000
-       .idata_adcconv.o_i    romdata   0x00696c    program   0x000000
-      .idata_fxd0808u.o_i    romdata   0x00696c    program   0x000000
-      .idata_fxd1616u.o_i    romdata   0x00696c    program   0x000000
-      .idata_fxd3232u.o_i    romdata   0x00696c    program   0x000000
-       .idata_fxm3232.o_i    romdata   0x00696c    program   0x000000
-       .idata_adcopen.o_i    romdata   0x00696c    program   0x000000
-       .idata_cp1open.o_i    romdata   0x00696c    program   0x000000
+          .code_outputs.o       code   0x0012d0    program   0x001032
+           .code_serial.o       code   0x002302    program   0x000f48
+.code_compass_altimeter.o       code   0x00324a    program   0x000ba8
+            .code_c-ufo.o       code   0x003df2    program   0x0007c2
+              .code_irq.o       code   0x0045b4    program   0x00079c
+            .code_utils.o       code   0x004d50    program   0x0006c4
+              .code_pid.o       code   0x005414    program   0x000678
+              .code_spi.o       code   0x005a8c    program   0x000306
+              .code_i2c.o       code   0x005d92    program   0x0001a2
+                     PROG       code   0x005f34    program   0x00010e
+               _cinit_scn       code   0x006042    program   0x00009e
+            .code_uopen.o       code   0x0060e0    program   0x00008a
+          .code_fxm3232.o       code   0x00616a    program   0x000070
+          .code_adcopen.o       code   0x0061da    program   0x00006e
+                    CTYPE       code   0x006248    program   0x00004c
+         .code_fxd3232u.o       code   0x006294    program   0x000048
+            .code_uread.o       code   0x0062dc    program   0x00003e
+           .code_t0read.o       code   0x00631a    program   0x00003e
+           .code_t0open.o       code   0x006358    program   0x000038
+           .code_t2open.o       code   0x006390    program   0x000036
+          .code_cp1open.o       code   0x0063c6    program   0x000030
+         .code_adcsetch.o       code   0x0063f6    program   0x00002e
+         .code_fxd1616u.o       code   0x006424    program   0x00002c
+             _startup_scn       code   0x006450    program   0x00001c
+         .code_fxd0808u.o       code   0x00646c    program   0x00001c
+              D10TCYXCODE       code   0x006488    program   0x000016
+          .code_adcread.o       code   0x00649e    program   0x000012
+                    .code       code   0x0064b0    program   0x00000e
+          .code_adcconv.o       code   0x0064be    program   0x000004
+                 params_i    romdata   0x0064c2    program   0x00001c
+                  menu2_i    romdata   0x0064de    program   0x0000f3
+                  menu1_i    romdata   0x0065d1    program   0x0000ff
+         .idata_utils.o_i    romdata   0x0066d0    program   0x000000
+        .idata_serial.o_i    romdata   0x0066d0    program   0x000000
+      .romdata_fxd3232u.o    romdata   0x0066d0    program   0x000000
+       .romdata_outputs.o    romdata   0x0066d0    program   0x000000
+        .romdata_t0read.o    romdata   0x0066d0    program   0x000000
+       .romdata_fxm3232.o    romdata   0x0066d0    program   0x000000
+       .idata_outputs.o_i    romdata   0x0066d0    program   0x000000
+        .idata_t0read.o_i    romdata   0x0066d0    program   0x000000
+       .romdata_adcopen.o    romdata   0x0066d0    program   0x000000
+         .romdata_c018i.o    romdata   0x0066d0    program   0x000000
+       .romdata_cp1open.o    romdata   0x0066d0    program   0x000000
+             .stringtable    romdata   0x0066d0    program   0x000000
+        .idata_t0open.o_i    romdata   0x0066d0    program   0x000000
+        .romdata_t0open.o    romdata   0x0066d0    program   0x000000
+        .idata_t1open.o_i    romdata   0x0066d0    program   0x000000
+        .romdata_t1open.o    romdata   0x0066d0    program   0x000000
+       .romdata_adcread.o    romdata   0x0066d0    program   0x000000
+        .idata_t2open.o_i    romdata   0x0066d0    program   0x000000
+        .romdata_t2open.o    romdata   0x0066d0    program   0x000000
+         .idata_uopen.o_i    romdata   0x0066d0    program   0x000000
+         .romdata_uopen.o    romdata   0x0066d0    program   0x000000
+        .romdata_serial.o    romdata   0x0066d0    program   0x000000
+         .romdata_udefs.o    romdata   0x0066d0    program   0x000000
+.romdata_compass_altimeter.o    romdata   0x0066d0    program   0x000000
+           .romdata_irq.o    romdata   0x0066d0    program   0x000000
+         .idata_udefs.o_i    romdata   0x0066d0    program   0x000000
+           .romdata_i2c.o    romdata   0x0066d0    program   0x000000
+           .idata_irq.o_i    romdata   0x0066d0    program   0x000002
+           .idata_spi.o_i    romdata   0x0066d0    program   0x000000
+           .romdata_spi.o    romdata   0x0066d0    program   0x000000
+           .idata_pid.o_i    romdata   0x0066d0    program   0x000000
+           .romdata_adc.o    romdata   0x0066d0    program   0x000000
+      .romdata_adcsetch.o    romdata   0x0066d0    program   0x000000
+       .romdata_adcbusy.o    romdata   0x0066d0    program   0x000000
+         .romdata_c-ufo.o    romdata   0x0066d0    program   0x000000
+         .romdata_gyros.o    romdata   0x0066d0    program   0x000000
+       .romdata_adcconv.o    romdata   0x0066d0    program   0x000000
+           .romdata_pid.o    romdata   0x0066d0    program   0x000000
+         .romdata_uread.o    romdata   0x0066d0    program   0x000000
+      .romdata_fxd0808u.o    romdata   0x0066d0    program   0x000000
+         .romdata_utils.o    romdata   0x0066d0    program   0x000000
+        .romdata___init.o    romdata   0x0066d0    program   0x000000
+         .idata_uread.o_i    romdata   0x0066d0    program   0x000000
+      .romdata_fxd1616u.o    romdata   0x0066d0    program   0x000000
+      .idata_adcsetch.o_i    romdata   0x0066d2    program   0x000000
+        .idata___init.o_i    romdata   0x0066d2    program   0x000000
+            .code_udefs.o       code   0x0066d2    program   0x000000
+            .code_c018i.o       code   0x0066d2    program   0x000000
+         .idata_c-ufo.o_i    romdata   0x0066d2    program   0x000000
+         .idata_gyros.o_i    romdata   0x0066d2    program   0x000000
+.idata_compass_altimeter.o_i    romdata   0x0066d2    program   0x000000
+           .idata_i2c.o_i    romdata   0x0066d2    program   0x000000
+           .idata_adc.o_i    romdata   0x0066d2    program   0x000000
+         .idata_c018i.o_i    romdata   0x0066d2    program   0x000000
+       .idata_adcbusy.o_i    romdata   0x0066d2    program   0x000000
+       .idata_adcconv.o_i    romdata   0x0066d2    program   0x000000
+      .idata_fxd0808u.o_i    romdata   0x0066d2    program   0x000000
+      .idata_fxd1616u.o_i    romdata   0x0066d2    program   0x000000
+      .idata_fxd3232u.o_i    romdata   0x0066d2    program   0x000000
+       .idata_fxm3232.o_i    romdata   0x0066d2    program   0x000000
+       .idata_adcopen.o_i    romdata   0x0066d2    program   0x000000
+       .idata_cp1open.o_i    romdata   0x0066d2    program   0x000000
+       .idata_adcread.o_i    romdata   0x0066d2    program   0x000000
                    .org_0       code   0x007c00    program   0x0002e2
                    .cinit    romdata   0x007ee2    program   0x000032
               .code_adc.o       code   0x007f14    program   0x0000aa
@@ -115,6 +118,7 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                     menu2      idata   0x000200       data   0x0000f3
            .udata_c018i.o      udata   0x0002f3       data   0x00000a
              .idata_irq.o      idata   0x0002fd       data   0x000002
+          .idata_t1open.o      idata   0x0002ff       data   0x000000
           .udata_t1open.o      udata   0x0002ff       data   0x000000
           .idata_t0open.o      idata   0x0002ff       data   0x000000
           .udata_t0open.o      udata   0x0002ff       data   0x000000
@@ -128,14 +132,14 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
         .udata_fxd3232u.o      udata   0x0002ff       data   0x000000
         .idata_fxd1616u.o      idata   0x0002ff       data   0x000000
         .udata_fxd1616u.o      udata   0x0002ff       data   0x000000
-        .idata_fxd0808u.o      idata   0x0002ff       data   0x000000
-          .idata_t1open.o      idata   0x0002ff       data   0x000000
           .udata_t2open.o      udata   0x0002ff       data   0x000000
           .idata_t2open.o      idata   0x0002ff       data   0x000000
            .udata_uopen.o      udata   0x0002ff       data   0x000000
            .idata_uopen.o      idata   0x0002ff       data   0x000000
          .udata_adcread.o      udata   0x0002ff       data   0x000000
          .idata_adcread.o      idata   0x0002ff       data   0x000000
+          .udata_t0read.o      udata   0x0002ff       data   0x000000
+          .idata_t0read.o      idata   0x0002ff       data   0x000000
            .udata_uread.o      udata   0x0002ff       data   0x000000
            .idata_uread.o      idata   0x0002ff       data   0x000000
         .udata_adcsetch.o      udata   0x0002ff       data   0x000000
@@ -156,6 +160,8 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
            .idata_utils.o      idata   0x0002ff       data   0x000000
            .udata_gyros.o      udata   0x0002ff       data   0x000000
            .idata_gyros.o      idata   0x0002ff       data   0x000000
+.udata_compass_altimeter.o      udata   0x0002ff       data   0x000000
+        .idata_fxd0808u.o      idata   0x0002ff       data   0x000000
         .udata_fxd0808u.o      udata   0x0002ff       data   0x000000
          .idata_adcconv.o      idata   0x0002ff       data   0x000000
          .udata_adcconv.o      udata   0x0002ff       data   0x000000
@@ -168,7 +174,6 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
              .idata_i2c.o      idata   0x0002ff       data   0x000000
              .udata_i2c.o      udata   0x0002ff       data   0x000000
 .idata_compass_altimeter.o      idata   0x0002ff       data   0x000000
-.udata_compass_altimeter.o      udata   0x0002ff       data   0x000000
                   globals      udata   0x000300       data   0x000092
                    params      idata   0x000392       data   0x00001c
              .udata_irq.o      udata   0x0003ae       data   0x000017
@@ -180,9 +185,9 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                               Program Memory Usage 
                                Start         End      
                            ---------   ---------      
-                            0x000000    0x00696b      
+                            0x000000    0x0066d1      
                             0x007c00    0x007fff      
-            28012 out of 33048 program addresses used, program memory utilization is 84%
+            27346 out of 33048 program addresses used, program memory utilization is 82%
 
 
 
@@ -197,60 +202,60 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                 BootStart   0x007c00    program     extern C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                   BusyADC   0x00000e    program     extern C:\MCC18\src\pmc_common\ADC\adcbusy.c
                 CheckBoot   0x007d5c    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-          CheckLowBattery   0x004040    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+          CheckLowBattery   0x00507a    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
                CheckReset   0x007d46    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-       CheckThrottleMoved   0x004808    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
+       CheckThrottleMoved   0x003e70    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
           CompensateGyros   0x000526    program     extern C:\Flight\Other Code\QuadMahringer\gyros.c
-               ConvertADC   0x006758    program     extern C:\MCC18\src\pmc_common\ADC\adcconv.c
+               ConvertADC   0x0064be    program     extern C:\MCC18\src\pmc_common\ADC\adcconv.c
                   CopyRec   0x007d08    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-                    D10_1   0x006732    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-                     D10x   0x00672a    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-                   D1616S   0x00622e    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                D1616SNEG   0x00623c    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                 D1616SOK   0x006238    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                  D1616SX   0x00624e    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                   D3232S   0x006288    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                D3232SNEG   0x006296    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                 D3232SOK   0x006292    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                  D3232SX   0x0062b6    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                  DA1616S   0x00621e    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                  DA3232S   0x006272    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-             Delay100mSec   0x003e86    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-              Delay10TCYx   0x006722    program     extern C:\MCC18\src\traditional\delays\d10tcyx.asm
+                    D10_1   0x006498    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+                     D10x   0x006490    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+                   D1616S   0x005f56    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                D1616SNEG   0x005f64    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                 D1616SOK   0x005f60    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                  D1616SX   0x005f76    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                   D3232S   0x005fb0    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                D3232SNEG   0x005fbe    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                 D3232SOK   0x005fba    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                  D3232SX   0x005fde    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                  DA1616S   0x005f46    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                  DA3232S   0x005f9a    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+             Delay100mSec   0x004ec0    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+              Delay10TCYx   0x006488    program     extern C:\MCC18\src\traditional\delays\d10tcyx.asm
         DetermineAttitude   0x000bd8    program     extern C:\Flight\Other Code\QuadMahringer\gyros.c
-            DoDebugTraces   0x0043d8    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+            DoDebugTraces   0x005412    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
             DoHeadingLock   0x000a5a    program     extern C:\Flight\Other Code\QuadMahringer\gyros.c
-            DoIntTestLEDS   0x0056ec    program     extern C:\Flight\Other Code\QuadMahringer\pid.c
-                 FXD0808U   0x006706    program     extern C:\MCC18\src\traditional\math\fxd0808u.c
-                 FXD1616S   0x00620c    program     extern C:\MCC18\src\traditional\math\fxd1616s.asm
-                 FXD1616U   0x0066be    program     extern C:\MCC18\src\traditional\math\fxd1616u.c
-                 FXD3232S   0x006258    program     extern C:\MCC18\src\traditional\math\fxd3232s.asm
-                 FXD3232U   0x00656c    program     extern C:\MCC18\src\traditional\math\fxd3232u.c
-                 FXM1616S   0x0062c0    program     extern C:\MCC18\src\traditional\math\fxm1616s.asm
-                  FXM3232   0x006442    program     extern C:\MCC18\src\traditional\math\fxm3232.c
+            DoIntTestLEDS   0x005414    program     extern C:\Flight\Other Code\QuadMahringer\pid.c
+                 FXD0808U   0x00646c    program     extern C:\MCC18\src\traditional\math\fxd0808u.c
+                 FXD1616S   0x005f34    program     extern C:\MCC18\src\traditional\math\fxd1616s.asm
+                 FXD1616U   0x006424    program     extern C:\MCC18\src\traditional\math\fxd1616u.c
+                 FXD3232S   0x005f80    program     extern C:\MCC18\src\traditional\math\fxd3232s.asm
+                 FXD3232U   0x006294    program     extern C:\MCC18\src\traditional\math\fxd3232u.c
+                 FXM1616S   0x005fe8    program     extern C:\MCC18\src\traditional\math\fxm1616s.asm
+                  FXM3232   0x00616a    program     extern C:\MCC18\src\traditional\math\fxm3232.c
                  Finished   0x007e08    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-              GetAltitude   0x003892    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-          GetBatteryVolts   0x003f58    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-             GetDirection   0x0032ce    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+              GetAltitude   0x00396e    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+          GetBatteryVolts   0x004f92    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+             GetDirection   0x0033aa    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
              GetPitchRate   0x000032    program     extern C:\Flight\Other Code\QuadMahringer\gyros.c
               GetRollRate   0x00001e    program     extern C:\Flight\Other Code\QuadMahringer\gyros.c
                GetYawRate   0x00006c    program     extern C:\Flight\Other Code\QuadMahringer\gyros.c
-                 I2CDelay   0x00606a    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-                 I2CStart   0x0060bc    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-                  I2CStop   0x0060e0    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-             I2CWaitClkHi   0x006076    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+                 I2CDelay   0x005d92    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+                 I2CStart   0x005de4    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+                  I2CStop   0x005e08    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+             I2CWaitClkHi   0x005d9e    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
                      Init   0x007c46    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                   InitADC   0x007fa6    program     extern C:\Flight\Other Code\QuadMahringer\adc.c
        InitAccelerometers   0x000304    program     extern C:\Flight\Other Code\QuadMahringer\gyros.c
-            InitAltimeter   0x003778    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-               InitArrays   0x00478e    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
+            InitAltimeter   0x003854    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+               InitArrays   0x003df2    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
              InitAttitude   0x0000a4    program     extern C:\Flight\Other Code\QuadMahringer\gyros.c
-            InitDirection   0x00316e    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-                InitPorts   0x003f3c    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-  InitTimersAndInterrupts   0x004f50    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
-                InitUSART   0x002226    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-             IsLISLactive   0x005e98    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-                  LEDGame   0x0040dc    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+            InitDirection   0x00324a    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+                InitPorts   0x004f76    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+  InitTimersAndInterrupts   0x0045b4    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
+                InitUSART   0x002302    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+             IsLISLactive   0x005bc0    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+                  LEDGame   0x005116    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
                   LEDScan   0x007e92    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
           LoadBlockTBLPTR   0x007e64    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                  MainLoop   0x007c66    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
@@ -261,116 +266,139 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
               NextBytePIC   0x007d9c    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                   NextRec   0x007d6e    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
            NextWriteBlock   0x007e24    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-                  OpenADC   0x0064b2    program     extern C:\MCC18\src\pmc_common\ADC\adcopen.c
-             OpenCapture1   0x006660    program     extern C:\MCC18\src\pmc_common\CCP\cp1open.c
-               OpenTimer0   0x0065f2    program     extern C:\MCC18\src\pmc_common\Timers\t0open.c
+                    OS001   0x0022c8    program     static                          
+                    OS002   0x0022ec    program     static                          
+                    OS003   0x0022d8    program     static                          
+                    OS004   0x0022e0    program     static                          
+                    OS005   0x00226a    program     static                          
+                    OS006   0x002296    program     static                          
+                    OS007   0x00227a    program     static                          
+                    OS008   0x002282    program     static                          
+                    OS009   0x00228a    program     static                          
+                  OpenADC   0x0061da    program     extern C:\MCC18\src\pmc_common\ADC\adcopen.c
+             OpenCapture1   0x0063c6    program     extern C:\MCC18\src\pmc_common\CCP\cp1open.c
+               OpenTimer0   0x006358    program     extern C:\MCC18\src\pmc_common\Timers\t0open.c
                OpenTimer1   0x007fbe    program     extern C:\MCC18\src\pmc_common\Timers\t1open.c
-               OpenTimer2   0x00662a    program     extern C:\MCC18\src\pmc_common\Timers\t2open.c
-                OpenUSART   0x0063b8    program     extern C:\MCC18\src\pmc_common\USART\uopen.c
+               OpenTimer2   0x006390    program     extern C:\MCC18\src\pmc_common\Timers\t2open.c
+                OpenUSART   0x0060e0    program     extern C:\MCC18\src\pmc_common\USART\uopen.c
                OutSignals   0x0021ae    program     extern C:\Flight\Other Code\QuadMahringer\outputs.c
-                      PID   0x0057b6    program     extern C:\Flight\Other Code\QuadMahringer\pid.c
-        ProcessComCommand   0x002c86    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                      PID   0x0054de    program     extern C:\Flight\Other Code\QuadMahringer\pid.c
+           ProcessCommand   0x002d62    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
                  RXCharOK   0x007cb6    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-                  ReadADC   0x006738    program     extern C:\MCC18\src\pmc_common\ADC\adcread.c
-                 ReadBaro   0x0035a6    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-                   ReadEE   0x004196    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                 ReadLISL   0x005e2e    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-             ReadLISLNext   0x005db4    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-              ReadLISLXYZ   0x005f24    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+                  ReadADC   0x00649e    program     extern C:\MCC18\src\pmc_common\ADC\adcread.c
+                 ReadBaro   0x003682    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+                   ReadEE   0x0051d0    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                 ReadLISL   0x005b56    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+             ReadLISLNext   0x005adc    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+              ReadLISLXYZ   0x005c4c    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
              ReadPICBlock   0x007e4c    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
               ReadPICByte   0x007e58    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-         ReadParametersEE   0x004248    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                ReadUSART   0x0065b4    program     extern C:\MCC18\src\pmc_common\USART\uread.c
-              RecvComChar   0x0027ce    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              RecvComNumS   0x002946    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              RecvComNumU   0x002846    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              RecvI2CByte   0x006178    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+         ReadParametersEE   0x005282    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+               ReadTimer0   0x00631a    program     extern C:\MCC18\src\pmc_common\Timers\t0read.c
+                ReadUSART   0x0062dc    program     extern C:\MCC18\src\pmc_common\USART\uread.c
+              RecvI2CByte   0x005ea0    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+                   RxChar   0x0028aa    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
                   RxError   0x007d32    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
+                   RxNumS   0x002a22    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   RxNumU   0x002922    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
                    RxPoll   0x007c70    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-                    SRS16   0x003df6    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                    SRS32   0x003d16    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                    SRS16   0x004e30    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                    SRS32   0x004d50    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
                      SS_1   0x007eb0    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                      SS_2   0x007ecc    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                  Saturate   0x0012d0    program     extern C:\Flight\Other Code\QuadMahringer\outputs.c
              SaveResetVec   0x007dac    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-              SendComChar   0x0022a0    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-          SendComNextLine   0x0024d4    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-            SendComNibble   0x00238c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComText   0x00224c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComValH   0x0023e4    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-            SendComValH16   0x002420    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComValS   0x002470    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComValU   0x0022d4    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendI2CByte   0x006100    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-                 SendLeds   0x006008    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+              SendI2CByte   0x005e28    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+                 SendLeds   0x005d30    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
                SendString   0x007eae    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
             SendString_OK   0x007eac    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-               SetChanADC   0x006690    program     extern C:\MCC18\src\pmc_common\ADC\adcsetch.c
-               ShowPrompt   0x002290    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-                ShowSetup   0x002b00    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-             StartBaroADC   0x0036e0    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-            SwitchLedsOff   0x0040ba    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-             SwitchLedsOn   0x00409e    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-               TSIGN1616A   0x00630c    program     static C:\MCC18\src\traditional\math\fxm1616s.asm
+               SetChanADC   0x0063f6    program     extern C:\MCC18\src\pmc_common\ADC\adcsetch.c
+               ShowPrompt   0x00236c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                ShowSetup   0x002bdc    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+             StartBaroADC   0x0037bc    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+            SwitchLedsOff   0x0050f4    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+             SwitchLedsOn   0x0050d8    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+               TSIGN1616A   0x006034    program     static C:\MCC18\src\traditional\math\fxm1616s.asm
             ThrottleCurve   0x001422    program     extern C:\Flight\Other Code\QuadMahringer\outputs.c
+                   TxChar   0x00237c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
                    TxChar   0x007ed8    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-                    TxVal   0x0024e6    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+               TxNextLine   0x0025b0    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                 TxNibble   0x002468    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxText   0x002328    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                    TxVal   0x0025c2    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxValH   0x0024c0    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                 TxValH16   0x0024fc    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxValS   0x00254c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxValU   0x0023b0    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
                  ValidRec   0x007d40    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                 VerifyRec   0x007cbc    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-                  WriteEE   0x0041c8    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                WriteLISL   0x005e6c    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-            WriteLISLByte   0x005d64    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+                  WriteEE   0x005202    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                WriteLISL   0x005b94    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+            WriteLISLByte   0x005a8c    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
                  WritePIC   0x007e3e    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
             WritePICBlock   0x007e12    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
              WritePICByte   0x007e28    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-        WriteParametersEE   0x004336    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+        WriteParametersEE   0x005370    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
                  WriteRec   0x007d78    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
              _.org_0_7E0E   0x007e0e    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                     _CSum   0x007c24    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-        _D10TCYXCODE_000A   0x00672c    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-        _D10TCYXCODE_000C   0x00672e    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-        _D10TCYXCODE_000E   0x006730    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+        _D10TCYXCODE_000A   0x006492    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+        _D10TCYXCODE_000C   0x006494    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+        _D10TCYXCODE_000E   0x006496    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
                     _Done   0x007c34    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                      _Err   0x007c1c    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                    _Hello   0x007c0a    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                       _OK   0x007c2e    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
-       ___return_lbl00000   0x006720    program     static                          
-       ___return_lbl00000   0x0065b2    program     static                          
-       ___return_lbl00000   0x0066e8    program     static                          
+         ___else_lbl00043   0x0021ee    program     static                          
+           ___if_lbl00042   0x002206    program     static                          
        ___return_lbl00000   0x000004    program     static                          
-       ___return_lbl00000   0x0064b0    program     static                          
-       ___return_lbl00001   0x006704    program     static                          
-       ___return_lbl00002   0x0063b6    program     static                          
+       ___return_lbl00000   0x006486    program     static                          
+       ___return_lbl00000   0x0061d8    program     static                          
+       ___return_lbl00000   0x0062da    program     static                          
+       ___return_lbl00000   0x00644e    program     static                          
+       ___return_lbl00001   0x00646a    program     static                          
+       ___return_lbl00002   0x0060de    program     static                          
        ___return_lbl00040   0x00000c    program     static                          
        ___return_lbl00041   0x00001c    program     static                          
+       ___return_lbl00041   0x0022ee    program     static                          
+        ___while_lbl00044   0x00221a    program     static                          
+        ___while_lbl00045   0x00222e    program     static                          
+        ___while_lbl00046   0x00223a    program     static                          
+        ___while_lbl00047   0x002252    program     static                          
+        ___while_lbl00048   0x002254    program     static                          
+        ___while_lbl00049   0x002268    program     static                          
+        ___while_lbl00050   0x002298    program     static                          
+        ___while_lbl00051   0x0022b0    program     static                          
+        ___while_lbl00052   0x0022b2    program     static                          
+        ___while_lbl00053   0x0022c6    program     static                          
                    __init   0x000006    program     extern C:\MCC18\src\traditional\stdclib\__init.c
-            __zero_memory   0x00674a    program     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                _do_cinit   0x00631a    program     extern C:\MCC18\src\traditional\startup\c018i.c
+            __zero_memory   0x0064b0    program     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                _do_cinit   0x006042    program     extern C:\MCC18\src\traditional\startup\c018i.c
                    _entry   0x000000    program     extern C:\MCC18\src\traditional\startup\c018i.c
-                   _false   0x0065ae    program     static                          
-                 _startup   0x0066ea    program     extern C:\MCC18\src\traditional\startup\c018i.c
-               clear_loop   0x006750    program     static C:\MCC18\src\traditional\proc\p18F2520.asm
-                copy_loop   0x00638c    program     static                          
-            copy_one_byte   0x006392    program     static                          
-                     done   0x0063b6    program     static                          
-             done_copying   0x0063a0    program     static                          
-                  endloop   0x0066e4    program     static                          
-                  endloop   0x00671c    program     static                          
+                   _false   0x0062d6    program     static                          
+                 _startup   0x006450    program     extern C:\MCC18\src\traditional\startup\c018i.c
+               clear_loop   0x0064b6    program     static C:\MCC18\src\traditional\proc\p18F2520.asm
+                copy_loop   0x0060b4    program     static                          
+            copy_one_byte   0x0060ba    program     static                          
+                     done   0x0060de    program     static                          
+             done_copying   0x0060c8    program     static                          
+                  endloop   0x00644a    program     static                          
+                  endloop   0x006482    program     static                          
                  high_isr   0x000008    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
-         high_isr_handler   0x004fc8    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
-                  islower   0x006520    program     extern C:\MCC18\src\traditional\stdclib\islower.asm
-                   jMatch   0x006540    program     static C:\MCC18\src\traditional\stdclib\islower.asm
-                 jNoMatch   0x00656a    program     static C:\MCC18\src\traditional\stdclib\toupper.asm
-                 jNoMatch   0x006542    program     static C:\MCC18\src\traditional\stdclib\islower.asm
-                     loop   0x0066fa    program     static                          
-                     loop   0x00657a    program     static                          
-                     loop   0x00670e    program     static                          
-                     loop   0x0066c8    program     static                          
+         high_isr_handler   0x00462c    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
+                  islower   0x006248    program     extern C:\MCC18\src\traditional\stdclib\islower.asm
+                   jMatch   0x006268    program     static C:\MCC18\src\traditional\stdclib\islower.asm
+                 jNoMatch   0x006292    program     static C:\MCC18\src\traditional\stdclib\toupper.asm
+                 jNoMatch   0x00626a    program     static C:\MCC18\src\traditional\stdclib\islower.asm
+                     loop   0x006460    program     static                          
+                     loop   0x0062a2    program     static                          
+                     loop   0x006474    program     static                          
+                     loop   0x00642e    program     static                          
                   low_isr   0x000018    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
-          low_isr_handler   0x004fb4    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
-                     main   0x0048f8    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
-                     test   0x006334    program     static                          
-                  toupper   0x006544    program     extern C:\MCC18\src\traditional\stdclib\toupper.asm
+          low_isr_handler   0x004618    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
+                     main   0x003f60    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
+                     test   0x00605c    program     static                          
+                  toupper   0x00626c    program     extern C:\MCC18\src\traditional\stdclib\toupper.asm
                uglybypass   0x007d98    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                uglyoffset   0x007d90    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                    ADCON0   0x000fc2       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
@@ -717,6 +745,7 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                   __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\ADC\adcopen.c
                   __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\USART\uopen.c
                   __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\ADC\adcread.c
+                  __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\Timers\t0read.c
                   __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\ADC\adcsetch.c
                   __tmp_2   0x00002d       data     static C:\Flight\Other Code\QuadMahringer\irq.c
                 curr_byte   0x0002f6       data     static C:\MCC18\src\traditional\startup\c018i.c
@@ -750,123 +779,146 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
         MixAndLimitMotors   0x001448    program     extern C:\Flight\Other Code\QuadMahringer\outputs.c
            MixAndLimitCam   0x001f30    program     extern C:\Flight\Other Code\QuadMahringer\outputs.c
                OutSignals   0x0021ae    program     extern C:\Flight\Other Code\QuadMahringer\outputs.c
-                InitUSART   0x002226    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComText   0x00224c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-               ShowPrompt   0x002290    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComChar   0x0022a0    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComValU   0x0022d4    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-            SendComNibble   0x00238c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComValH   0x0023e4    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-            SendComValH16   0x002420    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              SendComValS   0x002470    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-          SendComNextLine   0x0024d4    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-                    TxVal   0x0024e6    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              RecvComChar   0x0027ce    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              RecvComNumU   0x002846    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-              RecvComNumS   0x002946    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-                ShowSetup   0x002b00    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-        ProcessComCommand   0x002c86    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
-            InitDirection   0x00316e    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-             GetDirection   0x0032ce    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-                 ReadBaro   0x0035a6    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-             StartBaroADC   0x0036e0    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-            InitAltimeter   0x003778    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-              GetAltitude   0x003892    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-                    SRS32   0x003d16    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                    SRS16   0x003df6    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-             Delay100mSec   0x003e86    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                InitPorts   0x003f3c    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-          GetBatteryVolts   0x003f58    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-          CheckLowBattery   0x004040    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-             SwitchLedsOn   0x00409e    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-            SwitchLedsOff   0x0040ba    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                  LEDGame   0x0040dc    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                   ReadEE   0x004196    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-                  WriteEE   0x0041c8    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-         ReadParametersEE   0x004248    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-        WriteParametersEE   0x004336    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-            DoDebugTraces   0x0043d8    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
-               InitArrays   0x00478e    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
-       CheckThrottleMoved   0x004808    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
-                     main   0x0048f8    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
-  InitTimersAndInterrupts   0x004f50    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
-          low_isr_handler   0x004fb4    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
-         high_isr_handler   0x004fc8    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
-            DoIntTestLEDS   0x0056ec    program     extern C:\Flight\Other Code\QuadMahringer\pid.c
-                      PID   0x0057b6    program     extern C:\Flight\Other Code\QuadMahringer\pid.c
-            WriteLISLByte   0x005d64    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-             ReadLISLNext   0x005db4    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-                 ReadLISL   0x005e2e    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-                WriteLISL   0x005e6c    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-             IsLISLactive   0x005e98    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-              ReadLISLXYZ   0x005f24    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-                 SendLeds   0x006008    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
-                 I2CDelay   0x00606a    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-             I2CWaitClkHi   0x006076    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-                 I2CStart   0x0060bc    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-                  I2CStop   0x0060e0    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-              SendI2CByte   0x006100    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-              RecvI2CByte   0x006178    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
-                 FXD1616S   0x00620c    program     extern C:\MCC18\src\traditional\math\fxd1616s.asm
-                  DA1616S   0x00621e    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                   D1616S   0x00622e    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                 D1616SOK   0x006238    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                D1616SNEG   0x00623c    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                  D1616SX   0x00624e    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
-                 FXD3232S   0x006258    program     extern C:\MCC18\src\traditional\math\fxd3232s.asm
-                  DA3232S   0x006272    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                   D3232S   0x006288    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                 D3232SOK   0x006292    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                D3232SNEG   0x006296    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                  D3232SX   0x0062b6    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
-                 FXM1616S   0x0062c0    program     extern C:\MCC18\src\traditional\math\fxm1616s.asm
-               TSIGN1616A   0x00630c    program     static C:\MCC18\src\traditional\math\fxm1616s.asm
-                _do_cinit   0x00631a    program     extern C:\MCC18\src\traditional\startup\c018i.c
-                     test   0x006334    program     static                          
-                copy_loop   0x00638c    program     static                          
-            copy_one_byte   0x006392    program     static                          
-             done_copying   0x0063a0    program     static                          
-       ___return_lbl00002   0x0063b6    program     static                          
-                     done   0x0063b6    program     static                          
-                OpenUSART   0x0063b8    program     extern C:\MCC18\src\pmc_common\USART\uopen.c
-                  FXM3232   0x006442    program     extern C:\MCC18\src\traditional\math\fxm3232.c
-       ___return_lbl00000   0x0064b0    program     static                          
-                  OpenADC   0x0064b2    program     extern C:\MCC18\src\pmc_common\ADC\adcopen.c
-                  islower   0x006520    program     extern C:\MCC18\src\traditional\stdclib\islower.asm
-                   jMatch   0x006540    program     static C:\MCC18\src\traditional\stdclib\islower.asm
-                 jNoMatch   0x006542    program     static C:\MCC18\src\traditional\stdclib\islower.asm
-                  toupper   0x006544    program     extern C:\MCC18\src\traditional\stdclib\toupper.asm
-                 jNoMatch   0x00656a    program     static C:\MCC18\src\traditional\stdclib\toupper.asm
-                 FXD3232U   0x00656c    program     extern C:\MCC18\src\traditional\math\fxd3232u.c
-                     loop   0x00657a    program     static                          
-                   _false   0x0065ae    program     static                          
-       ___return_lbl00000   0x0065b2    program     static                          
-                ReadUSART   0x0065b4    program     extern C:\MCC18\src\pmc_common\USART\uread.c
-               OpenTimer0   0x0065f2    program     extern C:\MCC18\src\pmc_common\Timers\t0open.c
-               OpenTimer2   0x00662a    program     extern C:\MCC18\src\pmc_common\Timers\t2open.c
-             OpenCapture1   0x006660    program     extern C:\MCC18\src\pmc_common\CCP\cp1open.c
-               SetChanADC   0x006690    program     extern C:\MCC18\src\pmc_common\ADC\adcsetch.c
-                 FXD1616U   0x0066be    program     extern C:\MCC18\src\traditional\math\fxd1616u.c
-                     loop   0x0066c8    program     static                          
-                  endloop   0x0066e4    program     static                          
-       ___return_lbl00000   0x0066e8    program     static                          
-                 _startup   0x0066ea    program     extern C:\MCC18\src\traditional\startup\c018i.c
-                     loop   0x0066fa    program     static                          
-       ___return_lbl00001   0x006704    program     static                          
-                 FXD0808U   0x006706    program     extern C:\MCC18\src\traditional\math\fxd0808u.c
-                     loop   0x00670e    program     static                          
-                  endloop   0x00671c    program     static                          
-       ___return_lbl00000   0x006720    program     static                          
-              Delay10TCYx   0x006722    program     extern C:\MCC18\src\traditional\delays\d10tcyx.asm
-                     D10x   0x00672a    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-        _D10TCYXCODE_000A   0x00672c    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-        _D10TCYXCODE_000C   0x00672e    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-        _D10TCYXCODE_000E   0x006730    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-                    D10_1   0x006732    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
-                  ReadADC   0x006738    program     extern C:\MCC18\src\pmc_common\ADC\adcread.c
-            __zero_memory   0x00674a    program     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-               clear_loop   0x006750    program     static C:\MCC18\src\traditional\proc\p18F2520.asm
-               ConvertADC   0x006758    program     extern C:\MCC18\src\pmc_common\ADC\adcconv.c
+         ___else_lbl00043   0x0021ee    program     static                          
+           ___if_lbl00042   0x002206    program     static                          
+        ___while_lbl00044   0x00221a    program     static                          
+        ___while_lbl00045   0x00222e    program     static                          
+        ___while_lbl00046   0x00223a    program     static                          
+        ___while_lbl00047   0x002252    program     static                          
+        ___while_lbl00048   0x002254    program     static                          
+        ___while_lbl00049   0x002268    program     static                          
+                    OS005   0x00226a    program     static                          
+                    OS007   0x00227a    program     static                          
+                    OS008   0x002282    program     static                          
+                    OS009   0x00228a    program     static                          
+                    OS006   0x002296    program     static                          
+        ___while_lbl00050   0x002298    program     static                          
+        ___while_lbl00051   0x0022b0    program     static                          
+        ___while_lbl00052   0x0022b2    program     static                          
+        ___while_lbl00053   0x0022c6    program     static                          
+                    OS001   0x0022c8    program     static                          
+                    OS003   0x0022d8    program     static                          
+                    OS004   0x0022e0    program     static                          
+                    OS002   0x0022ec    program     static                          
+       ___return_lbl00041   0x0022ee    program     static                          
+                InitUSART   0x002302    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxText   0x002328    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+               ShowPrompt   0x00236c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxChar   0x00237c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxValU   0x0023b0    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                 TxNibble   0x002468    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxValH   0x0024c0    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                 TxValH16   0x0024fc    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   TxValS   0x00254c    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+               TxNextLine   0x0025b0    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                    TxVal   0x0025c2    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   RxChar   0x0028aa    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   RxNumU   0x002922    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                   RxNumS   0x002a22    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+                ShowSetup   0x002bdc    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+           ProcessCommand   0x002d62    program     extern C:\Flight\Other Code\QuadMahringer\serial.c
+            InitDirection   0x00324a    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+             GetDirection   0x0033aa    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+                 ReadBaro   0x003682    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+             StartBaroADC   0x0037bc    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+            InitAltimeter   0x003854    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+              GetAltitude   0x00396e    program     extern C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
+               InitArrays   0x003df2    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
+       CheckThrottleMoved   0x003e70    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
+                     main   0x003f60    program     extern C:\Flight\Other Code\QuadMahringer\c-ufo.c
+  InitTimersAndInterrupts   0x0045b4    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
+          low_isr_handler   0x004618    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
+         high_isr_handler   0x00462c    program     extern C:\Flight\Other Code\QuadMahringer\irq.c
+                    SRS32   0x004d50    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                    SRS16   0x004e30    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+             Delay100mSec   0x004ec0    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                InitPorts   0x004f76    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+          GetBatteryVolts   0x004f92    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+          CheckLowBattery   0x00507a    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+             SwitchLedsOn   0x0050d8    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+            SwitchLedsOff   0x0050f4    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                  LEDGame   0x005116    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                   ReadEE   0x0051d0    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+                  WriteEE   0x005202    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+         ReadParametersEE   0x005282    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+        WriteParametersEE   0x005370    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+            DoDebugTraces   0x005412    program     extern C:\Flight\Other Code\QuadMahringer\utils.c
+            DoIntTestLEDS   0x005414    program     extern C:\Flight\Other Code\QuadMahringer\pid.c
+                      PID   0x0054de    program     extern C:\Flight\Other Code\QuadMahringer\pid.c
+            WriteLISLByte   0x005a8c    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+             ReadLISLNext   0x005adc    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+                 ReadLISL   0x005b56    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+                WriteLISL   0x005b94    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+             IsLISLactive   0x005bc0    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+              ReadLISLXYZ   0x005c4c    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+                 SendLeds   0x005d30    program     extern C:\Flight\Other Code\QuadMahringer\spi.c
+                 I2CDelay   0x005d92    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+             I2CWaitClkHi   0x005d9e    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+                 I2CStart   0x005de4    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+                  I2CStop   0x005e08    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+              SendI2CByte   0x005e28    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+              RecvI2CByte   0x005ea0    program     extern C:\Flight\Other Code\QuadMahringer\i2c.c
+                 FXD1616S   0x005f34    program     extern C:\MCC18\src\traditional\math\fxd1616s.asm
+                  DA1616S   0x005f46    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                   D1616S   0x005f56    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                 D1616SOK   0x005f60    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                D1616SNEG   0x005f64    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                  D1616SX   0x005f76    program     static C:\MCC18\src\traditional\math\fxd1616s.asm
+                 FXD3232S   0x005f80    program     extern C:\MCC18\src\traditional\math\fxd3232s.asm
+                  DA3232S   0x005f9a    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                   D3232S   0x005fb0    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                 D3232SOK   0x005fba    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                D3232SNEG   0x005fbe    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                  D3232SX   0x005fde    program     static C:\MCC18\src\traditional\math\fxd3232s.asm
+                 FXM1616S   0x005fe8    program     extern C:\MCC18\src\traditional\math\fxm1616s.asm
+               TSIGN1616A   0x006034    program     static C:\MCC18\src\traditional\math\fxm1616s.asm
+                _do_cinit   0x006042    program     extern C:\MCC18\src\traditional\startup\c018i.c
+                     test   0x00605c    program     static                          
+                copy_loop   0x0060b4    program     static                          
+            copy_one_byte   0x0060ba    program     static                          
+             done_copying   0x0060c8    program     static                          
+       ___return_lbl00002   0x0060de    program     static                          
+                     done   0x0060de    program     static                          
+                OpenUSART   0x0060e0    program     extern C:\MCC18\src\pmc_common\USART\uopen.c
+                  FXM3232   0x00616a    program     extern C:\MCC18\src\traditional\math\fxm3232.c
+       ___return_lbl00000   0x0061d8    program     static                          
+                  OpenADC   0x0061da    program     extern C:\MCC18\src\pmc_common\ADC\adcopen.c
+                  islower   0x006248    program     extern C:\MCC18\src\traditional\stdclib\islower.asm
+                   jMatch   0x006268    program     static C:\MCC18\src\traditional\stdclib\islower.asm
+                 jNoMatch   0x00626a    program     static C:\MCC18\src\traditional\stdclib\islower.asm
+                  toupper   0x00626c    program     extern C:\MCC18\src\traditional\stdclib\toupper.asm
+                 jNoMatch   0x006292    program     static C:\MCC18\src\traditional\stdclib\toupper.asm
+                 FXD3232U   0x006294    program     extern C:\MCC18\src\traditional\math\fxd3232u.c
+                     loop   0x0062a2    program     static                          
+                   _false   0x0062d6    program     static                          
+       ___return_lbl00000   0x0062da    program     static                          
+                ReadUSART   0x0062dc    program     extern C:\MCC18\src\pmc_common\USART\uread.c
+               ReadTimer0   0x00631a    program     extern C:\MCC18\src\pmc_common\Timers\t0read.c
+               OpenTimer0   0x006358    program     extern C:\MCC18\src\pmc_common\Timers\t0open.c
+               OpenTimer2   0x006390    program     extern C:\MCC18\src\pmc_common\Timers\t2open.c
+             OpenCapture1   0x0063c6    program     extern C:\MCC18\src\pmc_common\CCP\cp1open.c
+               SetChanADC   0x0063f6    program     extern C:\MCC18\src\pmc_common\ADC\adcsetch.c
+                 FXD1616U   0x006424    program     extern C:\MCC18\src\traditional\math\fxd1616u.c
+                     loop   0x00642e    program     static                          
+                  endloop   0x00644a    program     static                          
+       ___return_lbl00000   0x00644e    program     static                          
+                 _startup   0x006450    program     extern C:\MCC18\src\traditional\startup\c018i.c
+                     loop   0x006460    program     static                          
+       ___return_lbl00001   0x00646a    program     static                          
+                 FXD0808U   0x00646c    program     extern C:\MCC18\src\traditional\math\fxd0808u.c
+                     loop   0x006474    program     static                          
+                  endloop   0x006482    program     static                          
+       ___return_lbl00000   0x006486    program     static                          
+              Delay10TCYx   0x006488    program     extern C:\MCC18\src\traditional\delays\d10tcyx.asm
+                     D10x   0x006490    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+        _D10TCYXCODE_000A   0x006492    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+        _D10TCYXCODE_000C   0x006494    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+        _D10TCYXCODE_000E   0x006496    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+                    D10_1   0x006498    program     static C:\MCC18\src\traditional\delays\d10tcyx.asm
+                  ReadADC   0x00649e    program     extern C:\MCC18\src\pmc_common\ADC\adcread.c
+            __zero_memory   0x0064b0    program     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+               clear_loop   0x0064b6    program     static C:\MCC18\src\traditional\proc\p18F2520.asm
+               ConvertADC   0x0064be    program     extern C:\MCC18\src\pmc_common\ADC\adcconv.c
                 BootStart   0x007c00    program     extern C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                  Messages   0x007c08    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
                    _Hello   0x007c0a    program     static C:\Flight\Other Code\QuadMahringer\bootl18f2520.asm
@@ -913,28 +965,29 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                       ADC   0x007f14    program     extern C:\Flight\Other Code\QuadMahringer\adc.c
                   InitADC   0x007fa6    program     extern C:\Flight\Other Code\QuadMahringer\adc.c
                OpenTimer1   0x007fbe    program     extern C:\MCC18\src\pmc_common\Timers\t1open.c
-                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
-                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\i2c.c
-                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\spi.c
-                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\adc.c
-                  __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\ADC\adcopen.c
-                  __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\USART\uopen.c
-                  __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\ADC\adcread.c
-                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\gyros.c
-                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\utils.c
-                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\outputs.c
-                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\serial.c
                   __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\c-ufo.c
                   __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\ADC\adcsetch.c
                   __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\irq.c
                   __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\pid.c
+                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\serial.c
+                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\outputs.c
+                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\utils.c
+                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\gyros.c
+                  __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\Timers\t0read.c
+                  __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\ADC\adcread.c
+                  __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\USART\uopen.c
+                  __tmp_0   0x000000       data     static C:\MCC18\src\pmc_common\ADC\adcopen.c
+                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\adc.c
+                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\spi.c
+                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\i2c.c
+                  __tmp_0   0x000000       data     static C:\Flight\Other Code\QuadMahringer\compass_altimeter.c
                      SIGN   0x000019       data     extern C:\MCC18\src\traditional\math\cmath18.asm
-                __FPFLAGS   0x00001a       data     extern C:\MCC18\src\traditional\math\cmath18.asm
             __FPFLAGSbits   0x00001a       data     extern C:\MCC18\src\traditional\math\cmath18.asm
+                __FPFLAGS   0x00001a       data     extern C:\MCC18\src\traditional\math\cmath18.asm
                  __AARGB7   0x00001b       data     extern C:\MCC18\src\traditional\math\aarg.asm
                   __REMB3   0x00001b       data     extern C:\MCC18\src\traditional\math\aarg.asm
-                 __AARGB6   0x00001c       data     extern C:\MCC18\src\traditional\math\aarg.asm
                   __REMB2   0x00001c       data     extern C:\MCC18\src\traditional\math\aarg.asm
+                 __AARGB6   0x00001c       data     extern C:\MCC18\src\traditional\math\aarg.asm
                   __REMB1   0x00001d       data     extern C:\MCC18\src\traditional\math\aarg.asm
                  __AARGB5   0x00001d       data     extern C:\MCC18\src\traditional\math\aarg.asm
                   __REMB0   0x00001e       data     extern C:\MCC18\src\traditional\math\aarg.asm
@@ -1092,10 +1145,10 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                  NewPitch   0x0003bf       data     extern C:\Flight\Other Code\QuadMahringer\irq.c
                    NewYaw   0x0003c1       data     extern C:\Flight\Other Code\QuadMahringer\irq.c
               NewThrottle   0x0003c3       data     extern C:\Flight\Other Code\QuadMahringer\irq.c
-                    PORTA   0x000f80       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                 PORTAbits   0x000f80       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                    PORTB   0x000f81       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                    PORTA   0x000f80       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                 PORTBbits   0x000f81       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                    PORTB   0x000f81       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                 PORTCbits   0x000f82       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     PORTC   0x000f82       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                 PORTEbits   0x000f84       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
@@ -1104,8 +1157,8 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                      LATA   0x000f89       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                      LATB   0x000f8a       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                  LATBbits   0x000f8a       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                     LATC   0x000f8b       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                  LATCbits   0x000f8b       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                     LATC   0x000f8b       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     TRISA   0x000f92       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                 TRISAbits   0x000f92       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                      DDRA   0x000f92       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
@@ -1116,14 +1169,14 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                  DDRBbits   0x000f93       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     TRISC   0x000f94       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                 TRISCbits   0x000f94       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                     DDRC   0x000f94       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                  DDRCbits   0x000f94       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                     DDRC   0x000f94       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
               OSCTUNEbits   0x000f9b       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                   OSCTUNE   0x000f9b       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                 PIE1bits   0x000f9d       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                      PIE1   0x000f9d       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                     PIR1   0x000f9e       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                 PIE1bits   0x000f9d       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                  PIR1bits   0x000f9e       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                     PIR1   0x000f9e       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                  IPR1bits   0x000f9f       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                      IPR1   0x000f9f       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                      PIE2   0x000fa0       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
@@ -1137,8 +1190,8 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                    EECON2   0x000fa7       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                    EEDATA   0x000fa8       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     EEADR   0x000fa9       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                    RCSTA   0x000fab       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                 RCSTAbits   0x000fab       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                    RCSTA   0x000fab       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                 TXSTAbits   0x000fac       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     TXSTA   0x000fac       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     TXREG   0x000fad       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
@@ -1157,12 +1210,12 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
               ECCP1ASbits   0x000fb6       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
               PWM1CONbits   0x000fb7       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                   PWM1CON   0x000fb7       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-              BAUDCONbits   0x000fb8       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                   BAUDCON   0x000fb8       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+              BAUDCONbits   0x000fb8       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                   BAUDCTL   0x000fb8       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
               BAUDCTLbits   0x000fb8       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                  CCP2CON   0x000fba       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
               CCP2CONbits   0x000fba       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                  CCP2CON   0x000fba       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                    CCPR2L   0x000fbb       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     CCPR2   0x000fbb       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                    CCPR2H   0x000fbc       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
@@ -1231,8 +1284,8 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                     INDF1   0x000fe7       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                         W   0x000fe8       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                      WREG   0x000fe8       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                    FSR0L   0x000fe9       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                      FSR0   0x000fe9       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                    FSR0L   0x000fe9       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     FSR0H   0x000fea       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                    PLUSW0   0x000feb       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                   PREINC0   0x000fec       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
@@ -1241,12 +1294,12 @@ Linker Map File - Created Tue Jan 13 14:16:48 2009
                     INDF0   0x000fef       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
               INTCON3bits   0x000ff0       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                   INTCON3   0x000ff0       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                  INTCON2   0x000ff1       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
               INTCON2bits   0x000ff1       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                  INTCON2   0x000ff1       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                    INTCON   0x000ff2       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                INTCONbits   0x000ff2       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
-                     PROD   0x000ff3       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     PRODL   0x000ff3       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
+                     PROD   0x000ff3       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                     PRODH   0x000ff4       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                    TABLAT   0x000ff5       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm
                    TBLPTR   0x000ff6       data     extern C:\MCC18\src\traditional\proc\p18F2520.asm

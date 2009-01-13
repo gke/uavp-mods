@@ -127,8 +127,8 @@ void InitArrays(void)
 {
 	// RC
 	_Flying = false;
-//	IThrottle = 0;
-//	CurrThrottle = 0xFF;
+	IThrottle = 0;
+	CurrThrottle = 0xFF;
 	IRoll = IPitch = IYaw = IK5 = IK6 = IK7 = 0;
 
 	// PID
@@ -221,7 +221,7 @@ void main(void)
 #ifdef BOOTONLY
 	ShowSetup(1);
 	Delay100mSec(2);								// wait 2/10 sec until signal is there	
-	while(1)ProcessComCommand();
+	while(1)ProcessCommand();
 #else
 
 	// DON'T MOVE THE UFO!
@@ -252,14 +252,13 @@ Restart:
 			LedYellow_ON;							// to signal LISL sensor is active
 
 		InitArrays();
-		CurrThrottle = 0xff;
 
 		// Wait until a valid RC signal is received
 		DropoutCount = MODELLOSTTIMER;
 		do
 		{
 			Delay100mSec(2);						// wait 2/10 sec until signal is there
-			ProcessComCommand();
+			ProcessCommand();
 			if( _NoSignal )
 			{
 				if( Switch )
@@ -301,7 +300,7 @@ Restart:
 					DropoutCount = 10;				// to signal: THROTTLE OPEN
 				}
 			}
-			ProcessComCommand();
+			ProcessCommand();
 		}
 
 		// ## MAIN LOOP ##
@@ -378,7 +377,7 @@ Restart:
 
 				LedGreen_ON;
 
-				ProcessComCommand();
+				ProcessCommand();
 			}
 			else
 			{	// Quadrocopter is flying!
@@ -390,7 +389,7 @@ Restart:
 
 					AbsDirection = COMPASS_INVAL;
 
-					ProcessComCommand();
+					ProcessCommand();
 						
 					LedCount = 1;
 				}

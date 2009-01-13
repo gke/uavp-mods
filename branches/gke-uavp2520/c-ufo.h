@@ -4,7 +4,7 @@
 #define DISABLE_COMPASS
 #define COMMISSIONING
 #define READABLE
-
+#define USE_MACROS
 //#define RAW_BOOT
 //#define BOOTONLY
 
@@ -92,7 +92,7 @@
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-#define DEBUG_SENSORS
+//#define DEBUG_SENSORS
 
 // Switched Roll and Pitch channels for Conrad mc800 transmitter
 //#define EXCHROLLNICK
@@ -430,15 +430,19 @@ extern	int8	BaroThrottleDiff;	// 28
 
 // Prototypes
 
-extern	void SendComValH16(uint16);
-extern	void SendComValH(uint8);
-extern	void SendComChar(char);
-extern	void SendComNextLine(void);
-extern	void SendComValU(uint8);
-extern	void SendComValS(int8);
+extern	void BootStart(void);
+extern	void TxValH16(uint16);
+extern	void TxValH(uint8);
+extern	void TxChar(char);
+extern	void TxNextLine(void);
+extern	void TxValU(uint8);
+extern	void TxValS(int8);
+extern	uint8 RxChar(void);
+extern	int16 RxNumS(void);
+extern	uint8 RxNumU(void);
 extern	void ShowSetup(uint8);
 extern	void DoDebugTraces(void);
-extern	void ProcessComCommand(void);
+extern	void ProcessCommand(void);
 
 extern	void ReadParametersEE(void);
 extern	void WriteParametersEE(uint8);
@@ -457,7 +461,7 @@ extern	int16 GetPitchRate(void);
 extern	int16 GetYawRate(void);
 extern	void DetermineAttitude(void);
 
-extern	void InitAccelerometerss(void);
+extern	void InitAccelerometers(void);
 extern	void CompensateGyros(void);
 extern	void IsLISLactive(void);
 extern	void WriteLISLByte(uint8);
