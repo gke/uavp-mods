@@ -58,34 +58,55 @@ This software is released under GNU GPL license.
 The GPL license is contained in the files
 gpl-en.txt (in English) and gpl-de.txt (in German).
 
+==============================================
+= Pre-compiled Firmware                      =
+==============================================
+
+Firmware HEX files for most configurations are available at
+the project sites if you wish to use them rather than going
+through the following procedures. If you choose to do this you
+should download an appropriate HEX file and skip to:
+
+    * Transferring firmware to the PIC (below). 
 
 ==============================================
-= VERSION HISTORY                            =
+= How to setup the Compilation Software      =
 ==============================================
 
-4.4.2007 V1.00 released by Wolferl
-First public released version.
-
-22.7.2007 V1.01 released by Wolferl
-supports Holgers ESCs (OS speed controllers)
-supports YGEs I2C ESCs (configure with "Y" command)
-
-........
-
-13.1.2009 Version derived from V3.14 with selected 
-DSM2 capability Futaba 9C with Spektrum DM8 / 
-JR 9XII with DM9 module
+    * Download the cc5x compiler (http://www.bknd.com/cc5xfree.exe).
+    * Run the executable to install the compiler. 
+      Install it into c:\program files\microchip\cc5x.
+    * Download MPLAB (http://ww1.microchip.com/downloads/...eDoc/mp810.zip).
+    * Unzip mp810.zip into a temp directory. Run Install_MPLAB_v810.exe.
+    * Unzip the uavp source into a newly created directory.
+    * Launch a command prompt and cd into that directory.
+    * If not using mod2 or later: Run "copy c:\program files\microchip\cc5x\reloc.inc ."
 
 ==============================================
-= Transferring firmware to the PIC           =
+= How to Build Versions of UAVP              =
+==============================================
+
+    * Download the latest release source from the Downloads section
+      (http://code.google.com/p/uavp-mods/). See various Disclaimers.
+
+    * Edit "makeall.bat". There are sets of parameters including 
+      those for all possible versions of the TestSoftware. 
+      Change the "personal" sets to cover the range of 
+      versions you are interest in.
+    * Run makeall.bat (this does not delete old hex files 
+      so check the creation dates)
+    * Done! 
+
+==============================================
+= Transferring Firmware to the PIC           =
 ==============================================
 
 If you already have a PIC with at least software version 3.05,
 You can upload your new version using the bootloader.
 Use UAVPset.exe to do that.
 
-But be careful: If you muck up things completely, you can lock
-yourself out. Then you would need a PIC programmer to get things
+But be careful: If you mock up things completely, you can lock
+yourself out. Then you would need a PIC programmer to get things 
 working again.
 
 ==============================================
@@ -95,10 +116,9 @@ working again.
 If you work on your ufo model, PLEASE TAKE CARE!
 
 Nowadays, extremely powerful motors and accumulators
-can pose a serious threat to your safety.
+can pose a serious threat to your and others safety.
 
 Safety measures:
-
 - Remove the propellers before you test parameter or firmware modifications
 - Work with a good bench power supply instead of an accupack.
   A short circuit will then not be able to destroy your hardware too easily
@@ -108,8 +128,9 @@ Safety measures:
 - When using your transmitter, be sure to use the correct model memory on it.
 - Be sure to have no other transmitters on your channel on air.
 
-The authors will NOT BE RESPONSABLE FOR ANY ACCIDENTS OR
-INJURIES IN ANY WAY!
+The original author and those modifying the program based on
+the original V3.15 will NOT BE RESPONSIBLE FOR ANY ACCIDENTS 
+OR INJURIES IN ANY WAY!
 
 PLEASE do yourself a favour and get an insurance which covers risks by doing model flight!
 Imaging what happens if you only damage someone elses car or something....
@@ -146,5 +167,8 @@ including the original author (his nickname is "Wolferl").
 
 However, a registration is required to gain access to the forum.
 
-
 Make sure you have the most recent version of the firmware!
+
+==============================================
+= End of README file                         =
+==============================================
