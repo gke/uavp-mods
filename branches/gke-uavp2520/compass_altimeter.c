@@ -128,7 +128,7 @@ void GetDirection(void)
 // read temp & pressure values from baro sensor
 // value in BaroVal;
 // returns 1 if value is available
-uint8 ReadValueFromBaro(void)
+uint8 ReadBaro(void)
 {
 	uint8 OK, Conversion;
 	uint8 Temp;
@@ -170,7 +170,7 @@ uint8 ReadValueFromBaro(void)
 	}
 
 	return(Conversion);
-} // ReadValueFromBaro
+} // ReadBaro
 
 // start A/D conversion on altimeter sensor
 // niaddr = 0xee to convert Temperature
@@ -204,6 +204,9 @@ void InitAltimeter(void)
 {
 	uint8 c;
 
+	VBaroComp = 0;
+	BaroCompSum = 0;
+
 	// read Temperature once to get base value
 	// set SMD500 device to start Temperature conversion
 	_UseBaro = StartBaroADC(BARO_ADDR);
@@ -213,7 +216,7 @@ void InitAltimeter(void)
 		TimerMilliSec = ClockMilliSec + 40;
 		while (ClockMilliSec < TimerMilliSec) ;
 		
-		_UseBaro = ReadValueFromBaro();
+		_UseBaro = ReadBaro();
 
 		if ( _UseBaro )
 			BaseTemp = BaroVal;	// save start value
@@ -231,7 +234,7 @@ void InitAltimeter(void)
 				INTCONbits.T0IF=0;
 				while(!INTCONbits.T0IF);
 			}
-			_UseBaro = ReadValueFromBaro();
+			_UseBaro = ReadBaro();
 		}
  	
 		if ( _UseBaro )
@@ -248,14 +251,14 @@ void InitAltimeter(void)
 	I2CStop();
 } // InitAltimeter
 
-void DoAltimeter(void)
+void GetAltitude(void)
 {
 	int16 Temp;
 	int32 Temp2;
 
 	if( _UseBaro )
 	{
-		if( ReadValueFromBaro() )	
+		if( ReadBaro() )	
 		{	// successful
 			if( !_BaroTempRun )
 			{	// current measurement was "pressure"
@@ -306,5 +309,5 @@ void DoAltimeter(void)
 	}
 	else
 		VBaroComp = 0;  						// no compensation
-} // DoAltimeter	
+} // GetAltitude	
 

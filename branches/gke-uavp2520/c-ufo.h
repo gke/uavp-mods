@@ -339,7 +339,7 @@ extern	int32	ClockMilliSec, TimerMilliSec;
 extern	int8	TimeSlot;
 
 // RC
-extern	uint8	IGas;
+extern	uint8	IThrottle;
 extern	int16 	IRoll,IPitch,IYaw;
 extern	uint8	IK5, IK6, IK7;
 extern	int16	MidRoll, MidPitch, MidYaw;				// mid RC stick values
@@ -379,7 +379,7 @@ extern	uint8	MCamRoll,MCamPitch;
 extern	uint8	Flags[8];
 extern	uint8	Flags2[8];
 										
-extern	uint8	ThrNeutral;
+extern	uint8	CurrThrottle;
 extern	uint8	ThrDownCount;
 
 extern	uint8	BlinkCount;
@@ -474,8 +474,8 @@ extern	void GetBatteryVolts(void);
 extern	void CheckLowBattery(void);
 
 extern	void InitAltimeter(void);
-extern	void DoAltimeter(void);
-extern	uint8 ReadValueFromBaro(void);
+extern	void GetAltitude(void);
+extern	uint8 ReadBaro(void);
 extern	uint8 StartBaroADC(uint8);
 
 extern  void PID(void);

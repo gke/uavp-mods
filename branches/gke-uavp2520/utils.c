@@ -151,7 +151,7 @@ void LEDGame(void)
 {
 	if( --LedCount == 0 )
 	{
-		LedCount = 255-IGas;				// new setup
+		LedCount = 255-IThrottle;				// new setup
 		LedCount >>= 3;
 		LedCount += 5;
 		if( _UseBaro && (ThrDownCount == 0) )

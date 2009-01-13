@@ -404,7 +404,7 @@ void ProcessComCommand(void)
 	if (ch == 'R')// receiver values
 	{
 			SendComText(SerRecvCh);
-			SendComValU(IGas);
+			SendComValU(IThrottle);
 			SendComChar(',');
 			SendComChar('R');
 			SendComChar(':');

@@ -27,7 +27,7 @@
 
 uint8	RecFlags;
 uint16	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
-int16	NewRoll, NewPitch, NewYaw, NewGas, OldGas = 0;
+int16	NewRoll, NewPitch, NewYaw, NewThrottle, OldThrottle = 0;
 
 void InitTimersAndInterrupts()
 {
@@ -162,7 +162,7 @@ void high_isr_handler(void)
 #ifndef RX_DSM2									
 					if( FutabaMode ) 	// Ch3 set for Throttle on UAPSet
 					{
-						NewGas = Lower8(NewK3);
+						NewThrottle = Lower8(NewK3);
 #ifdef EXCHROLLNICK
 						NewRoll = Lower8(NewK2) - _Neutral;
 						NewPitch = Lower8(NewK1)- _Neutral;
@@ -173,14 +173,14 @@ void high_isr_handler(void)
 					}
 					else
 					{
-						NewGas  = Lower8(NewK1);
+						NewThrottle  = Lower8(NewK1);
 						NewRoll = Lower8(NewK2)- _Neutral;
 						NewPitch = Lower8(NewK3)- _Neutral;
 					}
 					NewYaw = Lower8(NewK4) - _Neutral;
 
-					IGas = MediumFilter(OldGas, NewGas);
-					OldGas = IGas; 
+					IThrottle = MediumFilter(OldThrottle, NewThrottle);
+					OldThrottle = IThrottle; 
 					
 					if( DoubleRate )
 					{
@@ -202,15 +202,15 @@ void high_isr_handler(void)
 					IRoll = 0;
 					IPitch = 0;
 					IYaw = 0;
-					IGas = _Maximum;
+					IThrottle = _Maximum;
 
 					if ( ClockMilliSec > 1500)
-						IGas = _Minimum;
+						IThrottle = _Minimum;
 					if ( ClockMilliSec > 6000)
-						IGas = 75;
+						IThrottle = 75;
 					if ( ClockMilliSec > 9000)
 						{
-						IGas = 80;
+						IThrottle = 80;
 IYaw = -50;
 						}
 
@@ -241,7 +241,7 @@ IYaw = -50;
 
 //EDIT FROM HERE ->
 // CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
-					NewGas = NewK5;
+					NewThrottle = NewK5;
 
 					NewRoll = Lower8(NewK3) - _Neutral; 
 					NewPitch = Lower8(NewK2) - _Neutral;
@@ -259,7 +259,7 @@ IYaw = -50;
 				else // Reference 2.4GHz configuration DX7 and AR7000 Rx
 
 				{
-					NewGas = Lower8(NewK6);
+					NewThrottle = Lower8(NewK6);
 
 					NewRoll = Lower8(NewK1) - _Neutral; 
 					NewPitch = Lower8(NewK4) - _Neutral;
@@ -274,8 +274,8 @@ IYaw = -50;
 					IK7 = Lower8(NewK2);
 				}
 
-				IGas = MediumFilter(OldGas, NewGas);
-				OldGas = IGas;
+				IThrottle = MediumFilter(OldThrottle, NewThrottle);
+				OldThrottle = IThrottle;
 
 				if( DoubleRate )
 				{

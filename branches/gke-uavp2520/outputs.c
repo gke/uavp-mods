@@ -81,25 +81,25 @@ int16 ThrottleCurve(int16 G)
 // on the motors and check for numerical overrun
 void MixAndLimitMotors(void)
 {
-	uint8 CurrGas;							// Local variable to protect during interrupts
+	uint8 Th;							// Local variable to protect during interrupts
 	int16 Temp;
 	int32 Ml, Mr, Mf, Mb;					// excessive range but safer for now		
 
 	if ( _MotorsEnabled )
-		CurrGas = ThrottleCurve(IGas); 		// CurrGas snapshots IGas which may change in irq.c
+		Th = ThrottleCurve(IThrottle); 		// Th snapshots IThrottle which may change in irq.c
 	else
-		CurrGas = _Minimum;
+		Th = _Minimum;
 
 #ifdef TRICOPTER
-	Mf = CurrGas + Pl;	// front motor
-	Ml = CurrGas + Rl;
-	Mr = CurrGas - Rl;
+	Mf = Th + Pl;	// front motor
+	Ml = Th + Rl;
+	Mr = Th - Rl;
 	Rl >>= 1;
 	Ml -= Rl;								// rear left
     Mr -= Pl;								// rear right
 	Mb = -Yl + _Neutral;					// yaw servo
 
-	if( CurrGas > MotorLowRun )
+	if( Th > MotorLowRun )
 	{
 		if( (Ml > Mr) && (Mr < MotorLowRun) )
 		{
@@ -117,17 +117,17 @@ void MixAndLimitMotors(void)
 #else // QUADROCOPTER
 	if( FlyCrossMode )
 	{	// "Cross" Mode
-		Ml = CurrGas + Pl;	Ml -= Rl;
-		Mr = CurrGas - Pl;	Mr += Rl;
-		Mf = CurrGas - Pl;	Mf -= Rl;
-		Mb = CurrGas + Pl;	Mb += Rl;
+		Ml = Th + Pl;	Ml -= Rl;
+		Mr = Th - Pl;	Mr += Rl;
+		Mf = Th - Pl;	Mf -= Rl;
+		Mb = Th + Pl;	Mb += Rl;
 	}
 	else
 	{	// "Plus" Mode
-		Ml = CurrGas - Rl;
-		Mr = CurrGas + Rl;
-		Mf = CurrGas - Pl;
-		Mb = CurrGas + Pl;
+		Ml = Th - Rl;
+		Mr = Th + Rl;
+		Mf = Th - Pl;
+		Mb = Th + Pl;
 	}
 
 	Mf -= Yl;
@@ -150,7 +150,7 @@ void MixAndLimitMotors(void)
 	// if low-throttle limiting occurs, must limit other motor too
 	// to prevent flips!
 	// needs further thought ???
-	if( CurrGas > MotorLowRun )
+	if( Th > MotorLowRun )
 	{
 		if( (Mf > Mb) && (Mb < MotorLowRun) )
 		{

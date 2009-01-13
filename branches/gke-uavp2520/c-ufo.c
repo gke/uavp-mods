@@ -39,7 +39,7 @@ int32	ClockMilliSec, TimerMilliSec;
 int8	TimeSlot;
 
 // RC
-uint8	IGas;
+uint8	IThrottle;
 int16 	IRoll,IPitch,IYaw;
 uint8	IK5,IK6,IK7;
 int16	MidRoll, MidPitch, MidYaw;				// mid RC stick values
@@ -79,7 +79,7 @@ uint8	MCamRoll,MCamPitch;
 uint8	Flags[8];
 uint8	Flags2[8];
 										
-uint8	ThrNeutral;
+uint8	CurrThrottle;
 uint8	ThrDownCount;
 
 uint8	BlinkCount;
@@ -125,28 +125,30 @@ int8	BaroThrottleDiff	=4;
 // Do NOT call this while in flight!
 void InitArrays(void)
 {
+	// RC
 	_Flying = false;
-	_MotorsEnabled = false;
-//	IGas = 0;
-//	ThrNeutral = 0xFF;
+//	IThrottle = 0;
+//	CurrThrottle = 0xFF;
+	IRoll = IPitch = IYaw = IK5 = IK6 = IK7 = 0;
 
+	// PID
+	REp = PEp = YEp = 0;
+
+	// Drives
+	_MotorsEnabled = false;
+	Rl = Pl = Yl = VBaroComp =0;
+	Vud = 0;
 	MFront = _Minimum;	
 	MLeft = _Minimum;
 	MRight = _Minimum;
 	MBack = _Minimum;
-		
+
+	MCamRoll = MCamPitch = _Neutral;
+
+	// Misc	
 	BlinkCount = 0;
 	ThrDownCount = THR_DOWNCOUNT;
-
-	IRoll = IPitch = IYaw = IK5 = IK6 = IK7 = 0;
-
-	REp = PEp = YEp = 0;
-	Rl = Pl = Yl = 0;
-	Vud = 0;
-	VBaroComp = 0;
-	BaroCompSum = 0;
-	
-	LRIntKorr = FBIntKorr = 0;					
+					
 } // InitArrays
 
 void CheckThrottleMoved(void)
@@ -155,22 +157,22 @@ void CheckThrottleMoved(void)
 
 	if( ThrDownCount > 0 )
 	{
-		if( !IsSet(LedCount,0) == 0 )
+		if( LedCount & 1 )
 			ThrDownCount--;
 		if( ThrDownCount == 0 )
-			ThrNeutral = IGas;						// remember current Throttle level
+			CurrThrottle = IThrottle;						// remember current Throttle level
 	}
 	else
 	{
-		if( ThrNeutral < THR_MIDDLE ) 				// ??? tidy up
+		if( CurrThrottle < THR_MIDDLE ) 				// ??? tidy up
 			Temp = 0;
 		else
-			Temp = ThrNeutral - THR_MIDDLE;
-		if( IGas < THR_HOVER )
+			Temp = CurrThrottle - THR_MIDDLE;
+		if( IThrottle < THR_HOVER )
 			ThrDownCount = THR_DOWNCOUNT;			// left dead area
-		if( IGas < Temp )
+		if( IThrottle < Temp )
 			ThrDownCount = THR_DOWNCOUNT;			// left dead area
-		if( IGas > ThrNeutral + THR_MIDDLE )
+		if( IThrottle > CurrThrottle + THR_MIDDLE )
 			ThrDownCount = THR_DOWNCOUNT;			// left dead area
 	}
 } // CheckThrottleMoved
@@ -178,7 +180,7 @@ void CheckThrottleMoved(void)
 void main(void)
 {
 	uint8	DropoutCount;
-	uint8	LowGasCount;
+	uint8	LowThrottleCount;
 	uint8	i, ch;
 
 	DisableInterrupts;								// disable all interrupts
@@ -188,7 +190,8 @@ void main(void)
 	LedShadow = 0;
     ALL_LEDS_OFF;
 
-	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
+	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
+			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 	
 	InitADC();
 						
@@ -202,7 +205,7 @@ void main(void)
 	_NewValues = false;	
 
 	InitArrays();
-	ThrNeutral = 0xff;
+	CurrThrottle = 0xff;
 	RollFailsafe = PitchFailsafe = YawFailsafe = 0;
 
 #ifdef COMMISSIONING
@@ -237,7 +240,7 @@ void main(void)
 	ShowSetup(1);
 	
 Restart:
-	IGas = IK5 = _Minimum;							// Kill throttle assume parameter set #1
+	IThrottle = IK5 = _Minimum;							// Kill throttle assume parameter set #1
 
 	while(1)
 	{
@@ -249,7 +252,7 @@ Restart:
 			LedYellow_ON;							// to signal LISL sensor is active
 
 		InitArrays();
-		ThrNeutral = 0xff;
+		CurrThrottle = 0xff;
 
 		// Wait until a valid RC signal is received
 		DropoutCount = MODELLOSTTIMER;
@@ -278,10 +281,9 @@ Restart:
 		ReadParametersEE();							// in case param set changed
 
 		// Just for safety: don't let motors start if throttle is open!
-		// check if Gas is below _ThresStop
 		DropoutCount = 1;
 
-		while( IGas >= _ThresStop )
+		while( IThrottle >= _ThresStop )
 		{
 			if( _NoSignal )
 				goto Restart;
@@ -324,11 +326,12 @@ Restart:
 			} // user code
 
 			GetDirection();
-			DoAltimeter();
+			GetAltitude();
 	
 			ReadParametersEE();						// re-sets TimeSlot
 
 			// second gyro sample delayed roughly by intervening routines!
+			// no obvious reason for this except minor filtering by averaging.
 			RollRate += GetRollRate();
 			PitchRate += GetPitchRate();
 			YawRate = GetYawRate();
@@ -345,7 +348,7 @@ Restart:
 				if( DropoutCount < MAXDROPOUT )		// Failsafe - currently a minute or so!
 				{
 					ALL_LEDS_OFF;
-					IGas = Limit(IGas, IGas, THR_HOVER); // stop high-power runaways
+					IThrottle = Limit(IThrottle, IThrottle, THR_HOVER); // stop high-power runaways
 					IRoll = RollFailsafe;
 					IPitch = PitchFailsafe;
 					IYaw = YawFailsafe;
@@ -357,18 +360,18 @@ Restart:
 	
 			// allow motors to run on low throttle 
 			// even if stick is at minimum for a short time (~2 Sec.)
-			if( _Flying && (IGas <= _ThresStop) && ((--LowGasCount) > 0 ) )
+			if( _Flying && (IThrottle <= _ThresStop) && ((--LowThrottleCount) > 0 ) )
 				goto DoPID;
 
-			if( _NoSignal||((_Flying&&(IGas<=_ThresStop))||(!_Flying&&(IGas<=_ThresStart))))
+			if( _NoSignal||((_Flying&&(IThrottle<=_ThresStop))||(!_Flying&&(IThrottle<=_ThresStart))))
 			{						
 				// Quadrocopter has "landed", stop all motors									
 				TimeSlot += 2; 						// ??? kludge to compensate PID() calc time!
 
 				InitArrays();						// resets _Flying flag!
 				
-			//	if( _NoSignal && Switch )			// _NoSignal set, but Switch is on?
-			//		break;							// then Rx signal was lost
+				if( _NoSignal && Switch )			// _NoSignal set, but Switch is on?
+					break;							// then Rx signal was lost
 
 				ALL_LEDS_OFF;				
 				AUX_LEDS_OFF;
@@ -397,7 +400,7 @@ Restart:
 					Beeper_OFF;						// turn off signal lost beeper
 
 				DropoutCount = 0;
-				LowGasCount = 100;
+				LowThrottleCount = 100;
 
 				LEDGame();					
 
@@ -407,7 +410,6 @@ DoPID:
 				// this block checks if throttle stick has moved
 				if( _NewValues )
 					CheckThrottleMoved();
-
 
 				PID();
 	
