@@ -57,32 +57,50 @@ nor is it part of the official UAVP project.
 This software is released under GNU GPL license.
 The GPL license is contained in the files
 gpl-en.txt (in English) and gpl-de.txt (in German).
+
+==============================================
+= 2.4GHz and other Diversity Systems                               =
+==============================================
+
+2.4GHz systems vary the order in which their Receivers (Rx) emit their servo control 
+signals. The order does NOT correspond to the physical ordering of servo sockets on 
+the Rx. You should try the default DSM2 configuration first which is known to work 
+for the DX7/AR7000 combination. Use UAVPSet to select Throttle on 1 and 
+Positive Impulse. In general your Transmitter (Tx) should be set to ACTRO with 
+absolutely NO MIXES.
+
+It it is highly probable that your Tx/Rx combination will have more than one servo 
+output active simultaneously. For example all of the control surface servos 
+may be active at the same time. If this proves to be the case then ytou will not be 
+able to use the Rx/Tx combination without external aditional hardware.
+
+There two methods to determine the servo output order for your Tx/Rx combination.
+The first is to use a logic analyser and the secondis to use UAVPSet and the 
+TestSoftware appropriate to your configuration e.g. TestSoftware-V315-ADX-PPM. 
+The Test software you use at this stage is not specific to your 2.4GHz system.
+This software (when selecting display Rx values), displays channels in time-order 
+of arrival from the Rx. These channels from 1-7  correspond to the variables 
+NewK1-NewK7. Initially, unless you are very lucky, one or more will be shown as invalid.
+
+The first step is to determine the combination of 4 servo channels that shows all 
+channels to be valid. These will correspond to the odd numbered channels as the Rx 
+emits them. You need to re-display each time you make a change. This is the 
+tedious part.
+
+Next Work through the controls on your Tx re-displaying the channels
+each time noting which channel has changed and what the associated control is. 
+If necessary edit the section of irq.c marked as EDIT HERE -> to reflect the actual 
+order for your Tx/Rx combination. Do this by changing only the NewKx names.   
+
+Finally for your particular mix to work you must have Ch3 selected for Throttle 
+under UAVPSet. Make sure you do a write to update it on the UAVP board.
  
+For the particular combination of the DSM2 signaling,  DX7 Tx and AR7000 Rx the 
+servo channels which must be connected to the UAVP board are known to be:
 
-==============================================
-= How to setup the Compilation Software      =
-==============================================
+   * Aileron, Gear, Aux2 and Rudder
 
-    * This version is for the 18F2520 PIC
-    * Obtain MPLab and the C18 compiler from Microchip 
-
-==============================================
-= How to Build Versions of UAVP              =
-==============================================
-
-    * Set the defines in ufo-c.h for the desired version
-    * Compile, assemble and link using the MPLab
-      language toolset
-
-==============================================
-= Transferring Firmware to the PIC           =
-==============================================
-
-    * Use a PIC programmer to burn a version
-      to the PIC - this will include the bootloader.
-    * Once the bootloader is loaded once UAVPSet 
-      may be used to load future versions of the
-      flight and TestSoftware
+Greg Egan Nov 2008
 
 ==============================================
 = SAFETY FIRST!                              =
