@@ -24,17 +24,6 @@
 #include "bits.h"
 #include <adc.h>
 
-// IDG300
-// 3.3V Reference +-500 Deg/Sec
-// 0.4882815 Deg/Sec/LSB 
-
-// ADRSX300 Yaw
-// 5V Reference +-300 Deg/Sec
-// 0.2926875 Deg/Sec/LSB 
-
-// ADXRS150
-// 5V Reference +-150 Deg/Sec
-// 0.146484375 Deg/Sec/LSB
 
 int16 ADC(uint8 Channel, uint8 VRef)
 {
@@ -42,10 +31,7 @@ int16 ADC(uint8 Channel, uint8 VRef)
 	uint8 d;
 
 	ADCON1bits.VCFG0 = VRef;
-	SetChanADC(Channel<<3);
-
-	for (d = 30; d ; d--); // 3uS per count @ 16MHz (30 is probably too much???)
-
+	SetChanADC(Channel<<3);		// using automatic acq
 	ConvertADC();  
 	while (BusyADC()){};
 
@@ -56,7 +42,7 @@ int16 ADC(uint8 Channel, uint8 VRef)
 
 void InitADC()
 {
- OpenADC(ADC_FOSC_64 & 
+ OpenADC(ADC_FOSC_32 & 
           ADC_RIGHT_JUST &
           ADC_12_TAD,
 		  ADC_CH0 &
