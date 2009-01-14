@@ -28,7 +28,7 @@
 #pragma udata assembly_language=0x080
 
 // motor output pulse widths 
-uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME; 			// motor/servo outputs
+uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 // Bootloader
 
 #pragma udata
@@ -47,7 +47,7 @@ int16	MidRoll, MidPitch, MidYaw;				// mid RC stick values
 // Gyros
 int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
 int16	RollRate, PitchRate, YawRate;			// PID rate (scaled gyro values)
-
+int16	PrevYawRate;							// PID for noisy Yaw gyro filtering
 // Acceleration Corrections
 int32	UDVelocity;
 int16	Ax, Ay, Az;								// LISL sensor accelerations							
@@ -313,9 +313,6 @@ Restart:
 		{
 			_MotorsEnabled = true;
 
-			RollRate = GetRollRate();			// first of two samples per cycle
-			PitchRate = GetPitchRate();
-
 			while( TimeSlot > 0 )
 			{
 			// Here is the place to insert your own routines
@@ -323,6 +320,9 @@ Restart:
 			// ATTENTION: Your routine must return BEFORE TimeSlot reaches 0
 			// or non-optimal flight behavior might occur!!!
 			} // user code
+			
+			RollRate = GetRollRate();			// first of two samples per cycle
+			PitchRate = GetPitchRate();
 
 			GetDirection();
 			GetAltitude();
@@ -347,7 +347,8 @@ Restart:
 				if( DropoutCount < MAXDROPOUT )	// Failsafe - currently a minute or so!
 				{
 					ALL_LEDS_OFF;
-					IThrottle = Limit(IThrottle, IThrottle, THR_HOVER); // stop high-power runaways
+					 // stop high-power runaways
+					IThrottle = Limit(IThrottle, IThrottle, THR_HOVER);
 					IRoll = RollFailsafe;
 					IPitch = PitchFailsafe;
 					IYaw = YawFailsafe;
@@ -362,10 +363,11 @@ Restart:
 			if( _Flying && (IThrottle <= _ThresStop) && ((--LowThrottleCount) > 0 ) )
 				goto DoPID;
 
-			if( _NoSignal||((_Flying&&(IThrottle<=_ThresStop))||(!_Flying&&(IThrottle<=_ThresStart))))
+			if( _NoSignal||((_Flying&&(IThrottle<=_ThresStop))||
+							(!_Flying&&(IThrottle<=_ThresStart))))
 			{						
 				// Quadrocopter has "landed", stop all motors									
-				TimeSlot += 2; 					// ??? kludge to compensate PID() calc time!
+				TimeSlot += 2; 					// ??? compensate PID() calc time!
 
 				InitArrays();					// resets _Flying flag!
 				

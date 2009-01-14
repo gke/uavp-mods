@@ -73,8 +73,11 @@ int16 GetYawRate(void)
 
 void InitAttitude(void)
 {
-	int16 i, j;
-for (j = 100; j ; j--){
+	int16 i;
+
+uint8 j;
+
+for (j= 16; j; j--) {
     RollAngle = PitchAngle = YawAngle = 0;
 	for ( i = 256; i ; i-- )
 		{		
@@ -97,8 +100,9 @@ for (j = 100; j ; j--){
 	#endif
 
 	MidYaw = SRS32(YawAngle + 128, 8);
-	RollAngle = PitchAngle = YawAngle = 0;
+	PrevYawRate = MidYaw;
 }
+	RollAngle = PitchAngle = YawAngle = 0;
 } // InitAttitude
 
 void InitAccelerometers(void)
@@ -106,11 +110,10 @@ void InitAccelerometers(void)
 	// stationary on the ground
 	uint8 s;
 	int32 Tx, Ty, Tz;
-
 uint8 j;
-for (j= 100; j; j--){
 	IsLISLactive();
 
+for (j = 16; j; j--) {
 	Tx = Ty = Tz = 0;
 	for( s=16; s ; s--)
 	{
@@ -234,7 +237,6 @@ void DetermineAttitude(void)
 
 	RollRate -= MidRoll;
 	PitchRate -= MidPitch;
-	YawRate -= MidYaw;
 
 	CompensateGyros();
 
@@ -249,6 +251,8 @@ void DetermineAttitude(void)
 	// Lots of ad hoc scaling - leave for now ???
 	
 	// Roll is + right
+
+
 	#ifdef OPT_ADXRS
 	RE = SRS16(RollRate + 2, 2);					// use 8 bit res. for PD control
 	RollRate = SRS16(RollRate + 1, 1);				// use 9 bit res. for I control
@@ -273,10 +277,18 @@ void DetermineAttitude(void)
 	PitchAngle = Decay(PitchAngle + FBIntKorr);		// ??? Decay(PitchAngle) + FBIntKorr;
  
 	// Yaw + CW  sample once per cycle
+	YawRate = HardFilter(PrevYawRate, YawRate);
+	PrevYawRate = YawRate;	
+	
+	if ( Abs(YawRate - MidYaw) <= 1 )				// needs further thought
+		MidYaw = Limit(YawRate, -500, 500);
 
-	YE = SRS16(YawRate + 2, 2);						// make yaw rate zero
-	DoHeadingLock();
+	YawRate -= MidYaw;
+
+	YE = SRS16(YawRate + 2, 2);
+
+//	DoHeadingLock();
 	YawAngle=Limit(YawAngle + YE, -(YawIntLimit*256), YawIntLimit*256);
-
+	YawAngle = Decay(YawAngle);
 } // DetermineAttitude
 

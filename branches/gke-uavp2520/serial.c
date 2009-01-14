@@ -94,7 +94,7 @@ void ShowPrompt(void)
 } // ShowPrompt
 
 // send a character to the serial port
-void TxChar(char ch)
+void TxChar(uint8 ch)
 {
 	while( !PIR1bits.TXIF ) ;						// wait for transmit ready
 	TXREG = ch;										// put new char

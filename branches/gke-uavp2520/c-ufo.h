@@ -4,7 +4,7 @@
 #define DISABLE_COMPASS
 #define COMMISSIONING
 #define READABLE
-#define USE_MACROS
+
 //#define RAW_BOOT
 //#define BOOTONLY
 
@@ -136,7 +136,6 @@ typedef uint8 boolean;
 #define Abs(a) 			(a<0 ? -a: a)
 #define Sense(a) 		(a<0 ? -1 : (a>0 ? 1 : 0))
  	
-
 #ifdef USE_MACROS
 #define Max(i,j) 		((i<j) ? j : ((i>j) ? j : i))
 #define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
@@ -345,8 +344,8 @@ extern	uint8	IK5, IK6, IK7;
 extern	int16	MidRoll, MidPitch, MidYaw;				// mid RC stick values
 
 // Gyros
-extern	int32	RollAngle, PitchAngle, YawAngle;				// PID integral (angle)
-extern	int16	RollRate, PitchRate, YawRate;				// PID rate (scaled gyro values)
+extern	int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
+extern	int16	RollRate, PitchRate, YawRate, PrevYawRate;	// PID rate (scaled gyro values)
 
 // Acceleration Corrections
 extern	int32	UDVelocity;
@@ -433,7 +432,7 @@ extern	int8	BaroThrottleDiff;	// 28
 extern	void BootStart(void);
 extern	void TxValH16(uint16);
 extern	void TxValH(uint8);
-extern	void TxChar(char);
+extern	void TxChar(uint8);
 extern	void TxNextLine(void);
 extern	void TxValU(uint8);
 extern	void TxValS(int8);
