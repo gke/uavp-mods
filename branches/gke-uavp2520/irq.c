@@ -204,17 +204,17 @@ void high_isr_handler(void)
 					IYaw = 0;
 					IThrottle = _Maximum;
 
-					if ( ClockMilliSec > 1500)
-						IThrottle = _Minimum;
 					if ( ClockMilliSec > 6000)
+						IThrottle = _Minimum;
+					if ( ClockMilliSec > 7000)
 						IThrottle = 75;
 					if ( ClockMilliSec > 9000)
 						{
-						IThrottle = 80;
+					//	IThrottle = 80;
 IYaw = -50;
 						}
 
-					//if ( ClockMilliSec > 11000)
+					//if ( ClockMilliSec > 31000)
 					//	{
 					//	_NoSignal = true;
 					//	_NewValues = false;
@@ -318,19 +318,6 @@ ErrorRestart:
 		ClockMilliSec++;						// time since start
 		TimeSlot--;
 	}	
-	if (PIR1bits.RCIF )//&& INTCONbits.RCIE)
-		if (RCSTAbits.OERR)
-		{
-			ch = ReadUSART(); 					// flush
-			RCSTAbits.CREN = false;
-			RCSTAbits.CREN = true;
-		}
-		else
-		{
-	//		RxTail = (RxTail +1) & RxBufMask;
-	//		RxBuff[RxTail] = ReadUSART();		// no check for overrun 
-			PIR1bits.RCIF=false;
-		}
 } // high_isr_handler
 	
 #pragma code high_isr = 0x08

@@ -131,12 +131,9 @@ void InitArrays(void)
 	CurrThrottle = 0xFF;
 	IRoll = IPitch = IYaw = IK5 = IK6 = IK7 = 0;
 
-	// PID
-	REp = PEp = YEp = 0;
-
 	// Drives
 	_MotorsEnabled = false;
-	Rl = Pl = Yl = VBaroComp =0;
+//	Rl = Pl = Yl = VBaroComp =0;
 	Vud = 0;
 	MFront = _Minimum;	
 	MLeft = _Minimum;
@@ -321,20 +318,7 @@ Restart:
 			// or non-optimal flight behavior might occur!!!
 			} // user code
 			
-			RollRate = GetRollRate();			// first of two samples per cycle
-			PitchRate = GetPitchRate();
-
-			GetDirection();
-			GetAltitude();
-	
 			ReadParametersEE();					// re-sets TimeSlot
-
-			// second gyro sample delayed roughly by intervening routines!
-			// no obvious reason for this except minor filtering by averaging.
-			RollRate += GetRollRate();
-			PitchRate += GetPitchRate();
-			YawRate = GetYawRate();
-			DetermineAttitude();
 
 			// check for signal dropout while in flight
 			if ( _Flying && _NoSignal )
@@ -363,13 +347,13 @@ Restart:
 			if( _Flying && (IThrottle <= _ThresStop) && ((--LowThrottleCount) > 0 ) )
 				goto DoPID;
 
-			if( _NoSignal||((_Flying&&(IThrottle<=_ThresStop))||
-							(!_Flying&&(IThrottle<=_ThresStart))))
+			if( _NoSignal ||((_Flying && (IThrottle <= _ThresStop)) ||
+							(!_Flying && (IThrottle <= _ThresStart))))
 			{						
 				// Quadrocopter has "landed", stop all motors									
 				TimeSlot += 2; 					// ??? compensate PID() calc time!
 
-				InitArrays();					// resets _Flying flag!
+//				InitArrays();					// resets _Flying flag!
 				
 				if( _NoSignal && Switch )		// _NoSignal set, but Switch is on?
 					break;						// then Rx signal was lost
@@ -412,8 +396,13 @@ DoPID:
 				if( _NewValues )
 					CheckThrottleMoved();
 
+				GetDirection();
+				GetAltitude();
+				
+				DetermineAttitude();
+
 				PID();
-	
+
 				REp = RE;						// remember old gyro values
 				PEp = PE;
 				YEp = YE;

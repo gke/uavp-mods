@@ -25,11 +25,11 @@
 
 // data strings
 #pragma idata menu1
-const char SerHello[] = "\r\nU.A.V.P. V" Version " (c) 2008"
+const char SerHello[] = "\r\nUAVP V" Version " (c) 2008"
 							  " Ing. Wolfgang Mahringer\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n";
 
-const char  SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
+const char  SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 							  "Gyro: "
 #ifdef OPT_ADXRS300
 							  "3x ADXRS300\r\n"

@@ -92,17 +92,19 @@ for (j= 16; j; j--) {
 		PitchAngle += MiddleFB;
 	}
 	#ifdef OPT_ADXRS150
-	MidRoll = SRS32(RollAngle + 128, 8);	
-	MidPitch = SRS32(PitchAngle + 128, 8);
+	MidRoll = SRS32(RollAngle + 256, 9);	
+	MidPitch = SRS32(PitchAngle + 256, 9);
 	#else // IDG300
-	MidRoll = SRS32(RollAngle + 64, 7);								
-	MidPitch = SRS32(PitchAngle + 64, 7);		
+	MidRoll = SRS32(RollAngle + 128, 8);								
+	MidPitch = SRS32(PitchAngle + 128, 8);		
 	#endif
 
 	MidYaw = SRS32(YawAngle + 128, 8);
 	PrevYawRate = MidYaw;
 }
 	RollAngle = PitchAngle = YawAngle = 0;
+	REp = PEp = YEp = 0;
+
 } // InitAttitude
 
 void InitAccelerometers(void)
@@ -146,7 +148,7 @@ void CompensateGyros(void)
 	Rp -= SRS32(RollAngle * 15 + 16, 5);
 	#endif
 
-	// dynamic correction of moved mass for coordinated turns ???
+	// dynamic correction of moved mass  - for coordinated turns ???
 	#ifdef OPT_ADXRS
 //	Rp += (int32)RollRate * 2;					// ~500/300 deg/sec ???
 	#else // OPT_IDG
@@ -158,8 +160,8 @@ void CompensateGyros(void)
 	if( Rp > 10 ) 
 		LRIntKorr =  -1;
 	else
-	if( Rp < -10 ) 
-		LRIntKorr = 1;
+		if( Rp < -10 ) 
+			LRIntKorr = 1;
 
 	// Nick									
 	Pp = -Pp;									// accelerometer opp sense.
@@ -177,8 +179,8 @@ void CompensateGyros(void)
 	if( Pp > 10 ) 
 		FBIntKorr =  -1;
 	else
-	if( Pp < -10 ) 
-		FBIntKorr = 1;
+		if( Pp < -10 ) 
+			FBIntKorr = 1;
 
 	// Vertical - reinstated
 
@@ -230,15 +232,26 @@ void DetermineAttitude(void)
 {
 	int16 Temp;
 
+	RollRate = GetRollRate();			// first of two samples per cycle
+	PitchRate = GetPitchRate();
+
+	YawRate = GetYawRate();
+
+	// second gyro sample delayed roughly by intervening routines!
+	// no obvious reason for this except minor filtering by averaging.
+	RollRate += GetRollRate();
+	PitchRate += GetPitchRate();
+
 	#ifdef OPT_ADXRS150
-	RollRate = SRS16(RollADC + 1, 1);								
-	PitchRate = SRS16(PitchADC + 1, 1);		
-	#endif // OPT_ADXRS
+	RollRate = SRS16(RollRate + 2, 2)
+	PitchRate =  SRS16(PitchRate + 2, 2);
+	#else // IDG300 and ADXRS300
+	RollRate = SRS16(RollRate + 1, 1);
+	PitchRate =  SRS16(PitchRate + 1, 1);
+	#endif
 
 	RollRate -= MidRoll;
 	PitchRate -= MidPitch;
-
-	CompensateGyros();
 
 	if( FlyCrossMode )
 	{
@@ -251,13 +264,11 @@ void DetermineAttitude(void)
 	// Lots of ad hoc scaling - leave for now ???
 	
 	// Roll is + right
-
-
 	#ifdef OPT_ADXRS
 	RE = SRS16(RollRate + 2, 2);					// use 8 bit res. for PD control
 	RollRate = SRS16(RollRate + 1, 1);				// use 9 bit res. for I control
 	#else // OPT_IDG
-	RE=SRS16(RollRate+1,1);
+	RE=SRS16(RollRate + 1, 1);
 	#endif // OPT_ADXRS
 
 	RollAngle += (int32)RollRate;					// RollAngle exceeds 16bit with Int Limit > 64
@@ -277,18 +288,20 @@ void DetermineAttitude(void)
 	PitchAngle = Decay(PitchAngle + FBIntKorr);		// ??? Decay(PitchAngle) + FBIntKorr;
  
 	// Yaw + CW  sample once per cycle
-	YawRate = HardFilter(PrevYawRate, YawRate);
+	YawRate = MediumFilter(PrevYawRate, YawRate);
 	PrevYawRate = YawRate;	
 	
-	if ( Abs(YawRate - MidYaw) <= 1 )				// needs further thought
+	Temp = YawRate - MidYaw;
+	if ( Abs(Temp) <= 2 )							// needs further thought
 		MidYaw = Limit(YawRate, -500, 500);
 
 	YawRate -= MidYaw;
 
 	YE = SRS16(YawRate + 2, 2);
-
-//	DoHeadingLock();
-	YawAngle=Limit(YawAngle + YE, -(YawIntLimit*256), YawIntLimit*256);
+	DoHeadingLock();
+	YawAngle = Limit(YawAngle + YE, -(YawIntLimit*256), YawIntLimit*256);
 	YawAngle = Decay(YawAngle);
+
+	CompensateGyros();
 } // DetermineAttitude
 

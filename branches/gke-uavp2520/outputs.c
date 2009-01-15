@@ -225,6 +225,21 @@ void OutSignals(void)
 	// for positive PID coeffs MF/MB anticlockwise, ML/MR clockwise
 	int32 NowMilliSec;
 
+	#ifdef ESC_PPM
+	DisableInterrupts;
+	while( INTCONbits.T0IF == 0 ) ;			// wait for overflow
+	INTCONbits.T0IF=0;						// quit TMR0 interrupt
+	EnableInterrupts;
+
+_asm
+	MOVLB	0								// select Bank0
+	MOVLW	0x3F							// turn on camera servos
+	MOVWF	PORTB,0							// setup PORTB shadow
+	MOVWF	SHADOWB,1
+_endasm
+	#endif // RX_PPM
+
+	// do mixing etc within the 1mS of the pulse preamble
 	MixAndLimitMotors();
 
 	if ( _MotorsEnabled )
@@ -249,26 +264,14 @@ void OutSignals(void)
 #ifndef DEBUG
 
 #ifdef ESC_PPM
-	DisableInterrupts;
-	while( INTCONbits.T0IF == 0 ) ;			// wait for overflow
-	INTCONbits.T0IF=0;						// quit TMR0 interrupt
-	EnableInterrupts;
-
-_asm
-	MOVLB	0								// select Bank0
-	MOVLW	0x3F							// turn on camera servos
-	MOVWF	PORTB,0							// setup PORTB shadow
-	MOVWF	SHADOWB,1
-_endasm
-
-	// simply wait for nearly 1 ms
+	// wait for balance of 1 mS
 	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
 	while( ReadTimer0() <  0x100-3-16 ) ;	// ??? need to understand this
 
 	// now stop CCP1 interrupt - capture can survive 1ms without service!
 	// To be strictly correct it must be less than the minimum valid
 	// Rx pulse/gap width (1027us less interrupt overheads) otherwise 
-	// a CCP1 capture event may be over-written	
+	// a CCP1 Rx pulse edge capture event may be over-written	
 	DisableInterrupts;
 	while( INTCONbits.T0IF == 0 ) ;			// wait for first overflow
 	INTCONbits.T0IF=0;						// quit TMR0 interrupt

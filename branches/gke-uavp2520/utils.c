@@ -268,7 +268,7 @@ void DoDebugTraces()
 	11 NickSum Pitch angle
 	12 YawSum Yaw angle
 	*/
-//	if( IGas > _ThresStart )
+	if( _Flying )
 	{
 #ifdef READABLE
 		TxVal((int32)Compass, 0, ';');
@@ -288,7 +288,8 @@ void DoDebugTraces()
 		TxVal((int32)PitchRate, 0, ';');
 		TxVal((int32)YawRate, 0, ';');
 
-		// angles
+		// angles & errors
+		TxVal(YE, 0, ';');
 		TxVal(RollAngle, 0, ';');
 		TxVal(PitchAngle, 0, ';');
 		TxVal(YawAngle, 0, ';');
@@ -315,6 +316,8 @@ void DoDebugTraces()
 		TxChar(';');
 
 		// rates
+		TxValH(YE);
+		TxChar(';');
 		TxValH16(RollRate);
 		TxChar(';');
 		TxValH16(PitchRate);
@@ -323,6 +326,8 @@ void DoDebugTraces()
 		TxChar(';');
 
 		// angles
+		TxValH16(YE);
+		TxChar(';');
 		TxValH16(RollAngle);
 		TxChar(';');
 		TxValH16(PitchAngle);
@@ -350,21 +355,21 @@ void DoDebugTraces()
 
 	if( _Flying ) //&& IsSet(CamNickFactor,4) )
 	{
-		TxValU(IGas);
+		TxValU(IThrottle);
 		TxChar(';');
 		TxValS(IRoll);
 		TxChar(';');
-		TxValS(INick);
+		TxValS(IPitch);
 		TxChar(';');
-		TxValS(ITurn);
+		TxValS(IYaw);
 		TxChar(';');
-		TxValU(MVorne);
+		TxValU(MFront);
 		TxChar(';');
-		TxValU(MHinten);
+		TxValU(MBack);
 		TxChar(';');
-		TxValU(MLinks);
+		TxValU(MLeft);
 		TxChar(';');
-		TxValU(MRechts);
+		TxValU(MRight);
 		TxChar(';');
 #ifdef DEBUG_CAMERAS
 		TxValU(IK6);
@@ -373,7 +378,7 @@ void DoDebugTraces()
 		TxChar(';');
 		TxValU(IK7);
 		TxChar(';');
-		TxValU(MCamNick);
+		TxValU(MCamPitch);
 		TxChar(';');
 #endif
 		TxNextLine();

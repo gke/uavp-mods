@@ -58,7 +58,7 @@ void PID(void)
 
 	// Roll
 	Rl  = SRS32(RE*(int32) RollPropFactor+(REp-RE)*(int32) RollDiffFactor + 8, 4);	// P & D
-	Rl += SRS32(RollAngle * (int32) RollIntFactor + 128, 8);							// I	
+	Rl += SRS32(RollAngle * (int32) RollIntFactor + 128, 8);						// I	
 	Rl -= IRoll;
 
 	// Pitch

@@ -50,7 +50,6 @@ void InitADC()
           ADC_VREFPLUS_VDD &
           ADC_VREFMINUS_VSS,	  
           ADCPORTCONFIG);
-
 } // InitADC
 
 

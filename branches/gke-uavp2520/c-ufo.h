@@ -1,7 +1,7 @@
 
 //#define SIMULATION
 
-#define DISABLE_COMPASS
+//#define DISABLE_COMPASS
 #define COMMISSIONING
 #define READABLE
 
@@ -155,7 +155,7 @@ typedef uint8 boolean;
   #define VerySoftFilter(O,N) 	(SRS32((int32)O+N*3+2, 2))
   #define SoftFilter(O,N) 		(SRS32((int32)O+N+1, 1))
   #define MediumFilter(O,N) 	(SRS32((int32)O*3+N+2, 2))
-  #define HardFilter(O,N) 		(SRS32((int32)O*7+N+4, 3))
+  #define HardFilter(O,N) 		(SRS32((int32)O*7+(int32)N+4, 3))
 #endif
 
 #define _ClkOut		(160/4)								// 16.0 MHz quartz
@@ -326,7 +326,7 @@ typedef uint8 boolean;
 #define	GYROSIGN_YAW 		(1)
 #define ADCVREF5V 			0
 
-#define Version	"18F2520"
+#define Version	"3.15-18F2520"
 
 // External variables - declarations in c-ufo.c
 
