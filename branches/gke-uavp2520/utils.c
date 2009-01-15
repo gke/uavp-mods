@@ -45,7 +45,7 @@ int16 SRS16(int16 x, uint8 s)
 
 #ifndef USE_MACROS
 
-int16	Limit(int16 i, int16 l, int16 u)
+int16 Limit(int16 i, int16 l, int16 u)
 {
 	return((i<l) ? l : ((i>u) ? u : i));
 } // Limit
@@ -335,7 +335,6 @@ void DoDebugTraces()
 		TxValH16(YawAngle);
 		TxChar(';');
 
-#ifdef SIMULATION
 		TxValH16(MFront);
 		TxChar(';');
 		TxValH16(Mback);
@@ -344,7 +343,6 @@ void DoDebugTraces()
 		TxChar(';');
 		TxValH16(MRight);
 		TxChar(';');
-#endif // SIMULATION
 
 #endif // READABLE
 		TxNextLine();

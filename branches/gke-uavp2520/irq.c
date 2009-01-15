@@ -198,30 +198,6 @@ void high_isr_handler(void)
 
 					_NoSignal = false;
 					_NewValues = true; 	// potentially IK6 & IK7 are still about to change ???
-#ifdef SIMULATION
-					IRoll = 0;
-					IPitch = 0;
-					IYaw = 0;
-					IThrottle = _Maximum;
-
-					if ( ClockMilliSec > 6000)
-						IThrottle = _Minimum;
-					if ( ClockMilliSec > 7000)
-						IThrottle = 75;
-					if ( ClockMilliSec > 9000)
-						{
-					//	IThrottle = 80;
-IYaw = -50;
-						}
-
-					//if ( ClockMilliSec > 31000)
-					//	{
-					//	_NoSignal = true;
-					//	_NewValues = false;
-					//	}
-
-
-#endif // SIMULATION
 #endif // !RX_DSM2
 				}
 				else	// values are unsafe

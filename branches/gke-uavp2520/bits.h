@@ -47,6 +47,8 @@
 #define	PulseCamRoll	4
 #define	PulseCamPitch	5
 
+#define	Switch			PORTAbits.RA4
+
 //#define ALL_PULSE_ON	(PORTB |= 0b00001111)
 #define ALL_OUTPUTS_OFF	(PORTB &= 0b11110000)
 //#define ALL_OUTPUTS		(PORTB & 0b00001111)
@@ -58,12 +60,6 @@
 #define	 ESC_SCL		PORTBbits.RB2
 #define	 ESC_DIO		TRISBbits.TRISB1
 #define	 ESC_CIO		TRISBbits.TRISB2
-#endif
-
-#ifdef SIMULATION
-#define Switch			1
-#else
-#define	Switch			PORTAbits.RA4
 #endif
 
 // the sensor bus lines

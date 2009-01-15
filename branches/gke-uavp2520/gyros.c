@@ -38,46 +38,25 @@
 // 5V Reference +-150 Deg/Sec
 // 0.146484375 Deg/Sec/LSB
 
-#ifdef SIMULATION
-int16 RollX=0, PitchX = 0, YawX =0;
-#endif
-
 int16 GetRollRate(void)
-{
-	// + roll right
-#ifdef SIMULATION
-	return(511 + Limit(RollX, -20, 20));
-#else
+{	// + roll right
 	return(GYROSIGN_ROLL*ADC(ADCRollChan, ADCEXTVREF_PITCHROLL));
-#endif // SIMULATION
 } // GetRollRate
 
 int16 GetPitchRate(void)
-{
-	// + pitch up, + roll right
-#ifdef SIMULATION
-	return(511 + Limit(PitchX, -20, 20));
-#else
+{	// + pitch up
 	return(GYROSIGN_PITCH*ADC(ADCPitchChan, ADCEXTVREF_PITCHROLL));
-#endif // SIMULATION
 }  // GetPitchRate
 
 int16 GetYawRate(void)
-{
-#ifdef SIMULATION
-	return(Limit(YawX, -5, 5));
-#else
+{	// + yaw CW
 	return(GYROSIGN_YAW * ADC(ADCYawChan, ADCEXTVREF_YAW));		
-#endif
 } // GetYawRate
 
 void InitAttitude(void)
 {
 	int16 i;
 
-uint8 j;
-
-for (j= 16; j; j--) {
     RollAngle = PitchAngle = YawAngle = 0;
 	for ( i = 256; i ; i-- )
 		{		
@@ -101,7 +80,7 @@ for (j= 16; j; j--) {
 
 	MidYaw = SRS32(YawAngle + 128, 8);
 	PrevYawRate = MidYaw;
-}
+
 	RollAngle = PitchAngle = YawAngle = 0;
 	REp = PEp = YEp = 0;
 
@@ -112,12 +91,11 @@ void InitAccelerometers(void)
 	// stationary on the ground
 	uint8 s;
 	int32 Tx, Ty, Tz;
-uint8 j;
+
 	IsLISLactive();
 
-for (j = 16; j; j--) {
 	Tx = Ty = Tz = 0;
-	for( s=16; s ; s--)
+	for( s=256; s ; s--)
 	{
 		ReadLISLXYZ();
 		Tx += ACCSIGN_X * Ax;
@@ -125,11 +103,10 @@ for (j = 16; j; j--) {
 		Tz += ACCSIGN_Z * Az;
 		// delay in here ???
 	}
-	NeutralLR = SRS32(Tx + 8, 4);
-	NeutralUD = SRS32(Ty + 8, 4);
-	NeutralFB = SRS32(Tz + 8, 4);
+	NeutralLR = SRS32(Tx + 128, 8);
+	NeutralUD = SRS32(Ty + 128, 8);
+	NeutralFB = SRS32(Tz + 128, 8);
 	UDVelocity = 0;
-}
 } // InitAcelerometers
 
 void CompensateGyros(void)
@@ -208,13 +185,13 @@ void DoHeadingLock(void)
 
 	CurrIYaw = IYaw;							// protect from change by irq
 	YE += CurrIYaw;								// add the yaw stick value
-#ifdef DISABLE_COMPASS
+
 	if ( _UseCompass )
 		if ((CurrIYaw < (YawFailsafe - COMPASS_MIDDLE)) || (CurrIYaw > (YawFailsafe + COMPASS_MIDDLE)))
 			AbsDirection = COMPASS_INVAL;		// new hold zone
 		else
 			YE += Limit(CurrDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
-#endif // DISABLE_COMPASS
+
 	if( CompassTest )
 	{
 		ALL_LEDS_OFF;
@@ -255,7 +232,7 @@ void DetermineAttitude(void)
 
 	if( FlyCrossMode )
 	{
-		// Real Roll = 0.707 * (N + R), Pitch = 0.707 * (N - R)
+		// Real Roll = 0.707 * (P + R), Pitch = 0.707 * (P - R)
 		Temp = ((RollRate + PitchRate) * 7 + 5)/10 ;	
 		PitchRate = ((PitchRate - RollRate) * 7 + 5)/10;
 		RollRate = Temp;	
@@ -271,13 +248,13 @@ void DetermineAttitude(void)
 	RE=SRS16(RollRate + 1, 1);
 	#endif // OPT_ADXRS
 
-	RollAngle += (int32)RollRate;					// RollAngle exceeds 16bit with Int Limit > 64
+	RollAngle += (int32)RollRate;
 	RollAngle = Limit(RollAngle, -(RollIntLimit*256), RollIntLimit*256);							
 	RollAngle = Decay(RollAngle + LRIntKorr);
 
 	// Pitch is + up
 	#ifdef OPT_ADXRS
-	NE = SRS16(PitchRate + 2, 2);
+	PE = SRS16(PitchRate + 2, 2);
 	PitchRate = SRS16(PitchRate + 1, 1);
 	#else // OPT_IDG
 	PE = SRS16(PitchRate + 1, 1);
@@ -303,5 +280,6 @@ void DetermineAttitude(void)
 	YawAngle = Decay(YawAngle);
 
 	CompensateGyros();
+
 } // DetermineAttitude
 

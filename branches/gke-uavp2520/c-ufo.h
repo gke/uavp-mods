@@ -1,7 +1,4 @@
 
-//#define SIMULATION
-
-//#define DISABLE_COMPASS
 #define COMMISSIONING
 #define READABLE
 

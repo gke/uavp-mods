@@ -27,96 +27,9 @@
 
 // -----------------------------------------------------------
 
-//#define ALT_I2C
-
-#ifdef ALT_I2C
-//based on C18 Libraries
-
-void I2CStart( void )
-{
-  I2C_DLAT = 0;							// set data pin latch to 0
-  I2C_DIO=0;							// set pin to output to drive low
-  Delay10TCY();							// user may need to modify based on Fosc
-} // I2CStart
-
-void I2CStop( void )
-{
-	I2C_SLAT = 0;						// set clock pin latch to 0
-	I2C_CIO=0;							// set clock pin to output to drive low
-	I2C_DLAT = 0;						// set data pin latch to 0
-	I2C_DIO=0;							// set data pin output to drive low
-	Delay10TCY();						// user may need to modify based on Fosc
-	I2C_CIO=1;							// release clock pin to float high
-	Delay10TCY();						// user may need to modify based on Fosc
-	I2C_DIO=1;							// release data pin to float high
-	Delay1TCY();						// user may need to modify based on Fosc
-	Delay1TCY();
-} // I2CStop
-
-uint8 RecvI2CByte( void )
-{
-	uint8 s, d;
-
-	I2C_SLAT = 0;						// set clock pin latch to 0
-	for (s = 8; s; s-- )
-	{
-		I2C_CIO=0;						// set clock pin output to drive low
-		I2C_DIO=1;						// release data line to float high
-		Delay10TCY();					// user may need to modify based on Fosc
-		I2C_CIO=1;						// release clock line to float high
-		Delay1TCY();					// user may need to modify based on Fosc
-		Delay1TCY();
-
-//		if ( !I2C_SCL )					// test for clock low
-//			if ( Clock_test( ) )		// clock wait routine
-//				return ( -2 );			// return with error condition       
-
-		d = (d << 1) & 0xfe;			// clear bit 0
-
-		if ( I2C_SDA )					// is data line high
-			d |= 0x01;					// set bit 0 to logic 1
-   
-	}
-
-	return ( d ); // return with data
-} // RecvI2CByte
-
-uint8 SendI2CByte(uint8 d)
-{
-	uint8 s;
-
-	I2C_SLAT = 0;						// set latch to 0                                
-	for (s = 8; s; s-- )
-	{
-		if ( !I2C_SCL )					// test if clock is low                           // if it is then ..
-    	{
-//			if ( Clock_test( ) )		// wait on clock for a short time
-//   	     	return ( I2C_NACK );	// return with error condition      
-		}
-		else 
-		{
-			I2C_CIO=0;					// set clock pin output to drive low
-			if ( d & 0x80 )				// transmit 1			
-				I2C_DIO=1;				// release data line to float high 
-			else						// transmit 0
-			{
-				I2C_DLAT = 0;			// set data pin latch to 0
-				I2C_DIO=0;				// set data pin output to drive low 
-			}
-			Delay10TCY();				// user may need to modify based on Fosc
-			I2C_CIO=1;					// release clock line to float high 
-			Delay10TCY();				// user may need to modify based on Fosc
-		}
-	}
-
-  return (I2C_ACK);						// return with no error
-} // SendI2CByte
-
-
-#else 
 // Wolfgang's I2C Routines
 
-void I2CDelay(void) // ~3uS 16MHz 18F2520 
+void I2CDelay(void) 
 {
 	Delay10TCY();
 } // I2CDelay

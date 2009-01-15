@@ -98,7 +98,6 @@ void WriteLISL(uint8 d, uint8 addr)
 
 void IsLISLactive(void)
 {
-	// 1 unit is 1/2048g
 	WriteLISL(0b01001010, LISL_CTRLREG_2); 			// enable 3-wire, BDU=1, +/-2g
 
 	if( ReadLISL(LISL_WHOAMI + LISL_READ) == 0x3A )	// LIS03L sensor ident
@@ -114,9 +113,6 @@ void IsLISLactive(void)
 	}
 	else
 		_UseLISL = false;
-#ifdef SIMULATION
-	_UseLISL = true;
-#endif
 } // IsLISLactive
 
 
@@ -141,10 +137,6 @@ void ReadLISLXYZ()
 	}
 	else
 		Ax = Ay = Az = 0;
-#ifdef SIMULATION
-	Ax = Az = 0; 
-	Ay = 1024; // 1g
-#endif	
 } // ReadLISLXYZ
 
 //-----------------------------------------------------------------------------
