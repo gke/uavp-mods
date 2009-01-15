@@ -435,6 +435,11 @@ Restart:
 				}
 				break;	// timeout, stop everything
 			}
+
+// IF THE THROTTLE IS CLOSED FOR MORE THAN 2 SECONDS AND THE QUADROCOPTER IS STILL 
+// IN FLIGHT (SAY A RAPID THROTTLE CLOSED DESCENT) THEN THE FOLLOWING CODE MAY RESET 
+// THE INTEGRAL SUMS (PITCH AND ROLL ANGLES) WHEN THE QUADROCOPTER IS NOT "LEVEL".
+
 // allow motors to run on low throttle 
 // even if stick is at minimum for a short time
 			if( _Flying && (IGas <= _ThresStop) )
