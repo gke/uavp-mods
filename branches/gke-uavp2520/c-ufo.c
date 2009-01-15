@@ -224,7 +224,7 @@ void main(void)
 	// DON'T MOVE THE UFO!
 	// ES KANN LOSGEHEN!
 	LedRed_ON;
-	Delay100mSec(20);							// time to get hands away after power up
+	Delay100mSec(100);							// ~10Sec. to get hands away after power up
 	Beeper_ON;
 	InitDirection();		
 	InitAltimeter();
@@ -257,7 +257,6 @@ Restart:
 			Delay100mSec(2);					// wait 2/10 sec until signal is there
 			ProcessCommand();
 			if( _NoSignal )
-			{
 				if( Switch )
 				{
 					if( --DropoutCount == 0 )
@@ -268,7 +267,6 @@ Restart:
 				}
 				else
 					Beeper_OFF;
-			}
 		}
 		while( _NoSignal || !Switch );			// no signal or switch is off
 		Beeper_OFF;
@@ -276,10 +274,9 @@ Restart:
 		
 		ReadParametersEE();						// in case param set changed
 
-		// Just for safety: don't let motors start if throttle is open!
 		DropoutCount = 1;
 
-		while( IThrottle >= _ThresStop )
+		while( IThrottle >= _ThresStop )		// throttle must be closed
 		{
 			if( _NoSignal )
 				goto Restart;
@@ -290,7 +287,9 @@ Restart:
 				// if Ch7 below midpoint assume use for camera trigger
 				// else assume use for camera roll trim	
 				_UseCh7Trigger =  IK7 < _Neutral;
+
 				OutSignals();					// while waiting sync to Rx frame
+
 				if( (--DropoutCount) <= 0 )
 				{
 					LedRed_TOG;					// toggle red LED 
@@ -299,14 +298,10 @@ Restart:
 			}
 			ProcessCommand();
 		}
-
-		// ## MAIN LOOP ##
-		// Loop length is controlled by a programmable variable "TimeSlot". 
-		// Standard PPM ESCs will need at least 9 or 10mS.
 							
 		DropoutCount = 0;
 		
-		while( Switch )							// as int32 as power switch is ON
+		while( Switch )	// ## MAIN LOOP ##
 		{
 			_MotorsEnabled = true;
 
@@ -341,7 +336,11 @@ Restart:
 				else
 					break;							
 			}
-	
+
+// IF THE THROTTLE IS CLOSED FOR MORE THAN 2 SECONDS AND THE QUADROCOPTER IS STILL 
+// IN FLIGHT (SAY A RAPID THROTTLE CLOSED DESCENT) THEN THE FOLLOWING CODE MAY RESET 
+// THE INTEGRAL SUMS (PITCH AND ROLL ANGLES)WHEN THE QUADROCOPTER IS NOT "LEVEL". 
+
 			// allow motors to run on low throttle 
 			// even if stick is at minimum for a short time (~2 Sec.)
 			if( _Flying && (IThrottle <= _ThresStop) && ((--LowThrottleCount) > 0 ) )

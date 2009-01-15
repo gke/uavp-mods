@@ -54,11 +54,11 @@ int16 GetYawRate(void)
 } // GetYawRate
 
 void InitAttitude(void)
-{
-	int16 i;
+{ // quadrocopter MUST be stationary and level
+	uint16 s;
 
     RollAngle = PitchAngle = YawAngle = 0;
-	for ( i = 256; i ; i-- )
+	for ( s = 256; s ; s-- )
 		{		
 		RollAngle += GetRollRate();
 		PitchAngle += GetPitchRate();
@@ -73,7 +73,7 @@ void InitAttitude(void)
 	#ifdef OPT_ADXRS150
 	MidRoll = SRS32(RollAngle + 256, 9);	
 	MidPitch = SRS32(PitchAngle + 256, 9);
-	#else // IDG300
+	#else // OPT_IDG300 & OPT_ADXRS300
 	MidRoll = SRS32(RollAngle + 128, 8);								
 	MidPitch = SRS32(PitchAngle + 128, 8);		
 	#endif
@@ -87,9 +87,8 @@ void InitAttitude(void)
 } // InitAttitude
 
 void InitAccelerometers(void)
-{	// get initial values with quadrocopter level and 
-	// stationary on the ground
-	uint8 s;
+{	// quadrocopter MUST be stationary and level
+	uint16 s;
 	int32 Tx, Ty, Tz;
 
 	IsLISLactive();
@@ -121,18 +120,18 @@ void CompensateGyros(void)
 	// Roll
 	#ifdef OPT_ADXRS	
 	Rp -= SRS32(RollAngle * 11 + 16, 5);		// empirical ???
-	#else // OPT_IDG	
+	#else // OPT_IDG300	
 	Rp -= SRS32(RollAngle * 15 + 16, 5);
 	#endif
 
 	// dynamic correction of moved mass  - for coordinated turns ???
 	#ifdef OPT_ADXRS
 //	Rp += (int32)RollRate * 2;					// ~500/300 deg/sec ???
-	#else // OPT_IDG
+	#else // // OPT_IDG300
 //	Rp += (int32)RollRate;
 	#endif
 
-	// correct DC level of the integral (Roll Angle)
+	// correct DC level of the integral (roll angle)
 	LRIntKorr = 0;
 	if( Rp > 10 ) 
 		LRIntKorr =  -1;
@@ -145,13 +144,13 @@ void CompensateGyros(void)
 
 	#ifdef OPT_ADXRS	
 	Pp += SRS32(PitchAngle * 11 + 16, 5);	
-	#else // OPT_IDG	
+	#else // OPT_IDG300	
 	Pp += SRS32(PitchAngle * 15 + 16, 5);
 	#endif
 
 	// no dynamic correction of moved mass necessary
 
-	// correct DC level of the integral (Pitch angle)
+	// correct DC level of the integral (pitch angle)
 	FBIntKorr = 0;
 	if( Pp > 10 ) 
 		FBIntKorr =  -1;
@@ -161,7 +160,7 @@ void CompensateGyros(void)
 
 	// Vertical - reinstated
 
-	// UDAngle increases as quadrocopter falls
+	// velocity increases as quadrocopter falls
 	UDVelocity += Up;
 
 	Temp = SRS32(SRS32(UDVelocity + 8, 4) * LinUDIntFactor + 128, 8);
@@ -215,7 +214,7 @@ void DetermineAttitude(void)
 	YawRate = GetYawRate();
 
 	// second gyro sample delayed roughly by intervening routines!
-	// no obvious reason for this except minor filtering by averaging.
+	// no obvious reason for this except minor filtering by averaging ???.
 	RollRate += GetRollRate();
 	PitchRate += GetPitchRate();
 
@@ -262,14 +261,14 @@ void DetermineAttitude(void)
 
 	PitchAngle += (int32)PitchRate;
 	PitchAngle = Limit(PitchAngle, -(PitchIntLimit*256), PitchIntLimit*256);
-	PitchAngle = Decay(PitchAngle + FBIntKorr);		// ??? Decay(PitchAngle) + FBIntKorr;
+	PitchAngle = Decay(PitchAngle + FBIntKorr);
  
 	// Yaw + CW  sample once per cycle
 	YawRate = MediumFilter(PrevYawRate, YawRate);
 	PrevYawRate = YawRate;	
 	
 	Temp = YawRate - MidYaw;
-	if ( Abs(Temp) <= 2 )							// needs further thought
+	if ( Abs(Temp) <= 2 )							// needs further thought ???
 		MidYaw = Limit(YawRate, -500, 500);
 
 	YawRate -= MidYaw;
@@ -277,7 +276,7 @@ void DetermineAttitude(void)
 	YE = SRS16(YawRate + 2, 2);
 	DoHeadingLock();
 	YawAngle = Limit(YawAngle + YE, -(YawIntLimit*256), YawIntLimit*256);
-	YawAngle = Decay(YawAngle);
+	YawAngle = Decay(YawAngle);						// ???
 
 	CompensateGyros();
 
