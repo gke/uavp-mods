@@ -47,9 +47,11 @@ uint8	IK5,IK6,IK7;
 
 // Gyros
 int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
+int16	RollGyroRate, PitchGyroRate, YawGyroRate;// PID rate (raw gyro values)
 int16	RollRate, PitchRate, YawRate;			// PID rate (scaled gyro values)
 int16	PrevYawRate;							// PID for noisy Yaw gyro filtering
 int16	MidRoll, MidPitch, MidYaw;				// PID gyro neutrals
+
 // Acceleration Corrections
 int32	UDVelocity;
 int16	Ax, Ay, Az;								// LISL sensor accelerations							
@@ -120,36 +122,25 @@ int8	BaroThrottleDiff	=4;
 #pragma idata
 // Ende Reihenfolgezwang
 
-// resets all important variables
-// Do NOT call this while in flight!
 void InitMisc(void)
 {
 	uint8 i;
 
-	for (i=8; i ; i--)							// clear flags ???
-	{
-		Flags[i] = false;
-		Flags2[i] = false;
-	}    
+	for (i=8; i ; i--)
+		Flags[i] = Flags2[i] = false;
 	
-
-	CurrThrottle = 0xff;
-	RollFailsafe = PitchFailsafe = YawFailsafe = 0;
-
 	LedShadow = 0;
     ALL_LEDS_OFF;
-	IThrottle = IK5 = _Minimum;					// Kill throttle assume parameter set #1
 
 	// RC
 	_Flying = false;
-	IThrottle = 0;
+	IThrottle = IK5 = _Minimum;	
 	CurrThrottle = 0xFF;
 	IRoll = IPitch = IYaw = IK5 = IK6 = IK7 = 0;
 
 	// Drives
 	_MotorsEnabled = false;
-//	Rl = Pl = Yl = VBaroComp =0;
-	Vud = 0;
+	Rl = Pl = Yl = VBaroComp = Vud = 0;
 	MFront = _Minimum;	
 	MLeft = _Minimum;
 	MRight = _Minimum;
@@ -157,34 +148,12 @@ void InitMisc(void)
 
 	MCamRoll = MCamPitch = _Neutral;
 					
-} // InitArrays
+} // InitMisc
 
 void CheckThrottleMoved(void)
 {
-	int16	Temp;
-
-/*
-	if( ThrDownCount > 0 )
-	{
-		if( LedCount & 1 )
-			ThrDownCount--;
-		if( ThrDownCount == 0 )
-			CurrThrottle = IThrottle;			// remember current Throttle level
-	}
-	else
-	{
-		if( CurrThrottle < THR_MIDDLE ) 		// ??? tidy up
-			Temp = 0;
-		else
-			Temp = CurrThrottle - THR_MIDDLE;
-		if( IThrottle < THR_HOVER )
-			ThrDownCount = THR_DOWNCOUNT;		// left dead area
-		if( IThrottle < Temp )
-			ThrDownCount = THR_DOWNCOUNT;		// left dead area
-		if( IThrottle > CurrThrottle + THR_MIDDLE )
-			ThrDownCount = THR_DOWNCOUNT;		// left dead area
-	}
-*/
+    _ThrChanging = (IThrottle > (CurrThrottle - 5)) && (IThrottle < (CurrThrottle + 5) );
+	CurrThrottle = IThrottle;
 } // CheckThrottleMoved
 
 void CheckThrottleClosed(void)
@@ -230,6 +199,7 @@ void DoControl()
 	GetDirection();
 	GetAltitude();				
 	DetermineAttitude();
+
 	PID();
 
 } // DoControl
@@ -266,9 +236,8 @@ void main(void)
 			LedYellow_ON;
 		
 		ProcessCommand();
-IThrottle = _Minimum;		
+		
 		CheckThrottleClosed();
-IThrottle = 70;	
 
 		TimeSlot = Limit(NoOfTimeSlots, 10, 22);	// 6 is possible
 
@@ -277,11 +246,13 @@ IThrottle = 70;
 			while( TimeSlot > 0 ) { };				// user routine here if desired	
 			TimeSlot = Limit(NoOfTimeSlots, 6, 22);
 			CycleCount++;
-			DoControl();
-			OutSignals();
-SwitchLedsOff(0x7f);
+			
 			// housekeeping which must finish before TimeSlot = 0
 			if ( _Flying )
+			{
+			DoControl();
+			OutSignals();
+			DoDebugTraces();
 				if ( _Signal )
 				{
 					ResetTimeOuts();	
@@ -299,6 +270,7 @@ SwitchLedsOff(0x7f);
 						IYaw = YawFailsafe;
 					}
 				}
+			}
 			else
 				if ( _Signal )
 				{
@@ -320,7 +292,7 @@ SwitchLedsOff(0x7f);
 					ALL_LEDS_OFF;
 				}		
 			CheckAlarms();
-			DoDebugTraces();
+
 
 		} // while arming switch is on
 	}

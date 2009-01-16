@@ -347,6 +347,7 @@ extern	int16	MidRoll, MidPitch, MidYaw;				// mid RC stick values
 
 // Gyros
 extern	int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
+extern	int16	RollGyroRate, PitchGyroRate, YawGyroRate;// PID rate (raw gyro values)
 extern	int16	RollRate, PitchRate, YawRate;			// PID rate (scaled gyro values)
 extern	int16 	PrevYawRate;
 extern	int16	MidRoll, MidPitch, MidYaw;				// PID gyro neutrals

@@ -142,10 +142,6 @@
 #define BARO_ADDR		0xee
 #define BARO_CTL		0xf4
 #define BARO_ADC		0xf6
-
-// Throttle timeout
-#define THR_DOWNCOUNT	255	 				/* 128 PID-cycles (=3 sec) until current throttle is fixed */
-#define THR_MIDDLE		10   				/*  throttle stick dead zone for baro */ 
 #define THR_HOVER		75
 
 #define	_Signal			Flags[0]			/*if no valid signal is received*/

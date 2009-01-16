@@ -79,7 +79,10 @@ void InitGyros(void)
 	#endif
 
 	MidYaw = SRS32(YawAngle + 128, 8);
-	PrevYawRate = MidYaw;
+
+	RollGyroRate = MidRoll;
+	PitchGyroRate = MidPitch;
+	YawGyroRate = MidYaw;
 
 	RollAngle = PitchAngle = YawAngle = 0;
 	REp = PEp = YEp = 0;
@@ -138,6 +141,8 @@ void CompensateGyros(void)
 	else
 		if( Rp < -10 ) 
 			LRIntKorr = 1;
+	
+	RollAngle = Decay(RollAngle + LRIntKorr);
 
 	// Nick									
 	Pp = -Pp;									// accelerometer opp sense.
@@ -153,19 +158,21 @@ void CompensateGyros(void)
 	// correct DC level of the integral (pitch angle)
 	FBIntKorr = 0;
 	if( Pp > 10 ) 
-		FBIntKorr =  -1;
+		FBIntKorr =  1;
 	else
 		if( Pp < -10 ) 
-			FBIntKorr = 1;
+			FBIntKorr = -1;
+
+	PitchAngle = Decay(PitchAngle + FBIntKorr);
 
 	// Vertical - reinstated
 
-	// velocity increases as quadrocopter falls
+	// "velocity" increases as quadrocopter falls
 	UDVelocity += Up;
 
 	Temp = SRS32(SRS32(UDVelocity + 8, 4) * LinUDIntFactor + 128, 8);
 
-	if( (CycleCount & 0x00000003) == 0 )
+	if( (CycleCount & 0x00000003) == 0 )// ?????
 	{
 		if( Temp > Vud )
 			Vud++;
@@ -175,35 +182,25 @@ void CompensateGyros(void)
 		Vud = Limit(Vud, -20, 20);
 	}
 	UDVelocity = DecayBand(UDVelocity, -10, 10, 10);
-
 } // CompensateGyros
 
 void DetermineAttitude(void)
 {
 	int16 Temp;
 
-	RollRate = GetRollRate();			// first of two samples per cycle
-	PitchRate = GetPitchRate();
-
-	YawRate = GetYawRate();
-
-	// second gyro sample delayed roughly by intervening routines!
-	// no obvious reason for this except minor filtering by averaging ???.
-	RollRate += GetRollRate();
-	PitchRate += GetPitchRate();
+	RollGyroRate = SoftFilter(RollGyroRate, GetRollRate());	
+	PitchGyroRate = SoftFilter(PitchGyroRate, GetPitchRate());
+	YawGyroRate = SoftFilter(YawGyroRate, GetYawRate());
 
 	#ifdef OPT_ADXRS150
-	RollRate = SRS16(RollRate + 2, 2)
-	PitchRate =  SRS16(PitchRate + 2, 2);
-	#else // IDG300 and ADXRS300
-	RollRate = SRS16(RollRate + 1, 1);
-	PitchRate =  SRS16(PitchRate + 1, 1);
+	RollRate = SRS16(RollGyroRate + 1, 1) - MidRoll;
+	PitchRate =  SRS16(PitchGyroRate + 1, 1) - MidPitch;
+	#else // OPT_IDG and OPT_ADXRS300
+	RollRate = RollGyroRate - MidRoll;
+	PitchRate = PitchGyroRate - MidPitch;
 	#endif
 
-	RollRate -= MidRoll;
-	PitchRate -= MidPitch;
-
-	if( FlyCrossMode )
+	if( FlyCrossMode )								// does this work with compensation ??? 
 	{
 		// Real Roll = 0.707 * (P + R), Pitch = 0.707 * (P - R)
 		Temp = ((RollRate + PitchRate) * 7 + 5)/10 ;	
@@ -223,7 +220,6 @@ void DetermineAttitude(void)
 
 	RollAngle += (int32)RollRate;
 	RollAngle = Limit(RollAngle, -(RollIntLimit*256), RollIntLimit*256);							
-	RollAngle = Decay(RollAngle + LRIntKorr);
 
 	// Pitch is + up
 	#ifdef OPT_ADXRS
@@ -235,22 +231,19 @@ void DetermineAttitude(void)
 
 	PitchAngle += (int32)PitchRate;
 	PitchAngle = Limit(PitchAngle, -(PitchIntLimit*256), PitchIntLimit*256);
-	PitchAngle = Decay(PitchAngle + FBIntKorr);
  
-	// Yaw + CW  sample once per cycle
-	YawRate = MediumFilter(PrevYawRate, YawRate);
-	PrevYawRate = YawRate;	
-	
-	Temp = YawRate - MidYaw;
-	if ( Abs(Temp) <= 2 )							// needs further thought ???
-		MidYaw = Limit(YawRate, -500, 500);
+	// Yaw + CW 	
+//	Temp = YawGyroRate - MidYaw;
+//	if ( Abs(Temp) <= 2 )							// needs further thought ???
+//		MidYaw = Limit(YawGyroRate, (YawGyroRate - 5), YawGyroRate + 5);
 
-	YawRate -= MidYaw;
-
+	YawRate = YawGyroRate - MidYaw;
 	YE = SRS16(YawRate + 2, 2);
+
 	DoHeadingLock();
+
 	YawAngle = Limit(YawAngle + YE, -(YawIntLimit*256), YawIntLimit*256);
-	// YawAngle = Decay(YawAngle);						// ???
+	YawAngle = Decay(YawAngle);
 
 	CompensateGyros();
 
