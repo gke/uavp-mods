@@ -20,7 +20,7 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-// Utilities and subroutines
+// Misc
 
 #include "c-ufo.h"
 #include "bits.h"
@@ -69,12 +69,11 @@ int16 Decay(int16 i)
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delay100mSec(uint8 delay)
+void Delay100mSec(uint8 d)
 {
-	TimerMilliSec = ClockMilliSec + delay * 100;
+	TimerMilliSec = ClockMilliSec + d * 100;
 	while (ClockMilliSec < TimerMilliSec)
 	{
-#ifndef BOOTONLY
 		if ( TimeSlot <= 0)
 		{
 			TimeSlot = NoOfTimeSlots; 
@@ -84,11 +83,10 @@ void Delay100mSec(uint8 delay)
 		// break loop if a serial command is in FIFO
 		if( PIR1bits.RCIF )
 			return;
-#endif
 	}
 } // Delay100mSec
 
-void InitPorts()
+void InitPorts(void)
 {
 	// general ports setup
 	TRISA = 0b00111111;								// all inputs
@@ -112,29 +110,6 @@ void GetBatteryVolts(void)
 	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
 } // GetBatteryVolts
 
-void CheckLowBattery()
-{
-	GetBatteryVolts();
-	if( _LowBatt )
-	{
-		if( BlinkCount < BLINK_LIMIT/2 )
-		{
-			Beeper_OFF;
-			LedRed_OFF;
-		}
-		else
-		{
-			Beeper_ON;
-			LedRed_ON;
-		}
-	}
-	else
-	{
-		Beeper_OFF;
-		LedRed_OFF;
-	}
-} // CheckLowBattery
-
 void SwitchLedsOn(uint8 LEDs)
 {
 	LedShadow |= LEDs;
@@ -147,36 +122,27 @@ void SwitchLedsOff(uint8 LEDs)
 	SendLeds();
 } // SwitchLedsOff
 
-void LEDGame(void)
+void CheckAlarms(void)
 {
-	if( --LedCount == 0 )
+	uint8 AlarmOn;
+
+	GetBatteryVolts();
+	AlarmOn = _LowBatt || _LostModel || !_Signal;
+
+	if ( AlarmOn )
 	{
-		LedCount = 255-IThrottle;				// new setup
-		LedCount >>= 3;
-		LedCount += 5;
-		if( _UseBaro && (ThrDownCount == 0) )
+		if ((ClockMilliSec & 0x000001ff) == 0)
 		{
-			AUX_LEDS_ON;					// baro locked, all aux-leds ON
-		}
-		else
-		if( LedShadow & LedAUX1 )
+			Beeper_TOG;
+			LedRed_TOG;
+ 		}
+	}		
+	else
 		{
-			AUX_LEDS_OFF;
-			LedAUX2_ON;
-		}
-		else
-		if( LedShadow & LedAUX2 )
-		{
-			AUX_LEDS_OFF;
-			LedAUX3_ON;
-		}
-		else
-		{
-			AUX_LEDS_OFF;
-			LedAUX1_ON;
-		}
-	}
-} // LEDGame
+			LedRed_OFF;
+			Beeper_OFF;
+		}	
+} // CheckAlarms
 
 int8 ReadEE(uint8 addr)
 {
@@ -219,19 +185,17 @@ void ReadParametersEE(void)
 	int8 *p; 
 	uint16 addr;
 
-	//LedBlue_ON;
+	LedBlue_ON;
 
 	if( IK5 > _Neutral )
 		addr = _EESet2;	
 	else
-		addr = _EESet1;	
-
+		addr = _EESet1;
+	
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
 
-	TimeSlot = Limit(NoOfTimeSlots, 4, 22);
-
-	//LedBlue_OFF;
+	LedBlue_OFF;
 
 } // ReadParametersEE
 
@@ -337,7 +301,7 @@ void DoDebugTraces()
 
 		TxValH16(MFront);
 		TxChar(';');
-		TxValH16(Mback);
+		TxValH16(MBack);
 		TxChar(';');
 		TxValH16(MLeft);
 		TxChar(';');

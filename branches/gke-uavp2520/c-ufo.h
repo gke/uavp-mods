@@ -113,6 +113,9 @@
 #define true 1
 #define false 0
 
+#define MAXINT32 0x7fffffff;
+#define	MAXINT16 0x7fff;
+
 typedef unsigned char uint8 ;
 typedef signed char int8;
 typedef unsigned int uint16;
@@ -332,6 +335,8 @@ extern	uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME;
 
 // Globals 									
 extern	int32	ClockMilliSec, TimerMilliSec;
+extern	int32	RCTimeOutMilliSec, ThrottleClosedMilliSec;
+extern	int32	CycleCount;
 extern	int8	TimeSlot;
 
 // RC
@@ -342,7 +347,9 @@ extern	int16	MidRoll, MidPitch, MidYaw;				// mid RC stick values
 
 // Gyros
 extern	int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
-extern	int16	RollRate, PitchRate, YawRate, PrevYawRate;	// PID rate (scaled gyro values)
+extern	int16	RollRate, PitchRate, YawRate;			// PID rate (scaled gyro values)
+extern	int16 	PrevYawRate;
+extern	int16	MidRoll, MidPitch, MidYaw;				// PID gyro neutrals
 
 // Acceleration Corrections
 extern	int32	UDVelocity;
@@ -375,10 +382,8 @@ extern	uint8	MCamRoll,MCamPitch;
 extern	uint8	Flags[8];
 extern	uint8	Flags2[8];
 										
-extern	uint8	CurrThrottle;
-extern	uint8	ThrDownCount;
+//extern	uint8	CurrThrottle;
 
-extern	uint8	BlinkCount;
 extern	uint8	LedShadow;								// shadow register
 extern	uint8	LedCount;
 extern  int16	BatteryVolts; 
@@ -425,6 +430,8 @@ extern	int8	BaroThrottleDiff;	// 28
 // end of "order-block"
 
 // Prototypes
+extern	void ResetTimeOuts(void);
+extern	void CheckThrottleClosed(void);
 
 extern	void BootStart(void);
 extern	void TxValH16(uint16);
@@ -449,16 +456,17 @@ extern	void InitPorts(void);
 extern	void InitArrays(void);
 extern	void InitTimersAndInterrupts(void);
 
-extern	void InitAttitude(void);
 extern	void InitADC(void);
+extern	void InitGyros(void);
 extern	int16 ADC(uint8, uint8);
 extern	int16 GetRollRate(void);
 extern	int16 GetPitchRate(void);
 extern	int16 GetYawRate(void);
+extern	void InitAttitude(void);
 extern	void DetermineAttitude(void);
+extern	void CompensateGyros(void);
 
 extern	void InitAccelerometers(void);
-extern	void CompensateGyros(void);
 extern	void IsLISLactive(void);
 extern	void WriteLISLByte(uint8);
 extern	void WriteLISL(uint8, uint8);
@@ -469,9 +477,7 @@ extern	void ReadLISLXYZ(void);
 extern	void OutSSP(uint8);
 extern	void InitDirection(void);
 extern	void GetDirection(void);
-
-extern	void GetBatteryVolts(void);
-extern	void CheckLowBattery(void);
+extern	void DoHeadingLock(void);
 
 extern	void InitAltimeter(void);
 extern	void GetAltitude(void);
@@ -479,9 +485,14 @@ extern	uint8 ReadBaro(void);
 extern	uint8 StartBaroADC(uint8);
 
 extern  void PID(void);
+extern	void InitInertial(void);
+extern	void DoControl(void);
 extern	void MixAndLimitMotors(void);
 extern	void MixAndLimitCam(void);
 extern	void Delay100mSec(uint8);
+
+extern	void GetBatteryVolts(void);
+extern	void CheckAlarms(void);
 
 extern	void SendLeds(void);
 extern	void SwitchLedsOn(uint8);

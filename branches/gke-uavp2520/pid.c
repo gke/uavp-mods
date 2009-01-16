@@ -72,5 +72,9 @@ void PID(void)
 	Yl = Limit(Yl, -YawLimit, YawLimit);
 
 	DoIntTestLEDS();
+
+	REp = RE;						// remember old gyro values
+	PEp = PE;
+	YEp = YE;
 } // PID
 

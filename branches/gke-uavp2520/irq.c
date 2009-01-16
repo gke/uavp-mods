@@ -196,7 +196,7 @@ void high_isr_handler(void)
 					IK6 = - _Neutral;
 					IK7 = - _Neutral;
 
-					_NoSignal = false;
+					_Signal = true;
 					_NewValues = true; 	// potentially IK6 & IK7 are still about to change ???
 #endif // !RX_DSM2
 				}
@@ -262,7 +262,7 @@ void high_isr_handler(void)
 				IPitch = MediumFilter(IPitch, NewPitch);
 				IYaw = MediumFilter(IYaw, NewYaw);		
 
-				_NoSignal =false;
+				_Signal = true;
 				_NewValues = true;
 #else				
 				IK7 = Lower8(NewK7);
@@ -273,7 +273,7 @@ void high_isr_handler(void)
 			{
 ErrorRestart:
 				_NewValues = false;
-				_NoSignal = true;		// Signal lost
+				_Signal = false;		// Signal lost
 				RecFlags = -1;
 #ifndef RX_PPM
 				if( NegativePPM )

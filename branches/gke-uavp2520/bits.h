@@ -148,11 +148,11 @@
 #define THR_MIDDLE		10   				/*  throttle stick dead zone for baro */ 
 #define THR_HOVER		75
 
-#define	_NoSignal		Flags[0]			/*if no valid signal is received*/
+#define	_Signal			Flags[0]			/*if no valid signal is received*/
 #define	_Flying			Flags[1]			/*UFO is flying*/	
 #define _NewValues		Flags[2]			/*new RX channel values sampled*/	
 #define _FirstTimeout	Flags[3]			/*is 1 after first 9ms TO expired*/	
-#define _NegIn			Flags[4]			/*negative signed input (serial.c)*/	
+//#define _NegIn			Flags[4]			/*negative signed input (serial.c)*/	
 #define _LowBatt		Flags[5]			/*if Batt voltage is low*/	
 #define	_UseLISL		Flags[6]			/*if LISL Sensor is used*/	
 #define	_UseCompass		Flags[7]			/*if compass sensor is enabled*/	
@@ -161,9 +161,11 @@
 									  		1 if baro temp a/d conversion is running
 									  		0 means: pressure a/d conversion is running*/	
 #define _BaroTempRun	Flags2[1]	
-//#define _OutToggle		Flags2[2]		/*cam servos only every 2nd output pulse*/									
+#define _OutToggle		Flags2[2]			/*cam servos only every 2nd output pulse*/									
 #define _UseCh7Trigger	Flags2[3]			/*1: don't use Ch7 0: use Ch7 as Cam Roll trim*/
-//#define _TrigSign		Flags2[4]							
+#define _LostModel		Flags2[4]
+#define _ThrChanging	Flags2[5]
+#define _Armed			Flags2[6]							
 #define _MotorsEnabled	Flags2[7]			/*1 Motors are armed/enabled */
 
 // Mask Bits of ConfigParam

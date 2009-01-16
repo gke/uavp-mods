@@ -53,7 +53,7 @@ int16 GetYawRate(void)
 	return(GYROSIGN_YAW * ADC(ADCYawChan, ADCEXTVREF_YAW));		
 } // GetYawRate
 
-void InitAttitude(void)
+void InitGyros(void)
 { // quadrocopter MUST be stationary and level
 	uint16 s;
 
@@ -84,7 +84,7 @@ void InitAttitude(void)
 	RollAngle = PitchAngle = YawAngle = 0;
 	REp = PEp = YEp = 0;
 
-} // InitAttitude
+} // InitGyros
 
 void InitAccelerometers(void)
 {	// quadrocopter MUST be stationary and level
@@ -165,7 +165,7 @@ void CompensateGyros(void)
 
 	Temp = SRS32(SRS32(UDVelocity + 8, 4) * LinUDIntFactor + 128, 8);
 
-	if( (BlinkCount & 0x03) == 0 )	
+	if( (CycleCount & 0x00000003) == 0 )
 	{
 		if( Temp > Vud )
 			Vud++;
@@ -177,32 +177,6 @@ void CompensateGyros(void)
 	UDVelocity = DecayBand(UDVelocity, -10, 10, 10);
 
 } // CompensateGyros
-
-void DoHeadingLock(void)
-{
-	int16 Temp, CurrIYaw;
-
-	CurrIYaw = IYaw;							// protect from change by irq
-	YE += CurrIYaw;								// add the yaw stick value
-
-	if ( _UseCompass )
-		if ((CurrIYaw < (YawFailsafe - COMPASS_MIDDLE)) || (CurrIYaw > (YawFailsafe + COMPASS_MIDDLE)))
-			AbsDirection = COMPASS_INVAL;		// new hold zone
-		else
-			YE += Limit(CurrDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
-
-	if( CompassTest )
-	{
-		ALL_LEDS_OFF;
-		if( CurrDeviation > 0 )
-			LedGreen_ON;
-		else
-			if( CurrDeviation < 0 )
-				LedRed_ON;
-		if( AbsDirection > COMPASS_MAX )
-			LedYellow_ON;
-	}
-} // DoHeadingLock
 
 void DetermineAttitude(void)
 {
@@ -276,7 +250,7 @@ void DetermineAttitude(void)
 	YE = SRS16(YawRate + 2, 2);
 	DoHeadingLock();
 	YawAngle = Limit(YawAngle + YE, -(YawIntLimit*256), YawIntLimit*256);
-	YawAngle = Decay(YawAngle);						// ???
+	// YawAngle = Decay(YawAngle);						// ???
 
 	CompensateGyros();
 

@@ -73,7 +73,7 @@ void GetDirection(void)
 {
 	int16 DirVal, temp;
 
-	if( _UseCompass && ((BlinkCount & 0x03) == 0) )
+	if( _UseCompass && ((CycleCount & 0x00000003) == 0) )
 	{
 		// compass is in continous mode 
 		I2CStart();
@@ -124,6 +124,33 @@ void GetDirection(void)
 		}
 	}
 } // GetDirection
+
+void DoHeadingLock(void)
+{
+	int16 Temp, CurrIYaw;
+
+	CurrIYaw = IYaw;							// protect from change by irq
+	YE += CurrIYaw;								// add the yaw stick value
+
+	if ( _UseCompass )
+		if ((CurrIYaw < (YawFailsafe - COMPASS_MIDDLE)) || (CurrIYaw > (YawFailsafe + COMPASS_MIDDLE)))
+			AbsDirection = COMPASS_INVAL;		// new hold zone
+		else
+			YE += Limit(CurrDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
+
+	if( CompassTest )
+	{
+		ALL_LEDS_OFF;
+		if( CurrDeviation > 0 )
+			LedGreen_ON;
+		else
+			if( CurrDeviation < 0 )
+				LedRed_ON;
+		if( AbsDirection > COMPASS_MAX )
+			LedYellow_ON;
+	}
+} // DoHeadingLock
+
 
 // read temp & pressure values from baro sensor
 // value in BaroVal;
@@ -262,9 +289,9 @@ void GetAltitude(void)
 		{	// successful
 			if( !_BaroTempRun )
 			{	// current measurement was "pressure"
-				if( ThrDownCount )	// while moving throttle stick
+				if( _ThrChanging )				// while moving throttle stick
 				{
-					BasePressure = BaroVal;	// current read value is the new level
+					BasePressure = BaroVal;		// current read value is the new level
 					BaroCompSum = 0;
 				}
 				else
@@ -296,7 +323,7 @@ void GetAltitude(void)
 			}
 			else
 			{
-				if( ThrDownCount )
+				if( _ThrChanging )
 					BaseTemp = BaroVal; 		// current read value
 				else 							// TempCorr: The warmer, the higher
 				{
