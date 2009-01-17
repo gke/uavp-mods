@@ -72,9 +72,11 @@ supports YGEs I2C ESCs (configure with "Y" command)
 
 ........
 
-13.1.2009 Version derived from V3.14 with selected 
-DSM2 capability Futaba 9C with Spektrum DM8 / 
-JR 9XII with DM9 module
+13.1.2009 Version derived from V3.14 by Greg Egan with 
+selected DSM2 capability (Futaba 9C with Spektrum DM8 / 
+JR 9XII with DM9 module) and composite PPM 
+
+17.1.2009 bootloader relinked to software
 
 ==============================================
 = Transferring firmware to the PIC           =

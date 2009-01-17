@@ -242,6 +242,9 @@ extern	bank1	uns16	nilgval;
 // Prototypes
 
 // Bank 0
+
+extern	page0	void BootStart(void);
+
 extern	page0	void ShowSetup(uns8);
 extern	page0	char RecvComChar(void);
 extern	page0	void ProcessComCommand(void);
