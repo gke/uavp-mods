@@ -26,16 +26,16 @@ set VERSION=3_15m3
 rem Add/Delete required combinations to these sets
 set BOARDS= 3_0 3_1
 set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
-set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
+set ESCS=ESC_PPM ESC_HOLGER
 set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
 set RXS=RX_DEFAULT RX_DSM2 RX_PPM
 
 rem Personal choice
-set BOARDS= 3_1
-set GYROS=OPT_IDG
-set ESCS=ESC_PPM
-set DBGS=NO_DEBUG DEBUG_SENSORS
-set RXS=RX_DEFAULT
+rem set BOARDS= 3_1
+rem set GYROS=OPT_IDG
+rem set ESCS=ESC_PPM
+rem set DBGS=NO_DEBUG DEBUG_SENSORS
+rem set RXS=RX_DEFAULT
 
 rem Delete working files
 call makeclean.bat

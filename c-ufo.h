@@ -358,6 +358,8 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 
 // Prototypes
 
+extern	page0	void BootStart(void);
+
 extern	page0	void OutSignals(void);
 extern	page0	void GetGyroValues(void);
 extern	page0	void CalcGyroValues(void);
