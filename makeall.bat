@@ -13,8 +13,8 @@ rem
 rem Version of the board. May be 3_0 or 3_1.
 rem Type of gyros in use. May be OPT_ADXRS or IDG300.
 rem Type of ESC in use. May be ESC_PWM,  ESC_HOLGER.
-rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
-rem RX_PPM for serial PPM frame, or RX_DEFAULT for default PPM Graupner/JR etc Rx.
+rem Type of Rx. May RX_PPM for serial composite PPM frame, or 
+rem RX_DEFAULT for default PPM Graupner/JR etc Rx.
 
 set VERSION=3_14m3
 
@@ -23,7 +23,7 @@ set BOARDS= 3_1
 set GYROS=OPT_IDG OPT_ADXRS
 set ESCS=ESC_PPM ESC_HOLGER
 set DBGS=NO_DEBUG 
-set RXS=RX_DEFAULT RX_DSM2 RX_PPM
+set RXS=RX_DEFAULT RX_PPM
 
 rem Personal choice
 
