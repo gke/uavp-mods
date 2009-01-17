@@ -441,7 +441,7 @@ void ProcessComCommand(void)
 			movwf	PCLATH
 			dw	0x2F00
 #endasm
-//			BootStart();	// never comes back!
+			BootStart();	// never comes back!
 		case '?'  : // help
 			SendComText(_SerHelp);
 			ShowPrompt();
