@@ -25,7 +25,7 @@
 
 // data strings
 #pragma idata menu1
-const char SerHello[] = "\r\nUAVP V" Version " (c) 2008"
+const char SerHello[] = "\r\nUAVP V" Version " (C) 2008"
 							  " Ing. Wolfgang Mahringer\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n";
 

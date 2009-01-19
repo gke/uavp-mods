@@ -129,15 +129,15 @@ void DoHeadingLock(void)
 {
 	int16 Temp, CurrIYaw;
 
-//	CurrIYaw = IYaw;							// protect from change by irq
-//	YE += CurrIYaw;								// add the yaw stick value
-
+	CurrIYaw = IYaw;							// protect from change by irq
+	YE += CurrIYaw;								// add the yaw stick value
+/*
 	if ( _UseCompass )
 		if ((CurrIYaw < (YawFailsafe - COMPASS_MIDDLE)) || (CurrIYaw > (YawFailsafe + COMPASS_MIDDLE)))
 			AbsDirection = COMPASS_INVAL;		// new hold zone
 		else
 			YE -= Limit(CurrDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
-
+*/
 	if( CompassTest )
 	{
 		ALL_LEDS_OFF;

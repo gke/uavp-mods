@@ -134,29 +134,31 @@ typedef uint8 boolean;
 #define Upper8(i) 		(SRS16(i,8))
 #define Lower8(i) 		(i&0xff)
 #define Abs(a) 			(a<0 ? -a: a)
-#define Sense(a) 		(a<0 ? -1 : (a>0 ? 1 : 0))
+#define Sense(a) 		(a<0 ? -1 : (a>0 ? 1 : 1))
  	
-#ifdef USE_MACROS
 #define Max(i,j) 		((i<j) ? j : ((i>j) ? j : i))
 #define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
 #define DecayBand(i,l,u,d) 	((i<l) ? i+d : ((i>u) ? i-d : i))
-#define Decay(i) 		((i<0) ? i+1 : ((i>0) ? i-1 : i))
-#endif
+#define Decay(i) 		((i<0) ? i+1 : ((i>0) ? i-1 : 0))
 
 #define DisableInterrupts (INTCONbits.GIEH=0)
 #define EnableInterrupts (INTCONbits.GIEH=1)
 
 #ifdef SUPPRESSFILTERS
-  #define VerySoftFilter(O,N) 	(N)
-  #define SoftFilter(O,N) 		(N)
-  #define MediumFilter(O,N) 	(N)
-  #define HardFilter(O,N) 		(N)
+  #define VerySoftFilter(O,N)		(N)
+  #define SoftFilter(O,N) 			(N)
+  #define GyroFilter(O,N) 			(N)
+  #define AccelerometerFilter(O,N) 	(N)
 #else
-  #define VerySoftFilter(O,N) 	(SRS32((int32)O+N*3+2, 2))
-  #define SoftFilter(O,N) 		(SRS32((int32)O+N+1, 1))
-  #define MediumFilter(O,N) 	(SRS32((int32)O*3+N+2, 2))
-  #define HardFilter(O,N) 		(SRS32((int32)O*7+(int32)N+4, 3))
+  #define VerySoftFilter(O,N) 	(SRS16((int32)O+N*3+2, 2))
+  #define SoftFilter(O,N) 		(SRS16(O+N+1, 1))
+  #define MediumFilter(O,N) 	(SRS16(O*3+N+2, 2))
+  #define HardFilter(O,N) 		(SRS16(O*7+N+4, 3))
 #endif
+
+#define GyroFilter SoftFilter
+#define AccelerometerFilter SoftFilter
+#define	StickFilter SoftFilter
 
 #define _ClkOut		(160/4)								// 16.0 MHz quartz
 #define _PreScale0	16									// 1:16 TMR0 prescaler
@@ -299,6 +301,7 @@ typedef uint8 boolean;
 //	+ yaw clockwise
 
 // Gyro combinations
+
 #define ADCPORTCONFIG 0b00001010 // AAAAA
 #ifdef OPT_IDG
 	#define MAXDEGSEC_PITCHROLL 	500
@@ -349,17 +352,15 @@ extern	int16	MidRoll, MidPitch, MidYaw;				// mid RC stick values
 extern	int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
 extern	int16	RollGyroRate, PitchGyroRate, YawGyroRate;// PID rate (raw gyro values)
 extern	int16	RollRate, PitchRate, YawRate;			// PID rate (scaled gyro values)
-extern	int16 	PrevYawRate;
 extern	int16	MidRoll, MidPitch, MidYaw;				// PID gyro neutrals
 
 // Acceleration Corrections
 extern	int32	UDVelocity;
 extern	int16	Ax, Ay, Az;								// LISL sensor accelerations								
-extern	int16	LRIntKorr, FBIntKorr;
 extern	int16	NeutralLR, NeutralFB, NeutralUD;		// LISL scaled neutral values					
 
 // PID 
-extern	int32	Rl,Pl,Yl;								// PID output values						// Progressive corrections
+extern	int32	Rl, Pl, Yl;								// PID output values						// Progressive corrections
 extern	int16	RE, PE, YE;								// PID error
 extern	int16	REp, PEp, YEp;							// PID previous error
 extern	int16	RollFailsafe, PitchFailsafe, YawFailsafe;
@@ -516,13 +517,6 @@ extern	void SendEscI2CByte(uint8);
 
 extern	int32 SRS32(int32, uint8);
 extern	int16 SRS16(int16, uint8);
-
-#ifndef USE_MACROS
-extern	int16 Limit(int16, int16, int16);
-extern	int16 Max(int16, int16);
-extern	int16 DecayBand(int16, int16, int16, int16);
-extern	int16 Decay(int16);
-#endif
 
 #ifdef READABLE
 extern	void TxVal(int32, uint8, uint8);

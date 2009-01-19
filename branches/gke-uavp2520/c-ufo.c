@@ -49,13 +49,11 @@ uint8	IK5,IK6,IK7;
 int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
 int16	RollGyroRate, PitchGyroRate, YawGyroRate;// PID rate (raw gyro values)
 int16	RollRate, PitchRate, YawRate;			// PID rate (scaled gyro values)
-int16	PrevYawRate;							// PID for noisy Yaw gyro filtering
 int16	MidRoll, MidPitch, MidYaw;				// PID gyro neutrals
 
 // Acceleration Corrections
 int32	UDVelocity;
 int16	Ax, Ay, Az;								// LISL sensor accelerations							
-int16	LRIntKorr, FBIntKorr;					// LISL gyro drift corrections
 int16	NeutralLR, NeutralFB, NeutralUD;		// LISL scaled neutral values					
 
 // PID 

@@ -62,7 +62,7 @@ int16 DecayBand(int16 i, int16 l, int16 u, int16 d)
 
 int16 Decay(int16 i)
 {
-	return((i<0) ? i+1 : ((i>0) ? i-1 : i));
+	return((i<0) ? i+1 : ((i>0) ? i-1 : 0));
 } // Decay
 
 #endif
@@ -232,9 +232,16 @@ void DoDebugTraces()
 	11 NickSum Pitch angle
 	12 YawSum Yaw angle
 	*/
-	if( _Flying )
+	#ifndef DRIFT
+	if(  _Flying )
 	{
 #ifdef READABLE
+		TxVal((int32)ClockMilliSec, 3, ';');
+		TxVal((int32)IThrottle, 0, ';');	
+		TxVal((int32)IRoll, 0, ';');	
+		TxVal((int32)IPitch, 0, ';');	
+		TxVal((int32)IYaw, 0, ';');
+
 		TxVal((int32)Compass, 0, ';');
 		TxVal((int32)AbsDirection, 0, ';');
 		TxVal((int32)CurrDeviation, 0, ';');
@@ -257,6 +264,11 @@ void DoDebugTraces()
 		TxVal(RollAngle, 0, ';');
 		TxVal(PitchAngle, 0, ';');
 		TxVal(YawAngle, 0, ';');
+
+		TxVal((int32)Rl, 0, ';');
+		TxVal((int32)Pl, 0, ';');
+		TxVal((int32)Yl, 0, ';');
+		TxVal((int32)Vud, 0, ';');
 
 		TxVal((int32)MFront, 0, ';');
 		TxVal((int32)MBack, 0, ';');
@@ -347,6 +359,7 @@ void DoDebugTraces()
 	}
 #endif
 #endif
+#endif // DRIFT
 } // DoDebugTraces
 
 

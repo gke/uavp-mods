@@ -70,15 +70,15 @@ void InitGyros(void)
 		RollAngle += MiddleLR;
 		PitchAngle += MiddleFB;
 	}
-	#ifdef OPT_ADXRS150
-	MidRoll = SRS32(RollAngle + 256, 9);	
-	MidPitch = SRS32(PitchAngle + 256, 9);
-	#else // OPT_IDG300 & OPT_ADXRS300
-	MidRoll = SRS32(RollAngle + 128, 8);								
-	MidPitch = SRS32(PitchAngle + 128, 8);		
-	#endif
 
-	MidYaw = SRS32(YawAngle + 128, 8);
+	MidRoll = SRS32(RollAngle + 128, 8);								
+	MidPitch = SRS32(PitchAngle + 128, 8);
+	MidYaw = SRS32(YawAngle + 128, 8);		
+	
+	#ifdef OPT_ADXRS150
+	MidRoll = SRS32(MidRoll + 1, 1);	
+	MidPitch = SRS32(MidPitch + 1, 1);
+	#endif
 
 	RollGyroRate = MidRoll;
 	PitchGyroRate = MidPitch;
@@ -113,66 +113,61 @@ void InitAccelerometers(void)
 
 void CompensateGyros(void)
 {	// + Ax right, + Ay up, + Az back
-	int32	Rp, Pp, Up, Temp;
+	int16 Rc, Pc, Uc, Temp;
 
 	ReadLISLXYZ();		
-	Rp = ACCSIGN_X * Ax - NeutralLR;
-	Up = ACCSIGN_Y * Ay - NeutralUD;	
-	Pp = ACCSIGN_Z * Az - NeutralFB;
-							
+	Rc = ACCSIGN_X * Ax - NeutralLR;
+	Uc = ACCSIGN_Y * Ay - NeutralUD;	
+	Pc = ACCSIGN_Z * Az - NeutralFB;
+
+	#ifdef DRIFT
+	TxVal((int32)Pc, 0, ';');
+	Temp = Rc;
+	#endif
+								
 	// Roll
-	#ifdef OPT_ADXRS	
-	Rp -= SRS32(RollAngle * 11 + 16, 5);		// empirical ???
-	#else // OPT_IDG300	
-	Rp -= SRS32(RollAngle * 15 + 16, 5);
-	#endif
+	Rc = -SRS32(Rc * 3 + 1, 1);					// empirical 1.5					
+	Rc -= RollAngle;	
+	Rc += RollRate;								// turn coordination ???
 
-	// dynamic correction of moved mass  - for coordinated turns ???
-	#ifdef OPT_ADXRS
-//	Rp += (int32)RollRate * 2;					// ~500/300 deg/sec ???
-	#else // // OPT_IDG300
-//	Rp += (int32)RollRate;
-	#endif
-
-	// correct DC level of the integral (roll angle)
-	LRIntKorr = 0;
-	if( Rp > 10 ) 
-		LRIntKorr =  -1;
+	if( Rc > 10 ) 
+		RollAngle += 4;
 	else
-		if( Rp < -10 ) 
-			LRIntKorr = 1;
+		if( Rc < -10 ) 
+			RollAngle -= 4;
 	
-	RollAngle = Decay(RollAngle + LRIntKorr);
+	RollAngle = Decay(RollAngle);
 
-	// Nick									
-	Pp = -Pp;									// accelerometer opp sense.
-
-	#ifdef OPT_ADXRS	
-	Pp += SRS32(PitchAngle * 11 + 16, 5);	
-	#else // OPT_IDG300	
-	Pp += SRS32(PitchAngle * 15 + 16, 5);
-	#endif
-
-	// no dynamic correction of moved mass necessary
-
-	// correct DC level of the integral (pitch angle)
-	FBIntKorr = 0;
-	if( Pp > 10 ) 
-		FBIntKorr =  1;
+	// Pitch									
+	Pc = SRS16(Pc * 3 + 1,1); 
+	Pc -= PitchAngle;
+								
+	if( Pc > 10 ) 
+		PitchAngle += 4;
 	else
-		if( Pp < -10 ) 
-			FBIntKorr = -1;
+		if( Pc < -10 ) 
+			PitchAngle -= 4;
 
-	PitchAngle = Decay(PitchAngle + FBIntKorr);
+	PitchAngle = Decay(PitchAngle);
+
+	#ifdef DRIFT
+	TxVal((int32)PitchAngle, 0, ';');
+	TxVal((int32)PitchRate, 0, ';');
+
+	TxVal((int32)Temp, 0, ';');
+	TxVal((int32)RollAngle, 0, ';');
+	TxVal((int32)RollRate, 0, ';');
+
+	TxNextLine();
+	#endif
 
 	// Vertical - reinstated
-
 	// "velocity" increases as quadrocopter falls
-	UDVelocity += Up;
+	UDVelocity += Uc;
 
 	Temp = SRS32(SRS32(UDVelocity + 8, 4) * LinUDIntFactor + 128, 8);
 
-	if( (CycleCount & 0x00000003) == 0 )// ?????
+	if( (CycleCount & 0x00000003) == 0 )		// ?????
 	{
 		if( Temp > Vud )
 			Vud++;
@@ -182,53 +177,41 @@ void CompensateGyros(void)
 		Vud = Limit(Vud, -20, 20);
 	}
 	UDVelocity = DecayBand(UDVelocity, -10, 10, 10);
+
 } // CompensateGyros
 
 void DetermineAttitude(void)
 {
 	int16 Temp;
 
-	RollGyroRate = SoftFilter(RollGyroRate, GetRollRate());	
-	PitchGyroRate = SoftFilter(PitchGyroRate, GetPitchRate());
-	YawGyroRate = SoftFilter(YawGyroRate, GetYawRate());
+	RollGyroRate = GyroFilter(RollGyroRate, GetRollRate());	
+	PitchGyroRate = GyroFilter(PitchGyroRate, GetPitchRate());
+	YawGyroRate = GyroFilter(YawGyroRate, GetYawRate());
 
 	#ifdef OPT_ADXRS150
-	RollRate = SRS16(RollGyroRate + 1, 1) - MidRoll;
-	PitchRate =  SRS16(PitchGyroRate + 1, 1) - MidPitch;
-	#else // OPT_IDG and OPT_ADXRS300
-	RollRate = RollGyroRate - MidRoll;
-	PitchRate = PitchGyroRate - MidPitch;
+	// throw away 1 bit of precision ???
+	RollGyroRate = SRS16(RollGyroRate + 1, 1);
+	PitchGyroRate =  SRS16(PitchGyroRate + 1, 1);
 	#endif
 
-	if( FlyCrossMode )								// does this work with compensation ??? 
+	RollRate = RollGyroRate - MidRoll;
+	PitchRate = PitchGyroRate - MidPitch;
+/*
+	if( FlyCrossMode )								// does this work with compensation NO ??? 
 	{
 		// Real Roll = 0.707 * (P + R), Pitch = 0.707 * (P - R)
 		Temp = ((RollRate + PitchRate) * 7 + 5)/10 ;	
 		PitchRate = ((PitchRate - RollRate) * 7 + 5)/10;
 		RollRate = Temp;	
 	}
-
-	// Lots of ad hoc scaling - leave for now ???
-	
+*/	
 	// Roll is + right
-	#ifdef OPT_ADXRS
-	RE = SRS16(RollRate + 2, 2);					// use 8 bit res. for PD control
-	RollRate = SRS16(RollRate + 1, 1);				// use 9 bit res. for I control
-	#else // OPT_IDG
-	RE=SRS16(RollRate + 1, 1);
-	#endif // OPT_ADXRS
-
-	RollAngle += (int32)RollRate;
-	RollAngle = Limit(RollAngle, -(RollIntLimit*256), RollIntLimit*256);							
+	RE=SRS16(RollRate + 1, 1);						// use 9 bit res. for PD control
+	RollAngle += (int32)RollRate;					// use 10 bit res. for I control							
+	RollAngle = Limit(RollAngle, -(RollIntLimit*256), RollIntLimit*256);
 
 	// Pitch is + up
-	#ifdef OPT_ADXRS
-	PE = SRS16(PitchRate + 2, 2);
-	PitchRate = SRS16(PitchRate + 1, 1);
-	#else // OPT_IDG
 	PE = SRS16(PitchRate + 1, 1);
-	#endif // OPT_ADXRS
-
 	PitchAngle += (int32)PitchRate;
 	PitchAngle = Limit(PitchAngle, -(PitchIntLimit*256), PitchIntLimit*256);
  

@@ -70,7 +70,7 @@ void PID(void)
 	Yl  = SRS32(YE*(int32) YawPropFactor+(YEp-YE)*(int32) YawDiffFactor + 8, 4);
 	Yl += SRS32(YawAngle*(int32) YawIntFactor + 128, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);
-
+Yl=0;
 	DoIntTestLEDS();
 
 	REp = RE;						// remember old gyro values

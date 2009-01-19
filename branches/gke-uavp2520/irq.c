@@ -179,7 +179,7 @@ void high_isr_handler(void)
 					}
 					NewYaw = Lower8(NewK4) - _Neutral;
 
-					IThrottle = MediumFilter(OldThrottle, NewThrottle);
+					IThrottle = StickFilter(OldThrottle, NewThrottle);
 					OldThrottle = IThrottle; 
 					
 					if( DoubleRate )
@@ -188,9 +188,9 @@ void high_isr_handler(void)
 						NewPitch >>= 1;
 					}
 					
-					IRoll = MediumFilter(IRoll, NewRoll); 
-					IPitch = MediumFilter(IPitch, NewPitch);
-					IYaw = MediumFilter(IYaw, NewYaw);
+					IRoll = StickFilter(IRoll, NewRoll); 
+					IPitch = StickFilter(IPitch, NewPitch);
+					IYaw = StickFilter(IYaw, NewYaw);
 	
 					IK5 = Lower8(NewK5);
 					IK6 = - _Neutral;
@@ -250,7 +250,7 @@ void high_isr_handler(void)
 					IK7 = Lower8(NewK2);
 				}
 
-				IThrottle = MediumFilter(OldThrottle, NewThrottle);
+				IThrottle = StickFilter(OldThrottle, NewThrottle);
 				OldThrottle = IThrottle;
 
 				if( DoubleRate )
@@ -258,9 +258,9 @@ void high_isr_handler(void)
 					NewRoll >>= 1;
 					NewPitch >>= 1;
 				}
-				IRoll = MediumFilter(IRoll, NewRoll); 
-				IPitch = MediumFilter(IPitch, NewPitch);
-				IYaw = MediumFilter(IYaw, NewYaw);		
+				IRoll = StickFilter(IRoll, NewRoll); 
+				IPitch = StickFilter(IPitch, NewPitch);
+				IYaw = StickFilter(IYaw, NewYaw);		
 
 				_Signal = true;
 				_NewValues = true;

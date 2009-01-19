@@ -90,8 +90,11 @@ void MixAndLimitMotors(void)
 	else
 		Th = _Minimum;
 
+	Rl = SRS16(Rl, 1);						// PID output scale
+	Pl = SRS16(Pl, 1);
+
 #ifdef TRICOPTER
-	Mf = Th + Pl;	// front motor
+	Mf = Th + Pl;							// front motor
 	Ml = Th + Rl;
 	Mr = Th - Rl;
 	Rl >>= 1;
@@ -135,13 +138,13 @@ void MixAndLimitMotors(void)
 	Ml += Yl;
 	Mr += Yl;
 
-	// Altitude stabilization from vertical accelerometer
+	// Altitude stabilisation from vertical accelerometer
 	Mf += Vud;
 	Mb += Vud;
 	Ml += Vud;
 	Mr += Vud;
 
-	// Altitude stabilization from barometer/altimeter
+	// Altitude stabilisation from barometer/altimeter
 	Mf += VBaroComp;
 	Mb += VBaroComp;
 	Ml += VBaroComp;
