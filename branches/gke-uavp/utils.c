@@ -211,9 +211,17 @@ SendComChar(0x0a);
 
 #ifdef ESC_PPM
 
+
+// GKE: the 64uS below most likely applies to the Timer0 interrupt. The original version 
+// of irq.c has a much longer path through the receiving of bit5 exacerbated by
+// the stick filter code. This caused the edge of the 1mS preamble to be peridocally 
+// missed and for this routine to emit preambles greater than 1mS. No timings for the
+// new interrupt path lengths has been done. Ad hoc increase to 32 ticks.
+
 // simply wait for nearly 1 ms
 // irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( TMR0 < 0x100-3-16 ) ;
+
+	while( TMR0 < 0x100-32 ) ;
 
 	// now stop CCP1 interrupt
 	// capture can survive 1ms without service!
@@ -348,7 +356,7 @@ OS006
 #endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
 #ifndef DEBUG_MOTORS
-	while( TMR0 < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
+	while( TMR0 < 0x100-32 ) ; // wait for 2nd TMR0 near overflow
 
 	GIE = 0;					// Int wieder sperren, wegen Jitter
 
