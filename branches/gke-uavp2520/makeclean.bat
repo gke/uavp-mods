@@ -3,7 +3,7 @@ rem ---------------------------------------------
 rem Delete all working files but not hex files
 rem ---------------------------------------------
 
-set CSRC=accel adc c-ufo irq compass_altimeter  pid prog serial utils i2c spi gyros outputs
+set CSRC=accel adc c-ufo irq compass_altimeter serial utils i2c spi control autonomous outputs
 set ASRC=bootl18f2520
 
 rem compiler working files...

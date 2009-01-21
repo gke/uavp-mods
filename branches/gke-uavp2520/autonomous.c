@@ -20,61 +20,42 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-// PID compensation
+// Autonomous flight routines
 
 #include "c-ufo.h"
 #include "bits.h"
 
-void DoIntTestLEDS(void)
+void CheckThrottleMoved(void)
 {
-	if( IntegralTest )
-	{
-		ALL_LEDS_OFF;
-		if( RollAngle > 255 )
-			LedRed_ON;
-		else
-			if( RollAngle < -256 )
-				LedGreen_ON;
-		if( PitchAngle >  255 )
-			LedYellow_ON;
-        else
-			if( PitchAngle < -256 )
-				LedBlue_ON;
-	}
-} // DoLEDS
+    _ThrChanging = (IThrottle > (PrevIThrottle - 5)) && (IThrottle < (PrevIThrottle + 5) );
+	PrevIThrottle = IThrottle;
+} // CheckThrottleMoved
 
-void PID(void)
+uint8 Descend(uint8 T)
 {
-	// General Form of PID controller
-	// xE = current error
-	// xEP = previous error
-	// xAngle = sum of all errors since restart!
-	// xl = current correction value
-	// Kz = programmable controller factors
+	// need to use accelerometer or baro based descent control
+//	if (((ClockMilliSec & 0x000000ff) == 0 ) && ( T > 0 ))
+	if ( T > 0 )
+		T -= 1;
+	return(T);
+} // Descend
 
-	//       xE*Kp + xEP*Kd     Angle(xAngle)*Ki
-	// xl =  --------------  +  ------------
-	//             16                256
+void Navigation(void)
+{
 
-	// Roll
-	Rl  = SRS32(RE*(int32) RollPropFactor+(REp-RE)*(int32) RollDiffFactor + 8, 4);	// P & D
-	Rl += SRS32(RollAngle * (int32) RollIntFactor + 128, 8);						// I	
-	Rl -= IRoll;
 
-	// Pitch
-	Pl  = SRS32(PE*(int32) PitchPropFactor+(PEp-PE)*(int32) PitchDiffFactor + 8, 4);
-	Pl += SRS32(PitchAngle * (int32) PitchIntFactor + 128, 8);
-	Pl -= IPitch;
 
-	// Yaw
-	Yl  = SRS32(YE*(int32) YawPropFactor+(YEp-YE)*(int32) YawDiffFactor + 8, 4);
-	Yl += SRS32(YawAngle*(int32) YawIntFactor + 128, 8);
-	Yl = Limit(Yl, -YawLimit, YawLimit);
-Yl=0;
-	DoIntTestLEDS();
 
-	REp = RE;						// remember old gyro values
-	PEp = PE;
-	YEp = YE;
-} // PID
+} // Navigation
 
+void DoAutonomous(void)
+{
+
+
+
+
+
+
+
+
+} // DoAutonomous

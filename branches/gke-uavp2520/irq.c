@@ -153,14 +153,7 @@ void high_isr_handler(void)
 
 				// sanity check - NewKx has values in 4us units now. 
 				// content must be 256..511 (1024-2047us)
-/*				if( (Upper8(NewK1) == 1) &&
-				    (Upper8(NewK2) == 1) &&
-				    (Upper8(NewK3) == 1) &&
-				    (Upper8(NewK4) == 1) &&
-				    (Upper8(NewK5) == 1) )
-				{
-*/
-				if( ( NewK1 & NewK2 & NewK3 & NewK4 & NewK5) == 0x0100 )
+				if( ( NewK1 & NewK2 & NewK3 & NewK4 & NewK5 & 0x0100 ) == 0x0100 )
 				{
 #ifndef RX_DSM2									
 					if( FutabaMode ) 	// Ch3 set for Throttle on UAPSet

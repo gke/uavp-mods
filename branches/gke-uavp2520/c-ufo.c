@@ -156,12 +156,6 @@ uint8 RCLinkRestored(int32 d)
 	return(ClockMilliSec > TimerMilliSec );
 } // RCLinkRestored
 
-void CheckThrottleMoved(void)
-{
-    _ThrChanging = (IThrottle > (PrevIThrottle - 5)) && (IThrottle < (PrevIThrottle + 5) );
-	PrevIThrottle = IThrottle;
-} // CheckThrottleMoved
-
 void CheckThrottleClosed(void)
 {
 	if ( _Signal & _NewValues )
@@ -183,42 +177,6 @@ void ResetTimeOuts(void)
 	ThrottleClosedMilliSec = ClockMilliSec + THROTTLE_TIMEOUT;
 } // ResetTimeOuts
 
-uint8 Descend(uint8 T)
-{
-	// need to use accelerometer or baro based descent control
-//	if (((ClockMilliSec & 0x000000ff) == 0 ) && ( T > 0 ))
-	if ( T > 0 )
-		T -= 1;
-	return(T);
-} // Descend
-
-void InitAttitude(void)
-{
-	// DON'T MOVE THE UFO!
-	// ES KANN LOSGEHEN!
-	LedRed_ON;
-	Delay100mSec(100);							// ~10Sec. to get hands away after power up
-	Beeper_ON;
-	InitDirection();		
-	InitAltimeter();
-	InitAccelerometers();
-	InitGyros();
-	Beeper_OFF;					
-	LedRed_OFF;
-} // InitInertial
-
-void DoControl()
-{
-	if( _NewValues )
-		CheckThrottleMoved();
-
-	GetDirection();
-	GetAltitude();				
-	DetermineAttitude();
-
-	PID();
-
-} // DoControl
 
 void main(void)
 {
