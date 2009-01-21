@@ -89,7 +89,7 @@
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-#define DEBUG_SENSORS
+//#define DEBUG_SENSORS
 
 // Switched Roll and Pitch channels for Conrad mc800 transmitter
 //#define EXCHROLLNICK
@@ -155,10 +155,11 @@ typedef uint8 boolean;
   #define MediumFilter(O,N) 	(SRS16(O*3+N+2, 2))
   #define HardFilter(O,N) 		(SRS16(O*7+N+4, 3))
 #endif
+  #define NoFilter(O,N)		(N)
 
 #define GyroFilter SoftFilter
 #define AccelerometerFilter SoftFilter
-#define	StickFilter SoftFilter
+#define	StickFilter NoFilter
 
 #define _ClkOut		(160/4)								// 16.0 MHz quartz
 #define _PreScale0	16									// 1:16 TMR0 prescaler
@@ -251,10 +252,14 @@ typedef uint8 boolean;
 #define DEBUG
 #endif
 
-#define MAXDROPOUT	200	/* max 200x 20ms = 4sec. dropout allowable */
+// MilliSec
+#define THROTTLE_TIMEOUT		2000
+		
+#define FAILSAFE_TIMEOUT		1500
+#define FAILSAFE_CANCEL			1000
 
-// Counter for flashing Low-Power LEDs
-#define BLINK_LIMIT 100	// should be a number divisable by 4!
+#define AUTONOMOUS_TIMEOUT		5000
+#define AUTONOMOUS_CANCEL		10000
 
 // Parameters for UART port
 #define _B9600		(_ClkOut*100000/(4*9600) - 1)
@@ -337,16 +342,22 @@ typedef uint8 boolean;
 extern	uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME;			
 
 // Globals 									
+enum 	States {Initialising, Landed, Flying, Failsafe, Autonomous};
+extern	uint8	State;
 extern	int32	ClockMilliSec, TimerMilliSec;
-extern	int32	RCTimeOutMilliSec, ThrottleClosedMilliSec;
+extern	int32	FailsafeTimeoutMilliSec, AutonomousTimeoutMilliSec, ThrottleClosedMilliSec;
+
 extern	int32	CycleCount;
 extern	int8	TimeSlot;
 
 // RC
 extern	uint8	IThrottle;
-extern	int16 	IRoll,IPitch,IYaw;
+extern	uint8 	PrevIThrottle;							// most recent past IThrottle					
+extern	uint8	DesiredThrottle;						// actual throttle
+extern	int16 	IRoll, IPitch, IYaw;
 extern	uint8	IK5, IK6, IK7;
-extern	int16	MidRoll, MidPitch, MidYaw;				// mid RC stick values
+extern	int32	BadRCFrames;
+extern	uint8	GoodRCFrames;
 
 // Gyros
 extern	int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
@@ -489,11 +500,13 @@ extern	uint8 StartBaroADC(uint8);
 extern  void PID(void);
 extern	void InitInertial(void);
 extern	void DoControl(void);
+extern	uint8 Descend(uint8);
 extern	void MixAndLimitMotors(void);
 extern	void MixAndLimitCam(void);
 extern	void Delay100mSec(uint8);
 
 extern	void GetBatteryVolts(void);
+extern uint8 RCLinkRestored(int32);
 extern	void CheckAlarms(void);
 
 extern	void SendLeds(void);

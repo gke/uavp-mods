@@ -34,16 +34,21 @@ uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 #pragma udata
 
 #pragma udata globals
-// Globals 									
+// Globals 
+uint8	State;									
 int32	ClockMilliSec, TimerMilliSec;
-int32	RCTimeOutMilliSec, ThrottleClosedMilliSec;
+int32	FailsafeTimeoutMilliSec, AutonomousTimeoutMilliSec, ThrottleClosedMilliSec;
 int32	CycleCount;
 int8	TimeSlot;
 
 // RC
 uint8	IThrottle;
-int16 	IRoll,IPitch,IYaw;
+uint8 	PrevIThrottle;							// most recent past IThrottle					
+uint8	DesiredThrottle;						// actual throttle
+int16 	IRoll, IPitch, IYaw;
 uint8	IK5,IK6,IK7;
+int32	BadRCFrames;
+uint8	GoodRCFrames;
 
 // Gyros
 int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
@@ -60,7 +65,6 @@ int16	NeutralLR, NeutralFB, NeutralUD;		// LISL scaled neutral values
 int32	Rl,Pl,Yl;								// PID output values
 int16	RE, PE, YE;								// PID error
 int16	REp, PEp, YEp;							// PID previous error
-int16	RollFailsafe, PitchFailsafe, YawFailsafe;
 			
 // Altitude
 uint16	BasePressure, BaseTemp, TempCorr;
@@ -80,11 +84,9 @@ uint8	MCamRoll,MCamPitch;
 // Misc
 uint8	Flags[8];
 uint8	Flags2[8];
-										
-uint8	CurrThrottle;
 
 uint8	LedShadow;								// shadow register
-int16	BatteryVolts; 
+int16	BatteryVolts; 	
 #pragma udata
 
 #pragma idata params
@@ -105,7 +107,7 @@ int8	YawDiffFactor		=6;
 int8	YawLimit			=50;
 int8	YawIntLimit			=6;
 int8	ConfigParam			=0b00000000;
-int8	NoOfTimeSlots		=4;
+int8	NoOfTimeSlots		=11;
 int8	LowVoltThres		=43;
 int8	LinLRIntFactor		=0;
 int8	LinFBIntFactor		=0;
@@ -124,34 +126,40 @@ void InitMisc(void)
 {
 	uint8 i;
 
-	for (i=8; i ; i--)
-		Flags[i] = Flags2[i] = false;
-	
 	LedShadow = 0;
     ALL_LEDS_OFF;
 
+	for (i=8; i ; i--)
+		Flags[i] = Flags2[i] = false;
+
+	State = Initialising;
+
 	// RC
-	_Flying = false;
-	IThrottle = IK5 = _Minimum;	
-	CurrThrottle = 0xFF;
-	IRoll = IPitch = IYaw = IK5 = IK6 = IK7 = 0;
+	State = Initialising;
+	IThrottle =	PrevIThrottle = DesiredThrottle = IK5 =	IRoll = IPitch = IYaw = 0;	
+	IK6 = IK7 = _Neutral;
+	BadRCFrames = 0;
 
 	// Drives
 	_MotorsEnabled = false;
-	Rl = Pl = Yl = VBaroComp = Vud = 0;
-	MFront = _Minimum;	
-	MLeft = _Minimum;
-	MRight = _Minimum;
-	MBack = _Minimum;
-
+	Rl = Pl = Yl = VBaroComp = Vud = UDVelocity = 0;
+	MFront = MLeft = MRight = MBack = _Minimum;
 	MCamRoll = MCamPitch = _Neutral;
 					
 } // InitMisc
 
+uint8 RCLinkRestored(int32 d)
+{
+	// checks for good RC frames for a period d mS
+	if ( !_Signal )
+		TimerMilliSec = ClockMilliSec + d;
+	return(ClockMilliSec > TimerMilliSec );
+} // RCLinkRestored
+
 void CheckThrottleMoved(void)
 {
-    _ThrChanging = (IThrottle > (CurrThrottle - 5)) && (IThrottle < (CurrThrottle + 5) );
-	CurrThrottle = IThrottle;
+    _ThrChanging = (IThrottle > (PrevIThrottle - 5)) && (IThrottle < (PrevIThrottle + 5) );
+	PrevIThrottle = IThrottle;
 } // CheckThrottleMoved
 
 void CheckThrottleClosed(void)
@@ -170,16 +178,26 @@ void CheckThrottleClosed(void)
 
 void ResetTimeOuts(void)
 {
-	RCTimeOutMilliSec = ClockMilliSec + 1500; 
-//	ThrottleClosedMilliSec = 444444;
+	FailsafeTimeoutMilliSec = ClockMilliSec + FAILSAFE_TIMEOUT;
+	AutonomousTimeoutMilliSec = ClockMilliSec + AUTONOMOUS_TIMEOUT;
+	ThrottleClosedMilliSec = ClockMilliSec + THROTTLE_TIMEOUT;
 } // ResetTimeOuts
+
+uint8 Descend(uint8 T)
+{
+	// need to use accelerometer or baro based descent control
+//	if (((ClockMilliSec & 0x000000ff) == 0 ) && ( T > 0 ))
+	if ( T > 0 )
+		T -= 1;
+	return(T);
+} // Descend
 
 void InitAttitude(void)
 {
 	// DON'T MOVE THE UFO!
 	// ES KANN LOSGEHEN!
 	LedRed_ON;
-//	Delay100mSec(100);							// ~10Sec. to get hands away after power up
+	Delay100mSec(100);							// ~10Sec. to get hands away after power up
 	Beeper_ON;
 	InitDirection();		
 	InitAltimeter();
@@ -206,8 +224,7 @@ void main(void)
 {
 	uint8 i;
 
-	DisableInterrupts;							// disable all interrupts
-
+	DisableInterrupts;
 	InitMisc();
 	InitPorts();
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
@@ -215,9 +232,9 @@ void main(void)
 	InitADC();
 						
 #ifdef COMMISSIONING
-	for (i=_EESet2*2; i ; i--)						// clear EEPROM parameter space
+	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
 		WriteEE(i, -1);
-	WriteParametersEE(1);							// copy RAM initial values to EE
+	WriteParametersEE(1);						// copy RAM initial values to EE
 	WriteParametersEE(2);
 #endif
 	ReadParametersEE();
@@ -234,64 +251,88 @@ void main(void)
 			LedYellow_ON;
 		
 		ProcessCommand();
-		
-		CheckThrottleClosed();
-
-		TimeSlot = Limit(NoOfTimeSlots, 10, 22);	// 6 is possible
+//IThrottle = 0;		
+		CheckThrottleClosed();					// sets _Armed
+//IThrottle = 75;
+		TimeSlot = Limit(NoOfTimeSlots, 22, 22);// 6 is possible
+		ResetTimeOuts();
+		State = Landed;
 
 		while( _Armed && Switch )
 		{
-			while( TimeSlot > 0 ) { };				// user routine here if desired	
-			TimeSlot = Limit(NoOfTimeSlots, 6, 22);
+			while( TimeSlot > 0 ) { };			// user routine here if desired	
+			TimeSlot = Limit(NoOfTimeSlots, 22, 22);
 			CycleCount++;
-			
-			// housekeeping which must finish before TimeSlot = 0
-			if ( _Flying )
-			{
 			DoControl();
 			OutSignals();
 			DoDebugTraces();
+			
+			// housekeeping which must finish before TimeSlot = 0
+			if ( State == Flying )
+			{
 				if ( _Signal )
 				{
 					ResetTimeOuts();	
 					ReadParametersEE();
+					DesiredThrottle = IThrottle;
 				}
 				else
-				{
-					ALL_LEDS_OFF;
-					if ( ClockMilliSec > RCTimeOutMilliSec )
-					{
-						 // stop high-power runaways
-						IThrottle = Limit(IThrottle, IThrottle, THR_HOVER);
-						IRoll = RollFailsafe;
-						IPitch = PitchFailsafe;
-						IYaw = YawFailsafe;
-					}
-				}
+					if ( ClockMilliSec > FailsafeTimeoutMilliSec )
+						{
+							TimerMilliSec = ClockMilliSec + FAILSAFE_CANCEL;
+							State = Failsafe;
+						}
 			}
 			else
+			if ( State == Failsafe )
+			{
+ 				// stop high-power runaways
+				DesiredThrottle = Limit(DesiredThrottle, 0, THR_HOVER);
+				if (ClockMilliSec > AutonomousTimeoutMilliSec )
+				{
+					TimerMilliSec = ClockMilliSec + AUTONOMOUS_CANCEL;
+					State = Autonomous;
+				}
+				else
+				 if ( RCLinkRestored(FAILSAFE_CANCEL) )
+					State = Flying;
+			}
+			else
+			if ( State == Autonomous )
+			{
+				// No GPS so no station holding or return home yet.
+				DesiredThrottle = Descend(DesiredThrottle);
+				IRoll = IPitch = IYaw = 0;
+				if ( RCLinkRestored(AUTONOMOUS_CANCEL) )
+					State = Flying;
+			}
+			else
+			if ( State == Landed )
+			{
 				if ( _Signal )
 				{
 					ALL_LEDS_OFF;
 					LedGreen_ON;
 					ResetTimeOuts();
 					ReadParametersEE();
+					DesiredThrottle = IThrottle;
 					
-					if ( IThrottle > _ThresStart )
+					if ( DesiredThrottle > _ThresStart )
 					{
-						_Flying = true;
+						ALL_LEDS_OFF;
 						_MotorsEnabled = true;
 						AbsDirection = COMPASS_INVAL;
+						State = Flying;
 					}
 				}
 				else
 				{
 					// do nothing - Red Led should be flashing
-					ALL_LEDS_OFF;
-				}		
+					DesiredThrottle = IRoll = IPitch = IYaw = 0;
+				}
+			} // States
+		
 			CheckAlarms();
-
-
 		} // while arming switch is on
 	}
 	// CPU should never arrive here

@@ -20,7 +20,8 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-// Utilities and subroutines
+// Motor control routine
+// WARNING THESE ROUTINES USE CLOCK AND PIC SPECIFIC DEAD TIMING
 
 #include "c-ufo.h"
 #include "bits.h"
@@ -47,51 +48,18 @@ uint8 Saturate(int32 l)
 	return(Limit(l,Max(_Minimum, MotorLowRun),_Maximum));
 } // SaturateInt8
  
-int16 ThrottleCurve(int16 G)
-{
-#ifdef ABANDONED_USE_THROTTLECURVE
-	// Lookup table based throttle curve low gain at hover
-	// Working but ABANDONED - use Tx based throttle curve shaping
-
-	static const uint8 ThrottleTable[16]={
-	0, 16, 32,
-	36, 40, 44, 48, 52,56, 60, 64, 80, 
-	96, 112, 128, 144
-	};
-	uint8 Index, Low, High, Offset;
-	int16 Temp;
-
-	if( _NewValues )
-	{
-		if (G > 127) G=127;
-		Index = G>>3;
-		Offset = G&0x07;
-		Low = ThrottleTable[Index];
-		High = ThrottleTable[++Index];
-		Temp = (High-Low)*Offset;
-		Temp >>= 3;
-		G = Low + Temp; 
-	}	
-#endif	// USE_THROTTLECURVE
- 
-	return(G);
-}  // ThrottleCurve
 
 // mix the PID-results (Rl, Pl and Yl) and the throttle
 // on the motors and check for numerical overrun
 void MixAndLimitMotors(void)
 {
-	uint8 Th;							// Local variable to protect during interrupts
+	uint8 Th;								
 	int16 Temp;
-	int32 Ml, Mr, Mf, Mb;					// excessive range but safer for now		
+	int32 Ml, Mr, Mf, Mb;					// excessive range ???		
 
-	if ( _MotorsEnabled )
-		Th = ThrottleCurve(IThrottle); 		// Th snapshots IThrottle which may change in irq.c
-	else
-		Th = _Minimum;
-
-	Rl = SRS16(Rl, 1);						// PID output scale
-	Pl = SRS16(Pl, 1);
+	Th = DesiredThrottle;
+//	Rl = SRS16(Rl, 1);						// PID output scale
+//	Pl = SRS16(Pl, 1);
 
 #ifdef TRICOPTER
 	Mf = Th + Pl;							// front motor
@@ -186,11 +154,17 @@ void MixAndLimitMotors(void)
 	}
 #endif // TRICOPTER
 
-	// limit to motor_idle.._Maximum
-	MFront = Saturate(Mf);
-	MLeft = Saturate(Ml);
-	MRight = Saturate(Mr);
-	MBack = Saturate(Mb);
+
+	if ( DesiredThrottle > _ThresStart )
+	{
+		// limit to motor_idle.._Maximum
+		MFront = Saturate(Mf);
+		MLeft = Saturate(Ml);
+		MRight = Saturate(Mr);
+		MBack = Saturate(Mb);
+	}
+	else
+		MFront = MBack = MRight = MLeft = _Minimum;	
 
 } // MixAndLimitMotors
 
@@ -216,7 +190,7 @@ void MixAndLimitCam(void)
 	else
 		Rp += IK7;
 		
-	Pp += IK6;								// only Pitch servo is controlled by channel 6
+	Pp += IK6;						// only Pitch servo is controlled by channel 6
 
 	MCamRoll = Limit(Rp, _Minimum , _Maximum);
 	MCamPitch = Limit(Pp, _Minimum , _Maximum);
@@ -228,25 +202,10 @@ void OutSignals(void)
 	// for positive PID coeffs MF/MB anticlockwise, ML/MR clockwise
 	int32 NowMilliSec;
 
-	#ifdef ESC_PPM
-	DisableInterrupts;
-	while( INTCONbits.T0IF == 0 ) ;			// wait for overflow
-	INTCONbits.T0IF=0;						// quit TMR0 interrupt
-	EnableInterrupts;
-
-_asm
-	MOVLB	0								// select Bank0
-	MOVLW	0x3F							// turn on camera servos
-	MOVWF	PORTB,0							// setup PORTB shadow
-	MOVWF	SHADOWB,1
-_endasm
-	#endif // RX_PPM
-
-	// do mixing etc within the 1mS of the pulse preamble
 	MixAndLimitMotors();
 
-	if ( _MotorsEnabled )
-	{
+	if  ( _MotorsEnabled )					// kill motors
+		{
 		MF = MFront;
 		MB = MBack;
 		ML = MLeft;
@@ -267,9 +226,27 @@ _endasm
 #ifndef DEBUG
 
 #ifdef ESC_PPM
-	// wait for balance of 1 mS
-	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( ReadTimer0() <  0x100-3-16 ) ;	// ??? need to understand this
+
+	// this will introduce arrors in ClockilliSec but unavoidable for now
+	WriteTimer0(0);							
+	INTCONbits.T0IF=0;
+
+	_asm
+	MOVLB	0								// select Bank0
+	MOVLW	0x0F							// turn on motors
+	MOVWF	PORTB,0							// setup PORTB shadow
+	MOVWF	SHADOWB,1
+	_endasm	
+
+	// wait for most of the balance of 1 mS leaving time for the longest
+	// interrupt service time. 
+	// 16MHz 18F2520
+	// 	91uS 	Timer0
+	//  280uS 	Rx Bit 5 Filtered + Timer0
+	//	200uS 	Rx Bit 5 Unfiltered
+	#define LONGEST_INT		400 
+
+	while( ReadTimer0() <  0x100 - (LONGEST_INT/4) ) ;
 
 	// now stop CCP1 interrupt - capture can survive 1ms without service!
 	// To be strictly correct it must be less than the minimum valid
@@ -278,7 +255,18 @@ _endasm
 	DisableInterrupts;
 	while( INTCONbits.T0IF == 0 ) ;			// wait for first overflow
 	INTCONbits.T0IF=0;						// quit TMR0 interrupt
-	
+/*
+	if ( _OutToggle )						// camera every second pulse
+	{
+	_asm
+	MOVLB	0								// select Bank0
+	MOVLW	0x3F							// turn on camera servos
+	MOVWF	PORTB,0							// setup PORTB shadow
+	MOVWF	SHADOWB,1
+	_endasm
+	}
+	_OutToggle ^= 1;
+*/	
 // This loop should be exactly 16 cycles long
 // under no circumstances should the loop cycle time be changed
 _asm
@@ -296,7 +284,7 @@ OS007:
 	DECFSZ	ML,1,1							// left motor
 	GOTO	OS008
 
-	BCF		SHADOWB,PulseLeft,1			// stop Left pulse
+	BCF		SHADOWB,PulseLeft,1				// stop Left pulse
 OS008:
 	DECFSZ	MR,1,1							// right motor
 	GOTO	OS009
@@ -306,7 +294,7 @@ OS009:
 	DECFSZ	MB,1,1							// rear motor
 	GOTO	OS005
 	
-	BCF		SHADOWB,PulseBack,1			// stop Back pulse
+	BCF		SHADOWB,PulseBack,1				// stop Back pulse
 	GOTO	OS005
 OS006:
 
@@ -322,12 +310,8 @@ _endasm
 	//	}
 
 	EnableInterrupts;
-    
-    // Allow interupts to breath - may cause some jitter on camera servos
 
-	// simply wait for balance of 1 ms
-	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( ReadTimer0() <  0x100-3-16 ) ;
+	while( ReadTimer0() <  0x100 - (LONGEST_INT/4) ) ;
 
 	DisableInterrupts;
 	while( INTCONbits.T0IF == 0 ) ;			// wait for first overflow
@@ -370,17 +354,21 @@ _endasm
 
 #if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 
-	DisableInterrupts;
-	while( INTCONbits.T0IF == 0 ) ;			// wait for overflow
-	INTCONbits.T0IF=0;						// quit TMR0 interrupt
-	EnableInterrupts();
-_asm
+	// this will introduce arrors in ClockilliSec but
+	// unavoidable for now
+	WriteTimer0(0);							
+	INTCONbits.T0IF=0;
+
+	if ( _OutToggle )						// camera every second pulse
+	{
+	_asm
 	MOVLB	0								// select Bank0
-//	MOVF	CAMTOGGLE,0,1
-	MOVLW	0x30							// turn on camera servos
+	MOVLW	0x3F							// turn on camera servos
 	MOVWF	PORTB,0							// setup PORTB shadow
 	MOVWF	SHADOWB,1
-_endasm
+	_endasm
+	}
+	_OutToggle ^= 1;
 	
 // in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
 #ifdef ESC_X3D
@@ -437,13 +425,11 @@ _endasm
 	EscI2CStop();
 #endif	// ESC_YGEI2C
 
-	// simply wait for balance of 1 ms
-	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( ReadTimer0() < 0x100-3-16 ) ;
+	while( ReadTimer0() <  0x100 - (LONGEST_INT/4) ) ;
 
 	DisableInterrupts;
-	while( INTCONbits.T0IF == 0 ) ;			// wait for first overflow
-	INTCONbits.T0IF=0;						// quit TMR0 interrupt					
+	while( INTCONbits.T0IF == 0 ) ;
+	INTCONbits.T0IF=0;									
 
 // This loop should be exactly 16 cycles long
 // under no circumstances should the loop cycle time be changed
@@ -476,7 +462,7 @@ _asm
 OS002:
 _endasm
 
-	EnableInterrupts; 					// re-enable interrupts
+	EnableInterrupts; 						// re-enable interrupts
 
 #endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 #endif	// !DEBUG

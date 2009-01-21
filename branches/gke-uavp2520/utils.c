@@ -127,7 +127,7 @@ void CheckAlarms(void)
 	uint8 AlarmOn;
 
 	GetBatteryVolts();
-	AlarmOn = _LowBatt || _LostModel || !_Signal;
+	AlarmOn = _LowBatt || (!_Signal) || (State == Failsafe);
 
 	if ( AlarmOn )
 	{
@@ -185,8 +185,6 @@ void ReadParametersEE(void)
 	int8 *p; 
 	uint16 addr;
 
-	LedBlue_ON;
-
 	if( IK5 > _Neutral )
 		addr = _EESet2;	
 	else
@@ -194,8 +192,6 @@ void ReadParametersEE(void)
 	
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
-
-	LedBlue_OFF;
 
 } // ReadParametersEE
 
@@ -233,7 +229,7 @@ void DoDebugTraces()
 	12 YawSum Yaw angle
 	*/
 	#ifndef DRIFT
-	if(  _Flying )
+	if(  (State != Landed) && (State != Initialising) )
 	{
 #ifdef READABLE
 		TxVal((int32)ClockMilliSec, 3, ';');
@@ -274,6 +270,8 @@ void DoDebugTraces()
 		TxVal((int32)MBack, 0, ';');
 		TxVal((int32)MLeft, 0, ';');
 		TxVal((int32)MRight, 0, ';');
+
+		TxVal((int32)State, 3, ';');
 #else
 		TxValH(AbsDirection);
 		TxChar(';');

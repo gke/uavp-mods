@@ -161,7 +161,7 @@ void CompensateGyros(void)
 	TxNextLine();
 	#endif
 
-	// Vertical - reinstated
+	/*
 	// "velocity" increases as quadrocopter falls
 	UDVelocity += Uc;
 
@@ -177,6 +177,7 @@ void CompensateGyros(void)
 		Vud = Limit(Vud, -20, 20);
 	}
 	UDVelocity = DecayBand(UDVelocity, -10, 10, 10);
+	*/
 
 } // CompensateGyros
 

@@ -153,11 +153,14 @@ void high_isr_handler(void)
 
 				// sanity check - NewKx has values in 4us units now. 
 				// content must be 256..511 (1024-2047us)
-				if( (Upper8(NewK1) == 1) &&
+/*				if( (Upper8(NewK1) == 1) &&
 				    (Upper8(NewK2) == 1) &&
 				    (Upper8(NewK3) == 1) &&
 				    (Upper8(NewK4) == 1) &&
 				    (Upper8(NewK5) == 1) )
+				{
+*/
+				if( ( NewK1 & NewK2 & NewK3 & NewK4 & NewK5) == 0x0100 )
 				{
 #ifndef RX_DSM2									
 					if( FutabaMode ) 	// Ch3 set for Throttle on UAPSet
@@ -195,7 +198,7 @@ void high_isr_handler(void)
 					IK5 = Lower8(NewK5);
 					IK6 = - _Neutral;
 					IK7 = - _Neutral;
-
+				
 					_Signal = true;
 					_NewValues = true; 	// potentially IK6 & IK7 are still about to change ???
 #endif // !RX_DSM2
@@ -272,6 +275,7 @@ void high_isr_handler(void)
 			else
 			{
 ErrorRestart:
+				BadRCFrames++;
 				_NewValues = false;
 				_Signal = false;		// Signal lost
 				RecFlags = -1;
