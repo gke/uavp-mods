@@ -24,7 +24,7 @@ rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
 set VERSION=3_15m3
 
 rem Add/Delete required combinations to these sets
-set BOARDS= 3_0 3_1
+set BOARDS= 3_1
 set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESCS=ESC_PPM ESC_HOLGER
 set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 

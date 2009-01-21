@@ -24,8 +24,15 @@
 // ==============================================
 
 // Interrupt routine
-// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
+// Major changes to irq.c including removal of redundant source by Prof. Greg Egan - 
 // use at your own risk - see GPL.
+
+// The 64uS assumed for the maximum interrupt latency in the generation of the 
+// output pulse preamble in utils.c  most likely applies to the Timer0 interrupt. 
+// The original version of irq.c had a much longer path through the receiving of bit5 
+// exacerbated by the stick filter code. This caused the edge of the 1mS preamble to 
+// be peridocally missed and for OutSignals to emit preambles greater than 1mS. 
+// No timings for the new interrupt path lengths has been done. GKE
 
 #include "c-ufo.h"
 #include "bits.h"
@@ -38,11 +45,10 @@
 
 bank1 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 
-uns8	RecFlags;
+uns8	RCState;
 
 #pragma interruptSaveCheck w
 
-#define USE_FILTERS
 
 interrupt irq(void)
 {
@@ -66,7 +72,7 @@ uns16 	CCPR1 @0x15;
 		_FirstTimeout = 1;
 		PR2 = TMR2_14MS;			// set compare reg to 14ms
 #endif
-		RecFlags = 0;
+		RCState = 0;
 	}
 	if( CCP1IF )
 	{
@@ -84,144 +90,113 @@ uns16 	CCPR1 @0x15;
 		if( NegativePPM ^ CCP1M0  )		// a negative edge
 		{
 #endif
-			// could be replaced by a switch ???
-
-			if( RecFlags == 0 )
+			if( RCState == 0 )
 			{
 				NewK1 = CCPR1;
 			}
 			else
-			if( RecFlags == 2 )
+			if( RCState == 2 )
 			{
 				NewK3 = CCPR1;
 				NewK2 = NewK3 - NewK2;
 				NewK2 >>= 1;
+				if ( NewK2.high8 !=1)	// content must be 256..511 (1024-2047us)	
+					goto ErrorRestart;
 			}
 			else
-			if( RecFlags == 4 )
+			if( RCState == 4 )
 			{
 				NewK5 = CCPR1;
 				NewK4 = NewK5 - NewK4;
 				NewK4 >>= 1;
+				if ( NewK4.high8 !=1)	
+					goto ErrorRestart;
 			}
 			else
-			if( RecFlags == 6 )
+			if( RCState == 6 )
 			{
 				NewK7 = CCPR1;
 				NewK6 = NewK7 - NewK6;
 				NewK6 >>= 1; 		
-#ifdef RX_DSM2
-				if (NewK6.high8 !=1) 	// add glitch detection to 6 & 7
+				if ( NewK6.high8 !=1)
 					goto ErrorRestart;
-#else
-				IK6 = NewK6.low8;
-#endif // RX_DSM2	
+				IK6 = NewK6.low8;	
 			}
 #ifdef RX_PPM
 			else
 #else
-			else	// values are unsafe
+			else						// values are unsafe
 				goto ErrorRestart;
 		}
-		else	// a positive edge
+		else							// a positive edge
 		{
 #endif // RX_PPM 
-			if( RecFlags == 1 )
+			if( RCState == 1 )
 			{
 				NewK2 = CCPR1;
 				NewK1 = NewK2 - NewK1;
 				NewK1 >>= 1;
+				if ( NewK1.high8 !=1)	
+					goto ErrorRestart;
 			}
 			else
-			if( RecFlags == 3 )
+			if( RCState == 3 )
 			{
 				NewK4 = CCPR1;
 				NewK3 = NewK4 - NewK3;
 				NewK3 >>= 1;
+				if ( NewK3.high8 !=1)	
+					goto ErrorRestart;
 			}
 			else
-			if( RecFlags == 5 )
+			if( RCState == 5 )
 			{
 				NewK6 = CCPR1;
 				NewK5 = NewK6 - NewK5;
-				NewK5 >>= 1;
-
-				// sanity check - NewKx has values in 4us units now. 
-				// content must be 256..511 (1024-2047us)
-				if( (NewK1.high8 == 1) &&
-				    (NewK2.high8 == 1) &&
-				    (NewK3.high8 == 1) &&
-				    (NewK4.high8 == 1) &&
-				    (NewK5.high8 == 1) )
-				{
-#ifndef RX_DSM2									
-					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
-					{
-						IGas = NewK3.low8;
-#ifdef EXCHROLLNICK
-						NewRoll = NewK2.low8 - _Neutral;
-						NewNick = NewK1.low8- _Neutral;
-#else
-						NewRoll = NewK1.low8- _Neutral;
-						NewNick = NewK2.low8- _Neutral;
-#endif // EXCHROLLNICK
-					}
-					else
-					{
-						IGas  = NewK1.low8;
-						NewRoll = NewK2.low8- _Neutral;
-						NewNick = NewK3.low8- _Neutral;
-					}
-					NewTurn = NewK4.low8 - _Neutral;
-					
-					// DoubleRate removed
-										
-#ifdef USE_FILTERS
-					Temp = (int16)IRoll << 1;// UGLY code forced by cc5x compiler
-					Temp += (int16)IRoll;
-					Temp += NewRoll;
-					Temp += 2;	
-					Temp >>= 2;
-					IRoll = Temp;
-
-					Temp = (int16)INick << 1;
-					Temp += (int16)INick;
-					Temp += NewNick;
-					Temp += 2;
-					Temp >>= 2;
-					INick = Temp;
-
-
-					Temp = (int16)ITurn << 1;
-					Temp += (int16)ITurn;
-					Temp += NewTurn;
-					Temp += 2; 
-					Temp >>= 2;
-					ITurn = Temp;
-#else
-					IRoll = NewRoll; 
-					INick = NewNick;
-					ITurn = NewTurn;
-#endif // USE_FILTERS	
-					IK5 = NewK5.low8;
-					IK6 = - _Neutral;
-					IK7 = - _Neutral;
-
-					_NoSignal = 0;
-					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
-#endif // !RX_DSM2
-				}
-				else	// values are unsafe
+				NewK5 >>= 1; 
+				if( NewK5.high8 != 1 )
 					goto ErrorRestart;
+
+#ifndef RX_DSM2								
+				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
+				{
+					IGas = NewK3.low8;
+#ifdef EXCHROLLNICK
+					NewRoll = NewK2.low8 - _Neutral;
+					NewNick = NewK1.low8- _Neutral;
+#else
+					NewRoll = NewK1.low8- _Neutral;
+					NewNick = NewK2.low8- _Neutral;
+#endif // EXCHROLLNICK
+				}
+				else
+				{
+					IGas  = NewK1.low8;
+					NewRoll = NewK2.low8- _Neutral;
+					NewNick = NewK3.low8- _Neutral;
+				}
+				NewTurn = NewK4.low8 - _Neutral;
+					
+				IRoll = NewRoll; 
+				INick = NewNick;
+				ITurn = NewTurn;
+	
+				IK5 = NewK5.low8;
+				IK6 = - _Neutral;
+				IK7 = - _Neutral;
+
+				_NoSignal = 0;
+				_NewValues = 1; // IK6 & IK7 are still about to change and do!
+#endif // !RX_DSM2
 			}
 			else
-			if( RecFlags == 7 )
+			if( RCState == 7 )
 			{
 				NewK7 = CCPR1 - NewK7;
 				NewK7 >>= 1;	
-#ifdef RX_DSM2
 				if (NewK7.high8 !=1)	
 					goto ErrorRestart;
+#ifdef RX_DSM2
 
 				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 				{
@@ -246,52 +221,28 @@ uns16 	CCPR1 @0x15;
 					NewNick = NewK4.low8 - _Neutral;
 					NewTurn = NewK7.low8 - _Neutral;
 
-					IK5 = NewK3.low8; // do not filter
+					IK5 = NewK3.low8; 
 					IK6 = NewK5.low8;
 					IK7 = NewK2.low8;
 				}
 
-				// DoubleRate removed
-
-#ifdef USE_FILTERS
-				Temp = (int)IRoll << 1;
-				Temp += (int)IRoll;
-				Temp += NewRoll;
-				//Temp += 2;		// run out of code space!
-				Temp >>= 2;
-				IRoll = Temp;
-
-				Temp = (int)INick << 1;
-				Temp += (int)INick;
-				Temp += NewNick;
-				//Temp += 2;
-				Temp >>= 2;
-				INick = Temp;
-
-				Temp = (int)ITurn << 1;
-				Temp += (int)ITurn;
-				Temp += NewTurn;
-				//Temp += 2;
-				Temp >>= 2;
-				ITurn = Temp;
-#else
 				IRoll = NewRoll; 
 				INick = NewNick;
 				ITurn = NewTurn;		
-#endif // USE_FILTERS
+
 				_NoSignal = 0;
 				_NewValues = 1;
 #else				
 				IK7 = NewK7.low8;
 #endif // RX_DSM2 
-				RecFlags = -1;
+				RCState = -1;
 			}
 			else
 			{
 ErrorRestart:
 				_NewValues = 0;
 				_NoSignal = 1;		// Signal lost
-				RecFlags = -1;
+				RCState = -1;
 #ifndef RX_PPM
 				if( NegativePPM )
 					CCP1M0 = 1;	// wait for positive edge next
@@ -303,7 +254,7 @@ ErrorRestart:
 		}
 #endif
 		CCP1IF = 0;				// quit int
-		RecFlags++;
+		RCState++;
 	}
 	else
 	if( T0IF && T0IE )
