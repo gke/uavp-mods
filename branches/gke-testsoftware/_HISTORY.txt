@@ -77,6 +77,12 @@ with support for composite PPM
 
 17.1.2009 bootloader relinked to software
 
+
+22.1.2009 Version derived from V3.14 by Greg Egan
+- Set CKE bit in SSPSTAT to disable high threshold
+  Schmidt inputs from LISL which has a 3.3V supply.
+  Previously data and other bits could be lost. 
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
