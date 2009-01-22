@@ -230,8 +230,8 @@ void ReadEEdata(void) // 245 uSec @ 16MHz
 
 // Sanity check
 //if timing value is lower than 1, set it to 10ms!
-	if( TimeSlot < 4 )
-		TimeSlot = 4;
+	if( TimeSlot < 2 )
+		TimeSlot = 2;
 	else
 	if ( TimeSlot > 20 )
 		TimeSlot = 20;
