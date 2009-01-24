@@ -45,7 +45,7 @@
 
 bank1 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 
-uns8	RCState;
+uns8	RCState, RCCheck;
 
 #pragma interruptSaveCheck w
 
@@ -93,6 +93,7 @@ uns16 	CCPR1 @0x15;
 				NewK3 = CCPR1;
 				NewK2 = NewK3 - NewK2;
 				NewK2 >>= 1;
+				RCCheck &= NewK2.high8 == 1;
 			}
 			else
 			if( RCState == 4 )
@@ -100,8 +101,7 @@ uns16 	CCPR1 @0x15;
 				NewK5 = CCPR1;
 				NewK4 = NewK5 - NewK4;
 				NewK4 >>= 1;
-				//if ( NewK4.high8 !=1)	
-				//	goto ErrorRestart;
+				RCCheck &= NewK4.high8 == 1;
 			}
 			else
 			if( RCState == 6 )
@@ -127,6 +127,7 @@ uns16 	CCPR1 @0x15;
 				NewK2 = CCPR1;
 				NewK1 = NewK2 - NewK1;
 				NewK1 >>= 1;
+				RCCheck = NewK1.high8 == 1;
 			}
 			else
 			if( RCState == 3 )
@@ -134,6 +135,7 @@ uns16 	CCPR1 @0x15;
 				NewK4 = CCPR1;
 				NewK3 = NewK4 - NewK3;
 				NewK3 >>= 1;
+				RCCheck &= NewK3.high8 == 1;
 			}
 			else
 			if( RCState == 5 )
@@ -141,13 +143,12 @@ uns16 	CCPR1 @0x15;
 				NewK6 = CCPR1;
 				NewK5 = NewK6 - NewK5;
 				NewK5 >>= 1; 
-				// content must be 256..511 (1024-2047us)
-				if( 	(NewK1.high8 != 1) ||
-			    		(NewK2.high8 != 1) ||
-			    		(NewK3.high8 != 1) ||
-			    		(NewK4.high8 != 1) ||
-			    		(NewK5.high8 != 1) ) goto ErrorRestart;
+				RCCheck &= NewK5.high8 == 1;
 
+				// content must be 256..511 (1024-2047us)
+				// delay check until bit 5 to prevent false re-framing
+				if ( !RCCheck )
+					goto ErrorRestart;
 #ifndef RX_DSM2								
 				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 				{
