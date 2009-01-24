@@ -153,7 +153,8 @@ void high_isr_handler(void)
 
 				// sanity check - NewKx has values in 4us units now. 
 				// content must be 256..511 (1024-2047us)
-				if( ( NewK1 & NewK2 & NewK3 & NewK4 & NewK5 & 0x0100 ) == 0x0100 )
+				// this test is fast but has a loophole!
+				if( ( NewK1 & NewK2 & NewK3 & NewK4 & NewK5 & 0x0100 ) == 0x0100 ) 
 				{
 #ifndef RX_DSM2									
 					if( FutabaMode ) 	// Ch3 set for Throttle on UAPSet
@@ -177,12 +178,6 @@ void high_isr_handler(void)
 
 					IThrottle = StickFilter(OldThrottle, NewThrottle);
 					OldThrottle = IThrottle; 
-					
-					if( DoubleRate )
-					{
-						NewRoll >>= 1;
-						NewPitch >>= 1;
-					}
 					
 					IRoll = StickFilter(IRoll, NewRoll); 
 					IPitch = StickFilter(IPitch, NewPitch);
@@ -218,12 +213,8 @@ void high_isr_handler(void)
 					NewRoll = Lower8(NewK3) - _Neutral; 
 					NewPitch = Lower8(NewK2) - _Neutral;
 					NewYaw = Lower8(NewK1) - _Neutral;
-					if( DoubleRate )
-					{
-						NewRoll >>= 1;
-						NewPitch >>= 1;
-					}
-					IK5 = Lower8(NewK6); // do not filter
+
+					IK5 = Lower8(NewK6); 
 					IK6 = Lower8(NewK4);
 					IK7 = Lower8(NewK7);
 // TO HERE
@@ -249,11 +240,6 @@ void high_isr_handler(void)
 				IThrottle = StickFilter(OldThrottle, NewThrottle);
 				OldThrottle = IThrottle;
 
-				if( DoubleRate )
-				{
-					NewRoll >>= 1;
-					NewPitch >>= 1;
-				}
 				IRoll = StickFilter(IRoll, NewRoll); 
 				IPitch = StickFilter(IPitch, NewPitch);
 				IYaw = StickFilter(IYaw, NewYaw);		
