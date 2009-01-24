@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =      Rewritten and ported to 18F2520 2008 by Prof. Greg Egan        =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -24,6 +24,14 @@
 
 #include "c-ufo.h"
 #include "bits.h"
+
+uint8 RCLinkRestored(int32 d)
+{
+	// checks for good RC frames for a period d mS
+	if ( !_Signal )
+		TimerMilliSec = ClockMilliSec + d;
+	return(ClockMilliSec > TimerMilliSec );
+} // RCLinkRestored
 
 void CheckThrottleMoved(void)
 {
@@ -51,11 +59,7 @@ void Navigation(void)
 void DoAutonomous(void)
 {
 
-
-
-
-
-
-
+	DesiredThrottle = Descend(DesiredThrottle);
+	IRoll = IPitch = IYaw = 0;
 
 } // DoAutonomous

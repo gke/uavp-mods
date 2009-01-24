@@ -25,24 +25,28 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-uint8	RecFlags;
+uint8	RCState, RCValid;
 uint16	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 int16	NewRoll, NewPitch, NewYaw, NewThrottle, OldThrottle = 0;
 
 void InitTimersAndInterrupts()
 {
+	#ifdef CLOCK_16MHZ
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
-
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
-
+	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);
+	#else // CLOCK_32MHZ
+	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_32);
+	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_16&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);	
+	OpenTimer2(TIMER_INT_ON&T2_PS_1_32&T2_POST_1_16);
+    #endif
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge		
 	CCP1CONbits.CCP1M0 = NegativePPM;
-	
-	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);
 	PR2 = TMR2_5MS;
 	_FirstTimeout = 0;
 
 	ClockMilliSec = 0;
+	LostTimer0Clicks = 0;
 
 	INTCONbits.TMR0IE = true;
 	INTCONbits.PEIE = true;
@@ -62,20 +66,13 @@ void high_isr_handler(void)
 // For 2.4GHz systems see README_DSM2_ETC.
 	uint8 ch;
 
-	if( PIR1bits.TMR2IF )				// 5 or 14 ms have elapsed without an active edge
+	if( INTCONbits.T0IF && INTCONbits.T0IE )
 	{
-		PIR1bits.TMR2IF = false;		// quit int
-#ifndef RX_PPM	// single PPM pulse train from receiver
-		if( _FirstTimeout )				// 5 ms have been gone by...
-		{
-			PR2 = TMR2_5MS;				// set compare reg to 5ms
-			goto ErrorRestart;
-		}
-		_FirstTimeout = true;
-		PR2 = TMR2_14MS;				// set compare reg to 14ms
-#endif
-		RecFlags = 0;
+		INTCONbits.T0IF = false;
+		ClockMilliSec++;						// time since start
+		TimeSlot--;
 	}
+	else
 	if( PIR1bits.CCP1IF )
 	{
 		TMR2 = 0;						// re-set timer and postscaler
@@ -91,26 +88,28 @@ void high_isr_handler(void)
 		{
 #endif
 			// could be replaced by a switch ???
-			if( RecFlags == 0 )
+			if( RCState == 0 )
 			{
 				NewK1 = CCPR1;
 			}
 			else
-			if( RecFlags == 2 )
+			if( RCState == 2 )
 			{
 				NewK3 = CCPR1;
 				NewK2 = NewK3 - NewK2;
 				NewK2 >>= 1;
+				RCValid &= Upper8(NewK2) == 1;
 			}
 			else
-			if( RecFlags == 4 )
+			if( RCState == 4 )
 			{
 				NewK5 = CCPR1;
 				NewK4 = NewK5 - NewK4;
 				NewK4 >>= 1;
+				RCValid &= Upper8(NewK4) == 1;
 			}
 			else
-			if( RecFlags == 6 )
+			if( RCState == 6 )
 			{
 				NewK7 = CCPR1;
 				NewK6 = NewK7 - NewK6;
@@ -131,30 +130,32 @@ void high_isr_handler(void)
 		else							// a positive edge
 		{
 #endif // RX_PPM 
-			if( RecFlags == 1 )
+			if( RCState == 1 )
 			{
 				NewK2 = CCPR1;
 				NewK1 = NewK2 - NewK1;
 				NewK1 >>= 1;
+				RCValid = Upper8(NewK1) == 1;
 			}
 			else
-			if( RecFlags == 3 )
+			if( RCState == 3 )
 			{
 				NewK4 = CCPR1;
 				NewK3 = NewK4 - NewK3;
 				NewK3 >>= 1;
+				RCValid &= Upper8(NewK3) == 1;
 			}
 			else
-			if( RecFlags == 5 )
+			if( RCState == 5 )
 			{
 				NewK6 = CCPR1;
 				NewK5 = NewK6 - NewK5;
 				NewK5 >>= 1;
+				RCValid &= Upper8(NewK5) == 1;
 
 				// sanity check - NewKx has values in 4us units now. 
 				// content must be 256..511 (1024-2047us)
-				// this test is fast but has a loophole!
-				if( ( NewK1 & NewK2 & NewK3 & NewK4 & NewK5 & 0x0100 ) == 0x0100 ) 
+				if( RCValid ) 
 				{
 #ifndef RX_DSM2									
 					if( FutabaMode ) 	// Ch3 set for Throttle on UAPSet
@@ -195,7 +196,7 @@ void high_isr_handler(void)
 					goto ErrorRestart;
 			}
 			else
-			if( RecFlags == 7 )
+			if( RCState == 7 )
 			{
 				NewK7 = CCPR1 - NewK7;
 				NewK7 >>= 1;	
@@ -227,11 +228,7 @@ void high_isr_handler(void)
 					NewRoll = Lower8(NewK1) - _Neutral; 
 					NewPitch = Lower8(NewK4) - _Neutral;
 					NewYaw = Lower8(NewK7) - _Neutral;
-					if( DoubleRate )
-					{
-						NewRoll >>= 1;
-						NewPitch >>= 1;
-					}
+
 					IK5 = Lower8(NewK3); // do not filter
 					IK6 = Lower8(NewK5);
 					IK7 = Lower8(NewK2);
@@ -249,7 +246,7 @@ void high_isr_handler(void)
 #else				
 				IK7 = Lower8(NewK7);
 #endif // RX_DSM2 
-				RecFlags = -1;
+				RCState = -1;
 			}
 			else
 			{
@@ -257,7 +254,7 @@ ErrorRestart:
 				BadRCFrames++;
 				_NewValues = false;
 				_Signal = false;		// Signal lost
-				RecFlags = -1;
+				RCState = -1;
 #ifndef RX_PPM
 				if( NegativePPM )
 					CCP1CONbits.CCP1M0 = true;	// wait for positive edge next
@@ -269,14 +266,24 @@ ErrorRestart:
 		}
 #endif
 		PIR1bits.CCP1IF = false;
-		RecFlags++;
+		RCState++;
 	}
-	if( INTCONbits.T0IF && INTCONbits.T0IE )
+	else
+	if( PIR1bits.TMR2IF )				// 5 or 14 ms have elapsed without an active edge
 	{
-		INTCONbits.T0IF = false;
-		ClockMilliSec++;						// time since start
-		TimeSlot--;
-	}	
+		PIR1bits.TMR2IF = false;		// quit int
+#ifndef RX_PPM	// single PPM pulse train from receiver
+		if( _FirstTimeout )				// 5 ms have been gone by...
+		{
+			PR2 = TMR2_5MS;				// set compare reg to 5ms
+			goto ErrorRestart;
+		}
+		_FirstTimeout = true;
+		PR2 = TMR2_14MS;				// set compare reg to 14ms
+#endif
+		RCState = 0;
+	}
+	
 } // high_isr_handler
 	
 #pragma code high_isr = 0x08

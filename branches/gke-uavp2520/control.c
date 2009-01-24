@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =      Rewritten and ported to 18F2520 2008 by Prof. Greg Egan        =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -181,6 +181,32 @@ void CompensateGyros(void)
 
 } // CompensateGyros
 
+void DoHeadingLock(void)
+{
+	int16 Temp, CurrIYaw;
+
+	CurrIYaw = IYaw;							// protect from change by irq
+	YE += CurrIYaw;								// add the yaw stick value
+
+	if ( _UseCompass )
+		if ((CurrIYaw < (DesiredYaw - COMPASS_MIDDLE)) || (CurrIYaw > (DesiredYaw + COMPASS_MIDDLE)))
+			AbsDirection = COMPASS_INVAL;		// new hold zone
+		else
+			YE -= Limit(CurrDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
+
+	if( CompassTest )
+	{
+		ALL_LEDS_OFF;
+		if( CurrDeviation > 0 )
+			LedGreen_ON;
+		else
+			if( CurrDeviation < 0 )
+				LedRed_ON;
+		if( AbsDirection > COMPASS_MAX )
+			LedYellow_ON;
+	}
+} // DoHeadingLock
+
 void DetermineAttitude(void)
 {
 	int16 Temp;
@@ -294,7 +320,7 @@ void InitAttitude(void)
 	Delay100mSec(100);							// ~10Sec. to get hands away after power up
 	Beeper_ON;
 	InitDirection();		
-	InitAltimeter();
+	InitBarometer();
 	InitAccelerometers();
 	InitGyros();
 	Beeper_OFF;					
@@ -307,7 +333,7 @@ void DoControl()
 		CheckThrottleMoved();
 
 	GetDirection();
-	GetAltitude();				
+	GetBaroAltitude();				
 	DetermineAttitude();
 
 	PID();

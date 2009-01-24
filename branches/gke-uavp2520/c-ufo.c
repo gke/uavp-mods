@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =      Rewritten and ported to 18F2520 2008 by Prof. Greg Egan        =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -36,7 +36,7 @@ uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 #pragma udata globals
 // Globals 
 uint8	State;									
-int32	ClockMilliSec, TimerMilliSec;
+int32	ClockMilliSec, TimerMilliSec, LostTimer0Clicks;
 int32	FailsafeTimeoutMilliSec, AutonomousTimeoutMilliSec, ThrottleClosedMilliSec;
 int32	CycleCount;
 int8	TimeSlot;
@@ -45,6 +45,7 @@ int8	TimeSlot;
 uint8	IThrottle;
 uint8 	PrevIThrottle;							// most recent past IThrottle					
 uint8	DesiredThrottle;						// actual throttle
+int16	DesiredYaw;
 int16 	IRoll, IPitch, IYaw;
 uint8	IK5,IK6,IK7;
 int32	BadRCFrames;
@@ -67,10 +68,12 @@ int16	RE, PE, YE;								// PID error
 int16	REp, PEp, YEp;							// PID previous error
 			
 // Altitude
-uint16	BasePressure, BaseTemp, TempCorr;
-int16	VBaroComp, BaroVal;
+uint16	OriginBaroAltitude, OriginBaroTemp;
+int16	DesiredBaroAltitude, CurrBaroAltitude, CurrBaroTemp;
+int16	BPE, BPEp, BaroTempCorr;	
+int16	VBaroComp;
+int32	BaroDescentRate;
 int32	Vud;
-int32	BaroCompSum;
 
 // Compass
 int16 	Compass;								// raw compass value
@@ -148,14 +151,6 @@ void InitMisc(void)
 					
 } // InitMisc
 
-uint8 RCLinkRestored(int32 d)
-{
-	// checks for good RC frames for a period d mS
-	if ( !_Signal )
-		TimerMilliSec = ClockMilliSec + d;
-	return(ClockMilliSec > TimerMilliSec );
-} // RCLinkRestored
-
 void CheckThrottleClosed(void)
 {
 	if ( _Signal & _NewValues )
@@ -209,14 +204,18 @@ void main(void)
 			LedYellow_ON;
 		
 		ProcessCommand();
-//IThrottle = 0;		
+/*
+IThrottle = 0;		
 		CheckThrottleClosed();					// sets _Armed
-//IThrottle = 75;
+*/
+IThrottle = 75;
+_Armed = true;
+
 		TimeSlot = Limit(NoOfTimeSlots, 22, 22);// 6 is possible
 		ResetTimeOuts();
 		State = Landed;
 
-		while( _Armed && Switch )
+		while( _Armed && 1 )//Switch )
 		{
 			while( TimeSlot > 0 ) { };			// user routine here if desired	
 			TimeSlot = Limit(NoOfTimeSlots, 22, 22);
@@ -244,8 +243,7 @@ void main(void)
 			else
 			if ( State == Failsafe )
 			{
- 				// stop high-power runaways
-				DesiredThrottle = Limit(DesiredThrottle, 0, THR_HOVER);
+ 				// hold all current settings including throttle
 				if (ClockMilliSec > AutonomousTimeoutMilliSec )
 				{
 					TimerMilliSec = ClockMilliSec + AUTONOMOUS_CANCEL;
@@ -259,8 +257,7 @@ void main(void)
 			if ( State == Autonomous )
 			{
 				// No GPS so no station holding or return home yet.
-				DesiredThrottle = Descend(DesiredThrottle);
-				IRoll = IPitch = IYaw = 0;
+				DoAutonomous();
 				if ( RCLinkRestored(AUTONOMOUS_CANCEL) )
 					State = Flying;
 			}

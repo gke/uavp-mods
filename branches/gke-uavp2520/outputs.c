@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =      Rewritten and ported to 18F2520 2008 by Prof. Greg Egan        =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -41,6 +41,24 @@
 //          _________|     |_____|______
 //
 //             0     1     2     3 ms
+
+
+void ReSyncToMilliSec(void)
+{
+	// Resets Timer0 tracking lost time and adjusting ClockMilliSec periodically
+	// a little pedantic perhaps
+	DisableInterrupts;
+	LostTimer0Clicks += ReadTimer0();
+	if ( (LostTimer0Clicks & 0xffffff00) != 0 )
+	{
+		ClockMilliSec += SRS32(LostTimer0Clicks, 8);
+		LostTimer0Clicks &= 0x000000ff;
+	}
+	WriteTimer0(0);							
+	INTCONbits.T0IF=0;
+	EnableInterrupts;
+
+} // ReSyncToMilliSec
 
 uint8 Saturate(int32 l)
 {
@@ -227,9 +245,7 @@ void OutSignals(void)
 
 #ifdef ESC_PPM
 
-	// this will introduce arrors in ClockilliSec but unavoidable for now
-	WriteTimer0(0);							
-	INTCONbits.T0IF=0;
+	ReSyncToMilliSec();
 
 	_asm
 	MOVLB	0								// select Bank0
@@ -241,12 +257,12 @@ void OutSignals(void)
 	// wait for most of the balance of 1 mS leaving time for the longest
 	// interrupt service time. 
 	// 16MHz 18F2520
-	// 	91uS 	Timer0
-	//  280uS 	Rx Bit 5 Filtered + Timer0
-	//	200uS 	Rx Bit 5 Unfiltered
-	#define LONGEST_INT		400 
+	// 	20uS 	Timer0
+	//	52uS 	Rx Bit 5
+	//	72uS 	Timer0 + Rx Bit 5
+	#define LONGEST_INT		96 
 
-	while( ReadTimer0() <  0x100 - (LONGEST_INT/4) ) ;
+	while( ReadTimer0() <  0x100 - (LONGEST_INT/4) ) {};
 
 	// now stop CCP1 interrupt - capture can survive 1ms without service!
 	// To be strictly correct it must be less than the minimum valid
@@ -255,18 +271,7 @@ void OutSignals(void)
 	DisableInterrupts;
 	while( INTCONbits.T0IF == 0 ) ;			// wait for first overflow
 	INTCONbits.T0IF=0;						// quit TMR0 interrupt
-/*
-	if ( _OutToggle )						// camera every second pulse
-	{
-	_asm
-	MOVLB	0								// select Bank0
-	MOVLW	0x3F							// turn on camera servos
-	MOVWF	PORTB,0							// setup PORTB shadow
-	MOVWF	SHADOWB,1
-	_endasm
-	}
-	_OutToggle ^= 1;
-*/	
+
 // This loop should be exactly 16 cycles long
 // under no circumstances should the loop cycle time be changed
 _asm
@@ -290,12 +295,38 @@ OS008:
 	GOTO	OS009
 
 	BCF		SHADOWB,PulseRight,1			// stop Right pulse
+
+#ifdef CLOCK_16MHZ
 OS009:
 	DECFSZ	MB,1,1							// rear motor
 	GOTO	OS005
 	
 	BCF		SHADOWB,PulseBack,1				// stop Back pulse
 	GOTO	OS005
+#else
+OS009:
+	DECFSZ	MB,1,1							// rear motor
+	GOTO	OS010
+	
+	BCF		SHADOWB,PulseBack,1				// stop Back pulse
+	GOTO	OS005
+
+OS010:
+	DECFSZ	MT,1,1							// camera tilt
+	GOTO	OS011
+
+	BCF		SHADOWB,PulseCamRoll,1	
+OS011:
+	DECFSZ	ME,1,1							// camera roll
+	GOTO	OS005
+
+	BCF		SHADOWB,PulseCamPitch,1
+	GOTO	OS005
+
+// padding delays here later
+
+#endif // CLOCK_16MHZ
+
 OS006:
 
 _endasm
@@ -311,64 +342,18 @@ _endasm
 
 	EnableInterrupts;
 
-	while( ReadTimer0() <  0x100 - (LONGEST_INT/4) ) ;
-
-	DisableInterrupts;
-	while( INTCONbits.T0IF == 0 ) ;			// wait for first overflow
-	INTCONbits.T0IF=0;						// quit TMR0 interrupt
-
-// This loop should be exactly 16 cycles long
-// under no circumstances should the loop cycle time be changed
-_asm
-OS001:
-	MOVF	SHADOWB,0,1						// Cannot read PORTB!
-	MOVWF	PORTB,0
-	ANDLW	0x30							// output ports 4 and 5
-	BZ		OS002
-
-	DECFSZ	MT,1,1
-	GOTO	OS003
-
-	BCF		SHADOWB,PulseCamRoll,1	
-OS003:
-	DECFSZ	ME,1,1
-	GOTO	OS004
-
-	BCF		SHADOWB,PulseCamPitch,1
-OS004:
-_endasm
-
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();	// currently only 15 cycles  but acceptable ???
-
-_asm
-	GOTO	OS001
-OS002:
-_endasm
-
-	EnableInterrupts; 	
-
 #endif // ESC_PPM
 
 #if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 
-	// this will introduce arrors in ClockilliSec but
-	// unavoidable for now
-	WriteTimer0(0);							
-	INTCONbits.T0IF=0;
+	ReSyncToMilliSec();
 
-	if ( _OutToggle )						// camera every second pulse
-	{
 	_asm
 	MOVLB	0								// select Bank0
-	MOVLW	0x3F							// turn on camera servos
+	MOVLW	0x30							// turn on camera servos
 	MOVWF	PORTB,0							// setup PORTB shadow
 	MOVWF	SHADOWB,1
 	_endasm
-	}
-	_OutToggle ^= 1;
 	
 // in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
 #ifdef ESC_X3D
@@ -452,10 +437,17 @@ OS003:
 OS004:
 _endasm
 
+#ifdef CLOCK_16MHZ
 	Delay1TCY();
 	Delay1TCY();
 	Delay1TCY();
 	Delay1TCY();	// currently only 15 cycles  but acceptable ???
+
+#else
+
+// pad out later for fast clock
+
+#endif // !CLOCK_16MHZ
 
 _asm
 	GOTO	OS001

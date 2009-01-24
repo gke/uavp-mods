@@ -10,7 +10,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =              Ported to 18F2520 2008 by Prof. Greg Egan              =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -96,9 +96,14 @@
 
 #endif // !BATCHMODE
 
-// Performs inial configuration of HMC6532 Compass. Can alos be 
+// Performs initial configuration of HMC6532 Compass. Can also be 
 // performed using TestSoftware 
 #define CFG_COMPASS
+
+// 18F2520 PIC can be run at 32MHz with an 8MHz XTAL. At 16MHz there is no 
+// camera control to reduce the complexity/reliability of output pulse
+// generation. Comment out if using 32MHz
+#define CLOCK_16MHZ
 
 // =====================================
 // end of user-configurable section!
@@ -131,7 +136,7 @@ typedef uint8 boolean;
 #define IsClear(S,b) 	((uint8)(!(S>>b)&1))
 #define Invert(S,b) 	((uint8)(S^=(1<<b)))
 
-#define Upper8(i) 		(SRS16(i,8))
+#define Upper8(i) 		(i>>8)
 #define Lower8(i) 		(i&0xff)
 #define Abs(a) 			(a<0 ? -a: a)
 #define Sense(a) 		(a<0 ? -1 : (a>0 ? 1 : 1))
@@ -150,12 +155,13 @@ typedef uint8 boolean;
   #define GyroFilter(O,N) 			(N)
   #define AccelerometerFilter(O,N) 	(N)
 #else
-  #define VerySoftFilter(O,N) 	(SRS16((int32)O+N*3+2, 2))
-  #define SoftFilter(O,N) 		(SRS16(O+N+1, 1))
-  #define MediumFilter(O,N) 	(SRS16(O*3+N+2, 2))
-  #define HardFilter(O,N) 		(SRS16(O*7+N+4, 3))
+  #define VerySoftFilter(O,N) 		(SRS16(O+N*3+2, 2))
+  #define SoftFilter(O,N) 			(SRS16(O+N+1, 1))
+  #define MediumFilter(O,N) 		(SRS16(O*3+N+2, 2))
+  #define HardFilter(O,N) 			(SRS16(O*7+N+4, 3))
 #endif
-  #define NoFilter(O,N)		(N)
+
+#define NoFilter(O,N)				(N)
 
 #define GyroFilter SoftFilter
 #define AccelerometerFilter SoftFilter
@@ -344,7 +350,7 @@ extern	uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME;
 // Globals 									
 enum 	States {Initialising, Landed, Flying, Failsafe, Autonomous};
 extern	uint8	State;
-extern	int32	ClockMilliSec, TimerMilliSec;
+extern	int32	ClockMilliSec, TimerMilliSec, LostTimer0Clicks;
 extern	int32	FailsafeTimeoutMilliSec, AutonomousTimeoutMilliSec, ThrottleClosedMilliSec;
 
 extern	int32	CycleCount;
@@ -354,6 +360,7 @@ extern	int8	TimeSlot;
 extern	uint8	IThrottle;
 extern	uint8 	PrevIThrottle;							// most recent past IThrottle					
 extern	uint8	DesiredThrottle;						// actual throttle
+extern	int16	DesiredYaw;
 extern	int16 	IRoll, IPitch, IYaw;
 extern	uint8	IK5, IK6, IK7;
 extern	int32	BadRCFrames;
@@ -377,10 +384,12 @@ extern	int16	REp, PEp, YEp;							// PID previous error
 extern	int16	RollFailsafe, PitchFailsafe, YawFailsafe;
 			
 // Altitude
-extern	uint16	BasePressure, BaseTemp, TempCorr;
-extern	int16	VBaroComp, BaroVal;
+extern	uint16	OriginBaroAltitude, OriginBaroTemp;
+extern	int16	DesiredBaroAltitude, CurrBaroAltitude, CurrBaroTemp;
+extern 	int16	BPE, BPEp, BaroTempCorr;				// errors
+extern	int16	VBaroComp;
+extern  int32	BaroDescentRate;
 extern	int32	Vud;
-extern  int32	BaroCompSum;
 
 // Compass
 extern	int16 	Compass;								// raw compass value
@@ -408,12 +417,12 @@ extern	int8	RollIntFactor;		// 02
 extern	int8	RollDiffFactor;		// 03
 extern	int8	BaroTempCoeff;		// 04
 extern	int8	RollIntLimit;		// 05
-extern	int8	PitchPropFactor;	 	// 06
+extern	int8	PitchPropFactor;	// 06
 extern	int8	PitchIntFactor;		// 07
-extern	int8	PitchDiffFactor;		// 08
+extern	int8	PitchDiffFactor;	// 08
 extern	int8	BaroThrottleProp;	// 09
 extern	int8	PitchIntLimit;		// 10
-extern	int8	YawPropFactor; 	// 11
+extern	int8	YawPropFactor; 		// 11
 extern	int8	YawIntFactor;		// 12
 extern	int8	YawDiffFactor;		// 13
 extern	int8	YawLimit;			// 14
@@ -492,21 +501,28 @@ extern	void InitDirection(void);
 extern	void GetDirection(void);
 extern	void DoHeadingLock(void);
 
-extern	void InitAltimeter(void);
-extern	void GetAltitude(void);
-extern	uint8 ReadBaro(void);
-extern	uint8 StartBaroADC(uint8);
+extern	void InitBarometer(void);
+extern	void GetBaroAltitude(void);
+extern	int16 ReadBaro(void);
+extern	void StartBaroAcq(uint8);
 
 extern  void PID(void);
 extern	void InitInertial(void);
 extern	void DoControl(void);
-extern	uint8 Descend(uint8);
-extern	void MixAndLimitMotors(void);
-extern	void MixAndLimitCam(void);
+
 extern	void Delay100mSec(uint8);
 
+extern	void DoAutonomous(void);
+extern	void Navigation(void);
+extern 	uint8 RCLinkRestored(int32);
+extern	void CheckThrottleMoved(void);
+extern	uint8 Descend(uint8);
+
+extern	void MixAndLimitMotors(void);
+extern	void MixAndLimitCam(void);
+extern	void OutSignals(void);
+
 extern	void GetBatteryVolts(void);
-extern uint8 RCLinkRestored(int32);
 extern	void CheckAlarms(void);
 
 extern	void SendLeds(void);
@@ -521,7 +537,6 @@ extern	void I2CDelay(void);
 extern	uint8 SendI2CByte(uint8);
 extern	uint8 RecvI2CByte(uint8);
 
-extern	void OutSignals(void);
 extern	void EscI2CStart(void);
 extern	void EscI2CStop(void);
 extern	void EscI2CDelay(void);

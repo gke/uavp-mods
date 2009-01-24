@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =              Ported to 18F2520 2008 by Prof. Greg Egan              =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -132,6 +132,8 @@
 #define COMPASS_MIDDLE	10					/* yaw stick neutral dead zone */
 
 // baro (altimeter) sensor
+#define BARO_TEMP		0xee
+#define BARO_PRESS		0xf4
 #define BARO_ADDR		0xee
 #define BARO_CTL		0xf4
 #define BARO_ADC		0xf6
@@ -140,12 +142,13 @@
 #define	_Signal			Flags[0]			/*if no valid signal is received*/
 #define _NewValues		Flags[2]			/*new RX channel values sampled*/	
 #define _FirstTimeout	Flags[3]			/*is 1 after first 9ms TO expired*/	
+#define _BaroReady		Flags[5]
 #define _LowBatt		Flags[5]
 #define	_UseLISL		Flags[6]	
 #define	_UseCompass		Flags[7]	
 
 #define _UseBaro		Flags2[0]	
-#define _BaroTempRun	Flags2[1]	
+#define _BaroAcqTemp	Flags2[1]	
 #define _OutToggle		Flags2[2]			/*cam servos only every 2nd output pulse*/									
 #define _UseCh7Trigger	Flags2[3]			/*1: don't use Ch7 0: use Ch7 as Cam Roll trim*/
 #define _LostModel		Flags2[4]

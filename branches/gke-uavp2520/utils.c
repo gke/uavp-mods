@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =      Rewritten and ported to 18F2520 2008 by Prof. Greg Egan        =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -96,6 +96,7 @@ void InitPorts(void)
 	TRISB = 0b01000000;								// all servo and LED outputs
 	PORTC = 0b01100000;								// all outputs to low, except TxD and CS
 	TRISC = 0b10000100;								// RC7, RC2 are inputs
+	SSPSTATbits.CKE = 1;							// low logic threshold for LISL
 	INTCON2bits.NOT_RBPU = true;					// enable weak pullups
 } // InitPorts
 

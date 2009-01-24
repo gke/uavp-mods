@@ -9,7 +9,7 @@ dir_tmp=
 dir_sin=
 dir_inc=
 dir_lib=c:\MCC18\lib
-dir_lkr=f:\Flight\Other Code\QuadMahringer
+dir_lkr=C:\Flight\Other Code\QuadMahringer
 [CAT_FILTERS]
 filter_src=*.asm;*.c
 filter_inc=*.h;*.inc
@@ -72,14 +72,14 @@ file_000=c-ufo.c
 file_001=irq.c
 file_002=serial.c
 file_003=bootl18f2520.asm
-file_004=outputs.c
-file_005=utils.c
-file_006=compass_altimeter.c
-file_007=i2c.c
-file_008=spi.c
-file_009=adc.c
-file_010=autonomous.c
-file_011=control.c
+file_004=utils.c
+file_005=spi.c
+file_006=adc.c
+file_007=autonomous.c
+file_008=compass_altimeter.c
+file_009=control.c
+file_010=i2c.c
+file_011=outputs.c
 file_012=bits.h
 file_013=c-ufo.h
 [SUITE_INFO]
@@ -88,7 +88,7 @@ suite_state=
 [TOOL_SETTINGS]
 TS{DD2213A8-6310-47B1-8376-9430CDFC013F}=
 TS{BFD27FBA-4A02-4C0E-A5E5-B812F3E7707C}=/m"$(BINDIR_)$(TARGETBASE).map" /w /o"$(BINDIR_)$(TARGETBASE).cof"
-TS{C2AF05E7-1416-4625-923D-E114DB6E2B96}=-Oi -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa-
+TS{C2AF05E7-1416-4625-923D-E114DB6E2B96}=-Oi -w1 -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa-
 TS{ADE93A55-C7C7-4D4D-A4BA-59305F7D0391}=
 [INSTRUMENTED_TRACE]
 enable=0

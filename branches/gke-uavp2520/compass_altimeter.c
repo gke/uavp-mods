@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =      Rewritten and ported to 18F2520 2008 by Prof. Greg Egan        =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -23,9 +23,8 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-// initialise compass sensor
 void InitDirection(void)
-{
+{ 	// ugly goto hurdles but clearer perhaps
 	_UseCompass = false;
 	Compass = 0;
 	CurrDeviation = 0;
@@ -79,7 +78,7 @@ void GetDirection(void)
 		I2CStart();
 		if( SendI2CByte(COMPASS_ADDR+1) == I2C_ACK ) 
 		{
-			Compass = (RecvI2CByte(I2C_ACK)<<8)| RecvI2CByte(!I2C_ACK);
+			Compass = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(!I2C_ACK);
 			I2CStop();
 
 			// DirVal has 1/10th degrees - convert to set 360.0 deg = 240 units ??? why 240
@@ -107,8 +106,8 @@ void GetDirection(void)
 				if( DirVal >   240/2 )
 					DirVal -=  240;
 
-				// positive means quadrocopter is left off-heading
-				// negative means quadrocopter is right off-heading
+				// positive means quadrocopter is left of heading
+				// negative means quadrocopter is right of heading
 
 				DirVal = Limit(DirVal, -20, 20);
 
@@ -125,216 +124,146 @@ void GetDirection(void)
 	}
 } // GetDirection
 
-void DoHeadingLock(void)
-{
-	int16 Temp, CurrIYaw;
+// --------------------------------------------------------------------------------
 
-	CurrIYaw = IYaw;							// protect from change by irq
-	YE += CurrIYaw;								// add the yaw stick value
-/*
-	if ( _UseCompass )
-		if ((CurrIYaw < (YawFailsafe - COMPASS_MIDDLE)) || (CurrIYaw > (YawFailsafe + COMPASS_MIDDLE)))
-			AbsDirection = COMPASS_INVAL;		// new hold zone
-		else
-			YE -= Limit(CurrDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
-*/
-	if( CompassTest )
-	{
-		ALL_LEDS_OFF;
-		if( CurrDeviation > 0 )
-			LedGreen_ON;
-		else
-			if( CurrDeviation < 0 )
-				LedRed_ON;
-		if( AbsDirection > COMPASS_MAX )
-			LedYellow_ON;
-	}
-} // DoHeadingLock
+int16 ReadBaro(void)
+{ 	// ugly goto hurdles but clearer perhaps
+	int16 BaroVal;
+	uint8 BaroStatus;
 
+	BaroVal = 0;
+	_BaroReady = false;
 
-// read temp & pressure values from baro sensor
-// value in BaroVal;
-// returns 1 if value is available
-uint8 ReadBaro(void)
-{
-	uint8 OK, Conversion;
-	uint8 Temp;
-
-	_UseBaro = Conversion = false;
-	// test if conversion is ready
 	I2CStart();
-	if( SendI2CByte(BARO_ADDR) == I2C_ACK ) 
-		if( SendI2CByte(BARO_CTL) == I2C_ACK ) 
-		{
-			I2CStart();											// restart
-			if( SendI2CByte(BARO_ADDR+1) == I2C_ACK ) 
-			{
-				_UseBaro = true;
-				Temp = RecvI2CByte(I2C_NACK);
-				I2CStop();
+	if( SendI2CByte(BARO_ADDR) != I2C_ACK ) goto RBerror; 
+	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto RBerror;
 
-				if( (Temp & 0b00100000) == 0 )
-				{	// conversion is ready, read it!
-					I2CStart();
-					if( SendI2CByte(BARO_ADDR) == I2C_ACK ) 	// access A/D registers
-						if( SendI2CByte(BARO_ADC) == I2C_ACK )
-						{
-							I2CStart();							// restart
-							if( SendI2CByte(BARO_ADDR+1) == I2C_ACK ) 
-							{
-								BaroVal = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(!I2C_NACK);
-								I2CStop();
-								Conversion = true;
-							}
-						}
-				}
-			}
-		}
-	if ( !_UseBaro )
-	{
+	I2CStart();											// restart
+	if( SendI2CByte(BARO_ADDR+1) != I2C_ACK ) goto RBerror;
+		
+	BaroStatus = RecvI2CByte(I2C_NACK);
+	I2CStop();
+
+	if( (BaroStatus & 0b00100000) == 0 )
+    {
+		I2CStart();						// conversion is ready, read it!
+		if( SendI2CByte(BARO_ADDR) != I2C_ACK ) goto RBerror;
+		if( SendI2CByte(BARO_ADC) != I2C_ACK ) goto RBerror;
+
+		I2CStart();							// restart
+		if( SendI2CByte(BARO_ADDR + 1) != I2C_ACK ) goto RBerror;
+		BaroVal = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(!I2C_NACK);
 		I2CStop();
-		BaroVal = 0;
+		_BaroReady = true;
 	}
 
-	return(Conversion);
+RBerror:
+	if ( !_BaroReady )
+		I2CStop();
+	return(BaroVal);
 } // ReadBaro
 
-// start A/D conversion on altimeter sensor
-// niaddr = 0xee to convert Temperature
-//          0xf4 to convert pressure
-// returns 1 if successful, else 0
-uint8 StartBaroADC(uint8 addr)
-{
-	uint8 OK;
+void StartBaroAcq(uint8 addr)
+{ // ugly goto hurdles but clearer perhaps
 
-	OK = false;
+	_BaroReady = false;
+	_BaroAcqTemp = (addr == BARO_TEMP);
+
 	I2CStart();
-	if( SendI2CByte(BARO_ADDR) == I2C_ACK )	
-		if( SendI2CByte(BARO_CTL) == I2C_ACK ) 		// access control register, start measurement
-			if( SendI2CByte(addr) == I2C_ACK ) 		// select 32kHz input, measure Temperature
-				{
-					I2CStop();
-					_BaroTempRun = (addr == BARO_ADDR);
-					OK = true;
-				}
-	if ( !OK )
-	{
-		I2CStop();
-		_BaroTempRun = false;
-	}
+	if( SendI2CByte(BARO_ADDR) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto BAerror; 	
+	if( SendI2CByte(addr) != I2C_ACK ) goto BAerror; 		
+BAerror:
+	I2CStop();
+} // StartBaroAcq
 
-	return(OK);
-} // StartBaroADC
-
-// initialize altitude/pressure sensor
-void InitAltimeter(void)
+void InitBarometer(void)
 {
-	uint8 c;
+	int32 TimeoutMilliSec;
 
-	VBaroComp = 0;
-	BaroCompSum = 0;
+	TimeoutMilliSec = ClockMilliSec + 200;			// in case Baro is not present
 
-	// read Temperature once to get base value
-	// set SMD500 device to start Temperature conversion
-	_UseBaro = StartBaroADC(BARO_ADDR);
-	if( _UseBaro  ) 
+	StartBaroAcq(BARO_TEMP);
+	do
+		OriginBaroTemp = ReadBaro();
+	while ( (ClockMilliSec < TimeoutMilliSec ) && !_BaroReady );
+	
+	StartBaroAcq(BARO_PRESS);
+	do
+		OriginBaroAltitude = ReadBaro();
+	while ( (ClockMilliSec < TimeoutMilliSec ) && !_BaroReady );
+
+	_UseBaro = ClockMilliSec < TimeoutMilliSec;
+	
+	if ( _UseBaro )
 	{
-		// wait 40ms
-		TimerMilliSec = ClockMilliSec + 40;
-		while (ClockMilliSec < TimerMilliSec) ;
-		
-		_UseBaro = ReadBaro();
-
-		if ( _UseBaro )
-			BaseTemp = BaroVal;	// save start value
-		else
-			BaseTemp = 0;
-
-		// read pressure once to get base value
-		// set SMD500 device to start pressure conversion
-		_UseBaro = StartBaroADC(BARO_CTL);
-		if( _UseBaro  ) 
-		{
-			// wait 40ms
-			for( c=40; c ; c--)
-			{
-				INTCONbits.T0IF=0;
-				while(!INTCONbits.T0IF);
-			}
-			_UseBaro = ReadBaro();
-		}
- 	
-		if ( _UseBaro )
-			BasePressure = BaroVal;
-		else
-			BasePressure = 0;
+		DesiredBaroAltitude = CurrBaroAltitude = OriginBaroAltitude;
+		BaroDescentRate = 0;
+		CurrBaroTemp = OriginBaroTemp;
+		VBaroComp = 0;
+		StartBaroAcq(BARO_TEMP);						// overlap baro
 	}
 	else
-	{
-		BasePressure = 0;
-		_UseBaro = false;
-	}
+		DesiredBaroAltitude = CurrBaroAltitude = BaroDescentRate = 
+		CurrBaroTemp = 0;
+} // InitBarometer
 
-	I2CStop();
-} // InitAltimeter
+int32 FakeBaroVal=200;
 
-void GetAltitude(void)
+void GetBaroAltitude(void)
 {
-	int16 Temp;
-	int32 Temp2;
-
-	if( _UseBaro )
+	int16 Temp, BaroVal, PrevDescentRate, PrevBaroAltitude;
+_UseBaro = true;
+	if ( _UseBaro )
 	{
-		if( ReadBaro() )	
-		{	// successful
-			if( !_BaroTempRun )
-			{	// current measurement was "pressure"
-				if( _ThrChanging )				// while moving throttle stick
-				{
-					BasePressure = BaroVal;		// current read value is the new level
-					BaroCompSum = 0;
-				}
-				else
-				{	// while holding altitude
-					BaroVal -= BasePressure;
-					//  -400..+400 
-					Temp2 = SRS32((int32)TempCorr * (int32)BaroTempCoeff + 16, 5);
-					BaroVal += (int16)Temp2;	// compensating Temp
-												// the corrected relative height, the higher 
-												// altitude, the lesser value
-
-					Temp2 = BaroVal;			// because of bank bits
-					BaroVal = BaroCompSum;		// remember old value for delta
-					BaroCompSum = ((BaroCompSum * 3) + BaroCompSum + 2) >> 2;
-					Temp2 = BaroCompSum - BaroVal;	// subtract new height to get delta					
-
-					BaroCompSum=Limit(BaroCompSum, -3, 8);
-					// weiche Regelung (proportional)
-					// Temp kann nicht überlaufen (-3..+8 * PropFact)
-					BaroVal = (int16)(Lower8(BaroCompSum)) * BaroThrottleProp;
-				
-					VBaroComp = DecayBand(VBaroComp, -BaroVal, BaroVal, 2);
-
-					// Differentialanteil		
-					BaroVal = (int16)(Limit(Temp2, -8, 8) * BaroThrottleDiff);
-					VBaroComp = Limit(VBaroComp+Temp, -5, 15);		
-				}
-				_UseBaro = StartBaroADC(BARO_ADDR);	// next is Temp
+		BaroVal = ReadBaro();
+_BaroReady = true;
+_BaroAcqTemp = false;
+		if ( _BaroReady )
+			if( _BaroAcqTemp )
+			{ 	// temperature
+				if ( _ThrChanging )
+					CurrBaroTemp = BaroVal;
+				BaroTempCorr = BaroVal - CurrBaroTemp;
+				StartBaroAcq(BARO_PRESS);				// next is pressure
 			}
 			else
-			{
-				if( _ThrChanging )
-					BaseTemp = BaroVal; 		// current read value
-				else 							// TempCorr: The warmer, the higher
+			{	// pressure
+FakeBaroVal+=VBaroComp;
+BaroVal = -FakeBaroVal;
+BaroTempCorr = 0;
+DesiredBaroAltitude = -256;
+_ThrChanging = false;
+				if( _ThrChanging ) // while moving throttle stick
 				{
-					TempCorr = BaroVal - BaseTemp;
-	//				TempCorr += 4;				// compensate rounding error later /8
+					Temp = BaroVal - OriginBaroAltitude;
+					Temp += SRS32((int32)(OriginBaroTemp - CurrBaroTemp) * (int32)BaroTempCoeff + 16, 5);
+					DesiredBaroAltitude = SoftFilter(DesiredBaroAltitude, Temp);
 				}
-				_UseBaro = StartBaroADC(BARO_CTL);// next is pressure
+				else
+				{
+					Temp = BaroVal - OriginBaroAltitude;
+					Temp += SRS32((int32)(OriginBaroTemp - CurrBaroTemp) * (int32)BaroTempCoeff + 16, 5);
+					CurrBaroAltitude = SoftFilter(CurrBaroAltitude, Temp);
+
+					BPE = MediumFilter(BPEp, -(DesiredBaroAltitude - CurrBaroAltitude));
+					BPE = Limit(BPE, -3, 8); // "soften" rate
+
+					Temp = BPE * BaroThrottleProp;
+					if ( Temp != 0)
+						VBaroComp = DecayBand(VBaroComp, -Temp, Temp, 2);
+					else
+						VBaroComp = 0;
+
+					// need integral term ???
+		
+					VBaroComp += Limit(BPE - BPEp, -8, 8) * BaroThrottleDiff;
+					VBaroComp = Limit(VBaroComp, -5, 15);
+
+					BPEp = BPE;
+				}	
+				StartBaroAcq(BARO_TEMP);				// next is temperature
 			}
-		}
 	}
-	else
-		VBaroComp = 0;  						// no compensation
-} // GetAltitude	
+} // GetBaroAltitude	
 
