@@ -68,11 +68,10 @@ int16	RE, PE, YE;								// PID error
 int16	REp, PEp, YEp;							// PID previous error
 			
 // Altitude
-uint16	OriginBaroAltitude, OriginBaroTemp;
-int16	DesiredBaroAltitude, CurrBaroAltitude, CurrBaroTemp;
-int16	BPE, BPEp, BaroTempCorr;	
+uint16	OriginBaroTemp;
+int16	OriginBaroAltitude, DesiredBaroAltitude, CurrBaroAltitude, CurrBaroTemp;
+int16	BE, BEp, BESum;	
 int16	VBaroComp;
-int32	BaroDescentRate;
 int32	Vud;
 
 // Compass
@@ -204,18 +203,18 @@ void main(void)
 			LedYellow_ON;
 		
 		ProcessCommand();
-/*
-IThrottle = 0;		
+
+//IThrottle = 0;		
 		CheckThrottleClosed();					// sets _Armed
-*/
-IThrottle = 75;
-_Armed = true;
+
+//IThrottle = 75;
+//_Armed = true;
 
 		TimeSlot = Limit(NoOfTimeSlots, 22, 22);// 6 is possible
 		ResetTimeOuts();
 		State = Landed;
 
-		while( _Armed && 1 )//Switch )
+		while( _Armed && Switch )
 		{
 			while( TimeSlot > 0 ) { };			// user routine here if desired	
 			TimeSlot = Limit(NoOfTimeSlots, 22, 22);
@@ -231,6 +230,7 @@ _Armed = true;
 				{
 					ResetTimeOuts();	
 					ReadParametersEE();
+					CheckThrottleMoved();
 					DesiredThrottle = IThrottle;
 				}
 				else
@@ -250,13 +250,12 @@ _Armed = true;
 					State = Autonomous;
 				}
 				else
-				 if ( RCLinkRestored(FAILSAFE_CANCEL) )
-					State = Flying;
+					if ( RCLinkRestored(FAILSAFE_CANCEL) )
+						State = Flying;
 			}
 			else
 			if ( State == Autonomous )
 			{
-				// No GPS so no station holding or return home yet.
 				DoAutonomous();
 				if ( RCLinkRestored(AUTONOMOUS_CANCEL) )
 					State = Flying;
@@ -290,6 +289,5 @@ _Armed = true;
 			CheckAlarms();
 		} // while arming switch is on
 	}
-	// CPU should never arrive here
-	// do a processor reset ???	
+	// CPU should never arrive here	
 } // Main

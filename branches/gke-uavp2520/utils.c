@@ -244,7 +244,9 @@ void DoDebugTraces()
 		TxVal((int32)CurrDeviation, 0, ';');
 
 		TxVal((int32)VBaroComp, 0, ';');
-		TxVal((int32)BaroCompSum, 0, ';');
+		TxVal((int32)CurrBaroAltitude, 0, ';');
+		TxVal((int32)BESum, 0, ';');
+		TxVal((int32)BE, 0, ';');
 
 		// accelerations
 		TxVal((int32)(ACCSIGN_X * Ax - NeutralLR), 0, ';');

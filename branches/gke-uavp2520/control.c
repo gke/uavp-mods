@@ -305,6 +305,8 @@ void PID(void)
 	Yl += SRS32(YawAngle*(int32) YawIntFactor + 128, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);
 
+Yl= 0;
+
 	DoIntTestLEDS();
 
 	REp = RE;						// remember old gyro values
@@ -329,9 +331,6 @@ void InitAttitude(void)
 
 void DoControl()
 {
-	if( _NewValues )
-		CheckThrottleMoved();
-
 	GetDirection();
 	GetBaroAltitude();				
 	DetermineAttitude();

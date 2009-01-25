@@ -126,9 +126,9 @@ void GetDirection(void)
 
 // --------------------------------------------------------------------------------
 
-int16 ReadBaro(void)
+uint16 ReadBaro(void)
 { 	// ugly goto hurdles but clearer perhaps
-	int16 BaroVal;
+	uint16 BaroVal;
 	uint8 BaroStatus;
 
 	BaroVal = 0;
@@ -171,97 +171,105 @@ void StartBaroAcq(uint8 addr)
 
 	I2CStart();
 	if( SendI2CByte(BARO_ADDR) != I2C_ACK ) goto BAerror;
-	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto BAerror; 	
-	if( SendI2CByte(addr) != I2C_ACK ) goto BAerror; 		
+	if( SendI2CByte(BARO_CTL) != I2C_ACK )  goto BAerror; 	
+	if( SendI2CByte(addr) != I2C_ACK )  goto BAerror;
+	 		
 BAerror:
 	I2CStop();
 } // StartBaroAcq
 
+int16 AltitudeCompensation(uint16 A, uint16 T)
+{	// altitudes are relative to Origin altitude
+	return (OriginBaroAltitude - ((int32)A + SRS32( (int32)T * (int32)BaroTempCoeff + 16, 5)));
+} // AltitudeCompensation
+
 void InitBarometer(void)
 {
-	int32 TimeoutMilliSec;
+	uint8 s;
+	uint16 BaroVal;
+	int32 TimeoutMilliSec, AvTemperature, AvPressure;
 
-	TimeoutMilliSec = ClockMilliSec + 200;			// in case Baro is not present
+	OriginBaroAltitude = DesiredBaroAltitude = CurrBaroAltitude = 0;
+	BE = BEp = BESum = 0;
 
-	StartBaroAcq(BARO_TEMP);
+	AvTemperature = AvPressure = 0;
+	s = 0;
 	do
-		OriginBaroTemp = ReadBaro();
-	while ( (ClockMilliSec < TimeoutMilliSec ) && !_BaroReady );
+	{
+		TimeoutMilliSec = ClockMilliSec + 200;			// in case Baro is not present
+
+		StartBaroAcq(BARO_TEMP);
+		do
+		{
+			BaroVal = ReadBaro();
+			AvTemperature += BaroVal;
+		}
+		while ( (ClockMilliSec < TimeoutMilliSec ) && !_BaroReady );
 	
-	StartBaroAcq(BARO_PRESS);
-	do
-		OriginBaroAltitude = ReadBaro();
-	while ( (ClockMilliSec < TimeoutMilliSec ) && !_BaroReady );
+		StartBaroAcq(BARO_PRESS);
+		do
+		{
+			BaroVal = ReadBaro();
+			AvPressure += BaroVal;
+		}	
+		while ( (ClockMilliSec < TimeoutMilliSec ) && !_BaroReady );
+	}
+	while ( (++s < 32) && (ClockMilliSec < TimeoutMilliSec) );
 
 	_UseBaro = ClockMilliSec < TimeoutMilliSec;
 	
 	if ( _UseBaro )
 	{
-		DesiredBaroAltitude = CurrBaroAltitude = OriginBaroAltitude;
-		BaroDescentRate = 0;
-		CurrBaroTemp = OriginBaroTemp;
-		VBaroComp = 0;
-		StartBaroAcq(BARO_TEMP);						// overlap baro
+		BaroVal = AvPressure >> 5;
+		CurrBaroTemp = AvTemperature >> 5;
+		OriginBaroAltitude = - AltitudeCompensation(BaroVal, CurrBaroTemp);
+		OriginBaroTemp = CurrBaroTemp;
+		StartBaroAcq(BARO_TEMP);					// overlap baro
 	}
-	else
-		DesiredBaroAltitude = CurrBaroAltitude = BaroDescentRate = 
-		CurrBaroTemp = 0;
 } // InitBarometer
-
-int32 FakeBaroVal=200;
 
 void GetBaroAltitude(void)
 {
-	int16 Temp, BaroVal, PrevDescentRate, PrevBaroAltitude;
-_UseBaro = true;
+
+// no integral in Param Set ???
+#define BaroThrottleInt 2
+
+	uint16 Temp, BaroVal;
+
 	if ( _UseBaro )
 	{
 		BaroVal = ReadBaro();
-_BaroReady = true;
-_BaroAcqTemp = false;
 		if ( _BaroReady )
 			if( _BaroAcqTemp )
 			{ 	// temperature
-				if ( _ThrChanging )
-					CurrBaroTemp = BaroVal;
-				BaroTempCorr = BaroVal - CurrBaroTemp;
+				CurrBaroTemp = BaroVal;
 				StartBaroAcq(BARO_PRESS);				// next is pressure
 			}
 			else
 			{	// pressure
-FakeBaroVal+=VBaroComp;
-BaroVal = -FakeBaroVal;
-BaroTempCorr = 0;
-DesiredBaroAltitude = -256;
-_ThrChanging = false;
-				if( _ThrChanging ) // while moving throttle stick
+				CurrBaroAltitude = SoftFilter(CurrBaroAltitude, AltitudeCompensation(BaroVal, CurrBaroTemp));
+				if( _ThrChanging ) 						// while moving throttle stick
 				{
-					Temp = BaroVal - OriginBaroAltitude;
-					Temp += SRS32((int32)(OriginBaroTemp - CurrBaroTemp) * (int32)BaroTempCoeff + 16, 5);
-					DesiredBaroAltitude = SoftFilter(DesiredBaroAltitude, Temp);
+					DesiredBaroAltitude = CurrBaroAltitude;
+					BESum = 0; 							// zero integrator
+					BEp = 0;
 				}
-				else
-				{
-					Temp = BaroVal - OriginBaroAltitude;
-					Temp += SRS32((int32)(OriginBaroTemp - CurrBaroTemp) * (int32)BaroTempCoeff + 16, 5);
-					CurrBaroAltitude = SoftFilter(CurrBaroAltitude, Temp);
+			
+				BE =  -(DesiredBaroAltitude - CurrBaroAltitude);
+				BE = Limit(BE, -3, 8); 					// "soften" rate
 
-					BPE = MediumFilter(BPEp, -(DesiredBaroAltitude - CurrBaroAltitude));
-					BPE = Limit(BPE, -3, 8); // "soften" rate
-
-					Temp = BPE * BaroThrottleProp;
-					if ( Temp != 0)
-						VBaroComp = DecayBand(VBaroComp, -Temp, Temp, 2);
-					else
-						VBaroComp = 0;
-
-					// need integral term ???
+				VBaroComp = BE * BaroThrottleProp;
+			
+				// added integral ???
+				BESum = Limit(BESum + BE, -16, 16);
+				VBaroComp += Limit(BESum * BaroThrottleInt, -4, 4);
 		
-					VBaroComp += Limit(BPE - BPEp, -8, 8) * BaroThrottleDiff;
-					VBaroComp = Limit(VBaroComp, -5, 15);
+				VBaroComp += Limit((BEp - BE) * BaroThrottleDiff, -8, 8);
+				
+				VBaroComp = Limit(-VBaroComp, -5, 15);  // faster up than down
 
-					BPEp = BPE;
-				}	
+				BEp = BE;
+	
 				StartBaroAcq(BARO_TEMP);				// next is temperature
 			}
 	}

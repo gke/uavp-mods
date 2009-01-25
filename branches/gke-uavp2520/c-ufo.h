@@ -89,7 +89,7 @@
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-//#define DEBUG_SENSORS
+#define DEBUG_SENSORS
 
 // Switched Roll and Pitch channels for Conrad mc800 transmitter
 //#define EXCHROLLNICK
@@ -165,7 +165,7 @@ typedef uint8 boolean;
 
 #define GyroFilter SoftFilter
 #define AccelerometerFilter SoftFilter
-#define	StickFilter NoFilter
+#define	StickFilter SoftFilter
 
 #define _ClkOut		(160/4)								// 16.0 MHz quartz
 #define _PreScale0	16									// 1:16 TMR0 prescaler
@@ -384,11 +384,10 @@ extern	int16	REp, PEp, YEp;							// PID previous error
 extern	int16	RollFailsafe, PitchFailsafe, YawFailsafe;
 			
 // Altitude
-extern	uint16	OriginBaroAltitude, OriginBaroTemp;
-extern	int16	DesiredBaroAltitude, CurrBaroAltitude, CurrBaroTemp;
-extern 	int16	BPE, BPEp, BaroTempCorr;				// errors
+extern	uint16	OriginBaroTemp;
+extern	int16	OriginBaroAltitude, DesiredBaroAltitude, CurrBaroAltitude, CurrBaroTemp;
+extern 	int16	BE, BEp, BESum;			// errors
 extern	int16	VBaroComp;
-extern  int32	BaroDescentRate;
 extern	int32	Vud;
 
 // Compass
@@ -502,8 +501,9 @@ extern	void GetDirection(void);
 extern	void DoHeadingLock(void);
 
 extern	void InitBarometer(void);
+extern	int16 AltitudeCompensation(uint16, uint16);
 extern	void GetBaroAltitude(void);
-extern	int16 ReadBaro(void);
+extern	uint16 ReadBaro(void);
 extern	void StartBaroAcq(uint8);
 
 extern  void PID(void);

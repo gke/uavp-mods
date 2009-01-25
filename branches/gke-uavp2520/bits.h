@@ -49,10 +49,7 @@
 
 #define	Switch			PORTAbits.RA4
 
-//#define ALL_PULSE_ON	(PORTB |= 0b00001111)
 #define ALL_OUTPUTS_OFF	(PORTB &= 0b11110000)
-//#define ALL_OUTPUTS		(PORTB & 0b00001111)
-//#define CAM_PULSE_ON	PORTB |= 0b00110000;
 
 #if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 // Wolfgang's SW I2C ESC
@@ -138,6 +135,7 @@
 #define BARO_CTL		0xf4
 #define BARO_ADC		0xf6
 #define THR_HOVER		60
+#define THR_WINDOW		5
 
 #define	_Signal			Flags[0]			/*if no valid signal is received*/
 #define _NewValues		Flags[2]			/*new RX channel values sampled*/	

@@ -35,17 +35,31 @@ uint8 RCLinkRestored(int32 d)
 
 void CheckThrottleMoved(void)
 {
-    _ThrChanging = (IThrottle > (PrevIThrottle - 5)) && (IThrottle < (PrevIThrottle + 5) );
-	PrevIThrottle = IThrottle;
+	if ( _Signal )							// strictly redundant
+	{
+   		_ThrChanging = _NewValues 
+			&& (IThrottle > Limit(PrevIThrottle - THR_WINDOW, _Minimum, _Maximum)) 
+			&& (IThrottle < Limit(PrevIThrottle + THR_WINDOW, _Minimum, _Maximum) );
+		PrevIThrottle = IThrottle;
+	}
+	else
+		_ThrChanging = false;	
 } // CheckThrottleMoved
 
 uint8 Descend(uint8 T)
 {
-	// need to use accelerometer or baro based descent control
-//	if (((ClockMilliSec & 0x000000ff) == 0 ) && ( T > 0 ))
-	if ( T > 0 )
-		T -= 1;
-	return(T);
+	if ( _UseBaro )
+	{
+		DesiredBaroAltitude = Limit(DesiredBaroAltitude - 1, 0, 32000);				// ??? needs more thought
+	}
+	else
+	{	
+	// need to use accelerometer based descent control
+	//	if (((ClockMilliSec & 0x000000ff) == 0 ) && ( T > 0 ))
+		if ( T > 0 )
+			T -= 1;
+	}
+		return(T);
 } // Descend
 
 void Navigation(void)
