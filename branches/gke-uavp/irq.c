@@ -174,8 +174,7 @@ uns16 	CCPR1 @0x15;
 				ITurn = NewTurn;
 	
 				IK5 = NewK5.low8;
-				IK6 = - _Neutral;
-				IK7 = - _Neutral;
+
 
 				_NoSignal = 0;
 				_NewValues = 1; // IK6 & IK7 are still about to change and do!
