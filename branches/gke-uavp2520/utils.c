@@ -25,6 +25,23 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+// Prototypes
+int32 SRS32(int32, uint8);
+int16 SRS16(int16, uint8);
+void GetBatteryVolts(void);
+void CheckAlarms(void);
+void ReadParametersEE(void);
+void WriteParametersEE(uint8);
+void WriteEE(uint8, int8);
+int8 ReadEE(uint8);
+void SendLeds(void);
+void SwitchLedsOn(uint8);
+void SwitchLedsOff(uint8);
+void LEDGame(void);
+void DoDebugTraces(void);
+void Delay100mSec(uint8);
+void InitPorts(void);
+
 // SRS16/32 are used for divisions by powers of 2. A simple shift 
 // does not (with C18 at least) preserve the sign on negative 
 // arguments even if declared signed hence the conditionals.
@@ -233,6 +250,7 @@ void DoDebugTraces()
 	if(  (State != Landed) && (State != Initialising) )
 	{
 #ifdef READABLE
+
 		TxVal((int32)ClockMilliSec, 3, ';');
 		TxVal((int32)IThrottle, 0, ';');	
 		TxVal((int32)IRoll, 0, ';');	
@@ -281,7 +299,7 @@ void DoDebugTraces()
 
 		TxValH(VBaroComp);
 		TxChar(';');
-		TxValH16(BaroCompSum);
+		TxValH16(BESum);
 		TxChar(';');
 
 		// accelerations

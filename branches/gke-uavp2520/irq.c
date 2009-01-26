@@ -25,9 +25,16 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-uint8	RCState, RCValid;
+// Prototypes
+void InitTimersAndInterrupts(void);
+
 uint16	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
-int16	NewRoll, NewPitch, NewYaw, NewThrottle, OldThrottle = 0;
+int16	NewRoll, NewPitch, NewYaw, NewThrottle;
+
+uint8	RxBuff[RXBUFFMASK+1];
+uint8	RCState, RCValid;
+uint8	RxHead, RxTail;
+uint8	RxCheckSum;
 
 void InitTimersAndInterrupts()
 {
@@ -35,15 +42,22 @@ void InitTimersAndInterrupts()
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);
+
+
 	#else // CLOCK_32MHZ
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);	
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_32&T2_POST_1_16);
     #endif
+
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge		
 	CCP1CONbits.CCP1M0 = NegativePPM;
 	PR2 = TMR2_5MS;
 	_FirstTimeout = 0;
+
+	// Serial I/O
+	RxCheckSum = RxHead = RxTail = 0;
+    PIE1bits.RCIE = true;
 
 	ClockMilliSec = 0;
 	LostTimer0Clicks = 0;
@@ -66,13 +80,6 @@ void high_isr_handler(void)
 // For 2.4GHz systems see README_DSM2_ETC.
 	uint8 ch;
 
-	if( INTCONbits.T0IF && INTCONbits.T0IE )
-	{
-		INTCONbits.T0IF = false;
-		ClockMilliSec++;						// time since start
-		TimeSlot--;
-	}
-	else
 	if( PIR1bits.CCP1IF )
 	{
 		TMR2 = 0;						// re-set timer and postscaler
@@ -115,7 +122,7 @@ void high_isr_handler(void)
 				NewK6 = NewK7 - NewK6;
 				NewK6 >>= 1; 		
 #ifdef RX_DSM2
-				if (Upper8(NewK6) !=1) 	// add glitch detection to 6 & 7
+				if (Upper8(NewK6) != 1) 	// add glitch detection to 6 & 7
 					goto ErrorRestart;
 #else
 				IK6 = Lower8(NewK6);
@@ -178,7 +185,6 @@ void high_isr_handler(void)
 					NewYaw = Lower8(NewK4) - _Neutral;
 
 					IThrottle = StickFilter(OldThrottle, NewThrottle);
-					OldThrottle = IThrottle; 
 					
 					IRoll = StickFilter(IRoll, NewRoll); 
 					IPitch = StickFilter(IPitch, NewPitch);
@@ -199,7 +205,7 @@ void high_isr_handler(void)
 				NewK7 = CCPR1 - NewK7;
 				NewK7 >>= 1;	
 #ifdef RX_DSM2
-				if (Upper8(NewK7) !=1)	
+				if (Upper8(NewK7) !=1 )	
 					goto ErrorRestart;
 
 				if( FutabaMode ) 		// Ch3 set for Throttle on UAPSet
@@ -266,7 +272,7 @@ ErrorRestart:
 		PIR1bits.CCP1IF = false;
 		RCState++;
 	}
-	else
+
 	if( PIR1bits.TMR2IF )				// 5 or 14 ms have elapsed without an active edge
 	{
 		PIR1bits.TMR2IF = false;		// quit int
@@ -277,10 +283,33 @@ ErrorRestart:
 			goto ErrorRestart;
 		}
 		_FirstTimeout = true;
-		PR2 = TMR2_14MS;				// set compare reg to 14ms
+		PR2 = TMR2_14MS;						// set compare reg to 14ms
 #endif
 		RCState = 0;
 	}
+
+	if( INTCONbits.T0IF && INTCONbits.T0IE )
+	{
+		INTCONbits.T0IF = false;
+		ClockMilliSec++;						// time since start
+		TimeSlot--;
+	}
+
+	if (PIR1bits.RCIF )
+	{
+		if (RCSTAbits.OERR)
+		{
+			ch = RCREG; // flush
+			RCSTAbits.CREN = false;
+			RCSTAbits.CREN = true;
+		}
+		else
+		{
+			RxTail = (RxTail+1) & RXBUFFMASK;	// no check for overflow yet
+			RxBuff[RxTail] = RCREG;
+		}
+		PIR1bits.RCIF = false;
+	} 
 	
 } // high_isr_handler
 	

@@ -26,6 +26,16 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+// Prototypes
+void OutSignals(void);
+void EscI2CDelay(void);
+void EscI2CStart(void);
+void EscI2CStop(void);
+void EscWaitClkHi(void);
+void SendEscI2CByte(uint8);
+void MixAndLimitCam(void);
+void MixAndLimitMotors(void);
+
 // Outputs signals to the speed controllers
 // using timer 0
 // all motor outputs are driven simultaneously
@@ -49,15 +59,13 @@ void ReSyncToMilliSec(void)
 	// a little pedantic perhaps
 	DisableInterrupts;
 	LostTimer0Clicks += ReadTimer0();
+	WriteTimer0(0);							
+	EnableInterrupts;
 	if ( (LostTimer0Clicks & 0xffffff00) != 0 )
 	{
 		ClockMilliSec += SRS32(LostTimer0Clicks, 8);
 		LostTimer0Clicks &= 0x000000ff;
 	}
-	WriteTimer0(0);							
-	INTCONbits.T0IF=0;
-	EnableInterrupts;
-
 } // ReSyncToMilliSec
 
 uint8 Saturate(int32 l)
@@ -295,7 +303,6 @@ OS008:
 	GOTO	OS009
 
 	BCF		SHADOWB,PulseRight,1			// stop Right pulse
-
 #ifdef CLOCK_16MHZ
 OS009:
 	DECFSZ	MB,1,1							// rear motor

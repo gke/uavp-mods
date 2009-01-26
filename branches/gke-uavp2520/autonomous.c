@@ -25,6 +25,13 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+// Prototypes
+uint8 Descend(uint8);
+void DoAutonomous(void);
+void Navigate(void);
+void ParseGPSSentence(void);
+uint8 RCLinkRestored(int32);
+
 uint8 RCLinkRestored(int32 d)
 {
 	// checks for good RC frames for a period d mS
@@ -33,24 +40,11 @@ uint8 RCLinkRestored(int32 d)
 	return(ClockMilliSec > TimerMilliSec );
 } // RCLinkRestored
 
-void CheckThrottleMoved(void)
-{
-	if ( _Signal )							// strictly redundant
-	{
-   		_ThrChanging = _NewValues 
-			&& (IThrottle > Limit(PrevIThrottle - THR_WINDOW, _Minimum, _Maximum)) 
-			&& (IThrottle < Limit(PrevIThrottle + THR_WINDOW, _Minimum, _Maximum) );
-		PrevIThrottle = IThrottle;
-	}
-	else
-		_ThrChanging = false;	
-} // CheckThrottleMoved
-
 uint8 Descend(uint8 T)
 {
 	if ( _UseBaro )
 	{
-		DesiredBaroAltitude = Limit(DesiredBaroAltitude - 1, 0, 32000);				// ??? needs more thought
+		DesiredBaroAltitude = Limit(CurrBaroAltitude - 10, 0, 32000);				// ??? needs more thought
 	}
 	else
 	{	
@@ -62,18 +56,47 @@ uint8 Descend(uint8 T)
 		return(T);
 } // Descend
 
-void Navigation(void)
+void Navigate()
 {
+#define MaxPitch 10
+#define MaxRoll 10
 
+	int16 NorthDiff, EastDiff;
 
+	if ( GPSSentenceReceived )
+	{
+		GPSSentenceReceived=false; 
+		ParseGPSSentence();
+	}
 
+	if ( _GPSValid )
+	{ 
+		// QC point north
 
-} // Navigation
+		NorthDiff=(GPSOriginLatitude-GPSLatitude)*(real32)(EarthR);
+		EastDiff=(GPSOriginLongitude-GPSLongitude)*(real32)(EarthR); // * LongitudeCorrection
+
+		IPitch = - MaxPitch * Limit(NorthDiff*NorthDiff+EastDiff*EastDiff, 0, 10);
+		IRoll = 0;
+
+		IYaw = 333; // DesiredHeading - GPSHeading
+
+	// return home ???
+
+	}
+} // Navigate
 
 void DoAutonomous(void)
 {
-
-	DesiredThrottle = Descend(DesiredThrottle);
-	IRoll = IPitch = IYaw = 0;
-
+	if (_GPSValid )
+	{
+		DesiredThrottle = THR_HOVER;
+		DesiredBaroAltitude = 100;
+		Navigate();
+	}
+	else
+	{
+		DesiredThrottle = Descend(DesiredThrottle);
+		IRoll = IPitch = IYaw = 0;
+	}
 } // DoAutonomous

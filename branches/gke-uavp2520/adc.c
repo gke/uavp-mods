@@ -24,6 +24,9 @@
 #include "bits.h"
 #include <adc.h>
 
+// Prototypes
+int16 ADC(uint8, uint8);
+void InitADC(void);
 
 int16 ADC(uint8 Channel, uint8 VRef)
 {

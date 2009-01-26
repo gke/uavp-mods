@@ -26,6 +26,17 @@
 #include "bits.h"
 #include <adc.h>
 
+void InitGyros(void);
+void InitAccelerometers(void);
+int16 GetRollRate(void);
+int16 GetPitchRate(void);
+int16 GetYawRate(void);
+void InitAttitude(void);
+void DetermineAttitude(void);
+void CompensateGyros(void);
+void PID(void);
+void DoControl(void);
+
 // IDG300
 // 3.3V Reference +-500 Deg/Sec
 // 0.4882815 Deg/Sec/LSB 

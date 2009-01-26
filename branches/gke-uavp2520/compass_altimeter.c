@@ -23,6 +23,15 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+void InitDirection(void);
+void GetDirection(void);
+void DoHeadingLock(void);
+void InitBarometer(void);
+int16 AltitudeCompensation(uint16, uint16);
+void GetBaroAltitude(void);
+uint16 ReadBaro(void);
+void StartBaroAcq(uint8);
+
 void InitDirection(void)
 { 	// ugly goto hurdles but clearer perhaps
 	_UseCompass = false;

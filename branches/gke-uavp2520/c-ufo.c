@@ -23,7 +23,14 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-// The globals
+// Prototypes
+void main(void);
+void ResetTimeOuts(void);
+void CheckThrottleClosed(void);
+void CheckThrottleMoved(void);
+void InitMisc(void);
+
+// Variables
 
 #pragma udata assembly_language=0x080
 
@@ -157,12 +164,24 @@ void CheckThrottleClosed(void)
 		_Armed = IThrottle < _ThresStop;
 		_NewValues = false;
 		_UseCh7Trigger =  IK7 < _Neutral;
-		ReadParametersEE();
 		OutSignals();
 	}
 	else
 		_Armed = false;
 } // CheckThrottleClosed
+
+void CheckThrottleMoved(void)
+{
+	if ( _Signal )							// strictly redundant
+	{
+   		_ThrChanging = _NewValues 
+			&& (IThrottle > Limit(PrevIThrottle - THR_WINDOW, _Minimum, _Maximum)) 
+			&& (IThrottle < Limit(PrevIThrottle + THR_WINDOW, _Minimum, _Maximum) );
+		PrevIThrottle = IThrottle;
+	}
+	else
+		_ThrChanging = false;	
+} // CheckThrottleMoved
 
 void ResetTimeOuts(void)
 {
@@ -192,23 +211,21 @@ void main(void)
 	ReadParametersEE();
 	InitTimersAndInterrupts();
 	InitAttitude();
-	ShowSetup(1);				
+	InitGPS();
+	ShowSetup(1);
 
 	while(1)
 	{
 		_MotorsEnabled = false;
+		DesiredThrottle = 0;
 
 		LedRed_ON;
 		if(_UseLISL)
 			LedYellow_ON;
 		
 		ProcessCommand();
-
-//IThrottle = 0;		
+	
 		CheckThrottleClosed();					// sets _Armed
-
-//IThrottle = 75;
-//_Armed = true;
 
 		TimeSlot = Limit(NoOfTimeSlots, 22, 22);// 6 is possible
 		ResetTimeOuts();

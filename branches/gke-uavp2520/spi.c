@@ -25,6 +25,13 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+void IsLISLactive(void);
+void WriteLISLByte(uint8);
+void WriteLISL(uint8, uint8);
+uint8 ReadLISL(uint8);
+uint8 ReadLISLNext(void);
+void ReadLISLXYZ(void);
+
 // LIS3LV02DQ Inertial Sensor (Accelerometer)
 
 void WriteLISLByte(uint8 d)

@@ -23,6 +23,25 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+// Prototypes
+void ProcessCommand(void);
+void ShowSetup(uint8);
+void BootStart(void);
+uint8 PollRxChar(void);
+int16 RxNumS(void);
+uint8 RxNumU(void);
+void TxNibble(uint8);
+void TxValH16(uint16);
+void TxValH(uint8);
+void TxChar(uint8);
+void TxNextLine(void);
+void TxValU(uint8);
+void TxValS(int8);
+
+#ifdef READABLE
+void TxVal(int32, uint8, uint8);
+#endif
+
 // data strings
 #pragma idata menu1
 const char SerHello[] = "\r\nUAVP V" Version " (C) 2008"
@@ -69,17 +88,6 @@ const uint8 SerNeutralN[]=" Nick:";
 const uint8 SerNeutralY[]=" Yaw:";
 const uint8 SerRecvCh[]=  "\r\nT:";
 #pragma idata
-
-void InitUSART(uint8 Rate)
-{
-	uint8 ch;
-
-	TXSTA = 0b00100100;
-	RCSTA = 0b10010000;
-	SPBRG = Rate;
-
-	ch = RCREG;
-} // InitUSART
 			
 // transmit a fix text from a table
 void TxText(const uint8 *pch)
@@ -156,8 +164,8 @@ void TxValS(int8 v)
 
 void TxNextLine(void)
 {
-	TxChar(0x0d);
-	TxChar(0x0a);
+	TxChar(CR);
+	TxChar(LF);
 } // TxNextLine
 
 #ifdef READABLE
@@ -202,29 +210,34 @@ void TxVal(int32 v, uint8 dp, uint8 sep)
 } // TxVal
 #endif // READABLE
 
-// if a character is in the buffer
-// return it. Else return the NUL character
 uint8 RxChar(void)
+{
+	uint8	ch;
+
+	ch = RxBuff[RxHead];
+	//	DisableInterrupts;
+	RxHead = (RxHead + 1) & RXBUFFMASK;
+	//	EnableInterrupts;
+
+	return(ch);	
+} // RxChar
+
+uint8 PollRxChar(void)
 {
 	uint8	ch;	
 
-	if( PIR1bits.RCIF )								// a character is waiting in the buffer
-	{			
-		if( RCSTAbits.OERR || RCSTAbits.FERR )		// overrun or framing error?
-		{
-			RCSTAbits.CREN = false;					// disable, then re-enable port to
-			RCSTAbits.CREN = true;					// reset OERR and FERR bit
-			ch = RCREG;								// dummy read
-		}
-		else
-		{
-			ch = RCREG;								// get the character
-			TxChar(ch);						// echo it
-			return(ch);								// and return it
-		}
+	if ( RxTail != RxHead )
+	{
+		ch = RxBuff[RxHead];
+	//	DisableInterrupts;
+		RxHead = (RxHead + 1) & RXBUFFMASK;
+	//	EnableInterrupts;	
 	}
-	return( '\0' );									// nothing in buffer
-} // RxChar
+	else
+		ch = NUL;
+
+	return(ch);	
+} // PollRxChar
 
 // enter an unsigned number 00 to 99
 uint8 RxNumU(void)
@@ -233,11 +246,11 @@ uint8 RxNumU(void)
 	uint8 v;
 
 	do
-		ch = RxChar();
+		ch = PollRxChar();
 	while( (ch < '0') || (ch > '9') );
 	v = (ch - '0') * 10;
 	do
-		ch = RxChar();
+		ch = PollRxChar();
 	while( (ch < '0') || (ch > '9') );
 	v += ch - '0';
 	return(v);
@@ -252,18 +265,18 @@ int16 RxNumS(void)
 
 	neg = false;
 	do
-		ch = RxChar();
+		ch = PollRxChar();
 	while( ((ch < '0') || (ch > '9')) && (ch != '-') );
 	if( ch == '-' )
 	{
 		neg = true;
 		do
-			ch = RxChar();
+			ch = PollRxChar();
 		while( (ch < '0') || (ch > '9') );
 	}
 	v = (ch - '0') * 10;
 	do
-		ch = RxChar();
+		ch = PollRxChar();
 	while( (ch < '0') || (ch > '9') );
 	v += ch - '0';
 	if ( neg )
@@ -324,7 +337,7 @@ void ProcessCommand(void)
 	uint16 addrbase, curraddr;
 	int8 d;
 
-	ch = RxChar();
+	ch = PollRxChar();
 
 	if( islower(ch))							// check lower case
 		ch=toupper(ch);

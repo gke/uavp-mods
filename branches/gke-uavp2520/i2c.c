@@ -25,6 +25,13 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+void I2CStart(void);
+void I2CStop(void);
+uint8 I2CWaitClkHi(void);
+void I2CDelay(void);
+uint8 SendI2CByte(uint8);
+uint8 RecvI2CByte(uint8);
+
 // -----------------------------------------------------------
 
 // Wolfgang's I2C Routines

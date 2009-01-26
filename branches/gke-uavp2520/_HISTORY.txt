@@ -167,7 +167,8 @@ First public released version.
   interrupts masked.
 
 13.1.2009 v3.15m3.2520 Greg Egan
-- Rewrite for the 18F2520 being tested.  
+- Rewrite for the 18F2520 with only a small part of
+  the orignal V3.15 retained.  
 
 ==============================================
 = SAFETY FIRST!                              =

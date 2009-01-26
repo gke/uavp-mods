@@ -47,7 +47,7 @@
 		endc
 	
 		code
-		org		07c00h				
+		org		07d00h				
 
 		global	BootStart
 

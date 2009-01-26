@@ -138,9 +138,10 @@
 #define THR_WINDOW		5
 
 #define	_Signal			Flags[0]			/*if no valid signal is received*/
+#define _GPSValid		Flags[1]
 #define _NewValues		Flags[2]			/*new RX channel values sampled*/	
 #define _FirstTimeout	Flags[3]			/*is 1 after first 9ms TO expired*/	
-#define _BaroReady		Flags[5]
+#define _BaroReady		Flags[4]
 #define _LowBatt		Flags[5]
 #define	_UseLISL		Flags[6]	
 #define	_UseCompass		Flags[7]	
