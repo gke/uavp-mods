@@ -1,11 +1,8 @@
 
 #define COMMISSIONING
 #define READABLE
-
 //#define RAW_BOOT
 //#define BOOTONLY
-
-#define USE_GPS
 
 #ifndef BATCHMODE
 // =======================================================================
@@ -81,7 +78,7 @@
 // <front>;<rear>;<left>;<right> CR LF
 // these are the throttle value to the 4 speed controllers
 // log them with a terminal proggie to make nice charts :-)
-// Reg. 26 controls if motors should run or not
+// Reg. 26 ( CamFactor in UAVPSet) controls if motors should run or not
 // bit 0 = front, 1 = rear, 2 = left, 3 = right
 // if a bit is 1 motor is always stopped, only comport output
 // if a bit is 0 motor is running as normal.
@@ -91,10 +88,7 @@
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-//#define DEBUG_SENSORS
-
-// Switched Roll and Pitch channels for Conrad mc800 transmitter
-//#define EXCHROLLNICK
+#define DEBUG_SENSORS
 
 #endif // !BATCHMODE
 
@@ -102,9 +96,10 @@
 // performed using TestSoftware 
 #define CFG_COMPASS
 
-// Includes GPS functionality
-#define USE_GPS
-//#define GPS_NMEA
+// Includes GPS functionality and limited autonomous capability
+//#define USE_GPS
+// Use standard NMEA protocol otherwise Trimble TSIP protocol
+#define GPS_NMEA
 
 // 18F2520 PIC can be run at 32MHz with an 8MHz XTAL. At 16MHz there is no 
 // camera control to reduce the complexity/reliability of output pulse
@@ -200,10 +195,11 @@ typedef uint8 boolean;
 #define DisableInterrupts (INTCONbits.GIEH=0)
 #define EnableInterrupts (INTCONbits.GIEH=1)
 
+// Simple filters using weighted averaging
 #ifdef SUPPRESSFILTERS
   #define VerySoftFilter(O,N)		(N)
   #define SoftFilter(O,N) 			(N)
-  #define GyroFilter(O,N) 			(N)
+  #define MediumFilter(O,N) 			(N)
   #define AccelerometerFilter(O,N) 	(N)
 #else
   #define VerySoftFilter(O,N) 		(SRS16(O+N*3+2, 2))
@@ -308,7 +304,7 @@ typedef uint8 boolean;
 #define DEBUG
 #endif
 
-// MilliSec
+// Timer constants in MilliSec
 #define THROTTLE_TIMEOUT		2000
 		
 #define FAILSAFE_TIMEOUT		1500
@@ -324,7 +320,7 @@ typedef uint8 boolean;
 #define _B115200	(_ClkOut*104000/(4*115200) - 1)
 #define _B230400	(_ClkOut*100000/(4*115200) - 1)
 
-// Filters
+// Filter selection
 #define GyroFilter SoftFilter
 #define AccelerometerFilter SoftFilter
 #define	StickFilter NoFilter
@@ -354,17 +350,23 @@ typedef uint8 boolean;
 #define ACCSIGN_Y	(-1)
 #define ACCSIGN_Z	(-1)
 
-// Gyros
-
 // IDG300
+// 3.3V Reference +-500 Deg/Sec
+// 0.4882815 Deg/Sec/LSB 
 //	+ roll right
 //	+ pitch down
 //	+ yaw clockwise
 
-// ADXRS 300/150
+// ADRSX300 Yaw
+// 5V Reference +-300 Deg/Sec
+// 0.2926875 Deg/Sec/LSB 
 //	+ roll left
 //	+ pitch down
 //	+ yaw clockwise
+
+// ADXRS150
+// 5V Reference +-150 Deg/Sec
+// 0.146484375 Deg/Sec/LSB
 
 // Gyro combinations
 
@@ -388,8 +390,16 @@ typedef uint8 boolean;
 #endif
 #endif
 
-#define RollLimit			100				/* ??? nominal values */
-#define	PitchLimit			100
+// Max stick output ???
+#define IMAX 50
+
+// Max attitude angles in attitude angle units for now
+#define MAX_ROLL				200	
+#define	MAX_PITCH				200
+
+// Control limits for autonomous flight - not in PID loop!
+#define MAX_ROLL_CTL			((_Maximum+5)/10)			
+#define MAX_PITCH_CTL			((_Maximum+5)/10)
 
 #define ADCEXTVREF_YAW 		0
 #define	GYROSIGN_YAW 		(1)
@@ -400,111 +410,112 @@ typedef uint8 boolean;
 // External variables - declarations in c-ufo.c
 
 // Assembly language variables in Bank0
-extern	uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME;			
+extern uint8 SHADOWB, CAMTOGGLE, MF, MB, ML, MR, MT, ME;			
 
 // Globals 									
 enum 	States {Initialising, Landed, Flying, Failsafe, Autonomous};
-extern	uint8	State;
-extern	int32	ClockMilliSec, TimerMilliSec, LostTimer0Clicks;
-extern	int32	FailsafeTimeoutMilliSec, AutonomousTimeoutMilliSec, ThrottleClosedMilliSec;
+extern uint8	State;
+extern int32	ClockMilliSec, TimerMilliSec, LostTimer0Clicks;
+extern int32	FailsafeTimeoutMilliSec, AutonomousTimeoutMilliSec, ThrottleClosedMilliSec;
 
-extern	int32	CycleCount;
-extern	int8	TimeSlot;
+extern int32	CycleCount;
+extern int8	TimeSlot;
 
 // RC
-extern	uint8	IThrottle;
-extern	uint8 	PrevIThrottle;							// most recent past IThrottle					
-extern	uint8	DesiredThrottle;						// actual throttle
-extern	int16	DesiredYaw;
-extern	int16 	IRoll, IPitch, IYaw;
-extern	uint8	IK5, IK6, IK7;
-extern	uint16	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
-extern	int16	NewRoll, NewPitch, NewYaw, NewThrottle;
-extern	int32	BadRCFrames;
-extern	uint8	GoodRCFrames;
+enum RCChannels {ThrottleC=1, RollC, PitchC, YawC, ParamC, CamTiltC, CamRollC}; 
+#define FirstC ThrottleC
+#define LastC CamRollC
+
+extern uint8	Map[8];
+extern const	uint8	MapCh1[8], MapCh3[8];
+extern int16	PPM[8], RC[8], Desired[8];
+extern int32	BadRCFrames;
+extern uint8	GoodRCFrames;
 
 // Gyros
-extern	int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
-extern	int16	RollGyroRate, PitchGyroRate, YawGyroRate;// PID rate (raw gyro values)
-extern	int16	RollRate, PitchRate, YawRate;			// PID rate (scaled gyro values)
-extern	int16	MidRoll, MidPitch, MidYaw;				// PID gyro neutrals
+extern int32	RollAngle, PitchAngle, YawAngle;		// PID integral (angle)
+extern int16	RollGyroRate, PitchGyroRate, YawGyroRate;// PID rate (raw gyro values)
+extern int16	RollRate, PitchRate, YawRate;			// PID rate (scaled gyro values)
+extern int16	MidRoll, MidPitch, MidYaw;				// PID gyro neutrals
 
 // Acceleration Corrections
-extern	int32	UDVelocity;
-extern	int16	Ax, Ay, Az;								// LISL sensor accelerations								
-extern	int16	NeutralLR, NeutralFB, NeutralUD;		// LISL scaled neutral values					
+extern int32	UDVelocity;
+extern int16	Ax, Ay, Az;								// LISL sensor accelerations								
+extern int16	NeutralLR, NeutralFB, NeutralUD;		// LISL scaled neutral values					
 
-// PID 
-extern	int32	Rl, Pl, Yl;								// PID output values						// Progressive corrections
-extern	int16	RE, PE, YE;								// PID error
-extern	int16	REp, PEp, YEp;							// PID previous error
-extern	int16	RollFailsafe, PitchFailsafe, YawFailsafe;
-			
+// PID
+enum Vars {ThrottleV, RollV, PitchV, YawV, BaroAltV };
+extern int32	Rl, Pl, Yl;								// PID output values
+extern int16	RE, PE, YE;								// PID error
+extern int16	REp, PEp, YEp;							// PID previous error
+extern int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, DesiredYawRate;
+extern int16	DesiredCamRoll, DesiredCamPitch;
+		
 // Altitude
-extern	uint16	OriginBaroTemp;
-extern	int16	OriginBaroAltitude, DesiredBaroAltitude, CurrBaroAltitude, CurrBaroTemp;
-extern 	int16	BE, BEp, BESum;			// errors
-extern	int16	VBaroComp;
-extern	int32	Vud;
+extern uint16	OriginBaroTemp;
+extern int16	OriginBaroAltitude, DesiredBaroAltitude, CurrBaroAltitude, CurrBaroTemp;
+extern 	int16	BE, BEp, BESum;	
+extern int16	VBaroComp;
+extern int32	Vud;
 
 // Compass
-extern	int16 	Compass;								// raw compass value
-extern	int16	AbsDirection;							// desired heading (240 = 360 deg)
-extern	int16	CurrDeviation;							// deviation from correct heading
+extern int16 	Compass;								// raw compass value
+extern int16	AbsDirection;							// desired heading (240 = 360 deg)
+extern int16	CurrDeviation;							// deviation from correct heading
 
 // Motors
-extern	uint8	MFront,MLeft,MRight,MBack;			// output channels
-extern	uint8	MCamRoll,MCamPitch;
+extern uint8	MFront, MBack, MLeft, MRight, MCamPitch, MCamRoll;
 
 // GPS
-extern	real32 GPSLatitude, GPSLongitude, GPSOriginLatitude, GPSOriginLongitude;
-extern	int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSBearing, GPSGroundSpeed;
-extern	boolean GPSSentenceReceived; 
+extern boolean GPSSentenceReceived; 
+extern real32 GPSLatitude, GPSLongitude, GPSOriginLatitude, GPSOriginLongitude;
+extern int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSGroundSpeed;
+extern real32 LongitudeCorrection;
 
 // Serial I/O
-extern	uint8 RxCheckSum, RxHead, RxTail;
-extern	uint8 RxBuff[RXBUFFMASK+1];
+extern uint8 RxCheckSum, RxHead, RxTail;
+extern uint8 RxBuff[RXBUFFMASK+1];
 
 // Misc
-extern	uint8	Flags[8];
-extern	uint8	Flags2[8];
+extern uint8	Flags[8];
+extern uint8	Flags2[8];
 										
-extern	uint8	LedShadow;								// shadow register
-extern	uint8	LedCount;
+extern uint8	LedShadow;								// shadow register
+extern uint8	LedCount;
 extern  int16	BatteryVolts; 
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
 // These variables MUST keep in this order!!!
-extern	int8	RollPropFactor; 	// 01
-extern	int8	RollIntFactor;		// 02
-extern	int8	RollDiffFactor;		// 03
-extern	int8	BaroTempCoeff;		// 04
-extern	int8	RollIntLimit;		// 05
-extern	int8	PitchPropFactor;	// 06
-extern	int8	PitchIntFactor;		// 07
-extern	int8	PitchDiffFactor;	// 08
-extern	int8	BaroThrottleProp;	// 09
-extern	int8	PitchIntLimit;		// 10
-extern	int8	YawPropFactor; 		// 11
-extern	int8	YawIntFactor;		// 12
-extern	int8	YawDiffFactor;		// 13
-extern	int8	YawLimit;			// 14
-extern	int8 	YawIntLimit;		// 15
+extern int8	RollPropFactor; 	// 01
+extern int8	RollIntFactor;		// 02
+extern int8	RollDiffFactor;		// 03
+extern int8	BaroTempCoeff;		// 04
+extern int8	RollIntLimit;		// 05
+extern int8	PitchPropFactor;	// 06
+extern int8	PitchIntFactor;		// 07
+extern int8	PitchDiffFactor;	// 08
+extern int8	BaroThrottleProp;	// 09
+extern int8	PitchIntLimit;		// 10
+extern int8	YawPropFactor; 		// 11
+extern int8	YawIntFactor;		// 12
+extern int8	YawDiffFactor;		// 13
+extern int8	YawLimit;			// 14
+extern int8 	YawIntLimit;		// 15
 
-extern	int8	ConfigParam;		// 16
-extern	int8	NoOfTimeSlots;		// 17
-extern	int8	LowVoltThres;		// 18
+extern int8	ConfigParam;		// 16
+extern int8	NoOfTimeSlots;		// 17
+extern int8	LowVoltThres;		// 18
 
-extern	int8	LinLRIntFactor;		// 19
-extern	int8	LinFBIntFactor;		// 20
-extern	int8	LinUDIntFactor;		// 21
-extern	int8	MiddleUD;			// 22 unused?
-extern	int8	MotorLowRun;		// 23
-extern	int8	MiddleLR;			// 24
-extern	int8	MiddleFB;			// 25
-extern	int8	CamIntFactor;		// 26
-extern	int8	CompassFactor;		// 27
-extern	int8	BaroThrottleDiff;	// 28
+extern int8	LinLRIntFactor;		// 19
+extern int8	LinFBIntFactor;		// 20
+extern int8	LinUDIntFactor;		// 21
+extern int8	MiddleUD;			// 22 unused?
+extern int8	MotorLowRun;		// 23
+extern int8	MiddleLR;			// 24
+extern int8	MiddleFB;			// 25
+extern int8	CamIntFactor;		// 26
+extern int8	CompassFactor;		// 27
+extern int8	BaroThrottleDiff;	// 28
 
 #define FirstProgReg RollPropFactor
 #define	LastProgReg BaroThrottleDiff
@@ -517,76 +528,83 @@ extern	int8	BaroThrottleDiff;	// 28
 // Prototypes
 
 // ADC.c
-extern	int16 ADC(uint8, uint8);
-extern	void InitADC(void);
+extern int16 ADC(uint8, uint8);
+extern void InitADC(void);
 
 // autonomous.c
-extern	void DoAutonomous(void);
+extern void AcquireSatellites(void);
+extern void DoAutonomous(void);
+extern void ResetTimeOuts(void);
 extern 	uint8 RCLinkRestored(int32);
 
 // compass_altimeter.c
-extern	void InitDirection(void);
-extern	void GetDirection(void);
-extern	void InitBarometer(void);
-extern	void GetBaroAltitude(void);
+extern void InitDirection(void);
+extern void GetDirection(void);
+extern void InitBarometer(void);
+extern void GetBaroAltitude(void);
+extern void SetDesiredBaroAltitude(uint16);
 
 // control.c
-extern	void InitAttitude(void);
-extern	void DoControl(void);
+extern void InitAttitude(void);
+extern void UpdateControls(void);
+extern void DoControl(void);
 
 // gps.c
 extern 	void InitGPS(void);
-extern	void ParseGPSSentence(void);
+extern void ParseGPSSentence(void);
+extern void UpdateGPS(void);
 
 // i2c.c
-extern	void I2CStart(void);
-extern	void I2CStop(void);
-extern	uint8 SendI2CByte(uint8);
-extern	uint8 RecvI2CByte(uint8);
+extern void I2CStart(void);
+extern void I2CStop(void);
+extern uint8 SendI2CByte(uint8);
+extern uint8 RecvI2CByte(uint8);
 
 // irq.c
-extern	void InitTimersAndInterrupts(void);
+extern void InitTimersAndInterrupts(void);
+extern void MapRC(void);
 
 // outputs.c
 extern void OutSignals(void);
 
 // serial.c
-extern	void ProcessCommand(void);
-extern	void ShowSetup(uint8);
-extern	uint8 RxChar(void);
-extern	uint8 PollRxChar(void);
-extern	int16 RxNumS(void);
-extern	uint8 RxNumU(void);
-extern	void TxValH16(uint16);
-extern	void TxValH(uint8);
-extern	void TxChar(uint8);
-extern	void TxNextLine(void);
-extern	void TxValU(uint8);
-extern	void TxValS(int8);
+extern void ProcessCommand(void);
+extern void ShowSetup(uint8);
+extern uint8 RxChar(void);
+extern uint8 PollRxChar(void);
+extern int16 RxNumS(void);
+extern uint8 RxNumU(void);
+extern void TxValH16(uint16);
+extern void TxValH(uint8);
+extern void TxChar(uint8);
+extern void TxNextLine(void);
+extern void TxValU(uint8);
+extern void TxValS(int8);
 
 #ifdef READABLE
-extern	void TxVal(int32, uint8, uint8);
+extern void TxVal(int32, uint8, uint8);
 #endif
 
 // spi.c
-extern	void IsLISLactive(void);
-extern	void ReadLISLXYZ(void);
+extern void IsLISLactive(void);
+extern void ReadLISLXYZ(void);
 
 // utils.c
-extern	int32 SRS32(int32, uint8);
-extern	int16 SRS16(int16, uint8);
-extern	void CheckAlarms(void);
-extern	void ReadParametersEE(void);
-extern	void WriteParametersEE(uint8);
-extern void WriteEE(uint8, int8);
-extern int8 ReadEE(uint8);
-extern	void SendLeds(void);
-extern void SwitchLedsOn(uint8);
-extern	void SwitchLedsOff(uint8);
-extern	void LEDGame(void);
-extern	void DoDebugTraces(void);
-extern	void Delay100mSec(uint8);
-extern	void InitPorts(void);
+extern int32 SRS32(int32, uint8);
+extern int16 SRS16(int16, uint8);
+extern void CheckAlarms(void);
+extern void ReadParametersEE(void);
+extern void WriteParametersEE(uint8);
+extern 	void WriteEE(uint8, int8);
+extern 	int8 ReadEE(uint8);
+extern void LoadRCMap(void);
+extern void SendLeds(void);
+extern 	void SwitchLedsOn(uint8);
+extern void SwitchLedsOff(uint8);
+extern void LEDGame(void);
+extern void DoDebugTraces(void);
+extern void Delay100mSec(uint8);
+extern void InitPorts(void);
 
 // End of c-ufo.h
 

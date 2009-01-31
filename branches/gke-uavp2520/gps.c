@@ -27,27 +27,28 @@
 void ParseGPSSentence(void);
 void PollGPS(void);
 void InitGPS(void);
+void UpdateGPS(void);
 
 #ifdef USE_GPS
 
 // Global Variables
 
 #pragma udata gpsextvars
-boolean GPSSentenceReceived;
-real32 GPSLatitude, GPSLongitude, GPSOriginLatitude, GPSOriginLongitude;
-int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSBearing, GPSGroundSpeed;
+boolean FirstGPSSentence;
+int32 GPSStartTime, GPSMissionTime;
+uint8 GPSNoOfSats;
 #pragma udata
 
 #ifdef GPS_NMEA
 
-// NMEA Prototypes
+// Include decoding of time etc.
+//#define NMEA_ALL
 
+// Prototypes
 void UpdateField(void);
 int16 ConvertInt(uint8, uint8);
 real32 ConvertReal(uint8, uint8);
 real32 ConvertLatLon(uint8, uint8);
-
-
 
 #pragma udata gpsvars
 enum WaitGPSStates {WaitGPSSentinel, WaitGPSTag, WaitGPSBody, WaitGPSCheckSum};
@@ -60,17 +61,9 @@ uint8 cc, ll, tt, lo, hi;
 #define MAXTAGINDEX 4
 const uint8 GPGGATag[]= {'GPGGA'}; 				// full positioning fix
 
-boolean FirstGPSSentence;
 boolean EmptyField;
 uint8 GPSTxCheckSum, GPSRxCheckSum, GPSCheckSumChar;
-
 #pragma udata
-
-#pragma udata gpstags
-  
-#pragma udata
-
-
 
 int16 ConvertInt(uint8 lo, uint8 hi)
 {
@@ -89,7 +82,7 @@ int16 ConvertInt(uint8 lo, uint8 hi)
       }
     }
   return (ival);
-}
+} // ConvertInt
 
 real32 ConvertReal(uint8 lo, uint8 hi)
 {
@@ -146,6 +139,23 @@ real32 ConvertLatLon(uint8 lo, uint8 hi)
   return(rval);
 } // ConvertLatLon
 
+#ifdef NMEA_ALL
+int32 ConvertUTime(uint8 lo, uint8 hi)
+{
+ 	int32 ival, hh;
+ 	 int16 mm, ss;
+
+	if (EmptyField)
+		ival=0;
+	else
+		ival=(int32)(ConvertInt(lo, lo+1))*3600+
+			(int32)(ConvertInt(lo+2, lo+3)*60)+
+			(int32)(ConvertInt(lo+4, hi));
+      
+  return(ival);
+} // ConvertUTime
+#endif // NMEA_ALL
+
 void UpdateField()
 {
   lo=cc;
@@ -161,15 +171,17 @@ void UpdateField()
 } // UpdateField
 
 void ParseGPSSentence()
-{ // full position fix 
-	uint8 GPSFix, GPSSats;
-  	//int32 UTime;
+{ // full position $GPGGA fix 
+	uint8 GPSFix;
 
     UpdateField();
     
     UpdateField();   //UTime
-  	//UTime=ConvertUTime(lo,hi);      
-  	//Nav.MissionTime=(UTime-GPSStartTime);
+	#ifdef NMEA_ALL
+	GPSMissionTime=ConvertUTime(lo,hi);
+	#else
+	GPSMissionTime = 0;
+	#endif // NMEA_ALL      
      
     UpdateField();   //Lat
     GPSLatitude=ConvertLatLon(lo,hi)*DEGTOM;
@@ -181,14 +193,14 @@ void ParseGPSSentence()
     // no latitude compensation on longditude    
     GPSLongitude=ConvertLatLon(lo,hi)*DEGTOM;
     UpdateField();   //LonH
-    if (GPSRxBuffer[lo]=='W')
+	if (GPSRxBuffer[lo]=='W')
       GPSLongitude=-GPSLongitude;
            
     UpdateField();   //Fix 
     GPSFix=(uint8)(ConvertInt(lo,hi));
 
     UpdateField();   //Sats
-    GPSSats=(uint8)(ConvertInt(lo,hi));
+    GPSNoOfSats=(uint8)(ConvertInt(lo,hi));
 
     UpdateField();   // HDilute
 
@@ -203,14 +215,21 @@ void ParseGPSSentence()
     _GPSValid=(GPSFix>0);
     
     if (FirstGPSSentence&&_GPSValid)
-      {
- //     GPSStartTime=Nav.MissionTime;
-      GPSOriginLatitude=GPSLatitude;
-      GPSOriginLongitude=GPSLongitude;
-	//LongitudeCorrection=cos(GPSLatitude);
-      GPSOriginAltitude=GPSAltitude;
-      FirstGPSSentence=false;
-      } 
+	{
+		GPSStartTime=GPSMissionTime;
+      	GPSOriginLatitude=GPSLatitude;
+      	GPSOriginLongitude=GPSLongitude;
+
+		#ifdef NMEA_ALL
+		LongitudeCorrection=cos(GPSLatitude); // 530uSec on 40MHz PIC18F processor !!!!
+		#else
+	    LongitudeCorrection = 1.0;
+		#endif // NMEA_ALL 
+
+		LongitudeCorrection= 1.0;
+      	GPSOriginAltitude=GPSAltitude;
+      	FirstGPSSentence=false;
+	} 
 } // ParseGPSSentence
 
 void PollGPS(void)
@@ -298,10 +317,16 @@ void InitGPS()
   	ch=' '; 
 } // InitGPS
 
-#else // GPS_TRIMBLE
+#else
 
-// TRIMBLE RAW CODE NOT COMMISSIONED FOR UAVP
+//----------------------------------------------------------------------------------------------------
 
+// Trimble TSIP protocol
+
+// Include all Trimble information - not commissioned
+//#define TSIP_ALL
+
+// Prototypes
 void TSIPTime(void);
 void TSIPHealth(void);
 void TSIPPosition(void);
@@ -325,7 +350,6 @@ typedef struct {
   uint8 Fault:1; // general fault set if any other flags set
   } TrimbleFlags;
 
-
 typedef struct {
   uint8 DGPSMode;
   uint8 Status;
@@ -336,23 +360,15 @@ typedef struct {
 
 #pragma udata gpspacket
 uint8 TSIPRxBuffer[TSIPRxBuffLength];
-#pragma udata
-
 uint8 cc, ll, tt;
-
-int32 TrimbleEastVel, TrimbleNorthVel;
-real32 LongitudeCorrection;
-uint8 GPSNoOfSats;
-
-boolean FirstGPSSentence, GPSFrameReceived; 
+uint8 TSIPTag;
+boolean GPSFrameReceived; 
 
 enum WaitTSIPStates {WaitTSIPSentinel, WaitTSIPBody, WaitTSIPDoubleDLE, WaitTSIPConfirmStart, WaitTSIPEnd};
-
-uint8 TSIPTag;
-
+uint8 TSIPRxState;
 TrimbleState Trimble;
 
-uint8 TSIPRxState;
+#pragma udata
 
 int16 ConvertInt16(uint8 lo, uint8 hi)
 {
@@ -361,7 +377,7 @@ int16 ConvertInt16(uint8 lo, uint8 hi)
   ival=(TSIPRxBuffer[lo]<<8)|TSIPRxBuffer[hi];
   
   return (ival);
-}
+} // ConvertInt16
 
 int32 ConvertInt32(uint8 lo, uint8 hi)
 {
@@ -373,7 +389,7 @@ int32 ConvertInt32(uint8 lo, uint8 hi)
     ival=(ival<<8)|TSIPRxBuffer[b];
     
   return(ival);
-}
+} // ConvertInt32
 
 uint32 ConvertUInt32(uint8 lo, uint8 hi)
 {
@@ -385,7 +401,7 @@ uint32 ConvertUInt32(uint8 lo, uint8 hi)
     ival=(ival<<8)|TSIPRxBuffer[b];
     
   return(ival);
-}
+} // ConvertUInt32
 
 typedef union {int32 i; real32 r;} ieee;
 
@@ -397,24 +413,23 @@ real32 ConvertReal32(uint8 lo, uint8 hi)
   val.i=0;
   for (b=lo;b<=hi;b++)
     val.i=(val.i<<8)|TSIPRxBuffer[b];
-  
- // val.r=ieeetomchp(val.r);
 	
   return(val.r);
-}
+} // ConvertReal32
 
 void TSIPTime() // 41 - 61.6uS
 {
-//  MissionTime=ConvertInt32(0,3);
-}
+	GPSMissionTime=ConvertInt32(0,3);
+} // TSIPTime
 
 void TSIPHealth()  // 46 - 4.9uS
 { // only useful at startup - remains fixed until Trimble reset
-
-  Trimble.Status=TSIPRxBuffer[1];
-  Trimble.F.NoBattery=IsSet(TSIPRxBuffer[1],0);
-  Trimble.F.NoAntenna=IsSet(TSIPRxBuffer[1],4);
-}
+	#ifdef TSIP_ALL
+  	Trimble.Status=TSIPRxBuffer[1];
+  	Trimble.F.NoBattery=IsSet(TSIPRxBuffer[1],0);
+  	Trimble.F.NoAntenna=IsSet(TSIPRxBuffer[1],4);
+	#endif // TSIP_ALL
+} // TSIPHealth
 
 void TSIPPosition()  // 4a - 197.7-200.1uS
 {
@@ -428,66 +443,77 @@ void TSIPPosition()  // 4a - 197.7-200.1uS
 	GPSOriginLongitude=GPSLongitude;
 	GPSOriginAltitude=GPSAltitude;
 
-   // LongitudeCorrection=cos(GPSLatitude); // 530uSec on 40MHz PIC18F processor !!!!
-                                           // short range UAV so do it once
+	#ifdef TSIP_ALL
+	LongitudeCorrection=cos(GPSLatitude); // 530uSec on 40MHz PIC18F processor !!!!
+	#else
+    LongitudeCorrection = 1.0;
+	#endif // TSIP_ALL 
+
 	FirstGPSSentence=false;
 	}
   _GPSValid=true; // only emits position if it has a fix
  // Nav.F.No3DFix=GPSNoOfSats<4;
-}
+} // TSIPPosition
 
 void TSIPStatus()  // 4b - 5.2uS
 {
-  Trimble.F.NoRTC=IsSet(TSIPRxBuffer[1],1);
-  Trimble.F.BadAlmanac=IsSet(TSIPRxBuffer[1],3);
- // Trimble.F.NoSuperPackets=IsSet(TSIPRxBuffer[2],0);
-}
+	#ifdef TSIP_ALL
+	Trimble.F.NoRTC=IsSet(TSIPRxBuffer[1],1);
+	Trimble.F.BadAlmanac=IsSet(TSIPRxBuffer[1],3);
+	Trimble.F.NoSuperPackets=IsSet(TSIPRxBuffer[2],0);
+	#endif // TSIP_ALL 
+} // TSIPStatus
 
 void TSIPVelocity()  // 56 - 598uS -> 218.4uS 
 {
-  TrimbleEastVel=(int32)(ConvertReal32(0,3)*10.0);
-  TrimbleNorthVel=(int32)(ConvertReal32(4,7)*10.0);  
-//  GPSRateOfClimb=(int16)(ConvertReal32(8,11)+0.5);
+	#ifdef TSIP_ALL
+	EastVel=(int32)(ConvertReal32(0,3)*10.0);
+	NorthVel=(int32)(ConvertReal32(4,7)*10.0);  
+	GPSRateOfClimb=(int16)(ConvertReal32(8,11)+0.5);
   
-  // moved to Differential Fx sentence to reduce time   
-  //GPSHeading=int16atan2(EastVel, NorthVel);         
-  //GPSGroundSpeed=int32sqrt((int32)(NorthVel)*(int32)(NorthVel)+(int32)(EastVel)*(int32)(EastVel)); 
-}
+	// moved to Differential Fx sentence to reduce time   
+	GPSHeading=int16atan2(EastVel, NorthVel);         
+	GPSGroundSpeed=int32sqrt((int32)(NorthVel)*(int32)(NorthVel)+(int32)(EastVel)*(int32)(EastVel));
+	#endif // TSIP_ALL 
+} // TSIPVelocity
 
 void TSIPSatsInView()  // 6d - 78.4uS
 {
-  Trimble.F.Mode2D=false;
-  Trimble.F.Mode3D=false;
-  switch (TSIPRxBuffer[0]&0b00000111) {
-    case 3: Trimble.F.Mode2D=true; break;
-    case 4: Trimble.F.Mode3D=true; break;
-    default: break;
-    }
-  GPSNoOfSats=(uint8)((TSIPRxBuffer[0]>>4)&0x0f);
- // Trimble.PDOP=ConvertReal32(1,4);
- // GPSEstHorizontalError=(int16)(ConvertReal32(5,8)*10.0);
- // Trimble.VDOP=ConvertReal32(9,12);
- // Trimble.TDOP=ConvertReal32(13,16);
+	#ifdef TSIP_ALL
+	Trimble.F.Mode2D=false;
+	Trimble.F.Mode3D=false;
+	switch (TSIPRxBuffer[0]&0b00000111) {
+	case 3: Trimble.F.Mode2D=true; break;
+	case 4: Trimble.F.Mode3D=true; break;
+	default: break;
+	}
+	Trimble.PDOP=ConvertReal32(1,4);
+	GPSEstHorizontalError=(int16)(ConvertReal32(5,8)*10.0);
+	Trimble.VDOP=ConvertReal32(9,12);
+	Trimble.TDOP=ConvertReal32(13,16);
+	#endif // TSIP_ALL
+	GPSNoOfSats=(uint8)((TSIPRxBuffer[0]>>4)&0x0f);
 } // TSIPSatsInView
 
 void TSIPDifferentialFix()  // 82 - 1.2uS -> 374.7uS (a bit long but last sentence so OK) 
-{ // This sentence is the last in the sequence of TSIP sentences 
-  // following which there is a gap for processing
-  GPSFrameReceived=true; // needs top be before next statement or it gets clobbered by banking optimisation in C18!!
-/*
-  // moved here to reduce computation time in Velocity sentence
-  GPSHeading=int16atan2(TrimbleEastVel, TrimbleNorthVel);          
-  GPSGroundSpeed=int32sqrt((int32)(TrimbleNorthVel)*(int32)(TrimbleNorthVel)+(int32)(TrimbleEastVel)*(int32)(TrimbleEastVel));
+{	// This sentence is the last in the sequence of TSIP sentences 
+	// following which there is a gap for processing
+	GPSFrameReceived=true; // needs top be before next statement or it gets clobbered by banking optimisation in C18!!
 
-  Trimble.F.Fault=(
+	#ifdef TSIP_ALL
+	// moved here to reduce computation time in Velocity sentence
+	GPSHeading=int16atan2(TrimbleEastVel, TrimbleNorthVel);          
+	GPSGroundSpeed=int32sqrt((int32)(NorthVel)*(int32)(NorthVel)+(int32)(EastVel)*(int32)(EastVel));
+
+	Trimble.F.Fault=(
     Trimble.F.BadAlmanac||
     Trimble.F.NoRTC||
     Trimble.F.NoAntenna||
     Trimble.F.NoBattery||
-    Trimble.F.No3DFix);
-  Trimble.DGPSMode=(uint8)(TSIPRxBuffer[0]&3);  
-*/
-}
+	Trimble.F.No3DFix);
+  	Trimble.DGPSMode=(uint8)(TSIPRxBuffer[0]&3); 
+ 	#endif // TSIP_ALL
+} // TSIPDifferentialFix
 
 void ParseGPSSentence() // 2.4uS
 {
@@ -501,7 +527,7 @@ void ParseGPSSentence() // 2.4uS
     case 0x82: TSIPDifferentialFix(); break; 
     default: break;
     }
-}
+} // ParseGPSSentence
 
 void PollGPS(void)
 {
@@ -563,7 +589,7 @@ void PollGPS(void)
       }
     } 
 	} 
-}
+} // PollGPS
 
 void InitGPS()
 {   
@@ -579,8 +605,33 @@ void InitGPS()
  // do trimble startup stuff
   
   TSIPRxState=WaitTSIPSentinel; 
- // ch=' '; 
-}
+
+} // InitGPS
+
+#endif // GPS_NMEA
+
+void UpdateGPS(void)
+{
+	if ( GPSSentenceReceived )
+	{
+		GPSSentenceReceived=false; 
+		ParseGPSSentence();
+	}
+} // UpdateGPS
+
+#else
+
+void InitGPS(void)
+{
+	GPSSentenceReceived=false;
+	_GPSValid=false;  
+}  // InitGPS
+
+void UpdateGPS(void)
+{
+	// empty
+} // UpdateGPS
+
 
 #endif // USE_GPS
 

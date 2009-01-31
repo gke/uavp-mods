@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =             Ported 2008 to 18F2520 by Prof. Greg Egan               =
+// =      Rewritten and ported to 18F2520 2008 by Prof. Greg Egan        =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -27,12 +27,14 @@
 
 // Prototypes
 void InitTimersAndInterrupts(void);
+void MapRC(void);
+void ErrorRestart(void);
 
-uint16	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
-int16	NewRoll, NewPitch, NewYaw, NewThrottle;
+int8	PPMBit;
+uint16	Width, Edge, PrevEdge;
 
 uint8	RxBuff[RXBUFFMASK+1];
-uint8	RCState, RCValid;
+uint8	RCValid;
 uint8	RxHead, RxTail;
 uint8	RxCheckSum;
 
@@ -42,8 +44,6 @@ void InitTimersAndInterrupts()
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);
-
-
 	#else // CLOCK_32MHZ
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);	
@@ -68,6 +68,29 @@ void InitTimersAndInterrupts()
 	EnableInterrupts;	
 } // InitTimersAndInterrupts
 
+void MapRC(void)
+{  // re-maps captured PPM to Rx channel sequence
+	// possible interference to PPM by irq.c?
+	uint8 c;
+
+	for (c = FirstC; c<= LastC; c++)
+		RC[c] = StickFilter(RC[c], PPM[Map[c]]);
+
+} // MapRC
+
+void ErrorRestart(void)
+{
+	BadRCFrames++;
+	_NewValues = false;
+	_Signal = false;		// Signal lost
+	PPMBit = -1;
+
+	#ifndef RX_PPM
+	CCP1CONbits.CCP1M0 = NegativePPM;
+	#endif
+
+} // ErrorRestart
+
 #pragma interrupt low_isr_handler
 void low_isr_handler(void)
 {
@@ -76,225 +99,68 @@ void low_isr_handler(void)
 
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
-{
-// For 2.4GHz systems see README_DSM2_ETC.
-	uint8 ch;
+{	// For 2.4GHz systems see README_DSM2_ETC.
+	uint8 ch, c;
 
 	if( PIR1bits.CCP1IF )
 	{
-		TMR2 = 0;						// re-set timer and postscaler
-		PIR1bits.TMR2IF = false;		// quit int
+		TMR2 = 0;								// re-set timer and postscaler
+		PIR1bits.TMR2IF = false;
 		_FirstTimeout = false;
 
-#ifndef RX_PPM							// single PPM pulse train from receiver
-										// standard usage (PPM, 3 or 4 channels input)
-		CCP1CONbits.CCP1M0 ^= 1;		// toggle edge bit
-		PR2 = TMR2_5MS;					// set compare reg to 5ms
+		#ifndef RX_PPM							// single PPM pulse train from receiver
+		CCP1CONbits.CCP1M0 ^= 1;				// toggle edge bit
+		PR2 = TMR2_5MS;				
+		#endif  // !RX_PPM
 
-		if( NegativePPM ^ CCP1CONbits.CCP1M0  )	// a negative edge
+		if( PPMBit == 0 )
 		{
-#endif
-			// could be replaced by a switch ???
-			if( RCState == 0 )
-			{
-				NewK1 = CCPR1;
-			}
-			else
-			if( RCState == 2 )
-			{
-				NewK3 = CCPR1;
-				NewK2 = NewK3 - NewK2;
-				NewK2 >>= 1;
-				RCValid &= Upper8(NewK2) == 1;
-			}
-			else
-			if( RCState == 4 )
-			{
-				NewK5 = CCPR1;
-				NewK4 = NewK5 - NewK4;
-				NewK4 >>= 1;
-				RCValid &= Upper8(NewK4) == 1;
-			}
-			else
-			if( RCState == 6 )
-			{
-				NewK7 = CCPR1;
-				NewK6 = NewK7 - NewK6;
-				NewK6 >>= 1; 		
-#ifdef RX_DSM2
-				if (Upper8(NewK6) != 1) 	// add glitch detection to 6 & 7
-					goto ErrorRestart;
-#else
-				IK6 = Lower8(NewK6);
-#endif // RX_DSM2	
-			}
-#ifdef RX_PPM
-			else
-#else
-			else						// values are unsafe
-				goto ErrorRestart;
+			PrevEdge = CCPR1;
+			RCValid = true;
 		}
-		else							// a positive edge
+		else
 		{
-#endif // RX_PPM 
-			if( RCState == 1 )
-			{
-				NewK2 = CCPR1;
-				NewK1 = NewK2 - NewK1;
-				NewK1 >>= 1;
-				RCValid = Upper8(NewK1) == 1;
-			}
+			Edge = CCPR1;
+			Width = (Edge - PrevEdge) >> 1;
+			RCValid &= (Width & 0xff00) == 0x0100; 	// 256..511 (1024-2047us)
+			PPM[PPMBit] = Width & 0x00ff;			// 0..127 (0-1023uS)
+			PrevEdge = Edge;
+		}
+		
+		if ( PPMBit >= 5 )
+			if ( RCValid )
+				_NewValues = _Signal = true;
 			else
-			if( RCState == 3 )
-			{
-				NewK4 = CCPR1;
-				NewK3 = NewK4 - NewK3;
-				NewK3 >>= 1;
-				RCValid &= Upper8(NewK3) == 1;
-			}
-			else
-			if( RCState == 5 )
-			{
-				NewK6 = CCPR1;
-				NewK5 = NewK6 - NewK5;
-				NewK5 >>= 1;
-				RCValid &= Upper8(NewK5) == 1;
+				ErrorRestart();
 
-				// sanity check - NewKx has values in 4us units now. 
-				// content must be 256..511 (1024-2047us)
-				if( RCValid ) 
-				{
-#ifndef RX_DSM2									
-					if( FutabaMode ) 	// Ch3 set for Throttle on UAPSet
-					{
-						NewThrottle = Lower8(NewK3);
-#ifdef EXCHROLLNICK
-						NewRoll = Lower8(NewK2) - _Neutral;
-						NewPitch = Lower8(NewK1)- _Neutral;
-#else
-						NewRoll = Lower8(NewK1)- _Neutral;
-						NewPitch = Lower8(NewK2)- _Neutral;
-#endif // EXCHROLLNICK
-					}
-					else
-					{
-						NewThrottle  = Lower8(NewK1);
-						NewRoll = Lower8(NewK2)- _Neutral;
-						NewPitch = Lower8(NewK3)- _Neutral;
-					}
-					NewYaw = Lower8(NewK4) - _Neutral;
-
-					IThrottle = StickFilter(OldThrottle, NewThrottle);
-					
-					IRoll = StickFilter(IRoll, NewRoll); 
-					IPitch = StickFilter(IPitch, NewPitch);
-					IYaw = StickFilter(IYaw, NewYaw);
+		// MapRC is used outside interrupt to filter and map PPM[c] to RC[c]
 	
-					IK5 = Lower8(NewK5);
-				
-					_Signal = true;
-					_NewValues = true; 	// potentially IK6 & IK7 are still about to change ???
-#endif // !RX_DSM2
-				}
-				else	// values are unsafe
-					goto ErrorRestart;
-			}
-			else
-			if( RCState == 7 )
-			{
-				NewK7 = CCPR1 - NewK7;
-				NewK7 >>= 1;	
-#ifdef RX_DSM2
-				if (Upper8(NewK7) !=1 )	
-					goto ErrorRestart;
-
-				if( FutabaMode ) 		// Ch3 set for Throttle on UAPSet
-				{
-
-//EDIT FROM HERE ->
-// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
-					NewThrottle = NewK5;
-
-					NewRoll = Lower8(NewK3) - _Neutral; 
-					NewPitch = Lower8(NewK2) - _Neutral;
-					NewYaw = Lower8(NewK1) - _Neutral;
-
-					IK5 = Lower8(NewK6); 
-					IK6 = Lower8(NewK4);
-					IK7 = Lower8(NewK7);
-// TO HERE
-				}
-				else // Reference 2.4GHz configuration DX7 and AR7000 Rx
-
-				{
-					NewThrottle = Lower8(NewK6);
-
-					NewRoll = Lower8(NewK1) - _Neutral; 
-					NewPitch = Lower8(NewK4) - _Neutral;
-					NewYaw = Lower8(NewK7) - _Neutral;
-
-					IK5 = Lower8(NewK3); // do not filter
-					IK6 = Lower8(NewK5);
-					IK7 = Lower8(NewK2);
-				}
-
-				IThrottle = StickFilter(OldThrottle, NewThrottle);
-				OldThrottle = IThrottle;
-
-				IRoll = StickFilter(IRoll, NewRoll); 
-				IPitch = StickFilter(IPitch, NewPitch);
-				IYaw = StickFilter(IYaw, NewYaw);		
-
-				_Signal = true;
-				_NewValues = true;
-#else				
-				IK7 = Lower8(NewK7);
-#endif // RX_DSM2 
-				RCState = -1;
-			}
-			else
-			{
-ErrorRestart:
-				BadRCFrames++;
-				_NewValues = false;
-				_Signal = false;		// Signal lost
-				RCState = -1;
-#ifndef RX_PPM
-				if( NegativePPM )
-					CCP1CONbits.CCP1M0 = true;	// wait for positive edge next
-				else
-					CCP1CONbits.CCP1M0 = false;	// wait for negative edge next
-#endif
-			}	
-#ifndef RX_PPM
-		}
-#endif
 		PIR1bits.CCP1IF = false;
-		RCState++;
+		PPMBit++;
 	}
-
-	if( PIR1bits.TMR2IF )				// 5 or 14 ms have elapsed without an active edge
+	else
+	if( PIR1bits.TMR2IF )						// 5 OR 14 ms  without an active edge
 	{
-		PIR1bits.TMR2IF = false;		// quit int
-#ifndef RX_PPM	// single PPM pulse train from receiver
-		if( _FirstTimeout )				// 5 ms have been gone by...
+		#ifndef RX_PPM							// single PPM pulse train from receiver
+		if( _FirstTimeout )						// 5 ms time out
 		{
-			PR2 = TMR2_5MS;				// set compare reg to 5ms
-			goto ErrorRestart;
+			PR2 = TMR2_5MS;						// set compare reg to 5ms
+			ErrorRestart();
 		}
 		_FirstTimeout = true;
 		PR2 = TMR2_14MS;						// set compare reg to 14ms
-#endif
-		RCState = 0;
+		#endif // RX_PPM
+		PPMBit = 0;
+		PIR1bits.TMR2IF = false;
 	}
-
+	else
 	if( INTCONbits.T0IF && INTCONbits.T0IE )
 	{
-		INTCONbits.T0IF = false;
 		ClockMilliSec++;						// time since start
 		TimeSlot--;
+		INTCONbits.T0IF = false;
 	}
-
+	else
 	if (PIR1bits.RCIF )
 	{
 		if (RCSTAbits.OERR)

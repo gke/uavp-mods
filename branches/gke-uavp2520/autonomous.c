@@ -30,7 +30,16 @@ uint8 Descend(uint8);
 void DoAutonomous(void);
 void Navigate(void);
 void ParseGPSSentence(void);
+void ResetTimeOuts(void);
 uint8 RCLinkRestored(int32);
+
+
+void ResetTimeOuts(void)
+{
+	FailsafeTimeoutMilliSec = ClockMilliSec + FAILSAFE_TIMEOUT;
+	AutonomousTimeoutMilliSec = ClockMilliSec + AUTONOMOUS_TIMEOUT;
+	ThrottleClosedMilliSec = ClockMilliSec + THROTTLE_TIMEOUT;
+} // ResetTimeOuts
 
 uint8 RCLinkRestored(int32 d)
 {
@@ -56,18 +65,35 @@ uint8 Descend(uint8 T)
 		return(T);
 } // Descend
 
+void AcquireSatellites(void)
+{
+	InitGPS();
+	#ifdef USE_GPS
+	while ( !_GPSValid )
+	{
+		if ( (ClockMilliSec & 0x00000080) == 0 ) // too narrow a window
+		{
+			LedBlue_TOG;
+		}
+
+		if ( GPSSentenceReceived )
+		{
+			GPSSentenceReceived=false; 
+			ParseGPSSentence();
+		}
+	}
+	LedBlue_OFF;
+	#endif // USE_GPS
+} // AcquireSatellites
+
 void Navigate()
 {
-#define MaxPitch 10
-#define MaxRoll 10
 
-	int16 NorthDiff, EastDiff;
+	int16 NorthDiff, EastDiff;				// 16Km should be OK
 
-	if ( GPSSentenceReceived )
-	{
-		GPSSentenceReceived=false; 
-		ParseGPSSentence();
-	}
+
+
+	SetDesiredBaroAltitude(CurrBaroAltitude);
 
 	if ( _GPSValid )
 	{ 
@@ -76,10 +102,10 @@ void Navigate()
 		NorthDiff=(GPSOriginLatitude-GPSLatitude)*(real32)(EarthR);
 		EastDiff=(GPSOriginLongitude-GPSLongitude)*(real32)(EarthR); // * LongitudeCorrection
 
-		IPitch = - MaxPitch * Limit(NorthDiff*NorthDiff+EastDiff*EastDiff, 0, 10);
-		IRoll = 0;
+		DesiredPitch = - MAX_PITCH_CTL * Limit(NorthDiff*NorthDiff+EastDiff*EastDiff, 0, 10);
+		DesiredRoll = 0;
 
-		IYaw = 333; // DesiredHeading - GPSHeading
+		DesiredYaw = 333; // DesiredHeading - GPSHeading
 
 	// return home ???
 
@@ -97,6 +123,6 @@ void DoAutonomous(void)
 	else
 	{
 		DesiredThrottle = Descend(DesiredThrottle);
-		IRoll = IPitch = IYaw = 0;
+		DesiredRoll = DesiredPitch = DesiredYaw = 0;
 	}
 } // DoAutonomous

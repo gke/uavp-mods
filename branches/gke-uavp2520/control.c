@@ -26,28 +26,18 @@
 #include "bits.h"
 #include <adc.h>
 
+// Prototypes
 void InitGyros(void);
 void InitAccelerometers(void);
 int16 GetRollRate(void);
 int16 GetPitchRate(void);
 int16 GetYawRate(void);
+void UpdateControls(void);
 void InitAttitude(void);
 void DetermineAttitude(void);
 void CompensateGyros(void);
 void PID(void);
 void DoControl(void);
-
-// IDG300
-// 3.3V Reference +-500 Deg/Sec
-// 0.4882815 Deg/Sec/LSB 
-
-// ADRSX300 Yaw
-// 5V Reference +-300 Deg/Sec
-// 0.2926875 Deg/Sec/LSB 
-
-// ADXRS150
-// 5V Reference +-150 Deg/Sec
-// 0.146484375 Deg/Sec/LSB
 
 int16 GetRollRate(void)
 {	// + roll right
@@ -97,7 +87,6 @@ void InitGyros(void)
 
 	RollAngle = PitchAngle = YawAngle = 0;
 	REp = PEp = YEp = 0;
-
 } // InitGyros
 
 void InitAccelerometers(void)
@@ -108,14 +97,19 @@ void InitAccelerometers(void)
 	IsLISLactive();
 
 	Tx = Ty = Tz = 0;
-	for( s=256; s ; s--)
+	if ( _UseLISL )
 	{
-		ReadLISLXYZ();
-		Tx += ACCSIGN_X * Ax;
-		Ty += ACCSIGN_Y * Ay;
-		Tz += ACCSIGN_Z * Az;
-		// delay in here ???
+		LedYellow_ON;
+		for( s=256; s ; s--)
+		{
+			ReadLISLXYZ();
+			Tx += ACCSIGN_X * Ax;
+			Ty += ACCSIGN_Y * Ay;
+			Tz += ACCSIGN_Z * Az;
+		}
+		LedYellow_OFF;
 	}
+
 	NeutralLR = SRS32(Tx + 128, 8);
 	NeutralUD = SRS32(Ty + 128, 8);
 	NeutralFB = SRS32(Tz + 128, 8);
@@ -194,13 +188,14 @@ void CompensateGyros(void)
 
 void DoHeadingLock(void)
 {
-	int16 Temp, CurrIYaw;
+	int16 Temp, CurrYaw;
 
-	CurrIYaw = IYaw;							// protect from change by irq
-	YE += CurrIYaw;								// add the yaw stick value
+	#ifndef ALT_CONTROL
+	YE += DesiredYaw;
+	#endif								// add the yaw stick value
 
 	if ( _UseCompass )
-		if ((CurrIYaw < (DesiredYaw - COMPASS_MIDDLE)) || (CurrIYaw > (DesiredYaw + COMPASS_MIDDLE)))
+		if ((CurrYaw < (DesiredYawRate - COMPASS_MIDDLE)) || (CurrYaw > (DesiredYawRate + COMPASS_MIDDLE)))
 			AbsDirection = COMPASS_INVAL;		// new hold zone
 		else
 			YE -= Limit(CurrDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
@@ -219,7 +214,7 @@ void DoHeadingLock(void)
 } // DoHeadingLock
 
 void DetermineAttitude(void)
-{
+{	// Roll is + right, Pitch is + up, Yaw + CW
 	int16 Temp;
 
 	RollGyroRate = GyroFilter(RollGyroRate, GetRollRate());	
@@ -234,7 +229,7 @@ void DetermineAttitude(void)
 
 	RollRate = RollGyroRate - MidRoll;
 	PitchRate = PitchGyroRate - MidPitch;
-/*
+
 	if( FlyCrossMode )								// does this work with compensation NO ??? 
 	{
 		// Real Roll = 0.707 * (P + R), Pitch = 0.707 * (P - R)
@@ -242,18 +237,13 @@ void DetermineAttitude(void)
 		PitchRate = ((PitchRate - RollRate) * 7 + 5)/10;
 		RollRate = Temp;	
 	}
-*/	
-	// Roll is + right
-	RE=SRS16(RollRate + 1, 1);						// use 9 bit res. for PD control
+	
 	RollAngle += (int32)RollRate;					// use 10 bit res. for I control							
 	RollAngle = Limit(RollAngle, -(RollIntLimit*256), RollIntLimit*256);
 
-	// Pitch is + up
-	PE = SRS16(PitchRate + 1, 1);
 	PitchAngle += (int32)PitchRate;
 	PitchAngle = Limit(PitchAngle, -(PitchIntLimit*256), PitchIntLimit*256);
- 
-	// Yaw + CW 	
+  	
 //	Temp = YawGyroRate - MidYaw;
 //	if ( Abs(Temp) <= 2 )							// needs further thought ???
 //		MidYaw = Limit(YawGyroRate, (YawGyroRate - 5), YawGyroRate + 5);
@@ -301,26 +291,35 @@ void PID(void)
 	// xl =  --------------  +  ------------
 	//             16                256
 
+	#ifdef	ALT_CONTROL
+	RE = DesiredRollAngle - RollAngle;
+	PE = DesiredPitchEngle - PitchAngle;
+	#else
+	RE = SRS16(RollRate + 1, 1);					// use 9 bit res. for PD control
+	PE = SRS16(PitchRate + 1, 1);
+	#endif // ALT_CONTROL						
+
 	// Roll
-	Rl  = SRS32(RE*(int32) RollPropFactor+(REp-RE)*(int32) RollDiffFactor + 8, 4);	// P & D
+	Rl = SRS32(RE*(int32) RollPropFactor+(REp-RE)*(int32) RollDiffFactor + 8, 4);	// P & D
 	Rl += SRS32(RollAngle * (int32) RollIntFactor + 128, 8);						// I	
-	Rl -= IRoll;
 
 	// Pitch
-	Pl  = SRS32(PE*(int32) PitchPropFactor+(PEp-PE)*(int32) PitchDiffFactor + 8, 4);
+	Pl = SRS32(PE*(int32) PitchPropFactor+(PEp-PE)*(int32) PitchDiffFactor + 8, 4);
 	Pl += SRS32(PitchAngle * (int32) PitchIntFactor + 128, 8);
-	Pl -= IPitch;
 
 	// Yaw
 	Yl  = SRS32(YE*(int32) YawPropFactor+(YEp-YE)*(int32) YawDiffFactor + 8, 4);
 	Yl += SRS32(YawAngle*(int32) YawIntFactor + 128, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);
 
-Yl= 0;
+	#ifndef	ALT_CONTROL
+	Pl -= DesiredPitch;
+	Rl -= DesiredRoll;
+	#endif
 
 	DoIntTestLEDS();
 
-	REp = RE;						// remember old gyro values
+	REp = RE;									// PID derivative
 	PEp = PE;
 	YEp = YE;
 } // PID
@@ -339,6 +338,49 @@ void InitAttitude(void)
 	Beeper_OFF;					
 	LedRed_OFF;
 } // InitAttitude
+
+void UpdateControls(void)
+{
+	uint8 c;
+
+	if ( _NewValues )
+	{	
+		MapRC();							// remap PPM to RC
+
+
+//	RC[RollC] -= _Neutral;
+//	RC[PitchC] -= _Neutral;
+//	RC[YawC] -= _Neutral;
+
+
+		_NewValues = false;
+
+		#ifdef ALT_CONTROL
+		DesiredRollAngle = ((RC[RollC]- _Neutral) * MAX_ROLL + IMAX/2)/IMAX;
+		DesiredPitchAngle = ((RC[PitchC] - _Neutral) * MAX_PITCH + IMAX/2)/IMAX;
+
+		#else
+		DesiredRoll = RC[RollC] - _Neutral;
+		DesiredPitch = RC[PitchC] - _Neutral;
+		#endif // ALT_CONTROL
+
+		if ( _UseBaro )
+		{
+			DesiredBaroAltitude = CurrBaroAltitude + (RC[ThrottleC] * 123 + IMAX/2)/ IMAX;
+
+
+		}
+		else
+		{
+
+			DesiredThrottle = RC[ThrottleC];
+
+		}
+
+	}
+
+
+} // UpdateControls
 
 void DoControl()
 {

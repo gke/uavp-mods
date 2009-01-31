@@ -214,9 +214,9 @@ void MixAndLimitCam(void)
 	if( _UseCh7Trigger )
 		Rp += _Neutral;
 	else
-		Rp += IK7;
+		Rp += DesiredCamRoll;
 		
-	Pp += IK6;						// only Pitch servo is controlled by channel 6
+	Pp += DesiredCamPitch;						// only Pitch servo is controlled by channel 6
 
 	MCamRoll = Limit(Rp, _Minimum , _Maximum);
 	MCamPitch = Limit(Pp, _Minimum , _Maximum);

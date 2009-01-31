@@ -25,9 +25,7 @@
 
 // Prototypes
 void main(void);
-void ResetTimeOuts(void);
 void CheckThrottleClosed(void);
-void CheckThrottleMoved(void);
 void InitMisc(void);
 
 // Variables
@@ -47,14 +45,22 @@ int32	ClockMilliSec, TimerMilliSec, LostTimer0Clicks;
 int32	FailsafeTimeoutMilliSec, AutonomousTimeoutMilliSec, ThrottleClosedMilliSec;
 int32	CycleCount;
 int8	TimeSlot;
-
+#pragma udata
 // RC
-uint8	IThrottle;
-uint8 	PrevIThrottle;							// most recent past IThrottle					
-uint8	DesiredThrottle;						// actual throttle
-int16	DesiredYaw;
-int16 	IRoll, IPitch, IYaw;
-uint8	IK5,IK6,IK7;
+
+#pragma idata rcmaps
+#ifdef RX_DSM
+const uint8 MapCh1[8] = {0, 6, 1, 4, 7, 3, 5, 2 }; // DX7 and AR7000
+const uint8 MapCh3[8] = {0, 5, 3, 2, 1, 6, 4, 7 }; // Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
+#else
+const uint8 MapCh1[8] = {0, 1, 2, 3, 4, 5, 6, 7 };
+const uint8 MapCh3[8] = {0, 3, 1, 2, 4, 5, 6, 7 };
+#endif 
+#pragma idata
+
+#pragma udata globals2
+uint8	Map[8];
+int16	PPM[8], RC[8];
 int32	BadRCFrames;
 uint8	GoodRCFrames;
 
@@ -73,6 +79,8 @@ int16	NeutralLR, NeutralFB, NeutralUD;		// LISL scaled neutral values
 int32	Rl,Pl,Yl;								// PID output values
 int16	RE, PE, YE;								// PID error
 int16	REp, PEp, YEp;							// PID previous error
+int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, DesiredYawRate;
+int16	DesiredCamRoll, DesiredCamPitch;
 			
 // Altitude
 uint16	OriginBaroTemp;
@@ -87,8 +95,13 @@ int16	AbsDirection;							// desired heading (240 = 360 deg)
 int16	CurrDeviation;							// deviation from correct heading
 
 // Motors
-uint8	MFront,MLeft,MRight,MBack;				// output channels
-uint8	MCamRoll,MCamPitch;
+uint8	MFront, MBack, MLeft, MRight, MCamPitch, MCamRoll;
+
+// GPS
+boolean GPSSentenceReceived; 
+real32 GPSLatitude, GPSLongitude, GPSOriginLatitude, GPSOriginLongitude;
+int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSGroundSpeed;
+real32 LongitudeCorrection;
 
 // Misc
 uint8	Flags[8];
@@ -118,14 +131,14 @@ int8	YawIntLimit			=6;
 int8	ConfigParam			=0b00000000;
 int8	NoOfTimeSlots		=11;
 int8	LowVoltThres		=43;
-int8	LinLRIntFactor		=0;
-int8	LinFBIntFactor		=0;
+int8	LinLRIntFactor		=0;	// unused
+int8	LinFBIntFactor		=0;	// unused
 int8	LinUDIntFactor		=8;
 int8	MiddleUD			=0;
 int8	MotorLowRun			=40;
 int8	MiddleLR			=0;
 int8	MiddleFB			=0;
-int8	CamIntFactor		=0x00;
+int8	CamIntFactor		=0x44;
 int8	CompassFactor		=5;
 int8	BaroThrottleDiff	=4;
 #pragma idata
@@ -133,7 +146,7 @@ int8	BaroThrottleDiff	=4;
 
 void InitMisc(void)
 {
-	uint8 i;
+	uint8 i, c;
 
 	LedShadow = 0;
     ALL_LEDS_OFF;
@@ -144,16 +157,16 @@ void InitMisc(void)
 	State = Initialising;
 
 	// RC
-	State = Initialising;
-	IThrottle =	PrevIThrottle = DesiredThrottle = IK5 =	IRoll = IPitch = IYaw = 0;	
-	IK6 = IK7 = _Neutral;
+	for (c = FirstC; c<=LastC; c++)
+		PPM[c] = RC[c] = 0;
 	BadRCFrames = 0;
+	DesiredThrottle = DesiredRoll = DesiredPitch = DesiredYaw = 0;
 
 	// Drives
 	_MotorsEnabled = false;
 	Rl = Pl = Yl = VBaroComp = Vud = UDVelocity = 0;
 	MFront = MLeft = MRight = MBack = _Minimum;
-	MCamRoll = MCamPitch = _Neutral;
+	MCamPitch = MCamRoll = _Neutral;
 					
 } // InitMisc
 
@@ -161,35 +174,14 @@ void CheckThrottleClosed(void)
 {
 	if ( _Signal & _NewValues )
 	{		
-		_Armed = IThrottle < _ThresStop;
+		_Armed = DesiredThrottle < _ThresStop;
 		_NewValues = false;
-		_UseCh7Trigger =  IK7 < _Neutral;
+		_UseCh7Trigger =  DesiredCamRoll < _Neutral;
 		OutSignals();
 	}
 	else
 		_Armed = false;
 } // CheckThrottleClosed
-
-void CheckThrottleMoved(void)
-{
-	if ( _Signal )							// strictly redundant
-	{
-   		_ThrChanging = _NewValues 
-			&& (IThrottle > Limit(PrevIThrottle - THR_WINDOW, _Minimum, _Maximum)) 
-			&& (IThrottle < Limit(PrevIThrottle + THR_WINDOW, _Minimum, _Maximum) );
-		PrevIThrottle = IThrottle;
-	}
-	else
-		_ThrChanging = false;	
-} // CheckThrottleMoved
-
-void ResetTimeOuts(void)
-{
-	FailsafeTimeoutMilliSec = ClockMilliSec + FAILSAFE_TIMEOUT;
-	AutonomousTimeoutMilliSec = ClockMilliSec + AUTONOMOUS_TIMEOUT;
-	ThrottleClosedMilliSec = ClockMilliSec + THROTTLE_TIMEOUT;
-} // ResetTimeOuts
-
 
 void main(void)
 {
@@ -211,7 +203,7 @@ void main(void)
 	ReadParametersEE();
 	InitTimersAndInterrupts();
 	InitAttitude();
-	InitGPS();
+	AcquireSatellites();
 	ShowSetup(1);
 
 	while(1)
@@ -219,25 +211,27 @@ void main(void)
 		_MotorsEnabled = false;
 		DesiredThrottle = 0;
 
+		ALL_LEDS_OFF;
 		LedRed_ON;
-		if(_UseLISL)
-			LedYellow_ON;
 		
 		ProcessCommand();
 	
-		CheckThrottleClosed();					// sets _Armed
+//		CheckThrottleClosed();					// sets _Armed
 
 		TimeSlot = Limit(NoOfTimeSlots, 22, 22);// 6 is possible
 		ResetTimeOuts();
+		UpdateControls();
 		State = Landed;
-
-		while( _Armed && Switch )
+_Armed = true;
+		while( _Armed && 1 )//Switch )
 		{
 			while( TimeSlot > 0 ) { };			// user routine here if desired	
 			TimeSlot = Limit(NoOfTimeSlots, 22, 22);
 			CycleCount++;
 			DoControl();
 			OutSignals();
+			UpdateGPS();
+			
 			DoDebugTraces();
 			
 			// housekeeping which must finish before TimeSlot = 0
@@ -246,9 +240,7 @@ void main(void)
 				if ( _Signal )
 				{
 					ResetTimeOuts();	
-					ReadParametersEE();
-					CheckThrottleMoved();
-					DesiredThrottle = IThrottle;
+					UpdateControls();
 				}
 				else
 					if ( ClockMilliSec > FailsafeTimeoutMilliSec )
@@ -285,8 +277,7 @@ void main(void)
 					ALL_LEDS_OFF;
 					LedGreen_ON;
 					ResetTimeOuts();
-					ReadParametersEE();
-					DesiredThrottle = IThrottle;
+					UpdateControls();
 					
 					if ( DesiredThrottle > _ThresStart )
 					{
@@ -299,7 +290,7 @@ void main(void)
 				else
 				{
 					// do nothing - Red Led should be flashing
-					DesiredThrottle = IRoll = IPitch = IYaw = 0;
+					DesiredThrottle = DesiredRoll = DesiredPitch = DesiredYaw = 0;
 				}
 			} // States
 		

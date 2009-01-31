@@ -290,7 +290,7 @@ void ShowSetup(uint8 Hello)
 	if( Hello )
 	{
 		TxText(SerHello);
-		IK5 = _Minimum;	
+		RC[ParamC] = _Minimum;	
 	}
 
 	TxText(SerSetup);							// send hello message
@@ -319,7 +319,7 @@ void ShowSetup(uint8 Hello)
 		TxText(SerFM_Grp);
 
 	TxText(SerSelSet);
-	if( IK5 > _Neutral )
+	if( RC[ParamC] > _Neutral )
 		TxChar('2');
 	else
 		TxChar('1');
@@ -350,7 +350,7 @@ void ProcessCommand(void)
 	if (ch == 'L')	// List parameters
 	{
 			TxText(SerList);					// must send it (UAVPset!)
-			if( IK5 > _Neutral )
+			if( RC[ParamC] > _Neutral )
 				TxChar('2');
 			else
 				TxChar('1');
@@ -374,7 +374,7 @@ void ProcessCommand(void)
 			addr = RxNumU()-1;
 			TxText(SerReg2);
 			d = RxNumS();
-			if( IK5 > _Neutral )
+			if( RC[ParamC] > _Neutral )
 				addrbase = _EESet2;
 			else
 				addrbase = _EESet1;
@@ -383,7 +383,7 @@ void ProcessCommand(void)
 			// update transmitter config bits in the other parameter set
 			if( addr ==  (&ConfigParam - &FirstProgReg) )
 			{									
-				if( IK5 > _Neutral )
+				if( RC[ParamC] > _Neutral )
 					addrbase = _EESet1;				
 				else
 					addrbase = _EESet2;	
@@ -417,31 +417,31 @@ void ProcessCommand(void)
 	if (ch == 'R')// receiver values
 	{
 			TxText(SerRecvCh);
-			TxValU(IThrottle);
+			TxValU(RC[ThrottleC]);
 			TxChar(',');
 			TxChar('R');
 			TxChar(':');
-			TxValS(IRoll);
+			TxValS(RC[RollC]);
 			TxChar(',');
 			TxChar('N');
 			TxChar(':');
-			TxValS(IPitch);
+			TxValS(RC[PitchC]);
 			TxChar(',');
 			TxChar('Y');
 			TxChar(':');
-			TxValS(IYaw);
+			TxValS(RC[YawC]);
 			TxChar(',');
 			TxChar('5');
 			TxChar(':');
-			TxValU(IK5);
+			TxValU(RC[ParamC]);
 			TxChar(',');
 			TxChar('6');
 			TxChar(':');
-			TxValU(IK6);
+			TxValU(RC[CamTiltC]);
 			TxChar(',');
 			TxChar('7');
 			TxChar(':');
-			TxValU(IK7);
+			TxValU(RC[CamRollC]);
 			ShowPrompt();
 	}
 	else

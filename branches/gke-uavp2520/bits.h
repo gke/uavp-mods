@@ -151,7 +151,7 @@
 #define _OutToggle		Flags2[2]			/*cam servos only every 2nd output pulse*/									
 #define _UseCh7Trigger	Flags2[3]			/*1: don't use Ch7 0: use Ch7 as Cam Roll trim*/
 #define _LostModel		Flags2[4]
-#define _ThrChanging	Flags2[5]
+//#define _ThrChanging	Flags2[5]
 #define _Armed			Flags2[6]							
 #define _MotorsEnabled	Flags2[7]
 

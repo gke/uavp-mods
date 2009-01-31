@@ -34,6 +34,7 @@ void ReadParametersEE(void);
 void WriteParametersEE(uint8);
 void WriteEE(uint8, int8);
 int8 ReadEE(uint8);
+void LoadRCMap(void);
 void SendLeds(void);
 void SwitchLedsOn(uint8);
 void SwitchLedsOff(uint8);
@@ -198,18 +199,31 @@ void WriteEE(uint8 addr, int8 d)
 
 } // WriteEE
 
+void LoadRCMap(void)
+{
+	uint8 c;
+
+	for (c = FirstC; c<=LastC; c++)
+		if ( FutabaMode )
+			Map[c] = MapCh3[c];
+		else
+			Map[c] = MapCh1[c];
+} // LoadRCMap
+
 void ReadParametersEE(void)
 {
-	int8 *p; 
+	int8 *p, c; 
 	uint16 addr;
 
-	if( IK5 > _Neutral )
+	if( RC[ParamC] > _Neutral )
 		addr = _EESet2;	
 	else
 		addr = _EESet1;
 	
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
+
+	LoadRCMap();
 
 } // ReadParametersEE
 
@@ -252,10 +266,10 @@ void DoDebugTraces()
 #ifdef READABLE
 
 		TxVal((int32)ClockMilliSec, 3, ';');
-		TxVal((int32)IThrottle, 0, ';');	
-		TxVal((int32)IRoll, 0, ';');	
-		TxVal((int32)IPitch, 0, ';');	
-		TxVal((int32)IYaw, 0, ';');
+		TxVal((int32)DesiredThrottle, 0, ';');	
+		TxVal((int32)DesiredRoll, 0, ';');	
+		TxVal((int32)DesiredPitch, 0, ';');	
+		TxVal((int32)DesiredYaw, 0, ';');
 
 		TxVal((int32)Compass, 0, ';');
 		TxVal((int32)AbsDirection, 0, ';');

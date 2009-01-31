@@ -30,6 +30,7 @@ void InitBarometer(void);
 int16 AltitudeCompensation(uint16, uint16);
 void GetBaroAltitude(void);
 uint16 ReadBaro(void);
+void SetDesiredBaroAltitude(uint16);
 void StartBaroAcq(uint8);
 
 void InitDirection(void)
@@ -233,14 +234,20 @@ void InitBarometer(void)
 		CurrBaroTemp = AvTemperature >> 5;
 		OriginBaroAltitude = - AltitudeCompensation(BaroVal, CurrBaroTemp);
 		OriginBaroTemp = CurrBaroTemp;
+		SetDesiredBaroAltitude(0);
 		StartBaroAcq(BARO_TEMP);					// overlap baro
 	}
 } // InitBarometer
 
+void SetDesiredBaroAltitude(uint16 da)
+{
+	DesiredBaroAltitude = da;
+	BESum = 0; 							// zero integrator
+	BEp = 0;
+} // SetDesiredAltitude
+
 void GetBaroAltitude(void)
 {
-
-// no integral in Param Set ???
 #define BaroThrottleInt 2
 
 	uint16 Temp, BaroVal;
@@ -256,13 +263,8 @@ void GetBaroAltitude(void)
 			}
 			else
 			{	// pressure
-				CurrBaroAltitude = SoftFilter(CurrBaroAltitude, AltitudeCompensation(BaroVal, CurrBaroTemp));
-				if( _ThrChanging ) 						// while moving throttle stick
-				{
-					DesiredBaroAltitude = CurrBaroAltitude;
-					BESum = 0; 							// zero integrator
-					BEp = 0;
-				}
+				CurrBaroAltitude = SoftFilter(CurrBaroAltitude, 	
+								AltitudeCompensation(BaroVal, CurrBaroTemp));
 			
 				BE =  -(DesiredBaroAltitude - CurrBaroAltitude);
 				BE = Limit(BE, -3, 8); 					// "soften" rate
