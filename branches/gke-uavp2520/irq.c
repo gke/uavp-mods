@@ -54,6 +54,7 @@ void InitTimersAndInterrupts()
 	CCP1CONbits.CCP1M0 = NegativePPM;
 	PR2 = TMR2_5MS;
 	_FirstTimeout = 0;
+	PrevEdge = 0;
 
 	// Serial I/O
 	RxCheckSum = RxHead = RxTail = 0;
@@ -126,12 +127,24 @@ void high_isr_handler(void)
 			PPM[PPMBit] = Width & 0x00ff;			// 0..127 (0-1023uS)
 			PrevEdge = Edge;
 		}
-		
+
+		#ifdef RX_PPM
 		if ( PPMBit >= 5 )
+			if ( RCValid )
+			{
+				if (PPMBit >= 7 )
+					_NewValues = _Signal = true;
+			}
+			else
+				ErrorRestart();
+		#else
+		if ( PPMBit == 5 ) 							// preserve original semantics
 			if ( RCValid )
 				_NewValues = _Signal = true;
 			else
 				ErrorRestart();
+		#endif // RX_PPM		
+	
 
 		// MapRC is used outside interrupt to filter and map PPM[c] to RC[c]
 	
