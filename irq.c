@@ -51,9 +51,7 @@ uns8	RCState, RCCheck;
 
 
 interrupt irq(void)
-{
-int8	NewRoll, NewNick, NewTurn;	
-int16 	Temp;
+{	
 uns16 	CCPR1 @0x15;
 
 // For 2.4GHz systems see README_DSM2_ETC.
@@ -154,27 +152,22 @@ uns16 	CCPR1 @0x15;
 				{
 					IGas = NewK3.low8;
 #ifdef EXCHROLLNICK
-					NewRoll = NewK2.low8 - _Neutral;
-					NewNick = NewK1.low8- _Neutral;
+					IRoll = NewK2.low8 - _Neutral;
+					INick = NewK1.low8- _Neutral;
 #else
-					NewRoll = NewK1.low8- _Neutral;
-					NewNick = NewK2.low8- _Neutral;
+					IRoll = NewK1.low8- _Neutral;
+					INick = NewK2.low8- _Neutral;
 #endif // EXCHROLLNICK
 				}
 				else
 				{
 					IGas  = NewK1.low8;
-					NewRoll = NewK2.low8- _Neutral;
-					NewNick = NewK3.low8- _Neutral;
+					IRoll = NewK2.low8- _Neutral;
+					INick = NewK3.low8- _Neutral;
 				}
-				NewTurn = NewK4.low8 - _Neutral;
+				ITurn = NewK4.low8 - _Neutral;
 					
-				IRoll = NewRoll; 
-				INick = NewNick;
-				ITurn = NewTurn;
-	
 				IK5 = NewK5.low8;
-
 
 				_NoSignal = 0;
 				_NewValues = 1; // IK6 & IK7 are still about to change and do!
@@ -195,9 +188,9 @@ uns16 	CCPR1 @0x15;
 // CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
 					IGas = NewK5.low8;
 
-					NewRoll = NewK3.low8 - _Neutral; 
-					NewNick = NewK2.low8 - _Neutral;
-					NewTurn = NewK1.low8 - _Neutral;
+					IRoll = NewK3.low8 - _Neutral; 
+					INick = NewK2.low8 - _Neutral;
+					ITurn = NewK1.low8 - _Neutral;
 
 					IK5 = NewK6.low8; // do not filter
 					IK6 = NewK4.low8;
@@ -208,18 +201,14 @@ uns16 	CCPR1 @0x15;
 				{
 					IGas = NewK6.low8;
 
-					NewRoll = NewK1.low8 - _Neutral; 
-					NewNick = NewK4.low8 - _Neutral;
-					NewTurn = NewK7.low8 - _Neutral;
+					IRoll = NewK1.low8 - _Neutral; 
+					INick = NewK4.low8 - _Neutral;
+					ITurn = NewK7.low8 - _Neutral;
 
 					IK5 = NewK3.low8; 
 					IK6 = NewK5.low8;
 					IK7 = NewK2.low8;
-				}
-
-				IRoll = NewRoll; 
-				INick = NewNick;
-				ITurn = NewTurn;		
+				}		
 
 				_NoSignal = 0;
 				_NewValues = 1;
