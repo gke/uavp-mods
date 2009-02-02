@@ -1,7 +1,21 @@
-V3.15-2520 port abandoned 2/2/2009 - now so radically changed as to not constitute a port of V3.15
+==============================================
+=   U    U      AA     V     V   PPPPP       =
+=   U    U     A  A    V     V   P    P      =
+=   U    U    A    A   V     V   P    P      =
+=   U    U    AAAAAA    V   V    PPPPP       =
+=   U    U    A    A     V V     P           =
+=    UUUU  U  A    A A    V  V   P    P      =
+=                                            =
+=  Universal  Airial   Video     Platform    =
+=                                            =
+=      U.A.V.P Brushless UFO Controller      =
+=           Professional Version             =
+= Copyright (c) 2007 Ing. Wolfgang Mahringer =
+=                                            =
+=      Modified by others (see below)        =
+=                                            =
+==============================================
 
-<<<<<<< .mine
-GKE=======
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -158,4 +172,4 @@ Make sure you have the most recent version of the firmware!
 ==============================================
 = End of README file                         =
 ==============================================
->>>>>>> .r125
+
