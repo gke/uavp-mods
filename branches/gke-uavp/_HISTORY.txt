@@ -178,6 +178,9 @@ First public released version.
   Schmidt inputs from LISL which has a 3.3V supply.
   Previously data and other bits could be lost.
 
+22.01.2009 v3.15m3 Greg Egan
+- Added option for BMP085 build (thanks Don/Jim).
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
