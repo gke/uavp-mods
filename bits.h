@@ -175,8 +175,18 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define COMPASS_MIDDLE	10	/* yaw stick neutral dead zone */
 
 // baro (altimeter) sensor
-#define BARO_ADDR		0xee	/* I2C slave address */
-#define THR_DOWNCOUNT	255	// 128 PID-cycles (=3 sec) until current throttle is fixed
+#define BARO_I2C_ID			0xee
+#ifdef BMP085
+	#define BARO_TEMP		0x2e
+	#define BARO_PRESS		0x74		/* alternative 0xf4 but returns 19bits */ 
+#else
+	#define BARO_TEMP		0x6e
+	#define BARO_PRESS		0xf4
+#endif
+#define BARO_CTL			0xf4
+#define BARO_ADC			0xf6
+
+#define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  /* throttle stick dead zone for baro */
 #define THR_HOVER		75	/* min throttle stick for alti lock */
 #endif	/* BOARD_3_1 */

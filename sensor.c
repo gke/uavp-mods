@@ -1,3 +1,4 @@
+
 // ==============================================
 // =      U.A.V.P Brushless UFO Controller      =
 // =           Professional Version             =
@@ -277,12 +278,12 @@ uns8 ReadValueFromBaro(void)
 {
 // test if conversion is ready
 	I2CStart();
-	if( SendI2CByte(BARO_ADDR) != I2C_ACK ) goto RVerror;
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
 // access control register
-	if( SendI2CByte(0xf4) != I2C_ACK ) goto RVerror;
+	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto RVerror;
 
 	I2CStart();		// restart
-	if( SendI2CByte(BARO_ADDR+1) != I2C_ACK ) goto RVerror;
+	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
 // read control register
 	niltemp.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
@@ -291,11 +292,11 @@ uns8 ReadValueFromBaro(void)
 	{	// conversion is ready, read it!
 
 		I2CStart();
-		if( SendI2CByte(BARO_ADDR) != I2C_ACK ) goto RVerror;
+		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
 // access A/D registers
-		if( SendI2CByte(0xf6) != I2C_ACK ) goto RVerror;
+		if( SendI2CByte(BARO_ADC) != I2C_ACK ) goto RVerror;
 		I2CStart();		// restart
-		if( SendI2CByte(BARO_ADDR+1) != I2C_ACK ) goto RVerror;
+		if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
 		niltemp.high8 = RecvI2CByte(I2C_ACK);
 		niltemp.low8 = RecvI2CByte(!I2C_NACK);
 		I2CStop();
@@ -309,21 +310,21 @@ RVerror:
 }
 
 // start A/D conversion on altimeter sensor
-// niaddr = 0xee to convert temperature
-//          0xf4 to convert pressure
+// niaddr = BARO_TEMP to convert temperature
+//          BARO_PRESS to convert pressure
 // returns 1 if successful, else 0
-uns8 StartBaroADC(uns8 niaddr)
+uns8 StartBaroADC(uns8 TempOrPress)
 {
 	I2CStart();
-	if( SendI2CByte(BARO_ADDR) != I2C_ACK ) goto SBerror;
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto SBerror;
 
 // access control register, start measurement
-	if( SendI2CByte(0xf4) != I2C_ACK ) goto SBerror;
+	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto SBerror;
 // select 32kHz input, measure temperature
-	if( SendI2CByte(niaddr) != I2C_ACK ) goto SBerror;
+	if( SendI2CByte(TempOrPress) != I2C_ACK ) goto SBerror;
 	I2CStop();
 // set or clear bit to signal what A/D is currently running
-	_BaroTempRun = (niaddr == 0xee);
+	_BaroTempRun = (TempOrPress == BARO_TEMP);
 		
 	return(1);
 SBerror:
@@ -337,8 +338,9 @@ void InitAltimeter(void)
 
 // read temperature once to get base value
 // set SMD500 device to start temperature conversion
-	if( !StartBaroADC(0xee) ) goto BAerror;
-// wait 40ms
+	if( !StartBaroADC(BARO_TEMP) ) goto BAerror;
+// wait 40ms can be reduced to 10mS for BMP085 using OSRS=1
+	
 	for( W=40; W!=0; W--)
 	{
 		T0IF=0;
@@ -350,9 +352,9 @@ void InitAltimeter(void)
 
 // read pressure once to get base value
 // set SMD500 device to start pressure conversion
-	if( !StartBaroADC(0xf4) ) goto BAerror;
+	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 
-// wait 40ms
+// wait 40ms can be reduced to 10mS for BMP085 using OSRS=1
 	for( W=40; W!=0; W--)
 	{
 		T0IF=0;
@@ -364,7 +366,7 @@ void InitAltimeter(void)
 
 	_UseBaro = 1;
 // prepare for next run
-//	if( !StartBaroADC(0xf4) ) goto BAerror;
+//	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 
 	return;
 BAerror:
@@ -462,7 +464,7 @@ void ComputeBaroComp(void)
 #endif
 
 			}
-			StartBaroADC(0xee);	// next is temp
+			StartBaroADC(BARO_TEMP);	// next is temp
 		}
 		else
 		{
@@ -473,7 +475,7 @@ void ComputeBaroComp(void)
 				TempCorr = niltemp - BaseTemp;
 //				TempCorr += 4;	// compensate rounding error later /8
 			}
-			StartBaroADC(0xf4);	// next is pressure
+			StartBaroADC(BARO_PRESS);	// next is pressure
 		}
 	}
 	// eliminate static drift of baro sensor
