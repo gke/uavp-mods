@@ -19,7 +19,7 @@ rem RX_DEFAULT for default PPM Graupner/JR etc Rx.
 set VERSION=3_14m3
 
 rem Add/Delete required combinations to these sets
-set BOARDS= 3_1
+set BAROS=BMP085 SMD500  
 set GYROS=OPT_IDG OPT_ADXRS
 set ESCS=ESC_PPM ESC_HOLGER
 set DBGS=NO_DEBUG 
@@ -35,7 +35,7 @@ echo Starting makeall uavp > log.lst
 
 rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG RX
 
-for %%b in (%BOARDS%) do for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%d in (%DBGS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %%b %%g %%e %%d %%r 
+for %%b in (%BAROS%) do for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%d in (%DBGS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %%b %%g %%e %%d %%r 
 
 
 

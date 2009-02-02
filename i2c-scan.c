@@ -25,6 +25,24 @@
 
 // I2C Scanner
 
+// compass sensor
+#define COMPASS_I2C_ID	0x42	/* I2C slave address */
+
+
+// baro (altimeter) sensor
+#define BARO_I2C_ID			0xee
+#ifdef BMP085
+	#define BARO_TEMP		0x2e
+	#define BARO_PRESS		0x74		/* alternative 0xf4 but returns 19bits */ 
+#else
+	#define BARO_TEMP		0x6e
+	#define BARO_PRESS		0xf4
+#endif
+#define BARO_CTL			0xf4
+#define BARO_ADC			0xf6
+
+
+
 #pragma codepage=1
 
 #include "pu-test.h"
@@ -195,7 +213,7 @@ void CompassTest(void)
 
 // set Compass device to Compass mode 
 	I2CStart();
-	if( SendI2CByte(0x42) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(0x74) != I2C_ACK ) goto CTerror;
 	// select operation mode, standby mode
@@ -203,7 +221,7 @@ void CompassTest(void)
 	I2CStop();
 // set EEPROM shadow register
 	I2CStart();
-	if( SendI2CByte(0x42) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('w')  != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(0x08) != I2C_ACK ) goto CTerror;
 	// select operation mode, standby mode
@@ -215,7 +233,7 @@ void CompassTest(void)
 
 // set output mode, cannot be shadowd in EEPROM :-(
 	I2CStart();
-	if( SendI2CByte(0x42) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(0x4e) != I2C_ACK ) goto CTerror;
 	// select heading mode (1/10th degrees)
@@ -223,7 +241,7 @@ void CompassTest(void)
 	I2CStop();
 // set multiple read option, can only be written to EEPROM
 	I2CStart();
-	if( SendI2CByte(0x42) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('w')  != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(0x06) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(COMP_MULT)   != I2C_ACK ) goto CTerror;
@@ -234,7 +252,7 @@ void CompassTest(void)
 
 // read a direction
 	I2CStart();
-	if( SendI2CByte(0x42) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('A')  != I2C_ACK ) goto CTerror;
 	I2CStop();
 // wait 25ms for command to complete
@@ -245,7 +263,7 @@ void CompassTest(void)
 		T0IF = 0;
 	}
 	I2CStart();
-	if( SendI2CByte(0x43) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
 	nilgval.high8 = RecvI2CByte(I2C_ACK);
 	nilgval.low8 = RecvI2CByte(!I2C_ACK);
 	I2CStop();
@@ -269,7 +287,7 @@ void CalibrateCompass(void)
 	
 // set Compass device to Calibration mode 
 	I2CStart();
-	if( SendI2CByte(0x42) != I2C_ACK ) goto CCerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CCerror;
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
@@ -279,7 +297,7 @@ void CalibrateCompass(void)
 
 // set Compass device to End-Calibration mode 
 	I2CStart();
-	if( SendI2CByte(0x42) != I2C_ACK ) goto CCerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CCerror;
 	if( SendI2CByte('E')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
@@ -293,13 +311,13 @@ CCerror:
 void BaroTest(void)
 {
 
-// set SMD500 device to start conversion
+// set Baro device to start conversion
 	I2CStart();
-	if( SendI2CByte(0xee) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 // access control register, start measurement
-	if( SendI2CByte(0xf4) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto BAerror;
 // select 32kHz input, measure pressure
-	if( SendI2CByte(0xf4) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
 // wait until control reg. bit 5 is zero (conversion ready)
@@ -307,12 +325,12 @@ void BaroTest(void)
 	do
 	{
 		I2CStart();
-		if( SendI2CByte(0xee) != I2C_ACK ) goto BAerror;
+		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 // access control register
-		if( SendI2CByte(0xf4) != I2C_ACK ) goto BAerror;
+		if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto BAerror;
 
 		I2CStart();		// restart
-		if( SendI2CByte(0xef) != I2C_ACK ) goto BAerror;
+		if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
 // read control register
 		nilgval.low8 = RecvI2CByte(I2C_NACK);
 		I2CStop();
@@ -320,11 +338,11 @@ void BaroTest(void)
 	while(nilgval.low8 & 0b0010.0000);
 
 	I2CStart();
-	if( SendI2CByte(0xee) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 // access A/D registers
-	if( SendI2CByte(0xf6) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_ADC) != I2C_ACK ) goto BAerror;
 	I2CStart();		// restart
-	if( SendI2CByte(0xef) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
 	nilgval.high8 = RecvI2CByte(I2C_ACK);
 	nilgval.low8 = RecvI2CByte(!I2C_NACK);
 	I2CStop();
@@ -335,11 +353,11 @@ void BaroTest(void)
 // read temp
 // set SMD500 device to start conversion
 	I2CStart();
-	if( SendI2CByte(0xee) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 // access control register, start measurement
-	if( SendI2CByte(0xf4) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
 // select 32kHz input, measure temperature
-	if( SendI2CByte(0xee) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_TEMP) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
 // wait until control reg. bit 5 is zero (conversion ready)
@@ -347,12 +365,12 @@ void BaroTest(void)
 	do
 	{
 		I2CStart();
-		if( SendI2CByte(0xee) != I2C_ACK ) goto BAerror;
+		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 // access control register
-		if( SendI2CByte(0xf4) != I2C_ACK ) goto BAerror;
+		if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto BAerror;
 
 		I2CStart();		// restart
-		if( SendI2CByte(0xef) != I2C_ACK ) goto BAerror;
+		if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
 // read control register
 		nilgval.low8 = RecvI2CByte(I2C_NACK);
 		I2CStop();
@@ -360,11 +378,11 @@ void BaroTest(void)
 	while(nilgval.low8 & 0b0010.0000);
 
 	I2CStart();
-	if( SendI2CByte(0xee) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 // access A/D registers
-	if( SendI2CByte(0xf6) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_ADC) != I2C_ACK ) goto BAerror;
 	I2CStart();		// restart
-	if( SendI2CByte(0xef) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
 	nilgval.high8 = RecvI2CByte(I2C_ACK);
 	nilgval.low8 = RecvI2CByte(!I2C_NACK);
 	I2CStop();
