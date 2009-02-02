@@ -83,7 +83,7 @@ file_008=control.c
 file_009=i2c.c
 file_010=outputs.c
 file_011=gps.c
-file_012=irqV3.c
+file_012=C:\Flight\Code\UAVX-GKE\irq.c
 file_013=bits.h
 file_014=c-ufo.h
 [SUITE_INFO]
