@@ -170,7 +170,7 @@ void InitDirection(void)
 
 // set Compass device to Compass mode 
 	I2CStart();
-	if( SendI2CByte(COMPASS_ADDR) != I2C_ACK ) goto IDerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
 // this initialization is no longer needed, is done by testsoftware!
 #if 0
 	if( SendI2CByte('G')  != I2C_ACK ) goto IDerror;
@@ -180,20 +180,20 @@ void InitDirection(void)
 	I2CStop();
 
 	I2CStart();
-	if( SendI2CByte(COMPASS_ADDR) != I2C_ACK ) goto IDerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
 	if( SendI2CByte('r')  != I2C_ACK ) goto IDerror;
 	if( SendI2CByte(0x06) != I2C_ACK ) goto IDerror;
 	I2CStop();
 
 // read multiple read count to avoid wear-and-tear on EEPROM
 	I2CStart();
-	if( SendI2CByte(COMPASS_ADDR+1) != I2C_ACK ) goto IDerror;
+	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto IDerror;
 	if( RecvI2CByte(!I2C_ACK) != 16 )
 	{	// not correctly set, set it up.
 		I2CStop();
 
 		I2CStart();
-		if( SendI2CByte(COMPASS_ADDR) != I2C_ACK ) goto IDerror;
+		if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
 		if( SendI2CByte('w')  != I2C_ACK ) goto IDerror;
 		if( SendI2CByte(0x06) != I2C_ACK ) goto IDerror;
 		if( SendI2CByte(16)   != I2C_ACK ) goto IDerror;
@@ -214,7 +214,7 @@ void GetDirection(void)
 
 // set Compass device to Compass mode 
 	I2CStart();
-	if( SendI2CByte(COMPASS_ADDR+1) != I2C_ACK ) 
+	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) 
 	{
 		I2CStop();
 		CurDeviation = 0;	// no sensor present, deviation = 0
@@ -363,6 +363,8 @@ void InitAltimeter(void)
 	ReadValueFromBaro();
  	
 	BasePressure = niltemp;
+	
+
 
 	_UseBaro = 1;
 // prepare for next run
@@ -386,6 +388,7 @@ void ComputeBaroComp(void)
 			{
 				BasePressure = niltemp;	// current read value is the new level
 				BaroCompSum = 0;
+				BaroIntSum = 0;
 			}
 			else
 			{	// while holding altitude
@@ -411,7 +414,8 @@ void ComputeBaroComp(void)
 				BaroCompSum += 2;	// rounding
 				BaroCompSum >>= 2;	// div by 4
 				niltemp1 = BaroCompSum - niltemp;	// subtract new height to get delta
-					
+
+				BaroIntSum += niltemp1;	
 #ifdef INTTEST
 		SendComChar('a');
 		SendComValH(BaroCompSum.high8);
@@ -429,6 +433,7 @@ void ComputeBaroComp(void)
 					BaroCompSum = 8;
 				if( BaroCompSum < -3 ) // zu hoch: nur leicht nachlassen
 					BaroCompSum = -3;
+
 			// weiche Regelung (proportional)
 			// nitemp kann nicht überlaufen (-3..+8 * PropFact)
 				nitemp = (int)BaroCompSum.low8 * BaroThrottleProp;
@@ -443,6 +448,22 @@ void ComputeBaroComp(void)
 				else
 				if( VBaroComp < nitemp )
 					VBaroComp++;
+
+			// Integral - GKE
+				nitemp = (int)BaroIntSum * (int)BAROTHROTTLEINT;
+				if( nitemp > BAROTHROTTLEINTLIMIT )
+					nitemp = BAROTHROTTLEINTLIMIT;
+				else
+				if( nitemp < -BAROTHROTTLEINTLIMIT )
+					nitemp = -BAROTHROTTLEINTLIMIT;
+
+				if ( nitemp > 0 )			// decay
+					nitemp--;
+				else
+				if ( nitemp < 0 )
+					nitemp++;
+				VBaroComp += nitemp;
+
 			// Differentialanteil
 				if( niltemp1 > 8 )
 					niltemp1.low8 = 8;
