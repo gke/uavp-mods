@@ -81,6 +81,7 @@ int		Rw,Nw;
 #ifdef BOARD_3_1
 uns16	BasePressure, BaseTemp, TempCorr;
 int		VBaroComp;
+int	BaroIntSum;
 long 	BaroCompSum;
 #endif
 
@@ -171,7 +172,7 @@ void main(void)
 	TRISB = 0b.0100.0000;	// all servo and LED outputs
 	PORTC = 0b.0110.0000;		// all outputs to low, except TxD and CS
 	TRISC = 0b.10000100;	// RC7, RC2 are inputs
-	RBPU_ = 1;			// enable weak pullups
+	RBPU_ = 1;			// disable weak pullups external resitors for I2C
 	CKE = 1;		// default I2C - enable SMBus thresholds for 3.3V LISL
 	LedShadow = 0;
 #endif
@@ -351,6 +352,11 @@ Restart:
 			
 		while(Switch == 1)	// as long as power switch is ON
 		{
+// WDT is disabled in config bits buit just in case
+#asm
+	clrwdt
+#endasm
+
 // wait pulse pause delay time (TMR0 has 1024us for one loop)
 			TMR0 = 0;
 			T0IF = 0;
@@ -405,6 +411,9 @@ Restart:
 // or non-optimal flight behavior might occur!!!
 			}
 
+#asm
+	clrwdt
+#endasm
 			T0IE = 0;	// disable timer
 			GetGyroValues();
 

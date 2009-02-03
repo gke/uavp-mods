@@ -180,6 +180,7 @@ First public released version.
 
 22.01.2009 v3.15m3 Greg Egan
 - Added option for BMP085 build (thanks Don/Jim).
+- Added experimental integral term to alt hold.
 
 ==============================================
 = Transferring firmware to the PIC           =

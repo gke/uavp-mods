@@ -26,4 +26,3 @@ if exist profi-ufo*.lst del profi-ufo*.lst
 if exist profi-ufo*.map del profi-ufo*.map
 
 
-if exist log.lst del log.lst

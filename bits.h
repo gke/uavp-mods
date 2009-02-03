@@ -168,7 +168,7 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define Beeper_TOG		if( (LedShadow&Beeper) == 0 ) SwitchLedsOn(Beeper); else SwitchLedsOff(Beeper);
 
 // compass sensor
-#define COMPASS_ADDR	0x42	/* I2C slave address */
+#define COMPASS_I2C_ID	0x42	/* I2C slave address */
 #define COMPASS_MAXDEV	30	/* maximum yaw compensation of compass heading */
 #define COMPASS_MAX		240	/* means 360 degrees */
 #define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
@@ -178,7 +178,7 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define BARO_I2C_ID			0xee
 #ifdef BMP085
 	#define BARO_TEMP		0x2e
-	#define BARO_PRESS		0x74		/* alternative 0xf4 but returns 19bits */ 
+	#define BARO_PRESS		0xf4		/* alternative 0x74 faster */ 
 #else
 	#define BARO_TEMP		0x6e
 	#define BARO_PRESS		0xf4
