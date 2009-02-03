@@ -33,7 +33,7 @@
 #define BARO_I2C_ID			0xee
 #ifdef BMP085
 	#define BARO_TEMP		0x2e
-	#define BARO_PRESS		0x74		/* alternative 0xf4 but returns 19bits */ 
+	#define BARO_PRESS		0xf4		/* alternative 0x74 fasters */ 
 #else
 	#define BARO_TEMP		0x6e
 	#define BARO_PRESS		0xf4
