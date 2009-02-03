@@ -1,7 +1,3 @@
-// Experimental inclusion of integral term in Baro Throttle compensation
-#define BAROTHROTTLEINT 0			// suggest 2
-#define BAROTHROTTLEINTLIMIT 0 			// suggest not larger  than 4
-
 
 #ifndef BATCHMODE
 // ==============================================
@@ -178,7 +174,6 @@ int		nitemp @ niltemp;
 extern	bank0	uns16	BasePressure, BaseTemp;
 extern	bank0	uns16	TempCorr;
 extern	bank1	int	VBaroComp;
-extern	bank1	int	BaroIntSum;
 extern  bank0	long    BaroCompSum;
 #endif
 

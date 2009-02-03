@@ -388,7 +388,6 @@ void ComputeBaroComp(void)
 			{
 				BasePressure = niltemp;	// current read value is the new level
 				BaroCompSum = 0;
-				BaroIntSum = 0;
 			}
 			else
 			{	// while holding altitude
@@ -414,8 +413,6 @@ void ComputeBaroComp(void)
 				BaroCompSum += 2;	// rounding
 				BaroCompSum >>= 2;	// div by 4
 				niltemp1 = BaroCompSum - niltemp;	// subtract new height to get delta
-
-				BaroIntSum += niltemp1;	
 #ifdef INTTEST
 		SendComChar('a');
 		SendComValH(BaroCompSum.high8);
@@ -448,22 +445,6 @@ void ComputeBaroComp(void)
 				else
 				if( VBaroComp < nitemp )
 					VBaroComp++;
-
-			// Integral - GKE
-				nitemp = (int)BaroIntSum * (int)BAROTHROTTLEINT;
-				if( nitemp > BAROTHROTTLEINTLIMIT )
-					nitemp = BAROTHROTTLEINTLIMIT;
-				else
-				if( nitemp < -BAROTHROTTLEINTLIMIT )
-					nitemp = -BAROTHROTTLEINTLIMIT;
-
-				if ( nitemp > 0 )			// decay
-					nitemp--;
-				else
-				if ( nitemp < 0 )
-					nitemp++;
-				VBaroComp += nitemp;
-
 			// Differentialanteil
 				if( niltemp1 > 8 )
 					niltemp1.low8 = 8;

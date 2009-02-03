@@ -81,7 +81,6 @@ int		Rw,Nw;
 #ifdef BOARD_3_1
 uns16	BasePressure, BaseTemp, TempCorr;
 int		VBaroComp;
-int	BaroIntSum;
 long 	BaroCompSum;
 #endif
 
