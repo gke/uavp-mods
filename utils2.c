@@ -34,7 +34,7 @@ static bank1 int i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delaysec(uns8 dur)
+void Delay100mS(uns8 dur)
 {
 	bank0	uns8 k;
 
