@@ -272,7 +272,7 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 //                    vvv   ACHTUNG: Auf numerischen Überlauf achten!
 #ifdef ESC_PPM
 #define	_Minimum	((105* _ClkOut/(2*_PreScale1))&0xFF)	/*-100% */
-#define _Maximum	255
+#define _Maximum	240					/* reduced from 255 */
 #endif
 #ifdef ESC_X3D
 #define _Minimum	0
@@ -359,6 +359,8 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 
 // Prototypes
 
+extern	page0	void BootStart(void);
+
 extern	page0	void OutSignals(void);
 extern	page0	void GetGyroValues(void);
 extern	page0	void CalcGyroValues(void);
@@ -384,7 +386,7 @@ extern	page1	void AddUpFBArr(uns8);
 extern	page1	void AcqTime(void);
 extern	page1	void MixAndLimit(void);
 extern	page0	void MixAndLimitCam(void);
-extern	page1	void Delaysec(uns8);
+extern	page1	void Delay100mS(uns8);
 
 #ifdef BOARD_3_1
 extern	page1	void SendLeds(void);

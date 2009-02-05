@@ -112,23 +112,23 @@ void LimitYawSum(void)
 #ifdef BOARD_3_1
 	if ( _UseCompass )
 	{
-// add compass heading correction
-// CurDeviation is negative if Ufo has yawed to the right (go back left)
+		// add compass heading correction
+		// CurDeviation is negative if Ufo has yawed to the right (go back left)
 
-// this double "if" is necessary because of dumb CC5X compiler
+		// this double "if" is necessary because of dumb CC5X compiler
 		NegFact = YawNeutral + COMPASS_MIDDLE;
 		if ( ITurn > NegFact )
-// yaw stick is not in neutral zone, learn new desired heading
+			// yaw stick is not in neutral zone, learn new desired heading
 			AbsDirection = COMPASS_INVAL;
 		else		
 		{
 			NegFact = YawNeutral - COMPASS_MIDDLE;
 			if ( ITurn < NegFact )
-// yaw stick is not in neutral zone, learn new desired heading
+				// yaw stick is not in neutral zone, learn new desired heading
 				AbsDirection = COMPASS_INVAL;
 			else
 			{
-// yaw stick is in neutral zone, hold heading
+				// yaw stick is in neutral zone, hold heading
 				if( CurDeviation > COMPASS_MAXDEV )
 					TE -= COMPASS_MAXDEV;
 				else
@@ -185,67 +185,39 @@ int SaturInt(long l)
 // on the motors and check for numerical overrun
 void MixAndLimit(void)
 {
+	uns8 CurrGas;
 
-	GIE=0;	// enter critical section, block interrupts
-
-#ifdef ABANDONED_USE_THROTTLECURVE
-// Lookup table based throttle curve - Greg Egan 2008
-// low gain at hover
-// Working but ABANDONED - use Tx based throttle curve shaping
-static const uns8 ThrottleTable[16]={
-	0, 16, 32,
-	36, 40, 44, 48, 52,56, 60, 64, 80, 
-	96, 112, 128, 144
-	};
-
-	uns8 Index, Low, High, Offset;
-	uns16 Temp;
-
-	if( _NewValues )
-	{
-		if (IGas > 127) IGas=127;
-		Index = IGas>>3;
-		Offset = IGas&0x07;
-		Low = ThrottleTable[Index];
-		High = ThrottleTable[++Index];
-		Temp = (High-Low)*Offset;
-		Temp >>= 3;
-		IGas = Low + Temp; 
-	}     
-#endif	// USE_THROTTLECURVE 
-
-
+	CurrGas = IGas;	// to protect against IGas being changed in interrupt
+ 
 #ifndef TRICOPTER
 	if( FlyCrossMode )
 	{	// "Cross" Mode
-		Ml = IGas + Nl;		Ml -= Rl;
-		Mr = IGas - Nl;		Mr += Rl;
-		Mv = IGas - Nl;		Mv -= Rl;
-		Mh = IGas + Nl;		Mh += Rl;
+		Ml = CurrGas + Nl; Ml -= Rl;
+		Mr = CurrGas - Nl; Mr += Rl;
+		Mv = CurrGas - Nl; Mv -= Rl;
+		Mh = CurrGas + Nl; Mh += Rl;
 	}
 	else
 	{	// "Plus" Mode
 #ifdef MOUNT_45
-		Ml = IGas - Rl; Ml -= Nl; // K2 -> Front right
-		Mr = IGas + Rl; Mr += Nl; // K3 -> Rear left
-		Mv = IGas + Rl; Mv -= Nl; // K1 -> Front left
-		Mh = IGas - Rl; Mh += Nl; // K4 -> Rear rigt
+		Ml = CurrGas - Rl; Ml -= Nl;	// K2 -> Front right
+		Mr = CurrGas + Rl; Mr += Nl;	// K3 -> Rear left
+		Mv = CurrGas + Rl; Mv -= Nl;	// K1 -> Front left
+		Mh = IGas - Rl; Mh += Nl;	// K4 -> Rear rigt
 #else
-		Ml = IGas - Rl;	// K2 -> Front right
-		Mr = IGas + Rl; // K3 -> Rear left
-		Mv = IGas - Nl; // K1 -> Front left
-		Mh = IGas + Nl; // K4 -> Rear rigt
+		Ml = CurrGas - Rl;	// K2 -> Front right
+		Mr = CurrGas + Rl;	// K3 -> Rear left
+		Mv = CurrGas - Nl;	// K1 -> Front left
+		Mh = CurrGas + Nl;	// K4 -> Rear rigt
 #endif
 	}
-	GIE=1;	// end critical section
+
 	Mv += Tl;
 	Mh += Tl;
 	Ml -= Tl;
 	Mr -= Tl;
 
-// Altitude stabilization factor
-
-
+	// Altitude stabilization factor
 	Mv += Vud;
 	Mh += Vud;
 	Ml += Vud;
@@ -261,7 +233,7 @@ static const uns8 ThrottleTable[16]={
 // if low-throttle limiting occurs, must limit other motor too
 // to prevent flips!
 
-	if( IGas > MotorLowRun )
+	if( CurrGas > MotorLowRun )
 	{
 		if( (Mv > Mh) && (Mh < MotorLowRun) )
 		{
@@ -293,15 +265,15 @@ static const uns8 ThrottleTable[16]={
 		}
 	}
 #else	// TRICOPTER
-	Mv = IGas + Nl;	// front motor
-	Ml = IGas + Rl;
-	Mr = IGas - Rl;
+	Mv = CurrGas + Nl;	// front motor
+	Ml = CurrGas + Rl;
+	Mr = CurrGas - Rl;
 	Rl >>= 1;
 	Ml -= Rl;	// rear left
-    Mr -= Nl;	// rear right
+    	Mr -= Nl;	// rear right
 	Mh = Tl + _Neutral;	// yaw servo
 
-	if( IGas > MotorLowRun )
+	if( CurrGas > MotorLowRun )
 	{
 		if( (Ml > Mr) && (Mr < MotorLowRun) )
 		{
