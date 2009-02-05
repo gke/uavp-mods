@@ -56,11 +56,11 @@ uns8	IK6;		// actual channel 6 input
 uns8	IK7;		// actual channel 7 input
 
 // PID Regler Variablen
-int		RE,NE;
-int		TE;	// Fehlersignal aus dem aktuellen Durchlauf
-int		REp,NEp;
-//int		REp2,NEp2;
-int		TEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/NE/TE)
+int	RE,NE;
+int	TE;	// Fehlersignal aus dem aktuellen Durchlauf
+int	REp,NEp;
+//int	REp2,NEp2;
+int	TEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/NE/TE)
 long	YawSum;	// Integrales Fehlersignal fuer Turn, 0 = neutral
 long	RollSum, NickSum;	// Integrales Fehlersignal fuer Roll und Nick
 uns16	RollSamples, NickSamples;
@@ -69,18 +69,18 @@ int		LRIntKorr, FBIntKorr;
 uns8	NeutralLR, NeutralFB, NeutralUD;
 //long	LRSumPosi, FBSumPosi;	// Integral des Integrals des Fehlersignal des LISL Sensors (=Geschwindigkeit)
 
-int		NegFact; // general purpose
+int	NegFact; // general purpose
 
 uns8	BlinkCount;
 
 long	niltemp1;
 long	niltemp;
 int	BatteryVolts; // added by Greg Egan
-int		Rw,Nw;
+int	Rw,Nw;
 
 #ifdef BOARD_3_1
 uns16	BasePressure, BaseTemp, TempCorr;
-int		VBaroComp;
+int	VBaroComp;
 long 	BaroCompSum;
 #endif
 
@@ -88,36 +88,36 @@ long 	BaroCompSum;
 int	RollPropFactor;
 int	RollIntFactor;
 int	RollDiffFactor;
-int RollLimit;
-int RollIntLimit;
+int 	RollLimit;
+int 	RollIntLimit;
 
 int	NickPropFactor;
 int	NickIntFactor;
 int	NickDiffFactor;
-int NickLimit;
-int NickIntLimit;
+int 	NickLimit;
+int 	NickIntLimit;
 
 int	TurnPropFactor;
 int	TurnIntFactor;
 int	TurnDiffFactor;
 int	YawLimit;
-int YawIntLimit;
+int 	YawIntLimit;
 
 int	ConfigParam;
 int	TimeSlot;
-int LowVoltThres;
+int 	LowVoltThres;
 
 int	LinLRIntFactor;
 int	LinFBIntFactor;
 int	LinUDIntFactor;
-int MiddleUD;
-int MotorLowRun;
+int 	MiddleUD;
+int 	MotorLowRun;
 int	MiddleLR;
-int MiddleFB;
+int 	MiddleFB;
 int	CamNickFactor;
-int CompassFactor;
+int 	CompassFactor;
 
-int BaroThrottleDiff;
+int 	BaroThrottleDiff;
 
 // Ende Reihenfolgezwang
 
@@ -156,7 +156,7 @@ void main(void)
 
 	OPTION_REG = 0b.00000.011;	// TMR0 w/ int clock, 1:16 presc (see _PreScale0),
 					// weak pullups on
-// general ports setup
+	// general ports setup
 	TRISA = 0b.00111111;	// all inputs
 	ADCON1 = 0b.0.000.0010;	// uses 5V as Vref
 
@@ -171,14 +171,14 @@ void main(void)
 	TRISB = 0b.0100.0000;	// all servo and LED outputs
 	PORTC = 0b.0110.0000;		// all outputs to low, except TxD and CS
 	TRISC = 0b.10000100;	// RC7, RC2 are inputs
-	RBPU_ = 1;			// disable weak pullups external resitors for I2C
+	RBPU_ = 1;			// disable weak pullups
 	CKE = 1;		// default I2C - enable SMBus thresholds for 3.3V LISL
 	LedShadow = 0;
 #endif
 
     ALL_LEDS_OFF;
 
-// setup serial port for 8N1
+	// setup serial port for 8N1
 	TXSTA = 0b.0010.0100;	// async mode, BRGH = 1
 	RCSTA = 0b.1001.0000;	// receive mode
 	SPBRG = _B38400;
@@ -205,7 +205,7 @@ void main(void)
 	InitArrays();
 
 	LedRed_ON;		// red LED on
-	Delaysec(1);	// wait 1/10 sec until LISL is ready to talk
+	Delay100mS(1);	// wait 1/10 sec until LISL is ready to talk
 
 #ifdef USE_ACCSENS
 	IsLISLactive();
@@ -220,7 +220,7 @@ void main(void)
 		GetEvenValues();	// into Rp, Np, Tp
 #endif
 
-// enable the interrupts
+	// enable the interrupts
 	CCP1IE = 1;
 	TMR2IE = 1;		// T1-Capture and T2 interrupt enable
 		
@@ -229,8 +229,8 @@ void main(void)
 #ifdef BOARD_3_1
 	ThrNeutral = 0xFF;
 #endif
-// send hello text to serial COM
-	Delaysec(1);	// just to see the output after powerup
+	// send hello text to serial COM
+	Delay100mS(1);	// just to see the output after powerup
 
 #ifdef BOARD_3_1
 	InitDirection();	// init compass sensor
@@ -244,8 +244,8 @@ void main(void)
 Restart:
 	IGas =IK5 = _Minimum;	// assume parameter set #1
 
-// DON'T MOVE THE UFO!
-// ES KANN LOSGEHEN!
+	// DON'T MOVE THE UFO!
+	// ES KANN LOSGEHEN!
 
 	while(1)
 	{
@@ -263,12 +263,12 @@ Restart:
 
 		GIE = 1;		// enable all interrupts
 
-// Wait until a valid RX signal is received
+		// Wait until a valid RX signal is received
 
 		DropoutCount = MODELLOSTTIMER;
 		do
 		{
-			Delaysec(2);	// wait 2/10 sec until signal is there
+			Delay100mS(2);	// wait 2/10 sec until signal is there
 			ProcessComCommand();
 			if( _NoSignal )
 			{
@@ -287,18 +287,18 @@ Restart:
 		while( _NoSignal || !Switch);	// no signal or switch is off
 		Beeper_OFF;
 
-// RX Signal is OK now
-// Wait 2 sec to allow enter of prog mode
+		// RX Signal is OK now
+		// Wait 2 sec to allow enter of prog mode
 		LedRed_OFF;
 		LedYellow_ON;	
-		Delaysec(20);
+		Delay100mS(20);
 		LedYellow_OFF;
 
-// die Variablen einlesen
+		// die Variablen einlesen
 		ReadEEdata();
 
 #ifdef XMIT_PROG		
-// check for prog mode (max. throttle)
+		// check for prog mode (max. throttle)
 		if( IGas > _ProgMode ) 
 		{
 			DoProgMode();
@@ -306,8 +306,8 @@ Restart:
 		}
 #endif
 
-// Just for safety: don't let motors start if throttle is open!
-// check if Gas is below _ThresStop
+		// Just for safety: don't let motors start if throttle is open!
+		// check if Gas is below _ThresStop
 
 		DropoutCount = 1;
 		while( IGas >= _ThresStop )
@@ -329,12 +329,12 @@ Restart:
 		}
 
 	
-// ###############
-// ## MAIN LOOP ##
-// ###############
-// loop length is controlled by a programmable variable "TimeSlot"
-// which sets wait time in ms
-// standard ESCs will need at least 9 or 10 as TimeSlot.
+		// ###############
+		// ## MAIN LOOP ##
+		// ###############
+		// loop length is controlled by a programmable variable "TimeSlot"
+		// which sets wait time in ms
+		// standard ESCs will need at least 9 or 10 as TimeSlot.
 		DropoutCount = 0;
 		BlinkCount = 0;
 		IntegralCount = 16;	// do 16 cycles to find integral zero point
@@ -342,8 +342,8 @@ Restart:
 		ThrDownCount = THR_DOWNCOUNT;
 #endif
 
-// if Ch7 below +20 (near minimum) assume use for camera trigger
-// else assume use for camera roll trim
+		// if Ch7 below +20 (near minimum) assume use for camera trigger
+		// else assume use for camera roll trim
 		
 		_UseCh7Trigger = 1;
 		if( IK7 > 30 )
@@ -351,19 +351,14 @@ Restart:
 			
 		while(Switch == 1)	// as long as power switch is ON
 		{
-// WDT is disabled in config bits buit just in case
-#asm
-	clrwdt
-#endasm
-
-// wait pulse pause delay time (TMR0 has 1024us for one loop)
+		// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			TMR0 = 0;
 			T0IF = 0;
 			T0IE = 1;	// enable TMR0
 
 			RollSamples =
 			NickSamples = 0;	// zero gyros sum-up memory
-// sample gyro data and add everything up while waiting for timing delay
+			// sample gyro data and add everything up while waiting for timing delay
 
 			GetGyroValues();
 #ifdef BOARD_3_1
@@ -410,24 +405,21 @@ Restart:
 // or non-optimal flight behavior might occur!!!
 			}
 
-#asm
-	clrwdt
-#endasm
 			T0IE = 0;	// disable timer
 			GetGyroValues();
 
 			ReadEEdata();	// re-sets TimeSlot
 
-// Setup Blink counter
+			// Setup Blink counter
 			if( BlinkCount == 0 )
 				BlinkCount = BLINK_LIMIT;
 			BlinkCount--;
 
-// get the gyro values and Batt status
+			// get the gyro values and Batt status
 			CalcGyroValues();
 			GetVbattValue();
 
-// check for signal dropout while in flight
+			// check for signal dropout while in flight
 			if( _NoSignal && _Flying )
 			{
 				if( (BlinkCount & 0x07) == 0 )
@@ -449,8 +441,8 @@ Restart:
 // IN FLIGHT (SAY A RAPID THROTTLE CLOSED DESCENT) THEN THE FOLLOWING CODE MAY RESET 
 // THE INTEGRAL SUMS (PITCH AND ROLL ANGLES) WHEN THE QUADROCOPTER IS NOT "LEVEL".
 
-// allow motors to run on low throttle 
-// even if stick is at minimum for a short time
+			// allow motors to run on low throttle 
+			// even if stick is at minimum for a short time
 			if( _Flying && (IGas <= _ThresStop) )
 			{
 				if( --LowGasCount > 0 )
@@ -504,7 +496,7 @@ Restart:
 #endif
 
 #ifdef BOARD_3_0
-// check if LISL Sensor is available
+					// check if LISL Sensor is available
 					if( _UseLISL && _SerEnabled )
 					{
 						SPEN = 0;	// disable RS232 to allow LISL sensor to work
@@ -514,7 +506,8 @@ Restart:
 						_SerEnabled = 0;
 					}
 
-// if no LISL available, do COM commands also (important if you set ConfigParam wrong!)
+					// if no LISL available, do COM commands also 
+					// (important if you set ConfigParam wrong!)
 					if( _SerEnabled )
 #endif
 						ProcessComCommand();
@@ -529,7 +522,7 @@ Restart:
 				LowGasCount = 100;
 					
 #ifdef BOARD_3_1
-// LED game 
+				// LED game 
 				if( --LedCount == 0 )
 				{
 					LedCount = 255-IGas;	// new setup
@@ -560,12 +553,12 @@ Restart:
 #endif
 
 DoPID:
-// do the calculations
+				// do the calculations
 				Rp = 0;
 				Np = 0;
 
 #ifdef BOARD_3_1
-// this block checks if throttle stick has moved
+				// this block checks if throttle stick has moved
 				if( _NewValues )
 				{
 					if( ThrDownCount > 0 )
@@ -598,7 +591,7 @@ DoPID:
 					MixAndLimit();
 				}
 
-// remember old gyro values
+				// remember old gyro values
 				REp = RE;
 				NEp = NE;
 				TEp = TE;
@@ -639,7 +632,7 @@ DoPID:
 
 		}	// END NORMAL OPERATION WHILE LOOP
 
-// CPU kommt hierher wenn der Schalter ausgeschaltet wird
+		// CPU kommt hierher wenn der Schalter ausgeschaltet wird
 		Beeper_OFF;
 #ifdef BOARD_3_0
 		SPEN = 1;	// enable RS232
@@ -647,7 +640,7 @@ DoPID:
 		_SerEnabled = 1;
 #endif
 	}
-// CPU does /never/ arrive here
-//	ALL_OUTPUTS_OFF;
+	// CPU does /never/ arrive here
+	//	ALL_OUTPUTS_OFF;
 }
 

@@ -171,34 +171,9 @@ void InitDirection(void)
 // set Compass device to Compass mode 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
-// this initialization is no longer needed, is done by testsoftware!
-#if 0
-	if( SendI2CByte('G')  != I2C_ACK ) goto IDerror;
-	if( SendI2CByte(0x74) != I2C_ACK ) goto IDerror;
-	// select operation mode, continuous mode, 20 Hz
-	if( SendI2CByte(0b0.11.1.00.10) != I2C_ACK ) goto IDerror;
-	I2CStop();
 
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
-	if( SendI2CByte('r')  != I2C_ACK ) goto IDerror;
-	if( SendI2CByte(0x06) != I2C_ACK ) goto IDerror;
-	I2CStop();
+	// CAUTION: compass calibration must be done using TestSoftware!
 
-// read multiple read count to avoid wear-and-tear on EEPROM
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto IDerror;
-	if( RecvI2CByte(!I2C_ACK) != 16 )
-	{	// not correctly set, set it up.
-		I2CStop();
-
-		I2CStart();
-		if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
-		if( SendI2CByte('w')  != I2C_ACK ) goto IDerror;
-		if( SendI2CByte(0x06) != I2C_ACK ) goto IDerror;
-		if( SendI2CByte(16)   != I2C_ACK ) goto IDerror;
-	}
-#endif
 	_UseCompass = 1;
 IDerror:
 	I2CStop();
@@ -212,7 +187,7 @@ void GetDirection(void)
 
 	bank2 long DirVal, temp;
 
-// set Compass device to Compass mode 
+	// set Compass device to Compass mode 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) 
 	{
@@ -224,11 +199,11 @@ void GetDirection(void)
 	DirVal.low8  = RecvI2CByte(!I2C_ACK);
 	I2CStop();
 
-// DirVal has 1/10th degrees
-// convert to set 360.0 deg = 240 units
+	// DirVal has 1/10th degrees
+	// convert to set 360.0 deg = 240 units
 	DirVal /= 15;
 
-// must use pre-decrement, because of dumb compiler
+	// must use pre-decrement, because of dumb compiler
 	if( AbsDirection > COMPASS_MAX )
 	{
 		CurDeviation = 0;
@@ -236,31 +211,30 @@ void GetDirection(void)
 	}
 	else
 	{
-// setup desired heading (AbsDirection)
+		// setup desired heading (AbsDirection)
 		if( AbsDirection == COMPASS_MAX )	// no heading stored yet
 		{
 			AbsDirection = DirVal;	// store current heading
 			CurDeviation = 0;
 		}
-// calc deviation and direction of deviation
+		// calc deviation and direction of deviation
 		DirVal = AbsDirection - DirVal;
-// handle wraparound
+		// handle wraparound
 		if( DirVal <= -240/2 )
 			DirVal +=  240;
 		if( DirVal >   240/2 )
 			DirVal -=  240;
 
-// positive means ufo is left off-heading
-// negative means ufo is right off-heading
+		// positive means ufo is left off-heading
+		// negative means ufo is right off-heading
 
 		if( DirVal > 20 )	// limit to give soft reaction
 			DirVal = 20;
 		if( DirVal < -20 )
 			DirVal = -20;
 
-// Empirical found :-)
-// New_CurDev = ((3*Old_CurDev)+DirVal) / 4
-//
+		// Empirical found :-)
+		// New_CurDev = ((3*Old_CurDev)+DirVal) / 4
 		temp = (long)CurDeviation;	// the previous value!
 		temp *= 3;
 		temp += DirVal;			// add the new value
@@ -279,12 +253,14 @@ uns8 ReadValueFromBaro(void)
 // test if conversion is ready
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
-// access control register
+
+	// access control register
 	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto RVerror;
 
 	I2CStart();		// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
-// read control register
+
+	// read control register
 	niltemp.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
@@ -293,37 +269,40 @@ uns8 ReadValueFromBaro(void)
 
 		I2CStart();
 		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
-// access A/D registers
+		// access A/D registers
 		if( SendI2CByte(BARO_ADC) != I2C_ACK ) goto RVerror;
 		I2CStart();		// restart
 		if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
 		niltemp.high8 = RecvI2CByte(I2C_ACK);
 		niltemp.low8 = RecvI2CByte(!I2C_NACK);
 		I2CStop();
-		return(1);
+		return(I2C_NACK);
 	}
-	return(0);
+	return(I2C_ACK);
+
 RVerror:
 	I2CStop();
 	_UseBaro = 0;	// read error, disable baro
-	return(0);
+	return(I2C_ACK);
 }
 
 // start A/D conversion on altimeter sensor
-// niaddr = BARO_TEMP to convert temperature
-//          BARO_PRESS to convert pressure
+// TempOrPress = BARO_TEMP to convert temperature
+//               BARO_PRESS to convert pressure
 // returns 1 if successful, else 0
 uns8 StartBaroADC(uns8 TempOrPress)
 {
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto SBerror;
 
-// access control register, start measurement
+	// access control register, start measurement
 	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto SBerror;
-// select 32kHz input, measure temperature
+
+	// select 32kHz input, measure temperature
 	if( SendI2CByte(TempOrPress) != I2C_ACK ) goto SBerror;
 	I2CStop();
-// set or clear bit to signal what A/D is currently running
+
+	// set or clear bit to signal what A/D is currently running
 	_BaroTempRun = (TempOrPress == BARO_TEMP);
 		
 	return(1);
@@ -334,43 +313,36 @@ SBerror:
 
 // initialize compass sensor
 void InitAltimeter(void)
-{
+{	// SMD500 9.5mS (T) 34mS (P)  
+	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
+	// Baro is assumed offline unless it responds - no retries!
 
-// read temperature once to get base value
-// set SMD500 device to start temperature conversion
+	// read temperature once to get base value
+	// set SMD500 device to start temperature conversion
 	if( !StartBaroADC(BARO_TEMP) ) goto BAerror;
-// wait 40ms can be reduced to 10mS for BMP085 using OSRS=1
 	
-	for( W=40; W!=0; W--)
-	{
-		T0IF=0;
-		while(T0IF == 0);
-	}
+	Delay100mS(1);	// should be enough!
+
 	ReadValueFromBaro();
 
 	BaseTemp = niltemp;	// save start value
-
-// read pressure once to get base value
-// set SMD500 device to start pressure conversion
+		
+	// read pressure once to get base value
+	// set SMD500 device to start pressure conversion
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 
-// wait 40ms can be reduced to 10mS for BMP085 using OSRS=1
-	for( W=40; W!=0; W--)
-	{
-		T0IF=0;
-		while(T0IF == 0);
-	}
+	Delay100mS(1);
+
 	ReadValueFromBaro();
  	
 	BasePressure = niltemp;
-	
-
 
 	_UseBaro = 1;
-// prepare for next run
-//	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 
+	// prepare for next run
+	//	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	return;
+
 BAerror:
 	_UseBaro = 0;
 	I2CStop();
@@ -382,7 +354,18 @@ void ComputeBaroComp(void)
 
 	if( ReadValueFromBaro() )	// returns niltemp as value
 	{	// successful
-		if( !_BaroTempRun )
+		if( _BaroTempRun )
+		{
+			if( ThrDownCount )
+				BaseTemp = niltemp; // current read value
+			else // TempCorr: The warmer, the higher
+			{
+				TempCorr = niltemp - BaseTemp;
+//				TempCorr += 4;	// compensate rounding error later /8
+			}
+			StartBaroADC(BARO_PRESS);	// next is pressure
+		}
+		else
 		{	// current measurement was "pressure"
 			if( ThrDownCount )	// while moving throttle stick
 			{
@@ -392,18 +375,18 @@ void ComputeBaroComp(void)
 			else
 			{	// while holding altitude
 				niltemp -= BasePressure;
-//SendComChar('B');
-// the uncorrected relative height
+//				SendComChar('B');
 //				SendComValH(niltemp.high8);
 //				SendComValH(niltemp.low8);
 //				SendComValH(TempCorr.high8);
 //				SendComValH(TempCorr.low8);
-// niltemp1 has -400..+400 approx
+
+				// niltemp1 has -400..+400 approx
 				niltemp1 = (long)TempCorr * (long)BaroTempCoeff;
 				niltemp1 += 16;
 				niltemp1 /= 32;
 				niltemp += niltemp1;	// compensating temp
-// the corrected relative height, the higher alti, the lesser value
+				// the corrected relative height, the higher alti, the lesser value
 
 				// New Baro = (3*BaroSum + New_Baro)/4
 				niltemp1 = niltemp;	// because of bank bits
@@ -414,25 +397,29 @@ void ComputeBaroComp(void)
 				BaroCompSum >>= 2;	// div by 4
 				niltemp1 = BaroCompSum - niltemp;	// subtract new height to get delta
 #ifdef INTTEST
-		SendComChar('a');
-		SendComValH(BaroCompSum.high8);
-		SendComValH(BaroCompSum.low8);	// current height
-		SendComChar(';');
-		SendComValH(TempCorr.high8);
-		SendComValH(TempCorr.low8);	// current temp
-		SendComChar(';');
-		SendComValH(niltemp1.low8);		// delta height
-		SendComChar(';');
+				SendComChar('a');
+				SendComValH(BaroCompSum.high8);
+				SendComValH(BaroCompSum.low8);	// current height
+				SendComChar(';');
+				SendComValH(TempCorr.high8);
+				SendComValH(TempCorr.low8);	// current temp
+				SendComChar(';');
+				SendComValH(niltemp1.low8);		// delta height
+				SendComChar(';');
 		
 #endif
-// was: +10 and -5
+				// was: +10 and -5
 				if( BaroCompSum > 8 ) // zu tief: ordentlich Gas geben
 					BaroCompSum = 8;
 				if( BaroCompSum < -3 ) // zu hoch: nur leicht nachlassen
 					BaroCompSum = -3;
 
-			// weiche Regelung (proportional)
-			// nitemp kann nicht überlaufen (-3..+8 * PropFact)
+				// weiche Regelung (proportional)
+				// nitemp kann nicht überlaufen (-3..+8 * PropFact)
+
+				// strictly this is acting more like an integrator 
+				// bumping VBaroComp up and down proportional to the error?
+
 				nitemp = (int)BaroCompSum.low8 * BaroThrottleProp;
 				if( VBaroComp > nitemp )
 					VBaroComp--;
@@ -445,7 +432,8 @@ void ComputeBaroComp(void)
 				else
 				if( VBaroComp < nitemp )
 					VBaroComp++;
-			// Differentialanteil
+
+				// Differentialanteil
 				if( niltemp1 > 8 )
 					niltemp1.low8 = 8;
 				else
@@ -460,24 +448,13 @@ void ComputeBaroComp(void)
 					VBaroComp = -5;
 					
 #ifdef INTTEST
-		SendComValH(VBaroComp);
-		SendComChar(0x0d);
-		SendComChar(0x0a);
+				SendComValH(VBaroComp);
+				SendComChar(0x0d);
+				SendComChar(0x0a);
 #endif
 
 			}
 			StartBaroADC(BARO_TEMP);	// next is temp
-		}
-		else
-		{
-			if( ThrDownCount )
-				BaseTemp = niltemp; // current read value
-			else // TempCorr: The warmer, the higher
-			{
-				TempCorr = niltemp - BaseTemp;
-//				TempCorr += 4;	// compensate rounding error later /8
-			}
-			StartBaroADC(BARO_PRESS);	// next is pressure
 		}
 	}
 	// eliminate static drift of baro sensor

@@ -36,7 +36,7 @@ static bank1 int i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delaysec(uns8 dur)
+void Delay100mS(uns8 dur)
 {
 	bank0	uns8 k;
 
@@ -182,7 +182,7 @@ void AcqTime(void)
 void GetEvenValues(void)
 {	// get the even values
 
-	Delaysec(2);	// wait 1/10 sec until LISL is ready to talk
+	Delay100mS(2);	// wait 1/10 sec until LISL is ready to talk
 // already done in caller program
 	Rp = 0;
 	Np = 0;
@@ -230,7 +230,7 @@ void GetVbattValue(void)
 	NewBatteryVolts = (int) (ADRESH >> 1);
 #ifndef DEBUG_SENSORS
 
-// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+2)>>2;
+// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+1)>>1;
 // cc5x limitation	_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
 
 	Temp = BatteryVolts+NewBatteryVolts+1;

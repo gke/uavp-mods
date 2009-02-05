@@ -34,6 +34,7 @@
 // be peridocally missed and for the OutSignals routine to emit preambles greater 
 // than 1mS. GKE
 
+
 #include "c-ufo.h"
 #include "bits.h"
 
@@ -49,6 +50,8 @@ uns8	RCState;
 
 #pragma interruptSaveCheck w
 
+#define USE_FILTERS
+
 interrupt irq(void)
 {
 int8	NewRoll, NewNick, NewTurn;	
@@ -62,7 +65,7 @@ uns16 	CCPR1 @0x15;
 	if( TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
 		TMR2IF = 0;	// quit int
-#ifndef RX_PPM	// single PPM pulse train from receiver
+		#ifndef RX_PPM	// single PPM pulse train from receiver
 		if( _FirstTimeout )			// 5 ms have been gone by...
 		{
 			PR2 = TMR2_5MS;			// set compare reg to 5ms
@@ -70,7 +73,7 @@ uns16 	CCPR1 @0x15;
 		}
 		_FirstTimeout = 1;
 		PR2 = TMR2_14MS;			// set compare reg to 14ms
-#endif
+		#endif
 		RCState = 0;
 	}
 	if( CCP1IF )
@@ -79,7 +82,7 @@ uns16 	CCPR1 @0x15;
 		TMR2IF = 0;				// quit int
 		_FirstTimeout = 0;
 
-#ifndef RX_PPM						// single PPM pulse train from receiver
+		#ifndef RX_PPM				// single PPM pulse train from receiver
 							// standard usage (PPM, 3 or 4 channels input)
 		CCPR1.low8 = CCPR1L;
 		CCPR1.high8 = CCPR1H;
@@ -88,9 +91,7 @@ uns16 	CCPR1 @0x15;
 
 		if( NegativePPM ^ CCP1M0  )		// a negative edge
 		{
-#endif
-			// could be replaced by a switch ???
-
+		#endif
 			if( RCState == 0 )
 			{
 				NewK1 = CCPR1;
@@ -115,22 +116,22 @@ uns16 	CCPR1 @0x15;
 				NewK7 = CCPR1;
 				NewK6 = NewK7 - NewK6;
 				NewK6 >>= 1; 		
-#ifdef RX_DSM2
+		#ifdef RX_DSM2
 				if (NewK6.high8 !=1) 	// add glitch detection to 6 & 7
 					goto ErrorRestart;
-#else
+		#else
 				IK6 = NewK6.low8;
-#endif // RX_DSM2	
+		#endif // RX_DSM2	
 			}
-#ifdef RX_PPM
+		#ifdef RX_PPM
 			else
-#else
+		#else
 			else	// values are unsafe
 				goto ErrorRestart;
 		}
 		else	// a positive edge
 		{
-#endif // RX_PPM 
+		#endif // RX_PPM 
 			if( RCState == 1 )
 			{
 				NewK2 = CCPR1;
@@ -159,17 +160,17 @@ uns16 	CCPR1 @0x15;
 				    (NewK4.high8 == 1) &&
 				    (NewK5.high8 == 1) )
 				{
-#ifndef RX_DSM2									
+					#ifndef RX_DSM2									
 					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 					{
 						IGas = NewK3.low8;
-#ifdef EXCHROLLNICK
+						#ifdef EXCHROLLNICK
 						NewRoll = NewK2.low8 - _Neutral;
 						NewNick = NewK1.low8- _Neutral;
-#else
+						#else
 						NewRoll = NewK1.low8- _Neutral;
 						NewNick = NewK2.low8- _Neutral;
-#endif // EXCHROLLNICK
+						#endif // EXCHROLLNICK
 					}
 					else
 					{
@@ -181,15 +182,38 @@ uns16 	CCPR1 @0x15;
 					
 					// DoubleRate removed
 										
+					#ifdef USE_FILTERS
+					Temp = (int16)IRoll << 1;// UGLY code forced by cc5x compiler
+					Temp += (int16)IRoll;
+					Temp += NewRoll;
+					Temp += 2;	
+					Temp >>= 2;
+					IRoll = Temp;
+
+					Temp = (int16)INick << 1;
+					Temp += (int16)INick;
+					Temp += NewNick;
+					Temp += 2;
+					Temp >>= 2;
+					INick = Temp;
+
+
+					Temp = (int16)ITurn << 1;
+					Temp += (int16)ITurn;
+					Temp += NewTurn;
+					Temp += 2; 
+					Temp >>= 2;
+					ITurn = Temp;
+					#else
 					IRoll = NewRoll; 
 					INick = NewNick;
 					ITurn = NewTurn;
-
+					#endif // USE_FILTERS	
 					IK5 = NewK5.low8;
 
 					_NoSignal = 0;
 					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
-#endif // !RX_DSM2
+					#endif // !RX_DSM2
 				}
 				else	// values are unsafe
 					goto ErrorRestart;
@@ -199,24 +223,24 @@ uns16 	CCPR1 @0x15;
 			{
 				NewK7 = CCPR1 - NewK7;
 				NewK7 >>= 1;	
-#ifdef RX_DSM2
+				#ifdef RX_DSM2
 				if (NewK7.high8 !=1)	
 					goto ErrorRestart;
 
 				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 				{
-//EDIT FROM HERE ->
-// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
+			//EDIT FROM HERE ->
+			// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
 					IGas = NewK5.low8;
 
 					NewRoll = NewK3.low8 - _Neutral; 
 					NewNick = NewK2.low8 - _Neutral;
 					NewTurn = NewK1.low8 - _Neutral;
 
-					IK5 = NewK6.low8; 
+					IK5 = NewK6.low8; // do not filter
 					IK6 = NewK4.low8;
 					IK7 = NewK7.low8;
-// TO HERE
+			// TO HERE
 				}
 				else // Reference 2.4GHz configuration DX7 Tx and AR7000 Rx
 				{
@@ -226,22 +250,20 @@ uns16 	CCPR1 @0x15;
 					NewNick = NewK4.low8 - _Neutral;
 					NewTurn = NewK7.low8 - _Neutral;
 
-					IK5 = NewK3.low8;
+					IK5 = NewK3.low8; // do not filter
 					IK6 = NewK5.low8;
 					IK7 = NewK2.low8;
 				}
 
-				// DoubleRate removed
-
-				IRoll = NewRoll; 
+				IRoll = NewRoll;	// no filters for DSM2 - space
 				INick = NewNick;
 				ITurn = NewTurn;		
 
 				_NoSignal = 0;
 				_NewValues = 1;
-#else				
+				#else				
 				IK7 = NewK7.low8;
-#endif // RX_DSM2 
+				#endif // RX_DSM2 
 				RCState = -1;
 			}
 			else
@@ -250,16 +272,16 @@ ErrorRestart:
 				_NewValues = 0;
 				_NoSignal = 1;		// Signal lost
 				RCState = -1;
-#ifndef RX_PPM
+				#ifndef RX_PPM
 				if( NegativePPM )
 					CCP1M0 = 1;	// wait for positive edge next
 				else
 					CCP1M0 = 0;	// wait for negative edge next
-#endif
+				#endif
 			}	
-#ifndef RX_PPM
+		#ifndef RX_PPM
 		}
-#endif
+		#endif
 		CCP1IF = 0;				// quit int
 		RCState++;
 	}

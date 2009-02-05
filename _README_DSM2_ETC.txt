@@ -64,24 +64,10 @@ gpl-en.txt (in English) and gpl-de.txt (in German).
 
 2.4GHz systems vary the order in which their Receivers (Rx) emit their servo control 
 signals. The order does NOT correspond to the physical ordering of servo sockets on 
-the Rx. 
-
-You should try the default DSM2 configuration first which is known to work 
-for the DX7/AR7000 combination. Use UAVPSet to clear the Throttle Bit.
-
-The DX7 Tx and AR7000 Rx the servo channels which must be connected to the 
-UAVP board are:
-
-   * Aileron, Gear, Aux2 and Rudder
-
-The Futaba 9C with Spektrum DM8 and the JR 9XII with DM9 module need:
-
-   * Throttle, Aileron, Aux2 and Rudder
-
-The Throttle Bit must be set in UAVPSet. The order in which the above servo channels 
-are connected to the UAVP board is not important.
-
-In general your Transmitter (Tx) should be set to ACTRO with absolutely NO MIXES.
+the Rx. You should try the default DSM2 configuration first which is known to work 
+for the DX7/AR7000 combination. Use UAVPSet to select Throttle on 1 and 
+Positive Impulse. In general your Transmitter (Tx) should be set to ACTRO with 
+absolutely NO MIXES.
 
 It it is highly probable that your Tx/Rx combination will have more than one servo 
 output active simultaneously. For example all of the control surface servos 
@@ -106,9 +92,13 @@ each time noting which channel has changed and what the associated control is.
 If necessary edit the section of irq.c marked as EDIT HERE -> to reflect the actual 
 order for your Tx/Rx combination. Do this by changing only the NewKx names.   
 
-Finally for your particular mix to work you must have the Throttle Bit set 
+Finally for your particular mix to work you must have Ch3 selected for Throttle 
 under UAVPSet. Make sure you do a write to update it on the UAVP board.
  
+For the particular combination of the DSM2 signaling,  DX7 Tx and AR7000 Rx the 
+servo channels which must be connected to the UAVP board are known to be:
+
+   * Aileron, Gear, Aux2 and Rudder
 
 Greg Egan Nov 2008
 

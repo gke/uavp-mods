@@ -164,23 +164,7 @@ First public released version.
 07.1.2009 v3.15m3 Greg Egan
 - Reduced _Maximum output pulse width to prevent 
   minimum width Rx pulses from being missed with
-  interrupts masked.
-
-22.01.2009 v3.15m3 Greg Egan
-- removed filters from RC stick inputs and rebalanced
-  length of interrupt latencies. Latency assumptions of 
-  output pulse routines assumed Timer0 interrupt length
-  when Bit5 processing was actually longer leading to 
-  periodic output pulse jitter.
-
-22.01.2009 v3.15m3 Greg Egan
-- Set CKE bit in SSPSTAT to disable high threshold
-  Schmidt inputs from LISL which has a 3.3V supply.
-  Previously data and other bits could be lost.
-
-22.01.2009 v3.15m3 Greg Egan
-- Added option for BMP085 build (thanks Don/Jim).
-- Added experimental integral term to alt hold.
+  interrupts masked.  
 
 ==============================================
 = Transferring firmware to the PIC           =

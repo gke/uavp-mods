@@ -192,13 +192,13 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #endif	/* BOARD_3_1 */
 
 
-bit	_NoSignal		@Flags.0;	// if no valid signal is received
-bit	_Flying			@Flags.1;	// UFO is flying
+bit _NoSignal		@Flags.0;	// if no valid signal is received
+bit _Flying			@Flags.1;	// UFO is flying
 bit _NewValues		@Flags.2;	// new RX channel values sampled
 bit _FirstTimeout	@Flags.3;	// is 1 after first 9ms TO expired
 bit _NegIn			@Flags.4;	// negative signed input (serial.c)
 bit _LowBatt		@Flags.5;	// if Batt voltage is low
-bit	_UseLISL		@Flags.6;	// 1 if LISL Sensor is used
+bit _UseLISL		@Flags.6;	// 1 if LISL Sensor is used
 #ifdef BOARD_3_0
 bit _SerEnabled		@Flags.7;	// 1 if RS232 is enabled
 #endif

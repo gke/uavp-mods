@@ -172,4 +172,3 @@ Make sure you have the most recent version of the firmware!
 ==============================================
 = End of README file                         =
 ==============================================
-

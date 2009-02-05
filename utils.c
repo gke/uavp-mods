@@ -186,11 +186,11 @@ SendComChar(0x0a);
 
 #ifdef DEBUG_MOTORS
 // if DEBUG_MOTORS is active, CamIntFactor is a bitmap:
-// bit 0 = no front motor
-// bit 1 = no rear motor
-// bit 2 = no left motor
-// bit 3 = no right motor
-// bit 4 = turns on the serial output
+	// bit 0 = no front motor
+	// bit 1 = no rear motor
+	// bit 2 = no left motor
+	// bit 3 = no right motor
+	// bit 4 = turns on the serial output
 
 	if( CamNickFactor.0 )
 		MV = _Minimum;
@@ -211,17 +211,9 @@ SendComChar(0x0a);
 
 #ifdef ESC_PPM
 
-
-// GKE: the 64uS below most likely applies to the Timer0 interrupt. The original version 
-// of irq.c has a much longer path through the receiving of bit5 exacerbated by
-// the stick filter code. This caused the edge of the 1mS preamble to be peridocally 
-// missed and for this routine to emit preambles greater than 1mS. No timings for the
-// new interrupt path lengths has been done. Ad hoc increase to 32 ticks.
-
-// simply wait for nearly 1 ms
-// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-
-	while( TMR0 < 0x100-32 ) ;
+	// simply wait for nearly 1 ms
+	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
+	while( TMR0 < 0x100-3-16 ) ;
 
 	// now stop CCP1 interrupt
 	// capture can survive 1ms without service!
@@ -356,7 +348,7 @@ OS006
 #endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
 #ifndef DEBUG_MOTORS
-	while( TMR0 < 0x100-32 ) ; // wait for 2nd TMR0 near overflow
+	while( TMR0 < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
 
 	GIE = 0;					// Int wieder sperren, wegen Jitter
 
@@ -452,7 +444,7 @@ void GetGyroValues(void)
 // and NickSamples (global variable "nisampcnt")
 void CalcGyroValues(void)
 {
-// RollSamples & Nicksamples hold the sum of 2 consecutive conversions
+	// RollSamples & Nicksamples hold the sum of 2 consecutive conversions
 	RollSamples ++;	// for a correct round-up
 	NickSamples ++;
 
@@ -466,7 +458,7 @@ void CalcGyroValues(void)
 
 	if( IntegralCount > 0 )
 	{
-// pre-flight auto-zero mode
+		// pre-flight auto-zero mode
 		RollSum += RollSamples;
 		NickSum += NickSamples;
 
@@ -491,16 +483,16 @@ void CalcGyroValues(void)
 	}
 	else
 	{
-// standard flight mode
+		// standard flight mode
 		RollSamples -= MidRoll;
 		NickSamples -= MidNick;
 
-// calc Cross flying mode
+		// calc Cross flying mode
 		if( FlyCrossMode )
 		{
-// Real Roll = 0.707 * (N + R)
-//      Nick = 0.707 * (N - R)
-// the constant factor 0.667 is used instead
+			// Real Roll = 0.707 * (N + R)
+			//      Nick = 0.707 * (N - R)
+			// the constant factor 0.667 is used instead
 			niltemp = RollSamples + NickSamples;	// 12 valid bits!
 			NickSamples = NickSamples - RollSamples;	// 12 valid bits!
 			RollSamples = niltemp * 2;
@@ -518,7 +510,7 @@ void CalcGyroValues(void)
 		SendComChar(';');
 #endif
 	
-// Roll
+		// Roll
 		niltemp = RollSamples;
 
 #ifdef OPT_ADXRS
@@ -540,7 +532,7 @@ void CalcGyroValues(void)
 #endif
 		LimitRollSum();		// for roll integration
 
-// Nick
+		// Nick
 		niltemp = NickSamples;
 
 #ifdef OPT_ADXRS
@@ -562,7 +554,7 @@ void CalcGyroValues(void)
 #endif
 		LimitNickSum();		// for nick integration
 
-// Yaw is sampled only once every frame, 8 bit A/D resolution
+		// Yaw is sampled only once every frame, 8 bit A/D resolution
 		ADFM = 0;
 		ADCON0 = 0b.10.100.0.0.1;	// select CH4(RA5) Yaw
 		AcqTime();
@@ -597,7 +589,7 @@ void MixAndLimitCam(void)
 // Cam Servos
 
 	if( IntegralCount > 0 ) // while integrator are adding up
-	{						// do not use the gyros values to correct
+	{			// do not use the gyros values to correct
 		Rp = 0;		// in non-flight mode, these are already cleared in InitArrays()
 		Np = 0;
 	}
