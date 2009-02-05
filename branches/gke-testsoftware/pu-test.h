@@ -88,6 +88,7 @@ extern	bank0	uns16	CurrK1,CurrK2,CurrK3,CurrK4;
 extern	bank0	uns16	CurrK5,CurrK6,CurrK7;
 extern	bank1	uns16	PauseTime; 
 extern	bank1	uns8	TimeSlot;
+extern	bank0	long 	ClockMilliSec, TimerMilliSec;
 extern	bank1	uns8	MVorne, MHinten, MLinks, MRechts;
 extern	bank1	uns8	MCamRoll, MCamNick;
 extern	bank1	uns8	EscI2CFlags;
@@ -261,7 +262,7 @@ extern	page0	void ConfigureESCs(void);
 extern	page1	void ReceiverTest(void);
 extern	page1	void TogglePPMPolarity(void);
 
-extern	page1	void Delaysec(uns8);
+extern	page1	void Delay100mS(uns8);
 extern	page1	void AcqTime(void);
 #ifdef BOARD_3_1
 extern	page1	void SendLeds(void);

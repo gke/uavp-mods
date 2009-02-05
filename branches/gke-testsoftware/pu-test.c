@@ -55,6 +55,7 @@ uns8	Flags;
 uns16	CurrK1,CurrK2,CurrK3,CurrK4,CurrK5,CurrK6,CurrK7;
 
 uns8	TimeSlot;
+long	ClockMilliSec, TimerMilliSec;
 
 uns16	PauseTime;
 
@@ -98,6 +99,8 @@ void main(void)
 // timer setup
 	T1CON = 0b.00.11.0001;	// enable TMR1, 1:8 prescaler, run with 2us clock
 	CCP1CON = 0b.00.00.0100;	// capture mode every falling edge
+	
+	ClockMilliSec = 0;
 
 	TMR2 = 0;
 	T2CON = 0b.0.1111.1.11;	// enable TMR2, 1:16 prescaler, 1:16 postscaler (see _Pre/PostScale2)
@@ -108,7 +111,7 @@ void main(void)
 	_NoSignal = 1;		// assume no signal present
 
 	LedRed_ON;		// red LED on
-	Delaysec(1);	// wait 1/10 sec until LISL is ready to talk
+	Delay100mS(1);	// wait 1/10 sec until LISL is ready to talk
 	IsLISLactive();
 #ifdef ICD2_DEBUG
 	_UseLISL = 1;	// because debugger uses RB7 (=LISL-CS) :-(
@@ -147,7 +150,7 @@ void main(void)
 	MCamNick = _Neutral;
 
 // send hello text to serial COM
-	Delaysec(1);	// just to see the output after powerup
+	Delay100mS(1);	// just to see the output after powerup
 
 	GIE = 1;
 
@@ -155,7 +158,7 @@ void main(void)
 
 	while(1)
 	{
-// turn red LED on of signal missing or invalid, green if OK
+		// turn red LED on of signal missing or invalid, green if OK
 		if( _NoSignal )
 		{
 			LedRed_ON;
@@ -166,7 +169,7 @@ void main(void)
 			LedGreen_ON;
 			LedRed_OFF;
 		}
-/* output servo values */
+		// output servo values
 		TimeSlot = 10;
 		while( TimeSlot > 0 )
 		{
