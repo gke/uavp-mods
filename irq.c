@@ -46,7 +46,7 @@
 
 bank1 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 
-uns8	RCState;
+int8	RCState;
 
 #pragma interruptSaveCheck w
 
