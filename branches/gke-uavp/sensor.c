@@ -259,8 +259,6 @@ uns8 ReadValueFromBaro(void)
 	//	b7 = 1
 	//	b8 = 0 temp, 1 pressure
 
-#ifdef BARO_CHECK
-
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
 	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto RVerror;
@@ -274,10 +272,7 @@ uns8 ReadValueFromBaro(void)
 
 	if( (niltemp.low8 & 0b0010.0000) == 0 )
 	{	// conversion is ready, read it!
-
-#endif // BARO_CHECK
 		
-		// Baro retains previous value in output - dleroi
 		// Possible I2C protocol error - split read of ADC
 		I2CStart();
 		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
@@ -297,12 +292,9 @@ uns8 ReadValueFromBaro(void)
 		
 		return(I2C_NACK);
 
-#ifdef BARO_CHECK
-
 	}
 	else
 		return(I2C_ACK);
-#endif // BARO_CHECK
 
 RVerror:
 	I2CStop();
