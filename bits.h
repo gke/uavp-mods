@@ -41,7 +41,6 @@ bit ESC_DIO			@TRISB.1;
 bit ESC_CIO			@TRISB.2;
 #endif
 
-
 bit PulseCamRoll	@PORTB.4;
 bit PulseCamNick	@PORTB.5;
 
@@ -52,31 +51,19 @@ bit PulseCamNick	@PORTB.5;
 
 bit	Switch		@PORTA.4;
 
-#ifdef BOARD_3_0
-bit	LISL_CS		@PORTB.7;
-bit LISL_SDA	@PORTC.7;
-bit LISL_SCL	@PORTC.6;
-bit	LISL_IO		@TRISC.7;
-#endif
-#ifdef BOARD_3_1
 bit	LISL_CS		@PORTC.5;
 bit LISL_SDA	@PORTC.4;
 bit LISL_SCL	@PORTC.3;
 bit	LISL_IO		@TRISC.4;
-#endif
 
-#ifdef BOARD_3_1
 // the sensor bus lines
 bit I2C_SDA			@PORTB.6;
 bit I2C_DIO			@TRISB.6;
 bit I2C_SCL			@PORTB.7;
 bit	I2C_CIO			@TRISB.7;
-#endif
 
 #define	I2C_ACK		0
 #define	I2C_NACK	1
-
-
 
 // The LEDs and the beeper
 #define ON	1
@@ -86,44 +73,6 @@ bit	I2C_CIO			@TRISB.7;
 				// time until first beep after lost xmit signal
 #define MODELLOSTTIMERINT	2;	// in 0,2 sec units
 				// interval beep when active
-
-#ifdef BOARD_3_0
-
-#define LedYellow	LED1
-#define LedGreen	LED2
-#define	LedBlue		LED3
-#define LedRed		LED4
-
-bit	LED1		@PORTC.0;
-bit	LED2		@PORTC.1;
-bit	LED3		@PORTC.3;
-bit	LED4		@PORTC.4;
-bit	LED5		@PORTC.5;
-bit	LED6		@PORTB.6;
-bit	LED7		@PORTB.7;
-bit	Beeper		@PORTB.6;	// "low voltage" beeper
-
-#define ALL_LEDS_ON		PORTC |= 0b.0011.1011
-#define ALL_LEDS_OFF	PORTC &= 0b.1100.0100
-#define ARE_ALL_LEDS_OFF	((PORTC & 0b.0011.1011) == 0)
-
-#define LedRed_ON		LedRed = ON;
-#define LedBlue_ON		LedBlue = ON;
-#define LedGreen_ON		LedGreen = ON;
-#define LedYellow_ON	LedYellow = ON;
-#define LedRed_OFF		LedRed = OFF;
-#define LedBlue_OFF		LedBlue = OFF;
-#define LedGreen_OFF	LedGreen = OFF;
-#define LedYellow_OFF	LedYellow = OFF;
-#define LedRed_TOG		LedRed ^= ON;
-#define LedBlue_TOG		LedBlue ^= ON;
-#define Beeper_OFF		Beeper = OFF;
-#define Beeper_ON		Beeper = ON;
-#define Beeper_TOG		Beeper ^= ON;
-
-#endif	/* BOARD_3_0 */
-
-#ifdef BOARD_3_1
 
 #define LedYellow	LED6
 #define LedGreen	LED4
@@ -177,20 +126,20 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
 #ifdef BMP085
+	#define OSRS			0x03
 	#define BARO_TEMP		0x2e
-	#define BARO_PRESS		0xf4		/* alternative 0x74 faster */ 
+	#define BARO_PRESS		0xf4 		/*(0x34+(OSRS<<6))*/
 #else
 	#define BARO_TEMP		0x6e
 	#define BARO_PRESS		0xf4
 #endif
 #define BARO_CTL			0xf4
-#define BARO_ADC			0xf6
+#define BARO_ADC_MSB			0xf6
+#define BARO_ADC_LSB			0xf7
 
 #define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  /* throttle stick dead zone for baro */
 #define THR_HOVER		75	/* min throttle stick for alti lock */
-#endif	/* BOARD_3_1 */
-
 
 bit _NoSignal		@Flags.0;	// if no valid signal is received
 bit _Flying			@Flags.1;	// UFO is flying
@@ -199,12 +148,7 @@ bit _FirstTimeout	@Flags.3;	// is 1 after first 9ms TO expired
 bit _NegIn			@Flags.4;	// negative signed input (serial.c)
 bit _LowBatt		@Flags.5;	// if Batt voltage is low
 bit _UseLISL		@Flags.6;	// 1 if LISL Sensor is used
-#ifdef BOARD_3_0
-bit _SerEnabled		@Flags.7;	// 1 if RS232 is enabled
-#endif
-#ifdef BOARD_3_1
 bit	_UseCompass		@Flags.7;	// 1 if compass sensor is enabled
-#endif
 
 bit _UseBaro		@Flags2.0;	// 1 if baro sensor active
 bit _BaroTempRun	@Flags2.1;	// 1 if baro temp a/d conversion is running
@@ -223,9 +167,7 @@ bit FutabaMode		@ConfigParam.1;
 bit IntegralTest	@ConfigParam.2;
 bit DoubleRate		@ConfigParam.3;	// Speckys bit :-)
 bit NegativePPM		@ConfigParam.4;
-#ifdef BOARD_3_1
 bit CompassTest		@ConfigParam.5;
-#endif
 
 // LISL-Register mapping
 #define	LISL_WHOAMI		(0x0f)

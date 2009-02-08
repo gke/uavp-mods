@@ -165,7 +165,7 @@ void DoProgMode(void)
 	}
 
 	ALL_LEDS_OFF;
-// signal prog mode: 5 seconds blue flashing
+	// signal prog mode: 5 seconds blue flashing
 	for(i=0; i<50; i++)
 	{
 		Delay100mS(1);	// time 1/10 sec
@@ -178,7 +178,7 @@ void DoProgMode(void)
 	{
 		ALL_LEDS_ON;	//  = white color
 		Delay100mS(10);
-// prog values into data flash
+		// prog values into data flash
 		EEPGD = 0;		// access data eeprom
 		WREN = 1;		// enable eeprom writes
 		EEADR = _EESet1;		// start with address 0
@@ -206,9 +206,6 @@ void DoProgMode(void)
 void ReadEEdata(void) // 245 uSec @ 16MHz
 {
 	int *p;
-#ifdef MOCK_PPM
-	TimeSlot=6;
-#else
 	EEADR = _EESet1;	// default 1st parameter set
 	if( IK5 > _Neutral )
 		EEADR = _EESet2;	// user selected 2nd parameter set
@@ -221,20 +218,16 @@ void ReadEEdata(void) // 245 uSec @ 16MHz
 		EEADR++;
 	}
 
-// modified Ing. Greg Egan
-#ifdef BOARD_3_0
-	if( LowVoltThres < 0 )
-		LowVoltThres = -LowVoltThres;
-#endif
+	// modified Ing. Greg Egan
 	BatteryVolts = LowVoltThres;
 
-// Sanity check
-//if timing value is lower than 1, set it to 10ms!
+	// Sanity check
+	//if timing value is lower than 1, set it to 10ms!
 	if( TimeSlot < 2 )
 		TimeSlot = 2;
 	else
 	if ( TimeSlot > 20 )
 		TimeSlot = 20;
-#endif
 }
+
 

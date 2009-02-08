@@ -1,4 +1,3 @@
-
 #ifndef BATCHMODE
 // ==============================================
 // =      U.A.V.P Brushless UFO Controller      =
@@ -45,7 +44,7 @@
 //#define DEBUGOUT
 //#define DEBUGOUTG
 //#define DEBUGSSP
-#DEBUG_RXERRORS
+//#define DEBUG_RXERRORS
 
 // Only one of the following 3 defines must be activated:
 // When using 3 ADXRS300 gyros
@@ -60,13 +59,13 @@
 //
 // Select what speeed controllers to use:
 // to use standard PPM pulse
-//#define ESC_PPM
+#define ESC_PPM
 // to use X3D BL controllers (not yet tested. Info courtesy to Jast :-)
 //#define ESC_X3D
 // to use Holgers ESCs (tested and confirmed by ufo-hans)
 //#define ESC_HOLGER
 // to use YGE I2C controllers (for standard YGEs use ESC_PPM)
-#define ESC_YGEI2C
+//#define ESC_YGEI2C
 
 // defined: serial PPM pulse train from receiver
 // undefined: standard servo pulses from CH1, 3, 5 and 7
@@ -113,6 +112,8 @@
 // Enable this to use the Accelerator sensors
 #define USE_ACCSENS
 
+// Use conversion complete check on Baro
+//#define BARO_CHECK
 
 // =====================================
 // end of user-configurable section!
@@ -129,15 +130,7 @@
 #define DEBUG
 #endif
 
-
-//
-#ifdef BOARD_3_0
-#define Version	"3.09"
-#endif
-#ifdef BOARD_3_1
-#define Version	"3.15"
-#endif
-
+#define Version	"3.15m3"
 
 // ==============================================
 // == External variables
@@ -168,14 +161,12 @@ extern	bank0	int		Rw,Nw;	// angles
 extern  bank1	int	BatteryVolts; // added by Greg Egan
 extern	bank1	long	niltemp;
 int		nitemp @ niltemp;
-
-#ifdef BOARD_3_1				
+				
 // Variables for barometric sensor PD-controller
 extern	bank0	uns16	BasePressure, BaseTemp;
 extern	bank0	uns16	TempCorr;
 extern	bank1	int	VBaroComp;
 extern  bank0	long    BaroCompSum;
-#endif
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
 // These variables MUST keep their order!!!
@@ -241,18 +232,14 @@ extern	shrBank	uns8	IntegralCount;
 // measured neutral gyro values
 // current stick neutral values
 extern	bank2	int		RollNeutral, NickNeutral, YawNeutral;
-#ifdef BOARD_3_1
 extern	bank2	uns8	ThrNeutral;
 extern	bank0	uns8	ThrDownCount;
-#endif
 
 extern	bank2	uns16	MidRoll, MidNick, MidTurn;
 
-#ifdef BOARD_3_1
 extern	shrBank	uns8	LedShadow;	// shadow register
 extern	bank2	uns16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern	shrBank	int		CurDeviation;	// deviation from correct heading
-#endif
 
 #define _ClkOut		(160/4)	/* 16.0 MHz quartz */
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
@@ -309,14 +296,6 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 #error Maximum < _Neutral !
 #endif
 
-// check PCB version
-#if defined BOARD_3_0 && defined BOARD_3_1
-#error BOARD_3_0 and BOARD_3_1 set!
-#endif
-#if !defined BOARD_3_0 && !defined BOARD_3_1
-#error BOARD_3_0 and BOARD_3_1 both not set!
-#endif
-
 // check gyro model
 #if defined OPT_ADXRS150 + defined OPT_ADXRS300 + defined OPT_IDG != 1
 #error Define only ONE out of OPT_ADXRS150 OPT_ADXRS300 OPT_IDG
@@ -337,7 +316,6 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 #error Define only ONE or NONE out of DEBUG_MOTORS DEBUG_SENSORS
 #endif
 // end of sanity checks
-
 
 #define MAXDROPOUT	200	// max 200x 20ms = 4sec. dropout allowable
 
@@ -388,11 +366,9 @@ extern	page1	void MixAndLimit(void);
 extern	page0	void MixAndLimitCam(void);
 extern	page1	void Delay100mS(uns8);
 
-#ifdef BOARD_3_1
 extern	page1	void SendLeds(void);
 extern	page1	void SwitchLedsOn(uns8);
 extern	page1	void SwitchLedsOff(uns8);
-#endif /* BOARD_3_1 */
 
 extern	page2	void CheckLISL(void);
 extern	page2	void IsLISLactive(void);

@@ -408,9 +408,7 @@ void GetGyroValues(void)
 	ADCON0 = 0b.10.001.0.0.1;	// select CH1(RA1) Roll
 #endif
 #ifdef OPT_IDG
-#ifdef BOARD_3_1
 	PCFG0 = 1;					// select 3,6V as Vref
-#endif
 	ADCON0 = 0b.10.010.0.0.1;	// select CH2(RA2) Nick
 #endif
 	AcqTime();
@@ -429,9 +427,7 @@ void GetGyroValues(void)
 	NickSamples += ADRESL;
 	NickSamples.high8 += ADRESH;
 #ifdef OPT_IDG
-#ifdef BOARD_3_1
 	PCFG0 = 0;					// select 5V as Vref
-#endif
 #endif
 }
 

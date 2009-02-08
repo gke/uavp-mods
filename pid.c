@@ -39,11 +39,7 @@
 void PID(void)
 {
 
-	if( IntegralTest
-#ifdef BOARD_3_1
-        || CompassTest
-#endif
-                       )
+	if( IntegralTest || CompassTest )
 		ALL_LEDS_OFF;
 
 // Roll/Nick Linearsensoren
@@ -92,7 +88,6 @@ void PID(void)
 
 	Rl += Rp;	// add proportional part
 
-#ifdef BOARD_3_1
 	if( CompassTest )
 	{
 		if( CurDeviation > 0 )
@@ -102,7 +97,6 @@ void PID(void)
 		if( AbsDirection > COMPASS_MAX )
 			LedYellow_ON;
 	}
-#endif
 
 	if( IntegralTest )
 	{
