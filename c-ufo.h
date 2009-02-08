@@ -1,3 +1,4 @@
+
 #ifndef BATCHMODE
 // ==============================================
 // =      U.A.V.P Brushless UFO Controller      =
@@ -111,9 +112,6 @@
 
 // Enable this to use the Accelerator sensors
 #define USE_ACCSENS
-
-// Use conversion complete check on Baro
-//#define BARO_CHECK
 
 // =====================================
 // end of user-configurable section!
