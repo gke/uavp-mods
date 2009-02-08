@@ -55,12 +55,7 @@ void Delay100mS(uns8 dur)
 			}
 			OutSignals(); // 1-2 ms Duration
 			// break loop if a serial command is in FIFO
-#ifdef BOARD_3_1
 			if( RCIF )
-#endif
-#ifdef BOARD_3_0
-			if( _SerEnabled && RCIF )
-#endif
 				return;
 		}
 	}
@@ -149,10 +144,9 @@ void InitArrays(void)
 	Rp = 0;
 	Np = 0;
 	Vud = 0;
-#ifdef BOARD_3_1
+
 	VBaroComp = 0;
 	BaroCompSum = 0;
-#endif
 	
 // bank 2
 	LRIntKorr = 0;
@@ -169,7 +163,7 @@ void InitArrays(void)
 // acquisition sample time and A/D conversion completion
 void AcqTime(void)
 {
-// W was 10 originally
+	// W was 10 originally
 	for(W=30; W!=0; W--)	// makes about 100us
 		;
 	GO = 1;
@@ -183,7 +177,7 @@ void GetEvenValues(void)
 {	// get the even values
 
 	Delay100mS(2);	// wait 1/10 sec until LISL is ready to talk
-// already done in caller program
+	// already done in caller program
 	Rp = 0;
 	Np = 0;
 	Tp = 0;
@@ -228,10 +222,10 @@ void GetVbattValue(void)
 	ADCON0 = 0b.10.000.0.0.1;	// turn AD on, select CH0(RA0) Ubatt
 	AcqTime();
 	NewBatteryVolts = (int) (ADRESH >> 1);
-#ifndef DEBUG_SENSORS
 
-// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+1)>>1;
-// cc5x limitation	_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
+	#ifndef DEBUG_SENSORS
+	// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+1)>>1;
+	// 					_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
 
 	Temp = BatteryVolts+NewBatteryVolts+1;
 	BatteryVolts = Temp>>1;
@@ -240,10 +234,28 @@ void GetVbattValue(void)
 		_LowBatt = 1;
 	else
 		_LowBatt = 0;
-#endif // DEBUG_SENSORS
+
+	if( _LowBatt )
+		{
+			if( BlinkCount < BLINK_LIMIT/2 )
+			{
+				Beeper_OFF;
+				LedRed_OFF;
+			}
+			else
+			{
+				Beeper_ON;
+				LedRed_ON;
+			}
+		}
+		else
+		{
+			Beeper_OFF;				
+			LedRed_OFF;
+		}
+	#endif // DEBUG_SENSORS
 }
 
-#ifdef BOARD_3_1
 //
 // The LED routines, only needed for 
 // PCB revision 3.1 (registered power driver TPIC6B595N)
@@ -286,4 +298,4 @@ void SwitchLedsOff(uns8 W)
 	SendLeds();
 }
 
-#endif /* BOARD_3_1 */
+

@@ -61,11 +61,7 @@ const char page2 SerBaro[]=   "Baro sensor ";
 const char page2 SerChannel[]="Channel mode: Throttle Ch";
 const char page2 SerFM_Fut[]= "3";
 const char page2 SerFM_Grp[]= "1";
-
-#ifdef BOARD_3_1
 const char page2 SerCompass[]="Compass sensor ";
-#endif
-
 const char page2 SerHelp[]  = "\r\nCommands:\r\n"
 					 		  "L...List param\r\n"
 							  "M...Modify param\r\n"
@@ -259,7 +255,6 @@ void ShowSetup(uns8 W)
 	else
 		SendComText(SerLSnone);
 
-#ifdef BOARD_3_1
 	SendComText(SerCompass);
 	if( _UseCompass )
 		SendComText(SerLSavail);
@@ -271,7 +266,6 @@ void ShowSetup(uns8 W)
 		SendComText(SerLSavail);
 	else
 		SendComText(SerLSnone);
-#endif
 
 	ReadEEdata();
 	SendComText(SerChannel);

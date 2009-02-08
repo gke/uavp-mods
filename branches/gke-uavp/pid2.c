@@ -109,7 +109,7 @@ void LimitYawSum(void)
 
 // add the yaw stick value
 	TE += ITurn;
-#ifdef BOARD_3_1
+
 	if ( _UseCompass )
 	{
 		// add compass heading correction
@@ -139,7 +139,6 @@ void LimitYawSum(void)
 			}
 		}
 	}
-#endif
 
 	YawSum += (long)TE;
 	NegFact = -YawIntLimit;
@@ -223,12 +222,10 @@ void MixAndLimit(void)
 	Ml += Vud;
 	Mr += Vud;
 
-#ifdef BOARD_3_1
 	Mv += VBaroComp;
 	Mh += VBaroComp;
 	Ml += VBaroComp;
 	Mr += VBaroComp;
-#endif
 
 // if low-throttle limiting occurs, must limit other motor too
 // to prevent flips!

@@ -10,7 +10,6 @@ rem Greg Egan 2008
 rem
 rem Uses: makeallhelper.bat and makeclean.bat
 rem 
-rem Version of the board. May be 3_0 or 3_1.
 rem Type of barometers used. May be BMP085 or SMD500
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or IDG300.
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.
@@ -43,7 +42,7 @@ call makeclean.bat
 echo Starting makeall uavp > gen.lst
 echo Starting makeall uavp > log.lst
 
-rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG RX
+rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
 
 for %%b in (%BAROS%) do for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%d in (%DBGS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %%b %%g %%e %%d %%r 
 

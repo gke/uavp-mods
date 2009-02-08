@@ -31,7 +31,7 @@ set DBG=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS
 set RX=RX_DEFAULT RX_DSM2 RX_PPM
 
 rem Personal choice
-set BARO=SMD500
+set BARO=SMD500 BMP085
 set GYRO=OPT_IDG
 set ESC=ESC_PPM
 set DBG=NO_DEBUG DEBUG_SENSORS
@@ -42,7 +42,7 @@ call makeclean.bat
 echo Starting makeall uavp > gen.lst
 echo Starting makeall uavp > log.lst
 
-rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG RX
+rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
 
 for %%b in (%BARO%) do for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%d in (%DBG%) do for %%r in (%RX%) do call makeallhelper.bat %VERSION% %%b %%g %%e %%d %%r 
 

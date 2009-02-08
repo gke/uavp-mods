@@ -35,8 +35,6 @@
 
 #pragma sharedAllocation
 
-#ifdef BOARD_3_1
-
 void I2CDelay(void)
 {
 	nop2();
@@ -250,14 +248,24 @@ void GetDirection(void)
 // returns 1 if value is available
 uns8 ReadValueFromBaro(void)
 {
-// test if conversion is ready
+	// Status - documentation unavailable
+	//	b0 = 0
+	//	b1 = 0 pressure, 1 temp
+	//	b2 = 1
+	//	b3 = 0 pressure, 1 temp
+	//	b4 ?
+	//	b5 ?
+	//	b6 = 0 conversion complete
+	//	b7 = 1
+	//	b8 = 0 temp, 1 pressure
+
+#ifdef BARO_CHECK
+
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
-
-	// access control register
 	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto RVerror;
 
-	I2CStart();		// restart
+	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
 
 	// read control register
@@ -267,18 +275,34 @@ uns8 ReadValueFromBaro(void)
 	if( (niltemp.low8 & 0b0010.0000) == 0 )
 	{	// conversion is ready, read it!
 
+#endif // BARO_CHECK
+		
+		// Baro retains previous value in output - dleroi
+		// Possible I2C protocol error - split read of ADC
 		I2CStart();
 		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
-		// access A/D registers
-		if( SendI2CByte(BARO_ADC) != I2C_ACK ) goto RVerror;
-		I2CStart();		// restart
+		if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto RVerror;
+		I2CStart();	// restart
 		if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
 		niltemp.high8 = RecvI2CByte(I2C_ACK);
+		I2CStop();
+		
+		I2CStart();
+		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
+		if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto RVerror;
+		I2CStart();	// restart
+		if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
 		niltemp.low8 = RecvI2CByte(!I2C_NACK);
 		I2CStop();
+		
 		return(I2C_NACK);
+
+#ifdef BARO_CHECK
+
 	}
-	return(I2C_ACK);
+	else
+		return(I2C_ACK);
+#endif // BARO_CHECK
 
 RVerror:
 	I2CStop();
@@ -328,7 +352,7 @@ void InitAltimeter(void)
 	BaseTemp = niltemp;	// save start value
 		
 	// read pressure once to get base value
-	// set SMD500 device to start pressure conversion
+	// set baro device to start pressure conversion
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 
 	Delay100mS(1);
@@ -347,7 +371,6 @@ BAerror:
 	_UseBaro = 0;
 	I2CStop();
 }
-
 
 void ComputeBaroComp(void)
 {
@@ -375,11 +398,6 @@ void ComputeBaroComp(void)
 			else
 			{	// while holding altitude
 				niltemp -= BasePressure;
-//				SendComChar('B');
-//				SendComValH(niltemp.high8);
-//				SendComValH(niltemp.low8);
-//				SendComValH(TempCorr.high8);
-//				SendComValH(TempCorr.low8);
 
 				// niltemp1 has -400..+400 approx
 				niltemp1 = (long)TempCorr * (long)BaroTempCoeff;
@@ -397,7 +415,8 @@ void ComputeBaroComp(void)
 				BaroCompSum >>= 2;	// div by 4
 				niltemp1 = BaroCompSum - niltemp;	// subtract new height to get delta
 #ifdef INTTEST
-				SendComChar('a');
+				SendComChar('A');
+				SendComChar(';');
 				SendComValH(BaroCompSum.high8);
 				SendComValH(BaroCompSum.low8);	// current height
 				SendComChar(';');
@@ -479,11 +498,3 @@ void ComputeBaroComp(void)
 #endif
 }	
 
-#endif	// BOARD_3_1
-
-#ifdef BOARD_3_0
-// dummy function required because of dumb compiler :-(
-void SensorDummy(void)
-{
-}
-#endif

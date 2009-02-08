@@ -75,20 +75,19 @@ void CheckLISL(void)
 	niltemp1 >>= 2;
 	nila1 = niltemp1;
 	Rw = Arctan();
-#ifdef BOARD_3_1
+
 SendComValS(Rw);
 SendComChar(';');
-#endif
 	
 	niltemp1 = niltemp / Np;
 	niltemp1 >>= 2;
 	nila1 = niltemp1;
 	Nw = Arctan();
-#ifdef BOARD_3_1
+
 SendComValS(Nw);
 SendComChar(0x13);
 SendComChar(0x10);
-#endif
+
 #endif
 	
 	Tp -= 1024;	// subtract 1g
