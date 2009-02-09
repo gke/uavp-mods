@@ -95,7 +95,7 @@ void AnalogTest(void)
 	nilgval = GetAnalogVal(1);	
 #endif
 	nilgval *= 49;
-	nilgval += 25;	// round up
+	nilgval += 5;	// round up
 	nilgval /= 10;	// resultion is 0,001 Volt
 
 	SendComChar('U');

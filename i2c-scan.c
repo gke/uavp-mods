@@ -38,7 +38,8 @@
 	#define BARO_PRESS		0xf4
 #endif
 #define BARO_CTL			0xf4
-#define BARO_ADC			0xf6
+#define BARO_ADC_MSB			0xf6
+#define BARO_ADC_LSB			0xf7
 
 #pragma codepage=1
 
@@ -203,6 +204,7 @@ uns8 ScanI2CBus(void)
 
 void CompassTest(void)
 {
+	uns8 i;
 
 #define COMP_OPMODE 0b0.11.0.00.00
 #define COMP_MULT	16
@@ -260,8 +262,14 @@ void CompassTest(void)
 	I2CStop();
 
 	// wait 25ms for command to complete
-	TimerMilliSec = ClockMilliSec +25;
-	while ( ClockMilliSec <= TimerMilliSec ) {};
+	//TimerMilliSec = ClockMilliSec + 25;
+	//while ( ClockMilliSec <= TimerMilliSec ) {};
+	for (i = 30; i; i--)
+	{
+		TMR0 = 0;
+		while ( T0IF == 0 ) {}; // 1mS wait
+		T0IF = 0;
+	}
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
@@ -341,6 +349,24 @@ void BaroTest(void)
 	}
 	while(nilgval.low8 & 0b0010.0000);
 
+	// Possible I2C protocol error - split read of ADC
+	I2CStart();
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto BAerror;
+	I2CStart();	// restart
+	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
+	nilgval.high8 = RecvI2CByte(I2C_ACK);
+	I2CStop();
+		
+	I2CStart();
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto BAerror;
+	I2CStart();	// restart
+	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
+	nilgval.low8 = RecvI2CByte(!I2C_NACK);
+	I2CStop();
+
+/*
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 
@@ -351,6 +377,7 @@ void BaroTest(void)
 	nilgval.high8 = RecvI2CByte(I2C_ACK);
 	nilgval.low8 = RecvI2CByte(!I2C_NACK);
 	I2CStop();
+*/
 
 	SendComText(_SerBaroOK);
 	SendComValUL(NKS0+LEN5);
@@ -383,6 +410,24 @@ void BaroTest(void)
 	}
 	while(nilgval.low8 & 0b0010.0000);
 
+	// Possible I2C protocol error - split read of ADC
+	I2CStart();
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto BAerror;
+	I2CStart();	// restart
+	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
+	nilgval.high8 = RecvI2CByte(I2C_ACK);
+	I2CStop();
+		
+	I2CStart();
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto BAerror;
+	I2CStart();	// restart
+	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
+	nilgval.low8 = RecvI2CByte(!I2C_NACK);
+	I2CStop();
+
+/*
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 
@@ -393,6 +438,7 @@ void BaroTest(void)
 	nilgval.high8 = RecvI2CByte(I2C_ACK);
 	nilgval.low8 = RecvI2CByte(!I2C_NACK);
 	I2CStop();
+*/
 
 	SendComText(_SerBaroT);
 	SendComValUL(NKS0+LEN5);
