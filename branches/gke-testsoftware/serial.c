@@ -323,6 +323,7 @@ void ProcessComCommand(void)
 	chcmd = RecvComChar();
 	if( chcmd.6 )	// 0x40..0x7F, a character
 		chcmd.5=0;	// convert to uppercase
+
 	switch( chcmd )
 	{
 		case '\0' : break;

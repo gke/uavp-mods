@@ -149,7 +149,7 @@ void main(void)
 	MCamRoll = 
 	MCamNick = _Neutral;
 
-// send hello text to serial COM
+	// send hello text to serial COM
 	Delay100mS(1);	// just to see the output after powerup
 
 	GIE = 1;

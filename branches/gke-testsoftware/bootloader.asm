@@ -79,13 +79,8 @@ MainLoop
 		movlw	DatBuf
 		movwf	FSR
 
-#ifdef BOARD_3_0
-		bcf		PORTC,1		;green LED off
-#endif
-#ifdef BOARD_3_1
 		movlw	00100000b	;yellow LED on, green off
 		call	BootLeds
-#endif
 
 ; wait for a char to receive via RS232
 ML_1
@@ -163,14 +158,11 @@ ML_err
 	
 ML_6
 		clrf	STATUS
-#ifdef BOARD_3_0
-		bsf		PORTC,1		;green LED on
-#endif
-#ifdef BOARD_3_1
+
 		movlw	00101000b	;yellow LED on, green on
 		call	BootLeds	;exit is always C=0, Z=1 due to loop end
 		clc
-#endif
+
 		bsf		STATUS,RP1
 		rrf		AdrHi,w		;must divide addr by 2 to get word addr
 		movwf	EEADRH
@@ -374,7 +366,6 @@ SendByte
 		movwf	TXREG		;send char
 		return
 
-#ifdef BOARD_3_1
 ; Bank 0 must be active!
 BootLeds
 		movwf	LEDs
@@ -392,7 +383,6 @@ BL_Lp1
 		bcf		PORTC,1		;RCLK off
 ;		return
 ; fall through with w=0 to save code		
-#endif
 
 
 TextTab
