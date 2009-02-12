@@ -8,11 +8,10 @@ rem Helper script for makeall.bat
 rem =======================================================
 rem parameters passed are:
 set 	VERSION=%1
-set	BARO=%2
-set 	GYRO=%3
-set 	ESC=%4
-set 	DBG=%5
-set 	RX=%6
+set 	GYRO=%2
+set 	ESC=%3
+set 	DBG=%4
+set 	RX=%5
 
 set	BOARD=3_1
 
@@ -40,7 +39,6 @@ if "%ESC%"   == "ESC_HOLGER"        set E=HOL
 if "%ESC%"   == "ESC_YGEI2C"        set E=YGE
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_DSM2"           set R=DSM2-
-if "%BARO%"    == "BMP085"           set B=BMP085-
 
 rem Build the list of expected object files
 set F=
@@ -57,24 +55,24 @@ for %%i in ( %CSRC% ) do (
     set OFFSET=
     if %%i == text set OFFSET=-ro3
     if %%i == output set OFFSET=-ro4
-    %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%BARO% !OFFSET! >> log.lst
+    %CEXE% %%i.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% !OFFSET! >> log.lst
 )
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% /dBOARD_%BOARD% >> log.lst
 
-%LEXE% %LCMD% %F% /o TestSoftware%BOARD%-V%VERSION%-%D%%B%%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /o TestSoftware%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - TestSoftware-B%BOARD%-V%VERSION%-%D%%B%%T%%G%%R%%E%.hex
-echo compiled - TestSoftware-B%BOARD%-V%VERSION%-%D%%B%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - TestSoftware-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex
+echo compiled - TestSoftware-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - TestSoftware-B%BOARD%-V%VERSION%-%D%%B%%T%%G%%R%%E%.hex
-echo failed - TestSoftware-B%BOARD%-V%VERSION%-%D%%B%%T%%G%%R%%E%.hex >> gen.lst
+echo failed - TestSoftware-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex
+echo failed - TestSoftware-B%BOARD%-V%VERSION%-%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH

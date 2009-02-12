@@ -125,7 +125,10 @@ const char page2 SerHello[] = "\r\nU.A.V.P. TESTSOFTWARE V" Version " Copyright 
 /* SerCCalib1 */			  "\r\nCalibrate compass sensor. Press any key to continue\r\n\0"
 /* SerCCalib2 */			  "\r\n720 deg turn in ca. 30 seconds!\r\nPress any key when done\r\n\0"
 /* SerCCalib3 */			  "\r\nCalibration complete\r\n\0"
-/* SerCCalibE */			  "\r\nCalibration error!\r\n";
+/* SerCCalibE */			  "\r\nCalibration error!\r\n"
+
+/* SerBaroSMD500 */				  "\r\nSMD500\0"
+/* SerBaroBMP085 */				  "\r\nBMP085\0";
 
 // transmit a fix text from a table
 void SendComText(uns8 nitext)
