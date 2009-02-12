@@ -374,7 +374,7 @@ void ComputeBaroComp(void)
 	BaroCount++;
 
 	if( _UseBaro )
-		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2
+		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
 		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))	
 		{
 			BaroCount = 0;
