@@ -79,7 +79,7 @@ const char page2 SerList[]  = "\r\nParameter list for set #";
 const char page2 SerSelSet[]= "\r\nSelected parameter set: ";
 
 const char page2 SerNeutralR[]="\r\nNeutral Roll:";
-const char page2 SerNeutralN[]=" Pitch:";
+const char page2 SerNeutralN[]=" Ptch:";	// UAVPSet needs this to be 4 chars!
 const char page2 SerNeutralY[]=" Yaw:";
 
 const char page2 SerRecvCh[]=  "\r\nT:";
