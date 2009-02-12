@@ -33,7 +33,7 @@
 #include "mymath16.h"
 
 // read all acceleration values from LISL sensor
-// and compute correction adders (Rp, Np, Vud)
+// and compute correction adders (Rp, Pp, Vud)
 void CheckLISL(void)
 {
 	long nila1@nilarg1;
@@ -42,10 +42,10 @@ void CheckLISL(void)
 	// the LISL registers are in order here!!
 	Rp.low8  = (int)ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
 	Rp.high8 = (int)ReadLISLNext();
-	Tp.low8  = (int)ReadLISLNext();
-	Tp.high8 = (int)ReadLISLNext();
-	Np.low8  = (int)ReadLISLNext();
-	Np.high8 = (int)ReadLISLNext();
+	Yp.low8  = (int)ReadLISLNext();
+	Yp.high8 = (int)ReadLISLNext();
+	Pp.low8  = (int)ReadLISLNext();
+	Pp.high8 = (int)ReadLISLNext();
 	LISL_CS = 1;	// end transmission
 	
 #ifdef DEBUG_SENSORS
@@ -54,23 +54,23 @@ void CheckLISL(void)
 		SendComValH(Rp.high8);
 		SendComValH(Rp.low8);
 		SendComChar(';');
-		SendComValH(Np.high8);
-		SendComValH(Np.low8);
+		SendComValH(Pp.high8);
+		SendComValH(Pp.low8);
 		SendComChar(';');
-		SendComValH(Tp.high8);
-		SendComValH(Tp.low8);
+		SendComValH(Yp.high8);
+		SendComValH(Yp.low8);
 		SendComChar(';');
 	}
 #endif
 // 1 unit is 1/4096 of 2g = 1/2048g
 	Rp -= MiddleLR;
-	Np -= MiddleFB;
-	Tp -= MiddleUD;
+	Pp -= MiddleFB;
+	Yp -= MiddleUD;
 
 #if 0
 // calc the angles for roll matrices
 // rw = arctan( x*16/z/4 )
-	niltemp = Tp * 16;
+	niltemp = Yp * 16;
 	niltemp1 = niltemp / Rp;
 	niltemp1 >>= 2;
 	nila1 = niltemp1;
@@ -79,34 +79,34 @@ void CheckLISL(void)
 SendComValS(Rw);
 SendComChar(';');
 	
-	niltemp1 = niltemp / Np;
+	niltemp1 = niltemp / Pp;
 	niltemp1 >>= 2;
 	nila1 = niltemp1;
-	Nw = Arctan();
+	Pw = Arctan();
 
-SendComValS(Nw);
+SendComValS(Pw);
 SendComChar(0x13);
 SendComChar(0x10);
 
 #endif
 	
-	Tp -= 1024;	// subtract 1g
+	Yp -= 1024;	// subtract 1g
 
 #ifdef NADA
 // UDSum rises if ufo climbs
-	UDSum += Tp;
+	UDSum += Yp;
 
-	Tp = UDSum;
-	Tp += 8;
-	Tp >>= 4;
-	Tp *= LinUDIntFactor;
-	Tp += 128;
+	Yp = UDSum;
+	Yp += 8;
+	Yp >>= 4;
+	Yp *= LinUDIntFactor;
+	Yp += 128;
 
 	if( (BlinkCount & 0x03) == 0 )	
 	{
-		if( (int)Tp.high8 > Vud )
+		if( (int)Yp.high8 > Vud )
 			Vud++;
-		if( (int)Tp.high8 < Vud )
+		if( (int)Yp.high8 < Vud )
 			Vud--;
 		if( Vud >  20 ) Vud =  20;
 		if( Vud < -20 ) Vud = -20;
@@ -121,15 +121,15 @@ SendComChar(0x10);
 // die statische Korrektur der Erdanziehung
 
 #ifdef OPT_ADXRS
-	Tl = RollSum * 11;	// Rp um RollSum*11/32 korrigieren
+	Yl = RollSum * 11;	// Rp um RollSum*11/32 korrigieren
 #endif
 
 #ifdef OPT_IDG
-	Tl = RollSum * -15; // Rp um RollSum* -15/32 korrigieren
+	Yl = RollSum * -15; // Rp um RollSum* -15/32 korrigieren
 #endif
-	Tl += 16;
-	Tl >>= 5;
-	Rp -= Tl;
+	Yl += 16;
+	Yl >>= 5;
+	Rp -= Yl;
 
 // dynamic correction of moved mass
 #ifdef OPT_ADXRS
@@ -155,9 +155,9 @@ SendComChar(0x10);
 
 #ifdef NADA
 // Integral addieren, Abkling-Funktion
-	Tl = LRSum >> 4;
-	Tl >>= 1;
-	LRSum -= Tl;	// LRSum * 0.96875
+	Yl = LRSum >> 4;
+	Yl >>= 1;
+	LRSum -= Yl;	// LRSum * 0.96875
 	LRSum += Rp;
 	Rp = LRSum + 128;
 	LRSumPosi += (int)Rp.high8;
@@ -176,53 +176,53 @@ SendComChar(0x10);
 	Rp = 0;
 
 // =====================================
-// Nick-Achse
+// Pitch-Achse
 // =====================================
 // die statische Korrektur der Erdanziehung
 
 #ifdef OPT_ADXRS
-	Tl = NickSum * 11;	// Np um RollSum* 11/32 korrigieren
+	Yl = PitchSum * 11;	// Pp um RollSum* 11/32 korrigieren
 #endif
 
 #ifdef OPT_IDG
-	Tl = NickSum * -15;	// Np um RollSum* -14/32 korrigieren
+	Yl = PitchSum * -15;	// Pp um RollSum* -14/32 korrigieren
 #endif
-	Tl += 16;
-	Tl >>= 5;
+	Yl += 16;
+	Yl >>= 5;
 
-	Np -= Tl;
+	Pp -= Yl;
 // no dynamic correction of moved mass necessary
 
 // correct DC level of the integral
 	FBIntKorr = 0;
 #ifdef OPT_ADXRS
-	if( Np > 10 ) FBIntKorr =  1;
-	if( Np < 10 ) FBIntKorr = -1;
+	if( Pp > 10 ) FBIntKorr =  1;
+	if( Pp < 10 ) FBIntKorr = -1;
 #endif
 #ifdef OPT_IDG
-	if( Np > 10 ) FBIntKorr = -1;
-	if( Np < 10 ) FBIntKorr =  1;
+	if( Pp > 10 ) FBIntKorr = -1;
+	if( Pp < 10 ) FBIntKorr =  1;
 #endif
 
 #ifdef NADA
 // Integral addieren
 // Integral addieren, Abkling-Funktion
-	Tl = FBSum >> 4;
-	Tl >>= 1;
-	FBSum -= Tl;	// LRSum * 0.96875
-	FBSum += Np;
-	Np = FBSum + 128;
-	FBSumPosi += (int)Np.high8;
+	Yl = FBSum >> 4;
+	Yl >>= 1;
+	FBSum -= Yl;	// LRSum * 0.96875
+	FBSum += Pp;
+	Pp = FBSum + 128;
+	FBSumPosi += (int)Pp.high8;
 	if( FBSumPosi >  2 ) FBSumPosi -= 2;
 	if( FBSumPosi < -2 ) FBSumPosi += 2;
 
 // Korrekturanteil fuer den PID Regler
-	Np = FBSumPosi * LinFBIntFactor;
-	Np += 128;
-	Np = (int)Np.high8;
+	Pp = FBSumPosi * LinFBIntFactor;
+	Pp += 128;
+	Pp = (int)Pp.high8;
 // limit output
-	if( Np >  2 ) Np = 2;
-	if( Np < -2 ) Np = -2;
+	if( Pp >  2 ) Pp = 2;
+	if( Pp < -2 ) Pp = -2;
 #endif
-	Np = 0;
+	Pp = 0;
 }

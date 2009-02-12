@@ -42,7 +42,7 @@ bit ESC_CIO			@TRISB.2;
 #endif
 
 bit PulseCamRoll	@PORTB.4;
-bit PulseCamNick	@PORTB.5;
+bit PulseCamPitch	@PORTB.5;
 
 #define ALL_PULSE_ON	PORTB |= 0b.0000.1111
 #define ALL_OUTPUTS_OFF	PORTB &= 0b.1111.0000
@@ -125,17 +125,15 @@ bit	I2C_CIO			@TRISB.7;
 
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
-#ifdef BMP085
-	#define OSRS			0x03
-	#define BARO_TEMP		0x2e
-	#define BARO_PRESS		0xf4 		/*(0x34+(OSRS<<6))*/
-#else
-	#define BARO_TEMP		0x6e
-	#define BARO_PRESS		0xf4
-#endif
+#define BARO_TEMP_BMP085	0x2e
+#define BARO_TEMP_SMD500	0x6e
+#define BARO_PRESS			0xf4
 #define BARO_CTL			0xf4
-#define BARO_ADC_MSB			0xf6
-#define BARO_ADC_LSB			0xf7
+#define BARO_ADC_MSB		0xf6
+#define BARO_ADC_LSB		0xf7
+#define BARO_TYPE			0xd0
+//#define BARO_ID_SMD500		??
+#define BARO_ID_BMP085		0x55
 
 #define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  /* throttle stick dead zone for baro */

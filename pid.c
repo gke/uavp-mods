@@ -11,7 +11,7 @@
 //
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  MERCHANTABILITY or FITPESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License along
@@ -35,16 +35,16 @@
 
 // compute the correction adders for the motors
 // using the gyro values (PID controller)
-// for the axes Roll and Nick
+// for the axes Roll and Pitch
 void PID(void)
 {
 
 	if( IntegralTest || CompassTest )
 		ALL_LEDS_OFF;
 
-// Roll/Nick Linearsensoren
+// Roll/Pitch Linearsensoren
 	Rp = 0;
-	Np = 0;
+	Pp = 0;
 //	Vud = 0;
 
 	if( _UseLISL )
@@ -67,7 +67,7 @@ void PID(void)
 // A0 = current correction value
 // fx = programmable controller factors
 //
-// for Roll and Nick:
+// for Roll and Pitch:
 //       E0*fP + E1*fD     Sum(Ex)*fI
 // A0 = --------------- + ------------
 //            16               256
@@ -119,7 +119,7 @@ void PID(void)
 		Rl += (int)Rp.high8;
 	}
 
-// muss so gemacht werden, weil CC5X kein if(Nl < -RollNickLimit) kann!
+// muss so gemacht werden, weil CC5X kein if(Pl < -RollPitchLimit) kann!
 //	NegFact = -RollLimit;
 //	if( Rl < NegFact ) Rl = NegFact;
 //	if( Rl > RollLimit ) Rl = RollLimit;
@@ -129,47 +129,47 @@ void PID(void)
 
 
 // ####################################
-// Nick
+// Pitch
 
-// Differential and Proportional for Nick
+// Differential and Proportional for Pitch
 
-	Nl  = -NE;
-	Nl += NEp;
-	Nl *= (long)NickDiffFactor;
-	Nl += (long)NE   * (long)NickPropFactor;
+	Pl  = -PE;
+	Pl += PEp;
+	Pl *= (long)PitchDiffFactor;
+	Pl += (long)PE   * (long)PitchPropFactor;
 	
-	Nl += 8;
-	Nl >>= 4;	// divide rounded by 16
+	Pl += 8;
+	Pl >>= 4;	// divide rounded by 16
 
-	Nl += Np;	// add proportional part
+	Pl += Pp;	// add proportional part
 
 	if( IntegralTest )
 	{
-		if( (int)NickSum.high8 >  0 )
+		if( (int)PitchSum.high8 >  0 )
 		{
 			LedYellow_ON;
 		}
-		if( (int)NickSum.high8 < -1 )
+		if( (int)PitchSum.high8 < -1 )
 		{
 			LedBlue_ON;
 		}
 	}
 
-// Integral part for Nick
+// Integral part for Pitch
 	if( IntegralCount == 0 )
 	{
-		Np = NickSum * (long)NickIntFactor;
-		Np += 128;
-		Nl += (int)Np.high8;
+		Pp = PitchSum * (long)PitchIntFactor;
+		Pp += 128;
+		Pl += (int)Pp.high8;
 	}
 
-// muss so gemacht werden, weil CC5X kein if(Nl < -RollNickLimit) kann!
-//	NegFact = -NickLimit;
-//	if( Nl < NegFact ) Nl = NegFact;
-//	if( Nl > NickLimit ) Nl = NickLimit;
+// muss so gemacht werden, weil CC5X kein if(Pl < -RollPitchLimit) kann!
+//	NegFact = -PitchLimit;
+//	if( Pl < NegFact ) Pl = NegFact;
+//	if( Pl > PitchLimit ) Pl = PitchLimit;
 
 // subtract stick signal
-	Nl -= INick;
+	Pl -= IPitch;
 
 // PID controller for Yaw (Heading Lock)
 //       E0*fp + E1*fD     Sum(Ex)*fI
@@ -180,25 +180,25 @@ void PID(void)
 // Yaw
 
 // the yaw stick signal is already added in LimitYawSum() !
-//	TE += ITurn;
+//	YE += IYaw;
 
-	Tl = YawSum * (long)TurnIntFactor;
-	Tl += 128;		// divide rounded by 256
-	Tl = (int)Tl.high8;
+	Yl = YawSum * (long)YawIntFactor;
+	Yl += 128;		// divide rounded by 256
+	Yl = (int)Yl.high8;
 
 // Differential for Yaw (for quick and stable reaction)
 
-	Tp  = -TE;
-	Tp += TEp;
-	Tp *= (long)TurnDiffFactor;
-	Tp += (long)TE  * (long)TurnPropFactor;
-	Tp += 8;
-	Tp >>= 4;	// divide rounded by 16
-	Tl += Tp;
+	Yp  = -YE;
+	Yp += YEp;
+	Yp *= (long)YawDiffFactor;
+	Yp += (long)YE  * (long)YawPropFactor;
+	Yp += 8;
+	Yp >>= 4;	// divide rounded by 16
+	Yl += Yp;
 
 	NegFact = -YawLimit;
-	if( Tl < NegFact ) Tl = NegFact;
-	if( Tl > YawLimit ) Tl = YawLimit;
+	if( Yl < NegFact ) Yl = NegFact;
+	if( Yl > YawLimit ) Yl = YawLimit;
 
 //
 // calculate camera servos
@@ -206,14 +206,14 @@ void PID(void)
 // use only integral part (direct angle)
 //
 	if( (IntegralCount == 0) && 
-		(CamRollFactor != 0) && (CamNickFactor != 0) )
+		(CamRollFactor != 0) && (CamPitchFactor != 0) )
 	{
 		Rp = RollSum / (long)CamRollFactor;
-		Np = NickSum / (long)CamNickFactor;
+		Pp = PitchSum / (long)CamPitchFactor;
 	}
 	else
 	{
 		Rp = 0;
-		Np = 0;
+		Pp = 0;
 	}
 }

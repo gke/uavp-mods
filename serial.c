@@ -46,22 +46,24 @@ const char page2 SerHello[] = "\r\nU.A.V.P. V" Version " (c) 2007"
 const char page2 SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
 							  "Gyro: "
 #ifdef OPT_ADXRS300
-							  "3x ADXRS300\r\n"
+							  "3x ADXRS300\r\n";
 #endif
 #ifdef OPT_ADXRS150
-							  "3x ADXRS150\r\n"
+							  "3x ADXRS150\r\n";
 #endif
 #ifdef OPT_IDG
-							  "1x ADXRS300, 1x IDG300\r\n"
+							  "1x ADXRS300, 1x IDG300\r\n";
 #endif
-							  "Linear sensors ";
-const char page2 SerLSavail[]="ONLINE\r\n";
-const char page2 SerLSnone[]= "not available\r\n";
-const char page2 SerBaro[]=   "Baro sensor ";
+const char page2 SerAcc[]="Accelerometers\r\n";
+const char page2 SerNoAcc[]= "No Accelerometers\r\n";
+const char page2 Ser085Baro[]= "BMP085 Baro\r\n";
+const char page2 Ser500Baro[]= "SMD500 Baro\r\n";
+const char page2 SerNoBaro[]= "No Baro\r\n";
 const char page2 SerChannel[]="Channel mode: Throttle Ch";
 const char page2 SerFM_Fut[]= "3";
 const char page2 SerFM_Grp[]= "1";
-const char page2 SerCompass[]="Compass sensor ";
+const char page2 SerCompass[]="Compass\r\n";
+const char page2 SerNoCompass[]="No Compass\r\n";
 const char page2 SerHelp[]  = "\r\nCommands:\r\n"
 					 		  "L...List param\r\n"
 							  "M...Modify param\r\n"
@@ -77,7 +79,7 @@ const char page2 SerList[]  = "\r\nParameter list for set #";
 const char page2 SerSelSet[]= "\r\nSelected parameter set: ";
 
 const char page2 SerNeutralR[]="\r\nNeutral Roll:";
-const char page2 SerNeutralN[]=" Nick:";
+const char page2 SerNeutralN[]=" Pitch:";
 const char page2 SerNeutralY[]=" Yaw:";
 
 const char page2 SerRecvCh[]=  "\r\nT:";
@@ -251,21 +253,22 @@ void ShowSetup(uns8 W)
 
 	SendComText(SerSetup);	// send hello message
 	if( _UseLISL )
-		SendComText(SerLSavail);
+		SendComText(SerAcc);
 	else
-		SendComText(SerLSnone);
+		SendComText(SerNoAcc);
 
-	SendComText(SerCompass);
 	if( _UseCompass )
-		SendComText(SerLSavail);
+		SendComText(SerCompass);
 	else
-		SendComText(SerLSnone);
+		SendComText(SerNoCompass);
 
-	SendComText(SerBaro);
 	if( _UseBaro )
-		SendComText(SerLSavail);
+		if ( BaroType == BARO_ID_BMP085 )
+			SendComText(Ser085Baro);
+		else	
+			SendComText(Ser500Baro);
 	else
-		SendComText(SerLSnone);
+		SendComText(SerNoBaro);
 
 	ReadEEdata();
 	SendComText(SerChannel);
@@ -372,7 +375,7 @@ void ProcessComCommand(void)
 			SendComValS(NeutralFB);
 
 			SendComText(SerNeutralY);
-			Tp -= 1024;		// subtract 1g (vertical sensor)
+			Yp -= 1024;		// subtract 1g (vertical sensor)
 			SendComValS(NeutralUD);
 			ShowPrompt();
 			break;
@@ -386,11 +389,11 @@ void ProcessComCommand(void)
 			SendComChar(',');
 			SendComChar('N');
 			SendComChar(':');
-			SendComValS(INick);
+			SendComValS(IPitch);
 			SendComChar(',');
 			SendComChar('Y');
 			SendComChar(':');
-			SendComValS(ITurn);
+			SendComValS(IYaw);
 			SendComChar(',');
 			SendComChar('5');
 			SendComChar(':');
@@ -417,9 +420,9 @@ void ProcessComCommand(void)
 #ifndef TESTOUT	
 		case 'T':
 			RE = 10;
-			NE = 20;
+			PE = 20;
 			Rw = 30;
-			Nw = 40;
+			Pw = 40;
 			MatrixCompensate();
 			ShowPrompt();
 			break;

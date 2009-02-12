@@ -54,7 +54,7 @@ int8	RCState;
 
 interrupt irq(void)
 {
-int8	NewRoll, NewNick, NewTurn;	
+int8	NewRoll, NewPitch, NewYaw;	
 int16 	Temp;
 uns16 	CCPR1 @0x15;
 
@@ -166,19 +166,19 @@ uns16 	CCPR1 @0x15;
 						IGas = NewK3.low8;
 						#ifdef EXCHROLLNICK
 						NewRoll = NewK2.low8 - _Neutral;
-						NewNick = NewK1.low8- _Neutral;
+						NewPitch = NewK1.low8- _Neutral;
 						#else
 						NewRoll = NewK1.low8- _Neutral;
-						NewNick = NewK2.low8- _Neutral;
+						NewPitch = NewK2.low8- _Neutral;
 						#endif // EXCHROLLNICK
 					}
 					else
 					{
 						IGas  = NewK1.low8;
 						NewRoll = NewK2.low8- _Neutral;
-						NewNick = NewK3.low8- _Neutral;
+						NewPitch = NewK3.low8- _Neutral;
 					}
-					NewTurn = NewK4.low8 - _Neutral;
+					NewYaw = NewK4.low8 - _Neutral;
 					
 					// DoubleRate removed
 										
@@ -190,24 +190,24 @@ uns16 	CCPR1 @0x15;
 					Temp >>= 2;
 					IRoll = Temp;
 
-					Temp = (int16)INick << 1;
-					Temp += (int16)INick;
-					Temp += NewNick;
+					Temp = (int16)IPitch << 1;
+					Temp += (int16)IPitch;
+					Temp += NewPitch;
 					Temp += 2;
 					Temp >>= 2;
-					INick = Temp;
+					IPitch = Temp;
 
 
-					Temp = (int16)ITurn << 1;
-					Temp += (int16)ITurn;
-					Temp += NewTurn;
+					Temp = (int16)IYaw << 1;
+					Temp += (int16)IYaw;
+					Temp += NewYaw;
 					Temp += 2; 
 					Temp >>= 2;
-					ITurn = Temp;
+					IYaw = Temp;
 					#else
 					IRoll = NewRoll; 
-					INick = NewNick;
-					ITurn = NewTurn;
+					IPitch = NewPitch;
+					IYaw = NewYaw;
 					#endif // USE_FILTERS	
 					IK5 = NewK5.low8;
 
@@ -234,8 +234,8 @@ uns16 	CCPR1 @0x15;
 					IGas = NewK5.low8;
 
 					NewRoll = NewK3.low8 - _Neutral; 
-					NewNick = NewK2.low8 - _Neutral;
-					NewTurn = NewK1.low8 - _Neutral;
+					NewPitch = NewK2.low8 - _Neutral;
+					NewYaw = NewK1.low8 - _Neutral;
 
 					IK5 = NewK6.low8; // do not filter
 					IK6 = NewK4.low8;
@@ -247,8 +247,8 @@ uns16 	CCPR1 @0x15;
 					IGas = NewK6.low8;
 
 					NewRoll = NewK1.low8 - _Neutral; 
-					NewNick = NewK4.low8 - _Neutral;
-					NewTurn = NewK7.low8 - _Neutral;
+					NewPitch = NewK4.low8 - _Neutral;
+					NewYaw = NewK7.low8 - _Neutral;
 
 					IK5 = NewK3.low8; // do not filter
 					IK6 = NewK5.low8;
@@ -256,8 +256,8 @@ uns16 	CCPR1 @0x15;
 				}
 
 				IRoll = NewRoll;	// no filters for DSM2 - space
-				INick = NewNick;
-				ITurn = NewTurn;		
+				IPitch = NewPitch;
+				IYaw = NewYaw;		
 
 				_NoSignal = 0;
 				_NewValues = 1;
