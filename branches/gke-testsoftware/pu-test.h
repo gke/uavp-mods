@@ -88,7 +88,7 @@ extern	bank0	uns16	CurrK1,CurrK2,CurrK3,CurrK4;
 extern	bank0	uns16	CurrK5,CurrK6,CurrK7;
 extern	bank1	uns16	PauseTime; 
 extern	bank1	uns8	TimeSlot;
-extern	bank0	long 	ClockMilliSec, TimerMilliSec;
+extern  bank0	uns8	BaroType, BaroTemp;
 extern	bank1	uns8	MVorne, MHinten, MLinks, MRechts;
 extern	bank1	uns8	MCamRoll, MCamNick;
 extern	bank1	uns8	EscI2CFlags;
@@ -223,6 +223,8 @@ extern	bank1	uns16	nilgval;
 #define _SerCCalib3 42
 #define _SerCCalibE 43
 
+#define _SerBaroSMD500 44
+#define _SerBaroBMP085 45
 
 // defines for SendComValUL
 #define NKSMASK 0b0.0.000.111

@@ -30,16 +30,15 @@
 
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
-#ifdef BMP085
-	#define BARO_TEMP		0x2e
-	#define BARO_PRESS		0xf4		/* alternative 0x74 fasters */ 
-#else
-	#define BARO_TEMP		0x6e
-	#define BARO_PRESS		0xf4
-#endif
+#define BaroTemp_BMP085	0x2e
+#define BaroTemp_SMD500	0x6e
+#define BARO_PRESS			0xf4
 #define BARO_CTL			0xf4
-#define BARO_ADC_MSB			0xf6
-#define BARO_ADC_LSB			0xf7
+#define BARO_ADC_MSB		0xf6
+#define BARO_ADC_LSB		0xf7
+#define BARO_TYPE			0xd0
+//#define BARO_ID_SMD500		??
+#define BARO_ID_BMP085		0x55
 
 #pragma codepage=1
 
@@ -262,8 +261,6 @@ void CompassTest(void)
 	I2CStop();
 
 	// wait 25ms for command to complete
-	//TimerMilliSec = ClockMilliSec + 25;
-	//while ( ClockMilliSec <= TimerMilliSec ) {};
 	for (i = 30; i; i--)
 	{
 		TMR0 = 0;
@@ -319,6 +316,33 @@ CCerror:
 
 void BaroTest(void)
 {
+	// SMD500 9.5mS (T) 34mS (P)  
+	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
+	// Baro is assumed offline unless it responds - no retries!
+	
+	uns8 i;
+
+	// Determine baro type
+	I2CStart();
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_TYPE) != I2C_ACK ) goto BAerror;
+	I2CStart();	// restart
+	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
+	BaroType = RecvI2CByte(I2C_NACK);
+	I2CStop();
+
+	if ( BaroType == BARO_ID_BMP085 )
+	{
+		SendComText(_SerBaroBMP085);
+		BaroTemp = BaroTemp_BMP085;
+
+	}
+	else
+	{
+		SendComText(_SerBaroSMD500);
+		BaroTemp = BaroTemp_SMD500;
+	}
+
 
 	// set Baro device to start conversion
 	I2CStart();
@@ -331,23 +355,12 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	// wait until control reg. bit 5 is zero (conversion ready)
-	// needs 20-40 ms to exit loop depending on baro type!
-	do
+	for (i = 35; i; i--)
 	{
-		I2CStart();
-		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
-
-		// access control register
-		if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto BAerror;
-
-		I2CStart();		// restart
-		if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-		// read control register
-		nilgval.low8 = RecvI2CByte(I2C_NACK);
-		I2CStop();
+		TMR0 = 0;
+		while ( T0IF == 0 ) {}; // 1mS wait
+		T0IF = 0;
 	}
-	while(nilgval.low8 & 0b0010.0000);
 
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -365,19 +378,6 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
 	nilgval.low8 = RecvI2CByte(!I2C_NACK);
 	I2CStop();
-
-/*
-	I2CStart();
-	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
-
-	// access A/D registers
-	if( SendI2CByte(BARO_ADC) != I2C_ACK ) goto BAerror;
-	I2CStart();		// restart
-	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.high8 = RecvI2CByte(I2C_ACK);
-	nilgval.low8 = RecvI2CByte(!I2C_NACK);
-	I2CStop();
-*/
 
 	SendComText(_SerBaroOK);
 	SendComValUL(NKS0+LEN5);
@@ -389,26 +389,15 @@ void BaroTest(void)
 	// access control register, start measurement
 	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
 	// select 32kHz input, measure temperature
-	if( SendI2CByte(BARO_TEMP) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BaroTemp) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	// wait until control reg. bit 5 is zero (conversion ready)
-	// needs 20-40 ms to exit loop depending on baro type!
-	do
+	for (i = 10; i; i--)
 	{
-		I2CStart();
-		if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
-
-		// access control register
-		if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto BAerror;
-
-		I2CStart();		// restart
-		if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-		// read control register
-		nilgval.low8 = RecvI2CByte(I2C_NACK);
-		I2CStop();
+		TMR0 = 0;
+		while ( T0IF == 0 ) {}; // 1mS wait
+		T0IF = 0;
 	}
-	while(nilgval.low8 & 0b0010.0000);
 
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -426,19 +415,6 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
 	nilgval.low8 = RecvI2CByte(!I2C_NACK);
 	I2CStop();
-
-/*
-	I2CStart();
-	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
-
-	// access A/D registers
-	if( SendI2CByte(BARO_ADC) != I2C_ACK ) goto BAerror;
-	I2CStart();		// restart
-	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.high8 = RecvI2CByte(I2C_ACK);
-	nilgval.low8 = RecvI2CByte(!I2C_NACK);
-	I2CStop();
-*/
 
 	SendComText(_SerBaroT);
 	SendComValUL(NKS0+LEN5);

@@ -55,7 +55,8 @@ uns8	Flags;
 uns16	CurrK1,CurrK2,CurrK3,CurrK4,CurrK5,CurrK6,CurrK7;
 
 uns8	TimeSlot;
-long	ClockMilliSec, TimerMilliSec;
+
+uns8	BaroType, BaroTemp;
 
 uns16	PauseTime;
 
@@ -99,8 +100,6 @@ void main(void)
 // timer setup
 	T1CON = 0b.00.11.0001;	// enable TMR1, 1:8 prescaler, run with 2us clock
 	CCP1CON = 0b.00.00.0100;	// capture mode every falling edge
-	
-	ClockMilliSec = 0;
 
 	TMR2 = 0;
 	T2CON = 0b.0.1111.1.11;	// enable TMR2, 1:16 prescaler, 1:16 postscaler (see _Pre/PostScale2)

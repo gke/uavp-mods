@@ -58,7 +58,6 @@ uns16 	CCPR1 @0x15;
 	{
 		T0IF = 0;				// quit int
 		TimeSlot--;
-		ClockMilliSec++;
 	}
 
 	if( CCP1IF )
