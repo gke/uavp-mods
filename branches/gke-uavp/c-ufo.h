@@ -102,7 +102,7 @@
 // special mode for sensor data output (with UAVPset)
 //#define DEBUG_SENSORS
 
-// Switched Roll and Nick channels for Conrad mc800 transmitter
+// Switched Roll and Pitch channels for Conrad mc800 transmitter
 //#define EXCHROLLNICK
 
 // internal test switch...DO NOT USE FOR REAL UFO'S!
@@ -135,16 +135,16 @@
 // ==============================================
 
 extern	shrBank	uns8	IGas;
-extern	shrBank	int 	IRoll,INick,ITurn;
+extern	shrBank	int 	IRoll,IPitch,IYaw;
 extern	shrBank	uns8	IK5,IK6,IK7;
 
-extern	bank2	int		RE, NE;
-extern	bank2	int		TE;
-extern	bank1	int		REp,NEp;
-extern	bank1	int		TEp;
+extern	bank2	int		RE, PE;
+extern	bank2	int		YE;
+extern	bank1	int		REp,PEp;
+extern	bank1	int		YEp;
 extern	bank2	long	YawSum;
-extern	bank2	long	NickSum, RollSum;
-extern	bank2	uns16	RollSamples, NickSamples;
+extern	bank2	long	PitchSum, RollSum;
+extern	bank2	uns16	RollSamples, PitchSamples;
 //extern	bank2	long	LRSum, FBSum, UDSum;
 extern	bank2	int		LRIntKorr, FBIntKorr;
 extern	bank2	uns8	NeutralLR, NeutralFB, NeutralUD;
@@ -152,10 +152,10 @@ extern	bank2	uns8	NeutralLR, NeutralFB, NeutralUD;
 //extern	bank1	long	LRSumPosi, FBSumPosi;
 extern	bank1	int		NegFact; // general purpose
 
-extern	shrBank	uns8	BlinkCount;
+extern	shrBank	uns8	BlinkCount, BaroCount;
 
 extern	bank0	long	niltemp1;
-extern	bank0	int		Rw,Nw;	// angles
+extern	bank0	int		Rw,Pw;	// angles
 extern  bank1	int	BatteryVolts; // added by Greg Egan
 extern	bank1	long	niltemp;
 int		nitemp @ niltemp;
@@ -165,6 +165,7 @@ extern	bank0	uns16	BasePressure, BaseTemp;
 extern	bank0	uns16	TempCorr;
 extern	bank1	int	VBaroComp;
 extern  bank0	long    BaroCompSum;
+extern	bank2	uns8	BaroType, BaroTemp;
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
 // These variables MUST keep their order!!!
@@ -176,16 +177,16 @@ extern	bank1	int RollLimit;			// 04
 extern	bank1	int	RollIntLimit;		// 05
 extern	BaroTempCoeff @RollLimit;
 
-extern	bank1	int	NickPropFactor;	 	// 06
-extern	bank1	int	NickIntFactor;		// 07
-extern	bank1	int	NickDiffFactor;		// 08
-extern	bank1	int NickLimit;			// 09
-extern	bank1	int	NickIntLimit;		// 10
-extern  BaroThrottleProp @NickLimit;
+extern	bank1	int	PitchPropFactor;	 	// 06
+extern	bank1	int	PitchIntFactor;		// 07
+extern	bank1	int	PitchDiffFactor;		// 08
+extern	bank1	int PitchLimit;			// 09
+extern	bank1	int	PitchIntLimit;		// 10
+extern  BaroThrottleProp @PitchLimit;
 
-extern	bank1	int	TurnPropFactor; 	// 11
-extern	bank1	int	TurnIntFactor;		// 12
-extern	bank1	int	TurnDiffFactor;		// 13
+extern	bank1	int	YawPropFactor; 	// 11
+extern	bank1	int	YawIntFactor;		// 12
+extern	bank1	int	YawDiffFactor;		// 13
 extern	bank1	int	YawLimit;			// 14
 extern	bank1	int YawIntLimit;		// 15
 
@@ -200,7 +201,7 @@ extern	bank1	int MiddleUD;			// 22
 extern	bank1	int	MotorLowRun;		// 23
 extern	bank1	int	MiddleLR;			// 24
 extern	bank1	int	MiddleFB;			// 25
-extern	bank1	int	CamNickFactor;		// 26
+extern	bank1	int	CamPitchFactor;		// 26
 extern	CamRollFactor @LinLRIntFactor;
 extern	bank1	int	CompassFactor;		// 27
 extern	bank1	int	BaroThrottleDiff;	// 28
@@ -215,10 +216,10 @@ int	LastProgReg @BaroThrottleDiff;
 // end of "order-block"
 
 extern	bank1	uns8	MVorne,MLinks,MRechts,MHinten;	// output channels
-extern	bank1	uns8	MCamRoll,MCamNick;
+extern	bank1	uns8	MCamRoll,MCamPitch;
 extern	bank1	long	Ml, Mr, Mv, Mh;
-extern	bank1	long	Rl,Nl,Tl;	// PID output values
-extern	bank1	long	Rp,Np,Tp,Vud;
+extern	bank1	long	Rl,Pl,Yl;	// PID output values
+extern	bank1	long	Rp,Pp,Yp,Vud;
 
 
 extern	shrBank	uns8	Flags;
@@ -229,11 +230,11 @@ extern	shrBank	uns8	IntegralCount;
 
 // measured neutral gyro values
 // current stick neutral values
-extern	bank2	int		RollNeutral, NickNeutral, YawNeutral;
+extern	bank2	int		RollNeutral, PitchNeutral, YawNeutral;
 extern	bank2	uns8	ThrNeutral;
 extern	bank0	uns8	ThrDownCount;
 
-extern	bank2	uns16	MidRoll, MidNick, MidTurn;
+extern	bank2	uns16	MidRoll, MidPitch, MidYaw;
 
 extern	shrBank	uns8	LedShadow;	// shadow register
 extern	bank2	uns16	AbsDirection;	// wanted heading (240 = 360 deg)
@@ -355,7 +356,7 @@ extern  page1	void PID(void);
 extern	page1	void Out(uns8);
 extern	page1	void OutG(uns8);
 extern	page1	void LimitRollSum(void);
-extern	page1	void LimitNickSum(void);
+extern	page1	void LimitPitchSum(void);
 extern	page1	void LimitYawSum(void);
 extern	page1	void AddUpLRArr(uns8);
 extern	page1	void AddUpFBArr(uns8);

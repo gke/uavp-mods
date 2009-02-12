@@ -130,30 +130,31 @@ void InitArrays(void)
 	MHinten = W;
 
 	W = _Neutral;
-	MCamNick = W;
+	MCamPitch = W;
 	MCamRoll = W;
 
 // bank 1
 	_Flying = 0;
 	REp = 0;
-	NEp = 0;
-	TEp = 0;
+	PEp = 0;
+	YEp = 0;
 //	LRSumPosi = 0;
 //	FBSumPosi = 0;
 	
 	Rp = 0;
-	Np = 0;
+	Pp = 0;
 	Vud = 0;
 
 	VBaroComp = 0;
 	BaroCompSum = 0;
+	BaroCount = 0;
 	
 // bank 2
 	LRIntKorr = 0;
 	FBIntKorr = 0;
 	YawSum = 0;
     RollSum = 0;
-    NickSum = 0;
+    PitchSum = 0;
 //	LRSum = 0;
 //	FBSum = 0;
 //	UDSum = 0;
@@ -179,8 +180,8 @@ void GetEvenValues(void)
 	Delay100mS(2);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
 	Rp = 0;
-	Np = 0;
-	Tp = 0;
+	Pp = 0;
+	Yp = 0;
 	for( i=0; i < 16; i++)
 	{
 		// wait for new set of data
@@ -188,25 +189,25 @@ void GetEvenValues(void)
 		
 		Rl.low8  = ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
 		Rl.high8 = ReadLISLNext();
-		Tl.low8  = ReadLISLNext();
-		Tl.high8 = ReadLISLNext();
-		Nl.low8  = ReadLISLNext();
-		Nl.high8 = ReadLISLNext();
+		Yl.low8  = ReadLISLNext();
+		Yl.high8 = ReadLISLNext();
+		Pl.low8  = ReadLISLNext();
+		Pl.high8 = ReadLISLNext();
 		LISL_CS = 1;	// end transmission
 		
 		Rp += (long)Rl;
-		Np += (long)Nl;
-		Tp += (long)Tl;
+		Pp += (long)Pl;
+		Yp += (long)Yl;
 	}
 	Rp += 8;
-	Np += 8;
-	Tp += 8;
+	Pp += 8;
+	Yp += 8;
 	Rp >>= 4;
-	Np >>= 4;
-	Tp >>= 4;
+	Pp >>= 4;
+	Yp >>= 4;
 	NeutralLR = Rp.low8;
-	NeutralFB = Np.low8;
-	NeutralUD = Tp.low8;
+	NeutralFB = Pp.low8;
+	NeutralUD = Yp.low8;
 }
 
 

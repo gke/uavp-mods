@@ -49,32 +49,33 @@
 // The globals
 
 uns8	IGas;			// actual input channel, can only be positive!
-int 	IRoll,INick,ITurn;	// actual input channels, 0 = neutral
+int 	IRoll,IPitch,IYaw;	// actual input channels, 0 = neutral
 uns8	IK5;		// actual channel 5 input
 uns8	IK6;		// actual channel 6 input
 uns8	IK7;		// actual channel 7 input
 
 // PID Regler Variablen
-int		RE,NE;
-int		TE;	// Fehlersignal aus dem aktuellen Durchlauf
-int		REp,NEp;
-int		TEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/NE/TE)
-long	YawSum;	// Integrales Fehlersignal fuer Turn, 0 = neutral
-long	RollSum, NickSum;	// Integrales Fehlersignal fuer Roll und Nick
-uns16	RollSamples, NickSamples;
+int		RE,PE;
+int		YE;	// Fehlersignal aus dem aktuellen Durchlauf
+int		REp,PEp;
+int		YEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/PE/YE)
+long	YawSum;	// Integrales Fehlersignal fuer Yaw, 0 = neutral
+long	RollSum, PitchSum;	// Integrales Fehlersignal fuer Roll und Pitch
+uns16	RollSamples, PitchSamples;
 int		LRIntKorr, FBIntKorr;
 uns8	NeutralLR, NeutralFB, NeutralUD;
 
 int		NegFact; // general purpose
-uns8	BlinkCount;
+uns8	BlinkCount, BaroCount;
 long	niltemp1;
 long	niltemp;
 int		BatteryVolts; // added by Greg Egan
-int		Rw,Nw;
+int		Rw,Pw;
 
 uns16	BasePressure, BaseTemp, TempCorr;
 int		VBaroComp;
 long 	BaroCompSum;
+uns8	BaroType, BaroTemp;
 
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
@@ -84,15 +85,15 @@ int	RollDiffFactor;
 int RollLimit;
 int RollIntLimit;
 
-int	NickPropFactor;
-int	NickIntFactor;
-int	NickDiffFactor;
-int NickLimit;
-int NickIntLimit;
+int	PitchPropFactor;
+int	PitchIntFactor;
+int	PitchDiffFactor;
+int PitchLimit;
+int PitchIntLimit;
 
-int	TurnPropFactor;
-int	TurnIntFactor;
-int	TurnDiffFactor;
+int	YawPropFactor;
+int	YawIntFactor;
+int	YawDiffFactor;
 int	YawLimit;
 int YawIntLimit;
 
@@ -107,14 +108,14 @@ int MiddleUD;
 int MotorLowRun;
 int	MiddleLR;
 int MiddleFB;
-int	CamNickFactor;
+int	CamPitchFactor;
 int CompassFactor;
 
 int BaroThrottleDiff;
 
 // Ende Reihenfolgezwang
 
-uns16	MidRoll, MidNick, MidTurn;
+uns16	MidRoll, MidPitch, MidYaw;
 
 
 uns8	LedShadow;	// shadow register
@@ -122,17 +123,17 @@ uns16	AbsDirection;	// wanted heading (240 = 360 deg)
 int		CurDeviation;	// deviation from correct heading
 
 uns8	MVorne,MLinks,MRechts,MHinten;	// output channels
-uns8	MCamRoll,MCamNick;
+uns8	MCamRoll,MCamPitch;
 long	Ml, Mr, Mv, Mh;
-long	Rl,Nl,Tl;	// PID output values
-long	Rp,Np,Tp;
+long	Rl,Pl,Yl;	// PID output values
+long	Rp,Pp,Yp;
 long	Vud;
 
 uns8	Flags;
 uns8	Flags2;
 
 uns8	IntegralCount;
-int		RollNeutral, NickNeutral, YawNeutral;
+int		RollNeutral, PitchNeutral, YawNeutral;
 uns8	ThrNeutral;
 uns8	ThrDownCount;
 
@@ -195,7 +196,7 @@ void main(void)
 	NeutralFB = 0;
 	NeutralUD = 0;
 	if( _UseLISL )
-		GetEvenValues();	// into Rp, Np, Tp
+		GetEvenValues();	// into Rp, Pp, Yp
 	#endif  // USE_ACCSENS
 
 	// enable the interrupts
@@ -233,9 +234,7 @@ Restart:
 			LedYellow_ON;	// to signal LISL sensor is active
 
 		InitArrays();
-
 		ThrNeutral = 0xFF;
-
 
 		GIE = 1;		// enable all interrupts
 
@@ -319,7 +318,7 @@ Restart:
 		// if Ch7 below +20 (near minimum) assume use for camera trigger
 		// else assume use for camera roll trim
 		
-		_UseCh7Trigger = IK7 > 30;
+		_UseCh7Trigger = IK7 > _Neutral;
 			
 		while(Switch == 1)	// as long as power switch is ON
 		{
@@ -329,42 +328,12 @@ Restart:
 			T0IE = 1;	// enable TMR0
 
 			RollSamples =
-			NickSamples = 0;	// zero gyros sum-up memory
+			PitchSamples = 0;	// zero gyros sum-up memory
 			// sample gyro data and add everything up while waiting for timing delay
 
 			GetGyroValues();
-
-			if( _UseCompass && ((BlinkCount & 0x03) == 0) )	// enter every 4th scan
-			{
-				GetDirection();	// read compass sensor
-				#ifdef DEBUG_SENSORS
-				if( IntegralCount == 0 )
-				{
-					SendComValH(AbsDirection);
-					SendComChar(';');
-				}
-				#endif				
-			}
-			#ifdef DEBUG_SENSORS
-			else	// no new value received
-				if( IntegralCount == 0 )
-					SendComChar(';');
-			#endif
-
-			if( _UseBaro )
-			{
-				ComputeBaroComp();
-			}
-			#ifdef DEBUG_SENSORS
-			else	// no baro sensor active
-			{
-				if( IntegralCount == 0 )
-				{
-					SendComChar(';');
-					SendComChar(';');
-				}
-			}
-			#endif
+			GetDirection();	
+			ComputeBaroComp();
 
 			while( TimeSlot > 0 )
 			{
@@ -399,8 +368,8 @@ Restart:
 				{	// use last throttle
 					ALL_LEDS_OFF;
 					IRoll = RollNeutral;
-					INick = NickNeutral;
-					ITurn = YawNeutral;
+					IPitch = PitchNeutral;
+					IYaw = YawNeutral;
 					goto DoPID;
 				}
 				break;	// timeout, stop everything
@@ -431,8 +400,8 @@ Restart:
 				
 				InitArrays();	// resets _Flying flag!
 				MidRoll = 0;	// gyro neutral points
-				MidNick = 0;
-				MidTurn = 0;
+				MidPitch = 0;
+				MidYaw = 0;
 				if( _NoSignal && Switch )	// _NoSignal set, but Switch is on?
 				{
 					break;	// then RX signal was lost
@@ -448,8 +417,8 @@ Restart:
 				if( !_Flying )	// about to start
 				{	// set current stick values as midpoints
 					RollNeutral = IRoll;
-					NickNeutral = INick;
-					YawNeutral  = ITurn;
+					PitchNeutral = IPitch;
+					YawNeutral  = IYaw;
 
 					AbsDirection = COMPASS_INVAL;
 
@@ -498,7 +467,7 @@ Restart:
 DoPID:
 				// do the calculations
 				Rp = 0;
-				Np = 0;
+				Pp = 0;
 
 
 				// this block checks if throttle stick has moved
@@ -536,8 +505,8 @@ DoPID:
 
 				// remember old gyro values
 				REp = RE;
-				NEp = NE;
-				TEp = TE;
+				PEp = PE;
+				YEp = YE;
 			}
 			
 			MixAndLimitCam();

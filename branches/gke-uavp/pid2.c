@@ -64,38 +64,38 @@ void LimitRollSum(void)
 
 }
 
-// Limit integral sum of Nick gyros
+// Limit integral sum of Pitch gyros
 // it must be limited to avoid numeric overflow
 // which would cause a serious flip -> crash
-void LimitNickSum(void)
+void LimitPitchSum(void)
 {
 
-	NickSum += (long)NickSamples;
+	PitchSum += (long)PitchSamples;
 
 	if( IntegralCount == 0 )
 	{
-		NegFact = -NickIntLimit;
-		if( (int)NickSum.high8 >= NickIntLimit )
+		NegFact = -PitchIntLimit;
+		if( (int)PitchSum.high8 >= PitchIntLimit )
 		{
-			NickSum.high8 = NickIntLimit;
-			NickSum.low8 = 0;
+			PitchSum.high8 = PitchIntLimit;
+			PitchSum.low8 = 0;
 		}
 		else
-		if( (int)NickSum.high8 < NegFact )
+		if( (int)PitchSum.high8 < NegFact )
 		{
-			NickSum.high8 = NegFact;
-			NickSum.low8 = 0;
+			PitchSum.high8 = NegFact;
+			PitchSum.low8 = 0;
 		}
-		NickSum += FBIntKorr;
-		if( NickSum > 0 ) NickSum--;
-		if( NickSum < 0 ) NickSum++;
+		PitchSum += FBIntKorr;
+		if( PitchSum > 0 ) PitchSum--;
+		if( PitchSum < 0 ) PitchSum++;
 #ifdef NADA
-SendComValH(NickSamples.high8);
-SendComValH(NickSamples.low8);
-SendComValH(NickSum.high8);
-SendComValH(NickSum.low8);
-SendComValH(MidNick.high8);
-SendComValH(MidNick.low8);
+SendComValH(PitchSamples.high8);
+SendComValH(PitchSamples.low8);
+SendComValH(PitchSum.high8);
+SendComValH(PitchSum.low8);
+SendComValH(MidPitch.high8);
+SendComValH(MidPitch.low8);
 SendComChar(0x0d);SendComChar(0x0a);
 #endif
 	}
@@ -108,7 +108,7 @@ void LimitYawSum(void)
 {
 
 // add the yaw stick value
-	TE += ITurn;
+	YE += IYaw;
 
 	if ( _UseCompass )
 	{
@@ -117,30 +117,30 @@ void LimitYawSum(void)
 
 		// this double "if" is necessary because of dumb CC5X compiler
 		NegFact = YawNeutral + COMPASS_MIDDLE;
-		if ( ITurn > NegFact )
+		if ( IYaw > NegFact )
 			// yaw stick is not in neutral zone, learn new desired heading
 			AbsDirection = COMPASS_INVAL;
 		else		
 		{
 			NegFact = YawNeutral - COMPASS_MIDDLE;
-			if ( ITurn < NegFact )
+			if ( IYaw < NegFact )
 				// yaw stick is not in neutral zone, learn new desired heading
 				AbsDirection = COMPASS_INVAL;
 			else
 			{
 				// yaw stick is in neutral zone, hold heading
 				if( CurDeviation > COMPASS_MAXDEV )
-					TE -= COMPASS_MAXDEV;
+					YE -= COMPASS_MAXDEV;
 				else
 				if( CurDeviation < -COMPASS_MAXDEV )
-					TE += COMPASS_MAXDEV;
+					YE += COMPASS_MAXDEV;
 				else
-					TE -= CurDeviation;
+					YE -= CurDeviation;
 			}
 		}
 	}
 
-	YawSum += (long)TE;
+	YawSum += (long)YE;
 	NegFact = -YawIntLimit;
 	if( (int)YawSum.high8 >= YawIntLimit )
 	{
@@ -180,7 +180,7 @@ int SaturInt(long l)
 	return((int)l);
 }
 
-// mix the PID-results (Rl, Nl and Tl) and the throttle
+// mix the PID-results (Rl, Pl and Yl) and the throttle
 // on the motors and check for numerical overrun
 void MixAndLimit(void)
 {
@@ -191,30 +191,30 @@ void MixAndLimit(void)
 #ifndef TRICOPTER
 	if( FlyCrossMode )
 	{	// "Cross" Mode
-		Ml = CurrGas + Nl; Ml -= Rl;
-		Mr = CurrGas - Nl; Mr += Rl;
-		Mv = CurrGas - Nl; Mv -= Rl;
-		Mh = CurrGas + Nl; Mh += Rl;
+		Ml = CurrGas + Pl; Ml -= Rl;
+		Mr = CurrGas - Pl; Mr += Rl;
+		Mv = CurrGas - Pl; Mv -= Rl;
+		Mh = CurrGas + Pl; Mh += Rl;
 	}
 	else
 	{	// "Plus" Mode
 #ifdef MOUNT_45
-		Ml = CurrGas - Rl; Ml -= Nl;	// K2 -> Front right
-		Mr = CurrGas + Rl; Mr += Nl;	// K3 -> Rear left
-		Mv = CurrGas + Rl; Mv -= Nl;	// K1 -> Front left
-		Mh = IGas - Rl; Mh += Nl;	// K4 -> Rear rigt
+		Ml = CurrGas - Rl; Ml -= Pl;	// K2 -> Front right
+		Mr = CurrGas + Rl; Mr += Pl;	// K3 -> Rear left
+		Mv = CurrGas + Rl; Mv -= Pl;	// K1 -> Front left
+		Mh = IGas - Rl; Mh += Pl;	// K4 -> Rear rigt
 #else
 		Ml = CurrGas - Rl;	// K2 -> Front right
 		Mr = CurrGas + Rl;	// K3 -> Rear left
-		Mv = CurrGas - Nl;	// K1 -> Front left
-		Mh = CurrGas + Nl;	// K4 -> Rear rigt
+		Mv = CurrGas - Pl;	// K1 -> Front left
+		Mh = CurrGas + Pl;	// K4 -> Rear rigt
 #endif
 	}
 
-	Mv += Tl;
-	Mh += Tl;
-	Ml -= Tl;
-	Mr -= Tl;
+	Mv += Yl;
+	Mh += Yl;
+	Ml -= Yl;
+	Mr -= Yl;
 
 	// Altitude stabilization factor
 	Mv += Vud;
@@ -262,13 +262,13 @@ void MixAndLimit(void)
 		}
 	}
 #else	// TRICOPTER
-	Mv = CurrGas + Nl;	// front motor
+	Mv = CurrGas + Pl;	// front motor
 	Ml = CurrGas + Rl;
 	Mr = CurrGas - Rl;
 	Rl >>= 1;
 	Ml -= Rl;	// rear left
-    	Mr -= Nl;	// rear right
-	Mh = Tl + _Neutral;	// yaw servo
+    	Mr -= Pl;	// rear right
+	Mh = Yl + _Neutral;	// yaw servo
 
 	if( CurrGas > MotorLowRun )
 	{

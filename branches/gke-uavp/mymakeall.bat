@@ -10,7 +10,6 @@ rem Greg Egan 2008
 rem
 rem Uses: makeallhelper.bat and makeclean.bat
 rem 
-rem Type of barometers used. May be BMP085 or SMD500
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or IDG300.
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.
 rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
@@ -24,7 +23,6 @@ rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
 set VERSION=3_15m3
 
 rem Add/Delete required combinations to these sets
-set BARO=BMP085 SMD500
 set GYRO=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESC=ESC_PPM ESC_HOLGER
 set DBG=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
@@ -44,7 +42,7 @@ echo Starting makeall uavp > log.lst
 
 rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
 
-for %%b in (%BARO%) do for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%d in (%DBG%) do for %%r in (%RX%) do call makeallhelper.bat %VERSION% %%b %%g %%e %%d %%r 
+for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%d in (%DBG%) do for %%r in (%RX%) do call makeallhelper.bat %VERSION% %%g %%e %%d %%r 
 
 
 
