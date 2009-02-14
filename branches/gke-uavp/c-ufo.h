@@ -1,4 +1,7 @@
 
+#define BARO_HARD_FILTER
+#define	BARO_ALARM
+
 #ifndef BATCHMODE
 // ==============================================
 // =      U.A.V.P Brushless UFO Controller      =
@@ -164,7 +167,7 @@ int		nitemp @ niltemp;
 extern	bank0	uns16	BasePressure, BaseTemp;
 extern	bank0	uns16	TempCorr;
 extern	bank1	int	VBaroComp;
-extern  bank0	long    BaroCompSum;
+extern  bank0	long    BaroRelPressure;
 extern	bank2	uns8	BaroType, BaroTemp;
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!

@@ -146,7 +146,7 @@ void InitArrays(void)
 	Vud = 0;
 
 	VBaroComp = 0;
-	BaroCompSum = 0;
+	BaroRelPressure = 0;
 	BaroCount = 0;
 	
 // bank 2

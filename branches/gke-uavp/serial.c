@@ -46,24 +46,24 @@ const char page2 SerHello[] = "\r\nU.A.V.P. V" Version " (c) 2007"
 const char page2 SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
 							  "Gyro: "
 #ifdef OPT_ADXRS300
-							  "3x ADXRS300\r\n";
+							  "3x ADXRS300\r\n"
 #endif
 #ifdef OPT_ADXRS150
-							  "3x ADXRS150\r\n";
+							  "3x ADXRS150\r\n"
 #endif
 #ifdef OPT_IDG
-							  "1x ADXRS300, 1x IDG300\r\n";
+							  "1x ADXRS300, 1x IDG300\r\n"
 #endif
-const char page2 SerAcc[]="Accelerometers\r\n";
-const char page2 SerNoAcc[]= "No Accelerometers\r\n";
-const char page2 Ser085Baro[]= "BMP085 Baro\r\n";
-const char page2 Ser500Baro[]= "SMD500 Baro\r\n";
-const char page2 SerNoBaro[]= "No Baro\r\n";
-const char page2 SerChannel[]="Channel mode: Throttle Ch";
+							  "Linear sensors ";
+const char page2 SerLSavail[]="ONLINE\r\n";
+const char page2 SerLSnone[]= "not available\r\n";
+const char page2 SerBaro[]=   "Baro ";
+const char page2 SerBaroBMP085[]=   "BMP085\r\n";
+const char page2 SerBaroSMD500[]=   "SMD500\r\n";
+const char page2 SerChannel[]="Throttle Ch";
 const char page2 SerFM_Fut[]= "3";
 const char page2 SerFM_Grp[]= "1";
-const char page2 SerCompass[]="Compass\r\n";
-const char page2 SerNoCompass[]="No Compass\r\n";
+const char page2 SerCompass[]="Compass ";
 const char page2 SerHelp[]  = "\r\nCommands:\r\n"
 					 		  "L...List param\r\n"
 							  "M...Modify param\r\n"
@@ -79,7 +79,7 @@ const char page2 SerList[]  = "\r\nParameter list for set #";
 const char page2 SerSelSet[]= "\r\nSelected parameter set: ";
 
 const char page2 SerNeutralR[]="\r\nNeutral Roll:";
-const char page2 SerNeutralN[]=" Ptch:";	// UAVPSet needs this to be 4 chars!
+const char page2 SerNeutralN[]=" Ptch:";
 const char page2 SerNeutralY[]=" Yaw:";
 
 const char page2 SerRecvCh[]=  "\r\nT:";
@@ -253,22 +253,24 @@ void ShowSetup(uns8 W)
 
 	SendComText(SerSetup);	// send hello message
 	if( _UseLISL )
-		SendComText(SerAcc);
+		SendComText(SerLSavail);
 	else
-		SendComText(SerNoAcc);
+		SendComText(SerLSnone);
 
+	SendComText(SerCompass);
 	if( _UseCompass )
-		SendComText(SerCompass);
+		SendComText(SerLSavail);
 	else
-		SendComText(SerNoCompass);
+		SendComText(SerLSnone);
 
+	SendComText(SerBaro);
 	if( _UseBaro )
 		if ( BaroType == BARO_ID_BMP085 )
-			SendComText(Ser085Baro);
-		else	
-			SendComText(Ser500Baro);
+			SendComText(SerBaroBMP085);
+		else
+			SendComText(SerBaroSMD500);
 	else
-		SendComText(SerNoBaro);
+		SendComText(SerLSnone);
 
 	ReadEEdata();
 	SendComText(SerChannel);

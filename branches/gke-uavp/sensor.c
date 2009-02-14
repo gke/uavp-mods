@@ -396,34 +396,57 @@ void ComputeBaroComp(void)
 
 				if( ThrDownCount )	// while moving throttle stick
 				{
+					// not filtered
 					BasePressure = niltemp;	// current read value is the new level
-					BaroCompSum = 0;
+					BaroRelPressure = 0;
 				}
 				else
 				{	// while holding altitude
-
 					niltemp -= BasePressure;
 	
+#ifdef BARO_ALARM
+Beeper_ON;
+#endif
 					// niltemp1 has -400..+400 approx
 					niltemp1 = (long)TempCorr * (long)BaroTempCoeff;
 					niltemp1 += 16;
 					niltemp1 /= 32;
+
+
 					niltemp += niltemp1;	// compensating temp
-					// the corrected relative height, the higher alti, the lesser value
-	
-					// New Baro = (3*BaroSum + New_Baro)/4
+					// the corrected relative height, the higher alti, the lesser valu
+
 					niltemp1 = niltemp;	// because of bank bits
-					niltemp = BaroCompSum;	// remember old value for delta
-					BaroCompSum *= 3;
-					BaroCompSum += niltemp1;
-					BaroCompSum += 2;	// rounding
-					BaroCompSum >>= 2;	// div by 4
-					niltemp1 = BaroCompSum - niltemp;	// subtract new height to get delta
+					niltemp = BaroRelPressure;	// remember old value for delta
+
+					if ( BaroType != BARO_ID_BMP085 )
+					{
+#ifdef BARO_HARD_FILTER
+						// New Baro = (7*OldBaroPressure + NewBaroPressure + 4)/8
+						BaroRelPressure *= 7;
+						BaroRelPressure += niltemp1;
+						BaroRelPressure += 4;	// rounding
+						BaroRelPressure >>= 3;	// div by 8
+
+#else
+						// New Baro = (3*OldBaroPressure + NewBaroPressure + 2)/4
+						BaroRelPressure *= 3;
+						BaroRelPressure += niltemp1;
+						BaroRelPressure += 2;	// rounding
+						BaroRelPressure >>= 2;	// div by 4
+					
+#endif
+					}
+					else
+						BaroRelPressure = niltemp1;
+
+					niltemp1 = BaroRelPressure - niltemp;	// subtract new height to get delta
+
 					#ifdef INTTEST
 					SendComChar('A');
 					SendComChar(';');
-					SendComValH(BaroCompSum.high8);
-					SendComValH(BaroCompSum.low8);	// current height
+					SendComValH(BaroRelPressure.high8);
+					SendComValH(BaroRelPressure.low8);	// current height
 					SendComChar(';');
 					SendComValH(TempCorr.high8);
 					SendComValH(TempCorr.low8);	// current temp
@@ -431,11 +454,12 @@ void ComputeBaroComp(void)
 					SendComValH(niltemp1.low8);		// delta height
 					SendComChar(';');
 					#endif
+
 					// was: +10 and -5
-					if( BaroCompSum > 8 ) // zu tief: ordentlich Gas geben
-						BaroCompSum = 8;
-					if( BaroCompSum < -3 ) // zu hoch: nur leicht nachlassen
-						BaroCompSum = -3;
+					if( BaroRelPressure > 8 ) // zu tief: ordentlich Gas geben
+						BaroRelPressure = 8;
+					if( BaroRelPressure < -3 ) // zu hoch: nur leicht nachlassen
+						BaroRelPressure = -3;
 	
 					// weiche Regelung (proportional)
 					// nitemp kann nicht überlaufen (-3..+8 * PropFact)
@@ -443,7 +467,7 @@ void ComputeBaroComp(void)
 					// strictly this is acting more like an integrator 
 					// bumping VBaroComp up and down proportional to the error?
 	
-					nitemp = (int)BaroCompSum.low8 * BaroThrottleProp;
+					nitemp = (int)BaroRelPressure.low8 * BaroThrottleProp;
 					if( VBaroComp > nitemp )
 						VBaroComp--;
 					else
@@ -465,17 +489,21 @@ void ComputeBaroComp(void)
 						
 					nitemp = (int)niltemp1.low8 * BaroThrottleDiff;
 					VBaroComp += nitemp;
-					if( VBaroComp > 15 )
+
+
+					if( VBaroComp > 20 ) 		// 15
 						VBaroComp = 15;
-					if( VBaroComp < -5 )
-						VBaroComp = -5;
+					if( VBaroComp < -10 ) 		// 5
+						VBaroComp = -10;
 						
 					#ifdef INTTEST
 					SendComValH(VBaroComp);
 					SendComChar(0x0d);
 					SendComChar(0x0a);
 					#endif
-	
+#ifdef BARO_ALARM
+Beeper_OFF;
+#endif	
 				}
 				StartBaroADC(BaroTemp);	// next is temp
 			}
@@ -485,9 +513,9 @@ void ComputeBaroComp(void)
 	#ifdef NADA
 	if( BlinkCount == 1 )
 	{
-		if( BaroCompSum > 0 )
+		if( BaroRelPressure > 0 )
 			BasePressure++;
-		if( BaroCompSum < 0 )
+		if( BaroRelPressure < 0 )
 			BasePressure--;	
 	}
 	#endif
@@ -498,8 +526,8 @@ void ComputeBaroComp(void)
 		{
 			SendComValH(VBaroComp);
 			SendComChar(';');
-			SendComValH(BaroCompSum.high8);
-			SendComValH(BaroCompSum.low8);
+			SendComValH(BaroRelPressure.high8);
+			SendComValH(BaroRelPressure.low8);
 			SendComChar(';');
 		}
 		else	// no baro sensor active
