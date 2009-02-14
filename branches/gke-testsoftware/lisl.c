@@ -128,13 +128,9 @@ void IsLISLactive(void)
 		WriteLISL(LISL_DD_CFG,    0b.00000000);
 		_UseLISL = 1;
 	}
-#ifdef BOARD_3_0
-	else
-		LISL_CS = 0;		// can be used as a LED output now
-#endif
 }
 
-#ifdef BOARD_3_1
+
 void LinearTest(void)
 {
 
@@ -168,4 +164,5 @@ void LinearTest(void)
 	SendComText(_SerLinG);
 	
 }
-#endif
+
+

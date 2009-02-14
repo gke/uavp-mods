@@ -26,19 +26,7 @@
 // I2C Scanner
 
 // compass sensor
-#define COMPASS_I2C_ID	0x42	/* I2C slave address */
 
-// baro (altimeter) sensor
-#define BARO_I2C_ID			0xee
-#define BaroTemp_BMP085	0x2e
-#define BaroTemp_SMD500	0x6e
-#define BARO_PRESS			0xf4
-#define BARO_CTL			0xf4
-#define BARO_ADC_MSB		0xf6
-#define BARO_ADC_LSB		0xf7
-#define BARO_TYPE			0xd0
-//#define BARO_ID_SMD500		??
-#define BARO_ID_BMP085		0x55
 
 #pragma codepage=1
 
@@ -46,8 +34,6 @@
 #include "bits.h"
 
 #pragma sharedAllocation
-
-#ifdef BOARD_3_1
 
 void I2CDelay(void)
 {
@@ -429,11 +415,3 @@ BAerror:
 	SendComText(_SerI2CFail);
 }
 
-#endif	// BOARD_3_1
-
-#ifdef BOARD_3_0
-// dummy function required because of dumb compiler :-(
-void I2CDummy(void)
-{
-}
-#endif

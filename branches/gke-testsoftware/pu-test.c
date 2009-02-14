@@ -46,9 +46,7 @@
 uns8 ConfigReg;
 
 
-#ifdef BOARD_3_1
 uns8	LedShadow;	// shadow register
-#endif
 
 uns8	Flags;
 
@@ -74,13 +72,6 @@ void main(void)
 	TRISA = 0b.00111111;	// all inputs
 	ADCON1 = 0b.0.000.0010;	// uses 5V as Vref
 
-#ifdef BOARD_3_0
-	PORTB = 0b.1000.0000;		// all outputs to low, except RB7 (LISL-CS)!
-	TRISB = 0b.0000.0000;	// all servo and LED outputs
-	PORTC = 0b.0100.0000;		// all outputs to low, except TxD
-	TRISC = 0b.10000100;	// RC7, RC2 are inputs
-#endif
-#ifdef BOARD_3_1
 	PORTB = 0b.1100.0000;		// all outputs to low, except RB6 & 7 (I2C)!
 	TRISB = 0b.0100.0000;	// all servo and LED outputs
 	PORTC = 0b.0110.0000;		// all outputs to low, except TxD and CS
@@ -88,11 +79,8 @@ void main(void)
 	CKE = 1;		// default I2C - enable SMBus thresholds for 3.3V LISL
 
 	RBPU_ = 0;		// now enable internal pullups
-#endif
 
-#ifdef BOARD_3_1
 	LedShadow = 0;
-#endif
 
     ALL_LEDS_OFF;
 	LedBlue_ON;
@@ -120,9 +108,6 @@ void main(void)
 	TXSTA = 0b.0010.0100;	// async mode, BRGH = 1
 	RCSTA = 0b.1001.0000;	// receive mode
 	SPBRG = _B38400;
-#ifdef BOARD_3_0
-	_SerEnabled = 1;	// serial link is enabled
-#endif
 	W = RCREG;			// be sure to empty FIFO
 
 // enable the interrupts
