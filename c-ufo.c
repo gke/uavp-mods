@@ -74,7 +74,7 @@ int		Rw,Pw;
 
 uns16	BasePressure, BaseTemp, TempCorr;
 int		VBaroComp;
-long 	BaroCompSum;
+long 	BaroRelPressure;
 uns8	BaroType, BaroTemp;
 
 
