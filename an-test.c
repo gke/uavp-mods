@@ -60,9 +60,9 @@ void AnalogTest(void)
 		
 	nilgval *= 46;
 	nilgval += 9;	// round up
-	nilgval /= 17;	// resultion is 0,01 Volt
+	nilgval /= 17;	// resolution is 0,01 Volt
 
-	SendComChar('U');
+	SendComChar('V');
 	SendComChar('b');
 	SendComChar(':');
 	
@@ -78,9 +78,9 @@ void AnalogTest(void)
 #endif
 	nilgval *= 49;
 	nilgval += 5;	// round up
-	nilgval /= 10;	// resultion is 0,001 Volt
+	nilgval /= 10;	// resolution is 0,001 Volt
 
-	SendComChar('U');
+	SendComChar('V');
 	SendComChar('r');
 	SendComChar(':');
 	
@@ -96,10 +96,10 @@ void AnalogTest(void)
 #endif
 	nilgval *= 49;
 	nilgval += 5;	// round up
-	nilgval /= 10;	// resultion is 0,001 Volt
+	nilgval /= 10;	// resolution is 0,001 Volt
 
-	SendComChar('U');
-	SendComChar('n');
+	SendComChar('V');
+	SendComChar('p');
 	SendComChar(':');
 	
 	SendComValUL(NKS3+LEN5);	// print millivolts from nilgval
@@ -109,27 +109,25 @@ void AnalogTest(void)
 	nilgval = GetAnalogVal(4);	
 	nilgval *= 49;
 	nilgval += 5;	// round up
-	nilgval /= 10;	// resultion is 0,001 Volt
+	nilgval /= 10;	// resolution is 0,001 Volt
 
-	SendComChar('U');
+	SendComChar('V');
 	SendComChar('y');
 	SendComChar(':');
 	
 	SendComValUL(NKS3+LEN5);	// print millivolts from nilgval
 	SendComText(_SerVolt);
 
-#ifdef BOARD_3_1
 // Uref
 	nilgval = GetAnalogVal(3);	
 	nilgval *= 49;
 	nilgval += 5;	// round up
-	nilgval /= 10;	// resultion is 0,001 Volt
+	nilgval /= 10;	// resolution is 0,001 Volt
 
-	SendComChar('U');
-	SendComChar('z');
+	SendComChar('V');
+	SendComChar('f');
 	SendComChar(':');
 	
 	SendComValUL(NKS3+LEN5);	// print millivolts from nilgval
 	SendComText(_SerVolt);
-#endif
 }

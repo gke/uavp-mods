@@ -61,18 +61,10 @@ bit PulseCamNick	@PORTB.5;
 
 bit	Switch		@PORTA.4;
 
-#ifdef BOARD_3_0
-bit	LISL_CS		@PORTB.7;
-bit LISL_SDA	@PORTC.7;
-bit LISL_SCL	@PORTC.6;
-bit	LISL_IO		@TRISC.7;
-#endif
-#ifdef BOARD_3_1
 bit	LISL_CS		@PORTC.5;
 bit LISL_SDA	@PORTC.4;
 bit LISL_SCL	@PORTC.3;
 bit	LISL_IO		@TRISC.4;
-#endif
 
 
 
@@ -85,43 +77,6 @@ bit	LISL_IO		@TRISC.4;
 #define MODELLOSTTIMERINT	2;	// in 0,2 sec units
 				// interval beep when active
 
-#ifdef BOARD_3_0
-
-#define LedYellow	LED1
-#define LedGreen	LED2
-#define	LedBlue		LED3
-#define LedRed		LED4
-
-bit	LED1		@PORTC.0;
-bit	LED2		@PORTC.1;
-bit	LED3		@PORTC.3;
-bit	LED4		@PORTC.4;
-bit	LED5		@PORTC.5;
-bit	LED6		@PORTB.6;
-bit	LED7		@PORTB.7;
-bit	Beeper		@PORTB.6;	// "low voltage" beeper
-
-#define ALL_LEDS_ON		PORTC |= 0b.0011.1011
-#define ALL_LEDS_OFF	PORTC &= 0b.1100.0100
-#define ARE_ALL_LEDS_OFF	((PORTC & 0b.0011.1011) == 0)
-
-#define LedRed_ON		LedRed = ON;
-#define LedBlue_ON		LedBlue = ON;
-#define LedGreen_ON		LedGreen = ON;
-#define LedYellow_ON	LedYellow = ON;
-#define LedRed_OFF		LedRed = OFF;
-#define LedBlue_OFF		LedBlue = OFF;
-#define LedGreen_OFF	LedGreen = OFF;
-#define LedYellow_OFF	LedYellow = OFF;
-#define LedRed_TOG		LedRed ^= ON;
-#define LedBlue_TOG		LedBlue ^= ON;
-#define Beeper_OFF		Beeper = OFF;
-#define Beeper_ON		Beeper = ON;
-#define Beeper_TOG		Beeper ^= ON;
-
-#endif	/* BOARD_3_0 */
-
-#ifdef BOARD_3_1
 
 #define LedYellow	LED6
 #define LedGreen	LED4
@@ -157,9 +112,6 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define Beeper_ON		SwitchLedsOn(Beeper);
 #define Beeper_TOG		if( (LedShadow&Beeper) == 0 ) SwitchLedsOn(Beeper); else SwitchLedsOff(Beeper);
 
-#endif	/* BOARD_3_1 */
-
-
 bit	_NoSignal		@Flags.0;	// if no valid signal is received
 bit	_Flying			@Flags.1;	// UFO is flying
 bit _NewValues		@Flags.2;	// new RX channel values sampled
@@ -168,6 +120,20 @@ bit _NegIn			@Flags.4;	// negative signed input (serial.c)
 bit _LowBatt		@Flags.5;	// if Batt voltage is low
 bit	_UseLISL		@Flags.6;	// 1 if LISL Sensor is used
 bit _SerEnabled		@Flags.7;	// 1 if RS232 is enabled
+
+#define COMPASS_I2C_ID	0x42	/* I2C slave address */
+
+// baro (altimeter) sensor
+#define BARO_I2C_ID			0xee
+#define BaroTemp_BMP085	0x2e
+#define BaroTemp_SMD500	0x6e
+#define BARO_PRESS			0xf4
+#define BARO_CTL			0xf4
+#define BARO_ADC_MSB		0xf6
+#define BARO_ADC_LSB		0xf7
+#define BARO_TYPE			0xd0
+//#define BARO_ID_SMD500		??
+#define BARO_ID_BMP085		0x55
 
 
 // LISL-Register mapping

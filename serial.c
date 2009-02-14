@@ -290,11 +290,11 @@ void ShowSetup(uns8 W)
 	else
 		SendComText(_SerLSnone);
 
-#ifdef BOARD_3_1
+
 // check for compass device
 	SendComText(_SerCompass);	// send hello message
 	I2CStart();
-	if( SendI2CByte(0x42) == I2C_ACK ) 
+	if( SendI2CByte(COMPASS_I2C_ID) == I2C_ACK ) 
 		SendComText(_SerLSavail);
 	else
 		SendComText(_SerLSnone);
@@ -303,13 +303,12 @@ void ShowSetup(uns8 W)
 // check for altimeter device
 	SendComText(_SerAlti);	// send hello message
 	I2CStart();
-	if( SendI2CByte(0xee) == I2C_ACK ) 
+	if( SendI2CByte(BARO_I2C_ID) == I2C_ACK ) 
 		SendComText(_SerLSavail);
 	else
 		SendComText(_SerLSnone);
 	I2CStop();
 
-#endif
 	ShowPrompt();
 }
 
@@ -348,7 +347,6 @@ void ProcessComCommand(void)
 			AnalogTest();
 			ShowPrompt();
 			break;
-#ifdef BOARD_3_1
 		case 'L' :	// linear sensor
 			SendComText(_SerLinTst);
 			if( _UseLISL )
@@ -377,9 +375,7 @@ void ProcessComCommand(void)
 		case 'H':	// barometer
 			BaroTest();
 			ShowPrompt();
-			break;
-
-#endif	
+			break;	
 		case 'S' :	// show status
 			ShowSetup(0);
 //			ShowPrompt();
@@ -397,9 +393,8 @@ void ProcessComCommand(void)
 		case '5':
 		case '6':
 		case '7':
-#ifdef BOARD_3_1
 		case '8':
-#endif
+
 			SendComText(_SerPowTst);
 			SendComChar(chcmd);
 			SendComChar(':');
@@ -411,13 +406,8 @@ void ProcessComCommand(void)
 				case '4': SendComText(_SerPowGreen); break;
 				case '5': SendComText(_SerPowAux1);  break;
 				case '6': SendComText(_SerPowYellow);break;
-#ifdef BOARD_3_0
-				case '7': SendComText(_SerPowBeep);  break;
-#endif
-#ifdef BOARD_3_1
 				case '7': SendComText(_SerPowAux3);  break;
 				case '8': SendComText(_SerPowBeep);  break;
-#endif
 			}
 			SendComCRLF();
 			PowerOutput(chcmd-'1');

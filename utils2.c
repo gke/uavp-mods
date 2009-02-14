@@ -71,8 +71,6 @@ void AcqTime(void)
 	while( GO ) ;	// wait to complete
 }
 
-
-#ifdef BOARD_3_1
 //
 // The LED routines, only needed for 
 // PCB revision 3.1 (registered power driver TPIC6B595N)
@@ -115,4 +113,4 @@ void SwitchLedsOff(uns8 W)
 	SendLeds();
 }
 
-#endif /* BOARD_3_1 */
+

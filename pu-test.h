@@ -35,8 +35,6 @@
 //
 // select your board version here
 // DO NOT FORGET TO SET THE SAME DEFINE IN BOTLOADER.ASM!!!
-//#define BOARD_3_0
-//#define BOARD_3_1
 //
 // Only one of the following 2 defines must be activated:
 // When using 3 ADXRS300 or -150 gyros
@@ -59,12 +57,7 @@
 
 
 // Board version
-#ifdef BOARD_3_0
-#define Version	"3.04"
-#endif
-#ifdef BOARD_3_1
-#define Version	"3.14"
-#endif
+#define Version	"3.14m3"
 
 
 // ==============================================
@@ -75,10 +68,7 @@
 extern	shrBank	uns8	Flags;
 extern	shrBank	uns8	RecFlags;	// Interrupt save registers for FSR
 
-
-#ifdef BOARD_3_1
 extern	shrBank	uns8	LedShadow;	// shadow register
-#endif
 
 extern	shrBank	uns8	ConfigReg;
 bit NegativePPM		@ConfigReg.0;
@@ -149,13 +139,6 @@ extern	bank1	uns16	nilgval;
 #endif
 #if !defined OPT_ADXRS && !defined OPT_IDG
 #error OPT_ADXRS and OPT_IDG both not set!
-#endif
-
-#if defined BOARD_3_0 && defined BOARD_3_1
-#error BOARD_3_0 and BOARD_3_1 set!
-#endif
-#if !defined BOARD_3_0 && !defined BOARD_3_1
-#error BOARD_3_0 and BOARD_3_1 both not set!
 #endif
 
 // Parameters for UART port
@@ -266,7 +249,6 @@ extern	page1	void TogglePPMPolarity(void);
 
 extern	page1	void Delay100mS(uns8);
 extern	page1	void AcqTime(void);
-#ifdef BOARD_3_1
 extern	page1	void SendLeds(void);
 extern	page1	void SwitchLedsOn(uns8);
 extern	page1	void SwitchLedsOff(uns8);
@@ -278,15 +260,12 @@ extern	page1	void I2CStart(void);
 extern	page1	void I2CStop(void);
 extern	page1	uns8 SendI2CByte(uns8);
 extern	page1	uns8 RecvI2CByte(uns8);
-#endif
 extern	page1	void PowerOutput(uns8);
 extern	page2	void SendComText(uns8);
 
 // Bank 2
 extern	page2	void IsLISLactive(void);
-#ifdef BOARD_3_1
 extern	page2	void LinearTest(void);
-#endif
 
 // End of pu-test.h
 

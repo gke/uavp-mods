@@ -38,16 +38,6 @@ void PowerOutput(uns8 niout)
 	for( nij=0; nij < 10; nij++ )	// 10 flashes (count MUST be even!)
 	{
 	
-#ifdef BOARD_3_0
-		if (niout == 0 ) PORTB.7 ^= 1; else	// toggle AUX
-		if (niout == 1 ) PORTC.3 ^= 1; else	// toggle BLUE
-		if (niout == 2 ) PORTC.4 ^= 1; else	// toggle RED
-		if (niout == 3 ) PORTC.1 ^= 1; else	// toggle GREEN
-		if (niout == 4 ) PORTC.5 ^= 1; else	// toggle AUX
-		if (niout == 5 ) PORTC.0 ^= 1; else	// toggle YELLOW
-		if (niout == 6 ) PORTB.6 ^= 1; 		// toggle BEEPER
-#endif
-#ifdef BOARD_3_1
 		if (niout == 0 ) LedShadow ^= 0x01; else 	// toggle AUX
 		if (niout == 1 ) LedShadow ^= 0x02; else 	// toggle BLUE
 		if (niout == 2 ) LedShadow ^= 0x04; else 	// toggle RED
@@ -56,11 +46,8 @@ void PowerOutput(uns8 niout)
 		if (niout == 5 ) LedShadow ^= 0x20; else 	// toggle YELLOW
 		if (niout == 7 ) LedShadow ^= 0x40; else 	// toggle AUX
 		if (niout == 7 ) LedShadow ^= 0x80; 		// toggle BEEPER
-#endif
-		
-#ifdef BOARD_3_1
+
 		SendLeds();	// send LEDs to bus
-#endif
 		for( nii=0; nii < 200; nii++)
 		{
 			T0IF = 0;

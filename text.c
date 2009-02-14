@@ -45,23 +45,21 @@ const char page2 SerHello[] = "\r\nU.A.V.P. TESTSOFTWARE V" Version " Copyright 
 #ifdef OPT_IDG
 							  "1x ADXRS300, 1x IDG300\r\n"
 #endif
-							  "Linear sensors \0"
+							  "Linear sensor \0"
 /* SerLSavail */			  "ONLINE\r\n\0"
 /* SerLSnone */				  "not available\r\n\0"
 
-/* SerCompass */			  "Compass sensor \0"
-/* SerAlti */   			  "Altimeter sensor \0"
+/* SerCompass */			  "Compass \0"
+/* SerAlti */   			  "Barometer \0"
 
 /* SerHelp */  				  "\r\nCommands:\r\n"
 							  "A....analog voltages\r\n"
 							  "B....call Bootloader\r\n"
-#ifdef BOARD_3_1
 							  "C....Compass test\r\n"
 							  "K....Calibrate Compass sensor\r\n"
 							  "I....I2C sensor bus scan\r\n"
 							  "L....Linear sensor test\r\n"
 							  "H....Barometer sensor test\r\n"
-#endif
 							  "N....negated RX-PPM\r\n"
 							  "R....RX test\r\n"
 							  "S....Show setup\r\n"
@@ -69,12 +67,7 @@ const char page2 SerHello[] = "\r\nU.A.V.P. TESTSOFTWARE V" Version " Copyright 
 #ifdef ESC_YGEI2C
 							  "Y....Configure YGE I2C ESCs\r\n"
 #endif
-#ifdef BOARD_3_0
-							  "1-7.."
-#endif
-#ifdef BOARD_3_1
 							  "1-8.."
-#endif
 /* CAUTION: The following line MUST REMAIN THE LAST in that help string!
             This is for UAVPset to correctly read the available commands! */
 							  "Power output test\r\n\0"
