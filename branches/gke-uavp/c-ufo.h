@@ -1,6 +1,5 @@
 
 #define BARO_HARD_FILTER
-#define	BARO_ALARM
 
 #ifndef BATCHMODE
 // ==============================================
@@ -155,7 +154,7 @@ extern	bank2	uns8	NeutralLR, NeutralFB, NeutralUD;
 //extern	bank1	long	LRSumPosi, FBSumPosi;
 extern	bank1	int		NegFact; // general purpose
 
-extern	shrBank	uns8	BlinkCount, BaroCount;
+extern	shrBank	uns8	BlinkCount, BlinkCycle, BaroCount;
 
 extern	bank0	long	niltemp1;
 extern	bank0	int		Rw,Pw;	// angles
@@ -164,11 +163,11 @@ extern	bank1	long	niltemp;
 int		nitemp @ niltemp;
 				
 // Variables for barometric sensor PD-controller
-extern	bank0	uns16	BasePressure, BaseTemp;
-extern	bank0	uns16	TempCorr;
+extern	bank0	uns16	BaroBasePressure, BaroBaseTemp;
+extern	bank0	uns16	BaroRelTempCorr;
 extern	bank1	int	VBaroComp;
-extern  bank0	long    BaroRelPressure;
-extern	bank2	uns8	BaroType, BaroTemp;
+extern  bank0	int    BaroRelPressure;
+extern	bank2	uns8	BaroType, BaroTemp, BaroRestarts;
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
 // These variables MUST keep their order!!!
@@ -322,7 +321,8 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 #define MAXDROPOUT	200	// max 200x 20ms = 4sec. dropout allowable
 
 // Counter for flashing Low-Power LEDs
-#define BLINK_LIMIT 100	// should be a nmbr dividable by 4!
+#define BLINK_LIMIT 100	// should be a number dividable by 4!
+#define BLINK_CYCLES 10
 
 // Parameters for UART port
 
@@ -344,7 +344,9 @@ extern	page0	void BootStart(void);
 extern	page0	void OutSignals(void);
 extern	page0	void GetGyroValues(void);
 extern	page0	void CalcGyroValues(void);
-extern	page1	void GetVbattValue(void);
+extern	page1	void CheckBattery(void);
+extern	page1	void CheckAlarms(void);
+extern	page1	void UpdateBlinkCount(void);
 extern	page3	void SendComValH(uns8);
 extern	page3	void SendComChar(char);
 extern	page3	void ShowSetup(uns8);
@@ -366,7 +368,7 @@ extern	page1	void AddUpFBArr(uns8);
 extern	page1	void AcqTime(void);
 extern	page1	void MixAndLimit(void);
 extern	page0	void MixAndLimitCam(void);
-extern	page1	void Delay100mS(uns8);
+extern	page1	void Delay10mS(uns8);
 
 extern	page1	void SendLeds(void);
 extern	page1	void SwitchLedsOn(uns8);

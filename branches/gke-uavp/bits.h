@@ -99,21 +99,21 @@ bit	I2C_CIO			@TRISB.7;
 
 #define ARE_ALL_LEDS_OFF if((LedShadow&(LedBlue|LedRed|LedGreen|LedYellow))==0)
 
-#define LedRed_ON		SwitchLedsOn(LedRed);
-#define LedBlue_ON		SwitchLedsOn(LedBlue);
-#define LedGreen_ON		SwitchLedsOn(LedGreen);
-#define LedYellow_ON	SwitchLedsOn(LedYellow);
-#define LedAUX1_ON		SwitchLedsOn(LedAUX1);
-#define LedAUX2_ON		SwitchLedsOn(LedAUX2);
-#define LedAUX3_ON		SwitchLedsOn(LedAUX3);
-#define LedRed_OFF		SwitchLedsOff(LedRed);
-#define LedBlue_OFF		SwitchLedsOff(LedBlue);
-#define LedGreen_OFF	SwitchLedsOff(LedGreen);
-#define LedYellow_OFF	SwitchLedsOff(LedYellow);
-#define LedRed_TOG		if( (LedShadow&LedRed) == 0 ) SwitchLedsOn(LedRed); else SwitchLedsOff(LedRed);
-#define LedBlue_TOG		if( (LedShadow&LedBlue) == 0 ) SwitchLedsOn(LedBlue); else SwitchLedsOff(LedBlue);
-#define Beeper_OFF		SwitchLedsOff(Beeper);
-#define Beeper_ON		SwitchLedsOn(Beeper);
+#define LedRed_ON		SwitchLedsOn(LedRed)
+#define LedBlue_ON		SwitchLedsOn(LedBlue)
+#define LedGreen_ON		SwitchLedsOn(LedGreen)
+#define LedYellow_ON	SwitchLedsOn(LedYellow)
+#define LedAUX1_ON		SwitchLedsOn(LedAUX1)
+#define LedAUX2_ON		SwitchLedsOn(LedAUX2)
+#define LedAUX3_ON		SwitchLedsOn(LedAUX3)
+#define LedRed_OFF		SwitchLedsOff(LedRed)
+#define LedBlue_OFF		SwitchLedsOff(LedBlue)
+#define LedGreen_OFF	SwitchLedsOff(LedGreen)
+#define LedYellow_OFF	SwitchLedsOff(LedYellow)
+#define LedRed_TOG		if( (LedShadow&LedRed) == 0 ) SwitchLedsOn(LedRed); else SwitchLedsOff(LedRed)
+#define LedBlue_TOG		if( (LedShadow&LedBlue) == 0 ) SwitchLedsOn(LedBlue); else SwitchLedsOff(LedBlue)
+#define Beeper_OFF		SwitchLedsOff(Beeper)
+#define Beeper_ON		SwitchLedsOn(Beeper)
 #define Beeper_TOG		if( (LedShadow&Beeper) == 0 ) SwitchLedsOn(Beeper); else SwitchLedsOff(Beeper);
 
 // compass sensor
@@ -155,9 +155,9 @@ bit _OutToggle		@Flags2.2;	// cam servos only evers 2nd output pulse
 bit _UseCh7Trigger	@Flags2.3;	// 1: don't use Ch7
 								// 0: use Ch7 as Cam Roll trim
 bit _TrigSign		@Flags2.4;	// used in trig.c
-
-bit _IntIsMasked		@Flags2.6;	// Masking of Rx edge interrupt
-bit _RxFrameOK		@Flags2.7;	// Rx Frame may be bad
+bit _BaroRestart	@Flags2.5; // Baro restart required
+bit _IntIsMasked	@Flags2.6;	// Masking of Rx edge interrupt
+bit _LostModel		@Flags2.7;	// Rx timeout - model lost?
 
 // Mask Bits of ConfigParam
 bit FlyCrossMode 	@ConfigParam.0;

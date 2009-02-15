@@ -86,19 +86,19 @@ void ShowMode(uns8 Count, int size1 *pvalue)
 			LedYellow_ON;		// Yellow LED on
 			if( i >= 5 )
 			{
-				Delay100mS(6);
+				Delay10mS(60);
 				i -= 5;
 			}
 			else
 			{
-				Delay100mS(2);
+				Delay10mS(20);
 				i--;
 			}
 			LedYellow_OFF;
 			LedBlue_ON;		// Blue LED on
-			Delay100mS(3);
+			Delay10mS(30);
 		}
-		Delay100mS(5);
+		Delay10mS(50);
 		nv = v;
 		if( v < 0 )
 			nv = -v;
@@ -117,21 +117,21 @@ void ShowMode(uns8 Count, int size1 *pvalue)
 			}
 			if( i >= 5 )
 			{
-				Delay100mS(6);		// long flash for 5 units
+				Delay10mS(60);		// long flash for 5 units
 				i -= 5;
 			}
 			else
 			{
-				Delay100mS(2);		// short flash for 1 unit
+				Delay10mS(20);		// short flash for 1 unit
 				i--;
 			}
 			LedGreen_OFF;
 			LedRed_OFF;		// Leds off
 			LedBlue_ON;		// blue LED on
-			Delay100mS(3);
+			Delay10mS(30);
 		}
 
-		Delay100mS(20);	// 2 sec wait
+		Delay10mS(200);	// 2 sec wait
 
 		if( IGas > _ProgUp )
 			v++;
@@ -155,7 +155,7 @@ void DoProgMode(void)
 	if( IK5 > _Neutral )
 		LedRed_ON;	// set #2
 
-	Delay100mS(50);	// time to put throttle back to neutral
+	Delay10mS(250);	Delay10mS(250); // time to put throttle back to neutral
 
 	p = &FirstProgReg;
 	for(i = 1; p<=&LastProgReg; i++)
@@ -168,7 +168,7 @@ void DoProgMode(void)
 	// signal prog mode: 5 seconds blue flashing
 	for(i=0; i<50; i++)
 	{
-		Delay100mS(1);	// time 1/10 sec
+		Delay10mS(10);	// time 1/10 sec
 		LedBlue_TOG;	// toggle LED
 		if( IK5 > _Neutral )
 			LedRed_TOG;	// set #2
@@ -177,7 +177,7 @@ void DoProgMode(void)
 	if( IGas > _ThresStart )
 	{
 		ALL_LEDS_ON;	//  = white color
-		Delay100mS(10);
+		Delay10mS(100);
 		// prog values into data flash
 		EEPGD = 0;		// access data eeprom
 		WREN = 1;		// enable eeprom writes

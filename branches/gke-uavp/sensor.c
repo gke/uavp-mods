@@ -286,6 +286,12 @@ uns8 ReadValueFromBaro(void)
 RVerror:
 	I2CStop();
 	_UseBaro = 0;	// read error, disable baro
+	if ( BaroRestarts < 100 )
+	{
+		InitAltimeter();
+		_BaroRestart = 1;
+		BaroRestarts++;
+	}
 	return(I2C_ACK);
 }
 
@@ -340,26 +346,24 @@ void InitAltimeter(void)
 	// set baro device to start temperature conversion
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	
-	Delay100mS(1);	// should be enough!
+	Delay10mS(10);
 
 	ReadValueFromBaro();
 
-	BaseTemp = niltemp;	// save start value
+	BaroBaseTemp = niltemp;	// save start value
 		
 	// read pressure once to get base value
 	// set baro device to start pressure conversion
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 
-	Delay100mS(1);
+	Delay10mS(30);
 
 	ReadValueFromBaro();
  	
-	BasePressure = niltemp;
+	BaroBasePressure = niltemp;
 
 	_UseBaro = 1;
 
-	// prepare for next run
-	//	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	return;
 
 BAerror:
@@ -383,11 +387,11 @@ void ComputeBaroComp(void)
 			if( _BaroTempRun )
 			{
 				if( ThrDownCount )
-					BaseTemp = niltemp; // current read value
-				else // TempCorr: The warmer, the higher
+					BaroBaseTemp = niltemp; // current read value
+				else // BaroRelTempCorr: The warmer, the higher
 				{
-					TempCorr = niltemp - BaseTemp;
-					//TempCorr += 4;	// compensate rounding error later /8
+					BaroRelTempCorr = niltemp - BaroBaseTemp;
+					//BaroRelTempCorr += 4;	// compensate rounding error later /8
 				}
 				StartBaroADC(BARO_PRESS);	// next is pressure
 			}
@@ -397,21 +401,16 @@ void ComputeBaroComp(void)
 				if( ThrDownCount )	// while moving throttle stick
 				{
 					// not filtered
-					BasePressure = niltemp;	// current read value is the new level
+					BaroBasePressure = niltemp;	// current read value is the new level
 					BaroRelPressure = 0;
 				}
 				else
 				{	// while holding altitude
-					niltemp -= BasePressure;
-	
-#ifdef BARO_ALARM
-Beeper_ON;
-#endif
+					niltemp -= BaroBasePressure;
 					// niltemp1 has -400..+400 approx
-					niltemp1 = (long)TempCorr * (long)BaroTempCoeff;
+					niltemp1 = (long)BaroRelTempCorr * (long)BaroTempCoeff;
 					niltemp1 += 16;
 					niltemp1 /= 32;
-
 
 					niltemp += niltemp1;	// compensating temp
 					// the corrected relative height, the higher alti, the lesser valu
@@ -419,27 +418,20 @@ Beeper_ON;
 					niltemp1 = niltemp;	// because of bank bits
 					niltemp = BaroRelPressure;	// remember old value for delta
 
-					if ( BaroType != BARO_ID_BMP085 )
-					{
 #ifdef BARO_HARD_FILTER
-						// New Baro = (7*OldBaroPressure + NewBaroPressure + 4)/8
-						BaroRelPressure *= 7;
-						BaroRelPressure += niltemp1;
-						BaroRelPressure += 4;	// rounding
-						BaroRelPressure >>= 3;	// div by 8
+					// New Baro = (7*OldBaroPressure + NewBaroPressure + 4)/8
+					BaroRelPressure *= 7;
+					BaroRelPressure += niltemp1;
+					BaroRelPressure += 4;	// rounding
+					BaroRelPressure /= 8;	// div by 8
 
 #else
-						// New Baro = (3*OldBaroPressure + NewBaroPressure + 2)/4
-						BaroRelPressure *= 3;
-						BaroRelPressure += niltemp1;
-						BaroRelPressure += 2;	// rounding
-						BaroRelPressure >>= 2;	// div by 4
-					
+					// New Baro = (3*OldBaroPressure + NewBaroPressure + 2)/4
+					BaroRelPressure *= 3;
+					BaroRelPressure += niltemp1;
+					BaroRelPressure += 2;	// rounding
+					BaroRelPressure /= 4;	// div by 4					
 #endif
-					}
-					else
-						BaroRelPressure = niltemp1;
-
 					niltemp1 = BaroRelPressure - niltemp;	// subtract new height to get delta
 
 					#ifdef INTTEST
@@ -448,8 +440,8 @@ Beeper_ON;
 					SendComValH(BaroRelPressure.high8);
 					SendComValH(BaroRelPressure.low8);	// current height
 					SendComChar(';');
-					SendComValH(TempCorr.high8);
-					SendComValH(TempCorr.low8);	// current temp
+					SendComValH(BaroRelTempCorr.high8);
+					SendComValH(BaroRelTempCorr.low8);	// current temp
 					SendComChar(';');
 					SendComValH(niltemp1.low8);		// delta height
 					SendComChar(';');
@@ -501,9 +493,6 @@ Beeper_ON;
 					SendComChar(0x0d);
 					SendComChar(0x0a);
 					#endif
-#ifdef BARO_ALARM
-Beeper_OFF;
-#endif	
 				}
 				StartBaroADC(BaroTemp);	// next is temp
 			}
@@ -514,9 +503,9 @@ Beeper_OFF;
 	if( BlinkCount == 1 )
 	{
 		if( BaroRelPressure > 0 )
-			BasePressure++;
+			BaroBasePressure++;
 		if( BaroRelPressure < 0 )
-			BasePressure--;	
+			BaroBasePressure--;	
 	}
 	#endif
 

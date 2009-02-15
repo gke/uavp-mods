@@ -66,16 +66,16 @@ int		LRIntKorr, FBIntKorr;
 uns8	NeutralLR, NeutralFB, NeutralUD;
 
 int		NegFact; // general purpose
-uns8	BlinkCount, BaroCount;
+uns8	BlinkCount, BlinkCycle, BaroCount;
 long	niltemp1;
 long	niltemp;
 int		BatteryVolts; // added by Greg Egan
 int		Rw,Pw;
 
-uns16	BasePressure, BaseTemp, TempCorr;
+uns16	BaroBasePressure, BaroBaseTemp, BaroRelTempCorr;
 int		VBaroComp;
-long 	BaroRelPressure;
-uns8	BaroType, BaroTemp;
+int 	BaroRelPressure;
+uns8	BaroType, BaroTemp, BaroRestarts;
 
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
@@ -184,7 +184,7 @@ void main(void)
 	InitArrays();
 
 	LedRed_ON;		// red LED on
-	Delay100mS(1);	// wait 1/10 sec until LISL is ready to talk
+	Delay10mS(10);	// wait 1/10 sec until LISL is ready to talk
 
 	#ifdef USE_ACCSENS
 	IsLISLactive();
@@ -208,7 +208,7 @@ void main(void)
 	ThrNeutral = 0xFF;
 
 	// send hello text to serial COM
-	Delay100mS(1);	// just to see the output after powerup
+	Delay10mS(10);	// just to see the output after powerup
 
 
 	InitDirection();	// init compass sensor
@@ -220,6 +220,7 @@ void main(void)
 
 Restart:
 	IGas =IK5 = _Minimum;	// assume parameter set #1
+	Beeper_OFF;
 
 	// DON'T MOVE THE UFO!
 	// ES KANN LOSGEHEN!
@@ -227,7 +228,7 @@ Restart:
 	while(1)
 	{
 		T0IE = 0;		// disable TMR0 interrupt
-		Beeper_OFF;
+
 		ALL_LEDS_OFF;
 		LedRed_ON;		// red LED on
 		if(_UseLISL)
@@ -243,7 +244,7 @@ Restart:
 		DropoutCount = MODELLOSTTIMER;
 		do
 		{
-			Delay100mS(2);	// wait 2/10 sec until signal is there
+			Delay10mS(20);	// wait 2/10 sec until signal is there
 			ProcessComCommand();
 			if( _NoSignal )
 			{
@@ -251,22 +252,21 @@ Restart:
 				{
 					if( --DropoutCount == 0 )
 					{
-						Beeper_TOG;	// toggle beeper "model lost"
+						_LostModel = 1;
 						DropoutCount = MODELLOSTTIMERINT;
 					}
 				}
 				else
-					Beeper_OFF;
+					_LostModel = 0;
 			}
 		}
 		while( _NoSignal || !Switch);	// no signal or switch is off
-		Beeper_OFF;
 
 		// RX Signal is OK now
 		// Wait 2 sec to allow enter of prog mode
 		LedRed_OFF;
 		LedYellow_ON;	
-		Delay100mS(20);
+		Delay10mS(200);
 		LedYellow_OFF;
 
 		// die Variablen einlesen
@@ -311,6 +311,8 @@ Restart:
 		// standard ESCs will need at least 9 or 10 as TimeSlot.
 		DropoutCount = 0;
 		BlinkCount = 0;
+		BlinkCycle = 0;			// number of full blink cycles
+
 		IntegralCount = 16;	// do 16 cycles to find integral zero point
 
 		ThrDownCount = THR_DOWNCOUNT;
@@ -350,9 +352,7 @@ Restart:
 			ReadEEdata();	// re-sets TimeSlot
 
 			// Setup Blink counter
-			if( BlinkCount == 0 )
-				BlinkCount = BLINK_LIMIT;
-			BlinkCount--;
+			UpdateBlinkCount();
 
 			// get the gyro values and Batt status
 			CalcGyroValues();
@@ -360,12 +360,12 @@ Restart:
 			// check for signal dropout while in flight
 			if( _NoSignal && _Flying )
 			{
-				if( (BlinkCount & 0x07) == 0 )
-					Beeper_TOG;
-				if( (BlinkCount & 0x0F) == 0 )
+				if( (BlinkCount & 0x0f) == 0 )
 					DropoutCount++;
 				if( DropoutCount < MAXDROPOUT )
-				{	// use last throttle
+				{	
+					// hold last throttle
+					_LostModel = 1;
 					ALL_LEDS_OFF;
 					IRoll = RollNeutral;
 					IPitch = PitchNeutral;
@@ -428,8 +428,7 @@ Restart:
 				}
 
 				_Flying = 1;
-				if( DropoutCount )
-					Beeper_OFF;	// turn off signal lost beeper
+				_LostModel = 0;
 				DropoutCount = 0;
 				LowGasCount = 100;
 					
@@ -512,7 +511,8 @@ DoPID:
 			MixAndLimitCam();
 			OutSignals();
 
-			GetVbattValue();
+			CheckBattery();
+			CheckAlarms();
 
 			#ifdef DEBUG_SENSORS
 			if( IntegralCount == 0 )
@@ -525,7 +525,6 @@ DoPID:
 		}	// END NORMAL OPERATION WHILE LOOP
 
 		// CPU kommt hierher wenn der Schalter ausgeschaltet wird
-		Beeper_OFF;
 	}
 	// CPU does /never/ arrive here
 	//	ALL_OUTPUTS_OFF;
