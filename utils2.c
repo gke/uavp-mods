@@ -36,28 +36,25 @@ static bank1 int i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delay100mS(uns8 dur)
-{
-	bank0	uns8 k;
+void Delay10mS(uns8 dur)
+{ // max 255x10mS
+	bank0	uns8 i;
 
 	// a TMR0 Timeout is 0,25us * 256 * 16 (presc) = 1024 us
 	TMR0 = 0;
 
-	for(k = 0; k < 10; k++)
+	for(i = 0; i < dur; i++)
 	{
-		for(i = 0; i < dur; i++)
+		// wait ca. 10ms (10*1024us (see _Prescale0)) before outputting
+		for( W = 10; W != 0; W-- )
 		{
-// wait ca. 10ms (10*1024us (see _Prescale0)) before outputting
-			for( W = 10; W != 0; W-- )
-			{
-				while( T0IF == 0 );
-				T0IF = 0;
-			}
-			OutSignals(); // 1-2 ms Duration
-			// break loop if a serial command is in FIFO
-			if( RCIF )
-				return;
+			while( T0IF == 0 );
+			T0IF = 0;
 		}
+		OutSignals(); // 1-2 ms Duration
+		// break loop if a serial command is in FIFO
+		if( RCIF )
+			return;
 	}
 }
 
@@ -155,6 +152,7 @@ void InitArrays(void)
 	YawSum = 0;
     RollSum = 0;
     PitchSum = 0;
+	BaroRestarts = 0;
 //	LRSum = 0;
 //	FBSum = 0;
 //	UDSum = 0;
@@ -177,7 +175,7 @@ void AcqTime(void)
 void GetEvenValues(void)
 {	// get the even values
 
-	Delay100mS(2);	// wait 1/10 sec until LISL is ready to talk
+	Delay10mS(20);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
 	Rp = 0;
 	Pp = 0;
@@ -215,7 +213,7 @@ void GetEvenValues(void)
 // Bit _LowBatt is set if voltage is below threshold
 // Modified by Ing. Greg Egan
 // Filter battery volts to remove ADC/Motor spikes and set _LoBatt alarm accordingly 
-void GetVbattValue(void)
+void CheckBattery(void)
 {
 	int NewBatteryVolts, Temp;
 
@@ -236,31 +234,69 @@ void GetVbattValue(void)
 	else
 		_LowBatt = 0;
 
-	if( _LowBatt )
-		{
-			if( BlinkCount < BLINK_LIMIT/2 )
-			{
-				Beeper_OFF;
-				LedRed_OFF;
-			}
-			else
-			{
-				Beeper_ON;
-				LedRed_ON;
-			}
-		}
-		else
-		{
-			Beeper_OFF;				
-			LedRed_OFF;
-		}
 	#endif // DEBUG_SENSORS
 }
 
-//
-// The LED routines, only needed for 
-// PCB revision 3.1 (registered power driver TPIC6B595N)
-//
+void CheckAlarms(void)
+{
+	if( _LowBatt )
+	{
+		if( BlinkCount < (BLINK_LIMIT/2) )
+		{
+			Beeper_ON;
+			LedRed_ON;
+		}
+		else
+		{
+			Beeper_OFF;
+			LedRed_OFF;
+		}
+	}
+	if ( _LostModel )
+	{
+		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle > (BLINK_CYCLES/2 )) )
+		{
+			Beeper_ON;
+			LedRed_ON;
+		}
+		else
+		{
+			Beeper_OFF;
+			LedRed_OFF;
+		}
+	}
+	if ( _BaroRestart )
+	{
+		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle == 0 ) )
+		{
+			Beeper_ON;
+			LedRed_ON;
+		}
+		else
+		{
+			Beeper_OFF;
+			LedRed_OFF;
+		}
+	}
+	else
+	{
+		Beeper_OFF;				
+		LedRed_OFF;
+	}
+} // CheckAlarms
+
+void UpdateBlinkCount(void)
+{
+	if( BlinkCount == 0 )
+		{
+			BlinkCount = BLINK_LIMIT;
+			if ( BlinkCycle == 0)
+				BlinkCycle = BLINK_CYCLES;
+			BlinkCycle--;
+		}
+	BlinkCount--;
+} // UpdateBlinkCount
+
 void SendLeds(void)
 {
 	uns8	nij@i;
