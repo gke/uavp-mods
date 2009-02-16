@@ -258,7 +258,6 @@ GAError:
 	#endif
 }
 
-
 // read temp & pressure values from baro sensor
 // return value= niltemp;
 // returns 1 if value is available
@@ -285,13 +284,16 @@ uns8 ReadValueFromBaro(void)
 
 RVerror:
 	I2CStop();
-	_UseBaro = 0;	// read error, disable baro
+	_UseBaro = 0; // read error, disable baro
+#ifdef BARO_RETRY
+	_Hovering = 0;	
 	if ( BaroRestarts < 100 )
 	{
 		InitAltimeter();
 		_BaroRestart = 1;
 		BaroRestarts++;
 	}
+#endif
 	return(I2C_ACK);
 }
 
@@ -346,20 +348,16 @@ void InitAltimeter(void)
 	// set baro device to start temperature conversion
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	
-	Delay10mS(10);
-
+	Delay10mS(1);
 	ReadValueFromBaro();
-
 	BaroBaseTemp = niltemp;	// save start value
 		
 	// read pressure once to get base value
 	// set baro device to start pressure conversion
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 
-	Delay10mS(30);
-
-	ReadValueFromBaro();
- 	
+	Delay10mS(3);
+	ReadValueFromBaro();	
 	BaroBasePressure = niltemp;
 
 	_UseBaro = 1;
@@ -367,7 +365,7 @@ void InitAltimeter(void)
 	return;
 
 BAerror:
-	_UseBaro = 0;
+	_UseBaro = _Hovering = 0;
 	I2CStop();
 }
 
@@ -397,15 +395,16 @@ void ComputeBaroComp(void)
 			}
 			else
 			{	// current measurement was "pressure"
-
 				if( ThrDownCount )	// while moving throttle stick
 				{
-					// not filtered
-					BaroBasePressure = niltemp;	// current read value is the new level
+					BaroBasePressure = niltemp;	
 					BaroRelPressure = 0;
+					_Hovering = 0;	
 				}
 				else
-				{	// while holding altitude
+				{
+					_Hovering = 1;
+					// while holding altitude
 					niltemp -= BaroBasePressure;
 					// niltemp1 has -400..+400 approx
 					niltemp1 = (long)BaroRelTempCorr * (long)BaroTempCoeff;
@@ -417,35 +416,21 @@ void ComputeBaroComp(void)
 
 					niltemp1 = niltemp;	// because of bank bits
 					niltemp = BaroRelPressure;	// remember old value for delta
-
 #ifdef BARO_HARD_FILTER
-					// New Baro = (7*OldBaroPressure + NewBaroPressure + 4)/8
+					// New  = (7*Old + New + 4)/8
 					BaroRelPressure *= 7;
 					BaroRelPressure += niltemp1;
 					BaroRelPressure += 4;	// rounding
 					BaroRelPressure /= 8;	// div by 8
 
 #else
-					// New Baro = (3*OldBaroPressure + NewBaroPressure + 2)/4
+					// New  = (3*Old + New + 2)/4
 					BaroRelPressure *= 3;
 					BaroRelPressure += niltemp1;
 					BaroRelPressure += 2;	// rounding
 					BaroRelPressure /= 4;	// div by 4					
 #endif
 					niltemp1 = BaroRelPressure - niltemp;	// subtract new height to get delta
-
-					#ifdef INTTEST
-					SendComChar('A');
-					SendComChar(';');
-					SendComValH(BaroRelPressure.high8);
-					SendComValH(BaroRelPressure.low8);	// current height
-					SendComChar(';');
-					SendComValH(BaroRelTempCorr.high8);
-					SendComValH(BaroRelTempCorr.low8);	// current temp
-					SendComChar(';');
-					SendComValH(niltemp1.low8);		// delta height
-					SendComChar(';');
-					#endif
 
 					// was: +10 and -5
 					if( BaroRelPressure > 8 ) // zu tief: ordentlich Gas geben
@@ -497,17 +482,6 @@ void ComputeBaroComp(void)
 				StartBaroADC(BaroTemp);	// next is temp
 			}
 		}
-
-	// eliminate static drift of baro sensor
-	#ifdef NADA
-	if( BlinkCount == 1 )
-	{
-		if( BaroRelPressure > 0 )
-			BaroBasePressure++;
-		if( BaroRelPressure < 0 )
-			BaroBasePressure--;	
-	}
-	#endif
 
 	#ifdef DEBUG_SENSORS	
 	if( IntegralCount == 0 )

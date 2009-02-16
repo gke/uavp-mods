@@ -1,5 +1,14 @@
+// EXPERIMENTAL
 
-#define BARO_HARD_FILTER
+// Attempts reconnection to the barometer if there is an I2C error
+// Mainly applicable to the BMP085.
+//#define BARO_RETRY
+
+// Increase the severity of the filter on the baromater pressure readings
+// may give better altitude hold ( New=(Old*7+New+4)/8) ).
+//#define BARO_HARD_FILTER
+
+
 
 #ifndef BATCHMODE
 // ==============================================
@@ -322,7 +331,7 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 
 // Counter for flashing Low-Power LEDs
 #define BLINK_LIMIT 100	// should be a number dividable by 4!
-#define BLINK_CYCLES 10
+#define BLINK_CYCLES 8
 
 // Parameters for UART port
 
