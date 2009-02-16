@@ -58,7 +58,6 @@ void Delay10mS(uns8 dur)
 	}
 }
 
-
 #ifdef DEBUGOUT
 // output a value on connector K5
 // for observation via an oscilloscope
@@ -66,7 +65,6 @@ void Delay10mS(uns8 dur)
 // MSB first
 void Out(uns8 l)
 {
-
 	for(i=0; i<8; i++)
 	{
 		PORTB.5=1;
@@ -130,13 +128,11 @@ void InitArrays(void)
 	MCamPitch = W;
 	MCamRoll = W;
 
-// bank 1
+	// bank 1
 	_Flying = 0;
 	REp = 0;
 	PEp = 0;
 	YEp = 0;
-//	LRSumPosi = 0;
-//	FBSumPosi = 0;
 	
 	Rp = 0;
 	Pp = 0;
@@ -146,16 +142,13 @@ void InitArrays(void)
 	BaroRelPressure = 0;
 	BaroCount = 0;
 	
-// bank 2
+	// bank 2
 	LRIntKorr = 0;
 	FBIntKorr = 0;
 	YawSum = 0;
     RollSum = 0;
     PitchSum = 0;
 	BaroRestarts = 0;
-//	LRSum = 0;
-//	FBSum = 0;
-//	UDSum = 0;
 }
 
 // used for A/D conversion to wait for
@@ -208,7 +201,6 @@ void GetEvenValues(void)
 	NeutralUD = Yp.low8;
 }
 
-
 // read accu voltage using 8 bit A/D conversion
 // Bit _LowBatt is set if voltage is below threshold
 // Modified by Ing. Greg Egan
@@ -241,8 +233,8 @@ void CheckAlarms(void)
 {
 	if( _LowBatt )
 	{
-		if( BlinkCount < (BLINK_LIMIT/2) )
-		{
+		if( BlinkCount < BLINK_LIMIT/2 )
+{
 			Beeper_ON;
 			LedRed_ON;
 		}
@@ -250,11 +242,12 @@ void CheckAlarms(void)
 		{
 			Beeper_OFF;
 			LedRed_OFF;
-		}
+		}	
 	}
+	else
 	if ( _LostModel )
 	{
-		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle > (BLINK_CYCLES/2 )) )
+		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle < (BLINK_CYCLES/4 )) )
 		{
 			Beeper_ON;
 			LedRed_ON;
@@ -263,8 +256,9 @@ void CheckAlarms(void)
 		{
 			Beeper_OFF;
 			LedRed_OFF;
-		}
+		}	
 	}
+	else
 	if ( _BaroRestart )
 	{
 		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle == 0 ) )
@@ -276,24 +270,25 @@ void CheckAlarms(void)
 		{
 			Beeper_OFF;
 			LedRed_OFF;
-		}
+		}	
 	}
 	else
 	{
 		Beeper_OFF;				
 		LedRed_OFF;
 	}
+
 } // CheckAlarms
 
 void UpdateBlinkCount(void)
 {
 	if( BlinkCount == 0 )
-		{
-			BlinkCount = BLINK_LIMIT;
-			if ( BlinkCycle == 0)
-				BlinkCycle = BLINK_CYCLES;
-			BlinkCycle--;
-		}
+	{
+		BlinkCount = BLINK_LIMIT;
+		if ( BlinkCycle == 0)
+			BlinkCycle = BLINK_CYCLES;
+		BlinkCycle--;
+	}
 	BlinkCount--;
 } // UpdateBlinkCount
 

@@ -112,6 +112,7 @@ bit	I2C_CIO			@TRISB.7;
 #define LedYellow_OFF	SwitchLedsOff(LedYellow)
 #define LedRed_TOG		if( (LedShadow&LedRed) == 0 ) SwitchLedsOn(LedRed); else SwitchLedsOff(LedRed)
 #define LedBlue_TOG		if( (LedShadow&LedBlue) == 0 ) SwitchLedsOn(LedBlue); else SwitchLedsOff(LedBlue)
+#define LedGreen_TOG	if( (LedShadow&LedGreen) == 0 ) SwitchLedsOn(LedGreen); else SwitchLedsOff(LedGreen)
 #define Beeper_OFF		SwitchLedsOff(Beeper)
 #define Beeper_ON		SwitchLedsOn(Beeper)
 #define Beeper_TOG		if( (LedShadow&Beeper) == 0 ) SwitchLedsOn(Beeper); else SwitchLedsOff(Beeper);
@@ -156,7 +157,7 @@ bit _UseCh7Trigger	@Flags2.3;	// 1: don't use Ch7
 								// 0: use Ch7 as Cam Roll trim
 bit _TrigSign		@Flags2.4;	// used in trig.c
 bit _BaroRestart	@Flags2.5; // Baro restart required
-bit _IntIsMasked	@Flags2.6;	// Masking of Rx edge interrupt
+bit _Hovering		@Flags2.6;	// QC is hovering
 bit _LostModel		@Flags2.7;	// Rx timeout - model lost?
 
 // Mask Bits of ConfigParam

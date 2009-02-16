@@ -137,12 +137,116 @@ int		RollNeutral, PitchNeutral, YawNeutral;
 uns8	ThrNeutral;
 uns8	ThrDownCount;
 
+uns8	DropoutCount;
+uns8	LedCount;
+
+void LedGame(void)
+{
+	if( --LedCount == 0 )
+	{
+		LedCount = 255-IGas;	// new setup
+		LedCount >>= 3;
+		LedCount += 5;
+		if( _Hovering )
+		{
+			AUX_LEDS_ON;	// baro locked, all aux-leds on
+		}
+		else
+		if( LedShadow & LedAUX1 )
+		{
+			AUX_LEDS_OFF;
+			LedAUX2_ON;
+		}
+		else
+		if( LedShadow & LedAUX2 )
+		{
+			AUX_LEDS_OFF;
+			LedAUX3_ON;
+		}
+		else
+		{
+			AUX_LEDS_OFF;
+			LedAUX1_ON;
+		}
+	}
+} // LedGame
+
+void WaitThrottleClosed(void)
+{
+	DropoutCount = 1;
+	while( (IGas >= _ThresStop) )
+	{
+		if ( _NoSignal)
+			break;
+		if( _NewValues )
+		{
+			OutSignals();
+			_NewValues = 0;
+			if( --DropoutCount <= 0 )
+			{
+				LedRed_TOG;	// toggle red Led 
+				DropoutCount = 10;		// to signal: THROTTLE OPEN
+			}
+		}
+		ProcessComCommand();
+	}
+	LedRed_OFF;
+} // WaitThrottleClosed
+
+void CheckThrottleMoved(void)
+{
+	if( _NewValues )
+	{
+		if( ThrDownCount > 0 )
+		{
+			if( LedCount.0 == 0 )
+				ThrDownCount--;
+			if( ThrDownCount == 0 )
+				ThrNeutral = IGas;	// remember current Throttle level
+		}
+		else
+		{
+			if( ThrNeutral < THR_MIDDLE )
+				NegFact = 0;
+			else
+				NegFact = ThrNeutral - THR_MIDDLE;
+			if( IGas < THR_HOVER )
+				ThrDownCount = THR_DOWNCOUNT;	// left dead area
+			if( IGas < NegFact )
+				ThrDownCount = THR_DOWNCOUNT;	// left dead area
+			if( IGas > ThrNeutral + THR_MIDDLE )
+				ThrDownCount = THR_DOWNCOUNT;	// left dead area
+		}
+	}
+} // CheckThrottleMoved
+
+void WaitForRxSignal(void)
+{
+	DropoutCount = MODELLOSTTIMER;
+	do
+	{
+		Delay10mS(20);	// wait 2/10 sec until signal is there
+		ProcessComCommand();
+		if( _NoSignal )
+		{
+			if( Switch )
+			{
+				if( --DropoutCount == 0 )
+				{
+					_LostModel = 1;
+					DropoutCount = MODELLOSTTIMERINT;
+				}
+			}
+			else
+				_LostModel = 0;
+		}
+	}
+	while( _NoSignal || !Switch);	// no signal or switch is off
+} // WaitForRXSignal
+
 void main(void)
 {
-	uns8	DropoutCount;
-	int		nii@NegFact;
 	uns8	LowGasCount;
-	uns8	LedCount;
 
 	OPTION_REG = 0b.00000.011;	// TMR0 w/ int clock, 1:16 presc (see _PreScale0),
 					// weak pullups on
@@ -203,13 +307,12 @@ void main(void)
 	CCP1IE = 1;
 	TMR2IE = 1;		// T1-Capture and T2 interrupt enable
 		
-	PEIE = 1;		// enable peripheral interrupts
+	PEIE = 1;		// Enable peripheral interrupts
 
 	ThrNeutral = 0xFF;
 
 	// send hello text to serial COM
 	Delay10mS(10);	// just to see the output after powerup
-
 
 	InitDirection();	// init compass sensor
 	InitAltimeter();
@@ -219,7 +322,7 @@ void main(void)
 	IK6 = IK7 = _Neutral;
 
 Restart:
-	IGas =IK5 = _Minimum;	// assume parameter set #1
+	IGas =IK5 = _Minimum;	// Assume parameter set #1
 	Beeper_OFF;
 
 	// DON'T MOVE THE UFO!
@@ -227,88 +330,31 @@ Restart:
 
 	while(1)
 	{
-		T0IE = 0;		// disable TMR0 interrupt
+		T0IE = 0;		// Disable TMR0 interrupt
 
 		ALL_LEDS_OFF;
-		LedRed_ON;		// red LED on
+		LedRed_ON;		// Red LED on
 		if(_UseLISL)
-			LedYellow_ON;	// to signal LISL sensor is active
+			LedYellow_ON;	// To signal LISL sensor is active
 
 		InitArrays();
 		ThrNeutral = 0xFF;
 
-		GIE = 1;		// enable all interrupts
+		GIE = 1;		// Enable all interrupts
+	
+		WaitForRxSignal(); // Wait until a valid RX signal is received
 
-		// Wait until a valid RX signal is received
-
-		DropoutCount = MODELLOSTTIMER;
-		do
-		{
-			Delay10mS(20);	// wait 2/10 sec until signal is there
-			ProcessComCommand();
-			if( _NoSignal )
-			{
-				if( Switch )
-				{
-					if( --DropoutCount == 0 )
-					{
-						_LostModel = 1;
-						DropoutCount = MODELLOSTTIMERINT;
-					}
-				}
-				else
-					_LostModel = 0;
-			}
-		}
-		while( _NoSignal || !Switch);	// no signal or switch is off
-
-		// RX Signal is OK now
-		// Wait 2 sec to allow enter of prog mode
-		LedRed_OFF;
-		LedYellow_ON;	
-		Delay10mS(200);
-		LedYellow_OFF;
-
-		// die Variablen einlesen
 		ReadEEdata();
 
-		#ifdef XMIT_PROG		
-		// check for prog mode (max. throttle)
-		if( IGas > _ProgMode ) 
-		{
-			DoProgMode();
+		WaitThrottleClosed();
+
+		if ( _NoSignal )
 			goto Restart;
-		}
-		#endif
-		// Just for safety: don't let motors start if throttle is open!
-		// check if Gas is below _ThresStop
 
-		DropoutCount = 1;
-		while( IGas >= _ThresStop )
-		{
-			if( _NoSignal )
-				goto Restart;
+		// ######## MAIN LOOP ########
 
-			if( _NewValues )
-			{
-				OutSignals();
-				_NewValues = 0;
-				if( --DropoutCount <= 0 )
-				{
-					LedRed_TOG;	// toggle red Led 
-					DropoutCount = 10;		// to signal: THROTTLE OPEN
-				}
-			}
-			ProcessComCommand();
-		}
-
-	
-		// ###############
-		// ## MAIN LOOP ##
-		// ###############
 		// loop length is controlled by a programmable variable "TimeSlot"
-		// which sets wait time in ms
-		// standard ESCs will need at least 9 or 10 as TimeSlot.
+
 		DropoutCount = 0;
 		BlinkCount = 0;
 		BlinkCycle = 0;			// number of full blink cycles
@@ -318,19 +364,18 @@ Restart:
 		ThrDownCount = THR_DOWNCOUNT;
 
 		// if Ch7 below +20 (near minimum) assume use for camera trigger
-		// else assume use for camera roll trim
-		
-		_UseCh7Trigger = IK7 > _Neutral;
+		// else assume use for camera roll trim	
+		_UseCh7Trigger = IK7 < 30;
 			
-		while(Switch == 1)	// as long as power switch is ON
+		while ( Switch == 1 )	// as long as power switch is ON
 		{
-		// wait pulse pause delay time (TMR0 has 1024us for one loop)
+			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			TMR0 = 0;
 			T0IF = 0;
 			T0IE = 1;	// enable TMR0
 
-			RollSamples =
-			PitchSamples = 0;	// zero gyros sum-up memory
+			UpdateBlinkCount();
+			RollSamples =PitchSamples = 0;	// zero gyros sum-up memory
 			// sample gyro data and add everything up while waiting for timing delay
 
 			GetGyroValues();
@@ -351,10 +396,6 @@ Restart:
 
 			ReadEEdata();	// re-sets TimeSlot
 
-			// Setup Blink counter
-			UpdateBlinkCount();
-
-			// get the gyro values and Batt status
 			CalcGyroValues();
 
 			// check for signal dropout while in flight
@@ -363,7 +404,7 @@ Restart:
 				if( (BlinkCount & 0x0f) == 0 )
 					DropoutCount++;
 				if( DropoutCount < MAXDROPOUT )
-				{	
+				{	// FAILSAFE	
 					// hold last throttle
 					_LostModel = 1;
 					ALL_LEDS_OFF;
@@ -382,10 +423,8 @@ Restart:
 			// allow motors to run on low throttle 
 			// even if stick is at minimum for a short time
 			if( _Flying && (IGas <= _ThresStop) )
-			{
 				if( --LowGasCount > 0 )
 					goto DoPID;
-			}
 
 			if( _NoSignal || 
 			    ( (_Flying && (IGas <= _ThresStop)) ||
@@ -403,9 +442,8 @@ Restart:
 				MidPitch = 0;
 				MidYaw = 0;
 				if( _NoSignal && Switch )	// _NoSignal set, but Switch is on?
-				{
 					break;	// then RX signal was lost
-				}
+
 				ALL_LEDS_OFF;				
 				AUX_LEDS_OFF;
 				LedGreen_ON;
@@ -415,10 +453,10 @@ Restart:
 			else
 			{	// UFO is flying!
 				if( !_Flying )	// about to start
-				{	// set current stick values as midpoints
+				{	// set current stick values as FAILSAFES
 					RollNeutral = IRoll;
 					PitchNeutral = IPitch;
-					YawNeutral  = IYaw;
+					YawNeutral = IYaw;
 
 					AbsDirection = COMPASS_INVAL;
 
@@ -430,69 +468,17 @@ Restart:
 				_Flying = 1;
 				_LostModel = 0;
 				DropoutCount = 0;
-				LowGasCount = 100;
-					
+				LowGasCount = 100;		
+				LedGreen_ON;
 
-				// LED game 
-				if( --LedCount == 0 )
-				{
-					LedCount = 255-IGas;	// new setup
-					LedCount >>= 3;
-					LedCount += 5;
-					if( _UseBaro && (ThrDownCount == 0) )
-					{
-						AUX_LEDS_ON;	// baro locked, all aux-leds on
-					}
-					else
-					if( LedShadow & LedAUX1 )
-					{
-						AUX_LEDS_OFF;
-						LedAUX2_ON;
-					}
-					else
-					if( LedShadow & LedAUX2 )
-					{
-						AUX_LEDS_OFF;
-						LedAUX3_ON;
-					}
-					else
-					{
-						AUX_LEDS_OFF;
-						LedAUX1_ON;
-					}
-				}
-
+				LedGame();
 
 DoPID:
 				// do the calculations
 				Rp = 0;
 				Pp = 0;
 
-
-				// this block checks if throttle stick has moved
-				if( _NewValues )
-				{
-					if( ThrDownCount > 0 )
-					{
-						if( LedCount.0 == 0 )
-							ThrDownCount--;
-						if( ThrDownCount == 0 )
-							ThrNeutral = IGas;	// remember current Throttle level
-					}
-					else
-					{
-						if( ThrNeutral < THR_MIDDLE )
-							NegFact = 0;
-						else
-							NegFact = ThrNeutral - THR_MIDDLE;
-						if( IGas < THR_HOVER )
-							ThrDownCount = THR_DOWNCOUNT;	// left dead area
-						if( IGas < NegFact )
-							ThrDownCount = THR_DOWNCOUNT;	// left dead area
-						if( IGas > ThrNeutral + THR_MIDDLE )
-							ThrDownCount = THR_DOWNCOUNT;	// left dead area
-					}
-				}
+				CheckThrottleMoved();
 
 				if(	IntegralCount > 0 )
 					IntegralCount--;
@@ -523,6 +509,8 @@ DoPID:
 			#endif			
 
 		}	// END NORMAL OPERATION WHILE LOOP
+
+		Beeper_OFF;
 
 		// CPU kommt hierher wenn der Schalter ausgeschaltet wird
 	}
