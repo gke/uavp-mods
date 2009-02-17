@@ -397,23 +397,20 @@ void ComputeBaroComp(void)
 					if( ThrDownCount )	// while moving throttle stick
 					{
 						BaroBasePressure = niltemp;	
-						BaroRelPressure = 0;
 						_Hovering = 0;	
 					}
 					else
 					{
-						_Hovering = 1;
+						if ( !_Hovering )
+						{
+							BaroRelPressure = 0;
+							_Hovering = 1;
+						}
 
 						#ifdef BARO_SCRATCHY_BEEPER
 						Beeper_TOG;
 						#endif
 						
-						#ifdef INTTEST
-						SendComValH(niltemp.high8);
-						SendComValH(niltemp.low8);
-						SendComChar(';');						
-						#endif
-
 						// while holding altitude
 						niltemp -= BaroBasePressure;
 						// niltemp1 has -400..+400 approx
@@ -442,17 +439,6 @@ void ComputeBaroComp(void)
 						#endif // BARO_HARD_FILTER
 	
 						niltemp1 = BaroRelPressure - niltemp;	// subtract new height to get delta
-
-						#ifdef INTTEST
-						SendComValH(BaroRelPressure.high8);
-						SendComValH(BaroRelPressure.low8);	// current height
-						SendComChar(';');
-						SendComValH(BaroRelTempCorr.high8);
-						SendComValH(BaroRelTempCorr.low8);	// current temp
-						SendComChar(';');
-						SendComValH(niltemp1.low8);		// delta height
-						SendComChar(';');
-						#endif
 
 						// was: +10 and -5
 						if( BaroRelPressure > 8 ) // zu tief: ordentlich Gas geben
@@ -489,18 +475,11 @@ void ComputeBaroComp(void)
 						nitemp = (int)niltemp1.low8 * BaroThrottleDiff;
 						VBaroComp += nitemp;
 	
-	
 						if( VBaroComp > 20 ) 		// 15
 							VBaroComp = 15;
 						if( VBaroComp < -10 ) 		// 5
 							VBaroComp = -10;
 							
-						#ifdef INTTEST
-						SendComValH(VBaroComp);
-						SendComChar(0x0d);
-						SendComChar(0x0a);
-						#endif
-	
 						#ifdef BARO_SCRATCHY_BEEPER
 						Beeper_TOG;
 						#endif
