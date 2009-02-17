@@ -9,7 +9,7 @@
 #define BARO_HARD_FILTER
 
 // Reinstated long term baro compensation on altitude error
-#define BARO_DRIFT_COMP
+//#define BARO_DRIFT_COMP
 
 // Make a "scratchy" beeper noise while altitude hold is engaged.
 #define BARO_SCRATCHY_BEEPER
