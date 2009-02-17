@@ -210,8 +210,10 @@ void CheckThrottleMoved(void)
 				NegFact = 0;
 			else
 				NegFact = ThrNeutral - THR_MIDDLE;
-			if( IGas < THR_HOVER )
+
+			if( IGas < THR_HOVER ) // no hovering below this throttle setting
 				ThrDownCount = THR_DOWNCOUNT;	// left dead area
+
 			if( IGas < NegFact )
 				ThrDownCount = THR_DOWNCOUNT;	// left dead area
 			if( IGas > ThrNeutral + THR_MIDDLE )

@@ -359,6 +359,7 @@ void InitAltimeter(void)
 	Delay10mS(3);
 	ReadValueFromBaro();	
 	BaroBasePressure = niltemp;
+	BaroRelPressure = VBaroComp = 0;
 
 	_UseBaro = 1;
 
@@ -380,108 +381,144 @@ void ComputeBaroComp(void)
 		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))	
 		{
 			BaroCount = 0;
-
-			r = ReadValueFromBaro(); 	// returns niltemp as value
-			if( _BaroTempRun )
+			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value
 			{
-				if( ThrDownCount )
-					BaroBaseTemp = niltemp; // current read value
-				else // BaroRelTempCorr: The warmer, the higher
+				if( _BaroTempRun )
 				{
-					BaroRelTempCorr = niltemp - BaroBaseTemp;
-					//BaroRelTempCorr += 4;	// compensate rounding error later /8
-				}
-				StartBaroADC(BARO_PRESS);	// next is pressure
-			}
-			else
-			{	// current measurement was "pressure"
-				if( ThrDownCount )	// while moving throttle stick
-				{
-					BaroBasePressure = niltemp;	
-					BaroRelPressure = 0;
-					_Hovering = 0;	
+					if( ThrDownCount )
+						BaroBaseTemp = niltemp; // current read value
+					else // BaroRelTempCorr: The warmer, the higher
+						BaroRelTempCorr = niltemp - BaroBaseTemp;
+	
+					StartBaroADC(BARO_PRESS);	// next is pressure
 				}
 				else
-				{
-					_Hovering = 1;
-					// while holding altitude
-					niltemp -= BaroBasePressure;
-					// niltemp1 has -400..+400 approx
-					niltemp1 = (long)BaroRelTempCorr * (long)BaroTempCoeff;
-					niltemp1 += 16;
-					niltemp1 /= 32;
-
-					niltemp += niltemp1;	// compensating temp
-					// the corrected relative height, the higher alti, the lesser valu
-
-					niltemp1 = niltemp;	// because of bank bits
-					niltemp = BaroRelPressure;	// remember old value for delta
-#ifdef BARO_HARD_FILTER
-					// New  = (7*Old + New + 4)/8
-					BaroRelPressure *= 7;
-					BaroRelPressure += niltemp1;
-					BaroRelPressure += 4;	// rounding
-					BaroRelPressure /= 8;	// div by 8
-
-#else
-					// New  = (3*Old + New + 2)/4
-					BaroRelPressure *= 3;
-					BaroRelPressure += niltemp1;
-					BaroRelPressure += 2;	// rounding
-					BaroRelPressure /= 4;	// div by 4					
-#endif
-					niltemp1 = BaroRelPressure - niltemp;	// subtract new height to get delta
-
-					// was: +10 and -5
-					if( BaroRelPressure > 8 ) // zu tief: ordentlich Gas geben
-						BaroRelPressure = 8;
-					if( BaroRelPressure < -3 ) // zu hoch: nur leicht nachlassen
-						BaroRelPressure = -3;
-	
-					// weiche Regelung (proportional)
-					// nitemp kann nicht überlaufen (-3..+8 * PropFact)
-	
-					// strictly this is acting more like an integrator 
-					// bumping VBaroComp up and down proportional to the error?
-	
-					nitemp = (int)BaroRelPressure.low8 * BaroThrottleProp;
-					if( VBaroComp > nitemp )
-						VBaroComp--;
+				{	// current measurement was "pressure"
+					if( ThrDownCount )	// while moving throttle stick
+					{
+						BaroBasePressure = niltemp;	
+						BaroRelPressure = 0;
+						_Hovering = 0;	
+					}
 					else
-					if( VBaroComp < nitemp )
-						VBaroComp++;
-	
-					if( VBaroComp > nitemp )
-						VBaroComp--;
-					else
-					if( VBaroComp < nitemp )
-						VBaroComp++;
-	
-					// Differentialanteil
-					if( niltemp1 > 8 )
-						niltemp1.low8 = 8;
-					else
-					if( niltemp1 < -8 )
-						niltemp1.low8 = -8;
+					{
+						_Hovering = 1;
+
+						#ifdef BARO_SCRATCHY_BEEPER
+						Beeper_TOG;
+						#endif
 						
-					nitemp = (int)niltemp1.low8 * BaroThrottleDiff;
-					VBaroComp += nitemp;
+						#ifdef INTTEST
+						SendComValH(niltemp.high8);
+						SendComValH(niltemp.low8);
+						SendComChar(';');						
+						#endif
 
+						// while holding altitude
+						niltemp -= BaroBasePressure;
+						// niltemp1 has -400..+400 approx
+						niltemp1 = (long)BaroRelTempCorr * (long)BaroTempCoeff;
+						niltemp1 += 16;
+						niltemp1 /= 32;
+	
+						niltemp += niltemp1;	// compensating temp
+						// the corrected relative height, higher altitude lower value
+	
+						niltemp1 = niltemp;	// because of bank bits
+						niltemp = BaroRelPressure;	// remember old value for delta
+	
+						#ifdef BARO_HARD_FILTER
+						// New  = (7*Old + New + 4)/8
+						BaroRelPressure *= 7;
+						BaroRelPressure += niltemp1;
+						BaroRelPressure += 4;	// rounding
+						BaroRelPressure /= 8;	// div by 8
+						#else
+						// New  = (3*Old + New + 2)/4
+						BaroRelPressure *= 3;
+						BaroRelPressure += niltemp1;
+						BaroRelPressure += 2;	// rounding
+						BaroRelPressure /= 4;	// div by 4					
+						#endif // BARO_HARD_FILTER
+	
+						niltemp1 = BaroRelPressure - niltemp;	// subtract new height to get delta
 
-					if( VBaroComp > 20 ) 		// 15
-						VBaroComp = 15;
-					if( VBaroComp < -10 ) 		// 5
-						VBaroComp = -10;
-						
-					#ifdef INTTEST
-					SendComValH(VBaroComp);
-					SendComChar(0x0d);
-					SendComChar(0x0a);
-					#endif
+						#ifdef INTTEST
+						SendComValH(BaroRelPressure.high8);
+						SendComValH(BaroRelPressure.low8);	// current height
+						SendComChar(';');
+						SendComValH(BaroRelTempCorr.high8);
+						SendComValH(BaroRelTempCorr.low8);	// current temp
+						SendComChar(';');
+						SendComValH(niltemp1.low8);		// delta height
+						SendComChar(';');
+						#endif
+
+						// was: +10 and -5
+						if( BaroRelPressure > 8 ) // zu tief: ordentlich Gas geben
+							BaroRelPressure = 8;
+						if( BaroRelPressure < -3 ) // zu hoch: nur leicht nachlassen
+							BaroRelPressure = -3;
+		
+						// weiche Regelung (proportional)
+						// nitemp kann nicht überlaufen (-3..+8 * PropFact)
+		
+						// strictly this is acting more like an integrator 
+						// bumping VBaroComp up and down proportional to the error?
+		
+						nitemp = (int)BaroRelPressure.low8 * BaroThrottleProp;
+						if( VBaroComp > nitemp )
+							VBaroComp--;
+						else
+						if( VBaroComp < nitemp )
+							VBaroComp++;
+		
+						if( VBaroComp > nitemp )
+							VBaroComp--;
+						else
+						if( VBaroComp < nitemp )
+							VBaroComp++;
+		
+						// Differentialanteil
+						if( niltemp1 > 8 )
+							niltemp1.low8 = 8;
+						else
+						if( niltemp1 < -8 )
+							niltemp1.low8 = -8;
+							
+						nitemp = (int)niltemp1.low8 * BaroThrottleDiff;
+						VBaroComp += nitemp;
+	
+	
+						if( VBaroComp > 20 ) 		// 15
+							VBaroComp = 15;
+						if( VBaroComp < -10 ) 		// 5
+							VBaroComp = -10;
+							
+						#ifdef INTTEST
+						SendComValH(VBaroComp);
+						SendComChar(0x0d);
+						SendComChar(0x0a);
+						#endif
+	
+						#ifdef BARO_SCRATCHY_BEEPER
+						Beeper_TOG;
+						#endif
+					}
+					StartBaroADC(BaroTemp);	// next is temp
 				}
-				StartBaroADC(BaroTemp);	// next is temp
 			}
 		}
+
+	#ifdef BARO_DRIFT_COMP
+	if( BlinkCount == 1 )
+	{
+		if( BaroRelPressure > 0 )
+			BaroBasePressure++;
+		if( BaroRelPressure < 0 )
+			BaroBasePressure--;	
+	}
+	#endif // BARO_DRIFT_COMP
 
 	#ifdef DEBUG_SENSORS	
 	if( IntegralCount == 0 )
@@ -499,5 +536,7 @@ void ComputeBaroComp(void)
 			SendComChar(';');
 		}
 	#endif
+
+
 }	
 

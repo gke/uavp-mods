@@ -6,9 +6,13 @@
 
 // Increase the severity of the filter on the baromater pressure readings
 // may give better altitude hold ( New=(Old*7+New+4)/8) ).
-//#define BARO_HARD_FILTER
+#define BARO_HARD_FILTER
 
+// Reinstated long term baro compensation on altitude error
+#define BARO_DRIFT_COMP
 
+// Make a "scratchy" beeper noise while altitude hold is engaged.
+#define BARO_SCRATCHY_BEEPER
 
 #ifndef BATCHMODE
 // ==============================================
