@@ -136,9 +136,8 @@ bit	I2C_CIO			@TRISB.7;
 //#define BARO_ID_SMD500		??
 #define BARO_ID_BMP085		0x55
 
-#define THR_DOWNCOUNT	127		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
-								/* MUST be less than or equal to 255 */
-#define THR_MIDDLE		15  	/* throttle stick dead zone for baro */
+#define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
+#define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
 #define THR_HOVER		75		/* min throttle stick for alti lock */
 
 bit _NoSignal		@Flags.0;	// if no valid signal is received

@@ -247,7 +247,7 @@ extern	shrBank	uns8	IntegralCount;
 // current stick neutral values
 extern	bank2	int		RollNeutral, PitchNeutral, YawNeutral;
 extern	bank2	uns8	ThrNeutral;
-extern	bank0	uns8	ThrDownCount;
+extern	bank0	uns16	ThrDownCount;
 
 extern	bank2	uns16	MidRoll, MidPitch, MidYaw;
 

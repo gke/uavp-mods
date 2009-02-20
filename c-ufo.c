@@ -135,7 +135,7 @@ uns8	Flags2;
 uns8	IntegralCount;
 int		RollNeutral, PitchNeutral, YawNeutral;
 uns8	ThrNeutral;
-uns8	ThrDownCount;
+uns16	ThrDownCount;
 
 uns8	DropoutCount;
 uns8	LedCount;
