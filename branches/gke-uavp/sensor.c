@@ -348,7 +348,12 @@ void InitAltimeter(void)
 	// set baro device to start temperature conversion
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	
-	Delay10mS(1);
+	// wait 10ms
+	for( W=10; W!=0; W--)
+	{
+		T0IF=0;
+		while(T0IF == 0);
+	}
 	ReadValueFromBaro();
 	BaroBaseTemp = niltemp;	// save start value
 		
@@ -356,7 +361,12 @@ void InitAltimeter(void)
 	// set baro device to start pressure conversion
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 
-	Delay10mS(3);
+	// wait 30ms
+	for( W=30; W!=0; W--)
+	{
+		T0IF=0;
+		while(T0IF == 0);
+	}
 	ReadValueFromBaro();	
 	BaroBasePressure = niltemp;
 	BaroRelPressure = VBaroComp = 0;

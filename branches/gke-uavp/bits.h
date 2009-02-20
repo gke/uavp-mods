@@ -119,10 +119,10 @@ bit	I2C_CIO			@TRISB.7;
 
 // compass sensor
 #define COMPASS_I2C_ID	0x42	/* I2C slave address */
-#define COMPASS_MAXDEV	30	/* maximum yaw compensation of compass heading */
-#define COMPASS_MAX		240	/* means 360 degrees */
+#define COMPASS_MAXDEV	30		/* maximum yaw compensation of compass heading */
+#define COMPASS_MAX		240		/* means 360 degrees */
 #define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
-#define COMPASS_MIDDLE	10	/* yaw stick neutral dead zone */
+#define COMPASS_MIDDLE	10		/* yaw stick neutral dead zone */
 
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
@@ -137,8 +137,9 @@ bit	I2C_CIO			@TRISB.7;
 #define BARO_ID_BMP085		0x55
 
 #define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
-#define THR_MIDDLE		10  /* throttle stick dead zone for baro */
-#define THR_HOVER		75	/* min throttle stick for alti lock */
+								/* MUST be less than or equal to 255 */
+#define THR_MIDDLE		15  	/* throttle stick dead zone for baro */
+#define THR_HOVER		75		/* min throttle stick for alti lock */
 
 bit _NoSignal		@Flags.0;	// if no valid signal is received
 bit _Flying			@Flags.1;	// UFO is flying
