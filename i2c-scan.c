@@ -341,7 +341,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	for (i = 35; i; i--)
+	for (i = 40; i; i--)
 	{
 		TMR0 = 0;
 		while ( T0IF == 0 ) {}; // 1mS wait
