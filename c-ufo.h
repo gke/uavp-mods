@@ -381,7 +381,7 @@ extern	page1	void AddUpFBArr(uns8);
 extern	page1	void AcqTime(void);
 extern	page1	void MixAndLimit(void);
 extern	page0	void MixAndLimitCam(void);
-extern	page1	void Delay10mS(uns8);
+extern	page1	void Delay100mS(uns8);
 
 extern	page1	void SendLeds(void);
 extern	page1	void SwitchLedsOn(uns8);
