@@ -36,25 +36,28 @@ static bank1 int i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delay10mS(uns8 dur)
+void Delay100mS(uns8 dur)
 { // max 255x10mS
-	bank0	uns8 i;
+	bank0	uns8 i, k;
 
 	// a TMR0 Timeout is 0,25us * 256 * 16 (presc) = 1024 us
 	TMR0 = 0;
 
-	for(i = 0; i < dur; i++)
+	for (k = 0; k < 10; k++)
 	{
-		// wait ca. 10ms (10*1024us (see _Prescale0)) before outputting
-		for( W = 10; W != 0; W-- )
+		for(i = 0; i < dur; i++)
 		{
-			while( T0IF == 0 );
-			T0IF = 0;
+			// wait ca. 10ms (10*1024us (see _Prescale0)) before outputting
+			for( W = 10; W != 0; W-- )
+			{
+				while( T0IF == 0 );
+				T0IF = 0;
+			}
+			OutSignals(); // 1-2 ms Duration
+			// break loop if a serial command is in FIFO
+			if( RCIF )
+				return;
 		}
-		OutSignals(); // 1-2 ms Duration
-		// break loop if a serial command is in FIFO
-		if( RCIF )
-			return;
 	}
 }
 
@@ -168,7 +171,7 @@ void AcqTime(void)
 void GetEvenValues(void)
 {	// get the even values
 
-	Delay10mS(20);	// wait 1/10 sec until LISL is ready to talk
+	Delay100mS(2);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
 	Rp = 0;
 	Pp = 0;
