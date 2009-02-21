@@ -57,15 +57,13 @@ const char page2 SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
 							  "Linear sensors ";
 const char page2 SerLSavail[]="ONLINE\r\n";
 const char page2 SerLSnone[]= "not available\r\n";
-const char page2 SerBaro[]=   "Baro sensor ";
-const char page2 SerChannel[]="Channel mode: Throttle Ch";
+const char page2 SerBaro[]=   "Baro ";
+const char page2 SerBaroBMP085[]=   "BMP085\r\n";
+const char page2 SerBaroSMD500[]=   "SMD500\r\n";
+const char page2 SerChannel[]="Throttle Ch";
 const char page2 SerFM_Fut[]= "3";
 const char page2 SerFM_Grp[]= "1";
-
-#ifdef BOARD_3_1
-const char page2 SerCompass[]="Compass sensor ";
-#endif
-
+const char page2 SerCompass[]="Compass ";
 const char page2 SerHelp[]  = "\r\nCommands:\r\n"
 					 		  "L...List param\r\n"
 							  "M...Modify param\r\n"
@@ -81,7 +79,7 @@ const char page2 SerList[]  = "\r\nParameter list for set #";
 const char page2 SerSelSet[]= "\r\nSelected parameter set: ";
 
 const char page2 SerNeutralR[]="\r\nNeutral Roll:";
-const char page2 SerNeutralN[]=" Nick:";
+const char page2 SerNeutralN[]=" Ptch:";
 const char page2 SerNeutralY[]=" Yaw:";
 
 const char page2 SerRecvCh[]=  "\r\nT:";
@@ -259,7 +257,6 @@ void ShowSetup(uns8 W)
 	else
 		SendComText(SerLSnone);
 
-#ifdef BOARD_3_1
 	SendComText(SerCompass);
 	if( _UseCompass )
 		SendComText(SerLSavail);
@@ -268,10 +265,12 @@ void ShowSetup(uns8 W)
 
 	SendComText(SerBaro);
 	if( _UseBaro )
-		SendComText(SerLSavail);
+		if ( BaroType == BARO_ID_BMP085 )
+			SendComText(SerBaroBMP085);
+		else
+			SendComText(SerBaroSMD500);
 	else
 		SendComText(SerLSnone);
-#endif
 
 	ReadEEdata();
 	SendComText(SerChannel);
@@ -378,7 +377,7 @@ void ProcessComCommand(void)
 			SendComValS(NeutralFB);
 
 			SendComText(SerNeutralY);
-			Tp -= 1024;		// subtract 1g (vertical sensor)
+			Yp -= 1024;		// subtract 1g (vertical sensor)
 			SendComValS(NeutralUD);
 			ShowPrompt();
 			break;
@@ -392,11 +391,11 @@ void ProcessComCommand(void)
 			SendComChar(',');
 			SendComChar('N');
 			SendComChar(':');
-			SendComValS(INick);
+			SendComValS(IPitch);
 			SendComChar(',');
 			SendComChar('Y');
 			SendComChar(':');
-			SendComValS(ITurn);
+			SendComValS(IYaw);
 			SendComChar(',');
 			SendComChar('5');
 			SendComChar(':');
@@ -418,14 +417,14 @@ void ProcessComCommand(void)
 			movwf	PCLATH
 			dw	0x2F00
 #endasm
-//			BootStart();	// never comes back!
+			BootStart();	// never comes back!
 		
 #ifndef TESTOUT	
 		case 'T':
 			RE = 10;
-			NE = 20;
+			PE = 20;
 			Rw = 30;
-			Nw = 40;
+			Pw = 40;
 			MatrixCompensate();
 			ShowPrompt();
 			break;

@@ -1,3 +1,19 @@
+// EXPERIMENTAL
+
+// Attempts reconnection to the barometer if there is an I2C error
+// Mainly applicable to the BMP085.
+//#define BARO_RETRY
+
+// Increase the severity of the filter on the baromater pressure readings
+// may give better altitude hold ( New=(Old*7+New+4)/8) ).
+#define BARO_HARD_FILTER
+
+// Reinstated long term baro compensation on altitude error
+//#define BARO_DRIFT_COMP
+
+// Make a "scratchy" beeper noise while altitude hold is engaged.
+#define BARO_SCRATCHY_BEEPER
+
 #ifndef BATCHMODE
 // ==============================================
 // =      U.A.V.P Brushless UFO Controller      =
@@ -44,7 +60,7 @@
 //#define DEBUGOUT
 //#define DEBUGOUTG
 //#define DEBUGSSP
-#DEBUG_RXERRORS
+//#define DEBUG_RXERRORS
 
 // Only one of the following 3 defines must be activated:
 // When using 3 ADXRS300 gyros
@@ -59,13 +75,13 @@
 //
 // Select what speeed controllers to use:
 // to use standard PPM pulse
-//#define ESC_PPM
+#define ESC_PPM
 // to use X3D BL controllers (not yet tested. Info courtesy to Jast :-)
 //#define ESC_X3D
 // to use Holgers ESCs (tested and confirmed by ufo-hans)
 //#define ESC_HOLGER
 // to use YGE I2C controllers (for standard YGEs use ESC_PPM)
-#define ESC_YGEI2C
+//#define ESC_YGEI2C
 
 // defined: serial PPM pulse train from receiver
 // undefined: standard servo pulses from CH1, 3, 5 and 7
@@ -101,7 +117,7 @@
 // special mode for sensor data output (with UAVPset)
 //#define DEBUG_SENSORS
 
-// Switched Roll and Nick channels for Conrad mc800 transmitter
+// Switched Roll and Pitch channels for Conrad mc800 transmitter
 //#define EXCHROLLNICK
 
 // internal test switch...DO NOT USE FOR REAL UFO'S!
@@ -111,7 +127,6 @@
 
 // Enable this to use the Accelerator sensors
 #define USE_ACCSENS
-
 
 // =====================================
 // end of user-configurable section!
@@ -128,31 +143,23 @@
 #define DEBUG
 #endif
 
-
-//
-#ifdef BOARD_3_0
-#define Version	"3.09"
-#endif
-#ifdef BOARD_3_1
-#define Version	"3.15"
-#endif
-
+#define Version	"3.15m3"
 
 // ==============================================
 // == External variables
 // ==============================================
 
 extern	shrBank	uns8	IGas;
-extern	shrBank	int 	IRoll,INick,ITurn;
+extern	shrBank	int 	IRoll,IPitch,IYaw;
 extern	shrBank	uns8	IK5,IK6,IK7;
 
-extern	bank2	int		RE, NE;
-extern	bank2	int		TE;
-extern	bank1	int		REp,NEp;
-extern	bank1	int		TEp;
+extern	bank2	int		RE, PE;
+extern	bank2	int		YE;
+extern	bank1	int		REp,PEp;
+extern	bank1	int		YEp;
 extern	bank2	long	YawSum;
-extern	bank2	long	NickSum, RollSum;
-extern	bank2	uns16	RollSamples, NickSamples;
+extern	bank2	long	PitchSum, RollSum;
+extern	bank2	uns16	RollSamples, PitchSamples;
 //extern	bank2	long	LRSum, FBSum, UDSum;
 extern	bank2	int		LRIntKorr, FBIntKorr;
 extern	bank2	uns8	NeutralLR, NeutralFB, NeutralUD;
@@ -160,21 +167,20 @@ extern	bank2	uns8	NeutralLR, NeutralFB, NeutralUD;
 //extern	bank1	long	LRSumPosi, FBSumPosi;
 extern	bank1	int		NegFact; // general purpose
 
-extern	shrBank	uns8	BlinkCount;
+extern	shrBank	uns8	BlinkCount, BlinkCycle, BaroCount;
 
 extern	bank0	long	niltemp1;
-extern	bank0	int		Rw,Nw;	// angles
+extern	bank0	int		Rw,Pw;	// angles
 extern  bank1	int	BatteryVolts; // added by Greg Egan
 extern	bank1	long	niltemp;
 int		nitemp @ niltemp;
-
-#ifdef BOARD_3_1				
+				
 // Variables for barometric sensor PD-controller
-extern	bank0	uns16	BasePressure, BaseTemp;
-extern	bank0	uns16	TempCorr;
+extern	bank0	uns16	BaroBasePressure, BaroBaseTemp;
+extern	bank0	uns16	BaroRelTempCorr;
 extern	bank1	int	VBaroComp;
-extern  bank0	long    BaroCompSum;
-#endif
+extern  bank0	int    BaroRelPressure;
+extern	bank2	uns8	BaroType, BaroTemp, BaroRestarts;
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
 // These variables MUST keep their order!!!
@@ -186,16 +192,16 @@ extern	bank1	int RollLimit;			// 04
 extern	bank1	int	RollIntLimit;		// 05
 extern	BaroTempCoeff @RollLimit;
 
-extern	bank1	int	NickPropFactor;	 	// 06
-extern	bank1	int	NickIntFactor;		// 07
-extern	bank1	int	NickDiffFactor;		// 08
-extern	bank1	int NickLimit;			// 09
-extern	bank1	int	NickIntLimit;		// 10
-extern  BaroThrottleProp @NickLimit;
+extern	bank1	int	PitchPropFactor;	 	// 06
+extern	bank1	int	PitchIntFactor;		// 07
+extern	bank1	int	PitchDiffFactor;		// 08
+extern	bank1	int PitchLimit;			// 09
+extern	bank1	int	PitchIntLimit;		// 10
+extern  BaroThrottleProp @PitchLimit;
 
-extern	bank1	int	TurnPropFactor; 	// 11
-extern	bank1	int	TurnIntFactor;		// 12
-extern	bank1	int	TurnDiffFactor;		// 13
+extern	bank1	int	YawPropFactor; 	// 11
+extern	bank1	int	YawIntFactor;		// 12
+extern	bank1	int	YawDiffFactor;		// 13
 extern	bank1	int	YawLimit;			// 14
 extern	bank1	int YawIntLimit;		// 15
 
@@ -210,7 +216,7 @@ extern	bank1	int MiddleUD;			// 22
 extern	bank1	int	MotorLowRun;		// 23
 extern	bank1	int	MiddleLR;			// 24
 extern	bank1	int	MiddleFB;			// 25
-extern	bank1	int	CamNickFactor;		// 26
+extern	bank1	int	CamPitchFactor;		// 26
 extern	CamRollFactor @LinLRIntFactor;
 extern	bank1	int	CompassFactor;		// 27
 extern	bank1	int	BaroThrottleDiff;	// 28
@@ -225,10 +231,10 @@ int	LastProgReg @BaroThrottleDiff;
 // end of "order-block"
 
 extern	bank1	uns8	MVorne,MLinks,MRechts,MHinten;	// output channels
-extern	bank1	uns8	MCamRoll,MCamNick;
+extern	bank1	uns8	MCamRoll,MCamPitch;
 extern	bank1	long	Ml, Mr, Mv, Mh;
-extern	bank1	long	Rl,Nl,Tl;	// PID output values
-extern	bank1	long	Rp,Np,Tp,Vud;
+extern	bank1	long	Rl,Pl,Yl;	// PID output values
+extern	bank1	long	Rp,Pp,Yp,Vud;
 
 
 extern	shrBank	uns8	Flags;
@@ -239,19 +245,15 @@ extern	shrBank	uns8	IntegralCount;
 
 // measured neutral gyro values
 // current stick neutral values
-extern	bank2	int		RollNeutral, NickNeutral, YawNeutral;
-#ifdef BOARD_3_1
+extern	bank2	int		RollNeutral, PitchNeutral, YawNeutral;
 extern	bank2	uns8	ThrNeutral;
-extern	bank0	uns8	ThrDownCount;
-#endif
+extern	bank0	uns16	ThrDownCount;
 
-extern	bank2	uns16	MidRoll, MidNick, MidTurn;
+extern	bank2	uns16	MidRoll, MidPitch, MidYaw;
 
-#ifdef BOARD_3_1
 extern	shrBank	uns8	LedShadow;	// shadow register
 extern	bank2	uns16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern	shrBank	int		CurDeviation;	// deviation from correct heading
-#endif
 
 #define _ClkOut		(160/4)	/* 16.0 MHz quartz */
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
@@ -271,7 +273,7 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 //                    vvv   ACHTUNG: Auf numerischen Überlauf achten!
 #ifdef ESC_PPM
 #define	_Minimum	((105* _ClkOut/(2*_PreScale1))&0xFF)	/*-100% */
-#define _Maximum	255
+#define _Maximum	240					/* reduced from 255 */
 #endif
 #ifdef ESC_X3D
 #define _Minimum	0
@@ -308,14 +310,6 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 #error Maximum < _Neutral !
 #endif
 
-// check PCB version
-#if defined BOARD_3_0 && defined BOARD_3_1
-#error BOARD_3_0 and BOARD_3_1 set!
-#endif
-#if !defined BOARD_3_0 && !defined BOARD_3_1
-#error BOARD_3_0 and BOARD_3_1 both not set!
-#endif
-
 // check gyro model
 #if defined OPT_ADXRS150 + defined OPT_ADXRS300 + defined OPT_IDG != 1
 #error Define only ONE out of OPT_ADXRS150 OPT_ADXRS300 OPT_IDG
@@ -337,11 +331,11 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 #endif
 // end of sanity checks
 
-
 #define MAXDROPOUT	200	// max 200x 20ms = 4sec. dropout allowable
 
 // Counter for flashing Low-Power LEDs
-#define BLINK_LIMIT 100	// should be a nmbr dividable by 4!
+#define BLINK_LIMIT 100	// should be a number dividable by 4!
+#define BLINK_CYCLES 8
 
 // Parameters for UART port
 
@@ -358,10 +352,14 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 
 // Prototypes
 
+extern	page0	void BootStart(void);
+
 extern	page0	void OutSignals(void);
 extern	page0	void GetGyroValues(void);
 extern	page0	void CalcGyroValues(void);
-extern	page1	void GetVbattValue(void);
+extern	page1	void CheckBattery(void);
+extern	page1	void CheckAlarms(void);
+extern	page1	void UpdateBlinkCount(void);
 extern	page3	void SendComValH(uns8);
 extern	page3	void SendComChar(char);
 extern	page3	void ShowSetup(uns8);
@@ -376,20 +374,18 @@ extern  page1	void PID(void);
 extern	page1	void Out(uns8);
 extern	page1	void OutG(uns8);
 extern	page1	void LimitRollSum(void);
-extern	page1	void LimitNickSum(void);
+extern	page1	void LimitPitchSum(void);
 extern	page1	void LimitYawSum(void);
 extern	page1	void AddUpLRArr(uns8);
 extern	page1	void AddUpFBArr(uns8);
 extern	page1	void AcqTime(void);
 extern	page1	void MixAndLimit(void);
 extern	page0	void MixAndLimitCam(void);
-extern	page1	void Delaysec(uns8);
+extern	page1	void Delay100mS(uns8);
 
-#ifdef BOARD_3_1
 extern	page1	void SendLeds(void);
 extern	page1	void SwitchLedsOn(uns8);
 extern	page1	void SwitchLedsOff(uns8);
-#endif /* BOARD_3_1 */
 
 extern	page2	void CheckLISL(void);
 extern	page2	void IsLISLactive(void);

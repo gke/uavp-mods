@@ -153,9 +153,5 @@ void IsLISLactive(void)
 		WriteLISL(0b.00000000, LISL_DD_CFG);
 		_UseLISL = 1;
 	}
-#ifdef BOARD_3_0
-	else
-		LISL_CS = 0;		// can be used as a LED output now
-#endif
 }
 

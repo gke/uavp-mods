@@ -10,7 +10,6 @@ rem Greg Egan 2008
 rem
 rem Uses: makeallhelper.bat and makeclean.bat
 rem 
-rem Version of the board. May be 3_0 or 3_1.
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or IDG300.
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.
 rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
@@ -24,27 +23,25 @@ rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
 set VERSION=3_15m3
 
 rem Add/Delete required combinations to these sets
-set BOARDS= 3_0 3_1
 set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
-set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
+set ESCS=ESC_PPM ESC_HOLGER
 set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
 set RXS=RX_DEFAULT RX_DSM2 RX_PPM
 
 rem Personal choice
-set BOARDS= 3_1
-set GYROS=OPT_IDG
-set ESCS=ESC_PPM
-set DBGS=NO_DEBUG DEBUG_SENSORS
-set RXS=RX_DEFAULT RX_DSM2
+rem set GYROS=OPT_IDG
+rem set ESCS=ESC_PPM
+rem set DBGS=NO_DEBUG DEBUG_SENSORS
+rem set RXS=RX_DEFAULT
 
 rem Delete working files
 call makeclean.bat
 echo Starting makeall uavp > gen.lst
 echo Starting makeall uavp > log.lst
 
-rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG RX
+rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
 
-for %%b in (%BOARDS%) do for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%d in (%DBGS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %%b %%g %%e %%d %%r 
+for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%d in (%DBGS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %%g %%e %%d %%r 
 
 
 

@@ -142,7 +142,7 @@ void OutSignals(void)
 
 #ifdef NADA
 SendComValH(MCamRoll);
-SendComValH(MCamNick);
+SendComValH(MCamPitch);
 SendComChar(0x0d);
 SendComChar(0x0a);
 #endif
@@ -150,15 +150,15 @@ SendComChar(0x0a);
 #ifndef DEBUG_SENSORS
 
 #ifdef DEBUG_MOTORS
-	if( _Flying && CamNickFactor.4 )
+	if( _Flying && CamPitchFactor.4 )
 	{
 		SendComValU(IGas);
 		SendComChar(';');
 		SendComValS(IRoll);
 		SendComChar(';');
-		SendComValS(INick);
+		SendComValS(IPitch);
 		SendComChar(';');
-		SendComValS(ITurn);
+		SendComValS(IYaw);
 		SendComChar(';');
 		SendComValU(MVorne);
 		SendComChar(';');
@@ -186,19 +186,19 @@ SendComChar(0x0a);
 
 #ifdef DEBUG_MOTORS
 // if DEBUG_MOTORS is active, CamIntFactor is a bitmap:
-// bit 0 = no front motor
-// bit 1 = no rear motor
-// bit 2 = no left motor
-// bit 3 = no right motor
-// bit 4 = turns on the serial output
+	// bit 0 = no front motor
+	// bit 1 = no rear motor
+	// bit 2 = no left motor
+	// bit 3 = no right motor
+	// bit 4 = turns on the serial output
 
-	if( CamNickFactor.0 )
+	if( CamPitchFactor.0 )
 		MV = _Minimum;
-	if( CamNickFactor.1 )
+	if( CamPitchFactor.1 )
 		MH = _Minimum;
-	if( CamNickFactor.2 )
+	if( CamPitchFactor.2 )
 		ML = _Minimum;
-	if( CamNickFactor.3 )
+	if( CamPitchFactor.3 )
 		MR = _Minimum;
 #else
 #ifdef INTTEST
@@ -211,8 +211,8 @@ SendComChar(0x0a);
 
 #ifdef ESC_PPM
 
-// simply wait for nearly 1 ms
-// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
+	// simply wait for nearly 1 ms
+	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
 	while( TMR0 < 0x100-3-16 ) ;
 
 	// now stop CCP1 interrupt
@@ -356,7 +356,7 @@ OS006
 
 	// avoid servo overrun when MCamxx == 0
 	ME = MCamRoll+1;
-	MT = MCamNick+1;
+	MT = MCamPitch+1;
 
 #if !defined DEBUG && !defined DEBUG_SENSORS
 // This loop is exactly 16 cycles long
@@ -378,7 +378,7 @@ OS003
 	DECFSZ	ME,f
 	GOTO	OS004
 
-	BCF	PulseCamNick
+	BCF	PulseCamPitch
 OS004
 #endasm
 	nop2();
@@ -397,9 +397,9 @@ OS002
 }
 
 
-// convert Roll and Nick gyro values
+// convert Roll and Pitch gyro values
 // using 10-bit A/D conversion.
-// Values are ADDED into RollSamples and NickSamples
+// Values are ADDED into RollSamples and PitchSamples
 void GetGyroValues(void)
 {
 
@@ -408,10 +408,8 @@ void GetGyroValues(void)
 	ADCON0 = 0b.10.001.0.0.1;	// select CH1(RA1) Roll
 #endif
 #ifdef OPT_IDG
-#ifdef BOARD_3_1
 	PCFG0 = 1;					// select 3,6V as Vref
-#endif
-	ADCON0 = 0b.10.010.0.0.1;	// select CH2(RA2) Nick
+	ADCON0 = 0b.10.010.0.0.1;	// select CH2(RA2) Pitch
 #endif
 	AcqTime();
 
@@ -419,98 +417,96 @@ void GetGyroValues(void)
 	RollSamples.high8 += ADRESH;
 
 #ifdef OPT_ADXRS
-	ADCON0 = 0b.10.010.0.0.1;	// select CH2(RA2) Nick
+	ADCON0 = 0b.10.010.0.0.1;	// select CH2(RA2) Pitch
 #endif
 #ifdef OPT_IDG
 	ADCON0 = 0b.10.001.0.0.1;	// select CH1(RA1) Roll
 #endif
 	AcqTime();
 
-	NickSamples += ADRESL;
-	NickSamples.high8 += ADRESH;
+	PitchSamples += ADRESL;
+	PitchSamples.high8 += ADRESH;
 #ifdef OPT_IDG
-#ifdef BOARD_3_1
 	PCFG0 = 0;					// select 5V as Vref
-#endif
 #endif
 }
 
-// ADXRS300: The Integral (RollSum & Nicksum) has
+// ADXRS300: The Integral (RollSum & Pitchsum) has
 // a resolution of about 1000 LSBs for a 25° angle
 // IDG300: (TBD)
 //
 
 // Calc the gyro values from added RollSamples 
-// and NickSamples (global variable "nisampcnt")
+// and PitchSamples (global variable "nisampcnt")
 void CalcGyroValues(void)
 {
-// RollSamples & Nicksamples hold the sum of 2 consecutive conversions
+	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
 	RollSamples ++;	// for a correct round-up
-	NickSamples ++;
+	PitchSamples ++;
 
 #ifdef OPT_ADXRS150
 	(long)RollSamples >>= 2;	// recreate the 10 bit resolution
-	(long)NickSamples >>= 2;
+	(long)PitchSamples >>= 2;
 #else
 	(long)RollSamples >>= 1;	// recreate the 10 bit resolution
-	(long)NickSamples >>= 1;
+	(long)PitchSamples >>= 1;
 #endif
 
 	if( IntegralCount > 0 )
 	{
-// pre-flight auto-zero mode
+		// pre-flight auto-zero mode
 		RollSum += RollSamples;
-		NickSum += NickSamples;
+		PitchSum += PitchSamples;
 
 		if( IntegralCount == 1 )
 		{
 			RollSum += 8;
-			NickSum += 8;
+			PitchSum += 8;
 			if( !_UseLISL )
 			{
 				niltemp = RollSum + MiddleLR;
 				RollSum = niltemp;
-				niltemp = NickSum + MiddleFB;
-				NickSum = niltemp;
+				niltemp = PitchSum + MiddleFB;
+				PitchSum = niltemp;
 			}
 			MidRoll = (uns16)RollSum / (uns16)16;	
-			MidNick = (uns16)NickSum / (uns16)16;
+			MidPitch = (uns16)PitchSum / (uns16)16;
 			RollSum = 0;
-			NickSum = 0;
+			PitchSum = 0;
 			LRIntKorr = 0;
 			FBIntKorr = 0;
 		}
 	}
 	else
 	{
-// standard flight mode
+		// standard flight mode
 		RollSamples -= MidRoll;
-		NickSamples -= MidNick;
+		PitchSamples -= MidPitch;
 
-// calc Cross flying mode
+		// calc Cross flying mode
 		if( FlyCrossMode )
 		{
-// Real Roll = 0.707 * (N + R)
-//      Nick = 0.707 * (N - R)
-// the constant factor 0.667 is used instead
-			niltemp = RollSamples + NickSamples;	// 12 valid bits!
-			NickSamples = NickSamples - RollSamples;	// 12 valid bits!
+			// Real Roll = 0.707 * (N + R)
+			//      Pitch = 0.707 * (N - R)
+			// the constant factor 0.667 is used instead
+			niltemp = RollSamples + PitchSamples;	// 12 valid bits!
+			PitchSamples = PitchSamples - RollSamples;	// 12 valid bits!
 			RollSamples = niltemp * 2;
 			(long)RollSamples /= 3;
-			(long)NickSamples *= 2;
-			(long)NickSamples /= 3;
+			(long)PitchSamples *= 2;
+			(long)PitchSamples /= 3;
 		
 		}
 #ifdef DEBUG_SENSORS
 		SendComValH(RollSamples.high8);
 		SendComValH(RollSamples.low8);
 		SendComChar(';');
-		SendComValH(NickSamples.high8);
-		SendComValH(NickSamples.low8);
+		SendComValH(PitchSamples.high8);
+		SendComValH(PitchSamples.low8);
 		SendComChar(';');
 #endif
 	
-// Roll
+		// Roll
 		niltemp = RollSamples;
 
 #ifdef OPT_ADXRS
@@ -532,46 +528,46 @@ void CalcGyroValues(void)
 #endif
 		LimitRollSum();		// for roll integration
 
-// Nick
-		niltemp = NickSamples;
+		// Pitch
+		niltemp = PitchSamples;
 
 #ifdef OPT_ADXRS
-		NickSamples += 2;
-		(long)NickSamples >>= 2;
+		PitchSamples += 2;
+		(long)PitchSamples >>= 2;
 #endif
 #ifdef OPT_IDG
-		NickSamples += 1;
-		(long)NickSamples >>= 1;
+		PitchSamples += 1;
+		(long)PitchSamples >>= 1;
 #endif
-		NE = NickSamples.low8;
+		PE = PitchSamples.low8;
 
 #ifdef OPT_ADXRS
-		NickSamples = niltemp + 1;
-		(long)NickSamples >>= 1;
+		PitchSamples = niltemp + 1;
+		(long)PitchSamples >>= 1;
 #endif
 #ifdef OPT_IDG
-		NickSamples = niltemp;
+		PitchSamples = niltemp;
 #endif
-		LimitNickSum();		// for nick integration
+		LimitPitchSum();		// for pitch integration
 
-// Yaw is sampled only once every frame, 8 bit A/D resolution
+		// Yaw is sampled only once every frame, 8 bit A/D resolution
 		ADFM = 0;
 		ADCON0 = 0b.10.100.0.0.1;	// select CH4(RA5) Yaw
 		AcqTime();
-		TE = ADRESH;
-		if( MidTurn == 0 )
-			MidTurn = TE;
-		TE -= MidTurn;
+		YE = ADRESH;
+		if( MidYaw == 0 )
+			MidYaw = YE;
+		YE -= MidYaw;
 
 		LimitYawSum();
 #ifdef DEBUG_SENSORS
-		SendComValH(TE);
+		SendComValH(YE);
 		SendComChar(';');
 		SendComValH(RollSum.high8);
 		SendComValH(RollSum.low8);
 		SendComChar(';');
-		SendComValH(NickSum.high8);
-		SendComValH(NickSum.low8);
+		SendComValH(PitchSum.high8);
+		SendComValH(PitchSum.low8);
 		SendComChar(';');
 		SendComValH(YawSum.high8);
 		SendComValH(YawSum.low8);
@@ -589,9 +585,9 @@ void MixAndLimitCam(void)
 // Cam Servos
 
 	if( IntegralCount > 0 ) // while integrator are adding up
-	{						// do not use the gyros values to correct
+	{			// do not use the gyros values to correct
 		Rp = 0;		// in non-flight mode, these are already cleared in InitArrays()
-		Np = 0;
+		Pp = 0;
 	}
 
 	if( _UseCh7Trigger )
@@ -599,7 +595,7 @@ void MixAndLimitCam(void)
 	else
 		Rp += IK7;
 		
-	Np += IK6;		// only Nick servo is controlled by channel 6
+	Pp += IK6;		// only Pitch servo is controlled by channel 6
 
 	if( Rp > _Maximum )
 		MCamRoll = _Maximum;
@@ -609,11 +605,11 @@ void MixAndLimitCam(void)
 	else
 		MCamRoll = Rp;
 
-	if( Np > _Maximum )
-		MCamNick = _Maximum;
+	if( Pp > _Maximum )
+		MCamPitch = _Maximum;
 	else
-	if( Np < _Minimum )
-		MCamNick = _Minimum;
+	if( Pp < _Minimum )
+		MCamPitch = _Minimum;
 	else
-		MCamNick = Np;
+		MCamPitch = Pp;
 }

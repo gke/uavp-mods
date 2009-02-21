@@ -36,18 +36,18 @@ static bank1 int i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delaysec(uns8 dur)
-{
-	bank0	uns8 k;
+void Delay100mS(uns8 dur)
+{ // max 255x10mS
+	bank0	uns8 i, k;
 
 	// a TMR0 Timeout is 0,25us * 256 * 16 (presc) = 1024 us
 	TMR0 = 0;
 
-	for(k = 0; k < 10; k++)
+	for (k = 0; k < 10; k++)
 	{
 		for(i = 0; i < dur; i++)
 		{
-// wait ca. 10ms (10*1024us (see _Prescale0)) before outputting
+			// wait ca. 10ms (10*1024us (see _Prescale0)) before outputting
 			for( W = 10; W != 0; W-- )
 			{
 				while( T0IF == 0 );
@@ -55,17 +55,11 @@ void Delaysec(uns8 dur)
 			}
 			OutSignals(); // 1-2 ms Duration
 			// break loop if a serial command is in FIFO
-#ifdef BOARD_3_1
 			if( RCIF )
-#endif
-#ifdef BOARD_3_0
-			if( _SerEnabled && RCIF )
-#endif
 				return;
 		}
 	}
 }
-
 
 #ifdef DEBUGOUT
 // output a value on connector K5
@@ -74,7 +68,6 @@ void Delaysec(uns8 dur)
 // MSB first
 void Out(uns8 l)
 {
-
 	for(i=0; i<8; i++)
 	{
 		PORTB.5=1;
@@ -135,41 +128,37 @@ void InitArrays(void)
 	MHinten = W;
 
 	W = _Neutral;
-	MCamNick = W;
+	MCamPitch = W;
 	MCamRoll = W;
 
-// bank 1
+	// bank 1
 	_Flying = 0;
 	REp = 0;
-	NEp = 0;
-	TEp = 0;
-//	LRSumPosi = 0;
-//	FBSumPosi = 0;
+	PEp = 0;
+	YEp = 0;
 	
 	Rp = 0;
-	Np = 0;
+	Pp = 0;
 	Vud = 0;
-#ifdef BOARD_3_1
+
 	VBaroComp = 0;
-	BaroCompSum = 0;
-#endif
+	BaroRelPressure = 0;
+	BaroCount = 0;
 	
-// bank 2
+	// bank 2
 	LRIntKorr = 0;
 	FBIntKorr = 0;
 	YawSum = 0;
     RollSum = 0;
-    NickSum = 0;
-//	LRSum = 0;
-//	FBSum = 0;
-//	UDSum = 0;
+    PitchSum = 0;
+	BaroRestarts = 0;
 }
 
 // used for A/D conversion to wait for
 // acquisition sample time and A/D conversion completion
 void AcqTime(void)
 {
-// W was 10 originally
+	// W was 10 originally
 	for(W=30; W!=0; W--)	// makes about 100us
 		;
 	GO = 1;
@@ -182,11 +171,11 @@ void AcqTime(void)
 void GetEvenValues(void)
 {	// get the even values
 
-	Delaysec(2);	// wait 1/10 sec until LISL is ready to talk
-// already done in caller program
+	Delay100mS(2);	// wait 1/10 sec until LISL is ready to talk
+	// already done in caller program
 	Rp = 0;
-	Np = 0;
-	Tp = 0;
+	Pp = 0;
+	Yp = 0;
 	for( i=0; i < 16; i++)
 	{
 		// wait for new set of data
@@ -194,33 +183,32 @@ void GetEvenValues(void)
 		
 		Rl.low8  = ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
 		Rl.high8 = ReadLISLNext();
-		Tl.low8  = ReadLISLNext();
-		Tl.high8 = ReadLISLNext();
-		Nl.low8  = ReadLISLNext();
-		Nl.high8 = ReadLISLNext();
+		Yl.low8  = ReadLISLNext();
+		Yl.high8 = ReadLISLNext();
+		Pl.low8  = ReadLISLNext();
+		Pl.high8 = ReadLISLNext();
 		LISL_CS = 1;	// end transmission
 		
 		Rp += (long)Rl;
-		Np += (long)Nl;
-		Tp += (long)Tl;
+		Pp += (long)Pl;
+		Yp += (long)Yl;
 	}
 	Rp += 8;
-	Np += 8;
-	Tp += 8;
+	Pp += 8;
+	Yp += 8;
 	Rp >>= 4;
-	Np >>= 4;
-	Tp >>= 4;
+	Pp >>= 4;
+	Yp >>= 4;
 	NeutralLR = Rp.low8;
-	NeutralFB = Np.low8;
-	NeutralUD = Tp.low8;
+	NeutralFB = Pp.low8;
+	NeutralUD = Yp.low8;
 }
-
 
 // read accu voltage using 8 bit A/D conversion
 // Bit _LowBatt is set if voltage is below threshold
 // Modified by Ing. Greg Egan
 // Filter battery volts to remove ADC/Motor spikes and set _LoBatt alarm accordingly 
-void GetVbattValue(void)
+void CheckBattery(void)
 {
 	int NewBatteryVolts, Temp;
 
@@ -228,10 +216,10 @@ void GetVbattValue(void)
 	ADCON0 = 0b.10.000.0.0.1;	// turn AD on, select CH0(RA0) Ubatt
 	AcqTime();
 	NewBatteryVolts = (int) (ADRESH >> 1);
-#ifndef DEBUG_SENSORS
 
-// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+2)>>2;
-// cc5x limitation	_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
+	#ifndef DEBUG_SENSORS
+	// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+1)>>1;
+	// 					_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
 
 	Temp = BatteryVolts+NewBatteryVolts+1;
 	BatteryVolts = Temp>>1;
@@ -240,14 +228,73 @@ void GetVbattValue(void)
 		_LowBatt = 1;
 	else
 		_LowBatt = 0;
-#endif // DEBUG_SENSORS
+
+	#endif // DEBUG_SENSORS
 }
 
-#ifdef BOARD_3_1
-//
-// The LED routines, only needed for 
-// PCB revision 3.1 (registered power driver TPIC6B595N)
-//
+void CheckAlarms(void)
+{
+	if( _LowBatt )
+	{
+		if( BlinkCount < BLINK_LIMIT/2 )
+{
+			Beeper_ON;
+			LedRed_ON;
+		}
+		else
+		{
+			Beeper_OFF;
+			LedRed_OFF;
+		}	
+	}
+	else
+	if ( _LostModel )
+	{
+		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle < (BLINK_CYCLES/4 )) )
+		{
+			Beeper_ON;
+			LedRed_ON;
+		}
+		else
+		{
+			Beeper_OFF;
+			LedRed_OFF;
+		}	
+	}
+	else
+	if ( _BaroRestart )
+	{
+		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle == 0 ) )
+		{
+			Beeper_ON;
+			LedRed_ON;
+		}
+		else
+		{
+			Beeper_OFF;
+			LedRed_OFF;
+		}	
+	}
+	else
+	{
+		Beeper_OFF;				
+		LedRed_OFF;
+	}
+
+} // CheckAlarms
+
+void UpdateBlinkCount(void)
+{
+	if( BlinkCount == 0 )
+	{
+		BlinkCount = BLINK_LIMIT;
+		if ( BlinkCycle == 0)
+			BlinkCycle = BLINK_CYCLES;
+		BlinkCycle--;
+	}
+	BlinkCount--;
+} // UpdateBlinkCount
+
 void SendLeds(void)
 {
 	uns8	nij@i;
@@ -286,4 +333,4 @@ void SwitchLedsOff(uns8 W)
 	SendLeds();
 }
 
-#endif /* BOARD_3_1 */
+
