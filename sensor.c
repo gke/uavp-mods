@@ -277,7 +277,7 @@ uns8 ReadValueFromBaro(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto RVerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
-	niltemp.low8 = RecvI2CByte(!I2C_NACK);
+	niltemp.low8 = RecvI2CByte(!I2C_ACK);
 	I2CStop();
 
 	return(I2C_NACK);
