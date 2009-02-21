@@ -354,7 +354,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.high8 = RecvI2CByte(I2C_ACK);
+	nilgval.high8 = RecvI2CByte(!I2C_ACK);
 	I2CStop();
 		
 	I2CStart();
@@ -362,11 +362,13 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.low8 = RecvI2CByte(!I2C_NACK);
+	nilgval.low8 = RecvI2CByte(!I2C_ACK);
 	I2CStop();
 
 	SendComText(_SerBaroOK);
 	SendComValUL(NKS0+LEN5);
+
+
 
 	// read temp
 	// set baro device to start conversion
@@ -391,7 +393,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.high8 = RecvI2CByte(I2C_ACK);
+	nilgval.high8 = RecvI2CByte(!I2C_ACK);
 	I2CStop();
 		
 	I2CStart();
@@ -399,7 +401,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.low8 = RecvI2CByte(!I2C_NACK);
+	nilgval.low8 = RecvI2CByte(!I2C_ACK);
 	I2CStop();
 
 	SendComText(_SerBaroT);
