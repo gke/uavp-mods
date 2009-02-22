@@ -196,7 +196,7 @@ void GetDirection(void)
 			goto GAError;
 		}
 		DirVal.high8 = RecvI2CByte(I2C_ACK);
-		DirVal.low8  = RecvI2CByte(!I2C_ACK);
+		DirVal.low8  = RecvI2CByte(I2C_NACK);
 		I2CStop();
 
 		// DirVal has 1/10th degrees
@@ -269,7 +269,7 @@ uns8 ReadValueFromBaro(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto RVerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
-	niltemp.high8 = RecvI2CByte(!I2C_ACK);
+	niltemp.high8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 		
 	I2CStart();
@@ -277,7 +277,7 @@ uns8 ReadValueFromBaro(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto RVerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
-	niltemp.low8 = RecvI2CByte(!I2C_ACK);
+	niltemp.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
 	return(I2C_NACK);
@@ -347,7 +347,6 @@ void InitAltimeter(void)
 	// read temperature once to get base value
 	// set baro device to start temperature conversion
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
-	
 	// wait 10ms
 	for( W=10; W!=0; W--)
 	{
@@ -360,7 +359,6 @@ void InitAltimeter(void)
 	// read pressure once to get base value
 	// set baro device to start pressure conversion
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
-
 	// wait 30ms
 	for( W=30; W!=0; W--)
 	{
@@ -370,6 +368,12 @@ void InitAltimeter(void)
 	ReadValueFromBaro();	
 	BaroBasePressure = niltemp;
 	BaroRelPressure = VBaroComp = 0;
+
+	// set baro device to start temperature conversion
+	// before first call to ComputeBaroComp
+	if( !StartBaroADC(BaroTemp) ) goto BAerror;
+	
+	BaroCount = 0;
 
 	_UseBaro = 1;
 
