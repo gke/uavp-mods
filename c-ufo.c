@@ -227,7 +227,7 @@ void WaitForRxSignal(void)
 	DropoutCount = MODELLOSTTIMER;
 	do
 	{
-		Delay100mS(2);	// wait 2/10 sec until signal is there
+		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
 		ProcessComCommand();
 		if( _NoSignal )
 		{
@@ -290,7 +290,7 @@ void main(void)
 	InitArrays();
 
 	LedRed_ON;		// red LED on
-	Delay100mS(1);	// wait 1/10 sec until LISL is ready to talk
+	Delay100mSWithOutput(1);	// wait 1/10 sec until LISL is ready to talk
 
 	#ifdef USE_ACCSENS
 	IsLISLactive();
@@ -314,7 +314,7 @@ void main(void)
 	ThrNeutral = 0xFF;
 
 	// send hello text to serial COM
-	Delay100mS(1);	// just to see the output after powerup
+	Delay100mSWithOutput(1);	// just to see the output after powerup
 
 	InitDirection();	// init compass sensor
 	InitAltimeter();

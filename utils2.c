@@ -36,7 +36,7 @@ static bank1 int i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delay100mS(uns8 dur)
+void Delay100mSWithOutput(uns8 dur)
 { // max 255x10mS
 	bank0	uns8 i, k;
 
@@ -133,24 +133,15 @@ void InitArrays(void)
 
 	// bank 1
 	_Flying = 0;
-	REp = 0;
-	PEp = 0;
-	YEp = 0;
+	REp = PEp = YEp = 0;
 	
-	Rp = 0;
-	Pp = 0;
-	Vud = 0;
-
-	VBaroComp = 0;
-	BaroRelPressure = 0;
-	BaroCount = 0;
+	Rp = Pp = Vud = VBaroComp = 0;
 	
 	// bank 2
 	LRIntKorr = 0;
 	FBIntKorr = 0;
-	YawSum = 0;
-    RollSum = 0;
-    PitchSum = 0;
+	YawSum = RollSum = PitchSum = 0;
+
 	BaroRestarts = 0;
 }
 
@@ -171,7 +162,7 @@ void AcqTime(void)
 void GetEvenValues(void)
 {	// get the even values
 
-	Delay100mS(2);	// wait 1/10 sec until LISL is ready to talk
+	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
 	Rp = 0;
 	Pp = 0;

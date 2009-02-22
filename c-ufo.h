@@ -262,6 +262,9 @@ extern	shrBank	int		CurDeviation;	// deviation from correct heading
 #define _PostScale2	16
 
 // wegen dem dummen Compiler muss man händisch rechnen :-(
+
+#define DELAY_MS(ms)	for( W=ms; W!=0; W--){T0IF=0;while(T0IF == 0);}
+
 //#define TMR2_9MS	(9000*_ClkOut/(10*_PreScale2*_PostScale2))
 //#define TMR2_9MS	141	/* 2x 9ms = 18ms pause time */
 // modified for Spectrum DX6 and DX7
@@ -381,7 +384,7 @@ extern	page1	void AddUpFBArr(uns8);
 extern	page1	void AcqTime(void);
 extern	page1	void MixAndLimit(void);
 extern	page0	void MixAndLimitCam(void);
-extern	page1	void Delay100mS(uns8);
+extern	page1	void Delay100mSWithOutput(uns8);
 
 extern	page1	void SendLeds(void);
 extern	page1	void SwitchLedsOn(uns8);
