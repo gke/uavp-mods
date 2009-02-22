@@ -330,6 +330,8 @@ void InitAltimeter(void)
 	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
 	// Baro is assumed offline unless it responds - no retries!
 
+	VBaroComp = BaroCount = 0;
+
 	// Determine baro type
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
@@ -345,35 +347,20 @@ void InitAltimeter(void)
 		BaroTemp = BARO_TEMP_SMD500;
 
 	// read temperature once to get base value
-	// set baro device to start temperature conversion
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
-	// wait 10ms
-	for( W=10; W!=0; W--)
-	{
-		T0IF=0;
-		while(T0IF == 0);
-	}
+	DELAY_MS(10);
 	ReadValueFromBaro();
 	BaroBaseTemp = niltemp;	// save start value
 		
 	// read pressure once to get base value
-	// set baro device to start pressure conversion
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
-	// wait 30ms
-	for( W=30; W!=0; W--)
-	{
-		T0IF=0;
-		while(T0IF == 0);
-	}
+	DELAY_MS(30);
 	ReadValueFromBaro();	
 	BaroBasePressure = niltemp;
-	BaroRelPressure = VBaroComp = 0;
-
+	
 	// set baro device to start temperature conversion
 	// before first call to ComputeBaroComp
-	if( !StartBaroADC(BaroTemp) ) goto BAerror;
-	
-	BaroCount = 0;
+	if( !StartBaroADC(BaroTemp) ) goto BAerror;	
 
 	_UseBaro = 1;
 
@@ -395,36 +382,37 @@ void ComputeBaroComp(void)
 		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))	
 		{
 			BaroCount = 0;
-			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value
-			{
+			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value		
 				if( _BaroTempRun )
 				{
+					StartBaroADC(BARO_PRESS); // next is pressure - overlap
 					if( ThrDownCount )
 						BaroBaseTemp = niltemp; // current read value
-					else // BaroRelTempCorr: The warmer, the higher
+					else 
 						BaroRelTempCorr = niltemp - BaroBaseTemp;
 	
-					StartBaroADC(BARO_PRESS);	// next is pressure
 				}
 				else
 				{	// current measurement was "pressure"
+					StartBaroADC(BaroTemp);	// next is temp - overlap
+
 					if( ThrDownCount )	// while moving throttle stick
 					{
 						BaroBasePressure = niltemp;	
-						_Hovering = 0;	
+						_Hovering = VBaroComp = 0;	
 					}
 					else
 					{
+						#ifdef BARO_SCRATCHY_BEEPER
+						Beeper_TOG;
+						#endif
+
 						if ( !_Hovering )
 						{
 							BaroRelPressure = 0;
 							_Hovering = 1;
 						}
-
-						#ifdef BARO_SCRATCHY_BEEPER
-						Beeper_TOG;
-						#endif
-						
+	
 						// while holding altitude
 						niltemp -= BaroBasePressure;
 						// niltemp1 has -400..+400 approx
@@ -433,7 +421,6 @@ void ComputeBaroComp(void)
 						niltemp1 /= 32;
 	
 						niltemp += niltemp1;	// compensating temp
-						// the corrected relative height, higher altitude lower value
 	
 						niltemp1 = niltemp;	// because of bank bits
 						niltemp = BaroRelPressure;	// remember old value for delta
@@ -498,20 +485,8 @@ void ComputeBaroComp(void)
 						Beeper_TOG;
 						#endif
 					}
-					StartBaroADC(BaroTemp);	// next is temp
 				}
-			}
 		}
-
-	#ifdef BARO_DRIFT_COMP
-	if( BlinkCount == 1 )
-	{
-		if( BaroRelPressure > 0 )
-			BaroBasePressure++;
-		if( BaroRelPressure < 0 )
-			BaroBasePressure--;	
-	}
-	#endif // BARO_DRIFT_COMP
 
 	#ifdef DEBUG_SENSORS	
 	if( IntegralCount == 0 )
@@ -529,7 +504,5 @@ void ComputeBaroComp(void)
 			SendComChar(';');
 		}
 	#endif
-
-
 }	
 
