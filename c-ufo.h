@@ -1,7 +1,7 @@
 // EXPERIMENTAL
 
 // Reinstated vertical acceleration compensation 
-#define ACCEL_VUD
+//#define ACCEL_VUD
 
 // Attempts reconnection to the barometer if there is an I2C error
 //#define BARO_RETRY
