@@ -169,6 +169,9 @@ First public released version.
 12.02.2009 v3.15m3 Greg Egan
 - Auto sensing of SMD500 and BMP085 Baros
 
+12.02.2009 v3.15m3 Greg Egan
+- Reinstated vertical accelerometer compensation of throttle
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

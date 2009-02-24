@@ -138,6 +138,7 @@ void InitArrays(void)
 	Rp = Pp = Vud = VBaroComp = 0;
 	
 	// bank 2
+	UDSum = 0;
 	LRIntKorr = 0;
 	FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;

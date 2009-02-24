@@ -45,7 +45,7 @@ void PID(void)
 // Roll/Pitch Linearsensoren
 	Rp = 0;
 	Pp = 0;
-//	Vud = 0;
+	Vud = 0;
 
 	if( _UseLISL )
 	{
