@@ -1,15 +1,14 @@
 // EXPERIMENTAL
 
+// Reinstated vertical acceleration compensation 
+#define ACCEL_VUD
+
 // Attempts reconnection to the barometer if there is an I2C error
-// Mainly applicable to the BMP085.
 //#define BARO_RETRY
 
 // Increase the severity of the filter on the baromater pressure readings
 // may give better altitude hold ( New=(Old*7+New+4)/8) ).
 #define BARO_HARD_FILTER
-
-// Reinstated long term baro compensation on altitude error
-//#define BARO_DRIFT_COMP
 
 // Make a "scratchy" beeper noise while altitude hold is engaged.
 #define BARO_SCRATCHY_BEEPER
@@ -163,6 +162,7 @@ extern	bank2	uns16	RollSamples, PitchSamples;
 //extern	bank2	long	LRSum, FBSum, UDSum;
 extern	bank2	int		LRIntKorr, FBIntKorr;
 extern	bank2	uns8	NeutralLR, NeutralFB, NeutralUD;
+extern	bank2	int 	UDSum;
 
 //extern	bank1	long	LRSumPosi, FBSumPosi;
 extern	bank1	int		NegFact; // general purpose

@@ -441,16 +441,32 @@ void GetGyroValues(void)
 void CalcGyroValues(void)
 {
 	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
-	RollSamples ++;	// for a correct round-up
-	PitchSamples ++;
 
-#ifdef OPT_ADXRS150
+	#ifdef GYRO_RESCALE
+
+	#ifdef OPT_ADXRS150
+	(long)RollSamples <<= 1;	// 14 bit "resolution"
+	(long)PitchSamples <<= 1;
+	#else
+	(long)RollSamples <<= 3;	// 14 bit "resolution"
+	(long)PitchSamples <<= 3;
+	#endif
+
+	#else
+
+	#ifdef OPT_ADXRS150
+	RollSamples +=2;			// for a correct round-up
+	PitchSamples +=2;
 	(long)RollSamples >>= 2;	// recreate the 10 bit resolution
 	(long)PitchSamples >>= 2;
-#else
+	#else
+	RollSamples ++;				// for a correct round-up
+	PitchSamples ++;
 	(long)RollSamples >>= 1;	// recreate the 10 bit resolution
 	(long)PitchSamples >>= 1;
-#endif
+	#endif
+	
+	#endif // OVERSAMPLE
 
 	if( IntegralCount > 0 )
 	{
@@ -489,65 +505,66 @@ void CalcGyroValues(void)
 			// Real Roll = 0.707 * (N + R)
 			//      Pitch = 0.707 * (N - R)
 			// the constant factor 0.667 is used instead
-			niltemp = RollSamples + PitchSamples;	// 12 valid bits!
-			PitchSamples = PitchSamples - RollSamples;	// 12 valid bits!
+			niltemp = RollSamples + PitchSamples;	
+			PitchSamples = PitchSamples - RollSamples;	
 			RollSamples = niltemp * 2;
 			(long)RollSamples /= 3;
 			(long)PitchSamples *= 2;
 			(long)PitchSamples /= 3;
 		
 		}
-#ifdef DEBUG_SENSORS
+		#ifdef DEBUG_SENSORS
 		SendComValH(RollSamples.high8);
 		SendComValH(RollSamples.low8);
 		SendComChar(';');
 		SendComValH(PitchSamples.high8);
 		SendComValH(PitchSamples.low8);
 		SendComChar(';');
-#endif
+		#endif
 	
 		// Roll
 		niltemp = RollSamples;
 
-#ifdef OPT_ADXRS
+		#ifdef OPT_ADXRS
 		RollSamples += 2;
 		(long)RollSamples >>= 2;
-#endif
-#ifdef OPT_IDG
+		#endif
+		#ifdef OPT_IDG
 		RollSamples += 1;
 		(long)RollSamples >>= 1;
-#endif
+		#endif
 		RE = RollSamples.low8;	// use 8 bit res. for PD controller
 
-#ifdef OPT_ADXRS
+		#ifdef OPT_ADXRS
 		RollSamples = niltemp + 1;
 		(long)RollSamples >>= 1;	// use 9 bit res. for I controller
-#endif
-#ifdef OPT_IDG
+		#endif
+		#ifdef OPT_IDG
 		RollSamples = niltemp;
-#endif
+		#endif
+
 		LimitRollSum();		// for roll integration
 
 		// Pitch
 		niltemp = PitchSamples;
 
-#ifdef OPT_ADXRS
+		#ifdef OPT_ADXRS
 		PitchSamples += 2;
 		(long)PitchSamples >>= 2;
-#endif
-#ifdef OPT_IDG
+		#endif
+		#ifdef OPT_IDG
 		PitchSamples += 1;
 		(long)PitchSamples >>= 1;
-#endif
+		#endif
 		PE = PitchSamples.low8;
 
-#ifdef OPT_ADXRS
+		#ifdef OPT_ADXRS
 		PitchSamples = niltemp + 1;
 		(long)PitchSamples >>= 1;
-#endif
-#ifdef OPT_IDG
+		#endif
+		#ifdef OPT_IDG
 		PitchSamples = niltemp;
-#endif
+		#endif
 		LimitPitchSum();		// for pitch integration
 
 		// Yaw is sampled only once every frame, 8 bit A/D resolution
@@ -560,7 +577,8 @@ void CalcGyroValues(void)
 		YE -= MidYaw;
 
 		LimitYawSum();
-#ifdef DEBUG_SENSORS
+
+		#ifdef DEBUG_SENSORS
 		SendComValH(YE);
 		SendComChar(';');
 		SendComValH(RollSum.high8);
@@ -572,7 +590,7 @@ void CalcGyroValues(void)
 		SendComValH(YawSum.high8);
 		SendComValH(YawSum.low8);
 		SendComChar(';');
-#endif
+		#endif
 	}
 }
 

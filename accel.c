@@ -92,7 +92,7 @@ SendComChar(0x10);
 	
 	Yp -= 1024;	// subtract 1g
 
-#ifdef NADA
+#ifdef ACCEL_VUD
 // UDSum rises if ufo climbs
 	UDSum += Yp;
 

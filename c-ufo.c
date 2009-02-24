@@ -64,6 +64,7 @@ long	RollSum, PitchSum;	// Integrales Fehlersignal fuer Roll und Pitch
 uns16	RollSamples, PitchSamples;
 int		LRIntKorr, FBIntKorr;
 uns8	NeutralLR, NeutralFB, NeutralUD;
+int 	UDSum;
 
 int		NegFact; // general purpose
 uns8	BlinkCount, BlinkCycle, BaroCount;
