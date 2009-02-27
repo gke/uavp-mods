@@ -77,15 +77,67 @@ bit NegativePPM		@ConfigReg.0;
 extern	bank0	uns16	CurrK1,CurrK2,CurrK3,CurrK4;
 extern	bank0	uns16	CurrK5,CurrK6,CurrK7;
 extern	bank1	uns16	PauseTime; 
-extern	bank1	uns8	TimeSlot;
 extern  bank0	uns8	BaroType, BaroTemp;
 extern	bank1	uns8	MVorne, MHinten, MLinks, MRechts;
 extern	bank1	uns8	MCamRoll, MCamNick;
 extern	bank1	uns8	EscI2CFlags;
+extern	bank1 	uns16 	BaroTemperature, BaroPressure;
 
 // special locations
 extern	bank1	uns16	nilgval;
 
+// EEPROM parameter set addresses
+
+#define _EESet1	0		// first set starts at address 0x00
+#define _EESet2	0x20	// second set starts at address 0x20
+
+// Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
+// These variables MUST keep their order!!!
+
+extern	bank1	int8	RollPropFactor; 	// 01
+extern	bank1	int8	RollIntFactor;		// 02
+extern	bank1	int8	RollDiffFactor;		// 03
+extern	bank1	int8 RollLimit;			// 04
+extern	bank1	int8	RollIntLimit;		// 05
+extern	BaroTempCoeff @RollLimit;
+
+extern	bank1	int8	PitchPropFactor;	 	// 06
+extern	bank1	int8	PitchIntFactor;		// 07
+extern	bank1	int8	PitchDiffFactor;		// 08
+extern	bank1	int8 	PitchLimit;			// 09
+extern	bank1	int8	PitchIntLimit;		// 10
+extern  BaroThrottleProp @PitchLimit;
+
+extern	bank1	int8	YawPropFactor; 	// 11
+extern	bank1	int8	YawIntFactor;		// 12
+extern	bank1	int8	YawDiffFactor;		// 13
+extern	bank1	int8	YawLimit;			// 14
+extern	bank1	int8 	YawIntLimit;		// 15
+
+extern	bank1	int8	ConfigParam;		// 16
+extern	bank1	int8 	TimeSlot;			// 17
+extern	bank1	int8	LowVoltThres;		// 18
+
+extern	bank1	int8	LinLRIntFactor;		// 19 free
+extern	bank1	int8	LinFBIntFactor;		// 20 free
+extern	bank1	int8	LinUDIntFactor;		// 21
+extern	bank1	int8 	MiddleUD;			// 22
+extern	bank1	int8	MotorLowRun;		// 23
+extern	bank1	int8	MiddleLR;			// 24
+extern	bank1	int8	MiddleFB;			// 25
+extern	bank1	int8	CamPitchFactor;		// 26
+extern	CamRollFactor @LinLRIntFactor;
+extern	bank1	int8	CompassFactor;		// 27
+extern	bank1	int8	BaroThrottleDiff;	// 28
+
+// these 2 dummy registers (they do not occupy any RAM location)
+// are here for defining the first and the last programmable 
+// register in a set
+
+int FirstProgReg @RollPropFactor;
+int	LastProgReg @BaroThrottleDiff;
+
+#define DELAY_MS(ms)	for( W=ms; W!=0; W--){T0IF=0;while(T0IF == 0);}
 
 #define _ClkOut		(160/4)	/* 16.0 MHz quartz */
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
@@ -208,6 +260,7 @@ extern	bank1	uns16	nilgval;
 
 #define _SerBaroSMD500 44
 #define _SerBaroBMP085 45
+#define _SerBaroComp 46
 
 // defines for SendComValUL
 #define NKSMASK 0b0.0.000.111
@@ -262,6 +315,8 @@ extern	page1	uns8 SendI2CByte(uns8);
 extern	page1	uns8 RecvI2CByte(uns8);
 extern	page1	void PowerOutput(uns8);
 extern	page2	void SendComText(uns8);
+
+extern	page2	void ReadEEdata(void);
 
 // Bank 2
 extern	page2	void IsLISLactive(void);

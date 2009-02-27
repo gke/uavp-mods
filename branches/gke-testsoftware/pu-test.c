@@ -52,16 +52,49 @@ uns8	Flags;
 
 uns16	CurrK1,CurrK2,CurrK3,CurrK4,CurrK5,CurrK6,CurrK7;
 
-uns8	TimeSlot;
-
 uns8	BaroType, BaroTemp;
-
+uns16 	BaroTemperature, BaroPressure;
 uns16	PauseTime;
-
 uns8	MVorne, MHinten, MLinks, MRechts;
 uns8	MCamRoll, MCamNick;
-
 uns8	EscI2CFlags;
+
+// Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
+int8	RollPropFactor;
+int8	RollIntFactor;
+int8	RollDiffFactor;
+int8 RollLimit;
+int8 RollIntLimit;
+
+int8	PitchPropFactor;
+int8	PitchIntFactor;
+int8	PitchDiffFactor;
+int8 PitchLimit;
+int8 PitchIntLimit;
+
+int8	YawPropFactor;
+int8	YawIntFactor;
+int8	YawDiffFactor;
+int8	YawLimit;
+int8 YawIntLimit;
+
+int8	ConfigParam;
+int8	TimeSlot;
+int8 LowVoltThres;
+
+int8	LinLRIntFactor;
+int8	LinFBIntFactor;
+int8	LinUDIntFactor;
+int8 MiddleUD;
+int8 MotorLowRun;
+int8	MiddleLR;
+int8 MiddleFB;
+int8	CamPitchFactor;
+int8 CompassFactor;
+
+int8 BaroThrottleDiff;
+
+// Ende Reihenfolgezwang
 
 void main(void)
 {

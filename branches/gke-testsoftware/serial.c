@@ -280,9 +280,7 @@ void ShowSetup(uns8 W)
 {
 
 	if( W )
-	{
 		SendComText(_SerHello);
-	}
 
 	SendComText(_SerSetup);	// send hello message
 	if( _UseLISL )
@@ -373,6 +371,7 @@ void ProcessComCommand(void)
 			ShowPrompt();
 			break;
 		case 'H':	// barometer
+			ReadEEdata();
 			BaroTest();
 			ShowPrompt();
 			break;	

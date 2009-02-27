@@ -121,7 +121,8 @@ const char page2 SerHello[] = "\r\nU.A.V.P. TESTSOFTWARE V" Version " Copyright 
 /* SerCCalibE */			  "\r\nCalibration error!\r\n\0"
 
 /* SerBaroSMD500 */				  "\r\nSMD500\0"
-/* SerBaroBMP085 */				  "\r\nBMP085\0";
+/* SerBaroBMP085 */				  "\r\nBMP085\0"
+/* SerBaroComp */				  "; Compensated:\0";
 
 // transmit a fix text from a table
 void SendComText(uns8 nitext)

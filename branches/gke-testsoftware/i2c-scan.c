@@ -191,6 +191,7 @@ void CompassTest(void)
 {
 	uns8 i;
 
+// 20Hz standby mode - random read?
 #define COMP_OPMODE 0b0.11.0.00.00
 #define COMP_MULT	16
 
@@ -257,7 +258,7 @@ void CompassTest(void)
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
 	nilgval.high8 = RecvI2CByte(I2C_ACK);
-	nilgval.low8 = RecvI2CByte(!I2C_ACK);
+	nilgval.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
 	// niltemp has 1/10th degrees
@@ -307,6 +308,7 @@ void BaroTest(void)
 	// Baro is assumed offline unless it responds - no retries!
 	
 	uns8 i;
+	int16 Temp;
 
 	// Determine baro type
 	I2CStart();
@@ -329,7 +331,6 @@ void BaroTest(void)
 		BaroTemp = BaroTemp_SMD500;
 	}
 
-
 	// set Baro device to start conversion
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
@@ -341,12 +342,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	for (i = 40; i; i--)
-	{
-		TMR0 = 0;
-		while ( T0IF == 0 ) {}; // 1mS wait
-		T0IF = 0;
-	}
+	DELAY_MS(40);
 
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -354,7 +350,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.high8 = RecvI2CByte(!I2C_ACK);
+	BaroPressure.high8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 		
 	I2CStart();
@@ -362,13 +358,12 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.low8 = RecvI2CByte(!I2C_ACK);
+	BaroPressure.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
+	nilgval = BaroPressure;
 	SendComText(_SerBaroOK);
 	SendComValUL(NKS0+LEN5);
-
-
 
 	// read temp
 	// set baro device to start conversion
@@ -380,12 +375,7 @@ void BaroTest(void)
 	if( SendI2CByte(BaroTemp) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	for (i = 10; i; i--)
-	{
-		TMR0 = 0;
-		while ( T0IF == 0 ) {}; // 1mS wait
-		T0IF = 0;
-	}
+	DELAY_MS(10);
 
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -393,7 +383,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.high8 = RecvI2CByte(!I2C_ACK);
+	BaroTemperature.high8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 		
 	I2CStart();
@@ -401,10 +391,21 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	nilgval.low8 = RecvI2CByte(!I2C_ACK);
+	BaroTemperature.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
+	nilgval = BaroTemperature;
 	SendComText(_SerBaroT);
+	SendComValUL(NKS0+LEN5);
+
+	BaroTemperature *= (int16)BaroTempCoeff;
+	BaroTemperature += 16;
+	BaroTemperature >>= 5;
+	
+	BaroPressure += BaroTemperature;
+
+	nilgval = BaroPressure;
+	SendComText(_SerBaroComp);
 	SendComValUL(NKS0+LEN5);
 
 	SendComCRLF();
