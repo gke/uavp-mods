@@ -12,6 +12,7 @@ set 	GYRO=%2
 set 	ESC=%3
 set 	DBG=%4
 set 	RX=%5
+set 	CFG=%6
 
 set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
@@ -30,6 +31,7 @@ set D=
 set T=
 set R=
 set B=
+set C=
 if "%GYRO%"  == "OPT_ADXRS300"      set G=ADX300-
 if "%GYRO%"  == "OPT_ADXRS150"      set G=ADX150-
 if "%GYRO%"  == "OPT_IDG"           set G=IDG-
@@ -41,6 +43,7 @@ if "%DBG%"   == "DEBUG_MOTORS"      set D=Debug_MOTORS-
 if "%DBG%"   == "DEBUG_SENSORS"     set D=Debug_SENSORS-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_DSM2"           set R=DSM2-
+if "%CFG%"    == "TRICOPTER"           set C=TRI-
 
 rem Build the list of expected object files
 set F=
@@ -53,25 +56,25 @@ rem the mathematics module.
 rem The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 rem As a consequence there are several warnings on bank allocation in the compile.
 
-for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% >> log.lst
+for %%i in ( %CSRC% ) do %CEXE% %%i.c  %CCMD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG%>> log.lst
 rem recompiling sensor.c with -r01 to avoid the use of a separate batch file with conditionals.
-%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -ro1 >> log.lst 
+%CEXE% sensor.c  %CCMD% -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% -ro1 >> log.lst 
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /o Profi-Ufo-B3_1-V%VERSION%-%D%%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /o Profi-Ufo-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - Profi-Ufo-B3_1-V%VERSION%-%D%%T%%G%%R%%E%.hex
-echo compiled - Profi-Ufo-B3_1-V%VERSION%-%D%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - Profi-Ufo-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex
+echo compiled - Profi-Ufo-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - Profi-Ufo-B3_1-V%VERSION%-%D%%T%%G%%R%%E%.hex
-echo failed - Profi-Ufo-B2_1-V%VERSION%-%D%%T%%G%%R%%E%.hex >> gen.lst
+echo failed - Profi-Ufo-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex
+echo failed - Profi-Ufo-B2_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH

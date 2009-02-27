@@ -29,7 +29,6 @@
 // Math Library
 #include "mymath16.h"
 
-
 // Limit integral sum of Roll gyros
 // it must be limited to avoid numeric overflow
 // which would cause a serious flip -> crash
@@ -54,12 +53,15 @@ void LimitRollSum(void)
 			RollSum.low8 = 0;
 		}
 		RollSum += LRIntKorr;
-		if( RollSum > 0 ) RollSum--;
-		if( RollSum < 0 ) RollSum++;
+		if( RollSum > 0 ) 
+			RollSum--;
+		else
+			if( RollSum < 0 ) 
+				RollSum++;
 
 	}
 
-}
+} // LimitRollSum
 
 // Limit integral sum of Pitch gyros
 // it must be limited to avoid numeric overflow
@@ -78,14 +80,17 @@ void LimitPitchSum(void)
 			PitchSum.low8 = 0;
 		}
 		else
-		if( (int8)PitchSum.high8 < NegFact )
-		{
-			PitchSum.high8 = NegFact;
-			PitchSum.low8 = 0;
-		}
+			if( (int8)PitchSum.high8 < NegFact )
+			{
+				PitchSum.high8 = NegFact;
+				PitchSum.low8 = 0;
+			}
 		PitchSum += FBIntKorr;
-		if( PitchSum > 0 ) PitchSum--;
-		if( PitchSum < 0 ) PitchSum++;
+		if( PitchSum > 0 ) 
+			PitchSum--;
+		else
+			if( PitchSum < 0 ) 
+				PitchSum++;
 
 		#ifdef NADA
 		SendComValH(PitchSamples.high8);
@@ -98,7 +103,7 @@ void LimitPitchSum(void)
 		#endif
 
 	}
-}
+} // LimitPitchSum
 
 // Limit integral sum of Yaw gyros
 // it must be limited to avoid numeric overflow
@@ -125,16 +130,14 @@ void LimitYawSum(void)
 				// yaw stick is not in neutral zone, learn new desired heading
 				AbsDirection = COMPASS_INVAL;
 			else
-			{
 				// yaw stick is in neutral zone, hold heading
 				if( CurDeviation > COMPASS_MAXDEV )
 					YE -= COMPASS_MAXDEV;
 				else
-				if( CurDeviation < -COMPASS_MAXDEV )
-					YE += COMPASS_MAXDEV;
-				else
-					YE -= CurDeviation;
-			}
+					if( CurDeviation < -COMPASS_MAXDEV )
+						YE += COMPASS_MAXDEV;
+					else
+						YE -= CurDeviation;
 		}
 	}
 
@@ -145,12 +148,13 @@ void LimitYawSum(void)
 		YawSum.high8 = YawIntLimit;
 		YawSum.low8 = 0;
 	}
- 	if( (int8)YawSum.high8 < NegFact )
-	{
-		YawSum.high8 = NegFact;
-		YawSum.low8 = 0;
-	}
-}
+	else
+ 		if( (int8)YawSum.high8 < NegFact )
+		{
+			YawSum.high8 = NegFact;
+			YawSum.low8 = 0;
+		}
+} // LimitYawSum
 
 // to avoid stopping motors in the air, the
 // motor values are limited to a minimum and
@@ -176,7 +180,7 @@ int8 SaturInt(int16 l)
 		return(1);
 	#endif
 	return((int8)l);
-}
+} // SaturInt
 
 // mix the PID-results (Rl, Pl and Yl) and the throttle
 // on the motors and check for numerical overrun
@@ -285,12 +289,10 @@ void MixAndLimit(void)
 	}
 	#endif
 
-
 	// Ergebnisse auf Überlauf testen und korrigieren
-
 	MFront = SaturInt(Mf);
 	MLeft = SaturInt(Ml);
 	MRight = SaturInt(Mr);
 	MBack = SaturInt(Mb);
-}
+} // MixAndLimit
 

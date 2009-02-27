@@ -172,6 +172,9 @@ First public released version.
 12.02.2009 v3.15m3 Greg Egan
 - Reinstated vertical accelerometer compensation of throttle
 
+27.02.2006 v3.15m3 Greg Egan
+- Tricopter version reinstated in makefiles (makeall.bat)
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

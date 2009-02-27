@@ -391,7 +391,7 @@ OS002
 #endif	// DEBUG_MOTORS
 
 #endif  // !DEBUG_SENSORS
-}
+} // OutSignals
 
 
 // convert Roll and Pitch gyro values
@@ -426,7 +426,7 @@ void GetGyroValues(void)
 	#ifdef OPT_IDG
 	PCFG0 = 0;					// select 5V as Vref
 	#endif
-}
+} // GetGyroValues
 
 // ADXRS300: The Integral (RollSum & Pitchsum) has
 // a resolution of about 1000 LSBs for a 25° angle
@@ -578,7 +578,7 @@ void CalcGyroValues(void)
 		SendComChar(';');
 		#endif
 	}
-}
+} // CalcGyroValues
 
 
 // Mix the Camera tilt channel (Ch6) and the
@@ -604,16 +604,16 @@ void MixAndLimitCam(void)
 	if( Rp > _Maximum )
 		MCamRoll = _Maximum;
 	else
-	if( Rp < _Minimum )
-		MCamRoll = _Minimum;
-	else
-		MCamRoll = Rp;
+		if( Rp < _Minimum )
+			MCamRoll = _Minimum;
+		else
+			MCamRoll = Rp;
 
 	if( Pp > _Maximum )
 		MCamPitch = _Maximum;
 	else
-	if( Pp < _Minimum )
-		MCamPitch = _Minimum;
-	else
-		MCamPitch = Pp;
-}
+		if( Pp < _Minimum )
+			MCamPitch = _Minimum;
+		else
+			MCamPitch = Pp;
+} // MixAndLimitCam

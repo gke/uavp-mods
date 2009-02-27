@@ -42,7 +42,7 @@ void I2CDelay(void)
 	nop2();
 	nop2();
 	nop2();
-}
+} // I2CDelay
 
 // put SCL to high-z and wait until line is really hi
 // returns != 0 if ok
@@ -61,7 +61,7 @@ uns8 I2CWaitClkHi(void)
 	}	
 	I2CDelay();
 	return(nii);
-}
+} // I2CWaitClkHi
 
 // send a start condition
 void I2CStart(void)
@@ -73,7 +73,7 @@ void I2CStart(void)
 	I2CDelay();
 	I2C_SCL = 0;
 	I2C_CIO = 0;	// set SCL to output, output a low
-}
+} // I2CStart
 
 // send a stop condition
 void I2CStop(void)
@@ -84,7 +84,7 @@ void I2CStop(void)
 
 	I2C_DIO=1;	// set SDA to input, output a high, STOP condition
 	I2CDelay();		// leave clock high
-}
+} // I2CStop
 
 static shrBank uns8 nii;	// mus be bank0 or shrBank
 
@@ -123,7 +123,7 @@ uns8 SendI2CByte(uns8 nidata)
 //	I2C_IO = 0;		// set SDA to output
 //	I2C_SDA = 0;	// leave output low
 	return(nii);
-}
+} // SendI2CByte
 
 
 // read a byte from I2C slave and set ACK status
@@ -156,7 +156,7 @@ uns8 RecvI2CByte(uns8 niack)
 //	I2CDelay();
 //	I2C_IO = 0;	// set SDA to output
 	return(nidata);
-}
+} // RecvI2CByte
 
 
 // initialize compass sensor
@@ -172,7 +172,7 @@ void InitDirection(void)
 	_UseCompass = 1;
 IDerror:
 	I2CStop();
-}
+} // InitDirection
 
 // Read direction, convert it to 2 degrees unit
 // and store result in variable AbsDirection.
@@ -227,8 +227,9 @@ void GetDirection(void)
 
 			if( DirVal > 20 )	// limit to give soft reaction
 				DirVal = 20;
-			if( DirVal < -20 )
-				DirVal = -20;
+			else
+				if( DirVal < -20 )
+					DirVal = -20;
 
 			// Empirical found :-)
 			// New_CurDev = ((3*Old_CurDev)+DirVal) / 4
@@ -253,7 +254,7 @@ GAError:
 		if( IntegralCount == 0 )
 			SendComChar(';');
 	#endif
-}
+} // GetDirection
 
 // read temp & pressure values from baro sensor
 // return value= niltemp;
@@ -292,7 +293,7 @@ RVerror:
 	}
 	#endif
 	return(I2C_ACK);
-}
+} // ReadValueFromBaro
 
 // start A/D conversion on altimeter sensor
 // TempOrPress = BARO_TEMP to convert temperature
@@ -317,7 +318,7 @@ uns8 StartBaroADC(uns8 TempOrPress)
 SBerror:
 	I2CStop();
 	return(I2C_ACK);
-}
+} // StartBaroADC
 
 // initialize compass sensor
 void InitAltimeter(void)
@@ -366,7 +367,7 @@ void InitAltimeter(void)
 BAerror:
 	_UseBaro = _Hovering = 0;
 	I2CStop();
-}
+} // InitAltimeter
 
 void ComputeBaroComp(void)
 {
@@ -376,7 +377,11 @@ void ComputeBaroComp(void)
 
 	if( _UseBaro )
 		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
-		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))	
+#ifdef SLOW_BARO
+		if (((BaroCount >= 8) && _BaroTempRun) || ((BaroCount >= 32 ) && !_BaroTempRun))
+#else
+		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))
+#endif // SLOW_BARO	
 		{
 			BaroCount = 0;
 			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value		
@@ -441,8 +446,9 @@ void ComputeBaroComp(void)
 						// was: +10 and -5
 						if( BaroRelPressure > 8 ) // zu tief: ordentlich Gas geben
 							BaroRelPressure = 8;
-						if( BaroRelPressure < -3 ) // zu hoch: nur leicht nachlassen
-							BaroRelPressure = -3;
+						else
+							if( BaroRelPressure < -3 ) // zu hoch: nur leicht nachlassen
+								BaroRelPressure = -3;
 		
 						// weiche Regelung (proportional)
 						// nitemp kann nicht überlaufen (-3..+8 * PropFact)
@@ -454,14 +460,15 @@ void ComputeBaroComp(void)
 						if( VBaroComp > nitemp )
 							VBaroComp--;
 						else
-						if( VBaroComp < nitemp )
-							VBaroComp++;
-		
+							if( VBaroComp < nitemp )
+								VBaroComp++; // climb
+#ifndef SLOW_BARO
 						if( VBaroComp > nitemp )
 							VBaroComp--;
 						else
-						if( VBaroComp < nitemp )
-							VBaroComp++;
+#endif // SLOW_BARO
+							if( VBaroComp < nitemp )
+								VBaroComp++;
 		
 						// Differentialanteil
 						if( niltemp1 > 8 )
@@ -473,10 +480,11 @@ void ComputeBaroComp(void)
 						nitemp = (int)niltemp1.low8 * BaroThrottleDiff;
 						VBaroComp += nitemp;
 	
-						if( VBaroComp > 20 ) 		// 15
+						if( VBaroComp > 15 ) 	
 							VBaroComp = 15;
-						if( VBaroComp < -10 ) 		// 5
-							VBaroComp = -10;
+						else
+						if( VBaroComp < -5 )
+							VBaroComp = -5;
 							
 						#ifdef BARO_SCRATCHY_BEEPER
 						Beeper_TOG;
@@ -501,5 +509,5 @@ void ComputeBaroComp(void)
 			SendComChar(';');
 		}
 	#endif
-}	
+} // ComputeBaroComp	
 

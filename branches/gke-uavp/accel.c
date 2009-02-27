@@ -60,6 +60,9 @@ void CheckLISL(void)
 	}
 	#endif
 
+	// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
+	// and come back as MiddleLR etc.
+
 	// 1 unit is 1/4096 of 2g = 1/2048g
 	Rp -= MiddleLR;
 	Pp -= MiddleFB;
@@ -102,15 +105,17 @@ void CheckLISL(void)
 
 	if( (BlinkCount & 0x03) == 0 )	
 	{
-		if( (int8)Yp.high8 > Vud )
-			Vud++;
-		if( (int8)Yp.high8 < Vud )
-			Vud--;
+		if( (int8)Yp.high8 > Vud ) Vud++;
+		else
+			if( (int8)Yp.high8 < Vud )Vud--;
+
 		if( Vud >  20 ) Vud =  20;
-		if( Vud < -20 ) Vud = -20;
+		else
+			if( Vud < -20 ) Vud = -20;
 	}
 	if( UDSum >  10 ) UDSum -= 10;
-	if( UDSum < -10 ) UDSum += 10;
+	else
+		if( UDSum < -10 ) UDSum += 10;
 	#endif // ACCEL_VUD
 
 	// =====================================
@@ -143,12 +148,13 @@ void CheckLISL(void)
 	LRIntKorr = 0;
 	#ifdef OPT_ADXRS
 	if( Rp > 10 ) LRIntKorr =  1;
-	if( Rp < 10 ) LRIntKorr = -1;
+	else
+		if( Rp < 10 ) LRIntKorr = -1;
 	#endif
-
 	#ifdef OPT_IDG
 	if( Rp > 10 ) LRIntKorr = -1;
-	if( Rp < 10 ) LRIntKorr =  1;
+	else
+		if( Rp < 10 ) LRIntKorr =  1;
 	#endif
 
 	#ifdef NADA
@@ -160,7 +166,8 @@ void CheckLISL(void)
 	Rp = LRSum + 128;
 	LRSumPosi += (int8)Rp.high8;
 	if( LRSumPosi >  2 ) LRSumPosi -= 2;
-	if( LRSumPosi < -2 ) LRSumPosi += 2;
+	else
+		if( LRSumPosi < -2 ) LRSumPosi += 2;
 
 	// Korrekturanteil fuer den PID Regler
 	Rp = LRSumPosi * LinLRIntFactor;
@@ -168,7 +175,8 @@ void CheckLISL(void)
 	Rp = (int8)Rp.high8;
 	// limit output
 	if( Rp >  2 ) Rp = 2;
-	if( Rp < -2 ) Rp = -2;
+	else
+		if( Rp < -2 ) Rp = -2;
 	#endif // NADA
 
 	Rp = 0;
@@ -181,7 +189,6 @@ void CheckLISL(void)
 	#ifdef OPT_ADXRS
 	Yl = PitchSum * 11;	// Pp um RollSum* 11/32 korrigieren
 	#endif
-
 	#ifdef OPT_IDG
 	Yl = PitchSum * -15;	// Pp um RollSum* -14/32 korrigieren
 	#endif
@@ -194,12 +201,14 @@ void CheckLISL(void)
 	// correct DC level of the integral
 	FBIntKorr = 0;
 	#ifdef OPT_ADXRS
-	if( Pp > 10 ) FBIntKorr =  1;
-	if( Pp < 10 ) FBIntKorr = -1;
+	if( Pp > 10 ) FBIntKorr =  1; 
+	else 
+		if( Pp < 10 ) FBIntKorr = -1;
 	#endif
 	#ifdef OPT_IDG
 	if( Pp > 10 ) FBIntKorr = -1;
-	if( Pp < 10 ) FBIntKorr =  1;
+	else
+		if( Pp < 10 ) FBIntKorr =  1;
 	#endif
 
 	#ifdef NADA
@@ -212,7 +221,8 @@ void CheckLISL(void)
 	Pp = FBSum + 128;
 	FBSumPosi += (int8)Pp.high8;
 	if( FBSumPosi >  2 ) FBSumPosi -= 2;
-	if( FBSumPosi < -2 ) FBSumPosi += 2;
+	else
+		if( FBSumPosi < -2 ) FBSumPosi += 2;
 
 	// Korrekturanteil fuer den PID Regler
 	Pp = FBSumPosi * LinFBIntFactor;
@@ -224,4 +234,4 @@ void CheckLISL(void)
 	#endif // NADA
 
 	Pp = 0;
-}
+} // CheckLISL

@@ -1,5 +1,8 @@
 // EXPERIMENTAL
 
+// reduces the update rate and the additionally the descent rate 
+#define SLOW_BARO
+
 // Reinstated vertical acceleration compensation 
 #define ACCEL_VUD
 
@@ -243,7 +246,7 @@ extern	shrBank	uns8	IntegralCount;
 
 // measured neutral gyro values
 // current stick neutral values
-extern	bank2	int8		RollNeutral, PitchNeutral, YawNeutral;
+extern	bank2	int8	RollNeutral, PitchNeutral, YawNeutral;
 extern	bank2	uns8	ThrNeutral;
 extern	bank0	uns16	ThrDownCount;
 
