@@ -75,13 +75,22 @@ supports YGEs I2C ESCs (configure with "Y" command)
 13.1.2009 Version derived from V3.14 by Greg Egan 
 with support for composite PPM 
 
-17.1.2009 bootloader relinked to software
+17.1.2009 Version derived from V3.14 by Greg Egan
+- Bootloader relinked to software
 
 
 22.1.2009 Version derived from V3.14 by Greg Egan
 - Set CKE bit in SSPSTAT to disable high threshold
   Schmidt inputs from LISL which has a 3.3V supply.
   Previously data and other bits could be lost. 
+
+22.2.2009 Version derived from V3.14 by Greg Egan
+- Support for BMP085 baro
+
+
+27.2.2009 Version derived from V3.14 by Greg Egan
+- Displays compensated baro pressure using parameters
+  last written using flight software.
 
 ==============================================
 = Transferring firmware to the PIC           =

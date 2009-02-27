@@ -113,4 +113,20 @@ void SwitchLedsOff(uns8 W)
 	SendLeds();
 }
 
+// read the current parameter set into the RAM variables
+void ReadEEdata(void) 
+{
+	int *p;
+	EEADR = _EESet1;	// default 1st parameter set
+	if( CurrK5 > _Neutral )
+		EEADR = _EESet2;	// user selected 2nd parameter set
+
+	for(p = &FirstProgReg; p <= &LastProgReg; p++)
+	{
+		EEPGD = 0;
+		RD = 1;
+		*p = EEDATA;
+		EEADR++;
+	}
+}
 
