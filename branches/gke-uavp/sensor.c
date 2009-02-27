@@ -1,28 +1,25 @@
 
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 // The "sensor bus" routines (barometric and compass)
 
@@ -183,7 +180,7 @@ IDerror:
 void GetDirection(void)
 {
 
-	bank2 long DirVal, temp;
+	bank2 int16 DirVal, temp;
 
 	if( _UseCompass && ((BlinkCount & 0x03) == 0) )	// enter every 4th scan
 	{
@@ -235,7 +232,7 @@ void GetDirection(void)
 
 			// Empirical found :-)
 			// New_CurDev = ((3*Old_CurDev)+DirVal) / 4
-			temp = (long)CurDeviation;	// the previous value!
+			temp = (int16)CurDeviation;	// the previous value!
 			temp *= 3;
 			temp += DirVal;			// add the new value
 			temp <<= 2;		// = 16* NewCurDev
@@ -285,7 +282,7 @@ uns8 ReadValueFromBaro(void)
 RVerror:
 	I2CStop();
 	_UseBaro = 0; // read error, disable baro
-#ifdef BARO_RETRY
+	#ifdef BARO_RETRY
 	_Hovering = 0;	
 	if ( BaroRestarts < 100 )
 	{
@@ -293,7 +290,7 @@ RVerror:
 		_BaroRestart = 1;
 		BaroRestarts++;
 	}
-#endif
+	#endif
 	return(I2C_ACK);
 }
 
@@ -416,7 +413,7 @@ void ComputeBaroComp(void)
 						// while holding altitude
 						niltemp -= BaroBasePressure;
 						// niltemp1 has -400..+400 approx
-						niltemp1 = (long)BaroRelTempCorr * (long)BaroTempCoeff;
+						niltemp1 = (int16)BaroRelTempCorr * (int16)BaroTempCoeff;
 						niltemp1 += 16;
 						niltemp1 /= 32;
 	

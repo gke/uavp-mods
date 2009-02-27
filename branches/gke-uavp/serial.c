@@ -1,27 +1,24 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 // Serial support (RS232 option)
 
@@ -150,10 +147,10 @@ void SendComValH(uns8 W)
 void SendComValS(uns8 W)
 {
 	nival = W;
-	if( (int)nival < 0 )
+	if( (int8)nival < 0 )
 	{
 		SendComChar('-');	// send sign
-		nival = -(int)nival;
+		nival = -(int8)nival;
 	}
 	else
 		SendComChar('+');	// send sign
@@ -208,7 +205,7 @@ uns8 RecvComNumU(void)
 
 
 // enter a signed number -99 to 99 (always 2 digits)!
-int RecvComNumS(void)
+int8 RecvComNumS(void)
 {
 	nival = 0;
 
@@ -301,13 +298,13 @@ void ProgRegister(void)
 	WREN = 0;	// disable EEPROM write
 }
 
-long nila1@nilarg1;
+int16 nila1@nilarg1;
 
 // if a command is waiting, read and process it.
 // Do NOT call this routine while in flight!
 void ProcessComCommand(void)
 {
-    int size1 *p;
+    int8 size1 *p;
 	uns8 nireg;
 	
 	nireg = RecvComChar();
@@ -417,7 +414,7 @@ void ProcessComCommand(void)
 			movwf	PCLATH
 			dw	0x2F00
 #endasm
-			BootStart();	// never comes back!
+//			BootStart();	// never comes back!
 		
 #ifndef TESTOUT	
 		case 'T':

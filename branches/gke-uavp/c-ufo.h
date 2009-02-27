@@ -1,9 +1,10 @@
 // EXPERIMENTAL
 
 // Reinstated vertical acceleration compensation 
-//#define ACCEL_VUD
+#define ACCEL_VUD
 
 // Attempts reconnection to the barometer if there is an I2C error
+// I2C comms seems now to be reliable with the BMP085 baro.
 //#define BARO_RETRY
 
 // Increase the severity of the filter on the baromater pressure readings
@@ -14,30 +15,27 @@
 #define BARO_SCRATCHY_BEEPER
 
 #ifndef BATCHMODE
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 // C-Ufo Header File
 
@@ -149,77 +147,77 @@
 // ==============================================
 
 extern	shrBank	uns8	IGas;
-extern	shrBank	int 	IRoll,IPitch,IYaw;
+extern	shrBank	int8 	IRoll,IPitch,IYaw;
 extern	shrBank	uns8	IK5,IK6,IK7;
 
-extern	bank2	int		RE, PE;
-extern	bank2	int		YE;
-extern	bank1	int		REp,PEp;
-extern	bank1	int		YEp;
-extern	bank2	long	YawSum;
-extern	bank2	long	PitchSum, RollSum;
+extern	bank2	int8	RE, PE;
+extern	bank2	int8	YE;
+extern	bank1	int8	REp,PEp;
+extern	bank1	int8	YEp;
+extern	bank2	int16	YawSum;
+extern	bank2	int16	PitchSum, RollSum;
 extern	bank2	uns16	RollSamples, PitchSamples;
-//extern	bank2	long	LRSum, FBSum, UDSum;
-extern	bank2	int		LRIntKorr, FBIntKorr;
+//extern	bank2	int16	LRSum, FBSum, UDSum;
+extern	bank2	int8	LRIntKorr, FBIntKorr;
 extern	bank2	uns8	NeutralLR, NeutralFB, NeutralUD;
-extern	bank2	int 	UDSum;
+extern	bank2	int8 	UDSum;
 
-//extern	bank1	long	LRSumPosi, FBSumPosi;
-extern	bank1	int		NegFact; // general purpose
+//extern	bank1	int16	LRSumPosi, FBSumPosi;
+extern	bank1	int8	NegFact; // general purpose
 
 extern	shrBank	uns8	BlinkCount, BlinkCycle, BaroCount;
 
-extern	bank0	long	niltemp1;
-extern	bank0	int		Rw,Pw;	// angles
-extern  bank1	int	BatteryVolts; // added by Greg Egan
-extern	bank1	long	niltemp;
-int		nitemp @ niltemp;
+extern	bank0	int16	niltemp1;
+extern	bank0	int8		Rw,Pw;	// angles
+extern  bank1	int8	BatteryVolts; // added by Greg Egan
+extern	bank1	int16	niltemp;
+int8		nitemp @ niltemp;
 				
 // Variables for barometric sensor PD-controller
 extern	bank0	uns16	BaroBasePressure, BaroBaseTemp;
 extern	bank0	uns16	BaroRelTempCorr;
-extern	bank1	int	VBaroComp;
-extern  bank0	int    BaroRelPressure;
+extern	bank1	int8	VBaroComp;
+extern  bank0	int8    BaroRelPressure;
 extern	bank2	uns8	BaroType, BaroTemp, BaroRestarts;
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
 // These variables MUST keep their order!!!
 
-extern	bank1	int	RollPropFactor; 	// 01
-extern	bank1	int	RollIntFactor;		// 02
-extern	bank1	int	RollDiffFactor;		// 03
-extern	bank1	int RollLimit;			// 04
-extern	bank1	int	RollIntLimit;		// 05
+extern	bank1	int8	RollPropFactor; 	// 01
+extern	bank1	int8	RollIntFactor;		// 02
+extern	bank1	int8	RollDiffFactor;		// 03
+extern	bank1	int8 RollLimit;			// 04
+extern	bank1	int8	RollIntLimit;		// 05
 extern	BaroTempCoeff @RollLimit;
 
-extern	bank1	int	PitchPropFactor;	 	// 06
-extern	bank1	int	PitchIntFactor;		// 07
-extern	bank1	int	PitchDiffFactor;		// 08
-extern	bank1	int PitchLimit;			// 09
-extern	bank1	int	PitchIntLimit;		// 10
+extern	bank1	int8	PitchPropFactor;	 	// 06
+extern	bank1	int8	PitchIntFactor;		// 07
+extern	bank1	int8	PitchDiffFactor;		// 08
+extern	bank1	int8 	PitchLimit;			// 09
+extern	bank1	int8	PitchIntLimit;		// 10
 extern  BaroThrottleProp @PitchLimit;
 
-extern	bank1	int	YawPropFactor; 	// 11
-extern	bank1	int	YawIntFactor;		// 12
-extern	bank1	int	YawDiffFactor;		// 13
-extern	bank1	int	YawLimit;			// 14
-extern	bank1	int YawIntLimit;		// 15
+extern	bank1	int8	YawPropFactor; 	// 11
+extern	bank1	int8	YawIntFactor;		// 12
+extern	bank1	int8	YawDiffFactor;		// 13
+extern	bank1	int8	YawLimit;			// 14
+extern	bank1	int8 	YawIntLimit;		// 15
 
-extern	bank1	int	ConfigParam;		// 16
-extern	bank1	int TimeSlot;			// 17
-extern	bank1	int	LowVoltThres;		// 18
+extern	bank1	int8	ConfigParam;		// 16
+extern	bank1	int8 	TimeSlot;			// 17
+extern	bank1	int8	LowVoltThres;		// 18
 
-extern	bank1	int	LinLRIntFactor;		// 19 free
-extern	bank1	int	LinFBIntFactor;		// 20 free
-extern	bank1	int	LinUDIntFactor;		// 21
-extern	bank1	int MiddleUD;			// 22
-extern	bank1	int	MotorLowRun;		// 23
-extern	bank1	int	MiddleLR;			// 24
-extern	bank1	int	MiddleFB;			// 25
-extern	bank1	int	CamPitchFactor;		// 26
+extern	bank1	int8	LinLRIntFactor;		// 19 free
+extern	bank1	int8	LinFBIntFactor;		// 20 free
+extern	bank1	int8	LinUDIntFactor;		// 21
+extern	bank1	int8 	MiddleUD;			// 22
+extern	bank1	int8	MotorLowRun;		// 23
+extern	bank1	int8	MiddleLR;			// 24
+extern	bank1	int8	MiddleFB;			// 25
+extern	bank1	int8	CamPitchFactor;		// 26
 extern	CamRollFactor @LinLRIntFactor;
-extern	bank1	int	CompassFactor;		// 27
-extern	bank1	int	BaroThrottleDiff;	// 28
+extern	bank1	int8	CompassFactor;		// 27
+extern	bank1	int8	BaroThrottleDiff;	// 28
 
 // these 2 dummy registers (they do not occupy any RAM location)
 // are here for defining the first and the last programmable 
@@ -230,11 +228,11 @@ int	LastProgReg @BaroThrottleDiff;
 
 // end of "order-block"
 
-extern	bank1	uns8	MVorne,MLinks,MRechts,MHinten;	// output channels
+extern	bank1	uns8	MFront,MLeft,MRight,MBack;	// output channels
 extern	bank1	uns8	MCamRoll,MCamPitch;
-extern	bank1	long	Ml, Mr, Mv, Mh;
-extern	bank1	long	Rl,Pl,Yl;	// PID output values
-extern	bank1	long	Rp,Pp,Yp,Vud;
+extern	bank1	int16	Ml, Mr, Mf, Mb;
+extern	bank1	int16	Rl,Pl,Yl;	// PID output values
+extern	bank1	int16	Rp,Pp,Yp,Vud;
 
 
 extern	shrBank	uns8	Flags;
@@ -245,7 +243,7 @@ extern	shrBank	uns8	IntegralCount;
 
 // measured neutral gyro values
 // current stick neutral values
-extern	bank2	int		RollNeutral, PitchNeutral, YawNeutral;
+extern	bank2	int8		RollNeutral, PitchNeutral, YawNeutral;
 extern	bank2	uns8	ThrNeutral;
 extern	bank0	uns16	ThrDownCount;
 
@@ -253,7 +251,7 @@ extern	bank2	uns16	MidRoll, MidPitch, MidYaw;
 
 extern	shrBank	uns8	LedShadow;	// shadow register
 extern	bank2	uns16	AbsDirection;	// wanted heading (240 = 360 deg)
-extern	shrBank	int		CurDeviation;	// deviation from correct heading
+extern	shrBank	int8		CurDeviation;	// deviation from correct heading
 
 #define _ClkOut		(160/4)	/* 16.0 MHz quartz */
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
