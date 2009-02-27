@@ -43,21 +43,21 @@ void MatrixCompensate(void)
 // Nnew = cos(Roll)*PE
 //        
 #if 0
-	long nila1@nilarg1;
-	int ni1,ni2;
+	int16 nila1@nilarg1;
+	int8 ni1,ni2;
 
 	nila1=Pw;
-	niltemp1 = (int)Cos();
-	niltemp1 *= (long)RE;
+	niltemp1 = (int8)Cos();
+	niltemp1 *= (int16)RE;
 
 	nila1=Pw;
 	ni1 = Sin();
 	nila1=Rw;
 	ni2 = Sin();
-	niltemp = (long)ni1 * (long)ni2;
+	niltemp = (int16)ni1 * (int16)ni2;
 	niltemp += 64;
 	niltemp /= 128;
-	niltemp *= (long)PE;
+	niltemp *= (int16)PE;
 
 	niltemp += niltemp1;
 	niltemp += 64;

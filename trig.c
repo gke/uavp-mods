@@ -53,8 +53,8 @@ const uns8 sintab[] = {
 #undef F
 
 
-long nilparam@nilarg1;
-long niltempt@nilarg2;
+int16 nilparam@nilarg1;
+int16 niltempt@nilarg2;
 
 
 // modifiy an angle until it is in range 0..360

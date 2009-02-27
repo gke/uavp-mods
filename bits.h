@@ -1,27 +1,24 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 // Bit definitions
 
@@ -29,10 +26,10 @@
 
 // when changing, see OutSignal() in utils.c
 #ifdef ESC_PPM
-bit	PulseVorne		@PORTB.0;
-bit	PulseLinks		@PORTB.1;
-bit	PulseRechts		@PORTB.2;
-bit	PulseHinten		@PORTB.3;
+bit	PulseFront		@PORTB.0;
+bit	PulseLeft		@PORTB.1;
+bit	PulseRight		@PORTB.2;
+bit	PulseBack		@PORTB.3;
 #endif
 #if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 bit ESC_SDA			@PORTB.1;

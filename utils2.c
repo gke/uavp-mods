@@ -1,27 +1,24 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 // Utilities and subroutines
 
@@ -32,7 +29,7 @@
 // Math Library
 #include "mymath16.h"
 
-static bank1 int i;
+static bank1 int8 i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
@@ -122,10 +119,10 @@ void OutG(uns8 l)
 void InitArrays(void)
 {
 	W = _Minimum;
-	MVorne = W;	// stop all motors
-	MLinks = W;
-	MRechts = W;
-	MHinten = W;
+	MFront = W;	// stop all motors
+	MLeft = W;
+	MRight = W;
+	MBack = W;
 
 	W = _Neutral;
 	MCamPitch = W;
@@ -181,9 +178,9 @@ void GetEvenValues(void)
 		Pl.high8 = ReadLISLNext();
 		LISL_CS = 1;	// end transmission
 		
-		Rp += (long)Rl;
-		Pp += (long)Pl;
-		Yp += (long)Yl;
+		Rp += (int16)Rl;
+		Pp += (int16)Pl;
+		Yp += (int16)Yl;
 	}
 	Rp += 8;
 	Pp += 8;
@@ -191,6 +188,7 @@ void GetEvenValues(void)
 	Rp >>= 4;
 	Pp >>= 4;
 	Yp >>= 4;
+
 	NeutralLR = Rp.low8;
 	NeutralFB = Pp.low8;
 	NeutralUD = Yp.low8;
@@ -202,12 +200,12 @@ void GetEvenValues(void)
 // Filter battery volts to remove ADC/Motor spikes and set _LoBatt alarm accordingly 
 void CheckBattery(void)
 {
-	int NewBatteryVolts, Temp;
+	int8 NewBatteryVolts, Temp;
 
 	ADFM = 0;	// select 8 bit mode
 	ADCON0 = 0b.10.000.0.0.1;	// turn AD on, select CH0(RA0) Ubatt
 	AcqTime();
-	NewBatteryVolts = (int) (ADRESH >> 1);
+	NewBatteryVolts = (int8) (ADRESH >> 1);
 
 	#ifndef DEBUG_SENSORS
 	// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+1)>>1;
@@ -229,7 +227,7 @@ void CheckAlarms(void)
 	if( _LowBatt )
 	{
 		if( BlinkCount < BLINK_LIMIT/2 )
-{
+		{
 			Beeper_ON;
 			LedRed_ON;
 		}
@@ -241,7 +239,6 @@ void CheckAlarms(void)
 	}
 	else
 	if ( _LostModel )
-	{
 		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle < (BLINK_CYCLES/4 )) )
 		{
 			Beeper_ON;
@@ -252,10 +249,8 @@ void CheckAlarms(void)
 			Beeper_OFF;
 			LedRed_OFF;
 		}	
-	}
 	else
 	if ( _BaroRestart )
-	{
 		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle == 0 ) )
 		{
 			Beeper_ON;
@@ -266,7 +261,6 @@ void CheckAlarms(void)
 			Beeper_OFF;
 			LedRed_OFF;
 		}	
-	}
 	else
 	{
 		Beeper_OFF;				

@@ -1,27 +1,24 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 
 // CC5X Compiler parameters:
@@ -49,70 +46,70 @@
 // The globals
 
 uns8	IGas;			// actual input channel, can only be positive!
-int 	IRoll,IPitch,IYaw;	// actual input channels, 0 = neutral
+int8 	IRoll,IPitch,IYaw;	// actual input channels, 0 = neutral
 uns8	IK5;		// actual channel 5 input
 uns8	IK6;		// actual channel 6 input
 uns8	IK7;		// actual channel 7 input
 
 // PID Regler Variablen
-int		RE,PE;
-int		YE;	// Fehlersignal aus dem aktuellen Durchlauf
-int		REp,PEp;
-int		YEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/PE/YE)
-long	YawSum;	// Integrales Fehlersignal fuer Yaw, 0 = neutral
-long	RollSum, PitchSum;	// Integrales Fehlersignal fuer Roll und Pitch
+int8		RE,PE;
+int8		YE;	// Fehlersignal aus dem aktuellen Durchlauf
+int8		REp,PEp;
+int8		YEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/PE/YE)
+int16	YawSum;	// Integrales Fehlersignal fuer Yaw, 0 = neutral
+int16	RollSum, PitchSum;	// Integrales Fehlersignal fuer Roll und Pitch
 uns16	RollSamples, PitchSamples;
-int		LRIntKorr, FBIntKorr;
+int8		LRIntKorr, FBIntKorr;
 uns8	NeutralLR, NeutralFB, NeutralUD;
-int 	UDSum;
+int8 	UDSum;
 
-int		NegFact; // general purpose
+int8		NegFact; // general purpose
 uns8	BlinkCount, BlinkCycle, BaroCount;
-long	niltemp1;
-long	niltemp;
-int		BatteryVolts; // added by Greg Egan
-int		Rw,Pw;
+int16	niltemp1;
+int16	niltemp;
+int8		BatteryVolts; // added by Greg Egan
+int8		Rw,Pw;
 
 uns16	BaroBasePressure, BaroBaseTemp, BaroRelTempCorr;
-int		VBaroComp;
-int 	BaroRelPressure;
+int8		VBaroComp;
+int8 	BaroRelPressure;
 uns8	BaroType, BaroTemp, BaroRestarts;
 
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
-int	RollPropFactor;
-int	RollIntFactor;
-int	RollDiffFactor;
-int RollLimit;
-int RollIntLimit;
+int8	RollPropFactor;
+int8	RollIntFactor;
+int8	RollDiffFactor;
+int8 RollLimit;
+int8 RollIntLimit;
 
-int	PitchPropFactor;
-int	PitchIntFactor;
-int	PitchDiffFactor;
-int PitchLimit;
-int PitchIntLimit;
+int8	PitchPropFactor;
+int8	PitchIntFactor;
+int8	PitchDiffFactor;
+int8 PitchLimit;
+int8 PitchIntLimit;
 
-int	YawPropFactor;
-int	YawIntFactor;
-int	YawDiffFactor;
-int	YawLimit;
-int YawIntLimit;
+int8	YawPropFactor;
+int8	YawIntFactor;
+int8	YawDiffFactor;
+int8	YawLimit;
+int8 YawIntLimit;
 
-int	ConfigParam;
-int	TimeSlot;
-int LowVoltThres;
+int8	ConfigParam;
+int8	TimeSlot;
+int8 LowVoltThres;
 
-int	LinLRIntFactor;
-int	LinFBIntFactor;
-int	LinUDIntFactor;
-int MiddleUD;
-int MotorLowRun;
-int	MiddleLR;
-int MiddleFB;
-int	CamPitchFactor;
-int CompassFactor;
+int8	LinLRIntFactor;
+int8	LinFBIntFactor;
+int8	LinUDIntFactor;
+int8 MiddleUD;
+int8 MotorLowRun;
+int8	MiddleLR;
+int8 MiddleFB;
+int8	CamPitchFactor;
+int8 CompassFactor;
 
-int BaroThrottleDiff;
+int8 BaroThrottleDiff;
 
 // Ende Reihenfolgezwang
 
@@ -121,20 +118,20 @@ uns16	MidRoll, MidPitch, MidYaw;
 
 uns8	LedShadow;	// shadow register
 uns16	AbsDirection;	// wanted heading (240 = 360 deg)
-int		CurDeviation;	// deviation from correct heading
+int8		CurDeviation;	// deviation from correct heading
 
-uns8	MVorne,MLinks,MRechts,MHinten;	// output channels
+uns8	MFront,MLeft,MRight,MBack;	// output channels
 uns8	MCamRoll,MCamPitch;
-long	Ml, Mr, Mv, Mh;
-long	Rl,Pl,Yl;	// PID output values
-long	Rp,Pp,Yp;
-long	Vud;
+int16	Ml, Mr, Mf, Mb;
+int16	Rl,Pl,Yl;	// PID output values
+int16	Rp,Pp,Yp;
+int16	Vud;
 
 uns8	Flags;
 uns8	Flags2;
 
 uns8	IntegralCount;
-int		RollNeutral, PitchNeutral, YawNeutral;
+int8		RollNeutral, PitchNeutral, YawNeutral;
 uns8	ThrNeutral;
 uns16	ThrDownCount;
 
@@ -370,7 +367,7 @@ Restart:
 		// else assume use for camera roll trim	
 		_UseCh7Trigger = IK7 < 30;
 			
-		while ( Switch == 1 )	// as long as power switch is ON
+		while ( Switch == 1 )	// as int16 as power switch is ON
 		{
 			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			TMR0 = 0;
