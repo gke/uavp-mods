@@ -56,7 +56,7 @@ void Delay100mSWithOutput(uns8 dur)
 				return;
 		}
 	}
-}
+} // Delay100mSWithOutput
 
 #ifdef DEBUGOUT
 // output a value on connector K5
@@ -83,7 +83,7 @@ void Out(uns8 l)
 		}
 		l<<=1;
 	}
-}
+} // Out
 #endif
 
 #ifdef DEBUGOUTG
@@ -111,7 +111,7 @@ void OutG(uns8 l)
 	}
 
 	PORTB.5=0;
-}
+} // OutG
 #endif
 
 // resets all important variables
@@ -141,7 +141,7 @@ void InitArrays(void)
 	YawSum = RollSum = PitchSum = 0;
 
 	BaroRestarts = 0;
-}
+} // InitArrays
 
 // used for A/D conversion to wait for
 // acquisition sample time and A/D conversion completion
@@ -152,7 +152,7 @@ void AcqTime(void)
 		;
 	GO = 1;
 	while( GO ) ;	// wait to complete
-}
+} // AcqTime
 
 // this routine is called ONLY ONCE while booting
 // read 16 time all 3 axis of linear sensor.
@@ -192,7 +192,7 @@ void GetEvenValues(void)
 	NeutralLR = Rp.low8;
 	NeutralFB = Pp.low8;
 	NeutralUD = Yp.low8;
-}
+} // GetEvenValues
 
 // read accu voltage using 8 bit A/D conversion
 // Bit _LowBatt is set if voltage is below threshold
@@ -220,7 +220,7 @@ void CheckBattery(void)
 		_LowBatt = 0;
 
 	#endif // DEBUG_SENSORS
-}
+} // CheckBattery
 
 void CheckAlarms(void)
 {

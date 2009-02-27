@@ -54,7 +54,7 @@ void OutSSP(bank2 uns8 nidata)
 		nidata <<= 1;
 		SSP_CLK = 0;
 	}
-}
+} // OutSSP
 #endif
 
 // send a command byte to linear sensor, address = niaddr
@@ -73,7 +73,7 @@ void SendCommand(void)
 		niaddr <<= 1;
 		LISL_SCL = 1;
 	}
-}
+} // SendCommand
 
 // send an address byte (niaddr) to linear sensor
 // read the answer and return it
@@ -89,7 +89,7 @@ uns8 ReadLISL(uns8 W)
 	if( (nii & LISL_INCR_ADDR) == 0 )
 		LISL_CS = 1;	// end transmission
 	return(W);
-}
+} // ReadLISL
 
 // read a data byte from linear sensor and return it
 uns8 ReadLISLNext(void)
@@ -104,7 +104,7 @@ uns8 ReadLISLNext(void)
 		LISL_SCL = 1;
 	}
 	return(niaddr);
-}
+} // ReadLISLNext
 
 // send an address byte (niaddr) to linear sensor
 // and write data byte (nidata)
@@ -125,7 +125,7 @@ void WriteLISL(uns8 nidata, uns8 W)
 	}
 	LISL_CS = 1;
 	LISL_IO = 1;	// IO is input (to allow RS232 reception)
-}
+} // WriteLISL
 
 // put the base setup to linear sensor
 // enable all axes, setup resolution
@@ -150,5 +150,5 @@ void IsLISLactive(void)
 		WriteLISL(0b.00000000, LISL_DD_CFG);
 		_UseLISL = 1;
 	}
-}
+} // IsLISLactive
 

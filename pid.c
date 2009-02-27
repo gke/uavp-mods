@@ -29,7 +29,6 @@
 // Math Library
 #include "mymath16.h"
 
-
 // compute the correction adders for the motors
 // using the gyro values (PID controller)
 // for the axes Roll and Pitch
@@ -86,19 +85,19 @@ void PID(void)
 	{
 		if( CurDeviation > 0 )
 			LedGreen_ON;
-		if( CurDeviation < 0 )
-			LedRed_ON;
+		else
+			if( CurDeviation < 0 )
+				LedRed_ON;
 		if( AbsDirection > COMPASS_MAX )
 			LedYellow_ON;
 	}
 
 	if( IntegralTest )
-	{
 		if( (int8)RollSum.high8 > 0 )
 			LedRed_ON;
-		if( (int8)RollSum.high8 < -1 )
-			LedGreen_ON;
-	}
+		else
+			if( (int8)RollSum.high8 < -1 )
+				LedGreen_ON;
 
 	// Integral part for Roll
 	if( IntegralCount == 0 )
@@ -108,6 +107,7 @@ void PID(void)
 		Rl += (int8)Rp.high8;
 	}
 
+	// Old test for roll limits
 	// muss so gemacht werden, weil CC5X kein if(Pl < -RollPitchLimit) kann!
 	//	NegFact = -RollLimit;
 	//	if( Rl < NegFact ) Rl = NegFact;
@@ -132,12 +132,11 @@ void PID(void)
 	Pl += Pp;	// add proportional part
 
 	if( IntegralTest )
-	{
 		if( (int8)PitchSum.high8 >  0 )
 			LedYellow_ON;
-		if( (int8)PitchSum.high8 < -1 )
-			LedBlue_ON;
-	}
+		else
+			if( (int8)PitchSum.high8 < -1 )
+				LedBlue_ON;
 
 	// Integral part for Pitch
 	if( IntegralCount == 0 )
@@ -147,6 +146,7 @@ void PID(void)
 		Pl += (int8)Pp.high8;
 	}
 
+	// Old test for pitch limits
 	// muss so gemacht werden, weil CC5X kein if(Pl < -RollPitchLimit) kann!
 	//	NegFact = -PitchLimit;
 	//	if( Pl < NegFact ) Pl = NegFact;
@@ -184,11 +184,10 @@ void PID(void)
 	if( Yl > YawLimit ) Yl = YawLimit;
 
 	// ####################################
-	// calculate camera servos
+	// Camera
 
 	// use only integral part (direct angle)
-	if( (IntegralCount == 0) && 
-		(CamRollFactor != 0) && (CamPitchFactor != 0) )
+	if( (IntegralCount == 0) && (CamRollFactor != 0) && (CamPitchFactor != 0) )
 	{
 		Rp = RollSum / (int16)CamRollFactor;
 		Pp = PitchSum / (int16)CamPitchFactor;
@@ -198,4 +197,4 @@ void PID(void)
 		Rp = 0;
 		Pp = 0;
 	}
-}
+} // PID
