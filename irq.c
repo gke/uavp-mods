@@ -100,7 +100,7 @@ uns16 	CCPR1 @0x15;
 			if( RecFlags == 6 )
 			{
 				NewK7 = CCPR1;
-				NewK6 = CCPR1 - NewK6;
+				NewK6 = NewK7 - NewK6;
 				CurrK6 = NewK6 >> 1;
 			}
 #ifdef RX_PPM
@@ -146,7 +146,6 @@ uns16 	CCPR1 @0x15;
 				    (NewK5.high8 == 1) )
 				{
 					_NoSignal = 0;
-					NewK6 = CCPR1;
 				}
 				else	// values are unsafe
 					goto ErrorRestart;
