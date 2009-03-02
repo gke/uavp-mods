@@ -370,7 +370,7 @@ void BaroTest(void)
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 	// access control register, start measurement
-	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
+	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto BAerror;
 	// select 32kHz input, measure temperature
 	if( SendI2CByte(BaroTemp) != I2C_ACK ) goto BAerror;
 	I2CStop();
