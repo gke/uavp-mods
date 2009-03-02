@@ -21,7 +21,7 @@ rem in the 876 PIC.
 rem Prevous switches THC and CAM have been abandoned in favour of Tx based
 rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
 
-set VERSION=3_15m3_18f
+set VERSION=3_15m3_18fexp
 
 rem Add/Delete required combinations to these sets
 set GYRO=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
