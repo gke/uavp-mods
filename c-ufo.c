@@ -27,7 +27,7 @@
 #ifdef ICD2_DEBUG
 //#pragma	config = 0x377A	// BODEN, HVP, no WDT, MCLRE disabled, PWRTE disabled
 #else
-//#pragma	config = 0x3F72	// BODEN, HVP, no WDT, MCLRE disabled, PWRTE enabled
+#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC // BODEN, HVP, no WDT, MCLRE disabled, PWRTE enabled
 #endif
 
 #include "c-ufo.h"
