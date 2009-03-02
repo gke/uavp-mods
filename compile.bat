@@ -10,13 +10,11 @@ rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or...
 set GYRO=OPT_ADXRS300
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGE, ESC_HOLGER, etc...
 set ESC=ESC_PPM
-rem Type of Rx. RX_AR7000 for Spektrum Rx, RX_PPM for serial PPM frame,
-rem or blank for default PPM Graupner/JR etc Rx
-set RX=
-rem Type of debugging to use. May be DEBUG_MOTORS or DEBUG_SENSORS.
-set DBG=
-rem Whether to use throttle curve. May be USE_THROTTLECURVE.
-set THC=
+rem Type of Rx. RX_DSM2 for Spektrum Rx, RX_PPM for serial PPM frame,
+rem or RX_DEFAULT for default PPM Graupner/JR etc Rx
+set RX=RX_DEFAULT
+rem Type of debugging to use. May be DEBUG_MOTORS or DEBUG_SENSORS or NO_DEBUG.
+set DBG=NO_DEBUG
 
 rem ----------------------------------------------
 rem Don't modify anything below this line.
@@ -63,8 +61,6 @@ set OF=
 
 rem Das folgende wird 2x durchlaufen!
 
-SET CAM=CAM_0_DEG
-
 rem C_NEXT is used to say where to go after going to the cleanup step
 set C_NEXT=STEP01
 
@@ -85,7 +81,7 @@ echo.
 echo.
 echo NEXT= %NEXT%
 echo.
-for %%i in ( %CSRC% ) do call helper.bat CC5X %%i.c   -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%RX% -D%DBG% -D%THC% -D%CAM% -D%RX%
+for %%i in ( %CSRC% ) do call helper.bat CC5X %%i.c   -DBOARD_%BOARD% -D%GYRO% -D%ESC% -D%RX% -D%DBG% -D%RX%
 for %%i in ( %ASRC% ) do call helper.bat ASM  %%i.asm /dBOARD_%BOARD%
 set F=
 for %%i in ( %CSRC% ) do set F=!F! %%i.o
@@ -112,16 +108,14 @@ if "%BOARD%" == "3_1"	            set V=%VS%
 if "%BOARD%" == "3_0"	            set V=%VG%
 if "%DBG%"   == "DEBUG_MOTORS"      set D=DBG-
 if "%DBG%"   == "DEBUG_SENSORS"     set D=SEN-
-if "%THC%"   == "USE_THROTTLECURVE" set T=THC-
-if "%CAM%"   == "CAM_45_DEG"        set C=CAM45-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
-if "%RX%"    == "RX_AR7000"            set R=AR7000-
+if "%RX%"    == "RX_DSM2"            set R=DSM2-
 
-echo Linke Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%
-%LEXE% %LCMD% %F% /o Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.hex
+echo Linke Profi-Ufo-V%V%-%D%%G%%R%%E%
+%LEXE% %LCMD% %F% /o Profi-Ufo-V%V%-%D%%G%%R%%E%.hex
 if %ERRORLEVEL% == 1 goto ERROR
-del Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%.cod
-set OF=!OF! Profi-Ufo-V%V%-%D%%T%%C%%G%%R%%E%
+del Profi-Ufo-V%V%-%D%%T%%G%%R%%E%.cod
+set OF=!OF! Profi-Ufo-V%V%-%D%%G%%R%%E%
 
 goto %NEXT%
 

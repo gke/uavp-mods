@@ -11,7 +11,7 @@
 //
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  MERCHANTABILITY or FITPESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License along
@@ -34,30 +34,30 @@
 #include "mymath16.h"
 
 
-// compute new RE and NE
+// compute new RE and PE
 void MatrixCompensate(void)
 {
-// Rnew = cos(Nick)*RE + 
-//        sin(Nick)*sin(Roll)*NE
+// Rnew = cos(Pitch)*RE + 
+//        sin(Pitch)*sin(Roll)*PE
 //
-// Nnew = cos(Roll)*NE
+// Nnew = cos(Roll)*PE
 //        
 #if 0
-	long nila1@nilarg1;
-	int ni1,ni2;
+	int16 nila1@nilarg1;
+	int8 ni1,ni2;
 
-	nila1=Nw;
-	niltemp1 = (int)Cos();
-	niltemp1 *= (long)RE;
+	nila1=Pw;
+	niltemp1 = (int8)Cos();
+	niltemp1 *= (int16)RE;
 
-	nila1=Nw;
+	nila1=Pw;
 	ni1 = Sin();
 	nila1=Rw;
 	ni2 = Sin();
-	niltemp = (long)ni1 * (long)ni2;
+	niltemp = (int16)ni1 * (int16)ni2;
 	niltemp += 64;
 	niltemp /= 128;
-	niltemp *= (long)NE;
+	niltemp *= (int16)PE;
 
 	niltemp += niltemp1;
 	niltemp += 64;
@@ -67,11 +67,11 @@ void MatrixCompensate(void)
 
 	nila1=Rw;
 	niltemp = Cos();
-	niltemp *= NE;
+	niltemp *= PE;
 	niltemp += 64;
 	niltemp /= 128;
-	NE = niltemp.low8;
+	PE = niltemp.low8;
 SendComValS(RE);
-SendComValS(NE);
+SendComValS(PE);
 #endif
 }

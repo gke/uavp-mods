@@ -4,7 +4,7 @@ rem http://www.robvanderwoude.com/variableexpansion.html
 rem http://www.robvanderwoude.com/ntset.html
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-rem Batch compiles various possibilities of the UFO software
+rem Batch compiles various possibilities of the UFO software for the Microchip 18F2xxx series
 rem
 rem Greg Egan 2008-2009
 rem
@@ -13,7 +13,7 @@ rem
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or IDG300.
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.
 rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
-rem RX_PPM for serial PPM frame, or RX_DEFAULT for default PPM Graupner/JR etc Rx.
+rem RX_DSM2 for AR7000, RX_PPM for serial PPM frame, or RX_DEFAULT for default PPM Graupner/JR etc Rx.
 rem Type of debugging to use. May be DEBUG_MOTORS (3.1 only) or DEBUG_SENSORS.
 rem Configuration TRICOPTER for three motor and QUAD for 4.
 rem Motors are disabled for DEBUG_SENSORS as there is not enough program space
@@ -28,14 +28,14 @@ set GYRO=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESC=ESC_PPM ESC_HOLGER
 set DBG=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
 set RX=RX_DEFAULT RX_DSM2 RX_PPM
-set CFG=TRICOPTER
+set CFG=QUAD TRICOPTER
 
 rem Personal choice
-rem set GYRO=OPT_IDG OPT_ADXRS300
-rem set ESC=ESC_PPM
-rem set DBG=NO_DEBUG DEBUG_SENSORS
-rem set RX=RX_DEFAULT RX_DSM2
-rem set CFG=QUAD
+set GYRO=OPT_IDG OPT_ADXRS300
+set ESC=ESC_PPM
+set DBG=NO_DEBUG DEBUG_SENSORS
+set RX=RX_DEFAULT RX_DSM2
+set CFG=QUAD
 
 rem Delete working files
 call makeclean.bat

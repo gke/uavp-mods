@@ -157,9 +157,27 @@ First public released version.
   * JR 9XII with DM9 module
 
 13.12.2008 v3.15m3 Greg Egan
-- Limited Impulse to minimum 4 as values of 1 through 
+- Limited Impulse to minimum 2 as values of 1 through 
   UAVPSet were causing spontaneous motor intermittent
   start!
+
+07.1.2009 v3.15m3 Greg Egan
+- Reduced _Maximum output pulse width to prevent 
+  minimum width Rx pulses from being missed with
+  interrupts masked.  
+
+12.02.2009 v3.15m3 Greg Egan
+- Auto sensing of SMD500 and BMP085 Baros
+
+12.02.2009 v3.15m3 Greg Egan
+- Reinstated vertical accelerometer compensation of throttle
+
+27.02.2006 v3.15m3 Greg Egan
+- Tricopter version reinstated in makefiles (makeall.bat)
+
+02.03.2009 v3.15m3-18f Greg Egan
+- Quick port to 18F2xxx series of PIC
+  Bootloader not working.
 
 ==============================================
 = Transferring firmware to the PIC           =

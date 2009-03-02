@@ -1,35 +1,29 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 // Utilities and subroutines
 
 #include "c-ufo.h"
 #include "bits.h"
-
-// Math Library
-#include "mymath16.h"
 
 #if (defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C) && !defined DEBUG_SENSORS
 
@@ -77,11 +71,11 @@ void EscI2CStop(void)
 // 1 = NACK
 void SendEscI2CByte(uns8 nidata)
 {
-	//bank2 uns8 nii;
+	uns8 s;
 
-	for(W=8; W!=0; W--)
+	for(s=8; s!=0; s--)
 	{
-		if( nidata.7 )
+		if( IsSet(nidata,7) )
 		{
 			ESC_DIO = 1;	// switch to input, line is high
 		}
@@ -133,87 +127,92 @@ void SendEscI2CByte(uns8 nidata)
 //
 //             0     1     2     3 ms
 
+#pragma udata assembly_language=0x080 
+uns8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+// Bootloader ???
+#pragma udata
+
 void OutSignals(void)
 {
-	bank0 uns8 MV, MH, ML, MR;	// must reside on bank0
-	uns8 MT@MV;	// cam tilt servo
-	uns8 ME@MH; // cam tilt servo
+	#ifdef NADA
+	SendComValH(MCamRoll);
+	SendComValH(MCamPitch);
+	SendComChar(0x0d);
+	SendComChar(0x0a);
+	#endif
 
+	#ifndef DEBUG_SENSORS
 
-#ifdef NADA
-SendComValH(MCamRoll);
-SendComValH(MCamNick);
-SendComChar(0x0d);
-SendComChar(0x0a);
-#endif
-
-#ifndef DEBUG_SENSORS
-
-#ifdef DEBUG_MOTORS
-	if( _Flying && CamNickFactor.4 )
+	#ifdef DEBUG_MOTORS
+	if( _Flying && IsSet(CamPitchFactor,4) )
 	{
 		SendComValU(IGas);
 		SendComChar(';');
 		SendComValS(IRoll);
 		SendComChar(';');
-		SendComValS(INick);
+		SendComValS(IPitch);
 		SendComChar(';');
-		SendComValS(ITurn);
+		SendComValS(IYaw);
 		SendComChar(';');
-		SendComValU(MVorne);
+		SendComValU(MFront);
 		SendComChar(';');
-		SendComValU(MHinten);
+		SendComValU(MBack);
 		SendComChar(';');
-		SendComValU(MLinks);
+		SendComValU(MLeft);
 		SendComChar(';');
-		SendComValU(MRechts);
+		SendComValU(MRight);
 		SendComChar(0x0d);
 		SendComChar(0x0a);
 	}
-#endif
+	#endif
 
-	TMR0 = 0;
-	T0IF = 0;
+	WriteTimer0(0);
+	INTCONbits.TMR0IF = 0;
 
-#ifdef ESC_PPM
-	ALL_PULSE_ON;	// turn on all motor outputs
-#endif
+	#ifdef ESC_PPM
+	_asm
+	MOVLB	0						// select Bank0
+	MOVLW	0x0f				// turn on motors
+	MOVWF	SHADOWB,1
+	_endasm	
+	PORTB |= 0x0f;
+	#endif
 
-	MV = MVorne;
-	MH = MHinten;
-	ML = MLinks;
-	MR = MRechts;
+	MF = MFront;
+	MB = MBack;
+	ML = MLeft;
+	MR = MRight;
 
-#ifdef DEBUG_MOTORS
-// if DEBUG_MOTORS is active, CamIntFactor is a bitmap:
-// bit 0 = no front motor
-// bit 1 = no rear motor
-// bit 2 = no left motor
-// bit 3 = no right motor
-// bit 4 = turns on the serial output
+	#ifdef DEBUG_MOTORS
+	// if DEBUG_MOTORS is active, CamIntFactor is a bitmap:
+	// bit 0 = no front motor
+	// bit 1 = no rear motor
+	// bit 2 = no left motor
+	// bit 3 = no right motor
+	// bit 4 = turns on the serial output
 
-	if( CamNickFactor.0 )
-		MV = _Minimum;
-	if( CamNickFactor.1 )
-		MH = _Minimum;
-	if( CamNickFactor.2 )
+	if( IsSet(CamPitchFactor,0) )
+		MF = _Minimum;
+	if( IsSet(CamPitchFactor,1) )
+		MB = _Minimum;
+	if( IsSet(CamPitchFactor,2) )
 		ML = _Minimum;
-	if( CamNickFactor.3 )
+	if( IsSet(CamPitchFactor,3) )
 		MR = _Minimum;
-#else
-#ifdef INTTEST
-	MV = _Minimum;
-	MH = _Minimum;
+	#else
+	#ifdef INTTEST
+	MF = _Minimum;
+	MB = _Minimum;
 	ML = _Minimum;
 	MR = _Minimum;
-#endif
-#endif
+	#endif
+	#endif
 
-#ifdef ESC_PPM
+	#ifdef ESC_PPM
 
-// simply wait for nearly 1 ms
-// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( TMR0 < 0x100-3-16 ) ;
+	// simply wait for nearly 1 ms
+	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
+	while( ReadTimer0() < 0x100-3-16 ) ;
 
 	// now stop CCP1 interrupt
 	// capture can survive 1ms without service!
@@ -222,94 +221,104 @@ SendComChar(0x0a);
 	// less than the minimum valid Rx pulse/gap width which
 	// is 1027uS less capture time overheads
 
-	GIE = 0;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
-	while( T0IF == 0 ) ;	// wait for first overflow
-	T0IF=0;		// quit TMR0 interrupt
+	DisableInterrupts;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
+	while( INTCONbits.TMR0IF == 0 ) ;	// wait for first overflow
+	INTCONbits.TMR0IF=0;		// quit TMR0 interrupt
 
-#if !defined DEBUG && !defined DEBUG_MOTORS
+	#if !defined DEBUG && !defined DEBUG_MOTORS
 	if( _OutToggle )	// driver cam servos only every 2nd pulse
 	{
-		CAM_PULSE_ON;	// now turn camera servo pulses on too
+		_asm
+		MOVLB	0					// select Bank0
+		MOVLW	0x3f				// turn on motors
+		MOVWF	SHADOWB,1
+		_endasm	
+		PORTB |= 0x3f;
 	}
 	_OutToggle ^= 1;
-#endif
+	#endif
 
-// This loop is exactly 16 cycles long
+// This loop is exactly 16 cycles int16
 // under no circumstances should the loop cycle time be changed
-#asm
-	BCF	RP0		// clear all bank bits
-//	BCF	RP1
-OS005
-	MOVF	PORTB,W
-	ANDLW	0x0F		// output ports 0 to 3
-	BTFSC	Zero_
-	GOTO	OS006		// stop if all 4 outputs are done
-
-	DECFSZ	MV,f		// front motor
+_asm
+OS005:
+	MOVLB	0						// select Bank0
+	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
+	MOVWF	PORTB,0
+	ANDLW	0x0f
+	BZ		OS006
+			
+	DECFSZ	MF,1,1					// front motor
 	GOTO	OS007
-
-	BCF	PulseVorne		// stop pulse
-OS007
-	DECFSZ	ML,f		// left motor
+			
+	BCF		SHADOWB,PulseFront,1	// stop Front pulse
+OS007:
+	DECFSZ	ML,1,1					// left motor
 	GOTO	OS008
-
-	BCF	PulseLinks		// stop pulse
-OS008
-	DECFSZ	MR,f		// right motor
+			
+	BCF		SHADOWB,PulseLeft,1		// stop Left pulse
+OS008:
+	DECFSZ	MR,1,1					// right motor
 	GOTO	OS009
+			
+	BCF		SHADOWB,PulseRight,1	// stop Right pulse
+OS009:
+	DECFSZ	MB,1,1					// rear motor
+	GOTO	OS005
+				
+	BCF		SHADOWB,PulseBack,1		// stop Back pulse			
 
-	BCF	PulseRechts		// stop pulse
-OS009
-	DECFSZ	MH,f		// rear motor
 	GOTO	OS005
-	
-	BCF	PulseHinten		// stop pulse
-	GOTO	OS005
-OS006
-#endasm
+OS006:
+_endasm
 // This will be the corresponding C code:
 //	while( ALL_OUTPUTS != 0 )
-//	{	// remain in loop as long as any output is still high
-//		if( TMR2 = MVorne  ) PulseVorne  = 0;
-//		if( TMR2 = MHinten ) PulseHinten = 0;
-//		if( TMR2 = MLinks  ) PulseLinks  = 0;
-//		if( TMR2 = MRechts ) PulseRechts = 0;
+//	{	// remain in loop as int16 as any output is still high
+//		if( TMR2 = MFront  ) PulseFront  = 0;
+//		if( TMR2 = MBack ) PulseBack = 0;
+//		if( TMR2 = MLeft  ) PulseLeft  = 0;
+//		if( TMR2 = MRight ) PulseRight = 0;
 //	}
 
-	GIE = 1;	// Re-enable interrupt
+	EnableInterrupts;	// Re-enable interrupt
 
-#endif	// ESC_PPM
+	#endif	// ESC_PPM
 
-#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
+	#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 
-#if !defined DEBUG && !defined DEBUG_MOTORS
+	#if !defined DEBUG && !defined DEBUG_MOTORS
 	if( _OutToggle )	// driver cam servos only every 2nd pulse
 	{
-		CAM_PULSE_ON;	// now turn camera servo pulses on too
+		_asm
+		MOVLB	0					// select Bank0
+		MOVLW	0x3f				// turn on motors
+		MOVWF	SHADOWB,1
+		_endasm	
+		PORTB |= 0x3f;
 	}
 	_OutToggle ^= 1;
-#endif
+	#endif
 
-// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
-#ifdef ESC_X3D
+	// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
+	#ifdef ESC_X3D
 	EscI2CStart();
 	SendEscI2CByte(0x10);	// one command, 4 data bytes
-	SendEscI2CByte(MV); // for all motors
-	SendEscI2CByte(MH);
+	SendEscI2CByte(MF); // for all motors
+	SendEscI2CByte(MB);
 	SendEscI2CByte(ML);
 	SendEscI2CByte(MR);
 	EscI2CStop();
-#endif	// ESC_X3D
+	#endif	// ESC_X3D
 
-#ifdef ESC_HOLGER
+	#ifdef ESC_HOLGER
 	EscI2CStart();
 	SendEscI2CByte(0x52);	// one cmd, one data byte per motor
-	SendEscI2CByte(MV); // for all motors
+	SendEscI2CByte(MF); // for all motors
 	EscI2CStop();
 
 	EscI2CStart();
 	SendEscI2CByte(0x54);
-	SendEscI2CByte(MH);
+	SendEscI2CByte(MB);
 	EscI2CStop();
 
 	EscI2CStart();
@@ -321,17 +330,17 @@ OS006
 	SendEscI2CByte(0x56);
 	SendEscI2CByte(MR);
 	EscI2CStop();
-#endif	// ESC_HOLGER
+	#endif	// ESC_HOLGER
 
-#ifdef ESC_YGEI2C
+	#ifdef ESC_YGEI2C
 	EscI2CStart();
 	SendEscI2CByte(0x62);	// one cmd, one data byte per motor
-	SendEscI2CByte(MV>>1); // for all motors
+	SendEscI2CByte(MF>>1); // for all motors
 	EscI2CStop();
 
 	EscI2CStart();
 	SendEscI2CByte(0x64);
-	SendEscI2CByte(MH>>1);
+	SendEscI2CByte(MB>>1);
 	EscI2CStop();
 
 	EscI2CStart();
@@ -343,242 +352,237 @@ OS006
 	SendEscI2CByte(0x66);
 	SendEscI2CByte(MR>>1);
 	EscI2CStop();
-#endif	// ESC_YGEI2C
+	#endif	// ESC_YGEI2C
 
-#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
+	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
-#ifndef DEBUG_MOTORS
-	while( TMR0 < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
+	#ifndef DEBUG_MOTORS
+	while( ReadTimer0() < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
 
-	GIE = 0;					// Int wieder sperren, wegen Jitter
+	INTCONbits.GIE = 0;					// Int wieder sperren, wegen Jitter
 
-	while( T0IF == 0 ) ;	// wait for 2nd overflow (2 ms)
+	while( INTCONbits.TMR0IF == 0 ) ;	// wait for 2nd overflow (2 ms)
 
 	// avoid servo overrun when MCamxx == 0
 	ME = MCamRoll+1;
-	MT = MCamNick+1;
+	MT = MCamPitch+1;
 
-#if !defined DEBUG && !defined DEBUG_SENSORS
-// This loop is exactly 16 cycles long
-// under no circumstances should the loop cycle time be changed
-#asm
-	BCF	RP0		// clear all bank bits
-	BCF	RP1
-OS001
-	MOVF	PORTB,W
+	#if !defined DEBUG && !defined DEBUG_SENSORS
+	// This loop is exactly 16 cycles int16
+	// under no circumstances should the loop cycle time be changed
+_asm
+OS001:
+	MOVLB	0
+	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
+	MOVWF	PORTB,0
 	ANDLW	0x30		// output ports 4 and 5
-	BTFSC	Zero_
-	GOTO	OS002		// stop if all 2 outputs are 0
+	BZ		OS002		// stop if all 2 outputs are 0
 
-	DECFSZ	MT,f
+	DECFSZ	MT,1,1
 	GOTO	OS003
 
-	BCF	PulseCamRoll
-OS003
-	DECFSZ	ME,f
+	BCF		SHADOWB,PulseCamRoll,1
+OS003:
+	DECFSZ	ME,1,1
 	GOTO	OS004
 
-	BCF	PulseCamNick
-OS004
-#endasm
+	BCF		SHADOWB,PulseCamPitch,1
+OS004:
+_endasm
 	nop2();
 	nop2();
-#asm
+_asm
 	GOTO	OS001
-OS002
-#endasm
+OS002:
+_endasm
 #endif	// DEBUG
-	GIE = 1;	// re-enable interrupt
+	EnableInterrupts;	// re-enable interrupt
 
-	while( T0IF == 0 ) ;	// wait for 3rd TMR2 overflow
+	while( INTCONbits.TMR0IF == 0 ) ;	// wait for 3rd TMR2 overflow
 #endif	// DEBUG_MOTORS
 
 #endif  // !DEBUG_SENSORS
-}
+} // OutSignals
 
 
-// convert Roll and Nick gyro values
+// convert Roll and Pitch gyro values
 // using 10-bit A/D conversion.
-// Values are ADDED into RollSamples and NickSamples
+// Values are ADDED into RollSamples and PitchSamples
 void GetGyroValues(void)
 {
 
-	ADFM = 1;					// select 10 bit mode
-#ifdef OPT_ADXRS
-	ADCON0 = 0b.10.001.0.0.1;	// select CH1(RA1) Roll
-#endif
-#ifdef OPT_IDG
-#ifdef BOARD_3_1
-	PCFG0 = 1;					// select 3,6V as Vref
-#endif
-	ADCON0 = 0b.10.010.0.0.1;	// select CH2(RA2) Nick
-#endif
+	ADCON2bits.ADFM = 1;					// select 10 bit mode
+	#ifdef OPT_ADXRS
+	ADCON0 = 0b10001001;	// select CH1(RA1) Roll
+	#endif
+	#ifdef OPT_IDG
+	ADCON1 = (ADCON1 & 0xf0) | 1;					// select 3,6V as Vref
+	ADCON0 = 0b10010001;	// select CH2(RA2) Pitch
+	#endif
 	AcqTime();
 
-	RollSamples += ADRESL;
-	RollSamples.high8 += ADRESH;
+	RollSamples += ((ADRESH << 8) | ADRESL);
 
-#ifdef OPT_ADXRS
-	ADCON0 = 0b.10.010.0.0.1;	// select CH2(RA2) Nick
-#endif
-#ifdef OPT_IDG
-	ADCON0 = 0b.10.001.0.0.1;	// select CH1(RA1) Roll
-#endif
+	#ifdef OPT_ADXRS
+	ADCON0 = 0b10010001;	// select CH2(RA2) Pitch
+	#endif
+	#ifdef OPT_IDG
+	ADCON0 = 0b10001001;	// select CH1(RA1) Roll
+	#endif
 	AcqTime();
 
-	NickSamples += ADRESL;
-	NickSamples.high8 += ADRESH;
-#ifdef OPT_IDG
-#ifdef BOARD_3_1
-	PCFG0 = 0;					// select 5V as Vref
-#endif
-#endif
-}
+	PitchSamples += ((ADRESH << 8) | ADRESL);
+	#ifdef OPT_IDG
+	ADCON1 = (ADCON1 & 0xf0);					// select 5V as Vref
+	#endif
+} // GetGyroValues
 
-// ADXRS300: The Integral (RollSum & Nicksum) has
+// ADXRS300: The Integral (RollSum & Pitchsum) has
 // a resolution of about 1000 LSBs for a 25° angle
 // IDG300: (TBD)
 //
 
 // Calc the gyro values from added RollSamples 
-// and NickSamples (global variable "nisampcnt")
+// and PitchSamples (global variable "nisampcnt")
 void CalcGyroValues(void)
 {
-// RollSamples & Nicksamples hold the sum of 2 consecutive conversions
-	RollSamples ++;	// for a correct round-up
-	NickSamples ++;
+	int16 Temp;
 
-#ifdef OPT_ADXRS150
-	(long)RollSamples >>= 2;	// recreate the 10 bit resolution
-	(long)NickSamples >>= 2;
-#else
-	(long)RollSamples >>= 1;	// recreate the 10 bit resolution
-	(long)NickSamples >>= 1;
-#endif
+	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
+	// Approximately 4 bits of precision are discarded in this and related 
+	// presumably because of the range of the 16 bit arithmetic.
 
+	#ifdef OPT_ADXRS150
+	RollSamples +=2;			// for a correct round-up
+	PitchSamples +=2;
+	RollSamples >>= 2;	// recreate the 10 bit resolution
+	PitchSamples >>= 2;
+	#else
+	RollSamples ++;				// for a correct round-up
+	PitchSamples ++;
+	RollSamples >>= 1;	// recreate the 10 bit resolution
+	PitchSamples >>= 1;
+	#endif
+	
 	if( IntegralCount > 0 )
 	{
-// pre-flight auto-zero mode
+		// pre-flight auto-zero mode
 		RollSum += RollSamples;
-		NickSum += NickSamples;
+		PitchSum += PitchSamples;
 
 		if( IntegralCount == 1 )
 		{
 			RollSum += 8;
-			NickSum += 8;
+			PitchSum += 8;
 			if( !_UseLISL )
 			{
-				niltemp = RollSum + MiddleLR;
-				RollSum = niltemp;
-				niltemp = NickSum + MiddleFB;
-				NickSum = niltemp;
+				RollSum = RollSum + MiddleLR;
+				PitchSum = PitchSum + MiddleFB;
 			}
 			MidRoll = (uns16)RollSum / (uns16)16;	
-			MidNick = (uns16)NickSum / (uns16)16;
+			MidPitch = (uns16)PitchSum / (uns16)16;
 			RollSum = 0;
-			NickSum = 0;
+			PitchSum = 0;
 			LRIntKorr = 0;
 			FBIntKorr = 0;
 		}
 	}
 	else
 	{
-// standard flight mode
+		// standard flight mode
 		RollSamples -= MidRoll;
-		NickSamples -= MidNick;
+		PitchSamples -= MidPitch;
 
-// calc Cross flying mode
+		// calc Cross flying mode
 		if( FlyCrossMode )
 		{
-// Real Roll = 0.707 * (N + R)
-//      Nick = 0.707 * (N - R)
-// the constant factor 0.667 is used instead
-			niltemp = RollSamples + NickSamples;	// 12 valid bits!
-			NickSamples = NickSamples - RollSamples;	// 12 valid bits!
-			RollSamples = niltemp * 2;
-			(long)RollSamples /= 3;
-			(long)NickSamples *= 2;
-			(long)NickSamples /= 3;
+			// Real Roll = 0.707 * (N + R)
+			//      Pitch = 0.707 * (N - R)
+			// the constant factor 0.667 is used instead
+			Temp = RollSamples + PitchSamples;	
+			PitchSamples = PitchSamples - RollSamples;	
+			RollSamples = Temp * 2;
+			RollSamples /= 3;
+			PitchSamples *= 2;
+			PitchSamples /= 3;
 		
 		}
-#ifdef DEBUG_SENSORS
-		SendComValH(RollSamples.high8);
-		SendComValH(RollSamples.low8);
+
+		#ifdef DEBUG_SENSORS
+		SendComValH16(RollSamples);
 		SendComChar(';');
-		SendComValH(NickSamples.high8);
-		SendComValH(NickSamples.low8);
+		SendComValH16(PitchSamples);
 		SendComChar(';');
-#endif
+		#endif
 	
-// Roll
-		niltemp = RollSamples;
+		// Roll
+		Temp = RollSamples;
 
-#ifdef OPT_ADXRS
+		#ifdef OPT_ADXRS
 		RollSamples += 2;
-		(long)RollSamples >>= 2;
-#endif
-#ifdef OPT_IDG
+		RollSamples >>= 2;
+		#endif
+		#ifdef OPT_IDG
 		RollSamples += 1;
-		(long)RollSamples >>= 1;
-#endif
-		RE = RollSamples.low8;	// use 8 bit res. for PD controller
+		RollSamples >>= 1;
+		#endif
+		RE = RollSamples;	// use 8 bit res. for PD controller
 
-#ifdef OPT_ADXRS
-		RollSamples = niltemp + 1;
-		(long)RollSamples >>= 1;	// use 9 bit res. for I controller
-#endif
-#ifdef OPT_IDG
-		RollSamples = niltemp;
-#endif
+		#ifdef OPT_ADXRS
+		RollSamples = Temp + 1;
+		RollSamples >>= 1;	// use 9 bit res. for I controller
+		#endif
+		#ifdef OPT_IDG
+		RollSamples = Temp;
+		#endif
+
 		LimitRollSum();		// for roll integration
 
-// Nick
-		niltemp = NickSamples;
+		// Pitch
+		Temp = PitchSamples;
 
-#ifdef OPT_ADXRS
-		NickSamples += 2;
-		(long)NickSamples >>= 2;
-#endif
-#ifdef OPT_IDG
-		NickSamples += 1;
-		(long)NickSamples >>= 1;
-#endif
-		NE = NickSamples.low8;
+		#ifdef OPT_ADXRS
+		PitchSamples += 2;
+		PitchSamples >>= 2;
+		#endif
+		#ifdef OPT_IDG
+		PitchSamples += 1;
+		PitchSamples >>= 1;
+		#endif
+		PE = PitchSamples;
 
-#ifdef OPT_ADXRS
-		NickSamples = niltemp + 1;
-		(long)NickSamples >>= 1;
-#endif
-#ifdef OPT_IDG
-		NickSamples = niltemp;
-#endif
-		LimitNickSum();		// for nick integration
+		#ifdef OPT_ADXRS
+		PitchSamples = Temp + 1;
+		PitchSamples >>= 1;
+		#endif
+		#ifdef OPT_IDG
+		PitchSamples = Temp;
+		#endif
+		LimitPitchSum();		// for pitch integration
 
-// Yaw is sampled only once every frame, 8 bit A/D resolution
-		ADFM = 0;
-		ADCON0 = 0b.10.100.0.0.1;	// select CH4(RA5) Yaw
+		// Yaw is sampled only once every frame, 8 bit A/D resolution
+		ADCON2bits.ADFM = 0;
+		ADCON0 = 0b10100001;	// select CH4(RA5) Yaw
 		AcqTime();
-		TE = ADRESH;
-		if( MidTurn == 0 )
-			MidTurn = TE;
-		TE -= MidTurn;
+		YE = ADRESH;
+		if( MidYaw == 0 )
+			MidYaw = YE;
+		YE -= MidYaw;
 
 		LimitYawSum();
-#ifdef DEBUG_SENSORS
-		SendComValH(TE);
+
+		#ifdef DEBUG_SENSORS
+		SendComValH(YE);
 		SendComChar(';');
-		SendComValH(RollSum.high8);
-		SendComValH(RollSum.low8);
+		SendComValH16(RollSum);
 		SendComChar(';');
-		SendComValH(NickSum.high8);
-		SendComValH(NickSum.low8);
+		SendComValH16(PitchSum);
 		SendComChar(';');
-		SendComValH(YawSum.high8);
-		SendComValH(YawSum.low8);
+		SendComValH16(YawSum);
 		SendComChar(';');
-#endif
+		#endif
 	}
-}
+} // CalcGyroValues
 
 
 // Mix the Camera tilt channel (Ch6) and the
@@ -589,9 +593,9 @@ void MixAndLimitCam(void)
 // Cam Servos
 
 	if( IntegralCount > 0 ) // while integrator are adding up
-	{						// do not use the gyros values to correct
+	{			// do not use the gyros values to correct
 		Rp = 0;		// in non-flight mode, these are already cleared in InitArrays()
-		Np = 0;
+		Pp = 0;
 	}
 
 	if( _UseCh7Trigger )
@@ -599,21 +603,21 @@ void MixAndLimitCam(void)
 	else
 		Rp += IK7;
 		
-	Np += IK6;		// only Nick servo is controlled by channel 6
+	Pp += IK6;		// only Pitch servo is controlled by channel 6
 
 	if( Rp > _Maximum )
 		MCamRoll = _Maximum;
 	else
-	if( Rp < _Minimum )
-		MCamRoll = _Minimum;
-	else
-		MCamRoll = Rp;
+		if( Rp < _Minimum )
+			MCamRoll = _Minimum;
+		else
+			MCamRoll = Rp;
 
-	if( Np > _Maximum )
-		MCamNick = _Maximum;
+	if( Pp > _Maximum )
+		MCamPitch = _Maximum;
 	else
-	if( Np < _Minimum )
-		MCamNick = _Minimum;
-	else
-		MCamNick = Np;
-}
+		if( Pp < _Minimum )
+			MCamPitch = _Minimum;
+		else
+			MCamPitch = Pp;
+} // MixAndLimitCam

@@ -31,7 +31,7 @@
 
 // Math Library
 // only needed for nilarg1 and nilarg2 defines
-#include "mymath16.h"
+//#include "mymath16.h"
 
 // sine table 0-90 deg, 1 deg resolution
 // gives an accuracy of +/-0,01
@@ -53,8 +53,8 @@ const uns8 sintab[] = {
 #undef F
 
 
-long nilparam@nilarg1;
-long niltempt@nilarg2;
+int16 nilparam@nilarg1;
+int16 niltempt@nilarg2;
 
 
 // modifiy an angle until it is in range 0..360
