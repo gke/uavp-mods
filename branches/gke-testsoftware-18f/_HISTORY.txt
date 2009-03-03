@@ -92,6 +92,9 @@ with support for composite PPM
 - Displays compensated baro pressure using parameters
   last written using flight software.
 
+02.03.2009 Version derived from V3.14 by Greg Egan
+- Ported to C18 and 18F PIC. No motor test. 
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

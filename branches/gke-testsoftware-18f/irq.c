@@ -1,27 +1,25 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// =      Rewritten 2008 Ing. Greg Egan         =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// ==============================================
+
 
 // Interrupt routine
 // Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
@@ -30,50 +28,44 @@
 #include "pu-test.h"
 #include "bits.h"
 
-#include <int16cxx.h>	//interrupt support
-
-#pragma origin 4
-
 // Interrupt Routine
 
-bank1 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
-
+#pragma udata irqvars
+int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 uns8	RecFlags;
+#pragma udata
 
-#pragma interruptSaveCheck w
-
-#define USE_FILTERS
-
-interrupt irq(void)
+#pragma interrupt low_isr_handler
+void low_isr_handler(void)
 {
-int8	NewRoll, NewNick, NewTurn;	
+	return;
+} // low_isr_handler
+
+#pragma interrupt high_isr_handler
+void high_isr_handler(void)
+{
+int8	NewRoll, NewPitch, NewYaw;	
 int16 	Temp;
-uns16 	CCPR1 @0x15;
 
-// For 2.4GHz systems see README_DSM2_ETC.
- 
-	int_save_registers;	// save W and STATUS
-
-	if( T0IF && T0IE )
+	// For 2.4GHz systems see README_DSM2_ETC.
+	if( INTCONbits.TMR0IF && INTCONbits.TMR0IE )
 	{
-		T0IF = 0;				// quit int
+		INTCONbits.TMR0IF = 0;				// quit int
 		TimeSlot--;
 	}
 
-	if( CCP1IF )
+	if( PIR1bits.CCP1IF )
 	{
 		TMR2 = 0;				// re-set timer and postscaler
-		TMR2IF = 0;				// quit int
+		PIR1bits.TMR2IF = 0;				// quit int
 		_FirstTimeout = 0;
 
 #ifndef RX_PPM						// single PPM pulse train from receiver
 							// standard usage (PPM, 3 or 4 channels input)
-		CCPR1.low8 = CCPR1L;
-		CCPR1.high8 = CCPR1H;
-		CCP1M0 ^= 1;	// toggle edge bit
+		CCP1CONbits.CCP1M0 ^= 1;	// toggle edge bit
 		PR2 = TMR2_5MS;				// set compare reg to 5ms
 
-		if( NegativePPM ^ CCP1M0  )		// a negative edge
+		if( NegativePPM ^ CCP1CONbits.CCP1M0  )		// a negative edge
 		{
 #endif
 			// could be replaced by a switch ???
@@ -139,11 +131,11 @@ uns16 	CCPR1 @0x15;
 				_NewValues = 1;
 // sanity check
 // NewKx has values in 4us units now. content must be 256..511 (1024-2047us)
-				if( (NewK1.high8 == 1) &&
-				    (NewK2.high8 == 1) &&
-				    (NewK3.high8 == 1) &&
-				    (NewK4.high8 == 1) &&
-				    (NewK5.high8 == 1) )
+				if( ((NewK1>>8) == 1) &&
+				    ((NewK2>>8) == 1) &&
+				    ((NewK3>>8) == 1) &&
+				    ((NewK4>>8) == 1) &&
+				    ((NewK5>>8) == 1) )
 				{
 					_NoSignal = 0;
 				}
@@ -165,21 +157,21 @@ ErrorRestart:
 				RecFlags = -1;
 #ifndef RX_PPM
 				if( NegativePPM )
-					CCP1M0 = 1;	// wait for positive edge next
+					CCP1CONbits.CCP1M0 = 1;	// wait for positive edge next
 				else
-					CCP1M0 = 0;	// wait for negative edge next
+					CCP1CONbits.CCP1M0 = 0;	// wait for negative edge next
 #endif
 			}	
 #ifndef RX_PPM
 		}
 #endif
-		CCP1IF = 0;				// quit int
+		PIR1bits.CCP1IF = 0;				// quit int
 		RecFlags++;
 	}
 
-	if( TMR2IF )	// 5 or 14 ms have elapsed without an active edge
+	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
-		TMR2IF = 0;	// quit int
+		PIR1bits.TMR2IF = 0;	// quit int
 #ifndef RX_PPM	// single PPM pulse train from receiver
 		if( _FirstTimeout )			// 5 ms have been gone by...
 		{
@@ -191,8 +183,20 @@ ErrorRestart:
 #endif
 		RecFlags = 0;
 	}
-
 	
-	int_restore_registers;
-}
+} // high_isr_handler
+	
+#pragma code high_isr = 0x08
+void high_isr (void)
+{
+  _asm goto high_isr_handler _endasm
+} // high_isr
+#pragma code
+
+#pragma code low_isr = 0x18
+void low_isr (void)
+{
+  _asm goto low_isr_handler _endasm
+} // low_isr
+#pragma code
 

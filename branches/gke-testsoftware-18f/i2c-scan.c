@@ -1,39 +1,32 @@
-// ==============================================
-// =    U.A.V.P Brushless UFO Test software     =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.de           =
-// =               http://www.mahringer.co.at   =
-// ==============================================
+
 
 // I2C Scanner
 
 // compass sensor
 
-
-#pragma codepage=1
-
 #include "pu-test.h"
 #include "bits.h"
-
-#pragma sharedAllocation
 
 void I2CDelay(void)
 {
@@ -88,7 +81,7 @@ void I2CStop(void)
 	I2CDelay();		// leave clock high
 }
 
-static shrBank uns8 nii;	// mus be bank0 or shrBank
+static uns8 nii;	// mus be bank0 or shrBank
 
 // send a byte to I2C slave and return ACK status
 // 0 = ACK
@@ -98,7 +91,7 @@ uns8 SendI2CByte(uns8 nidata)
 
 	for(nii=0; nii<8; nii++)
 	{
-		if( nidata.7 )
+		if( IsSet(nidata,7) )
 		{
 			I2C_DIO = 1;	// switch to input, line is high
 		}
@@ -164,8 +157,8 @@ uns8 RecvI2CByte(uns8 niack)
 // and list found devices
 uns8 ScanI2CBus(void)
 {
-	bank1 uns8 nij;
-	bank1 uns8 nic = 0;
+	uns8 nij;
+	uns8 nic = 0;
 
 	for(nij=0x10; nij<=0xF6; nij+=2)
 	{	// use all uneven addresses for read mode
@@ -180,9 +173,9 @@ uns8 ScanI2CBus(void)
 		}
 		I2CStop();
 
-		TMR0 = 0;
-		while ( T0IF == 0 ) {}; // 1mS wait
-		T0IF = 0;
+		WriteTimer0(0);
+		while ( INTCONbits.T0IF == 0 ) {}; // 1mS wait
+		INTCONbits.T0IF = 0;
 	}
 	return(nic);
 }
@@ -192,7 +185,7 @@ void CompassTest(void)
 	uns8 i;
 
 // 20Hz standby mode - random read?
-#define COMP_OPMODE 0b0.11.0.00.00
+#define COMP_OPMODE 0b01100000
 #define COMP_MULT	16
 
 	// set Compass device to Compass mode 
@@ -215,9 +208,9 @@ void CompassTest(void)
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	TMR0 = 0;
-	while ( T0IF == 0 ) {}; // 1mS wait
-	T0IF = 0;
+	WriteTimer0(0);
+	while ( INTCONbits.T0IF == 0 ) {}; // 1mS wait
+	INTCONbits.T0IF = 0;
 
 	// set output mode, cannot be shadowd in EEPROM :-(
 	I2CStart();
@@ -237,9 +230,9 @@ void CompassTest(void)
 	if( SendI2CByte(COMP_MULT)   != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	TMR0 = 0;
-	while ( T0IF == 0 ) {}; // 1mS wait
-	T0IF = 0;
+	WriteTimer0(0);
+	while ( INTCONbits.T0IF == 0 ) {}; // 1mS wait
+	INTCONbits.T0IF = 0;
 
 	// read a direction
 	I2CStart();
@@ -250,27 +243,26 @@ void CompassTest(void)
 	// wait 25ms for command to complete
 	for (i = 30; i; i--)
 	{
-		TMR0 = 0;
-		while ( T0IF == 0 ) {}; // 1mS wait
-		T0IF = 0;
+		WriteTimer0(0);
+		while ( INTCONbits.T0IF == 0 ) {}; // 1mS wait
+		INTCONbits.T0IF = 0;
 	}
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
-	nilgval.high8 = RecvI2CByte(I2C_ACK);
-	nilgval.low8 = RecvI2CByte(I2C_NACK);
+	nilgval = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(I2C_NACK);
 	I2CStop();
 
 	// niltemp has 1/10th degrees
 	nilgval /= 10;
 
 	SendComValUL(NKS0+LEN3);
-	SendComText(_SerGrad);
+	SendComText(SerGrad);
 	return;
 CTerror:
 	SendComCRLF();
 	I2CStop();
-	SendComText(_SerI2CFail);
+	SendComText(SerI2CFail);
 }
 
 // calibrate the compass by rotating the ufo once smoothly
@@ -284,7 +276,7 @@ void CalibrateCompass(void)
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	SendComText(_SerCCalib2);
+	SendComText(SerCCalib2);
 
 	while( !RecvComChar() );
 
@@ -294,21 +286,24 @@ void CalibrateCompass(void)
 	if( SendI2CByte('E')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	SendComText(_SerCCalib3);
+	SendComText(SerCCalib3);
 	return;
 CCerror:
 	I2CStop();
-	SendComText(_SerCCalibE);
+	SendComText(SerCCalibE);
 }
 
 void BaroTest(void)
 {
-	// SMD500 9.5mS (T) 34mS (P)  
-	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
-	// Baro is assumed offline unless it responds - no retries!
+	uns8	BaroType, BaroTemp;
+	uns16 	BaroTemperature, BaroPressure;
 	
 	uns8 i;
 	int16 Temp;
+
+	// SMD500 9.5mS (T) 34mS (P)  
+	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
+	// Baro is assumed offline unless it responds - no retries!
 
 	// Determine baro type
 	I2CStart();
@@ -321,13 +316,13 @@ void BaroTest(void)
 
 	if ( BaroType == BARO_ID_BMP085 )
 	{
-		SendComText(_SerBaroBMP085);
+		SendComText(SerBaroBMP085);
 		BaroTemp = BaroTemp_BMP085;
 
 	}
 	else
 	{
-		SendComText(_SerBaroSMD500);
+		SendComText(SerBaroSMD500);
 		BaroTemp = BaroTemp_SMD500;
 	}
 
@@ -342,7 +337,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	DELAY_MS(40);
+	DELAY_MS(i,40);
 
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -350,7 +345,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	BaroPressure.high8 = RecvI2CByte(I2C_NACK);
+	BaroPressure = RecvI2CByte(I2C_NACK) << 8;
 	I2CStop();
 		
 	I2CStart();
@@ -358,11 +353,11 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	BaroPressure.low8 = RecvI2CByte(I2C_NACK);
+	BaroPressure |= RecvI2CByte(I2C_NACK);
 	I2CStop();
 
 	nilgval = BaroPressure;
-	SendComText(_SerBaroOK);
+	SendComText(SerBaroOK);
 	SendComValUL(NKS0+LEN5);
 
 	// read temp
@@ -375,7 +370,7 @@ void BaroTest(void)
 	if( SendI2CByte(BaroTemp) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	DELAY_MS(10);
+	DELAY_MS(i,10);
 
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -383,7 +378,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	BaroTemperature.high8 = RecvI2CByte(I2C_NACK);
+	BaroTemperature = RecvI2CByte(I2C_NACK)<<8;
 	I2CStop();
 		
 	I2CStart();
@@ -391,21 +386,11 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto BAerror;
-	BaroTemperature.low8 = RecvI2CByte(I2C_NACK);
+	BaroTemperature |= RecvI2CByte(I2C_NACK);
 	I2CStop();
 
 	nilgval = BaroTemperature;
-	SendComText(_SerBaroT);
-	SendComValUL(NKS0+LEN5);
-
-	BaroTemperature *= (int16)BaroTempCoeff;
-	BaroTemperature += 16;
-	BaroTemperature >>= 5;
-	
-	BaroPressure += BaroTemperature;
-
-	nilgval = BaroPressure;
-	SendComText(_SerBaroComp);
+	SendComText(SerBaroT);
 	SendComValUL(NKS0+LEN5);
 
 	SendComCRLF();
@@ -415,6 +400,6 @@ BAerror:
 	SendComCRLF();
 	I2CStop();
 
-	SendComText(_SerI2CFail);
+	SendComText(SerI2CFail);
 }
 
