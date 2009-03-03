@@ -63,19 +63,19 @@ for %%i in ( %CSRC% ) do %CC% -p=18F2520 /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD% -
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVP-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVP-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - UAVP-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex
-echo compiled - UAVP-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - UAVP-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex
+echo compiled - UAVP-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - UAVP-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex
-echo failed - UAVP-B2_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo failed - UAVP-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex
+echo failed - UAVP-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH
