@@ -90,7 +90,7 @@ should download an appropriate HEX file and skip to:
       (http://code.google.com/p/uavp-mods/). See various Disclaimers.
 
     * Edit "makeall.bat". There are sets of parameters including 
-      those for all possible versions of UAVP. 
+      those for all possible versions of the TestSoftware. 
       Change the "personal" sets to cover the range of 
       versions you are interest in.
     * Run makeall.bat (this does not delete old hex files 

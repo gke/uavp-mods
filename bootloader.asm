@@ -4,7 +4,6 @@
 ; mit PIC16F876
 ;*************************************************************************
 
-; BOARD_3_0 or BOARD_3_1 must be defined by commadn line!
         LIST C=200,R=dec
 
         errorlevel -302         ;avoid "ensure page bits are set" warning
@@ -63,13 +62,7 @@ BootStart
 
 		movlw	10010000b	;receive async on
 		movwf	RCSTA
-#ifdef BOARD_3_0
-		movlw	10000000b
-		movwf	PORTB		;SERVOS OFF, only LISL_CS=1
-#endif
-#ifdef BOARD_3_1
  		clrf	PORTB		;SERVOS OFF!
-#endif
 
 ;		clrf	Reset+2		;=nop
 ;		clrf	Reset+3
@@ -86,14 +79,8 @@ MainLoop
 		movlw	DatBuf
 		movwf	FSR
 
-#ifdef BOARD_3_0
-		movlw	00000001b
-		movwf	PORTC		;all outputs off, only yellow LED on
-#endif
-#ifdef BOARD_3_1
 		movlw	00100000b	;yellow LED on, green off
 		call	BootLeds
-#endif
 
 ; wait for a char to receive via RS232
 ML_1
@@ -171,14 +158,11 @@ ML_err
 	
 ML_6
 		clrf	STATUS
-#ifdef BOARD_3_0
-		bsf		PORTC,1		;green LED on
-#endif
-#ifdef BOARD_3_1
+
 		movlw	00101000b	;yellow LED on, green on
 		call	BootLeds	;exit is always C=0, Z=1 due to loop end
 		clc
-#endif
+
 		bsf		STATUS,RP1
 		rrf		AdrHi,w		;must divide addr by 2 to get word addr
 		movwf	EEADRH
@@ -382,7 +366,6 @@ SendByte
 		movwf	TXREG		;send char
 		return
 
-#ifdef BOARD_3_1
 ; Bank 0 must be active!
 BootLeds
 		movwf	LEDs
@@ -400,7 +383,6 @@ BL_Lp1
 		bcf		PORTC,1		;RCLK off
 ;		return
 ; fall through with w=0 to save code		
-#endif
 
 
 TextTab
