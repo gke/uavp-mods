@@ -27,25 +27,10 @@
 #include "bits.h"
 
 
-// read accu voltage using 8 bit A/D conversion
-// Bit _LowBatt is set if voltage is below threshold
-uns16 GetAnalogVal(uns8 nich)
-{
-	uns16 niltemp;
-
-	ADCON2bits.ADFM = 1;					// select 10 bit mode
-	nich <<= 3;
-	ADCON0 = 0b10000001 + nich;
-	AcqTime();
-	niltemp = (ADRESH<<8) | ADRESL;
-
-	return(niltemp);
-}
-
 void AnalogTest(void)
 {
 	// UBatt
-	nilgval = GetAnalogVal(0);	
+	nilgval = ADC(0, ADCVREF5V);	
 		
 	nilgval *= 46;
 	nilgval += 9;	// round up
@@ -60,10 +45,10 @@ void AnalogTest(void)
 
 // URoll
 #ifdef OPT_ADXRS
-	nilgval = GetAnalogVal(1);	
+	nilgval = ADC(1, ADCVREF5V);	
 #endif
 #ifdef OPT_IDG
-	nilgval = GetAnalogVal(2);	
+	nilgval = ADC(2, ADCVREF5V);	
 #endif
 	nilgval *= 49;
 	nilgval += 5;	// round up
@@ -78,10 +63,10 @@ void AnalogTest(void)
 
 // UNick
 #ifdef OPT_ADXRS
-	nilgval = GetAnalogVal(2);	
+	nilgval = ADC(2, ADCVREF5V);	
 #endif
 #ifdef OPT_IDG
-	nilgval = GetAnalogVal(1);	
+	nilgval = ADC(1, ADCVREF5V);	
 #endif
 	nilgval *= 49;
 	nilgval += 5;	// round up
@@ -95,7 +80,7 @@ void AnalogTest(void)
 	SendComText(SerVolt);
 
 // UYaw
-	nilgval = GetAnalogVal(4);	
+	nilgval = ADC(4, ADCVREF5V);	
 	nilgval *= 49;
 	nilgval += 5;	// round up
 	nilgval /= 10;	// resolution is 0,001 Volt
@@ -108,7 +93,7 @@ void AnalogTest(void)
 	SendComText(SerVolt);
 
 // Uref
-	nilgval = GetAnalogVal(3);	
+	nilgval = ADC(3, ADCVREF5V);	
 	nilgval *= 49;
 	nilgval += 5;	// round up
 	nilgval /= 10;	// resolution is 0,001 Volt

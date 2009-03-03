@@ -62,17 +62,6 @@ void nop2()
 	Delay1TCY();
 }
 
-// used for A/D conversion to wait for
-// acquisition sample time
-void AcqTime(void)
-{
-	uns8 i;
-	for(i=0; i<30; i++)	// makes about 100us
-		;
-	ADCON0bits.GO = 1;
-	while( ADCON0bits.GO ) ;	// wait to complete
-}
-
 //
 // The LED routines, only needed for 
 // PCB revision 3.1 (registered power driver TPIC6B595N)

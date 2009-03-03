@@ -26,7 +26,7 @@
 #include "pu-test.h"
 #include "bits.h"
 
-uns16	nilgval;
+int24	nilgval;
 
 // data strings
 
