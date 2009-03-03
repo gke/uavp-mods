@@ -20,7 +20,11 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#ifdef ICD2_DEBUG
+//#pragma	config = 0x377A	// BODEN, HVP, no WDT, MCLRE disabled, PWRTE disabled
+#else
 #pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
+#endif
 
 #include "pu-test.h"
 #include "bits.h"
@@ -34,8 +38,6 @@ uns8	LedShadow;	// shadow register
 uns8	Flags[8], Flags2[8];
 uns16	CurrK1,CurrK2,CurrK3,CurrK4,CurrK5,CurrK6,CurrK7;
 uns16	PauseTime;
-uns8	MFront, MBack, MLeft, MRight;
-uns8	MCamRoll, MCamPitch;
 uns8	EscI2CFlags;
 int8	TimeSlot;
 uns8	mSTick;
@@ -52,11 +54,11 @@ void main(void)
 	ADCON1 = 0b00000010;	// uses 5V as Vref
 
 	PORTB = 0b11000000;		// all outputs to low, except RB6 & 7 (I2C)!
-	TRISB = 0b01000000;	// all servo and LED outputs
+	TRISB = 0b01000000;		// all servo and LED outputs
 	PORTC = 0b01100000;		// all outputs to low, except TxD and CS
-	TRISC = 0b10000100;	// RC7, RC2 are inputs
-	INTCON2bits.RBPU  = 1;			// disable weak pullups
-	SSPSTATbits.CKE = 1;		// default I2C - enable SMBus thresholds for 3.3V LISL
+	TRISC = 0b10000100;		// RC7, RC2 are inputs
+	INTCON2bits.NOT_RBPU = 1;
+	SSPSTATbits.CKE = 1;	// default I2C - enable SMBus thresholds for 3.3V LISL
 
 	LedShadow = 0;
     ALL_LEDS_OFF;
@@ -78,6 +80,8 @@ void main(void)
 
 	OpenTimer2(TIMER_INT_OFF&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
+
+	InitADC();
 
 	// setup flags register
 	for ( i = 0; i<8; i++ )
@@ -108,13 +112,6 @@ void main(void)
 	CurrK6 =
 	CurrK7 = 0xFFFF;
 	PauseTime = 0;
-	MFront =
-	MLeft =
-	MRight =
-	MBack = _Minimum;
-
-	MCamRoll = 
-	MCamPitch = _Neutral;
 
 	// send hello text to serial COM
 	Delay100mS(1);	// just to see the output after powerup

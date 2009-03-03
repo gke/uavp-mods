@@ -129,13 +129,9 @@ uns8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 // Bootloader ???
 #pragma udata
 
-void OutSignals(void){
-
-#ifdef ESC_HOLGER
-	uns8 niret;	// return status
-
-	EscI2CFlags = 0;
-#endif
+void OutSignals(void)
+{
+	#ifndef DEBUG_SENSORS
 
 	WriteTimer0(0);
 	INTCONbits.TMR0IF = 0;
@@ -149,12 +145,8 @@ void OutSignals(void){
 	PORTB |= 0x0f;
 	#endif
 
-    // mo motor test for 18f version
-	MF = _Minimum;
-	MB = _Minimum;
-	ML = _Minimum;
-	MR = _Minimum;
-
+	MF = MB = ML = MR = _Minimum+10;
+	ME = MT = _Neutral;
 
 	#ifdef ESC_PPM
 
@@ -173,6 +165,7 @@ void OutSignals(void){
 	while( INTCONbits.TMR0IF == 0 ) ;	// wait for first overflow
 	INTCONbits.TMR0IF=0;		// quit TMR0 interrupt
 
+	#if !defined DEBUG && !defined DEBUG_MOTORS
 	if( _OutToggle )	// driver cam servos only every 2nd pulse
 	{
 		_asm
@@ -183,12 +176,13 @@ void OutSignals(void){
 		PORTB |= 0x3f;
 	}
 	_OutToggle ^= 1;
+	#endif
 
 // This loop is exactly 16 cycles int16
 // under no circumstances should the loop cycle time be changed
 _asm
-OS005:
 	MOVLB	0						// select Bank0
+OS005:							
 	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
 	MOVWF	PORTB,0
 	ANDLW	0x0f
@@ -230,6 +224,9 @@ _endasm
 
 	#endif	// ESC_PPM
 
+	#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
+
+	#if !defined DEBUG && !defined DEBUG_MOTORS
 	if( _OutToggle )	// driver cam servos only every 2nd pulse
 	{
 		_asm
@@ -240,9 +237,20 @@ _endasm
 		PORTB |= 0x3f;
 	}
 	_OutToggle ^= 1;
+	#endif
+
+	// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
+	#ifdef ESC_X3D
+	EscI2CStart();
+	SendEscI2CByte(0x10);	// one command, 4 data bytes
+	SendEscI2CByte(MF); // for all motors
+	SendEscI2CByte(MB);
+	SendEscI2CByte(ML);
+	SendEscI2CByte(MR);
+	EscI2CStop();
+	#endif	// ESC_X3D
 
 	#ifdef ESC_HOLGER
-
 	EscI2CStart();
 	SendEscI2CByte(0x52);	// one cmd, one data byte per motor
 	SendEscI2CByte(MF); // for all motors
@@ -264,21 +272,44 @@ _endasm
 	EscI2CStop();
 	#endif	// ESC_HOLGER
 
+	#ifdef ESC_YGEI2C
+	EscI2CStart();
+	SendEscI2CByte(0x62);	// one cmd, one data byte per motor
+	SendEscI2CByte(MF>>1); // for all motors
+	EscI2CStop();
+
+	EscI2CStart();
+	SendEscI2CByte(0x64);
+	SendEscI2CByte(MB>>1);
+	EscI2CStop();
+
+	EscI2CStart();
+	SendEscI2CByte(0x68);
+	SendEscI2CByte(ML>>1);
+	EscI2CStop();
+
+	EscI2CStart();
+	SendEscI2CByte(0x66);
+	SendEscI2CByte(MR>>1);
+	EscI2CStop();
+	#endif	// ESC_YGEI2C
+
+	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
+
+	#ifndef DEBUG_MOTORS
 	while( ReadTimer0() < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
 
 	INTCONbits.GIE = 0;					// Int wieder sperren, wegen Jitter
 
 	while( INTCONbits.TMR0IF == 0 ) ;	// wait for 2nd overflow (2 ms)
 
-	// avoid servo overrun when MCamxx == 0
-	MT = ME = _Neutral;
-
+	#if !defined DEBUG && !defined DEBUG_SENSORS
 	// This loop is exactly 16 cycles int16
 	// under no circumstances should the loop cycle time be changed
 _asm
-OS001:
 	MOVLB	0
-	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
+OS001:
+	MOVF	SHADOWB,0,1				
 	MOVWF	PORTB,0
 	ANDLW	0x30		// output ports 4 and 5
 	BZ		OS002		// stop if all 2 outputs are 0
@@ -294,17 +325,21 @@ OS003:
 	BCF		SHADOWB,PulseCamPitch,1
 OS004:
 _endasm
-	nop2();
-	nop2();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
 _asm
 	GOTO	OS001
 OS002:
 _endasm
-
+#endif	// DEBUG
 	EnableInterrupts;	// re-enable interrupt
 
 	while( INTCONbits.TMR0IF == 0 ) ;	// wait for 3rd TMR2 overflow
+#endif	// DEBUG_MOTORS
 
+#endif  // !DEBUG_SENSORS
 } // OutSignals
 
 

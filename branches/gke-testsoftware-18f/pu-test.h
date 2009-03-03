@@ -63,8 +63,10 @@
 // Types
 
 typedef unsigned char uns8 ;
+typedef unsigned char uint8 ;
 typedef signed char int8;
 typedef unsigned int uns16;
+typedef unsigned int uint16;
 typedef int int16;
 typedef long int32;
 typedef unsigned long uint32;
@@ -76,6 +78,23 @@ typedef unsigned short long uint24;
 
 #define DisableInterrupts (INTCONbits.GIEH=0)
 #define EnableInterrupts (INTCONbits.GIEH=1)
+
+// ADC Channels
+#define ADCPORTCONFIG 0b00001010 // AAAAA
+#define ADCBattVoltsChan 	0 
+
+#ifdef OPT_ADXRS
+	#define ADCRollChan 	1
+	#define ADCPitchChan 	2
+#else // OPT_IDG
+	#define ADCRollChan 	2
+	#define ADCPitchChan 	1
+#endif // OPT_ADXRS
+
+#define ADCVRefChan 			3 
+#define ADCYawChan			4
+
+#define ADCVREF5V 			0
 
 // ==============================================
 // == External variables
@@ -89,11 +108,9 @@ extern	 uns8	ConfigReg;
 extern	 uns16	CurrK1,CurrK2,CurrK3,CurrK4;
 extern	 uns16	CurrK5,CurrK6,CurrK7;
 extern	 uns16	PauseTime; 
-extern	 uns8	MFront, MBack, MLeft, MRight;
-extern	 uns8	MCamRoll, MCamPitch;
 extern	 uns8	EscI2CFlags;
 // special locations
-extern	 uns16	nilgval;
+extern	 int24	nilgval;
 extern	 int8 	TimeSlot;
 extern	 uns8	mSTick;
 
@@ -105,31 +122,28 @@ extern	 uns8	mSTick;
 #define DELAY_MS(ms) for( mSTick=ms; mSTick!=0; mSTick--){INTCONbits.T0IF=0;while(INTCONbits.T0IF == 0);}
 
 #define _ClkOut		(160/4)	/* 16.0 MHz quartz */
-#define _PreScale0	16	/* 1:16 TMR0 prescaler */
-#define _PreScale1	8	/* 1:8 TMR1 prescaler */
-#define _PreScale2	16
-#define _PostScale2	16
+#define TMR2_5MS	78	/* 1x 5ms +  */
+#define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
 
-// wegen dem dummen Compiler muss man händisch rechnen :-(
-#define TMR2_5MS	78	/* 1x 4ms +  */
-#define TMR2_14MS	219	/* 1x 15ms = 20ms pause time */
-
-//                    RX impuls times in 10-microseconds units
-//                    vvv   ACHTUNG: Auf numerischen Überlauf achten!
+// RX impuls times in 10-microseconds units
 #ifdef ESC_PPM
-#define	_Minimum	((105* _ClkOut/(2*_PreScale1))&0xFF)	/*-100% */
+#define	_Minimum	1
+#define _Maximum	240	
+#endif
+#ifdef ESC_X3D
+#define _Minimum	0
+#define _Maximum	255
 #endif
 #ifdef ESC_HOLGER
 #define _Minimum	0
+#define _Maximum	225	/* ESC demanded */
+#endif
+#ifdef ESC_YGEI2C
+#define _Minimum	0
+#define _Maximum	240	/* ESC demanded */
 #endif
 
-#define _Neutral	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
-#define _Maximum	((195* _ClkOut/(2*_PreScale1))&0xFF)	/*+100% */
-#define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
-#define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
-#define _ProgMode	((160* _ClkOut/(2*_PreScale1))&0xFF)	/*+75% */
-#define _ProgUp		((150* _ClkOut/(2*_PreScale1))&0xFF)	/*+60% */
-#define _ProgDown	((130* _ClkOut/(2*_PreScale1))&0xFF)	/*-60% */
+#define _Neutral	((_Maximum+_Minimum+1)/2)
 
 // ==============================================
 // == Sanity checks of the #defines
@@ -138,9 +152,7 @@ extern	 uns8	mSTick;
 #if _Minimum >= _Maximum
 #error _Minimum < _Maximum!
 #endif
-#if _ThresStart <= _ThresStop
-#error _ThresStart <= _ThresStop!
-#endif
+
 #if (_Maximum < _Neutral)
 #error Maximum < _Neutral !
 #endif
@@ -259,6 +271,9 @@ extern	 void PowerOutput(uns8);
 extern	 void SendComText(const char *);
 
 extern	 void ReadParametersEE(void);
+
+extern	int16 ADC(uns8, uns8);
+extern	void InitADC(void);
 
 extern	 void IsLISLactive(void);
 extern	 void LinearTest(void);

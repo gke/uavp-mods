@@ -147,14 +147,14 @@ void LinearTest(void)
 
 	nilgval = (int)ReadLISL(LISL_OUTZ_H + LISL_READ)<<8;
 	nilgval  |= (int)ReadLISL(LISL_OUTZ_L + LISL_READ);
-	SendComChar('Y');
+	SendComChar('Z');
 	SendComChar(':');
 	SendComValUL(NKS3+LEN5+VZ);
 	SendComText(SerLinG);
 
 	nilgval = (int)ReadLISL(LISL_OUTY_H + LISL_READ)<<8;
 	nilgval |= (int)ReadLISL(LISL_OUTY_L + LISL_READ);
-	SendComChar('Z');
+	SendComChar('Y');
 	SendComChar(':');
 	SendComValUL(NKS3+LEN5+VZ);
 	SendComText(SerLinG);

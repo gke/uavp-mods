@@ -12,7 +12,7 @@ set 	GYRO=%2
 set 	ESC=%3
 set 	RX=%4
 
-set CSRC=an-test i2c-scan irq lisl output pu-test rxtest serial text utils utils2
+set CSRC=an-test i2c-scan irq lisl adc output pu-test rxtest serial text utils utils2
 set ASRC=
 
 set CC="C:\MCC18\bin\mcc18"
