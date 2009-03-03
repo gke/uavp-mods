@@ -103,12 +103,11 @@ void SendComChar(char ch)
 	// register W must be retained on exit!!!! Why???
 }
 
-static uns8 nival;
-static char ch;
-
 // converts an unsigned byte to decimal and send it
 void SendComValU(uns8 v)
-{
+{	
+	uns8 nival;
+
 	nival = v;
 
 	v = nival / 100;
@@ -125,6 +124,8 @@ void SendComValU(uns8 v)
 // converts a nibble to HEX and sends it
 void SendComNibble(uns8 v)
 {
+	uns8 nival;
+
 	nival = v + '0';
 	if( nival > '9' )
 		nival += 7;		// A to F
@@ -134,11 +135,8 @@ void SendComNibble(uns8 v)
 // converts an unsigned byte to HEX and sends it
 void SendComValH(uns8 v)
 {
-	uns8 nival2;
-
-	nival2 = v;
-	SendComNibble(nival2 >> 4);
-	SendComNibble(nival2 & 0x0f);
+	SendComNibble(v >> 4);
+	SendComNibble(v & 0x0f);
 }
 
 // converts an unsigned double byte to HEX and sends it
@@ -150,25 +148,24 @@ void SendComValH16(uns16 v)
 
 // converts a signed byte to decimal and send it
 // because of dumb compiler nival must be declared as unsigned :-(
-void SendComValS(uns8 v)
+void SendComValS(int8 v)
 {
-	nival = v;
-	if( (int8)nival < 0 )
+	if( v < 0 )
 	{
 		SendComChar('-');	// send sign
-		nival = -(int8)nival;
+		v = -v;
 	}
 	else
 		SendComChar('+');	// send sign
 
-	SendComValU(nival);
+	SendComValU(v);
 }
 
 // if a character is in the buffer
 // return it. Else return the NUL character
 char RecvComChar(void)
 {
-	uns8 Ch;
+	uns8 ch;
 	
 	if( PIR1bits.RCIF )	// a character is waiting in the buffer
 	{
@@ -176,13 +173,13 @@ char RecvComChar(void)
 		{
 			RCSTAbits.CREN = 0;	// diable, then re-enable port to
 			RCSTAbits.CREN = 1;	// reset OERR and FERR bit
-			Ch = RCREG;	// dummy read
+			ch = RCREG;	// dummy read
 		}
 		else
 		{
-			Ch = RCREG;	// get the character
-			SendComChar(Ch);	// echo it
-			return(Ch);		// and return it
+			ch = RCREG;	// get the character
+			SendComChar(ch);	// echo it
+			return(ch);		// and return it
 		}
 	}
 	return( '\0' );	// nothing in buffer
@@ -192,6 +189,8 @@ char RecvComChar(void)
 // enter an unsigned number 00 to 99
 uns8 RecvComNumU(void)
 {
+	char ch;
+	uns8 nival;
 
 	nival = 0;
 	do
@@ -214,6 +213,7 @@ uns8 RecvComNumU(void)
 // enter a signed number -99 to 99 (always 2 digits)!
 int8 RecvComNumS(void)
 {
+	char ch;
 	int8 nival;
 
 	nival = 0;
@@ -307,8 +307,6 @@ void ProgRegister(void)
 	EECON1bits.WREN = 0;	// disable EEPROM write
 }
 
-int16 nila1;
-
 // if a command is waiting, read and process it.
 // Do NOT call this routine while in flight!
 void ProcessComCommand(void)
@@ -381,8 +379,7 @@ void ProcessComCommand(void)
 			SendComText(SerNeutralN);
 			SendComValS(NeutralFB);
 
-			SendComText(SerNeutralY);
-			Yp -= 1024;		// subtract 1g (vertical sensor)
+			SendComText(SerNeutralY);	
 			SendComValS(NeutralUD);
 			ShowPrompt();
 			break;

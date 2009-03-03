@@ -241,8 +241,8 @@ void OutSignals(void)
 // This loop is exactly 16 cycles int16
 // under no circumstances should the loop cycle time be changed
 _asm
-OS005:
 	MOVLB	0						// select Bank0
+OS005:
 	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
 	MOVWF	PORTB,0
 	ANDLW	0x0f
@@ -371,8 +371,8 @@ _endasm
 	// This loop is exactly 16 cycles int16
 	// under no circumstances should the loop cycle time be changed
 _asm
-OS001:
 	MOVLB	0
+OS001:
 	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
 	MOVWF	PORTB,0
 	ANDLW	0x30		// output ports 4 and 5
@@ -389,8 +389,10 @@ OS003:
 	BCF		SHADOWB,PulseCamPitch,1
 OS004:
 _endasm
-	nop2();
-	nop2();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
 _asm
 	GOTO	OS001
 OS002:
@@ -410,31 +412,14 @@ _endasm
 // Values are ADDED into RollSamples and PitchSamples
 void GetGyroValues(void)
 {
-
-	ADCON2bits.ADFM = 1;					// select 10 bit mode
-	#ifdef OPT_ADXRS
-	ADCON0 = 0b10001001;	// select CH1(RA1) Roll
-	#endif
 	#ifdef OPT_IDG
-	ADCON1 = (ADCON1 & 0xf0) | 1;					// select 3,6V as Vref
-	ADCON0 = 0b10010001;	// select CH2(RA2) Pitch
-	#endif
-	AcqTime();
+	RollSamples += ADC(ADCRollChan, ADCVREF);
+	#else
+	RollSamples += ADC(ADCRollChan, ADCVREF5V);
+	#endif // OPT_IDG
 
-	RollSamples += ((ADRESH << 8) | ADRESL);
+	PitchSamples += ADC(ADCPitchChan, ADCVREF5V);
 
-	#ifdef OPT_ADXRS
-	ADCON0 = 0b10010001;	// select CH2(RA2) Pitch
-	#endif
-	#ifdef OPT_IDG
-	ADCON0 = 0b10001001;	// select CH1(RA1) Roll
-	#endif
-	AcqTime();
-
-	PitchSamples += ((ADRESH << 8) | ADRESL);
-	#ifdef OPT_IDG
-	ADCON1 = (ADCON1 & 0xf0);					// select 5V as Vref
-	#endif
 } // GetGyroValues
 
 // ADXRS300: The Integral (RollSum & Pitchsum) has
@@ -442,8 +427,7 @@ void GetGyroValues(void)
 // IDG300: (TBD)
 //
 
-// Calc the gyro values from added RollSamples 
-// and PitchSamples (global variable "nisampcnt")
+// Calc the gyro values from added RollSamples and PitchSamples
 void CalcGyroValues(void)
 {
 	int16 Temp;
@@ -479,8 +463,8 @@ void CalcGyroValues(void)
 				RollSum = RollSum + MiddleLR;
 				PitchSum = PitchSum + MiddleFB;
 			}
-			MidRoll = (uns16)RollSum / (uns16)16;	
-			MidPitch = (uns16)PitchSum / (uns16)16;
+			MidRoll = (int16)RollSum / (int16)16;	
+			MidPitch = (int16)PitchSum / (int16)16;
 			RollSum = 0;
 			PitchSum = 0;
 			LRIntKorr = 0;
@@ -501,11 +485,8 @@ void CalcGyroValues(void)
 			// the constant factor 0.667 is used instead
 			Temp = RollSamples + PitchSamples;	
 			PitchSamples = PitchSamples - RollSamples;	
-			RollSamples = Temp * 2;
-			RollSamples /= 3;
-			PitchSamples *= 2;
-			PitchSamples /= 3;
-		
+			RollSamples = (Temp * 2)/3;
+			PitchSamples = (PitchSamples * 2)/3;
 		}
 
 		#ifdef DEBUG_SENSORS
@@ -561,10 +542,7 @@ void CalcGyroValues(void)
 		LimitPitchSum();		// for pitch integration
 
 		// Yaw is sampled only once every frame, 8 bit A/D resolution
-		ADCON2bits.ADFM = 0;
-		ADCON0 = 0b10100001;	// select CH4(RA5) Yaw
-		AcqTime();
-		YE = ADRESH;
+		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;
 		if( MidYaw == 0 )
 			MidYaw = YE;
 		YE -= MidYaw;
