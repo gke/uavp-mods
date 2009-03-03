@@ -164,7 +164,8 @@ First public released version.
 07.1.2009 v3.15m3 Greg Egan
 - Reduced _Maximum output pulse width to prevent 
   minimum width Rx pulses from being missed with
-  interrupts masked.  
+  interrupts masked.
+- Double rates removed (code space!) - use Tx limits instead. 
 
 12.02.2009 v3.15m3 Greg Egan
 - Auto sensing of SMD500 and BMP085 Baros
