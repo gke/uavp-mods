@@ -27,7 +27,7 @@
 #ifdef ICD2_DEBUG
 //#pragma	config = 0x377A	// BODEN, HVP, no WDT, MCLRE disabled, PWRTE disabled
 #else
-#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC // BODEN, HVP, no WDT, MCLRE disabled, PWRTE enabled
+#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
 #endif
 
 #include "c-ufo.h"
@@ -47,27 +47,28 @@ uns8	IK6;		// actual channel 6 input
 uns8	IK7;		// actual channel 7 input
 
 // PID Regler Variablen
-int8		RE,PE;
-int8		YE;	// Fehlersignal aus dem aktuellen Durchlauf
-int8		REp,PEp;
-int8		YEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/PE/YE)
+int8	RE,PE;
+int8	YE;	// Fehlersignal aus dem aktuellen Durchlauf
+int8	REp,PEp;
+int8	YEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/PE/YE)
 int16	YawSum;	// Integrales Fehlersignal fuer Yaw, 0 = neutral
 int16	RollSum, PitchSum;	// Integrales Fehlersignal fuer Roll und Pitch
-uns16	RollSamples, PitchSamples;
-int8		LRIntKorr, FBIntKorr;
-uns8	NeutralLR, NeutralFB, NeutralUD;
+int16	RollSamples, PitchSamples;
+int8	LRIntKorr, FBIntKorr;
+int8	NeutralLR, NeutralFB, NeutralUD;
 int8 	UDSum;
 
 uns8	BlinkCount, BlinkCycle, BaroCount;
 uns8 	mSTick;
-int8	BatteryVolts; // added by Greg Egan
+int8	BatteryVolts;
 int8	Rw,Pw;
 
-uns16	BaroBasePressure, BaroBaseTemp, BaroRelTempCorr;
-int8		VBaroComp;
-int8 	BaroRelPressure;
+// Variables for barometric sensor PD-controller
+int24	BaroBasePressure, BaroBaseTemp;
+int24	BaroRelTempCorr;
+int8	VBaroComp;
+int16   BaroRelPressure;
 uns8	BaroType, BaroTemp, BaroRestarts;
-
 
 #pragma idata params
 // Principal quadrocopter parameters - MUST remain in this order
@@ -104,11 +105,11 @@ int8	BaroThrottleDiff	=4;
 
 // Ende Reihenfolgezwang
 
-uns16	MidRoll, MidPitch, MidYaw;
+int16	MidRoll, MidPitch, MidYaw;
 
 uns8	LedShadow;	// shadow register
-uns16	AbsDirection;	// wanted heading (240 = 360 deg)
-int8		CurDeviation;	// deviation from correct heading
+int16	AbsDirection;	// wanted heading (240 = 360 deg)
+int16	CurDeviation;	// deviation from correct heading
 
 uns8	MFront,MLeft,MRight,MBack;	// output channels
 uns8	MCamRoll,MCamPitch;
@@ -117,15 +118,13 @@ int16	Rl,Pl,Yl;	// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
 
-int8		nitemp;
-
 uns8	Flags[8];
 uns8	Flags2[8];
 
 uns8	IntegralCount;
 int8		RollNeutral, PitchNeutral, YawNeutral;
 uns8	ThrNeutral;
-uns16	ThrDownCount;
+int16	ThrDownCount;
 
 uns8	DropoutCount;
 uns8	LedCount;
@@ -245,6 +244,7 @@ void main(void)
 
 	DisableInterrupts;
 
+	InitADC();
 
 	// general ports setup
 	TRISA = 0b00111111;	// all inputs
@@ -504,7 +504,6 @@ DoPID:
 			MixAndLimitCam();
 			OutSignals();
 
-			CheckBattery();
 			CheckAlarms();
 
 			#ifdef DEBUG_SENSORS

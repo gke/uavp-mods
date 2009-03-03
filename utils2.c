@@ -101,19 +101,19 @@ void Out(uns8 l)
 //      128  negative  0  positive  127
 void OutG(uns8 l)
 {
-	uns8 nii @i;
+	uns8 v;
 
 	PORTB.5=1;
 	PORTB.5=0;
-	for(nii=128; nii!=1; nii++)	// -128 .. 0
+	for(v=128; v!=1; v++)	// -128 .. 0
 	{
-		if(nii==l)
+		if(v==l)
 			PORTB.5=1;
 	}
 	PORTB.5^=1;
-	for(nii=1; nii!=128; nii++)	// +1 .. +127
+	for(v=1; v!=128; v++)	// +1 .. +127
 	{
-		if(nii==l)
+		if(v==l)
 			PORTB.5=0;
 	}
 
@@ -145,18 +145,6 @@ void InitArrays(void)
 
 	BaroRestarts = 0;
 } // InitArrays
-
-// used for A/D conversion to wait for
-// acquisition sample time and A/D conversion completion
-void AcqTime(void)
-{
-	uns8 i;
-
-	for(i=30; i!=0; i--)	// makes about 100us
-		;
-	ADCON0bits.GO = 1;
-	while( ADCON0bits.GO ) ;	// wait to complete
-} // AcqTime
 
 // this routine is called ONLY ONCE while booting
 // read 16 time all 3 axis of linear sensor.
@@ -190,41 +178,19 @@ void GetEvenValues(void)
 	Pp = SRS16(Pp + 8, 4);
 	Rp = SRS16(Yp + 8, 4);
 
-	NeutralLR = Limit(Rp, -128, 127);
-	NeutralFB = Limit(Pp, -128, 127);
-	NeutralUD = Limit(Yp, -128, 127);
+	NeutralLR = Limit(Rp, -99, 99);
+	NeutralFB = Limit(Pp, -99, 99);
+	NeutralUD = Limit(Yp-1024, -99, 99); // -1g
 } // GetEvenValues
-
-// read accu voltage using 8 bit A/D conversion
-// Bit _LowBatt is set if voltage is below threshold
-// Modified by Ing. Greg Egan
-// Filter battery volts to remove ADC/Motor spikes and set _LoBatt alarm accordingly 
-void CheckBattery(void)
-{
-	int8 NewBatteryVolts, Temp;
-
-	ADCON2bits.ADFM = 0;	// select 8 bit mode
-	ADCON0 = 0b10000001;	// turn AD on, select CH0(RA0) Ubatt
-	AcqTime();
-	NewBatteryVolts = (int8) (ADRESH >> 1);
-
-	#ifndef DEBUG_SENSORS
-	// cc5x limitation	BatteryVolts = (BatteryVolts+NewBatteryVolts+1)>>1;
-	// 					_LowBatt =  (BatteryVolts < LowVoltThres) & 1;
-
-	Temp = BatteryVolts+NewBatteryVolts+1;
-	BatteryVolts = Temp>>1;
-
-	if (BatteryVolts < LowVoltThres)
-		_LowBatt = 1;
-	else
-		_LowBatt = 0;
-
-	#endif // DEBUG_SENSORS
-} // CheckBattery
 
 void CheckAlarms(void)
 {
+	int16 NewBatteryVolts;
+
+	NewBatteryVolts = ADC(ADCBattVoltsChan, ADCVREF5V) >> 3; 
+	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
+	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
+
 	if( _LowBatt )
 	{
 		if( BlinkCount < BLINK_LIMIT/2 )

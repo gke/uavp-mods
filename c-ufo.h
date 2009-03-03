@@ -1,5 +1,3 @@
-//#define COMMISSIONING
-
 // EXPERIMENTAL
 
 // reduces the update rate and the additionally the descent rate 
@@ -12,70 +10,16 @@
 // I2C comms seems now to be reliable with the BMP085 baro.
 //#define BARO_RETRY
 
-// Increase the severity of the filter on the baromater pressure readings
+// Increase the severity of the filter on the barometer pressure readings
 // may give better altitude hold ( New=(Old*7+New+4)/8) ).
 #define BARO_HARD_FILTER
 
 // Make a "scratchy" beeper noise while altitude hold is engaged.
 #define BARO_SCRATCHY_BEEPER
 
+// Loads a "representative" parameter set into EEPROM
+//#define COMMISSIONING
 
-
-#include <p18cxxx.h> 
-#include <math.h>
-#include <delays.h>
-#include <timers.h>
-#include <usart.h>
-#include <capture.h>
-#include <adc.h>
-
-// Types
-
-#define true 1
-#define false 0
-
-#define MAXINT32 0x7fffffff;
-#define	MAXINT16 0x7fff;
-
-typedef unsigned char uns8 ;
-typedef signed char int8;
-typedef unsigned int uns16;
-typedef int int16;
-typedef long int32;
-typedef unsigned long uint32;
-typedef short long int24;
-typedef unsigned short long uint24;
-typedef float real32;
-typedef uns8 boolean;
-
-#define Set(S,b) 		((uns8)(S|=(1<<b)))
-#define Clear(S,b) 		((uns8)(S&=(~(1<<b))))
-#define IsSet(S,b) 		((uns8)((S>>b)&1))
-#define IsClear(S,b) 	((uns8)(!(S>>b)&1))
-#define Invert(S,b) 	((uns8)(S^=(1<<b)))
-
-#define Max(i,j) 		((i<j) ? j : ((i>j) ? j : i))
-#define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
-#define DecayBand(i,l,u,d) 	((i<l) ? i+d : ((i>u) ? i-d : i))
-#define Decay(i) 		((i<0) ? i+1 : ((i>0) ? i-1 : 0))
-
-// Simple filters using weighted averaging
-
-#ifdef SUPPRESSFILTERS
-  #define VerySoftFilter(O,N)		(N)
-  #define SoftFilter(O,N) 			(N)
-  #define MediumFilter(O,N) 			(N)
-  #define AccelerometerFilter(O,N) 	(N)
-#else
-  #define VerySoftFilter(O,N) 		(SRS16(O+N*3+2, 2))
-  #define SoftFilter(O,N) 			(SRS16(O+N+1, 1))
-  #define MediumFilter(O,N) 		(SRS16(O*3+N+2, 2))
-  #define HardFilter(O,N) 			(SRS16(O*7+N+4, 3))
-#endif
-#define NoFilter(O,N)				(N)
-
-#define DisableInterrupts (INTCONbits.GIEH=0)
-#define EnableInterrupts (INTCONbits.GIEH=1)
 
 #ifndef BATCHMODE
 // =======================================================================
@@ -127,18 +71,18 @@ typedef uns8 boolean;
 //#define OPT_ADXRS300
 
 // When using 3 ADXRS150 gyros
-#define OPT_ADXRS150
+//#define OPT_ADXRS150
 
 // When using 1 ADXRS300 and 1 IDG300 gyro
-//#define OPT_IDG
+#define OPT_IDG
 
 // Select what speeed controllers to use:
 // to use standard PPM pulse
-//#define ESC_PPM
+#define ESC_PPM
 // to use X3D BL controllers (not yet tested. Info courtesy to Jast :-)
 //#define ESC_X3D
 // to use Holgers ESCs (tested and confirmed by ufo-hans)
-#define ESC_HOLGER
+//#define ESC_HOLGER
 // to use YGE I2C controllers (for standard YGEs use ESC_PPM)
 //#define ESC_YGEI2C
 
@@ -146,10 +90,10 @@ typedef uns8 boolean;
 //#define RX_PPM
 
 // defined: Spektrum DSM2 various channel shuffles
-#define RX_DSM2
+//#define RX_DSM2
 
 // defined: Interleaved odd channel PPM pulse train from receiver
-//#define RX_DEFAULT
+#define RX_DEFAULT
 
 // uncomment this to enable Tri-Copter Mixing.
 // connector K1 = front motor
@@ -179,7 +123,7 @@ typedef uns8 boolean;
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-//#define DEBUG_SENSORS
+#define DEBUG_SENSORS
 
 // Switched Roll and Pitch channels for Conrad mc800 transmitter
 //#define EXCHROLLNICK
@@ -210,65 +154,143 @@ typedef uns8 boolean;
 #define Version	"3.15m3_18f"
 
 // ==============================================
+// == Additional declarations etc for C18 port
+// ==============================================
+
+#include <p18cxxx.h> 
+#include <math.h>
+#include <delays.h>
+#include <timers.h>
+#include <usart.h>
+#include <capture.h>
+#include <adc.h>
+
+// Types
+
+#define true 1
+#define false 0
+
+#define MAXINT32 0x7fffffff;
+#define	MAXINT16 0x7fff;
+
+typedef unsigned char uns8 ;
+typedef unsigned char uint8 ;
+typedef signed char int8;
+typedef unsigned int uns16;
+typedef unsigned int uint16;
+typedef int int16;
+typedef long int32;
+typedef unsigned long uint32;
+typedef short long int24;
+typedef unsigned short long uint24;
+
+#define Set(S,b) 		((uns8)(S|=(1<<b)))
+#define Clear(S,b) 		((uns8)(S&=(~(1<<b))))
+#define IsSet(S,b) 		((uns8)((S>>b)&1))
+#define IsClear(S,b) 	((uns8)(!(S>>b)&1))
+#define Invert(S,b) 	((uns8)(S^=(1<<b)))
+
+#define Max(i,j) 		((i<j) ? j : ((i>j) ? j : i))
+#define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
+#define DecayBand(i,l,u,d) 	((i<l) ? i+d : ((i>u) ? i-d : i))
+#define Decay(i) 		((i<0) ? i+1 : ((i>0) ? i-1 : 0))
+
+// Simple filters using weighted averaging
+
+#ifdef SUPPRESSFILTERS
+  #define VerySoftFilter(O,N)		(N)
+  #define SoftFilter(O,N) 			(N)
+  #define MediumFilter(O,N) 			(N)
+  #define AccelerometerFilter(O,N) 	(N)
+#else
+  #define VerySoftFilter(O,N) 		(SRS16(O+N*3+2, 2))
+  #define SoftFilter(O,N) 			(SRS16(O+N+1, 1))
+  #define MediumFilter(O,N) 		(SRS16(O*3+N+2, 2))
+  #define HardFilter(O,N) 			(SRS16(O*7+N+4, 3))
+#endif
+#define NoFilter(O,N)				(N)
+
+#define DisableInterrupts (INTCONbits.GIEH=0)
+#define EnableInterrupts (INTCONbits.GIEH=1)
+
+// ADC Channels
+#define ADCPORTCONFIG 0b00001010 // AAAAA
+#define ADCBattVoltsChan 	0 
+
+#ifdef OPT_ADXRS
+	#define ADCRollChan 	1
+	#define ADCPitchChan 	2
+#else // OPT_IDG
+	#define ADCRollChan 	2
+	#define ADCPitchChan 	1
+#endif // OPT_ADXRS
+
+#define ADCVRefChan 		3 
+#define ADCYawChan			4
+
+#define ADCVREF5V 			0
+#define ADCVREF 			1
+
+// ==============================================
 // == External variables
 // ==============================================
 
-extern	 uns8	IGas;
-extern	 int8 	IRoll,IPitch,IYaw;
-extern	 uns8	IK5,IK6,IK7;
+extern	uns8	IGas;
+extern	int8 	IRoll,IPitch,IYaw;
+extern	uns8	IK5,IK6,IK7;
 
-extern	 int8	RE, PE;
-extern	 int8	YE;
-extern	 int8	REp,PEp;
-extern	 int8	YEp;
-extern	 int16	YawSum;
-extern	 int16	PitchSum, RollSum;
-extern	 uns16	RollSamples, PitchSamples;
-extern	 int8	LRIntKorr, FBIntKorr;
-extern	 uns8	NeutralLR, NeutralFB, NeutralUD;
-extern	 int8 	UDSum;
-extern	 uns8	BlinkCount, BlinkCycle, BaroCount;
-extern	 int8	Rw,Pw;	// angles
+extern	int8	RE, PE;
+extern	int8	YE;
+extern	int8	REp,PEp;
+extern	int8	YEp;
+extern	int16	YawSum;
+extern	int16	PitchSum, RollSum;
+extern	int16	RollSamples, PitchSamples;
+extern	int8	LRIntKorr, FBIntKorr;
+extern	int8	NeutralLR, NeutralFB, NeutralUD;
+extern	int8 	UDSum;
+extern	uns8	BlinkCount, BlinkCycle, BaroCount;
+extern	int8	Rw,Pw;	// angles
 extern   int8	BatteryVolts; 
 				
 // Variables for barometric sensor PD-controller
-extern	 uns16	BaroBasePressure, BaroBaseTemp;
-extern	 uns16	BaroRelTempCorr;
-extern	 int8	VBaroComp;
-extern   int8    BaroRelPressure;
-extern	 uns8	BaroType, BaroTemp, BaroRestarts;
+extern	int24	BaroBasePressure, BaroBaseTemp;
+extern	int24	BaroRelTempCorr;
+extern	int8	VBaroComp;
+extern  int16   BaroRelPressure;
+extern	uns8	BaroType, BaroTemp, BaroRestarts;
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
 // These variables MUST keep their order!!!
 
-extern	 int8	RollPropFactor; 	// 01
-extern	 int8	RollIntFactor;		// 02
-extern	 int8	RollDiffFactor;		// 03
-extern	 int8 	BaroTempCoeff;		// 04
-extern	 int8	RollIntLimit;		// 05
-extern	 int8	PitchPropFactor;	// 06
-extern	 int8	PitchIntFactor;		// 07
-extern	 int8	PitchDiffFactor;	// 08
-extern	 int8 	BaroThrottleProp;	// 09
-extern	 int8	PitchIntLimit;		// 10
-extern	 int8	YawPropFactor; 		// 11
-extern	 int8	YawIntFactor;		// 12
-extern	 int8	YawDiffFactor;		// 13
-extern	 int8	YawLimit;			// 14
-extern	 int8 	YawIntLimit;		// 15
-extern	 int8	ConfigParam;		// 16
-extern	 int8 	TimeSlot;			// 17
-extern	 int8	LowVoltThres;		// 18
-extern	 int8	CamRollFactor;		// 19
-extern	 int8	LinFBIntFactor;		// 20 free
-extern	 int8	LinUDIntFactor;		// 21
-extern	 int8 	MiddleUD;			// 22
-extern	 int8	MotorLowRun;		// 23
-extern	 int8	MiddleLR;			// 24
-extern	 int8	MiddleFB;			// 25
-extern	 int8	CamPitchFactor;		// 26
-extern	 int8	CompassFactor;		// 27
-extern	 int8	BaroThrottleDiff;	// 28
+extern	int8	RollPropFactor; 	// 01
+extern	int8	RollIntFactor;		// 02
+extern	int8	RollDiffFactor;		// 03
+extern	int8 	BaroTempCoeff;		// 04
+extern	int8	RollIntLimit;		// 05
+extern	int8	PitchPropFactor;	// 06
+extern	int8	PitchIntFactor;		// 07
+extern	int8	PitchDiffFactor;	// 08
+extern	int8 	BaroThrottleProp;	// 09
+extern	int8	PitchIntLimit;		// 10
+extern	int8	YawPropFactor; 		// 11
+extern	int8	YawIntFactor;		// 12
+extern	int8	YawDiffFactor;		// 13
+extern	int8	YawLimit;			// 14
+extern	int8 	YawIntLimit;		// 15
+extern	int8	ConfigParam;		// 16
+extern	int8 	TimeSlot;			// 17
+extern	int8	LowVoltThres;		// 18
+extern	int8	CamRollFactor;		// 19
+extern	int8	LinFBIntFactor;		// 20 free
+extern	int8	LinUDIntFactor;		// 21
+extern	int8 	MiddleUD;			// 22
+extern	int8	MotorLowRun;		// 23
+extern	int8	MiddleLR;			// 24
+extern	int8	MiddleFB;			// 25
+extern	int8	CamPitchFactor;		// 26
+extern	int8	CompassFactor;		// 27
+extern	int8	BaroThrottleDiff;	// 28
 
 // these 2 dummy registers (they do not occupy any RAM location)
 // are here for defining the first and the last programmable 
@@ -277,33 +299,31 @@ extern	 int8	BaroThrottleDiff;	// 28
 #define FirstProgReg RollPropFactor
 #define	LastProgReg BaroThrottleDiff
 
-
 // end of "order-block"
 
-extern	 uns8	MFront,MLeft,MRight,MBack;	// output channels
-extern	 uns8	MCamRoll,MCamPitch;
-extern	 int16	Ml, Mr, Mf, Mb;
-extern	 int16	Rl,Pl,Yl;	// PID output values
-extern	 int16	Rp,Pp,Yp,Vud;
+extern	uns8	MFront,MLeft,MRight,MBack;	// output channels
+extern	uns8	MCamRoll,MCamPitch;
+extern	int16	Ml, Mr, Mf, Mb;
+extern	int16	Rl,Pl,Yl;	// PID output values
+extern	int16	Rp,Pp,Yp,Vud;
 
 
-extern	 uns8	Flags[8];
-extern	 uns8	Flags2[8];
-extern	 uns8	RecFlags;	// Interrupt save registers for FSR
+extern	uns8	Flags[8];
+extern	uns8	Flags2[8];
 
-extern	 uns8	IntegralCount;
+extern	uns8	IntegralCount;
 
 // measured neutral gyro values
 // current stick neutral values
-extern	 int8	RollNeutral, PitchNeutral, YawNeutral;
-extern	 uns8	ThrNeutral;
-extern	 uns16	ThrDownCount;
-extern	uns8 mSTick;
-extern	 uns16	MidRoll, MidPitch, MidYaw;
+extern	int8	RollNeutral, PitchNeutral, YawNeutral;
+extern	uns8	ThrNeutral;
+extern	int16	ThrDownCount;
+extern	uns8 	mSTick;
+extern	int16	MidRoll, MidPitch, MidYaw;
 
-extern	 uns8	LedShadow;	// shadow register
-extern	 uns16	AbsDirection;	// wanted heading (240 = 360 deg)
-extern	 int8		CurDeviation;	// deviation from correct heading
+extern	uns8	LedShadow;	// shadow register
+extern	int16	AbsDirection;	// wanted heading (240 = 360 deg)
+extern	int16	CurDeviation;	// deviation from correct heading
 
 #define _ClkOut		(160/4)	/* 16.0 MHz quartz */
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
@@ -322,8 +342,8 @@ extern	 int8		CurDeviation;	// deviation from correct heading
 #define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
 
 
-//                    RX impuls times in 10-microseconds units
-//                    vvv   ACHTUNG: Auf numerischen Überlauf achten!
+// RX impuls times in 10-microseconds units
+// vvv   ACHTUNG: Auf numerischen Überlauf achten!
 #ifdef ESC_PPM
 #define	_Minimum	((105* _ClkOut/(2*_PreScale1))&0xFF)	/*-100% */
 #define _Maximum	240					/* reduced from 255 */
@@ -405,66 +425,68 @@ extern	 int8		CurDeviation;	// deviation from correct heading
 
 // Prototypes
 
-extern	 void BootStart(void);
+extern	void BootStart(void);
 
-extern	 void OutSignals(void);
-extern	 void GetGyroValues(void);
-extern	 void CalcGyroValues(void);
-extern	 void CheckBattery(void);
-extern	 void CheckAlarms(void);
-extern	 void UpdateBlinkCount(void);
-extern	 void SendComText(const char *);
-extern	 void SendComValH(uns8);
-extern	 void SendComChar(char);
-extern	 void ShowSetup(uns8);
-extern	 void ProcessComCommand(void);
-extern	 void SendComValU(uns8);
-extern	 void SendComValS(uns8);
-extern	 void SendComValH16(uns16);
-extern	 void GetEvenValues(void);
-extern	 void ReadParametersEE(void);
-extern	 void WriteParametersEE(uns8);
-extern	 void WriteEE(uns8, int8);
-extern	 void ReadParametersEE(void);
-extern	 int8 ReadEE(uns8);
-extern	 void DoProgMode(void);
-extern	 void InitArrays(void);
-extern   void PID(void);
-extern	 void Out(uns8);
-extern	 void OutG(uns8);
-extern	 void LimitRollSum(void);
-extern	 void LimitPitchSum(void);
-extern	 void LimitYawSum(void);
-extern	 void AddUpLRArr(uns8);
-extern	 void AddUpFBArr(uns8);
-extern	 void AcqTime(void);
-extern	 void MixAndLimit(void);
-extern	 void MixAndLimitCam(void);
-extern	 void Delay100mSWithOutput(uns8);
+extern	void OutSignals(void);
+extern	void GetGyroValues(void);
+extern	void CalcGyroValues(void);
+extern	void CheckAlarms(void);
+extern	void UpdateBlinkCount(void);
+extern	void SendComText(const char *);
+extern	void SendComValH(uns8);
+extern	void SendComChar(char);
+extern	void ShowSetup(uns8);
+extern	void ProcessComCommand(void);
+extern	void SendComValU(uns8);
+extern	void SendComValS(int8);
+extern	void SendComValH16(uns16);
+extern	void GetEvenValues(void);
+extern	void ReadParametersEE(void);
+extern	void WriteParametersEE(uns8);
+extern	void WriteEE(uns8, int8);
+extern	void ReadParametersEE(void);
+extern	int8 ReadEE(uns8);
+extern	void DoProgMode(void);
+extern	void InitArrays(void);
+extern	void PID(void);
+extern	void Out(uns8);
+extern	void OutG(uns8);
+extern	void LimitRollSum(void);
+extern	void LimitPitchSum(void);
+extern	void LimitYawSum(void);
+extern	void AddUpLRArr(uns8);
+extern	void AddUpFBArr(uns8);
+extern	void AcqTime(void);
+extern	void MixAndLimit(void);
+extern	void MixAndLimitCam(void);
+extern	void Delay100mSWithOutput(uns8);
 
-extern	 void SendLeds(void);
-extern	 void SwitchLedsOn(uns8);
-extern	 void SwitchLedsOff(uns8);
+extern	void SendLeds(void);
+extern	void SwitchLedsOn(uns8);
+extern	void SwitchLedsOff(uns8);
 
-extern	 void CheckLISL(void);
-extern	 void IsLISLactive(void);
-extern 	 uns8 ReadLISL(uns8);
-extern 	 uns8 ReadLISLNext(void);
-extern	 void OutSSP(uns8);
-extern	 void InitDirection(void);
-extern	 void GetDirection(void);
-extern	 void InitAltimeter(void);
-extern	 void ComputeBaroComp(void);
-//extern	 uns8 StartBaroADC(uns8);
+extern	void CheckLISL(void);
+extern	void IsLISLactive(void);
+extern 	uns8 ReadLISL(uns8);
+extern 	uns8 ReadLISLNext(void);
+extern	void OutSSP(uns8);
+extern	void InitDirection(void);
+extern	void GetDirection(void);
+extern	void InitAltimeter(void);
+extern	void ComputeBaroComp(void);
+//extern	uns8 StartBaroADC(uns8);
 
-extern	 uns8 Sin(void);
-extern	 uns8 Cos(void);
-extern	 uns8 Arctan(uns8);
+extern	uns8 Sin(void);
+extern	uns8 Cos(void);
+//extern	uns8 Arctan(uns8);
 
 extern	void nop2(void);
 extern	int16 SRS16(int16, uns8);
 
-extern	 void MatrixCompensate(void);
+extern	void InitADC(void);
+extern	int16 ADC(uint8, uint8);
+
+extern	void MatrixCompensate(void);
 
 // End of c-ufo.h
 

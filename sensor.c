@@ -362,7 +362,7 @@ BAerror:
 void ComputeBaroComp(void)
 {
 	uns8 r;
-	uns16 OldBaroRelPressure, Delta, Temp;
+	int16 OldBaroRelPressure,  Temp, Delta;
 
 	BaroCount++;
 

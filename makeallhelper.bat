@@ -14,11 +14,12 @@ set 	DBG=%4
 set 	RX=%5
 set 	CFG=%6
 
-set CSRC=accel c-ufo irq lisl pid pid2 prog sensor serial utils utils2
+set CSRC=accel adc c-ufo irq lisl pid pid2 prog sensor serial utils utils2
 set ASRC=bootl18f2520
 
 set CC="C:\MCC18\bin\mcc18"
-set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa-  -DBATCHMODE -DNOLEDGAME 
+set CCMD=  -DBATCHMODE -DNOLEDGAME 
+rem set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa-  -DBATCHMODE -DNOLEDGAME 
 
 set ACMD=/o+ /e+ /l+ /x- /p18f2520 /c+ /q
 set AEXE="%ProgramFiles%\microchip\MPASM Suite\MPASMwin.exe"
