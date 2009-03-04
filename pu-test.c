@@ -50,7 +50,7 @@ void main(void)
 	DisableInterrupts;
 
 	// general ports setup
-	TRISA = 0b00111111;	// all inputs
+	TRISA = 0b00111111;		// all inputs
 	ADCON1 = 0b00000010;	// uses 5V as Vref
 
 	PORTB = 0b11000000;		// all outputs to low, except RB6 & 7 (I2C)!
@@ -78,7 +78,7 @@ void main(void)
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 	CCP1CONbits.CCP1M0 = NegativePPM;
 
-	OpenTimer2(TIMER_INT_OFF&T2_PS_1_16&T2_POST_1_16);		
+	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
 	InitADC();
@@ -104,13 +104,7 @@ void main(void)
 	INTCONbits.PEIE = 1;		// enable peripheral interrupts
 
 	ConfigReg = 0;
-	CurrK1 =
-	CurrK2 =
-	CurrK3 =
-	CurrK4 =
-	CurrK5 =
-	CurrK6 =
-	CurrK7 = 0xFFFF;
+	CurrK1 = CurrK2 = CurrK3 = CurrK4 = CurrK5 = CurrK6 = CurrK7 = 0xFFFF;
 	PauseTime = 0;
 
 	// send hello text to serial COM
@@ -137,10 +131,8 @@ void main(void)
 		TimeSlot = 10;
 		while( TimeSlot > 0 )
 		{
-			while( INTCONbits.T0IF == 0 ) 	// 1024us wait
-			{	
+			while( INTCONbits.T0IF == 0 ) 	// 1024us wait	
 				ProcessComCommand();
-			}
 			INTCONbits.T0IF = 0;
 			TimeSlot--;
 		}
