@@ -20,7 +20,6 @@
 // Loads a "representative" parameter set into EEPROM
 //#define COMMISSIONING
 
-
 #ifndef BATCHMODE
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
@@ -239,16 +238,14 @@ extern	uns8	IGas;
 extern	int8 	IRoll,IPitch,IYaw;
 extern	uns8	IK5,IK6,IK7;
 
-extern	int8	RE, PE;
-extern	int8	YE;
-extern	int8	REp,PEp;
-extern	int8	YEp;
+extern	int16	RE, PE, YE;
+extern	int16	REp,PEp,YEp;
 extern	int16	YawSum;
 extern	int16	PitchSum, RollSum;
 extern	int16	RollSamples, PitchSamples;
 extern	int8	LRIntKorr, FBIntKorr;
 extern	int8	NeutralLR, NeutralFB, NeutralUD;
-extern	int8 	UDSum;
+extern	int16 	UDSum;
 extern	uns8	BlinkCount, BlinkCycle, BaroCount;
 extern	int8	Rw,Pw;	// angles
 extern   int8	BatteryVolts; 
@@ -256,7 +253,7 @@ extern   int8	BatteryVolts;
 // Variables for barometric sensor PD-controller
 extern	int24	BaroBasePressure, BaroBaseTemp;
 extern	int24	BaroRelTempCorr;
-extern	int8	VBaroComp;
+extern	int16	VBaroComp;
 extern  int16   BaroRelPressure;
 extern	uns8	BaroType, BaroTemp, BaroRestarts;
 
@@ -485,6 +482,7 @@ extern	int16 SRS16(int16, uns8);
 
 extern	void InitADC(void);
 extern	int16 ADC(uint8, uint8);
+extern	void InitPorts(void);
 
 extern	void MatrixCompensate(void);
 

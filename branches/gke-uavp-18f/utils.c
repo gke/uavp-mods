@@ -363,9 +363,9 @@ _endasm
 
 	while( INTCONbits.TMR0IF == 0 ) ;	// wait for 2nd overflow (2 ms)
 
-	// avoid servo overrun when MCamxx == 0
-	ME = MCamRoll+1;
-	MT = MCamPitch+1;
+	// avoid servo overrun when MCamxx == 0 ??? should not be necessary - _Minimum
+	ME = MCamRoll + 1;
+	MT = MCamPitch + 1;
 
 	#if !defined DEBUG && !defined DEBUG_SENSORS
 	// This loop is exactly 16 cycles int16
@@ -414,12 +414,11 @@ void GetGyroValues(void)
 {
 	#ifdef OPT_IDG
 	RollSamples += ADC(ADCRollChan, ADCVREF);
+	PitchSamples += ADC(ADCPitchChan, ADCVREF);
 	#else
 	RollSamples += ADC(ADCRollChan, ADCVREF5V);
-	#endif // OPT_IDG
-
 	PitchSamples += ADC(ADCPitchChan, ADCVREF5V);
-
+	#endif // OPT_IDG
 } // GetGyroValues
 
 // ADXRS300: The Integral (RollSum & Pitchsum) has
@@ -434,18 +433,14 @@ void CalcGyroValues(void)
 
 	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
 	// Approximately 4 bits of precision are discarded in this and related 
-	// presumably because of the range of the 16 bit arithmetic.
+	// calculations presumably because of the range of the 16 bit arithmetic.
 
 	#ifdef OPT_ADXRS150
-	RollSamples +=2;			// for a correct round-up
-	PitchSamples +=2;
-	RollSamples >>= 2;	// recreate the 10 bit resolution
-	PitchSamples >>= 2;
-	#else
-	RollSamples ++;				// for a correct round-up
-	PitchSamples ++;
-	RollSamples >>= 1;	// recreate the 10 bit resolution
-	PitchSamples >>= 1;
+	RollSamples = (RollSamples + 2)>>2; // recreate the 10 bit resolution
+	PitchSamples = (PitchSamples + 2)>>2;
+	#else // IDG300 and ADXRS300
+	RollSamples = (RollSamples + 1)>>1;	
+	PitchSamples = (PitchSamples + 1)>>1;
 	#endif
 	
 	if( IntegralCount > 0 )
@@ -463,12 +458,9 @@ void CalcGyroValues(void)
 				RollSum = RollSum + MiddleLR;
 				PitchSum = PitchSum + MiddleFB;
 			}
-			MidRoll = (int16)RollSum / (int16)16;	
-			MidPitch = (int16)PitchSum / (int16)16;
-			RollSum = 0;
-			PitchSum = 0;
-			LRIntKorr = 0;
-			FBIntKorr = 0;
+			MidRoll = RollSum >> 4;	
+			MidPitch = PitchSum >> 4;
+			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
 		}
 	}
 	else
@@ -484,7 +476,7 @@ void CalcGyroValues(void)
 			//      Pitch = 0.707 * (N - R)
 			// the constant factor 0.667 is used instead
 			Temp = RollSamples + PitchSamples;	
-			PitchSamples = PitchSamples - RollSamples;	
+			PitchSamples -= RollSamples;	
 			RollSamples = (Temp * 2)/3;
 			PitchSamples = (PitchSamples * 2)/3;
 		}
@@ -497,52 +489,33 @@ void CalcGyroValues(void)
 		#endif
 	
 		// Roll
-		Temp = RollSamples;
+		#ifdef OPT_ADXRS
+		RE = SRS16(RollSamples + 2, 2);
+		#else // OPT_IDG
+		RE = SRS16(RollSamples + 1, 1); // use 8 bit res. for PD controller
+		#endif	
 
 		#ifdef OPT_ADXRS
-		RollSamples += 2;
-		RollSamples >>= 2;
-		#endif
-		#ifdef OPT_IDG
-		RollSamples += 1;
-		RollSamples >>= 1;
-		#endif
-		RE = RollSamples;	// use 8 bit res. for PD controller
-
-		#ifdef OPT_ADXRS
-		RollSamples = Temp + 1;
-		RollSamples >>= 1;	// use 9 bit res. for I controller
-		#endif
-		#ifdef OPT_IDG
-		RollSamples = Temp;
+		RollSamples = SRS16(RollSamples + 1, 1); // use 9 bit res. for I controller	
 		#endif
 
 		LimitRollSum();		// for roll integration
 
 		// Pitch
-		Temp = PitchSamples;
+		#ifdef OPT_ADXRS
+		PE = SRS16(PitchSamples + 2, 2);
+		#else // OPT_IDG
+		PE = SRS16(PitchSamples + 1, 1);
+		#endif
 
 		#ifdef OPT_ADXRS
-		PitchSamples += 2;
-		PitchSamples >>= 2;
+		PitchSamples = SRS16(PitchSamples + 1, 1); // use 9 bit res. for I controller	
 		#endif
-		#ifdef OPT_IDG
-		PitchSamples += 1;
-		PitchSamples >>= 1;
-		#endif
-		PE = PitchSamples;
 
-		#ifdef OPT_ADXRS
-		PitchSamples = Temp + 1;
-		PitchSamples >>= 1;
-		#endif
-		#ifdef OPT_IDG
-		PitchSamples = Temp;
-		#endif
 		LimitPitchSum();		// for pitch integration
 
 		// Yaw is sampled only once every frame, 8 bit A/D resolution
-		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;
+		YE = ADC(ADCYawChan, ADCVREF5V)>>2;
 		if( MidYaw == 0 )
 			MidYaw = YE;
 		YE -= MidYaw;
@@ -562,7 +535,6 @@ void CalcGyroValues(void)
 	}
 } // CalcGyroValues
 
-
 // Mix the Camera tilt channel (Ch6) and the
 // ufo air angles (roll and nick) to the 
 // camera servos. 
@@ -570,11 +542,8 @@ void MixAndLimitCam(void)
 {
 // Cam Servos
 
-	if( IntegralCount > 0 ) // while integrator are adding up
-	{			// do not use the gyros values to correct
-		Rp = 0;		// in non-flight mode, these are already cleared in InitArrays()
-		Pp = 0;
-	}
+	if( IntegralCount > 0 )
+		Rp = Pp = _Minimum;
 
 	if( _UseCh7Trigger )
 		Rp += _Neutral;
@@ -583,19 +552,7 @@ void MixAndLimitCam(void)
 		
 	Pp += IK6;		// only Pitch servo is controlled by channel 6
 
-	if( Rp > _Maximum )
-		MCamRoll = _Maximum;
-	else
-		if( Rp < _Minimum )
-			MCamRoll = _Minimum;
-		else
-			MCamRoll = Rp;
+	MCamRoll = Limit(Rp, _Minimum, _Maximum);
+	MCamPitch = Limit(Pp, _Minimum, _Maximum);
 
-	if( Pp > _Maximum )
-		MCamPitch = _Maximum;
-	else
-		if( Pp < _Minimum )
-			MCamPitch = _Minimum;
-		else
-			MCamPitch = Pp;
 } // MixAndLimitCam

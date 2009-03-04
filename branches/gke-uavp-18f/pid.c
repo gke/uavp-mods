@@ -25,6 +25,92 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+// Limit integral sum of Roll gyros
+// it must be limited to avoid numeric overflow
+// which would cause a serious flip -> crash
+void LimitRollSum(void)
+{
+	RollSum += RollSamples;
+
+	if( IntegralCount == 0 )
+	{
+		RollSum = Limit(RollSum, -RollIntLimit*256, RollIntLimit*256);
+		RollSum += LRIntKorr;
+		RollSum = Decay(RollSum);		// damps to zero even if still rolled
+	}
+
+} // LimitRollSum
+
+// Limit integral sum of Pitch gyros
+// it must be limited to avoid numeric overflow
+// which would cause a serious flip -> crash
+void LimitPitchSum(void)
+{
+
+	PitchSum += PitchSamples;
+
+	if( IntegralCount == 0 )
+	{
+		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);
+		PitchSum += FBIntKorr;		
+		PitchSum = Decay(PitchSum);	// damps to zero even if still rolled
+	}
+} // LimitPitchSum
+
+// Limit integral sum of Yaw gyros
+// it must be limited to avoid numeric overflow
+// which would cause a uncontrolled yawing -> crash
+void LimitYawSum(void)
+{
+	int16 Temp;
+	// add the yaw stick value
+	YE += IYaw;
+
+	if ( _UseCompass )
+	{
+		// add compass heading correction
+		// CurDeviation is negative if Ufo has yawed to the right (go back left)
+
+		// this double "if" is necessary because of dumb CC5X compiler
+		Temp = YawNeutral + COMPASS_MIDDLE;
+		if ( IYaw > Temp )
+			// yaw stick is not in neutral zone, learn new desired heading
+			AbsDirection = COMPASS_INVAL;
+		else		
+		{
+			Temp = YawNeutral - COMPASS_MIDDLE;
+			if ( IYaw < Temp )
+				// yaw stick is not in neutral zone, learn new desired heading
+				AbsDirection = COMPASS_INVAL;
+			else
+				// yaw stick is in neutral zone, hold heading
+				if( CurDeviation > COMPASS_MAXDEV )
+					YE -= COMPASS_MAXDEV;
+				else
+					if( CurDeviation < -COMPASS_MAXDEV )
+						YE += COMPASS_MAXDEV;
+					else
+						YE -= CurDeviation;
+		}
+	}
+
+	YawSum += (int16)YE;
+
+	YawSum = Limit(YawSum, -YawIntLimit*256, YawIntLimit*256);
+
+	if( CompassTest )
+	{
+		if( CurDeviation > 0 )
+			LedGreen_ON;
+		else
+			if( CurDeviation < 0 )
+				LedRed_ON;
+		if( AbsDirection > COMPASS_MAX )
+			LedYellow_ON;
+	}
+
+} // LimitYawSum
+
 // compute the correction adders for the motors
 // using the gyro values (PID controller)
 // for the axes Roll and Pitch
@@ -39,16 +125,7 @@ void PID(void)
 	Pp = 0;
 	Vud = 0;
 
-	if( _UseLISL )
-		CheckLISL();	// get the linear sensors data, if available
-	#ifdef DEBUG_SENSORS
-	else
-	{
-		SendComChar(';');
-		SendComChar(';');
-		SendComChar(';');
-	}
-	#endif
+	CheckLISL();	// get the linear sensors data, if available
 
 	// PID controller
 	// E0 = current gyro error
@@ -61,7 +138,6 @@ void PID(void)
 	//       E0*fP + E1*fD     Sum(Ex)*fI
 	// A0 = --------------- + ------------
 	//            16               256
-
 
 	// ####################################
 	// Roll
@@ -78,11 +154,10 @@ void PID(void)
 
 	// Integral part for Roll
 	if( IntegralCount == 0 )
-		Rl += SRS16(RollSum * (int16)RollIntFactor +128, 8);
+		Rl = SRS16(RollSum * (int16)RollIntFactor + 128, 8);
 
 	// subtract stick signal
 	Rl -= IRoll;
-
 
 	// ####################################
 	// Pitch

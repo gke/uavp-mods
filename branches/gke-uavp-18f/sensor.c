@@ -26,97 +26,92 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-void I2CDelay(void)
+void I2CDelay(void) 
 {
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
-	nop2();
+	Delay10TCY();
 } // I2CDelay
 
 // put SCL to high-z and wait until line is really hi
 // returns != 0 if ok
-uns8 I2CWaitClkHi(void)
+uint8 I2CWaitClkHi(void)
 {
-	uns8 c=1;
+	uint8 s;
+
+	s = 1;
 
 	I2CDelay();
 	I2C_CIO=1;	// set SCL to input, output a high
-	while( I2C_SCL == 0 )	// wait for line to come hi
-	{
-//		nop2();
-		c++;
-		if( c == 0 )
-			break;
-	}	
+	while( !I2C_SCL )						// timeout wraparound through 255 1.25mS							
+		if( ++s == 0 )			 
+			break;	
 	I2CDelay();
-	return(c);
+	return(s);
 } // I2CWaitClkHi
 
 // send a start condition
 void I2CStart(void)
 {
-	I2C_DIO=1;	// set SDA to input, output a high
-	I2CWaitClkHi();
-	I2C_SDA = 0;	// start condition
-	I2C_DIO = 0;	// output a low
+	uint8 r;
+
+	I2C_DIO=1;								// set SDA to input, output a high
+	r = I2CWaitClkHi();
+	I2C_SDA = 0;							// start condition
+	I2C_DIO = 0;							// output a low
 	I2CDelay();
 	I2C_SCL = 0;
-	I2C_CIO = 0;	// set SCL to output, output a low
+	I2C_CIO = 0;							// set SCL to output, output a low
 } // I2CStart
 
 // send a stop condition
 void I2CStop(void)
 {
-	I2C_DIO=0;	// set SDA to output
-	I2C_SDA = 0;	// output a low
-	I2CWaitClkHi();
+	uint8 r;
 
-	I2C_DIO=1;	// set SDA to input, output a high, STOP condition
-	I2CDelay();		// leave clock high
-} // I2CStop
+	I2C_DIO=0;								// set SDA to output
+	I2C_SDA = 0;							// output a low
+	r = I2CWaitClkHi();
 
-static uns8 nii;	// mus be bank0 or shrBank
+	I2C_DIO=1;								// set SDA to input, output a high, STOP condition
+	I2CDelay();								// leave clock high
+} // I2CStop 
 
 // send a byte to I2C slave and return ACK status
 // 0 = ACK
 // 1 = NACK
-uns8 SendI2CByte(uns8 nidata)
+uint8 SendI2CByte(uint8 d)
 {
+	uint8 s;
 
-	for(nii=0; nii<8; nii++)
+	for(s=8; s ; s--)
 	{
-		if( (nidata & 0x10) !=0 )
-		{
-			I2C_DIO = 1;	// switch to input, line is high
-		}
+		if( d & 0x80 )
+			I2C_DIO = 1;					// switch to input, line is high
 		else
 		{
 			I2C_SDA = 0;			
-			I2C_DIO = 0;	// switch to output, line is low
+			I2C_DIO = 0;					// switch to output, line is low
 		}
 	
-		if(!I2CWaitClkHi()) 
-			return(I2C_NACK);
-		I2C_SCL = 0;
-		I2C_CIO = 0;	// set SCL to output, output a low
-		nidata <<= 1;
+		if(I2CWaitClkHi())
+		{ 	
+			I2C_SCL = 0;
+			I2C_CIO = 0;					// set SCL to output, output a low
+			d <<= 1;
+		}
+		else
+			return(I2C_NACK);	
 	}
-	I2C_DIO = 1;	// set SDA to input
-	if(!I2CWaitClkHi())
-		return(I2C_NACK);
-	nii = I2C_SDA;	
+
+	I2C_DIO = 1;							// set SDA to input
+	if(I2CWaitClkHi())
+		s = I2C_SDA;
+	else
+		return(I2C_NACK);	
 
 	I2C_SCL = 0;
-	I2C_CIO = 0;	// set SCL to output, output a low
-//	I2CDelay();
-//	I2C_IO = 0;		// set SDA to output
-//	I2C_SDA = 0;	// leave output low
-	return(nii);
+	I2C_CIO = 0;							// set SCL to output, output a low
+
+	return(s);
 } // SendI2CByte
 
 
@@ -124,32 +119,38 @@ uns8 SendI2CByte(uns8 nidata)
 // 0 = ACK
 // 1 = NACK
 // returns read byte
-uns8 RecvI2CByte(uns8 niack)
+uint8 RecvI2CByte(uint8 r)
 {
-	uns8 nidata=0;
+	uint8 s, d;
 
-	I2C_DIO=1;	// set SDA to input, output a high
+	d = 0;
+	I2C_DIO = 1;							// set SDA to input, output a high
 
-	for(nii=0; nii<8; nii++)
-	{
-		if( !I2CWaitClkHi() ) 
+	for(s=8; s ; s--)
+		if( I2CWaitClkHi() )
+		{ 
+			d <<= 1;
+			if( I2C_SDA )
+				d |= 1;
+			I2C_SCL = 0;
+			I2C_CIO = 0;
+ 		}
+		else
 			return(0);
-		nidata <<= 1;
-		if( I2C_SDA )
-			nidata |= 1;
-		I2C_SCL = 0;
-		I2C_CIO = 0;	// set SCL to output, output a low
-	}
-	I2C_SDA = niack;
-	I2C_DIO = 0;	// set SDA to output
-	if( !I2CWaitClkHi() )
-		return(0);
 
-	I2C_SCL = 0;
-	I2C_CIO = 0;	// set SCL to output, output a low
-//	I2CDelay();
-//	I2C_IO = 0;	// set SDA to output
-	return(nidata);
+	I2C_SDA = r;
+	I2C_DIO = 0;
+											// set SDA to output
+	if( I2CWaitClkHi() )
+	{
+		I2C_SCL = 0;
+		I2C_CIO = 0;						// set SCL to output, output a low
+	//	I2CDelay();
+	//	I2C_IO = 0;	// set SDA to output
+		return(d);
+	}
+	else
+		return(0);	
 } // RecvI2CByte
 
 
@@ -173,7 +174,6 @@ IDerror:
 // The current heading correction is stored in CurDeviation
 void GetDirection(void)
 {
-
 	int16 DirVal, temp;
 
 	if( _UseCompass && ((BlinkCount & 0x03) == 0) )	// enter every 4th scan
@@ -214,7 +214,7 @@ void GetDirection(void)
 				if( DirVal <= -240/2 ) 
 					DirVal +=  240;
 				else
-					if( DirVal >   240/2 ) 
+					if( DirVal > 240/2 ) 
 						DirVal -=  240;
 	
 				// positive means ufo is left off-heading
@@ -223,7 +223,7 @@ void GetDirection(void)
 				DirVal = Limit(DirVal, -20, 20); // limit to give soft reaction
 	
 				// Empirical found :-)
-				// New_CurDev = ((3*Old_CurDev)+DirVal) / 4
+				// New_CurDev = ((3*Old_CurDev) + DirVal) / 4
 				CurDeviation = SRS16((((int16)CurDeviation *3 + DirVal) << 2) 
 								* (int16)CompassFactor, 8);
 			}
@@ -313,7 +313,6 @@ SBerror:
 // initialize compass sensor
 void InitAltimeter(void)
 {
-	uns8 Temp;
 	// SMD500 9.5mS (T) 34mS (P)  
 	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
 	// Baro is assumed offline unless it responds - no retries!
@@ -361,7 +360,6 @@ BAerror:
 
 void ComputeBaroComp(void)
 {
-	uns8 r;
 	int16 OldBaroRelPressure,  Temp, Delta;
 
 	BaroCount++;

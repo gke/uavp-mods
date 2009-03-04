@@ -47,16 +47,16 @@ uns8	IK6;		// actual channel 6 input
 uns8	IK7;		// actual channel 7 input
 
 // PID Regler Variablen
-int8	RE,PE;
-int8	YE;	// Fehlersignal aus dem aktuellen Durchlauf
-int8	REp,PEp;
-int8	YEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/PE/YE)
+int16	RE,PE;
+int16	YE;	// Fehlersignal aus dem aktuellen Durchlauf
+int16	REp,PEp;
+int16	YEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/PE/YE)
 int16	YawSum;	// Integrales Fehlersignal fuer Yaw, 0 = neutral
 int16	RollSum, PitchSum;	// Integrales Fehlersignal fuer Roll und Pitch
 int16	RollSamples, PitchSamples;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
-int8 	UDSum;
+int16 	UDSum;
 
 uns8	BlinkCount, BlinkCycle, BaroCount;
 uns8 	mSTick;
@@ -66,7 +66,7 @@ int8	Rw,Pw;
 // Variables for barometric sensor PD-controller
 int24	BaroBasePressure, BaroBaseTemp;
 int24	BaroRelTempCorr;
-int8	VBaroComp;
+int16	VBaroComp;
 int16   BaroRelPressure;
 uns8	BaroType, BaroTemp, BaroRestarts;
 
@@ -107,14 +107,14 @@ int8	BaroThrottleDiff	=4;
 
 int16	MidRoll, MidPitch, MidYaw;
 
-uns8	LedShadow;	// shadow register
+uns8	LedShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
 uns8	MFront,MLeft,MRight,MBack;	// output channels
 uns8	MCamRoll,MCamPitch;
 int16	Ml, Mr, Mf, Mb;
-int16	Rl,Pl,Yl;	// PID output values
+int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
 
@@ -122,7 +122,7 @@ uns8	Flags[8];
 uns8	Flags2[8];
 
 uns8	IntegralCount;
-int8		RollNeutral, PitchNeutral, YawNeutral;
+int8	RollNeutral, PitchNeutral, YawNeutral;
 uns8	ThrNeutral;
 int16	ThrDownCount;
 
@@ -133,9 +133,7 @@ void LedGame(void)
 {
 	if( --LedCount == 0 )
 	{
-		LedCount = 255-IGas;	// new setup
-		LedCount >>= 3;
-		LedCount += 5;
+		LedCount = ((255-IGas)>>3) +5;	// new setup
 		if( _Hovering )
 		{
 			AUX_LEDS_ON;	// baro locked, all aux-leds on
@@ -221,7 +219,6 @@ void WaitForRxSignal(void)
 		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
 		ProcessComCommand();
 		if( _NoSignal )
-		{
 			if( Switch )
 			{
 				if( --DropoutCount == 0 )
@@ -232,7 +229,6 @@ void WaitForRxSignal(void)
 			}
 			else
 				_LostModel = 0;
-		}
 	}
 	while( _NoSignal || !Switch);	// no signal or switch is off
 } // WaitForRXSignal
@@ -244,30 +240,11 @@ void main(void)
 
 	DisableInterrupts;
 
+	InitPorts();
+	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
+			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
+	
 	InitADC();
-
-	// general ports setup
-	TRISA = 0b00111111;	// all inputs
-	ADCON1 = 0b00000010;	// uses 5V as Vref
-
-	PORTB = 0b11000000;		// all outputs to low, except RB6 & 7 (I2C)!
-	TRISB = 0b01000000;	// all servo and LED outputs
-	PORTC = 0b01100000;		// all outputs to low, except TxD and CS
-	TRISC = 0b10000100;	// RC7, RC2 are inputs
-	INTCON2bits.RBPU  = 1;			// disable weak pullups
-	SSPSTATbits.CKE = 1;		// default I2C - enable SMBus thresholds for 3.3V LISL
-
-	LedShadow = 0;
-    ALL_LEDS_OFF;
-
-	// setup serial port for 8N1
-	TXSTA = 0b00100100;	// async mode, BRGH = 1
-	RCSTA = 0b10010000;	// receive mode
-	SPBRG = _B38400;
-	//SPBRG = _B115200;
-	//SPBRG = _B230400;
-
-	i = RCREG;			// be sure to empty FIFO
 	
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
@@ -275,13 +252,16 @@ void main(void)
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 	CCP1CONbits.CCP1M0 = NegativePPM;
 
-	OpenTimer2(TIMER_INT_OFF&T2_PS_1_16&T2_POST_1_16);		
+	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
 	// setup flags register
 	for ( i = 0; i<8; i++ )
 		Flags2[i] = Flags[i] = 0; 
 	_NoSignal = 1;		// assume no signal present
+
+	LedShadow = 0;
+    ALL_LEDS_OFF;
 
 	InitArrays();
 
@@ -311,10 +291,6 @@ void main(void)
 	if( _UseLISL )
 		GetEvenValues();	// into Rp, Pp, Yp
 	#endif  // USE_ACCSENS
-
-	// enable the interrupts
-	PIE1bits.CCP1IE = 1;
-	PIE1bits.TMR2IE = 1;		// T1-Capture and T2 interrupt enable
 
 	ThrNeutral = 0xFF;
 
