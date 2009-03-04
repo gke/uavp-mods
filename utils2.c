@@ -121,6 +121,20 @@ void OutG(uns8 l)
 } // OutG
 #endif
 
+void InitPorts(void)
+{
+	// general ports setup
+	TRISA = 0b00111111;								// all inputs
+	ADCON1 = 0b00000010;							// uses 5V as Vref
+
+	PORTB = 0b11000000;								// all outputs to low, except RB6 & 7 (I2C)!
+	TRISB = 0b01000000;								// all servo and LED outputs
+	PORTC = 0b01100000;								// all outputs to low, except TxD and CS
+	TRISC = 0b10000100;								// RC7, RC2 are inputs
+	SSPSTATbits.CKE = 1;							// low logic threshold for LISL
+	INTCON2bits.NOT_RBPU = true;					// enable weak pullups
+} // InitPorts
+
 // resets all important variables
 // Do NOT call that while in flight!
 void InitArrays(void)
@@ -159,16 +173,12 @@ void GetEvenValues(void)
 	Yp = 0;
 	for( i=0; i < 16; i++)
 	{
-		// wait for new set of data
-		while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == 0 );
-		
-		Rl  = ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
-		Rl |= ReadLISLNext() << 8;
-		Yl  = ReadLISLNext();
-		Yl |= ReadLISLNext() << 8;
-		Pl  = ReadLISLNext();
-		Pl |= ReadLISLNext() << 8;
-		LISL_CS = 1;	// end transmission
+		while( (ReadLISL(LISL_STATUS+LISL_READ) & 0x08) == 0 ); //wait until ready
+		// 0.903mS
+		Rl = (ReadLISL(LISL_OUTX_H|LISL_READ)*256)|ReadLISL(LISL_OUTX_L|LISL_READ);
+		Yl = (ReadLISL(LISL_OUTY_H|LISL_READ)*256)|ReadLISL(LISL_OUTY_L|LISL_READ);
+		Pl = (ReadLISL(LISL_OUTZ_H|LISL_READ)*256)|ReadLISL(LISL_OUTZ_L|LISL_READ);
+		LISL_IO = 1; // read
 		
 		Rp += (int16)Rl;
 		Pp += (int16)Pl;
@@ -176,11 +186,11 @@ void GetEvenValues(void)
 	}
 	Rp = SRS16(Rp + 8, 4);
 	Pp = SRS16(Pp + 8, 4);
-	Rp = SRS16(Yp + 8, 4);
+	Yp = SRS16(Yp + 8, 4);
 
-	NeutralLR = Limit(Rp, -99, 99);
-	NeutralFB = Limit(Pp, -99, 99);
-	NeutralUD = Limit(Yp-1024, -99, 99); // -1g
+	NeutralLR = Limit(Rp, -128, 127);
+	NeutralFB = Limit(Pp, -128, 127);
+	NeutralUD = Limit(Yp-1024, -128, 127); // -1g
 } // GetEvenValues
 
 void CheckAlarms(void)
@@ -191,7 +201,7 @@ void CheckAlarms(void)
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
 	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
 
-	if( _LowBatt )
+	if( _LowBatt ) // repeating beep
 	{
 		if( BlinkCount < BLINK_LIMIT/2 )
 		{
@@ -205,7 +215,7 @@ void CheckAlarms(void)
 		}	
 	}
 	else
-	if ( _LostModel )
+	if ( _LostModel ) // 2 beeps with interval
 		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle < (BLINK_CYCLES/4 )) )
 		{
 			Beeper_ON;
@@ -217,7 +227,7 @@ void CheckAlarms(void)
 			LedRed_OFF;
 		}	
 	else
-	if ( _BaroRestart )
+	if ( _BaroRestart ) // 1 beep with interval
 		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle == 0 ) )
 		{
 			Beeper_ON;

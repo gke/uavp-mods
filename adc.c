@@ -40,7 +40,6 @@ int16 ADC(uint8 Channel, uint8 VRef)
 	Result=ReadADC();
 
 	return (Result); 
-
 } // ADC
 
 void InitADC()

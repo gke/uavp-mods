@@ -50,102 +50,91 @@ void OutSSP(uns8 nidata)
 } // OutSSP
 #endif
 
-// send a command byte to linear sensor, address = niaddr
-void SendCommand(void)
+void WriteLISLByte(uint8 d)
 {
-	uns8 s;
+	uint8	s;
 
-	LISL_IO = 0;	// SDA is output
-	LISL_SCL = 0;
-	LISL_CS = 0;	// CS to 0
-	for( s = 8; s != 0; s-- )
+	LISL_SCL = 0;						// to give a little more low time
+	for( s = 8; s ; s-- )
 	{
 		LISL_SCL = 0;
-		if( niaddr & 0x80 )
+		if (d & 0x80) 
 			LISL_SDA = 1;
 		else
 			LISL_SDA = 0;
-		niaddr <<= 1;
+		d <<= 1;
 		LISL_SCL = 1;
+		//Delay10TCY();
 	}
-} // SendCommand
+} // WriteLISLByte
 
-// send an address byte (niaddr) to linear sensor
-// read the answer and return it
-uns8 ReadLISL(uns8 v)
+uint8 ReadLISLNext(void)
 {
-	niaddr = v;
-	nii = v;
-	LISL_SDA = 1;	// very important!! really!! LIS3L likes it
-	SendCommand();
-	LISL_IO = 1;	// SDA is input
-	v=ReadLISLNext();
+	uint8	s, d;
 	
-	if( (nii & LISL_INCR_ADDR) == 0 )
-		LISL_CS = 1;	// end transmission
-	return(v);
-} // ReadLISL
-
-// read a data byte from linear sensor and return it
-uns8 ReadLISLNext(void)
-{
-	uns8 s;
-//	niaddr = 0;		// not really necessary
-	for( s = 8; s != 0; s-- )
+	LISL_SCL = 0;					
+	d = 0;
+	for( s = 8; s ; s-- )
 	{
 		LISL_SCL = 0;
-		niaddr <<= 1;
-		if( LISL_SDA == 1 )
-			niaddr |= 1;	// set LSB
+		d = (d << 1) & 0xfe;
+		if ( LISL_SDA )
+			d |= 1;	
 		LISL_SCL = 1;
-	}
-	return(niaddr);
+		//Delay10TCY();
+	}	
+
+	return(d);
 } // ReadLISLNext
 
-// send an address byte (niaddr) to linear sensor
-// and write data byte (nidata)
-void WriteLISL(uns8 nidata, uns8 a)
+uint8 ReadLISL(uint8 addr)
 {
-	niaddr = a;
-	SendCommand();
+	uint8	d;
 
-	for( nii = 0; nii < 8; nii++ )
-	{
-		LISL_SCL = 0;
-		if( nidata & 0x80 )
-			LISL_SDA = 1;
-		else
-			LISL_SDA = 0;
-		nidata <<= 1;
-		LISL_SCL = 1;
-	}
+	LISL_SDA = 1;						// very important!! really!! LIS3L likes it
+
+	LISL_IO = 0;						// write
+	LISL_CS = 0;
+	WriteLISLByte(addr);
+
+	LISL_IO = 1;						// read	
+	d=ReadLISLNext();
+	
+	if( (addr & LISL_INCR_ADDR) == 0 )	// is this a single byte Read?
+		LISL_CS = 1;
+				
+	return(d);
+} // ReadLISL
+
+void WriteLISL(uint8 d, uint8 addr)
+{
+	LISL_IO = 0;						// write
+	LISL_CS = 0;
+
+	WriteLISLByte(addr);
+	WriteLISLByte(d);
+
 	LISL_CS = 1;
-	LISL_IO = 1;	// IO is input (to allow RS232 reception)
+	LISL_IO = 1;						// read
 } // WriteLISL
 
-// put the base setup to linear sensor
-// enable all axes, setup resolution
-// setup parachute options
+
 void IsLISLactive(void)
 {
-	uns8 r;
+	WriteLISL(0b01001010, LISL_CTRLREG_2); 			// enable 3-wire, BDU=1, +/-2g
 
-	LISL_CS = 1;
-	WriteLISL(0b01001010, LISL_CTRLREG_2); // enable 3-wire, BDU=1, +/-2g
-
-	r = ReadLISL(LISL_WHOAMI + LISL_READ);
-	if( r == 0x3A )	// a LIS03L sensor is there!
+	if( ReadLISL(LISL_WHOAMI + LISL_READ) == 0x3A )	// LIS03L sensor ident
 	{
-//		WriteLISL(0b.11010111, LISL_CTRLREG_1); // startup, enable all axis
-// use 40Hz data rate, thanks to Tom Poub!
-		WriteLISL(0b11000111, LISL_CTRLREG_1); // startup, enable all axis
+		WriteLISL(0b11000111, LISL_CTRLREG_1); 		// startup, enable all axis
 		WriteLISL(0b00000000, LISL_CTRLREG_3);
-		WriteLISL(0b01001000, LISL_FF_CFG); // Y-axis is height
+		WriteLISL(0b01001000, LISL_FF_CFG); 		// Y-axis is height
 		WriteLISL(0b00000000, LISL_FF_THS_L);
-		WriteLISL(0b11111100, LISL_FF_THS_H); // -0,5g threshold
+		WriteLISL(0b11111100, LISL_FF_THS_H); 		// -0,5g threshold
 		WriteLISL(255, LISL_FF_DUR);
 		WriteLISL(0b00000000, LISL_DD_CFG);
-		_UseLISL = 1;
+		_UseLISL = true;
 	}
+	else
+		_UseLISL = false;
 } // IsLISLactive
 
