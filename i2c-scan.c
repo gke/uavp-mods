@@ -337,7 +337,7 @@ void BaroTest(void)
 	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	DELAY_MS(i,40);
+	DELAY_MS(40);
 
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -370,7 +370,7 @@ void BaroTest(void)
 	if( SendI2CByte(BaroTemp) != I2C_ACK ) goto BAerror;
 	I2CStop();
 
-	DELAY_MS(i,10);
+	DELAY_MS(10);
 
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
