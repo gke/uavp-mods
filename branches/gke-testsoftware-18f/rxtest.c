@@ -64,13 +64,7 @@ void TogglePPMPolarity(void)
 	else
 		SendComText(SerPPMP);
 
-	CurrK1 =
-	CurrK2 =
-	CurrK3 =
-	CurrK4 =
-	CurrK5 =
-	CurrK6 =
-	CurrK7 = 0xFFFF;
+	CurrK1 = CurrK2 = CurrK3 = CurrK4 = CurrK5 = CurrK6 = CurrK7 = 0xFFFF;
 	PauseTime = 0;
 	_NewValues = 0;
 	_NoSignal = 1;

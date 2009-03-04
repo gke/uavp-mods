@@ -133,10 +133,10 @@ const char SerBaroT[] = "; Temp. is:\0";
 	  
 #pragma idata menurx2
 const char SerRxTest[]="\r\nRx values:\r\n\0";
-const char SerRxRes[]="(no new vals)\r\n\0";
-const char SerRxFail[]="received vals are \0";
-const char SerRxOK[]="NOT valid!\r\n\0";
-const char SerRxNN[]="OK!\r\n\0";
+const char SerRxRes[]="received vals are \0";
+const char SerRxFail[]="NOT valid!\r\n\0";
+const char SerRxOK[]="OK!\r\n\0";
+const char SerRxNN[]="(no new values)\r\n\0";
 #pragma idata
 
 // transmit a fix text from a table

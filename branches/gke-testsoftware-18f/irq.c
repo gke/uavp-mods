@@ -44,8 +44,8 @@ void low_isr_handler(void)
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
 {
-int8	NewRoll, NewPitch, NewYaw;	
-int16 	Temp;
+	int8	NewRoll, NewPitch, NewYaw;	
+	int16 	Temp;
 
 	// For 2.4GHz systems see README_DSM2_ETC.
 	if( INTCONbits.TMR0IF && INTCONbits.TMR0IE )
@@ -60,14 +60,14 @@ int16 	Temp;
 		PIR1bits.TMR2IF = 0;				// quit int
 		_FirstTimeout = 0;
 
-#ifndef RX_PPM						// single PPM pulse train from receiver
+		#ifndef RX_PPM		// single PPM pulse train from receiver
 							// standard usage (PPM, 3 or 4 channels input)
 		CCP1CONbits.CCP1M0 ^= 1;	// toggle edge bit
 		PR2 = TMR2_5MS;				// set compare reg to 5ms
 
 		if( NegativePPM ^ CCP1CONbits.CCP1M0  )		// a negative edge
 		{
-#endif
+		#endif
 			// could be replaced by a switch ???
 
 			if( RecFlags == 0 )
@@ -95,15 +95,15 @@ int16 	Temp;
 				NewK6 = NewK7 - NewK6;
 				CurrK6 = NewK6 >> 1;
 			}
-#ifdef RX_PPM
+		#ifdef RX_PPM
 			else
-#else
+		#else
 			else	// values are unsafe
 				goto ErrorRestart;
 		}
 		else	// a positive edge
 		{
-#endif // RX_PPM 
+		#endif // RX_PPM 
 			if( RecFlags == 1 )
 			{
 				NewK2 = CCPR1;
@@ -129,8 +129,8 @@ int16 	Temp;
 				CurrK4 = NewK4;
 				CurrK5 = NewK5;
 				_NewValues = 1;
-// sanity check
-// NewKx has values in 4us units now. content must be 256..511 (1024-2047us)
+				// sanity check
+				// NewKx has values in 4us units now. content must be 256..511 (1024-2047us)
 				if( ((NewK1>>8) == 1) &&
 				    ((NewK2>>8) == 1) &&
 				    ((NewK3>>8) == 1) &&
@@ -155,16 +155,16 @@ ErrorRestart:
 				_NewValues = 0;
 				_NoSignal = 1;		// Signal lost
 				RecFlags = -1;
-#ifndef RX_PPM
+				#ifndef RX_PPM
 				if( NegativePPM )
 					CCP1CONbits.CCP1M0 = 1;	// wait for positive edge next
 				else
 					CCP1CONbits.CCP1M0 = 0;	// wait for negative edge next
-#endif
+				#endif
 			}	
-#ifndef RX_PPM
+		#ifndef RX_PPM
 		}
-#endif
+		#endif
 		PIR1bits.CCP1IF = 0;				// quit int
 		RecFlags++;
 	}
@@ -172,7 +172,7 @@ ErrorRestart:
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
 		PIR1bits.TMR2IF = 0;	// quit int
-#ifndef RX_PPM	// single PPM pulse train from receiver
+		#ifndef RX_PPM	// single PPM pulse train from receiver
 		if( _FirstTimeout )			// 5 ms have been gone by...
 		{
 			PR2 = TMR2_5MS;			// set compare reg to 5ms
@@ -180,7 +180,7 @@ ErrorRestart:
 		}
 		_FirstTimeout = 1;
 		PR2 = TMR2_14MS;			// set compare reg to 14ms
-#endif
+		#endif
 		RecFlags = 0;
 	}
 	

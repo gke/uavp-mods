@@ -224,7 +224,7 @@ _endasm
 
 	#endif	// ESC_PPM
 
-	#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
+	#ifdef ESC_HOLGER 
 
 	#if !defined DEBUG && !defined DEBUG_MOTORS
 	if( _OutToggle )	// driver cam servos only every 2nd pulse
@@ -238,17 +238,6 @@ _endasm
 	}
 	_OutToggle ^= 1;
 	#endif
-
-	// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
-	#ifdef ESC_X3D
-	EscI2CStart();
-	SendEscI2CByte(0x10);	// one command, 4 data bytes
-	SendEscI2CByte(MF); // for all motors
-	SendEscI2CByte(MB);
-	SendEscI2CByte(ML);
-	SendEscI2CByte(MR);
-	EscI2CStop();
-	#endif	// ESC_X3D
 
 	#ifdef ESC_HOLGER
 	EscI2CStart();
@@ -272,29 +261,7 @@ _endasm
 	EscI2CStop();
 	#endif	// ESC_HOLGER
 
-	#ifdef ESC_YGEI2C
-	EscI2CStart();
-	SendEscI2CByte(0x62);	// one cmd, one data byte per motor
-	SendEscI2CByte(MF>>1); // for all motors
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x64);
-	SendEscI2CByte(MB>>1);
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x68);
-	SendEscI2CByte(ML>>1);
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x66);
-	SendEscI2CByte(MR>>1);
-	EscI2CStop();
-	#endif	// ESC_YGEI2C
-
-	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
+	#endif	// ESC_HOLGER
 
 	#ifndef DEBUG_MOTORS
 	while( ReadTimer0() < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
