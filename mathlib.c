@@ -192,7 +192,7 @@ void MathDivS16_8(void)
 #pragma updateBank 0
     counter = 16+1;
     sign = nilgarg1.high8 ^ nilgarg2.low8;
-    if ((long)nilgarg1 < 0)  {
+    if ((int16)nilgarg1 < 0)  {
        INVERT:
         nilgarg1 = -nilgarg1;
         if (!counter)
@@ -226,7 +226,7 @@ void MathDivS16_16(void)
 #pragma updateBank 0
     counter = 16+1;
     sign = nilgarg1.high8 ^ nilgarg2.high8;
-    if ((long)nilgarg1 < 0)  {
+    if ((int16)nilgarg1 < 0)  {
        INVERT:
         nilgarg1 = -nilgarg1;
         if (!counter)
@@ -235,7 +235,7 @@ void MathDivS16_16(void)
 			return;
 		}
     }
-    if ((long)nilgarg2 < 0)
+    if ((int16)nilgarg2 < 0)
         nilgarg2 = -nilgarg2;
     goto ENTRY;
     do  {
