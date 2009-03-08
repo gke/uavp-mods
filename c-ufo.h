@@ -1,22 +1,3 @@
-// EXPERIMENTAL
-
-// reduces the update rate and the additionally the descent rate 
-#define SLOW_BARO
-
-// Reinstated vertical acceleration compensation 
-#define ACCEL_VUD
-
-// Attempts reconnection to the barometer if there is an I2C error
-// I2C comms seems now to be reliable with the BMP085 baro.
-//#define BARO_RETRY
-
-// Increase the severity of the filter on the baromater pressure readings
-// may give better altitude hold ( New=(Old*7+New+4)/8) ).
-#define BARO_HARD_FILTER
-
-// Make a "scratchy" beeper noise while altitude hold is engaged.
-#define BARO_SCRATCHY_BEEPER
-
 #ifndef BATCHMODE
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
@@ -48,14 +29,8 @@
 
 // use this to allow debugging with MPLAB's Simulator
 // #define SIMU
-//
-// CAUTION!
-// the board version MUST be selected by command line!
-// ----------------------------------------------------
 
-//
-// if you want the led outputs for test purposes
-//
+// If you want the LED outputs for test purposes
 // To enable output of values via Out(), OutG() and OutSSP()
 //#define DEBUGOUT
 //#define DEBUGOUTG
@@ -72,7 +47,7 @@
 // When using 1 ADXRS300 and 1 IDG300 gyro
 //#define OPT_IDG
 
-//
+// Motor controllers
 // Select what speeed controllers to use:
 // to use standard PPM pulse
 #define ESC_PPM
@@ -125,8 +100,29 @@
 
 #endif // !BATCHMODE
 
+// Accelerometer
+
 // Enable this to use the Accelerator sensors
 #define USE_ACCSENS
+
+// Vertical acceleration compensation 
+//#define ACCEL_VUD
+
+// Barometer
+
+// reduces the update rate and the additionally the descent rate 
+//#define SLOW_BARO
+
+// Increase the severity of the filter on the baromater pressure readings
+// may give better altitude hold ( New=(Old*7+New+4)/8) ).
+#define BARO_HARD_FILTER
+
+// Attempts reconnection to the barometer if there is an I2C error
+// I2C comms seems now to be reliable with the BMP085 baro.
+//#define BARO_RETRY
+
+// Make a "scratchy" beeper noise while altitude hold is engaged.
+#define BARO_SCRATCHY_BEEPER
 
 // =====================================
 // end of user-configurable section!
@@ -272,11 +268,8 @@ extern	shrBank	int8		CurDeviation;	// deviation from correct heading
 #define TMR2_5MS	78	/* 1x 5ms +  */
 #define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
 
-
-//                    RX impuls times in 10-microseconds units
-//                    vvv   ACHTUNG: Auf numerischen Überlauf achten!
 #ifdef ESC_PPM
-#define	_Minimum	((105* _ClkOut/(2*_PreScale1))&0xFF)	/*-100% */
+#define	_Minimum	1
 #define _Maximum	240					/* reduced from 255 */
 #endif
 #ifdef ESC_X3D
@@ -299,9 +292,7 @@ extern	shrBank	int8		CurDeviation;	// deviation from correct heading
 #define _ProgUp		((150* _ClkOut/(2*_PreScale1))&0xFF)	/*+60% */
 #define _ProgDown	((130* _ClkOut/(2*_PreScale1))&0xFF)	/*-60% */
 
-// Sanity checks
-//
-// please leave them as they are!
+// Sanity checks - please leave them as they are!
 
 // check the PPM RX and motor values
 #if _Minimum >= _Maximum

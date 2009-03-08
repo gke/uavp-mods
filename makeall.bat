@@ -21,21 +21,21 @@ rem in the 876 PIC.
 rem Prevous switches THC and CAM have been abandoned in favour of Tx based
 rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
 
-set VERSION=3_15m3exp
+set VERSION=3_15m3
 
 rem Add/Delete required combinations to these sets
 set GYRO=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESC=ESC_PPM ESC_HOLGER
 set DBG=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
 set RX=RX_DEFAULT RX_DSM2 RX_PPM
-set CFG=TRICOPTER
+set CFG=QUAD
 
 rem Personal choice
 rem set GYRO=OPT_IDG OPT_ADXRS300
 rem set ESC=ESC_PPM
 rem set DBG=NO_DEBUG DEBUG_SENSORS
 rem set RX=RX_DEFAULT RX_DSM2
-rem set CFG=TRICOPTER
+rem set CFG=QUAD
 
 rem Delete working files
 call makeclean.bat
