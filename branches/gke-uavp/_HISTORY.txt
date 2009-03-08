@@ -176,6 +176,10 @@ First public released version.
 27.02.2006 v3.15m3 Greg Egan
 - Tricopter version reinstated in makefiles (makeall.bat)
 
+08.03.2006 v3.15m3 Greg Egan
+- Abandoned further development on cc5x based version in 
+  favour of the C18 compiler and 18Fxxxx PICs.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
