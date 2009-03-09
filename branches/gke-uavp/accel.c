@@ -253,6 +253,4 @@ void CheckLISL(void)
 		#endif
 	}
 
-	Rp=Pp=0;
-
 } // CheckLISL

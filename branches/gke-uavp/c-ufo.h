@@ -106,7 +106,7 @@
 #define USE_ACCSENS
 
 // Vertical acceleration compensation 
-//#define ACCEL_VUD
+#define ACCEL_VUD
 
 // Barometer
 
