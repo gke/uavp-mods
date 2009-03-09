@@ -29,9 +29,9 @@ static int8 i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delay100mSWithOutput(uns8 dur)
+void Delay100mSWithOutput(uint8 dur)
 { // max 255x10mS
-	uns8 i, k, j;
+	uint8 i, k, j;
 
 	// a TMR0 Timeout is 0,25us * 256 * 16 (presc) = 1024 us
 	WriteTimer0(0);
@@ -60,7 +60,7 @@ void nop2()
 	Delay1TCY();
 }
 
-int16 SRS16(int16 x, uns8 s)
+int16 SRS16(int16 x, uint8 s)
 {
 	return((x<0) ? -((-x)>>s) : (x>>s));
 } // SRS16
@@ -70,7 +70,7 @@ int16 SRS16(int16 x, uns8 s)
 // for observation via an oscilloscope
 // with 8 narrow (bit=0) or broad (bit=1) pulses
 // MSB first
-void Out(uns8 l)
+void Out(uint8 l)
 {
 	for(i=0; i<8; i++)
 	{
@@ -99,9 +99,9 @@ void Out(uns8 l)
 //     Trigger    ______________
 // ____|_________|_____|________|_____|
 //      128  negative  0  positive  127
-void OutG(uns8 l)
+void OutG(uint8 l)
 {
-	uns8 v;
+	uint8 v;
 
 	PORTB.5=1;
 	PORTB.5=0;
@@ -160,38 +160,6 @@ void InitArrays(void)
 	BaroRestarts = 0;
 } // InitArrays
 
-// this routine is called ONLY ONCE while booting
-// read 16 time all 3 axis of linear sensor.
-// Puts values in Neutralxxx registers.
-void GetEvenValues(void)
-{	// get the even values
-
-	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
-	// already done in caller program
-	Rp = 0;
-	Pp = 0;
-	Yp = 0;
-	for( i=0; i < 16; i++)
-	{
-		while( (ReadLISL(LISL_STATUS+LISL_READ) & 0x08) == 0 ); //wait until ready
-		// 0.903mS
-		Rl = (ReadLISL(LISL_OUTX_H|LISL_READ)*256)|ReadLISL(LISL_OUTX_L|LISL_READ);
-		Yl = (ReadLISL(LISL_OUTY_H|LISL_READ)*256)|ReadLISL(LISL_OUTY_L|LISL_READ);
-		Pl = (ReadLISL(LISL_OUTZ_H|LISL_READ)*256)|ReadLISL(LISL_OUTZ_L|LISL_READ);
-		LISL_IO = 1; // read
-		
-		Rp += (int16)Rl;
-		Pp += (int16)Pl;
-		Yp += (int16)Yl;
-	}
-	Rp = SRS16(Rp + 8, 4);
-	Pp = SRS16(Pp + 8, 4);
-	Yp = SRS16(Yp + 8, 4);
-
-	NeutralLR = Limit(Rp, -128, 127);
-	NeutralFB = Limit(Pp, -128, 127);
-	NeutralUD = Limit(Yp-1024, -128, 127); // -1g
-} // GetEvenValues
 
 void CheckAlarms(void)
 {
@@ -246,6 +214,66 @@ void CheckAlarms(void)
 
 } // CheckAlarms
 
+void LedGame(void)
+{
+	if( --LedCount == 0 )
+	{
+		LedCount = ((255-IGas)>>3) +5;	// new setup
+		if( _Hovering )
+		{
+			AUX_LEDS_ON;	// baro locked, all aux-leds on
+		}
+		else
+		if( LedShadow & LedAUX1 )
+		{
+			AUX_LEDS_OFF;
+			LedAUX2_ON;
+		}
+		else
+		if( LedShadow & LedAUX2 )
+		{
+			AUX_LEDS_OFF;
+			LedAUX3_ON;
+		}
+		else
+		{
+			AUX_LEDS_OFF;
+			LedAUX1_ON;
+		}
+	}
+} // LedGame
+
+void DoPIDDisplays()
+{
+	if ( IntegralTest )
+	{
+		ALL_LEDS_OFF;
+		if( (int8)(RollSum>>8) > 0 )
+			LedRed_ON;
+		else
+			if( (int8)(RollSum>>8) < -1 )
+				LedGreen_ON;
+
+		if( (int8)(PitchSum>>8) >  0 )
+			LedYellow_ON;
+		else
+			if( (int8)(PitchSum>>8) < -1 )
+				LedBlue_ON;
+	}
+	else
+		if( CompassTest )
+		{
+			ALL_LEDS_OFF;
+			if( CurDeviation > 0 )
+				LedGreen_ON;
+			else
+				if( CurDeviation < 0 )
+					LedRed_ON;
+			if( AbsDirection > COMPASS_MAX )
+				LedYellow_ON;
+		}
+} // DoPIDDisplays
+
 void UpdateBlinkCount(void)
 {
 	if( BlinkCount == 0 )
@@ -260,7 +288,7 @@ void UpdateBlinkCount(void)
 
 void SendLeds(void)
 {
-	uns8	i, s;
+	uint8	i, s;
 
 	/* send LedShadow byte to TPIC */
 
@@ -284,13 +312,13 @@ void SendLeds(void)
 	PORTCbits.RC1 = 0;	// latch into drivers
 }
 
-void SwitchLedsOn(uns8 l)
+void SwitchLedsOn(uint8 l)
 {
 	LedShadow |= l;
 	SendLeds();
 } // SwitchLedsOn
 
-void SwitchLedsOff(uns8 l)
+void SwitchLedsOff(uint8 l)
 {
 	LedShadow &= ~l;
 	SendLeds();

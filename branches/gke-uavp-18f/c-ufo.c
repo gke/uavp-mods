@@ -25,7 +25,7 @@
 // -CC -fINHX8M -a -L -Q -V -FM -DMATHBANK_VARS=bank0 -DMATHBANK_PROG=2
 
 #ifdef ICD2_DEBUG
-//#pragma	config = 0x377A	// BODEN, HVP, no WDT, MCLRE disabled, PWRTE disabled
+#pragma	config OSC=HS, WDT=OFF, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC
 #else
 #pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
 #endif
@@ -33,45 +33,38 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-// EEPROM-Data can currently not be used with relocatable assembly
-// CC5X limitation!
-// #define EEPROM_START	0x2100
-// #pragma cdata[EEPROM_START] = 0,0,0,0,0,0,0,0,0,0,20,8,16
-
 // The globals
 
-uns8	IGas;			// actual input channel, can only be positive!
+uint8	IGas;			// actual input channel, can only be positive!
 int8 	IRoll,IPitch,IYaw;	// actual input channels, 0 = neutral
-uns8	IK5;		// actual channel 5 input
-uns8	IK6;		// actual channel 6 input
-uns8	IK7;		// actual channel 7 input
+uint8	IK5;		// actual channel 5 input
+uint8	IK6;		// actual channel 6 input
+uint8	IK7;		// actual channel 7 input
 
 // PID Regler Variablen
-int16	RE,PE;
-int16	YE;	// Fehlersignal aus dem aktuellen Durchlauf
-int16	REp,PEp;
-int16	YEp;	// Fehlersignal aus dem vorigen Durchlauf (war RE/PE/YE)
-int16	YawSum;	// Integrales Fehlersignal fuer Yaw, 0 = neutral
-int16	RollSum, PitchSum;	// Integrales Fehlersignal fuer Roll und Pitch
+int16	RE, PE, YE;					// gyro rate error	
+int16	REp, PEp, YEp;				// previous error for derivative
+int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollSamples, PitchSamples;
+int16	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
 int16 	UDSum;
 
-uns8	BlinkCount, BlinkCycle, BaroCount;
-uns8 	mSTick;
+uint8	BlinkCount, BlinkCycle, BaroCount;
+uint8 	mSTick;
 int8	BatteryVolts;
 int8	Rw,Pw;
 
 // Variables for barometric sensor PD-controller
 int24	BaroBasePressure, BaroBaseTemp;
-int24	BaroRelTempCorr;
+int16   BaroRelPressure, BaroRelTempCorr;
 int16	VBaroComp;
-int16   BaroRelPressure;
-uns8	BaroType, BaroTemp, BaroRestarts;
+uint8	BaroType, BaroTemp, BaroRestarts;
 
 #pragma idata params
 // Principal quadrocopter parameters - MUST remain in this order
+// for block read/write to EEPROM
 int8	RollPropFactor		=18;
 int8	RollIntFactor		=4;
 int8	RollDiffFactor		=-40;
@@ -107,56 +100,27 @@ int8	BaroThrottleDiff	=4;
 
 int16	MidRoll, MidPitch, MidYaw;
 
-uns8	LedShadow;		// shadow register
+uint8	LedShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
-uns8	MFront,MLeft,MRight,MBack;	// output channels
-uns8	MCamRoll,MCamPitch;
+uint8	MFront,MLeft,MRight,MBack;	// output channels
+uint8	MCamRoll,MCamPitch;
 int16	Ml, Mr, Mf, Mb;
 int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
 
-uns8	Flags[8];
-uns8	Flags2[8];
+uint8	Flags[8];
+uint8	Flags2[8];
 
-uns8	IntegralCount;
+uint8	IntegralCount;
 int8	RollNeutral, PitchNeutral, YawNeutral;
-uns8	ThrNeutral;
+uint8	ThrNeutral;
 int16	ThrDownCount;
 
-uns8	DropoutCount;
-uns8	LedCount;
-
-void LedGame(void)
-{
-	if( --LedCount == 0 )
-	{
-		LedCount = ((255-IGas)>>3) +5;	// new setup
-		if( _Hovering )
-		{
-			AUX_LEDS_ON;	// baro locked, all aux-leds on
-		}
-		else
-		if( LedShadow & LedAUX1 )
-		{
-			AUX_LEDS_OFF;
-			LedAUX2_ON;
-		}
-		else
-		if( LedShadow & LedAUX2 )
-		{
-			AUX_LEDS_OFF;
-			LedAUX3_ON;
-		}
-		else
-		{
-			AUX_LEDS_OFF;
-			LedAUX1_ON;
-		}
-	}
-} // LedGame
+uint8	DropoutCount;
+uint8	LedCount;
 
 void WaitThrottleClosed(void)
 {
@@ -235,8 +199,8 @@ void WaitForRxSignal(void)
 
 void main(void)
 {
-	uns8	i;
-	uns8	LowGasCount;
+	uint8	i;
+	uint8	LowGasCount;
 
 	DisableInterrupts;
 
@@ -265,24 +229,24 @@ void main(void)
 
 	InitArrays();
 
-	#ifdef COMMISSIONING
+	#ifdef INIT_PARAMS
 	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
 		WriteEE(i, -1);
 	WriteParametersEE(1);						// copy RAM initial values to EE
 	WriteParametersEE(2);
-	#endif // COMMISSIONING
+	#endif // INIT_PARAMS
 	ReadParametersEE();
 
 	INTCONbits.PEIE = 1;		// Enable peripheral interrupts
 	EnableInterrupts;
 
-	LedRed_ON;		// red LED on
+	LedRed_ON;
 	Delay100mSWithOutput(1);	// wait 1/10 sec until LISL is ready to talk
 
 	#ifdef USE_ACCSENS
 	IsLISLactive();
 	#ifdef ICD2_DEBUG
-	_UseLISL = 1;	// because debugger uses RB7 (=LISL-CS) :-(
+	_UseLISL = true;	// because debugger uses RB7 (=LISL-CS) :-(
 	#endif
 
 	NeutralLR = 0;
@@ -317,7 +281,7 @@ Restart:
 
 		ALL_LEDS_OFF;
 		LedRed_ON;		// Red LED on
-		if(_UseLISL)
+		if( _UseLISL )
 			LedYellow_ON;	// To signal LISL sensor is active
 
 		InitArrays();
@@ -368,7 +332,7 @@ Restart:
 			while( TimeSlot > 0 )
 			{
 				// Here is the place to insert own routines
-				// It should consume as less time as possible!
+				// It should consume as little time as possible!
 				// ATTENTION:
 				// Your routine must return BEFORE TimeSlot reaches 0
 				// or non-optimal flight behavior might occur!!!
@@ -453,9 +417,7 @@ Restart:
 				DropoutCount = 0;
 				LowGasCount = 100;		
 				LedGreen_ON;
-
 				LedGame();
-
 DoPID:
 				// do the calculations
 				Rp = 0;
@@ -484,10 +446,7 @@ DoPID:
 
 			#ifdef DEBUG_SENSORS
 			if( IntegralCount == 0 )
-			{
-				SendComChar(0x0d);
-				SendComChar(0x0a);
-			}
+				TxNextLine();
 			#endif			
 
 		}	// END NORMAL OPERATION WHILE LOOP

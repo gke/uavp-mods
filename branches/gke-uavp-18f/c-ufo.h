@@ -18,7 +18,7 @@
 #define BARO_SCRATCHY_BEEPER
 
 // Loads a "representative" parameter set into EEPROM
-//#define COMMISSIONING
+#define INIT_PARAMS
 
 #ifndef BATCHMODE
 // =======================================================================
@@ -49,15 +49,8 @@
 // == Global compiler switches
 // ==============================================
 
-// use this to allow debugging with MPLAB's Simulator
-// #define SIMU
-//
-// CAUTION!
-// the board version MUST be selected by command line!
-// ----------------------------------------------------
 
-//
-// if you want the led outputs for test purposes
+// If you want the LED outputs for test purposes
 //
 // To enable output of values via Out(), OutG() and OutSSP()
 //#define DEBUGOUT
@@ -172,22 +165,20 @@
 #define MAXINT32 0x7fffffff;
 #define	MAXINT16 0x7fff;
 
-typedef unsigned char uns8 ;
 typedef unsigned char uint8 ;
 typedef signed char int8;
-typedef unsigned int uns16;
 typedef unsigned int uint16;
 typedef int int16;
-typedef long int32;
-typedef unsigned long uint32;
 typedef short long int24;
 typedef unsigned short long uint24;
+typedef long int32;
+typedef unsigned long uint32;
 
-#define Set(S,b) 		((uns8)(S|=(1<<b)))
-#define Clear(S,b) 		((uns8)(S&=(~(1<<b))))
-#define IsSet(S,b) 		((uns8)((S>>b)&1))
-#define IsClear(S,b) 	((uns8)(!(S>>b)&1))
-#define Invert(S,b) 	((uns8)(S^=(1<<b)))
+#define Set(S,b) 		((uint8)(S|=(1<<b)))
+#define Clear(S,b) 		((uint8)(S&=(~(1<<b))))
+#define IsSet(S,b) 		((uint8)((S>>b)&1))
+#define IsClear(S,b) 	((uint8)(!(S>>b)&1))
+#define Invert(S,b) 	((uint8)(S^=(1<<b)))
 
 #define Max(i,j) 		((i<j) ? j : ((i>j) ? j : i))
 #define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
@@ -234,28 +225,27 @@ typedef unsigned short long uint24;
 // == External variables
 // ==============================================
 
-extern	uns8	IGas;
+extern	uint8	IGas;
 extern	int8 	IRoll,IPitch,IYaw;
-extern	uns8	IK5,IK6,IK7;
+extern	uint8	IK5,IK6,IK7;
 
 extern	int16	RE, PE, YE;
 extern	int16	REp,PEp,YEp;
-extern	int16	YawSum;
-extern	int16	PitchSum, RollSum;
+extern	int16	PitchSum, RollSum, YawSum;
 extern	int16	RollSamples, PitchSamples;
+extern	int16	Ax, Ay, Az;
 extern	int8	LRIntKorr, FBIntKorr;
 extern	int8	NeutralLR, NeutralFB, NeutralUD;
 extern	int16 	UDSum;
-extern	uns8	BlinkCount, BlinkCycle, BaroCount;
+extern	uint8	BlinkCount, BlinkCycle, BaroCount;
 extern	int8	Rw,Pw;	// angles
 extern   int8	BatteryVolts; 
 				
 // Variables for barometric sensor PD-controller
 extern	int24	BaroBasePressure, BaroBaseTemp;
-extern	int24	BaroRelTempCorr;
+extern	int16	BaroRelPressure, BaroRelTempCorr;
 extern	int16	VBaroComp;
-extern  int16   BaroRelPressure;
-extern	uns8	BaroType, BaroTemp, BaroRestarts;
+extern	uint8	BaroType, BaroTemp, BaroRestarts;
 
 // Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
 // These variables MUST keep their order!!!
@@ -298,27 +288,27 @@ extern	int8	BaroThrottleDiff;	// 28
 
 // end of "order-block"
 
-extern	uns8	MFront,MLeft,MRight,MBack;	// output channels
-extern	uns8	MCamRoll,MCamPitch;
+extern	uint8	MFront,MLeft,MRight,MBack;	// output channels
+extern	uint8	MCamRoll,MCamPitch;
 extern	int16	Ml, Mr, Mf, Mb;
 extern	int16	Rl,Pl,Yl;	// PID output values
 extern	int16	Rp,Pp,Yp,Vud;
 
+extern	uint8	Flags[8];
+extern	uint8	Flags2[8];
 
-extern	uns8	Flags[8];
-extern	uns8	Flags2[8];
-
-extern	uns8	IntegralCount;
+extern	uint8	IntegralCount;
+extern 	uint8	LedCount;
 
 // measured neutral gyro values
 // current stick neutral values
 extern	int8	RollNeutral, PitchNeutral, YawNeutral;
-extern	uns8	ThrNeutral;
+extern	uint8	ThrNeutral;
 extern	int16	ThrDownCount;
-extern	uns8 	mSTick;
+extern	uint8 	mSTick;
 extern	int16	MidRoll, MidPitch, MidYaw;
 
-extern	uns8	LedShadow;	// shadow register
+extern	uint8	LedShadow;	// shadow register
 extern	int16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern	int16	CurDeviation;	// deviation from correct heading
 
@@ -429,62 +419,66 @@ extern	void GetGyroValues(void);
 extern	void CalcGyroValues(void);
 extern	void CheckAlarms(void);
 extern	void UpdateBlinkCount(void);
-extern	void SendComText(const char *);
-extern	void SendComValH(uns8);
-extern	void SendComChar(char);
-extern	void ShowSetup(uns8);
+extern	void TxText(const char *);
+extern	void TxValH(uint8);
+extern	void TxChar(char);
+extern	void ShowSetup(uint8);
 extern	void ProcessComCommand(void);
-extern	void SendComValU(uns8);
-extern	void SendComValS(int8);
-extern	void SendComValH16(uns16);
+extern	void TxValU(uint8);
+extern	void TxValS(int8);
+extern	void TxValH16(uint16);
+extern	void TxNextLine(void);
 extern	void GetEvenValues(void);
 extern	void ReadParametersEE(void);
-extern	void WriteParametersEE(uns8);
-extern	void WriteEE(uns8, int8);
+extern	void WriteParametersEE(uint8);
+extern	void WriteEE(uint8, int8);
 extern	void ReadParametersEE(void);
-extern	int8 ReadEE(uns8);
+extern	int8 ReadEE(uint8);
 extern	void DoProgMode(void);
 extern	void InitArrays(void);
 extern	void PID(void);
-extern	void Out(uns8);
-extern	void OutG(uns8);
+extern	void Out(uint8);
+extern	void OutG(uint8);
 extern	void LimitRollSum(void);
 extern	void LimitPitchSum(void);
 extern	void LimitYawSum(void);
-extern	void AddUpLRArr(uns8);
-extern	void AddUpFBArr(uns8);
+extern	void AddUpLRArr(uint8);
+extern	void AddUpFBArr(uint8);
 extern	void AcqTime(void);
 extern	void MixAndLimit(void);
 extern	void MixAndLimitCam(void);
-extern	void Delay100mSWithOutput(uns8);
+extern	void Delay100mSWithOutput(uint8);
 
 extern	void SendLeds(void);
-extern	void SwitchLedsOn(uns8);
-extern	void SwitchLedsOff(uns8);
+extern	void SwitchLedsOn(uint8);
+extern	void SwitchLedsOff(uint8);
+extern	void DoPIDDisplays(void);
+extern	void LedGame(void);
 
 extern	void CheckLISL(void);
 extern	void IsLISLactive(void);
-extern 	uns8 ReadLISL(uns8);
-extern 	uns8 ReadLISLNext(void);
-extern	void OutSSP(uns8);
+extern 	uint8 ReadLISL(uint8);
+extern 	uint8 ReadLISLNext(void);
+extern	void ReadAccelerations(void);
+extern	void OutSSP(uint8);
 extern	void InitDirection(void);
 extern	void GetDirection(void);
 extern	void InitAltimeter(void);
 extern	void ComputeBaroComp(void);
-//extern	uns8 StartBaroADC(uns8);
+//extern	uint8 StartBaroADC(uint8);
 
-extern	uns8 Sin(void);
-extern	uns8 Cos(void);
-//extern	uns8 Arctan(uns8);
+//extern	uint8 Sin(void);
+//extern	uint8 Cos(void);
+//extern	uint8 Arctan(uint8);
 
 extern	void nop2(void);
-extern	int16 SRS16(int16, uns8);
+extern	int16 SRS16(int16, uint8);
 
 extern	void InitADC(void);
 extern	int16 ADC(uint8, uint8);
 extern	void InitPorts(void);
 
-extern	void MatrixCompensate(void);
+//extern	void MatrixCompensate(void);
 
 // End of c-ufo.h
 
