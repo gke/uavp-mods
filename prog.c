@@ -23,7 +23,7 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-int8 ReadEE(uns8 addr)
+int8 ReadEE(uint8 addr)
 {
 	int8 b;
 
@@ -39,7 +39,7 @@ int8 ReadEE(uns8 addr)
 void ReadParametersEE(void)
 {
 	int8 *p, c; 
-	uns16 addr;
+	uint16 addr;
 
 	if( IK5 > _Neutral )
 		addr = _EESet2;	
@@ -49,7 +49,6 @@ void ReadParametersEE(void)
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
 
-	// modified Ing. Greg Egan
 	BatteryVolts = LowVoltThres;
 
 	// Sanity check
@@ -61,7 +60,7 @@ void ReadParametersEE(void)
 		TimeSlot = 20;
 } // ReadParametersEE
 
-void WriteEE(uns8 addr, int8 d)
+void WriteEE(uint8 addr, int8 d)
 {
 	int8 rd;
 	
@@ -85,11 +84,11 @@ void WriteEE(uns8 addr, int8 d)
 
 } // WriteEE
 
-void WriteParametersEE(uns8 s)
+void WriteParametersEE(uint8 s)
 {
 	int8 *p;
-	uns8 b;
-	uns16 addr;
+	uint8 b;
+	uint16 addr;
 	
 	if( s == 1 )
 		addr = _EESet1;	

@@ -25,30 +25,56 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+// this routine is called ONLY ONCE while booting
+// read 16 time all 3 axis of linear sensor.
+// Puts values in Neutralxxx registers.
+void GetEvenValues(void)
+{	// get the even values
+	uint8 i;
+
+	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
+	// already done in caller program
+	Rp = 0;
+	Pp = 0;
+	Yp = 0;
+	for( i=0; i < 16; i++)
+	{
+		ReadAccelerations();
+		
+		Rp += Ax;
+		Pp += Az;
+		Yp += Ay;
+	}
+	Rp = SRS16(Rp + 8, 4);
+	Pp = SRS16(Pp + 8, 4);
+	Yp = SRS16(Yp + 8, 4);
+
+	NeutralLR = Limit(Rp, -128, 127);
+	NeutralFB = Limit(Pp, -128, 127);
+	NeutralUD = Limit(Yp-1024, -128, 127); // -1g
+} // GetEvenValues
+
 // read all acceleration values from LISL sensor
 // and compute correction adders (Rp, Pp, Vud)
 void CheckLISL(void)
 {
-	int16 nila1;
-
 	if( _UseLISL )
 	{
-		while( (ReadLISL(LISL_STATUS+LISL_READ) & 0x08) == 0 ); //wait until ready
-		// 0.903mS
-		Rp = (ReadLISL(LISL_OUTX_H|LISL_READ)*256)|ReadLISL(LISL_OUTX_L|LISL_READ);
-		Yp = (ReadLISL(LISL_OUTY_H|LISL_READ)*256)|ReadLISL(LISL_OUTY_L|LISL_READ);
-		Pp = (ReadLISL(LISL_OUTZ_H|LISL_READ)*256)|ReadLISL(LISL_OUTZ_L|LISL_READ);
-		LISL_IO = 1; // read
+		ReadAccelerations();
+
+		Rp = Ax;
+		Yp = Ay;
+		Pp = Az;;
 		
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
 		{
-			SendComValH16(Rp);
-			SendComChar(';');
-			SendComValH16(Pp);
-			SendComChar(';');
-			SendComValH16(Yp);
-			SendComChar(';');
+			TxValH16(Rp);
+			TxChar(';');
+			TxValH16(Pp);
+			TxChar(';');
+			TxValH16(Yp);
+			TxChar(';');
 		}
 		#endif
 	
@@ -83,26 +109,19 @@ void CheckLISL(void)
 	
 		#endif // ACCEL_VUD
 	
-		// =====================================
-		// Roll-Achse
-		// =====================================
+		// Roll
+
 		// Static compensation due to Gravity
-	
 		#ifdef OPT_ADXRS
 		Rp -= SRS16(RollSum * 11 + 16, 5);	// Rp um RollSum*11/32 korrigieren
-		#endif
-	
-		#ifdef OPT_IDG
+		#else // OPT_IDG
 		Rp -= SRS16(RollSum * (-15) + 16, 5); // Rp um RollSum* -15/32 korrigieren
 		#endif
 	
 		// dynamic correction of moved mass
 		#ifdef OPT_ADXRS
-		Rp += (int16)RollSamples;
-		Rp += (int16)RollSamples;
-		#endif
-	
-		#ifdef OPT_IDG
+		Rp += (int16)RollSamples << 1;
+		#else // OPT_IDG
 		Rp -= (int16)RollSamples;
 		#endif
 	
@@ -112,8 +131,7 @@ void CheckLISL(void)
 		if( Rp > 10 ) LRIntKorr =  1;
 		else
 			if( Rp < 10 ) LRIntKorr = -1;
-		#endif
-		#ifdef OPT_IDG
+		#else // OPT_IDG
 		if( Rp > 10 ) LRIntKorr = -1;
 		else
 			if( Rp < 10 ) LRIntKorr =  1;
@@ -121,15 +139,12 @@ void CheckLISL(void)
 	
 		Rp = 0;
 	
-		// =====================================
-		// Pitch-Achse
-		// =====================================
+		// Pitch
+
 		// Static compensation due to Gravity
-	
 		#ifdef OPT_ADXRS
 		Pp -= SRS16(PitchSum * 11 + 16, 5);	// Pp um RollSum* 11/32 korrigieren
-		#endif
-		#ifdef OPT_IDG
+		#else // OPT_IDG
 		Pp -= SRS16(PitchSum * (-15) + 16, 5);	// Pp um RollSum* -14/32 korrigieren
 		#endif
 	
@@ -152,13 +167,17 @@ void CheckLISL(void)
 	}	
 	else
 	{
+		Rp = 0;
+		Pp = 0;
+		Vud = 0;
+
 		#ifdef DEBUG_SENSORS
-		SendComValH16(0);
-		SendComChar(';');
-		SendComValH16(0);
-		SendComChar(';');
-		SendComValH16(0);
-		SendComChar(';');
+		TxValH16(-1);
+		TxChar(';');
+		TxValH16(-1);
+		TxChar(';');
+		TxValH16(-1);
+		TxChar(';');
 		#endif
 	}	
 } // CheckLISL

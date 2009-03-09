@@ -81,91 +81,97 @@ const char  SerRecvCh[]=  "\r\nT:";
 #pragma idata
 
 // transmit a fix text from a table
-void SendComText(const char *pch)
+void TxText(const char *pch)
 {
 	while( *pch != '\0' )
 	{
-		SendComChar(*pch);
+		TxChar(*pch);
 		pch++;
 	}
 }
 
 void ShowPrompt(void)
 {
-	SendComText(SerPrompt);
+	TxText(SerPrompt);
 }
 
 // send a character to the serial port
-void SendComChar(char ch)
+void TxChar(char ch)
 {
 	while( PIR1bits.TXIF == 0 ) ;	// wait for transmit ready
 	TXREG = ch;		// put new char
 	// register W must be retained on exit!!!! Why???
 }
 
-// converts an unsigned byte to decimal and send it
-void SendComValU(uns8 v)
+// converts an uintigned byte to decimal and send it
+void TxValU(uint8 v)
 {	
-	uns8 nival;
+	uint8 nival;
 
 	nival = v;
 
 	v = nival / 100;
-	SendComChar(v+'0');
+	TxChar(v+'0');
 	nival %= 100;		// Einsparpotential: Modulo als Mathlib
 
 	v = nival / 10;
-	SendComChar(v+'0');
+	TxChar(v+'0');
 	nival %= 10;
 
-	SendComChar(nival+'0');
+	TxChar(nival+'0');
 }
 
 // converts a nibble to HEX and sends it
-void SendComNibble(uns8 v)
+void TxNibble(uint8 v)
 {
-	uns8 nival;
+	uint8 nival;
 
 	nival = v + '0';
 	if( nival > '9' )
 		nival += 7;		// A to F
-	SendComChar(nival);
+	TxChar(nival);
 }
 
-// converts an unsigned byte to HEX and sends it
-void SendComValH(uns8 v)
+// converts an uintigned byte to HEX and sends it
+void TxValH(uint8 v)
 {
-	SendComNibble(v >> 4);
-	SendComNibble(v & 0x0f);
+	TxNibble(v >> 4);
+	TxNibble(v & 0x0f);
 }
 
-// converts an unsigned double byte to HEX and sends it
-void SendComValH16(uns16 v)
+// converts an uintigned double byte to HEX and sends it
+void TxValH16(uint16 v)
 {
-	SendComValH(v >> 8);
-	SendComValH(v & 0xff);
-} // SendComValH16
+	TxValH(v >> 8);
+	TxValH(v & 0xff);
+} // TxValH16
 
 // converts a signed byte to decimal and send it
-// because of dumb compiler nival must be declared as unsigned :-(
-void SendComValS(int8 v)
+// because of dumb compiler nival must be declared as uintigned :-(
+void TxValS(int8 v)
 {
 	if( v < 0 )
 	{
-		SendComChar('-');	// send sign
+		TxChar('-');	// send sign
 		v = -v;
 	}
 	else
-		SendComChar('+');	// send sign
+		TxChar('+');	// send sign
 
-	SendComValU(v);
+	TxValU(v);
+}
+
+void TxNextLine(void)
+{
+	TxChar(0x0d);
+	TxChar(0x0a);
 }
 
 // if a character is in the buffer
 // return it. Else return the NUL character
-char RecvComChar(void)
+char RxChar(void)
 {
-	uns8 ch;
+	uint8 ch;
 	
 	if( PIR1bits.RCIF )	// a character is waiting in the buffer
 	{
@@ -178,7 +184,7 @@ char RecvComChar(void)
 		else
 		{
 			ch = RCREG;	// get the character
-			SendComChar(ch);	// echo it
+			TxChar(ch);	// echo it
 			return(ch);		// and return it
 		}
 	}
@@ -186,23 +192,23 @@ char RecvComChar(void)
 }
 
 
-// enter an unsigned number 00 to 99
-uns8 RecvComNumU(void)
+// enter an uintigned number 00 to 99
+uint8 RxNumU(void)
 {
 	char ch;
-	uns8 nival;
+	uint8 nival;
 
 	nival = 0;
 	do
 	{
-		ch = RecvComChar();
+		ch = RxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
 	nival = ch - '0';
 	nival *= 10;
 	do
 	{
-		ch = RecvComChar();
+		ch = RxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
 	nival += ch - '0';
@@ -211,7 +217,7 @@ uns8 RecvComNumU(void)
 
 
 // enter a signed number -99 to 99 (always 2 digits)!
-int8 RecvComNumS(void)
+int8 RxNumS(void)
 {
 	char ch;
 	int8 nival;
@@ -221,7 +227,7 @@ int8 RecvComNumS(void)
 	_NegIn = 0;
 	do
 	{
-		ch = RecvComChar();
+		ch = RxChar();
 	}
 	while( ((ch < '0') || (ch > '9')) &&
            (ch != '-') );
@@ -230,7 +236,7 @@ int8 RecvComNumS(void)
 		_NegIn = 1;
 		do
 		{
-			ch = RecvComChar();
+			ch = RxChar();
 		}
 		while( (ch < '0') || (ch > '9') );
 	}
@@ -239,7 +245,7 @@ int8 RecvComNumS(void)
 
 	do
 	{
-		ch = RecvComChar();
+		ch = RxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
 	nival += ch - '0';
@@ -249,47 +255,47 @@ int8 RecvComNumS(void)
 }
 
 // send the current configuration setup to serial port
-void ShowSetup(uns8 h)
+void ShowSetup(uint8 h)
 {
 	if( h )
 	{
-		SendComText(SerHello);
+		TxText(SerHello);
 		IK5 = _Minimum;	
 	}
 
-	SendComText(SerSetup);	// send hello message
+	TxText(SerSetup);	// send hello message
 	if( _UseLISL )
-		SendComText(SerLSavail);
+		TxText(SerLSavail);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 
-	SendComText(SerCompass);
+	TxText(SerCompass);
 	if( _UseCompass )
-		SendComText(SerLSavail);
+		TxText(SerLSavail);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 
-	SendComText(SerBaro);
+	TxText(SerBaro);
 	if( _UseBaro )
 		if ( BaroType == BARO_ID_BMP085 )
-			SendComText(SerBaroBMP085);
+			TxText(SerBaroBMP085);
 		else
-			SendComText(SerBaroSMD500);
+			TxText(SerBaroSMD500);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 
 	ReadParametersEE();
-	SendComText(SerChannel);
+	TxText(SerChannel);
 	if( FutabaMode )
-		SendComText(SerFM_Fut);
+		TxText(SerFM_Fut);
 	else
-		SendComText(SerFM_Grp);
+		TxText(SerFM_Grp);
 
-	SendComText(SerSelSet);
+	TxText(SerSelSet);
 	if( IK5 > _Neutral )
-		SendComChar('2');
+		TxChar('2');
 	else
-		SendComChar('1');
+		TxChar('1');
 	
 	ShowPrompt();
 }
@@ -312,12 +318,12 @@ void ProgRegister(void)
 void ProcessComCommand(void)
 {
 	int8  *p;
-	uns8 ch;
-	uns8 addr;
-	uns16 addrbase, curraddr;
+	uint8 ch;
+	uint8 addr;
+	uint16 addrbase, curraddr;
 	int8 d;
 	
-	ch = RecvComChar();
+	ch = RxChar();
 	if( islower(ch))							// check lower case
 		ch=toupper(ch);
 
@@ -325,34 +331,34 @@ void ProcessComCommand(void)
 	{
 		case '\0' : break;
 		case 'L'  :	// List parameters
-			SendComText(SerList);	// must send it (UAVPset!)
+			TxText(SerList);	// must send it (UAVPset!)
 			if( IK5 > _Neutral )
-				SendComChar('2');
+				TxChar('2');
 			else
-				SendComChar('1');
+				TxChar('1');
 			ReadParametersEE();
 			addr = 1;
 			for(p = &FirstProgReg; p <= &LastProgReg; p++)
 			{
-				SendComText(SerReg1);
-				SendComValU(addr++);
-				SendComText(SerReg2);
+				TxText(SerReg1);
+				TxValU(addr++);
+				TxText(SerReg2);
 				d = *p;
-				SendComValS(d);
+				TxValS(d);
 			}
 			ShowPrompt();
 			break;
 		case 'M'  : // modify parameters
 			LedBlue_ON;
-			SendComText(SerReg1);
-			addr = RecvComNumU()-1;
-			SendComText(SerReg2);
-			d = RecvComNumS();
+			TxText(SerReg1);
+			addr = RxNumU()-1;
+			TxText(SerReg2);
+			d = RxNumS();
 			if( IK5 > _Neutral )
 				addrbase = _EESet2;
 			else
 				addrbase = _EESet1;
-			WriteEE(addrbase + (uns16)addr, d);	
+			WriteEE(addrbase + (uint16)addr, d);	
 
 			// update transmitter config bits in the other parameter set
 			if( addr ==  (&ConfigParam - &FirstProgReg) )
@@ -363,8 +369,8 @@ void ProcessComCommand(void)
 					addrbase = _EESet2;	
 				// mask only bits _FutabaMode and _NegativePPM
 				d &= 0x12;		
-				d = (ReadEE(addrbase + (uns16)addr) & 0xed) | d;
-				WriteEE(addrbase + (uns16)addr, d);
+				d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
+				WriteEE(addrbase + (uint16)addr, d);
 			}
 			LedBlue_OFF;
 			ShowPrompt();
@@ -373,43 +379,43 @@ void ProcessComCommand(void)
 			ShowSetup(0);
 			break;
 		case 'N' :	// neutral values
-			SendComText(SerNeutralR);
-			SendComValS(NeutralLR);
+			TxText(SerNeutralR);
+			TxValS(NeutralLR);
 
-			SendComText(SerNeutralN);
-			SendComValS(NeutralFB);
+			TxText(SerNeutralN);
+			TxValS(NeutralFB);
 
-			SendComText(SerNeutralY);	
-			SendComValS(NeutralUD);
+			TxText(SerNeutralY);	
+			TxValS(NeutralUD);
 			ShowPrompt();
 			break;
 		case 'R':	// receiver values
-			SendComText(SerRecvCh);
-			SendComValU(IGas);
-			SendComChar(',');
-			SendComChar('R');
-			SendComChar(':');
-			SendComValS(IRoll);
-			SendComChar(',');
-			SendComChar('N');
-			SendComChar(':');
-			SendComValS(IPitch);
-			SendComChar(',');
-			SendComChar('Y');
-			SendComChar(':');
-			SendComValS(IYaw);
-			SendComChar(',');
-			SendComChar('5');
-			SendComChar(':');
-			SendComValU(IK5);
-			SendComChar(',');
-			SendComChar('6');
-			SendComChar(':');
-			SendComValU(IK6);
-			SendComChar(',');
-			SendComChar('7');
-			SendComChar(':');
-			SendComValU(IK7);
+			TxText(SerRecvCh);
+			TxValU(IGas);
+			TxChar(',');
+			TxChar('R');
+			TxChar(':');
+			TxValS(IRoll);
+			TxChar(',');
+			TxChar('N');
+			TxChar(':');
+			TxValS(IPitch);
+			TxChar(',');
+			TxChar('Y');
+			TxChar(':');
+			TxValS(IYaw);
+			TxChar(',');
+			TxChar('5');
+			TxChar(':');
+			TxValU(IK5);
+			TxChar(',');
+			TxChar('6');
+			TxChar(':');
+			TxValU(IK6);
+			TxChar(',');
+			TxChar('7');
+			TxChar(':');
+			TxValU(IK7);
 			ShowPrompt();
 			break;
 
@@ -434,7 +440,7 @@ void ProcessComCommand(void)
 #endif
 
 		case '?'  : // help
-			SendComText(SerHelp);
+			TxText(SerHelp);
 			ShowPrompt();
 	}
 }

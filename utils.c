@@ -69,9 +69,9 @@ void EscI2CStop(void)
 // send a byte to I2C slave and return ACK status
 // 0 = ACK
 // 1 = NACK
-void SendEscI2CByte(uns8 nidata)
+void SendEscI2CByte(uint8 nidata)
 {
-	uns8 s;
+	uint8 s;
 
 	for(s=8; s!=0; s--)
 	{
@@ -111,6 +111,169 @@ void SendEscI2CByte(uns8 nidata)
 
 #endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
 
+// to avoid stopping motors in the air, the
+// motor values are limited to a minimum and
+// a maximum
+// the eventually corrected value is returned
+int8 SaturInt(int16 l)
+{
+	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
+	if( l > _Maximum )
+		return(_Maximum);
+	if( l < MotorLowRun )
+		return(MotorLowRun);
+	// just for safety
+	if( l < _Minimum )
+		return(_Minimum);
+	#endif
+
+	#ifdef ESC_X3D
+	l -= _Minimum;
+	if( l > 200 )
+		return(200);
+	if( l < 1 )
+		return(1);
+	#endif
+	return((int8)l);
+} // SaturInt
+
+// mix the PID-results (Rl, Pl and Yl) and the throttle
+// on the motors and check for numerical overrun
+void MixAndLimit(void)
+{
+	uint8 CurrGas;
+    int16 Temp;
+
+	CurrGas = IGas;	// to protect against IGas being changed in interrupt
+ 
+	#ifndef TRICOPTER
+	if( FlyCrossMode )
+	{	// "Cross" Mode
+		Ml = CurrGas + Pl; Ml -= Rl;
+		Mr = CurrGas - Pl; Mr += Rl;
+		Mf = CurrGas - Pl; Mf -= Rl;
+		Mb = CurrGas + Pl; Mb += Rl;
+	}
+	else
+	{	// "Plus" Mode
+		#ifdef MOUNT_45
+		Ml = CurrGas - Rl; Ml -= Pl;	// K2 -> Front right
+		Mr = CurrGas + Rl; Mr += Pl;	// K3 -> Rear left
+		Mf = CurrGas + Rl; Mf -= Pl;	// K1 -> Front left
+		Mb = IGas - Rl; Mb += Pl;	// K4 -> Rear rigt
+		#else
+		Ml = CurrGas - Rl;	// K2 -> Front right
+		Mr = CurrGas + Rl;	// K3 -> Rear left
+		Mf = CurrGas - Pl;	// K1 -> Front left
+		Mb = CurrGas + Pl;	// K4 -> Rear rigt
+		#endif
+	}
+
+	Mf += Yl;
+	Mb += Yl;
+	Ml -= Yl;
+	Mr -= Yl;
+
+	// Altitude stabilization factor
+	Mf += Vud;
+	Mb += Vud;
+	Ml += Vud;
+	Mr += Vud;
+
+	Mf += VBaroComp;
+	Mb += VBaroComp;
+	Ml += VBaroComp;
+	Mr += VBaroComp;
+
+	// if low-throttle limiting occurs, must limit other motor too
+	// to prevent flips!
+
+	if( CurrGas > MotorLowRun )
+	{
+		if( (Mf > Mb) && (Mb < MotorLowRun) )
+		{
+			Temp = Mb - MotorLowRun;
+			Mf += Temp;
+			Ml += Temp;
+			Mr += Temp;
+		}
+		if( (Mb > Mf) && (Mf < MotorLowRun) )
+		{
+			Temp = Mf - MotorLowRun;
+			Mb += Temp;
+			Ml += Temp;
+			Mr += Temp;
+		}
+		if( (Ml > Mr) && (Mr < MotorLowRun) )
+		{
+			Temp = Mr - MotorLowRun;
+			Ml += Temp;
+			Mf += Temp;
+			Mb += Temp;
+		}
+		if( (Mr > Ml) && (Ml < MotorLowRun) )
+		{	
+			Temp = Ml - MotorLowRun;
+			Mr += Temp;
+			Mf += Temp;
+			Mb += Temp;
+		}
+	}
+	#else	// TRICOPTER
+	Mf = CurrGas + Pl;	// front motor
+	Ml = CurrGas + Rl;
+	Mr = CurrGas - Rl;
+	Rl >>= 1;
+	Ml -= Rl;	// rear left
+    Mr -= Pl;	// rear right
+	Mb = Yl + _Neutral;	// yaw servo
+
+	if( CurrGas > MotorLowRun )
+	{
+		if( (Ml > Mr) && (Mr < MotorLowRun) )
+		{
+			// Mf += Mb - MotorLowRun
+			Ml += Mr;
+			Ml -= MotorLowRun;
+		}
+		if( (Mr > Ml) && (Ml < MotorLowRun) )
+		{
+			// Mb += Mf - MotorLowRun
+			Mr += Ml;
+			Mr -= MotorLowRun;
+		}
+	}
+	#endif
+
+	// Ergebnisse auf Überlauf testen und korrigieren
+	MFront = SaturInt(Mf);
+	MLeft = SaturInt(Ml);
+	MRight = SaturInt(Mr);
+	MBack = SaturInt(Mb);
+} // MixAndLimit
+
+// Mix the Camera tilt channel (Ch6) and the
+// ufo air angles (roll and nick) to the 
+// camera servos. 
+void MixAndLimitCam(void)
+{
+// Cam Servos
+
+	if( IntegralCount > 0 )
+		Rp = Pp = _Minimum;
+
+	if( _UseCh7Trigger )
+		Rp += _Neutral;
+	else
+		Rp += IK7;
+		
+	Pp += IK6;		// only Pitch servo is controlled by channel 6
+
+	MCamRoll = Limit(Rp, _Minimum, _Maximum);
+	MCamPitch = Limit(Pp, _Minimum, _Maximum);
+
+} // MixAndLimitCam
+
 // Outputs signals to the speed controllers
 // using timer 0
 // all motor outputs are driven simultaneously
@@ -128,17 +291,16 @@ void SendEscI2CByte(uns8 nidata)
 //             0     1     2     3 ms
 
 #pragma udata assembly_language=0x080 
-uns8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 // Bootloader ???
 #pragma udata
 
 void OutSignals(void)
 {
 	#ifdef NADA
-	SendComValH(MCamRoll);
-	SendComValH(MCamPitch);
-	SendComChar(0x0d);
-	SendComChar(0x0a);
+	TxValH(MCamRoll);
+	TxValH(MCamPitch);
+	TxNextLine();
 	#endif
 
 	#ifndef DEBUG_SENSORS
@@ -146,23 +308,23 @@ void OutSignals(void)
 	#ifdef DEBUG_MOTORS
 	if( _Flying && IsSet(CamPitchFactor,4) )
 	{
-		SendComValU(IGas);
-		SendComChar(';');
-		SendComValS(IRoll);
-		SendComChar(';');
-		SendComValS(IPitch);
-		SendComChar(';');
-		SendComValS(IYaw);
-		SendComChar(';');
-		SendComValU(MFront);
-		SendComChar(';');
-		SendComValU(MBack);
-		SendComChar(';');
-		SendComValU(MLeft);
-		SendComChar(';');
-		SendComValU(MRight);
-		SendComChar(0x0d);
-		SendComChar(0x0a);
+		TxValU(IGas);
+		TxChar(';');
+		TxValS(IRoll);
+		TxChar(';');
+		TxValS(IPitch);
+		TxChar(';');
+		TxValS(IYaw);
+		TxChar(';');
+		TxValU(MFront);
+		TxChar(';');
+		TxValU(MBack);
+		TxChar(';');
+		TxValU(MLeft);
+		TxChar(';');
+		TxValU(MRight);
+		TxChar(0x0d);
+		TxChar(0x0a);
 	}
 	#endif
 
@@ -407,152 +569,3 @@ _endasm
 } // OutSignals
 
 
-// convert Roll and Pitch gyro values
-// using 10-bit A/D conversion.
-// Values are ADDED into RollSamples and PitchSamples
-void GetGyroValues(void)
-{
-	#ifdef OPT_IDG
-	RollSamples += ADC(ADCRollChan, ADCVREF);
-	PitchSamples += ADC(ADCPitchChan, ADCVREF);
-	#else
-	RollSamples += ADC(ADCRollChan, ADCVREF5V);
-	PitchSamples += ADC(ADCPitchChan, ADCVREF5V);
-	#endif // OPT_IDG
-} // GetGyroValues
-
-// ADXRS300: The Integral (RollSum & Pitchsum) has
-// a resolution of about 1000 LSBs for a 25° angle
-// IDG300: (TBD)
-//
-
-// Calc the gyro values from added RollSamples and PitchSamples
-void CalcGyroValues(void)
-{
-	int16 Temp;
-
-	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
-	// Approximately 4 bits of precision are discarded in this and related 
-	// calculations presumably because of the range of the 16 bit arithmetic.
-
-	#ifdef OPT_ADXRS150
-	RollSamples = (RollSamples + 2)>>2; // recreate the 10 bit resolution
-	PitchSamples = (PitchSamples + 2)>>2;
-	#else // IDG300 and ADXRS300
-	RollSamples = (RollSamples + 1)>>1;	
-	PitchSamples = (PitchSamples + 1)>>1;
-	#endif
-	
-	if( IntegralCount > 0 )
-	{
-		// pre-flight auto-zero mode
-		RollSum += RollSamples;
-		PitchSum += PitchSamples;
-
-		if( IntegralCount == 1 )
-		{
-			RollSum += 8;
-			PitchSum += 8;
-			if( !_UseLISL )
-			{
-				RollSum = RollSum + MiddleLR;
-				PitchSum = PitchSum + MiddleFB;
-			}
-			MidRoll = RollSum >> 4;	
-			MidPitch = PitchSum >> 4;
-			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
-		}
-	}
-	else
-	{
-		// standard flight mode
-		RollSamples -= MidRoll;
-		PitchSamples -= MidPitch;
-
-		// calc Cross flying mode
-		if( FlyCrossMode )
-		{
-			// Real Roll = 0.707 * (N + R)
-			//      Pitch = 0.707 * (N - R)
-			// the constant factor 0.667 is used instead
-			Temp = RollSamples + PitchSamples;	
-			PitchSamples -= RollSamples;	
-			RollSamples = (Temp * 2)/3;
-			PitchSamples = (PitchSamples * 2)/3;
-		}
-
-		#ifdef DEBUG_SENSORS
-		SendComValH16(RollSamples);
-		SendComChar(';');
-		SendComValH16(PitchSamples);
-		SendComChar(';');
-		#endif
-	
-		// Roll
-		#ifdef OPT_ADXRS
-		RE = SRS16(RollSamples + 2, 2);
-		#else // OPT_IDG
-		RE = SRS16(RollSamples + 1, 1); // use 8 bit res. for PD controller
-		#endif	
-
-		#ifdef OPT_ADXRS
-		RollSamples = SRS16(RollSamples + 1, 1); // use 9 bit res. for I controller	
-		#endif
-
-		LimitRollSum();		// for roll integration
-
-		// Pitch
-		#ifdef OPT_ADXRS
-		PE = SRS16(PitchSamples + 2, 2);
-		#else // OPT_IDG
-		PE = SRS16(PitchSamples + 1, 1);
-		#endif
-
-		#ifdef OPT_ADXRS
-		PitchSamples = SRS16(PitchSamples + 1, 1); // use 9 bit res. for I controller	
-		#endif
-
-		LimitPitchSum();		// for pitch integration
-
-		// Yaw is sampled only once every frame, 8 bit A/D resolution
-		YE = ADC(ADCYawChan, ADCVREF5V)>>2;
-		if( MidYaw == 0 )
-			MidYaw = YE;
-		YE -= MidYaw;
-
-		LimitYawSum();
-
-		#ifdef DEBUG_SENSORS
-		SendComValH(YE);
-		SendComChar(';');
-		SendComValH16(RollSum);
-		SendComChar(';');
-		SendComValH16(PitchSum);
-		SendComChar(';');
-		SendComValH16(YawSum);
-		SendComChar(';');
-		#endif
-	}
-} // CalcGyroValues
-
-// Mix the Camera tilt channel (Ch6) and the
-// ufo air angles (roll and nick) to the 
-// camera servos. 
-void MixAndLimitCam(void)
-{
-// Cam Servos
-
-	if( IntegralCount > 0 )
-		Rp = Pp = _Minimum;
-
-	if( _UseCh7Trigger )
-		Rp += _Neutral;
-	else
-		Rp += IK7;
-		
-	Pp += IK6;		// only Pitch servo is controlled by channel 6
-
-	MCamRoll = Limit(Rp, _Minimum, _Maximum);
-	MCamPitch = Limit(Pp, _Minimum, _Maximum);
-
-} // MixAndLimitCam

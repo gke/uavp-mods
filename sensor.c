@@ -38,10 +38,9 @@ uint8 I2CWaitClkHi(void)
 	uint8 s;
 
 	s = 1;
-
 	I2CDelay();
 	I2C_CIO=1;	// set SCL to input, output a high
-	while( !I2C_SCL )						// timeout wraparound through 255 1.25mS							
+	while( !I2C_SCL )						// wraparound through 255 1.25mS @ 16MHz							
 		if( ++s == 0 )			 
 			break;	
 	I2CDelay();
@@ -231,25 +230,31 @@ void GetDirection(void)
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
 		{
-			SendComValH(AbsDirection);
-			SendComChar(';');
+			TxValH(AbsDirection);
+			TxChar(';');
 		}
 		#endif				
 	}
 	#ifdef DEBUG_SENSORS
 	else	// no new value received
 		if( IntegralCount == 0 )
-			SendComChar(';');
+			TxChar(';');
 	#endif
 
 } // GetDirection
 
-static uns16 BaroVal;
+#ifdef BARO_HARD_FILTER
+	#define BaroFilter HardFilter
+#else
+	#define BaroFilter MediumFilter
+#endif // BARO_HARD_FILTER
+
+static uint16 BaroVal;
 
 // read temp & pressure values from baro sensor
 // return value= niltemp;
 // returns 1 if value is available
-uns8 ReadValueFromBaro(void)
+uint8 ReadValueFromBaro(void)
 {
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -289,7 +294,7 @@ RVerror:
 // TempOrPress = BARO_TEMP to convert temperature
 //               BARO_PRESS to convert pressure
 // returns 1 if successful, else 0
-uns8 StartBaroADC(uns8 TempOrPress)
+uint8 StartBaroADC(uint8 TempOrPress)
 {
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto SBerror;
@@ -404,6 +409,7 @@ void ComputeBaroComp(void)
 							_Hovering = 1;
 						}
 	
+						#ifdef NEW_ALT_HOLD
 						// while holding altitude
 						BaroVal -= BaroBasePressure;
 						// BaroVal has -400..+400 approx
@@ -411,11 +417,42 @@ void ComputeBaroComp(void)
 
 						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
 	
-						#ifdef BARO_HARD_FILTER
-						BaroRelPressure = HardFilter(BaroRelPressure, BaroVal);
+
+						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal);
+	
+						Delta = BaroRelPressure - OldBaroRelPressure;	// subtract new height to get delta
+
+						BaroRelPressure = Limit(BaroRelPressure, -2, 8); // was: +10 and -5
+		
+						// strictly this is acting more like an integrator 
+						// bumping VBaroComp up and down proportional to the error?	
+						Temp = BaroRelPressure * (int16)BaroThrottleProp;
+						if( VBaroComp > Temp )
+							VBaroComp--;
+						else
+							if( VBaroComp < Temp )
+								VBaroComp++; // climb
+						if( VBaroComp > Temp )
+							VBaroComp--;
+						else
+							if( VBaroComp < Temp )
+								VBaroComp++;
+		
+						// Differentialanteil		
+						VBaroComp += Limit(Delta, -8, 8) * (int16)BaroThrottleDiff;
+	
+						VBaroComp = Limit(VBaroComp, -5, 15);
+
 						#else
-						BaroRelPressure = MediumFilter(BaroRelPressure, BaroVal);				
-						#endif // BARO_HARD_FILTER
+
+						// while holding altitude
+						BaroVal -= BaroBasePressure;
+						// BaroVal has -400..+400 approx
+						BaroVal += SRS16((int16)BaroRelTempCorr * (int16)BaroTempCoeff + 16, 5);
+
+						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
+	
+						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal);
 	
 						Delta = BaroRelPressure - OldBaroRelPressure;	// subtract new height to get delta
 
@@ -430,19 +467,19 @@ void ComputeBaroComp(void)
 						else
 							if( VBaroComp < Temp )
 								VBaroComp++; // climb
-#ifndef SLOW_BARO
+
 						if( VBaroComp > Temp )
 							VBaroComp--;
 						else
-#endif // SLOW_BARO
 							if( VBaroComp < Temp )
-								VBaroComp++;
+								VBaroComp++; // climb
 		
 						// Differentialanteil		
 						VBaroComp += Limit(Delta, -8, 8) * (int16)BaroThrottleDiff;
 	
 						VBaroComp = Limit(VBaroComp, -5, 15);
-							
+						#endif // NEW_ALT_HOLD
+	
 						#ifdef BARO_SCRATCHY_BEEPER
 						Beeper_TOG;
 						#endif
@@ -454,15 +491,15 @@ void ComputeBaroComp(void)
 	if( IntegralCount == 0 )
 		if ( _UseBaro )
 		{
-			SendComValH(VBaroComp);
-			SendComChar(';');
-			SendComValH16(BaroRelPressure);
-			SendComChar(';');
+			TxValH(VBaroComp);
+			TxChar(';');
+			TxValH16(BaroRelPressure);
+			TxChar(';');
 		}
 		else	// no baro sensor active
 		{
-			SendComChar(';');
-			SendComChar(';');
+			TxChar(';');
+			TxChar(';');
 		}
 	#endif
 } // ComputeBaroComp	

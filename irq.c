@@ -45,7 +45,6 @@
 // be peridocally missed and for the OutSignals routine to emit preambles greater 
 // than 1mS. GKE
 
-
 #include "c-ufo.h"
 #include "bits.h"
 
@@ -127,7 +126,7 @@ void high_isr_handler(void)
 		#ifdef RX_PPM
 			else
 		#else
-			else	// values are unsafe
+			else	// values are uintafe
 				goto ErrorRestart;
 		}
 		else	// a positive edge
@@ -187,7 +186,7 @@ void high_isr_handler(void)
 					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
 					#endif // !RX_DSM2
 				}
-				else	// values are unsafe
+				else	// values are uintafe
 					goto ErrorRestart;
 			}
 			else

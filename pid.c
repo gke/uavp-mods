@@ -46,14 +46,13 @@ void LimitRollSum(void)
 // which would cause a serious flip -> crash
 void LimitPitchSum(void)
 {
-
 	PitchSum += PitchSamples;
 
 	if( IntegralCount == 0 )
 	{
 		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);
 		PitchSum += FBIntKorr;		
-		PitchSum = Decay(PitchSum);	// damps to zero even if still rolled
+		PitchSum = Decay(PitchSum);	// damps to zero even if still pitched
 	}
 } // LimitPitchSum
 
@@ -95,21 +94,129 @@ void LimitYawSum(void)
 	}
 
 	YawSum += (int16)YE;
-
 	YawSum = Limit(YawSum, -YawIntLimit*256, YawIntLimit*256);
 
-	if( CompassTest )
-	{
-		if( CurDeviation > 0 )
-			LedGreen_ON;
-		else
-			if( CurDeviation < 0 )
-				LedRed_ON;
-		if( AbsDirection > COMPASS_MAX )
-			LedYellow_ON;
-	}
-
 } // LimitYawSum
+
+void GetGyroValues(void)
+{
+	#ifdef OPT_IDG
+	RollSamples += ADC(ADCRollChan, ADCVREF);
+	PitchSamples += ADC(ADCPitchChan, ADCVREF);
+	#else
+	RollSamples += ADC(ADCRollChan, ADCVREF5V);
+	PitchSamples += ADC(ADCPitchChan, ADCVREF5V);
+	#endif // OPT_IDG
+} // GetGyroValues
+
+// Calc the gyro values from added RollSamples and PitchSamples
+void CalcGyroValues(void)
+{
+	int16 Temp;
+
+	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
+	// Approximately 4 bits of precision are discarded in this and related 
+	// calculations presumably because of the range of the 16 bit arithmetic.
+
+	#ifdef OPT_ADXRS150
+	RollSamples = (RollSamples + 2)>>2; // recreate the 10 bit resolution
+	PitchSamples = (PitchSamples + 2)>>2;
+	#else // IDG300 and ADXRS300
+	RollSamples = (RollSamples + 1)>>1;	
+	PitchSamples = (PitchSamples + 1)>>1;
+	#endif
+	
+	if( IntegralCount > 0 )
+	{
+		// pre-flight auto-zero mode
+		RollSum += RollSamples;
+		PitchSum += PitchSamples;
+
+		if( IntegralCount == 1 )
+		{
+			RollSum += 8;
+			PitchSum += 8;
+			if( !_UseLISL )
+			{
+				RollSum = RollSum + MiddleLR;
+				PitchSum = PitchSum + MiddleFB;
+			}
+			MidRoll = RollSum >> 4;	
+			MidPitch = PitchSum >> 4;
+			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
+		}
+	}
+	else
+	{
+		// standard flight mode
+		RollSamples -= MidRoll;
+		PitchSamples -= MidPitch;
+
+		// calc Cross flying mode
+		if( FlyCrossMode )
+		{
+			// Real Roll = 0.707 * (P + R)
+			//      Pitch = 0.707 * (P - R)
+			// the constant factor 0.667 is used instead
+			Temp = RollSamples + PitchSamples;	
+			PitchSamples -= RollSamples;	
+			RollSamples = (Temp * 2)/3;
+			PitchSamples = (PitchSamples * 2)/3; // 7/10 with int24
+		}
+
+		#ifdef DEBUG_SENSORS
+		TxValH16(RollSamples);
+		TxChar(';');
+		TxValH16(PitchSamples);
+		TxChar(';');
+		#endif
+	
+		// Roll
+		#ifdef OPT_ADXRS
+		RE = SRS16(RollSamples + 2, 2);
+		#else // OPT_IDG
+		RE = SRS16(RollSamples + 1, 1); // use 8 bit res. for PD controller
+		#endif	
+
+		#ifdef OPT_ADXRS
+		RollSamples = SRS16(RollSamples + 1, 1); // use 9 bit res. for I controller	
+		#endif
+
+		LimitRollSum();		// for roll integration
+
+		// Pitch
+		#ifdef OPT_ADXRS
+		PE = SRS16(PitchSamples + 2, 2);
+		#else // OPT_IDG
+		PE = SRS16(PitchSamples + 1, 1);
+		#endif
+
+		#ifdef OPT_ADXRS
+		PitchSamples = SRS16(PitchSamples + 1, 1); // use 9 bit res. for I controller	
+		#endif
+
+		LimitPitchSum();		// for pitch integration
+
+		// Yaw is sampled only once every frame, 8 bit A/D resolution
+		YE = ADC(ADCYawChan, ADCVREF5V)>>2;
+		if( MidYaw == 0 )
+			MidYaw = YE;
+		YE -= MidYaw;
+
+		LimitYawSum();
+
+		#ifdef DEBUG_SENSORS
+		TxValH(YE);
+		TxChar(';');
+		TxValH16(RollSum);
+		TxChar(';');
+		TxValH16(PitchSum);
+		TxChar(';');
+		TxValH16(YawSum);
+		TxChar(';');
+		#endif
+	}
+} // CalcGyroValues
 
 // compute the correction adders for the motors
 // using the gyro values (PID controller)
@@ -117,15 +224,7 @@ void LimitYawSum(void)
 void PID(void)
 {
 
-	if( IntegralTest || CompassTest )
-		ALL_LEDS_OFF;
-
-	// Roll/Pitch Linearsensoren
-	Rp = 0;
-	Pp = 0;
-	Vud = 0;
-
-	CheckLISL();	// get the linear sensors data, if available
+	CheckLISL();	// get accelerations, if available
 
 	// PID controller
 	// E0 = current gyro error
@@ -139,58 +238,30 @@ void PID(void)
 	// A0 = --------------- + ------------
 	//            16               256
 
-	// ####################################
 	// Roll
 
 	// Differential and Proportional for Roll axis
 	Rl  = SRS16(RE *(int16)RollPropFactor + (REp-RE) * RollDiffFactor + 8, 4);
 
-	if( IntegralTest )
-		if( (int8)(RollSum>>8) > 0 )
-			LedRed_ON;
-		else
-			if( (int8)(RollSum>>8) < -1 )
-				LedGreen_ON;
-
 	// Integral part for Roll
 	if( IntegralCount == 0 )
-		Rl = SRS16(RollSum * (int16)RollIntFactor + 128, 8);
+		Rl += SRS16(RollSum * (int16)RollIntFactor + 128, 8); // thanks Jim
 
 	// subtract stick signal
 	Rl -= IRoll;
 
-	// ####################################
 	// Pitch
 
 	// Differential and Proportional for Pitch
 	Pl  = SRS16(PE *(int16)PitchPropFactor + (PEp-PE) * PitchDiffFactor + 8, 4);
 
-	if( IntegralTest )
-		if( (int8)(PitchSum>>8) >  0 )
-			LedYellow_ON;
-		else
-			if( (int8)(PitchSum>>8) < -1 )
-				LedBlue_ON;
-
 	// Integral part for Pitch
 	if( IntegralCount == 0 )
 		Pl += SRS16(PitchSum * (int16)PitchIntFactor +128, 8);
 
-	// Old test for pitch limits
-	// muss so gemacht werden, weil CC5X kein if(Pl < -RollPitchLimit) kann!
-	//	NegFact = -PitchLimit;
-	//	if( Pl < NegFact ) Pl = NegFact;
-	//	if( Pl > PitchLimit ) Pl = PitchLimit;
-
 	// subtract stick signal
 	Pl -= IPitch;
 
-	// PID controller for Yaw (Heading Lock)
-	//       E0*fp + E1*fD     Sum(Ex)*fI
-	// A0 = --------------- + ------------
-	//             16              256
-
-	// ####################################
 	// Yaw
 
 	// the yaw stick signal is already added in LimitYawSum() !
@@ -198,21 +269,20 @@ void PID(void)
 
 	// Differential for Yaw (for quick and stable reaction)
 	Yl  = SRS16(YE *(int16)YawPropFactor + (YEp-YE) * YawDiffFactor + 8, 4);
-	Yl += SRS16(YawSum * (int16)YawIntFactor +128, 8);
+	Yl += SRS16(YawSum * (int16)YawIntFactor + 128, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);
 
-	// ####################################
 	// Camera
 
-	// use only integral part (direct angle)
+	// use only roll/pitch angle
 	if( (IntegralCount == 0) && (CamRollFactor != 0) && (CamPitchFactor != 0) )
 	{
 		Rp = RollSum / (int16)CamRollFactor;
 		Pp = PitchSum / (int16)CamPitchFactor;
 	}
 	else
-	{
-		Rp = 0;
-		Pp = 0;
-	}
+		Rp = Pp = 0;
+
+	DoPIDDisplays();
+
 } // PID

@@ -25,26 +25,25 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-static uns8	nii;
-static uns8 niaddr;
-
 #define SSP_CLK PORTBbits.RB4;
 #define SSP_SDA PORTBbits.RB5;
 
 #ifdef DEBUGSSP
 // SSP output for datalogger
 // define DEBUG must be set to use it!
-void OutSSP(uns8 nidata)
+void OutSSP(uint8 d)
 {
-	for( nii=0; nii<8; nii++ )
+	uins8 s;
+
+	for( s = 8; s ; s-- )
 	{
-		if( nidata.7 )
+		if( (d & 0x10) != 0 )
 			SSP_SDA = 1;
 		else
 			SSP_SDA = 0;
 		nop();
 		SSP_CLK = 1;
-		nidata <<= 1;
+		d <<= 1;
 		SSP_CLK = 0;
 	}
 } // OutSSP
@@ -57,6 +56,7 @@ void WriteLISLByte(uint8 d)
 	LISL_SCL = 0;						// to give a little more low time
 	for( s = 8; s ; s-- )
 	{
+		Delay10TCY();
 		LISL_SCL = 0;
 		if (d & 0x80) 
 			LISL_SDA = 1;
@@ -64,7 +64,6 @@ void WriteLISLByte(uint8 d)
 			LISL_SDA = 0;
 		d <<= 1;
 		LISL_SCL = 1;
-		//Delay10TCY();
 	}
 } // WriteLISLByte
 
@@ -76,12 +75,12 @@ uint8 ReadLISLNext(void)
 	d = 0;
 	for( s = 8; s ; s-- )
 	{
+		Delay10TCY();
 		LISL_SCL = 0;
 		d = (d << 1) & 0xfe;
 		if ( LISL_SDA )
 			d |= 1;	
 		LISL_SCL = 1;
-		//Delay10TCY();
 	}	
 
 	return(d);
@@ -118,12 +117,11 @@ void WriteLISL(uint8 d, uint8 addr)
 	LISL_IO = 1;						// read
 } // WriteLISL
 
-
 void IsLISLactive(void)
 {
 	WriteLISL(0b01001010, LISL_CTRLREG_2); 			// enable 3-wire, BDU=1, +/-2g
 
-	if( ReadLISL(LISL_WHOAMI + LISL_READ) == 0x3A )	// LIS03L sensor ident
+	if( ReadLISL(LISL_WHOAMI + LISL_READ) == 0x3a )	// LIS03L sensor ident
 	{
 		WriteLISL(0b11000111, LISL_CTRLREG_1); 		// startup, enable all axis
 		WriteLISL(0b00000000, LISL_CTRLREG_3);
@@ -138,3 +136,13 @@ void IsLISLactive(void)
 		_UseLISL = false;
 } // IsLISLactive
 
+void ReadAccelerations()
+{
+	while( (ReadLISL(LISL_STATUS+LISL_READ) & 0x08) == 0 ); //wait until ready
+	// 0.903mS
+	Ax = (ReadLISL(LISL_OUTX_H|LISL_READ)*256)|ReadLISL(LISL_OUTX_L|LISL_READ);
+	Ay = (ReadLISL(LISL_OUTY_H|LISL_READ)*256)|ReadLISL(LISL_OUTY_L|LISL_READ);
+	Az = (ReadLISL(LISL_OUTZ_H|LISL_READ)*256)|ReadLISL(LISL_OUTZ_L|LISL_READ);
+	LISL_IO = 1; // read
+
+} // ReadAccelerations
