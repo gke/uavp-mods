@@ -18,7 +18,7 @@
 #define BARO_SCRATCHY_BEEPER
 
 // Loads a "representative" parameter set into EEPROM
-#define INIT_PARAMS
+//#define INIT_PARAMS
 
 #ifndef BATCHMODE
 // =======================================================================
