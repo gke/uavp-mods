@@ -38,21 +38,7 @@ void PID(void)
 	if( IntegralTest || CompassTest )
 		ALL_LEDS_OFF;
 
-	// Roll/Pitch Linearsensoren
-	Rp = 0;
-	Pp = 0;
-	Vud = 0;
-
-	if( _UseLISL )
-		CheckLISL();	// get the linear sensors data, if available
-	#ifdef DEBUG_SENSORS
-	else
-	{
-		SendComChar(';');
-		SendComChar(';');
-		SendComChar(';');
-	}
-	#endif
+	CheckLISL();	// get the linear sensors data, if available
 
 	// PID controller
 	// E0 = current gyro error
