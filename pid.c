@@ -65,8 +65,6 @@ void PID(void)
 	Rl += 8;
 	Rl >>= 4;
 
-	Rl += Rp;	// add proportional part
-
 	if( CompassTest )
 	{
 		if( CurDeviation > 0 )
@@ -114,8 +112,6 @@ void PID(void)
 	
 	Pl += 8;
 	Pl >>= 4;	// divide rounded by 16
-
-	Pl += Pp;	// add proportional part
 
 	if( IntegralTest )
 		if( (int8)PitchSum.high8 >  0 )
