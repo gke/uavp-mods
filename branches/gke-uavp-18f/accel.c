@@ -102,7 +102,7 @@ void CheckLISL(void)
 				if( Yp < Vud )
 					Vud--;
 	
-			Vud = Limit(Vud, -20, 20);
+			Vud = Limit(Vud, -10, 10); // was 20
 		}
 	
 		UDSum = DecayBand(UDSum, -10, 10, 10);
@@ -137,8 +137,6 @@ void CheckLISL(void)
 			if( Rp < 10 ) LRIntKorr =  1;
 		#endif
 	
-		Rp = 0;
-	
 		// Pitch
 
 		// Static compensation due to Gravity
@@ -162,13 +160,9 @@ void CheckLISL(void)
 		else
 			if( Pp < 10 ) FBIntKorr =  1;
 		#endif
-	
-		Pp = 0;
 	}	
 	else
 	{
-		Rp = 0;
-		Pp = 0;
 		Vud = 0;
 
 		#ifdef DEBUG_SENSORS
