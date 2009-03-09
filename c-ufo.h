@@ -122,7 +122,7 @@
 //#define BARO_RETRY
 
 // Make a "scratchy" beeper noise while altitude hold is engaged.
-#define BARO_SCRATCHY_BEEPER
+//#define BARO_SCRATCHY_BEEPER
 
 // =====================================
 // end of user-configurable section!

@@ -191,34 +191,32 @@ uns16 	CCPR1 @0x15;
 					}
 					NewYaw = NewK4.low8 - _Neutral;
 					
-					// DoubleRate removed
-										
+					if( DoubleRate )
+					{
+						(int)NewRoll >>= 1;
+						(int)NewPitch >>= 1;
+					}
+					
+					IYaw = NewYaw;
+					
 					#ifdef USE_FILTERS
-					Temp = (int16)IRoll << 1;// UGLY code forced by cc5x compiler
+					Temp = (int16)IRoll<<1;// UGLY code forced by cc5x compiler
 					Temp += (int16)IRoll;
 					Temp += NewRoll;
 					Temp += 2;	
 					Temp >>= 2;
 					IRoll = Temp;
 
-					Temp = (int16)IPitch << 1;
+					Temp = (int16)IPitch<<1;
 					Temp += (int16)IPitch;
 					Temp += NewPitch;
 					Temp += 2;
 					Temp >>= 2;
 					IPitch = Temp;
 
-
-					Temp = (int16)IYaw << 1;
-					Temp += (int16)IYaw;
-					Temp += NewYaw;
-					Temp += 2; 
-					Temp >>= 2;
-					IYaw = Temp;
 					#else
 					IRoll = NewRoll; 
 					IPitch = NewPitch;
-					IYaw = NewYaw;
 					#endif // USE_FILTERS	
 					IK5 = NewK5.low8;
 
@@ -266,9 +264,32 @@ uns16 	CCPR1 @0x15;
 					IK7 = NewK2.low8;
 				}
 
-				IRoll = NewRoll;	// no filters for DSM2 - space
+				if( DoubleRate )
+				{
+					(int)NewRoll >>= 1;
+					(int)NewPitch >>= 1;
+				}
+
+				IYaw = NewYaw;
+
+				#ifdef USE_FILTERS
+				Temp = (int16)IRoll<<1 ;// UGLY code forced by cc5x compiler
+				Temp += (int16)IRoll;
+				Temp += NewRoll;
+				Temp += 2;	
+				Temp >>= 2;
+				IRoll = Temp;
+
+				Temp = (int16)IPitch<<1;
+				Temp += (int16)IPitch;
+				Temp += NewPitch;
+				Temp += 2;
+				Temp >>= 2;
+				IPitch = Temp;
+				#else
+				IRoll = NewRoll; 
 				IPitch = NewPitch;
-				IYaw = NewYaw;		
+				#endif // USE_FILTERS
 
 				_NoSignal = 0;
 				_NewValues = 1;
