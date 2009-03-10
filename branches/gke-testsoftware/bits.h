@@ -1,67 +1,72 @@
-// =======================================================================
-// =                   U.A.V.P Brushless UFO Controller                  =
-// =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
-// =                          http://www.uavp.org                        =
-// =======================================================================
+// ==============================================
+// =      U.A.V.P Brushless UFO Controller      =
+// =           Professional Version             =
+// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
+// ==============================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-
+//
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-
+//
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+//
+// ==============================================
+// =  please visit http://www.uavp.de           =
+// =               http://www.mahringer.co.at   =
+// ==============================================
 
 // Bit definitions
 
+#define	NULL	0
+
 // when changing, see OutSignal() in utils.c
 #ifdef ESC_PPM
-#define	PulseFront		0
-#define	PulseLeft		1
-#define	PulseRight		2
-#define	PulseBack		3
+bit	PulseVorne		@PORTB.0;
+bit	PulseLinks		@PORTB.1;
+bit	PulseRechts		@PORTB.2;
+bit	PulseHinten		@PORTB.3;
 #endif
-
 #if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
-// Wolfgang's SW I2C ESC
-#define	 ESC_SDA		PORTBbits.RB1
-#define	 ESC_SCL		PORTBbits.RB2
-#define	 ESC_DIO		TRISBbits.TRISB1
-#define	 ESC_CIO		TRISBbits.TRISB2
+bit ESC_SDA			@PORTB.1;
+bit ESC_SCL			@PORTB.2;
+bit ESC_DIO			@TRISB.1;
+bit ESC_CIO			@TRISB.2;
 #endif
-
-#define	PulseCamRoll	4
-#define	PulseCamPitch	5
-
-#define ALL_PULSE_ON	PORTB |= 0b00001111
-#define ALL_OUTPUTS_OFF	PORTB &= 0b11110000
-#define ALL_OUTPUTS		(PORTB & 0b00001111)
-#define CAM_PULSE_ON	PORTB |= 0b00110000;
-
-#define Switch		PORTAbits.RA4
-
-#define LISL_CS		PORTCbits.RC5
-#define LISL_SDA	PORTCbits.RC4
-#define LISL_SCL	PORTCbits.RC3
-#define LISL_IO		TRISCbits.TRISC4
 
 // the sensor bus lines
-#define I2C_SDA			PORTBbits.RB6
-#define I2C_DIO			TRISBbits.TRISB6
-#define I2C_SCL			PORTBbits.RB7
-#define I2C_CIO			TRISBbits.TRISB7
+bit I2C_SDA			@PORTB.6;
+bit I2C_DIO			@TRISB.6;
+bit I2C_SCL			@PORTB.7;
+bit	I2C_CIO			@TRISB.7;
 
 #define	I2C_ACK		0
 #define	I2C_NACK	1
+
+
+bit PulseCamRoll	@PORTB.4;
+bit PulseCamNick	@PORTB.5;
+
+#define ALL_PULSE_ON	PORTB |= 0b.0000.1111
+#define ALL_OUTPUTS_OFF	PORTB &= 0b.1111.0000
+#define ALL_OUTPUTS		(PORTB & 0b.0000.1111)
+#define CAM_PULSE_ON	PORTB |= 0b.0011.0000;
+
+bit	Switch		@PORTA.4;
+
+bit	LISL_CS		@PORTC.5;
+bit LISL_SDA	@PORTC.4;
+bit LISL_SCL	@PORTC.3;
+bit	LISL_IO		@TRISC.4;
+
+
 
 // The LEDs and the beeper
 #define ON	1
@@ -107,6 +112,15 @@
 #define Beeper_ON		SwitchLedsOn(Beeper);
 #define Beeper_TOG		if( (LedShadow&Beeper) == 0 ) SwitchLedsOn(Beeper); else SwitchLedsOff(Beeper);
 
+bit	_NoSignal		@Flags.0;	// if no valid signal is received
+bit	_Flying			@Flags.1;	// UFO is flying
+bit _NewValues		@Flags.2;	// new RX channel values sampled
+bit _FirstTimeout	@Flags.3;	// is 1 after first 9ms TO expired
+bit _NegIn			@Flags.4;	// negative signed input (serial.c)
+bit _LowBatt		@Flags.5;	// if Batt voltage is low
+bit	_UseLISL		@Flags.6;	// 1 if LISL Sensor is used
+bit _SerEnabled		@Flags.7;	// 1 if RS232 is enabled
+
 #define COMPASS_I2C_ID	0x42	/* I2C slave address */
 
 // baro (altimeter) sensor
@@ -121,28 +135,6 @@
 //#define BARO_ID_SMD500		??
 #define BARO_ID_BMP085		0x55
 
-#define	_NoSignal		Flags[0]	/* if no valid signal is received */
-#define	_Flying			Flags[1]	/* UFO is flying */
-#define	_NewValues		Flags[2]	/* new RX channel values sampled */
-#define _FirstTimeout	Flags[3]	/* is 1 after first 9ms TO expired */
-#define _NegIn			Flags[4]	/* negative signed input (serial.c) */
-#define _LowBatt		Flags[5]	/* if Batt voltage is low */
-#define _UseLISL		Flags[6]	/* 1 if LISL Sensor is used */
-#define	_UseCompass		Flags[7]	/* 1 if compass sensor is enabled */
-
-#define _UseBaro		Flags2[0]	/* 1 if baro sensor active */
-#define _BaroTempRun	Flags2[1]	/* 1 if baro temp a/d conversion is running */
-									/* 0 means: pressure a/d conversion is running */
-#define _OutToggle		Flags2[2]	/* cam servos only evers 2nd output pulse */								
-#define _UseCh7Trigger	Flags2[3]	/* 1: don't use Ch7 */
-									/* 0: use Ch7 as Cam Roll trim */
-#define _TrigSign		Flags2[4]	/* used in trig.c */
-#define _BaroRestart	Flags2[5] /* Baro restart required */
-#define _Hovering		Flags2[6]	/* QC is hovering */
-#define _LostModel		Flags2[7]	/* Rx timeout - model lost? */
-
-// Mask Bits of ConfigParam
-#define NegativePPM		IsSet(ConfigReg,0)
 
 // LISL-Register mapping
 #define	LISL_WHOAMI		(0x0f)
