@@ -25,11 +25,15 @@
 
 // The LISL controller routines
 
-
+//#pragma codepage=0
+#pragma codepage=2
 #include "pu-test.h"
 #include "bits.h"
 
-uns8	nii;
+#pragma sharedAllocation
+
+bank2 uns8	nii;
+
 
 // send an address byte (niaddr) to linear sensor
 // read the answer and return it
@@ -68,7 +72,7 @@ uns8 ReadLISL(uns8 niaddr)
 }
 
 // only needed for CC5X version 3.3 and earlier
-void WriteLISL(uns8, uns8);
+page2 void WriteLISL(uns8, uns8);
 
 // send an address byte (niaddr) to lienar sensor
 // and write data byte (nidata)
@@ -110,18 +114,18 @@ void IsLISLactive(void)
 {
 
 	LISL_CS = 1;
-	WriteLISL(LISL_CTRLREG_2, 0b01001010); // enable 3-wire, BDU=1, +/-2g
+	WriteLISL(LISL_CTRLREG_2, 0b.01001010); // enable 3-wire, BDU=1, +/-2g
 
 	nii = ReadLISL(LISL_WHOAMI + LISL_READ);
 	if( nii == 0x3A )	// a LIS03L sensor is there!
 	{
-		WriteLISL(LISL_CTRLREG_1, 0b11010111); // startup, enable all axis
-		WriteLISL(LISL_CTRLREG_3, 0b00000000);
-		WriteLISL(LISL_FF_CFG,    0b01001000); // Y-axis is height
-		WriteLISL(LISL_FF_THS_L,  0b00000000);
-		WriteLISL(LISL_FF_THS_H,  0b11111100); // -0,5g threshold
+		WriteLISL(LISL_CTRLREG_1, 0b.11010111); // startup, enable all axis
+		WriteLISL(LISL_CTRLREG_3, 0b.00000000);
+		WriteLISL(LISL_FF_CFG,    0b.01001000); // Y-axis is height
+		WriteLISL(LISL_FF_THS_L,  0b.00000000);
+		WriteLISL(LISL_FF_THS_H,  0b.11111100); // -0,5g threshold
 		WriteLISL(LISL_FF_DUR,    255);
-		WriteLISL(LISL_DD_CFG,    0b00000000);
+		WriteLISL(LISL_DD_CFG,    0b.00000000);
 		_UseLISL = 1;
 	}
 }
@@ -138,26 +142,26 @@ void LinearTest(void)
 	SendComValH(nii);
 	SendComCRLF();
 
-	nilgval = (int)ReadLISL(LISL_OUTX_H + LISL_READ)<<8;
-	nilgval |= (int)ReadLISL(LISL_OUTX_L + LISL_READ);
+	nilgval.high8 = (int)ReadLISL(LISL_OUTX_H + LISL_READ);
+	nilgval.low8  = (int)ReadLISL(LISL_OUTX_L + LISL_READ);
 	SendComChar('X');
 	SendComChar(':');
 	SendComValUL(NKS3+LEN5+VZ);
-	SendComText(SerLinG);
+	SendComText(_SerLinG);
 
-	nilgval = (int)ReadLISL(LISL_OUTZ_H + LISL_READ)<<8;
-	nilgval  |= (int)ReadLISL(LISL_OUTZ_L + LISL_READ);
-	SendComChar('Z');
-	SendComChar(':');
-	SendComValUL(NKS3+LEN5+VZ);
-	SendComText(SerLinG);
-
-	nilgval = (int)ReadLISL(LISL_OUTY_H + LISL_READ)<<8;
-	nilgval |= (int)ReadLISL(LISL_OUTY_L + LISL_READ);
+	nilgval.high8 = (int)ReadLISL(LISL_OUTZ_H + LISL_READ);
+	nilgval.low8  = (int)ReadLISL(LISL_OUTZ_L + LISL_READ);
 	SendComChar('Y');
 	SendComChar(':');
 	SendComValUL(NKS3+LEN5+VZ);
-	SendComText(SerLinG);
+	SendComText(_SerLinG);
+
+	nilgval.high8 = (int)ReadLISL(LISL_OUTY_H + LISL_READ);
+	nilgval.low8  = (int)ReadLISL(LISL_OUTY_L + LISL_READ);
+	SendComChar('Z');
+	SendComChar(':');
+	SendComValUL(NKS3+LEN5+VZ);
+	SendComText(_SerLinG);
 	
 }
 
