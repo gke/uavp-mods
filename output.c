@@ -1,5 +1,5 @@
 // ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
+// =    U.A.V.P Brushless UFO Test-Software     =
 // =           Professional Version             =
 // = Copyright (c) 2007 Ing. Wolfgang Mahringer =
 // ==============================================
@@ -19,59 +19,39 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // ==============================================
-// =  please visit http://www.uavp.org          =
+// =  please visit http://www.uavp.de           =
 // =               http://www.mahringer.co.at   =
 // ==============================================
 
-// roll/nick matrix compensation
+// Power output test
 
-#pragma codepage = 2
+#pragma codepage = 1
 
-#include "c-ufo.h"
+#include "pu-test.h"
 #include "bits.h"
 
-// Math Library
-#include "mymath16.h"
-
-
-// compute new RE and NE
-void MatrixCompensate(void)
+// flash output for a second, then return to its previous state
+void PowerOutput(uns8 niout)
 {
-// Rnew = cos(Nick)*RE + 
-//        sin(Nick)*sin(Roll)*NE
-//
-// Nnew = cos(Roll)*NE
-//        
-#if 0
-	long nila1@nilarg1;
-	int ni1,ni2;
+	bank1 uns8 nii, nij;
 
-	nila1=Nw;
-	niltemp1 = (int)Cos();
-	niltemp1 *= (long)RE;
+	for( nij=0; nij < 10; nij++ )	// 10 flashes (count MUST be even!)
+	{
+	
+		if (niout == 0 ) LedShadow ^= 0x01; else 	// toggle AUX
+		if (niout == 1 ) LedShadow ^= 0x02; else 	// toggle BLUE
+		if (niout == 2 ) LedShadow ^= 0x04; else 	// toggle RED
+		if (niout == 3 ) LedShadow ^= 0x08; else 	// toggle GREEN
+		if (niout == 4 ) LedShadow ^= 0x10; else 	// toggle AUX
+		if (niout == 5 ) LedShadow ^= 0x20; else 	// toggle YELLOW
+		if (niout == 7 ) LedShadow ^= 0x40; else 	// toggle AUX
+		if (niout == 7 ) LedShadow ^= 0x80; 		// toggle BEEPER
 
-	nila1=Nw;
-	ni1 = Sin();
-	nila1=Rw;
-	ni2 = Sin();
-	niltemp = (long)ni1 * (long)ni2;
-	niltemp += 64;
-	niltemp /= 128;
-	niltemp *= (long)NE;
-
-	niltemp += niltemp1;
-	niltemp += 64;
-	niltemp /= 128;
-	RE = niltemp.low8;
-
-
-	nila1=Rw;
-	niltemp = Cos();
-	niltemp *= NE;
-	niltemp += 64;
-	niltemp /= 128;
-	NE = niltemp.low8;
-SendComValS(RE);
-SendComValS(NE);
-#endif
+		SendLeds();	// send LEDs to bus
+		for( nii=0; nii < 200; nii++)
+		{
+			T0IF = 0;
+			while( T0IF == 0 )	;
+		}
+	}		
 }

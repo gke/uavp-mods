@@ -19,7 +19,7 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // ==============================================
-// =  please visit http://www.uavp.org          =
+// =  please visit http://www.uavp.de           =
 // =               http://www.mahringer.co.at   =
 // ==============================================
 
@@ -41,6 +41,15 @@ bit ESC_DIO			@TRISB.1;
 bit ESC_CIO			@TRISB.2;
 #endif
 
+// the sensor bus lines
+bit I2C_SDA			@PORTB.6;
+bit I2C_DIO			@TRISB.6;
+bit I2C_SCL			@PORTB.7;
+bit	I2C_CIO			@TRISB.7;
+
+#define	I2C_ACK		0
+#define	I2C_NACK	1
+
 
 bit PulseCamRoll	@PORTB.4;
 bit PulseCamNick	@PORTB.5;
@@ -52,29 +61,10 @@ bit PulseCamNick	@PORTB.5;
 
 bit	Switch		@PORTA.4;
 
-#ifdef BOARD_3_0
-bit	LISL_CS		@PORTB.7;
-bit LISL_SDA	@PORTC.7;
-bit LISL_SCL	@PORTC.6;
-bit	LISL_IO		@TRISC.7;
-#endif
-#ifdef BOARD_3_1
 bit	LISL_CS		@PORTC.5;
 bit LISL_SDA	@PORTC.4;
 bit LISL_SCL	@PORTC.3;
 bit	LISL_IO		@TRISC.4;
-#endif
-
-#ifdef BOARD_3_1
-// the sensor bus lines
-bit I2C_SDA			@PORTB.6;
-bit I2C_DIO			@TRISB.6;
-bit I2C_SCL			@PORTB.7;
-bit	I2C_CIO			@TRISB.7;
-#endif
-
-#define	I2C_ACK		0
-#define	I2C_NACK	1
 
 
 
@@ -87,51 +77,11 @@ bit	I2C_CIO			@TRISB.7;
 #define MODELLOSTTIMERINT	2;	// in 0,2 sec units
 				// interval beep when active
 
-#ifdef BOARD_3_0
-
-#define LedYellow	LED1
-#define LedGreen	LED2
-#define	LedBlue		LED3
-#define LedRed		LED4
-
-bit	LED1		@PORTC.0;
-bit	LED2		@PORTC.1;
-bit	LED3		@PORTC.3;
-bit	LED4		@PORTC.4;
-bit	LED5		@PORTC.5;
-bit	LED6		@PORTB.6;
-bit	LED7		@PORTB.7;
-bit	Beeper		@PORTB.6;	// "low voltage" beeper
-
-#define ALL_LEDS_ON		PORTC |= 0b.0011.1011
-#define ALL_LEDS_OFF	PORTC &= 0b.1100.0100
-#define ARE_ALL_LEDS_OFF	((PORTC & 0b.0011.1011) == 0)
-
-#define LedRed_ON		LedRed = ON;
-#define LedBlue_ON		LedBlue = ON;
-#define LedGreen_ON		LedGreen = ON;
-#define LedYellow_ON	LedYellow = ON;
-#define LedRed_OFF		LedRed = OFF;
-#define LedBlue_OFF		LedBlue = OFF;
-#define LedGreen_OFF	LedGreen = OFF;
-#define LedYellow_OFF	LedYellow = OFF;
-#define LedRed_TOG		LedRed ^= ON;
-#define LedBlue_TOG		LedBlue ^= ON;
-#define Beeper_OFF		Beeper = OFF;
-#define Beeper_ON		Beeper = ON;
-#define Beeper_TOG		Beeper ^= ON;
-
-#endif	/* BOARD_3_0 */
-
-#ifdef BOARD_3_1
 
 #define LedYellow	LED6
 #define LedGreen	LED4
 #define	LedBlue		LED2
 #define LedRed		LED3
-#define LedAUX1		LED5
-#define LedAUX2		LED1
-#define LedAUX3		LED7
 
 #define LED1	0x01	/* Aux2 */
 #define LED2	0x02	/* blue */
@@ -143,10 +93,8 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define Beeper	0x80
 
 #define ALL_LEDS_ON		SwitchLedsOn(LedBlue|LedRed|LedGreen|LedYellow)
-#define AUX_LEDS_ON		SwitchLedsOn(LedAUX1|LedAUX2|LedAUX3)
 
 #define ALL_LEDS_OFF	SwitchLedsOff(LedBlue|LedRed|LedGreen|LedYellow)
-#define AUX_LEDS_OFF	SwitchLedsOff(LedAUX1|LedAUX2|LedAUX3)
 
 #define ARE_ALL_LEDS_OFF if((LedShadow&(LedBlue|LedRed|LedGreen|LedYellow))==0)
 
@@ -154,9 +102,6 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define LedBlue_ON		SwitchLedsOn(LedBlue);
 #define LedGreen_ON		SwitchLedsOn(LedGreen);
 #define LedYellow_ON	SwitchLedsOn(LedYellow);
-#define LedAUX1_ON		SwitchLedsOn(LedAUX1);
-#define LedAUX2_ON		SwitchLedsOn(LedAUX2);
-#define LedAUX3_ON		SwitchLedsOn(LedAUX3);
 #define LedRed_OFF		SwitchLedsOff(LedRed);
 #define LedBlue_OFF		SwitchLedsOff(LedBlue);
 #define LedGreen_OFF	SwitchLedsOff(LedGreen);
@@ -167,21 +112,6 @@ bit	Beeper		@PORTB.6;	// "low voltage" beeper
 #define Beeper_ON		SwitchLedsOn(Beeper);
 #define Beeper_TOG		if( (LedShadow&Beeper) == 0 ) SwitchLedsOn(Beeper); else SwitchLedsOff(Beeper);
 
-// compass sensor
-#define COMPASS_ADDR	0x42	/* I2C slave address */
-#define COMPASS_MAXDEV	30	/* maximum yaw compensation of compass heading */
-#define COMPASS_MAX		240	/* means 360 degrees */
-#define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
-#define COMPASS_MIDDLE	10	/* yaw stick neutral dead zone */
-
-// baro (altimeter) sensor
-#define BARO_ADDR		0xee	/* I2C slave address */
-#define THR_DOWNCOUNT	255	// 128 PID-cycles (=3 sec) until current throttle is fixed
-#define THR_MIDDLE		10  /* throttle stick dead zone for baro */
-#define THR_HOVER		75	/* min throttle stick for alti lock */
-#endif	/* BOARD_3_1 */
-
-
 bit	_NoSignal		@Flags.0;	// if no valid signal is received
 bit	_Flying			@Flags.1;	// UFO is flying
 bit _NewValues		@Flags.2;	// new RX channel values sampled
@@ -189,33 +119,22 @@ bit _FirstTimeout	@Flags.3;	// is 1 after first 9ms TO expired
 bit _NegIn			@Flags.4;	// negative signed input (serial.c)
 bit _LowBatt		@Flags.5;	// if Batt voltage is low
 bit	_UseLISL		@Flags.6;	// 1 if LISL Sensor is used
-#ifdef BOARD_3_0
 bit _SerEnabled		@Flags.7;	// 1 if RS232 is enabled
-#endif
-#ifdef BOARD_3_1
-bit	_UseCompass		@Flags.7;	// 1 if compass sensor is enabled
-#endif
 
-bit _UseBaro		@Flags2.0;	// 1 if baro sensor active
-bit _BaroTempRun	@Flags2.1;	// 1 if baro temp a/d conversion is running
-								// 0 means: pressure a/d conversion is running
-bit _OutToggle		@Flags2.2;	// cam servos only evers 2nd output pulse								
-bit _UseCh7Trigger	@Flags2.3;	// 1: don't use Ch7
-								// 0: use Ch7 as Cam Roll trim
-bit _TrigSign		@Flags2.4;	// used in trig.c
+#define COMPASS_I2C_ID	0x42	/* I2C slave address */
 
-bit _IntIsMasked		@Flags2.6;	// Masking of Rx edge interrupt
-bit _RxFrameOK		@Flags2.7;	// Rx Frame may be bad
+// baro (altimeter) sensor
+#define BARO_I2C_ID			0xee
+#define BaroTemp_BMP085	0x2e
+#define BaroTemp_SMD500	0x6e
+#define BARO_PRESS			0xf4
+#define BARO_CTL			0xf4
+#define BARO_ADC_MSB		0xf6
+#define BARO_ADC_LSB		0xf7
+#define BARO_TYPE			0xd0
+//#define BARO_ID_SMD500		??
+#define BARO_ID_BMP085		0x55
 
-// Mask Bits of ConfigParam
-bit FlyCrossMode 	@ConfigParam.0;
-bit FutabaMode		@ConfigParam.1;
-bit IntegralTest	@ConfigParam.2;
-bit DoubleRate		@ConfigParam.3;	// Speckys bit :-)
-bit NegativePPM		@ConfigParam.4;
-#ifdef BOARD_3_1
-bit CompassTest		@ConfigParam.5;
-#endif
 
 // LISL-Register mapping
 #define	LISL_WHOAMI		(0x0f)
@@ -242,5 +161,4 @@ bit CompassTest		@ConfigParam.5;
 #define LISL_FF_THS_H	(0x35)
 #define LISL_FF_DUR		(0x36)
 #define LISL_DD_CFG		(0x38)
-#define LISL_INCR_ADDR	(0x40)
 #define LISL_READ		(0x80)
