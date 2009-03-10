@@ -1,31 +1,27 @@
-// ==============================================
-// =    U.A.V.P Brushless UFO Test-Software     =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.de           =
-// =               http://www.mahringer.co.at   =
-// ==============================================
+
 
 // Power output test
-
-#pragma codepage = 1
 
 #include "pu-test.h"
 #include "bits.h"
@@ -33,7 +29,7 @@
 // flash output for a second, then return to its previous state
 void PowerOutput(uns8 niout)
 {
-	bank1 uns8 nii, nij;
+	uns8 nii, nij;
 
 	for( nij=0; nij < 10; nij++ )	// 10 flashes (count MUST be even!)
 	{
@@ -50,8 +46,8 @@ void PowerOutput(uns8 niout)
 		SendLeds();	// send LEDs to bus
 		for( nii=0; nii < 200; nii++)
 		{
-			T0IF = 0;
-			while( T0IF == 0 )	;
+			INTCONbits.T0IF = 0;
+			while( INTCONbits.T0IF == 0 )	;
 		}
 	}		
 }
