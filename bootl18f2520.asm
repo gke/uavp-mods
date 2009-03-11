@@ -264,7 +264,7 @@ CheckBoot
 		bra		NextRec
 
 NextRec
-		movlw	Txt_OK				;muss so bleiben!!!
+		movlw	Txt_OK			
 		call	SendString
 		bra		MainLoop
 
@@ -305,7 +305,7 @@ SaveResetVec
 		movff	RxBuffer+2,BootReset+2
 		movff	RxBuffer+3,BootReset+3		
 
-		movlw	0xef			;there's probably a neater way?
+		movlw	0xef				;there's probably a neater way?
 		movwf	RxBuffer+1
 
 		bcf     STATUS,C
