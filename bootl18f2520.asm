@@ -7,7 +7,7 @@
 ;*************************************************************************
 ; Version
 ; 1.0 .... Erste Version
-; 1.2 .... G.K. Egan 2008
+; 2.0 .... G.K. Egan 2008
 
 ; Assumptions:
 ;	loader records do not cross 32 byte boundaries
@@ -52,7 +52,7 @@
 
 ;		goto	BootStart
 
-		org		07c00h				
+		org		07d00h				
 
 		global	BootStart
 
@@ -69,12 +69,12 @@ Messages
 		;moved to base of boot which always starts at the base
 		;of a 256 byte segment
 		addwf	PCL,f
-		_Hello		dt	"Boot 1.1\0"	;made 1.1 for UAVPSet?
+		_Hello		dt	"Boot 2.0\0"
 		_Err		dt	"ERR\0"
 		_CSum		dt	"CSUM\0"
 		_OK			dt	"OK\0"
 		_Done		dt	"SUCCESS!\0"
-#define LOADREC
+;#define LOADREC
 #ifdef LOADREC
 		_hex		db	":020000040000FA",0x0a,0x0d ;17
 		;_hex		db	":1000500003011423030177515FE18BC01EF00001FF",0x0a,0x0d ;45
@@ -207,6 +207,8 @@ VerifyRec
 		beq		CopyRec				;data record
 		addlw	-1
 		beq		AckOK				;last record
+		; otherwise unsupported record type - ignore
+		bra		NextRec
 
 CopyRec								;copy balance of record and check Checksum	
 		lfsr	FSR1,RxBuffer			
@@ -224,7 +226,7 @@ NextByte
 		movlw	Txt_CSum
 		call	SendString
 		bra		MainLoop
-		
+
 RxError		
 		bcf		RCSTA,CREN			; disable, then re-enable serial port to clear errors
 		movlw	Txt_Err
@@ -259,10 +261,10 @@ CheckBoot
 
 		; Only PROGRAM memory records can make it here!
 		call	WriteRec
-		bra	NextRec
+		bra		NextRec
 
 NextRec
-		movlw	Txt_OK				;muss so bleiben!!!
+		movlw	Txt_OK			
 		call	SendString
 		bra		MainLoop
 
@@ -303,7 +305,7 @@ SaveResetVec
 		movff	RxBuffer+2,BootReset+2
 		movff	RxBuffer+3,BootReset+3		
 
-		movlw	0xef			;there's probably a neater way?
+		movlw	0xef				;there's probably a neater way?
 		movwf	RxBuffer+1
 
 		bcf     STATUS,C
@@ -496,5 +498,35 @@ TxChar
 		movwf	TXREG				;send char
 
 		return
-	
+		
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+
+		;nop
+		nop
+
 		end

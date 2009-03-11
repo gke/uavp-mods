@@ -178,7 +178,9 @@ First public released version.
 02.03.2009 v3.15m3-18f Greg Egan
 - Quick port to 18F2xxx series of PIC
   Bootloader not working.
-- Reinstated double rate on roll and pitch.
+
+11.03.2007 v3.15m3-18f Greg Egan
+- Bootloader added.
 
 ==============================================
 = Transferring firmware to the PIC           =
