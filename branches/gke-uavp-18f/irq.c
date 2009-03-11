@@ -178,14 +178,7 @@ void high_isr_handler(void)
 						IRoll = (NewK2 & 0xff) - (int16)_Neutral;
 						IPitch = (NewK3 & 0xff) - (int16)_Neutral;
 					}
-					IYaw = (NewK4 & 0xff) - (int16)_Neutral;
-
-					if ( DoubleRate )
-					{
-						IRoll/=2;
-						IPitch/=2;
-					}
-					
+					IYaw = (NewK4 & 0xff) - (int16)_Neutral;					
 					IK5 = NewK5 & 0xff;
 
 					_NoSignal = 0;
@@ -214,12 +207,6 @@ void high_isr_handler(void)
 					IPitch = (NewK2 & 0xff) - (int16)_Neutral;
 					IYaw = (NewK1 & 0xff) - (int16)_Neutral;
 
-					if ( DoubleRate )
-					{
-						IRoll/=2;
-						IPitch/=2;
-					}
-
 					IK5 = NewK6 & 0xff; // do not filter
 					IK6 = NewK4 & 0xff;
 					IK7 = NewK7 & 0xff;
@@ -232,12 +219,6 @@ void high_isr_handler(void)
 					IRoll = (int16)(NewK1 & 0xff) - (int16)_Neutral; 
 					IPitch = (int16)(NewK4 & 0xff) - (int16)_Neutral;
 					IYaw = (int16)(NewK7 & 0xff) - (int16)_Neutral;
-
-					if ( DoubleRate )
-					{
-						IRoll/=2;
-						IPitch/=2;
-					}
 
 					IK5 = NewK3 & 0xff; // do not filter
 					IK6 = NewK5 & 0xff;

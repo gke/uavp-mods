@@ -358,7 +358,11 @@ void ProcessComCommand(void)
 				addrbase = _EESet2;
 			else
 				addrbase = _EESet1;
-			WriteEE(addrbase + (uint16)addr, d);	
+
+			if( addr ==  (&ConfigParam - &FirstProgReg) )
+				d &=0xf7; // no Double Rates
+
+			WriteEE(addrbase + (uint16)addr, d);
 
 			// update transmitter config bits in the other parameter set
 			if( addr ==  (&ConfigParam - &FirstProgReg) )
@@ -426,7 +430,7 @@ void ProcessComCommand(void)
 //			dw	0x2F00
 //#endasm
 //			DisableInterrupts;
-//zzz			BootStart();							// never comes back!
+//			BootStart();							// never comes back!
 		
 #ifndef TESTOUT	
 		case 'T':

@@ -14,12 +14,13 @@
 ;	16 bit addressing of program memory
 
 #define __18F2520
+;#define BOOT_ONLY
 
         LIST C=200,R=dec
 
 ; config is already defined in main routine!
 ;        config=3F72h
-  
+        
         include "p18f2520.inc"
         include "general.asm"
 
@@ -43,19 +44,25 @@
 		LEDs
 		BootReset:4					;4 byte goto BootStart
 		PICBuffer:64
-		RxBuffer:_MaxRxBuffer		
+		RxBuffer:_MaxRxBuffer
+ 		
 		endc
 	
 		code
-		org		07d00h				
+
+;		goto	BootStart
+
+		org		07c00h				
 
 		global	BootStart
 
 BootStart
 		; absolutely no C registers or variables are preserved
-		movf	PCL,f				;for message table address
-		clrf	STATUS
-		goto	Init
+	;	movf	PCL,f					;for message table address
+		movlw	high Messages
+		movwf	PCLATH
+
+		bra	Init
 
 Messages								
 		;FAILS if a 256 byte boundary is crossed!
@@ -67,7 +74,12 @@ Messages
 		_CSum		dt	"CSUM\0"
 		_OK			dt	"OK\0"
 		_Done		dt	"SUCCESS!\0"
-
+#define LOADREC
+#ifdef LOADREC
+		_hex		db	":020000040000FA",0x0a,0x0d ;17
+		;_hex		db	":1000500003011423030177515FE18BC01EF00001FF",0x0a,0x0d ;45
+		;_hex		db	":00000001FF",0x0a,0x0d ;13
+#endif
 		Txt_Hello	equ	_Hello-Messages-1
 		Txt_Err		equ	_Err-Messages-1
 		Txt_CSum	equ	_CSum-Messages-1
@@ -75,11 +87,12 @@ Messages
 		Txt_Done	equ	_Done-Messages-1
 
 Init		
-		movlb	0					;select Bank0
+		movlb	0
+		DII							;disable interrupts
 		clrf	EECON1				;disable all program memory writes
-		
+
 		clrf	T0CON
-		movlw	10000100b			;set RC6 as output (TxD), LEDs
+		movlw	10100100b			;set RC6 as output (TxD), LEDs
 		movwf	TRISC
 		clrf	TRISB				;all output
 		movlw	_B38400
@@ -88,10 +101,30 @@ Init
 		movwf	TXSTA
 		clrf	STATUS				;clears RP0 & IRP also!
 
-		;movlw	10010000b			;receive async on
-		;movwf	RCSTA
+		movlw	10010000b			;receive async on
+		movwf	RCSTA
  		clrf	PORTB				;SERVOS OFF!
 
+#ifdef LOADREC
+		lfsr	FSR0,RxBuffer		
+		clrf	TBLPTRU
+		movlw	0x7c
+		movwf	TBLPTRH
+		movlw	_hex
+		movwf	TBLPTR
+
+		movlw 	17					
+		movwf 	cc
+xx
+		tblrd*+
+		movf	TABLAT,w
+		movwf 	POSTINC0
+		decfsz 	cc
+		bra 	xx
+	
+		bra		VerifyRec
+#endif
+		
 		movlw	Txt_Hello
 		call	SendString
 
@@ -99,7 +132,7 @@ Init
 					
 MainLoop
 		; Read a complete string line
-		;clrf	STATUS
+		clrf	STATUS
 	
 		lfsr	FSR0,RxBuffer
 
@@ -107,15 +140,14 @@ MainLoop
 		call	BootLeds		
 RxPoll
 		btfss	PIR1,RCIF			;wait for a char
-		clrwdt
-		goto	RxPoll
+		bra		RxPoll
 		
 		movf	RCREG,w				;read char
 
 		btfsc	RCSTA,OERR			;check for USART errors
-		goto	RxError
+		bra		RxError
 		btfsc	RCSTA,FERR
-		goto	RxError
+		bra		RxError
 
 		movwf	INDF0				;store char in buffer
 		sublw	':'
@@ -136,8 +168,8 @@ RxPoll
 		bne		RxError
 
 RXCharOK
-		incf	FSR0,f
-		goto	RxPoll				;receive next char
+		incf	FSR0L,f
+		bra		RxPoll				;receive next char
 ; ____________________________________________________________________________
 ;
 ; Check and Translate Record
@@ -150,13 +182,13 @@ VerifyRec
 		sublw	':'					;first char must be a colon
 		bne		RxError
 
-		incf	FSR0,f
+		incf	FSR0L,f
 		clrf	ChkSum				;initialise checksum
 
 		call	ASCII2Bin
 		movwf	NoOfBytes			;number of bytes to prog
 
-		sublw	32
+		sublw	64
 		bcc		RxError				;too many bytes!
 
 		call	ASCII2Bin
@@ -176,14 +208,14 @@ VerifyRec
 		addlw	-1
 		beq		AckOK				;last record
 
-CopyRec								;copy balance of record and check Checksum
-		lfsr	FSR0,RxBuffer		;translate in place				
+CopyRec								;copy balance of record and check Checksum	
+		lfsr	FSR1,RxBuffer			
 		movff 	NoOfBytes,cc
 NextByte
 		call	ASCII2Bin
-		movwf	POSTINC0
+		movwf	POSTINC1
 		decfsz	cc,f
-		goto	NextByte
+		bra		NextByte
 		
 		call	ASCII2Bin			;check record Checksum
 		movf	ChkSum,w
@@ -191,7 +223,7 @@ NextByte
 
 		movlw	Txt_CSum
 		call	SendString
-		goto	MainLoop
+		bra		MainLoop
 		
 RxError		
 		bcf		RCSTA,CREN			; disable, then re-enable serial port to clear errors
@@ -199,7 +231,7 @@ RxError
 		call	SendString
 		bsf		RCSTA,CREN
 
-		goto	MainLoop
+		bra		MainLoop
 ; ____________________________________________________________________________
 ;
 ; Process Record
@@ -216,6 +248,7 @@ CheckReset
 		bne		CheckBoot
 
 		call	SaveResetVec
+		call	WriteRec ;???
 		bra		NextRec
 
 CheckBoot				
@@ -226,12 +259,12 @@ CheckBoot
 
 		; Only PROGRAM memory records can make it here!
 		call	WriteRec
-		goto	NextRec
+		bra	NextRec
 
 NextRec
 		movlw	Txt_OK				;muss so bleiben!!!
 		call	SendString
-		goto	MainLoop
+		bra		MainLoop
 
 WriteRec		
 		call	ReadPICBlock
@@ -246,7 +279,7 @@ WriteRec
 uglyoffset
 		movf	POSTINC1
 		decfsz	cc,f
-		goto	uglyoffset
+		bra		uglyoffset
 uglybypass
 
 		movff 	NoOfBytes,cc
@@ -254,7 +287,7 @@ NextBytePIC
 		movf	POSTINC0,w
 		movwf	POSTINC1		
 		decfsz	cc,f
-		goto	NextBytePIC
+		bra		NextBytePIC
 			
 		call	WritePICBlock
 		return
@@ -270,7 +303,7 @@ SaveResetVec
 		movff	RxBuffer+2,BootReset+2
 		movff	RxBuffer+3,BootReset+3		
 
-		movlw	11101111b			;there's probably a neater way?
+		movlw	0xef			;there's probably a neater way?
 		movwf	RxBuffer+1
 
 		bcf     STATUS,C
@@ -284,10 +317,9 @@ SaveResetVec
 		rrcf	wb
 		movff	wb,RxBuffer		
 
-		movlw	11110000b
+		movlw	0xf0
 		movwf	RxBuffer+3
 	
-		call	WriteRec
 		bsf		Flags,_RestoreVec	;reset vector needs to be restored
 		return
 ; ____________________________________________________________________________
@@ -296,10 +328,10 @@ SaveResetVec
 ; ____________________________________________________________________________			
 
 AckOK
-		rcall	SendString_OK
+		call	SendString_OK
 
 		btfss	Flags,_RestoreVec	;check reset vector needs to be restored?
-		goto	Finished
+		bra		Finished
 
 		clrf	AddressL
 		clrf	AddressH
@@ -317,7 +349,9 @@ AckOK
 Finished
 		movlw	Txt_Done
 		call	SendString
-		goto	$					;wait for reboot
+Forever
+	;	clrwdt
+		bra		Forever					;wait for reboot
 ; ____________________________________________________________________________
 ;
 ; PIC Read/Write
@@ -330,7 +364,7 @@ Finished
 WritePICBlock
 		call	LoadBlockTBLPTR
 		movlw	10010100b			;setup erase
-		rcall 	WritePIC					
+		call 	WritePIC					
 		tblrd*-
 
 		lfsr	FSR0, PICBuffer							
@@ -349,9 +383,9 @@ WritePICByte
 		bra 	WritePICByte
 	
 		movlw	10000100b			;setup write	
-		rcall 	WritePIC
+		call 	WritePIC
 		decfsz 	wb
-		goto	NextWriteBlock
+		bra		NextWriteBlock
 	
 		return
 
@@ -396,7 +430,7 @@ ASCII2Nibble
 		subwf	INDF0,w				;0x00..ox16
 		btfsc	INDF0,6
 		addlw	-7
-		incf	FSR0,f
+		incf	FSR0L,f
 		return
 
 		; convert 2 ascii chars (FSR) to a binary byte
@@ -419,14 +453,14 @@ BootLeds
 		movwf	LEDs
 		movlw	8
 LEDScan
-		rlf		LEDs,f
-		bcf		PORTC,4				;clear SDA
+		rlf	LEDs,f
+		bcf	PORTC,4				;clear SDA
 		skipnc
-		bsf		PORTC,4				;set SDA
-		bsf		PORTC,3				;set SCLK
-		bcf		PORTC,3				;clr SCLK
+		bsf	PORTC,4				;set SDA
+		bsf	PORTC,3				;set SCLK
+		bcf	PORTC,3				;clr SCLK
 		addlw	-1
-		bne		LEDScan
+		bne	LEDScan
 
 		bsf	PORTC,1				;RCLK on
 		bcf	PORTC,1				;RCLK off
@@ -455,13 +489,12 @@ SS_2
 		call	TxChar
 		incf	cc,f
 		incf	cc,f				;word index
-		goto	SS_1
+		bra		SS_1
 TxChar
-#ifndef RAW_BOOT
 		btfss	PIR1,TXIF			;wait until shift register is empty
-		goto	TxChar
+		bra		TxChar
 		movwf	TXREG				;send char
-#endif
+
 		return
 	
 		end

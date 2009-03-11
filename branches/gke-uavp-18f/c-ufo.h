@@ -18,7 +18,7 @@
 #define BARO_SCRATCHY_BEEPER
 
 // Loads a "representative" parameter set into EEPROM
-#define INIT_PARAMS
+//#define INIT_PARAMS
 
 #ifndef BATCHMODE
 // =======================================================================
@@ -332,7 +332,7 @@ extern	int16	CurDeviation;	// deviation from correct heading
 // RX impuls times in 10-microseconds units
 // vvv   ACHTUNG: Auf numerischen Überlauf achten!
 #ifdef ESC_PPM
-#define	_Minimum	((105* _ClkOut/(2*_PreScale1))&0xFF)	/*-100% */
+#define	_Minimum	1 /*((105* _ClkOut/(2*_PreScale1))&0xFF)*/
 #define _Maximum	240					/* reduced from 255 */
 #endif
 #ifdef ESC_X3D
