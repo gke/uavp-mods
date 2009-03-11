@@ -131,6 +131,7 @@ void InitPorts(void)
 	TRISB = 0b01000000;								// all servo and LED outputs
 	PORTC = 0b01100000;								// all outputs to low, except TxD and CS
 	TRISC = 0b10000100;								// RC7, RC2 are inputs
+
 	SSPSTATbits.CKE = 1;							// low logic threshold for LISL
 	INTCON2bits.NOT_RBPU = true;					// enable weak pullups
 } // InitPorts
@@ -139,13 +140,8 @@ void InitPorts(void)
 // Do NOT call that while in flight!
 void InitArrays(void)
 {
-	MFront = _Minimum;	// stop all motors
-	MLeft = _Minimum;
-	MRight = _Minimum;
-	MBack = _Minimum;
-
-	MCamPitch = _Neutral;
-	MCamRoll = _Neutral;
+	MFront = MLeft = MRight = MBack = _Minimum;
+	MCamPitch = MCamRoll = _Neutral;
 
 	_Flying = 0;
 	REp = PEp = YEp = 0;
@@ -153,8 +149,7 @@ void InitArrays(void)
 	Rp = Pp = Vud = VBaroComp = 0;
 	
 	UDSum = 0;
-	LRIntKorr = 0;
-	FBIntKorr = 0;
+	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
 
 	BaroRestarts = 0;
@@ -289,8 +284,6 @@ void UpdateBlinkCount(void)
 void SendLeds(void)
 {
 	uint8	i, s;
-
-	/* send LedShadow byte to TPIC */
 
 	i = LedShadow;
 	LISL_CS = 1;	// CS to 1

@@ -37,6 +37,7 @@ file_009=.
 file_010=.
 file_011=.
 file_012=.
+file_013=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -51,6 +52,7 @@ file_009=no
 file_010=no
 file_011=no
 file_012=no
+file_013=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -65,6 +67,7 @@ file_009=no
 file_010=no
 file_011=no
 file_012=no
+file_013=no
 [FILE_INFO]
 file_000=accel.c
 file_001=c-ufo.c
@@ -77,8 +80,9 @@ file_007=utils.c
 file_008=irq.c
 file_009=pid.c
 file_010=adc.c
-file_011=bits.h
-file_012=c-ufo.h
+file_011=C:\Flight\Code\UAVX-GKE\bootl18f2520.asm
+file_012=bits.h
+file_013=c-ufo.h
 [SUITE_INFO]
 suite_guid={5B7D72DD-9861-47BD-9F60-2BE967BF8416}
 suite_state=
