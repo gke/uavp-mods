@@ -62,10 +62,8 @@
 
 // Types
 
-typedef unsigned char uns8 ;
 typedef unsigned char uint8 ;
 typedef signed char int8;
-typedef unsigned int uns16;
 typedef unsigned int uint16;
 typedef int int16;
 typedef long int32;
@@ -73,8 +71,8 @@ typedef unsigned long uint32;
 typedef short long int24;
 typedef unsigned short long uint24;
 
-#define IsSet(S,b) 		((uns8)((S>>b)&1))
-#define Invert(S,b) 	((uns8)(S^=(1<<b)))
+#define IsSet(S,b) 		((uint8)((S>>b)&1))
+#define Invert(S,b) 	((uint8)(S^=(1<<b)))
 
 #define DisableInterrupts (INTCONbits.GIEH=0)
 #define EnableInterrupts (INTCONbits.GIEH=1)
@@ -100,19 +98,19 @@ typedef unsigned short long uint24;
 // == External variables
 // ==============================================
 
-extern	 uns8	Flags[8] , Flags2[8];
-extern	 uns8	RecFlags;	// Interrupt save registers for FSR
-extern	 uns8	LedShadow;	// shadow register
-extern	 uns8	ConfigReg;
+extern	 uint8	Flags[8] , Flags2[8];
+extern	 uint8	RecFlags;	// Interrupt save registers for FSR
+extern	 uint8	LedShadow;	// shadow register
+extern	 uint8	ConfigReg;
 // the CurrK1..CurrK7 variables MUST be in this order!
-extern	 uns16	CurrK1,CurrK2,CurrK3,CurrK4;
-extern	 uns16	CurrK5,CurrK6,CurrK7;
-extern	 uns16	PauseTime; 
-extern	 uns8	EscI2CFlags;
+extern	 uint16	CurrK1,CurrK2,CurrK3,CurrK4;
+extern	 uint16	CurrK5,CurrK6,CurrK7;
+extern	 uint16	PauseTime; 
+extern	 uint8	EscI2CFlags;
 // special locations
-extern	 int24	nilgval;
+extern	 int24	val;
 extern	 int8 	TimeSlot;
-extern	 uns8	mSTick;
+extern	 uint8	mSTick;
 
 // EEPROM parameter set addresses
 
@@ -170,7 +168,7 @@ extern	 uns8	mSTick;
 #define _B19200	(_ClkOut*100000/(4*19200) - 1)
 #define _B38400	(_ClkOut*100000/(4*38400) - 1)
 
-// defines for SendComValUL
+// defines for TxValUL
 #define NKSMASK 0b00000111
 #define	NKS0	0b00000000
 #define	NKS1	0b00000001
@@ -186,66 +184,66 @@ extern	 uns8	mSTick;
 
 #define VZ		0b01000000
 
-extern const char  SerHello[];
-extern const char  SerSetup[];
-extern const char  SerLSavail[];
-extern const char SerLSnone[];
-extern const char SerCompass[];
-extern const char SerAlti[];
-extern const char SerHelp[];
-extern const char SerAnTest[];
-extern const char SerLinTst[];
-extern const char SerLinErr[];
-extern const char SerSrvRun[];
-extern const char SerI2CRun[];
-extern const char SerI2CCnt[];
-extern const char SerMagTst[];
-extern const char SerPowTst[];
-extern const char SerPowAux1[];
-extern const char SerPowAux2[];
-extern const char SerPowAux3[];
-extern const char SerPowBlue[];
-extern const char SerPowRed[];
-extern const char SerPowGreen[];
-extern const char SerPowYellow[];
-extern const char SerPowBeep[];
-extern const char SerSrvOK[];
-extern const char SerPrompt[];
-extern const char SerVolt[];
-extern const char SerFail[];
-extern const char SerGrad[];
-extern const char SerI2CFail[];
-extern const char SerMS[];
-extern const char SerPPMP[];
-extern const char SerPPMN[];
-extern const char SerLinG[];
-extern const char SerBaroOK[];
-extern const char SerBaroT[];
-extern const char SerCCalib1[];
-extern const char SerCCalib2[]; 
-extern const char SerCCalib3[];
-extern const char SerCCalibE[];
-extern const char SerBaroSMD500[];
-extern const char SerBaroBMP085[];
-extern const char SerBaroComp[];
+extern const uint8  SerHello[];
+extern const uint8  SerSetup[];
+extern const uint8  SerLSavail[];
+extern const uint8 SerLSnone[];
+extern const uint8 SerCompass[];
+extern const uint8 SerAlti[];
+extern const uint8 SerHelp[];
+extern const uint8 SerAnTest[];
+extern const uint8 SerLinTst[];
+extern const uint8 SerLinErr[];
+extern const uint8 SerSrvRun[];
+extern const uint8 SerI2CRun[];
+extern const uint8 SerI2CCnt[];
+extern const uint8 SerMagTst[];
+extern const uint8 SerPowTst[];
+extern const uint8 SerPowAux1[];
+extern const uint8 SerPowAux2[];
+extern const uint8 SerPowAux3[];
+extern const uint8 SerPowBlue[];
+extern const uint8 SerPowRed[];
+extern const uint8 SerPowGreen[];
+extern const uint8 SerPowYellow[];
+extern const uint8 SerPowBeep[];
+extern const uint8 SerSrvOK[];
+extern const uint8 SerPrompt[];
+extern const uint8 SerVolt[];
+extern const uint8 SerFail[];
+extern const uint8 SerGrad[];
+extern const uint8 SerI2CFail[];
+extern const uint8 SerMS[];
+extern const uint8 SerPPMP[];
+extern const uint8 SerPPMN[];
+extern const uint8 SerLinG[];
+extern const uint8 SerBaroOK[];
+extern const uint8 SerBaroT[];
+extern const uint8 SerCCalib1[];
+extern const uint8 SerCCalib2[]; 
+extern const uint8 SerCCalib3[];
+extern const uint8 SerCCalibE[];
+extern const uint8 SerBaroSMD500[];
+extern const uint8 SerBaroBMP085[];
+extern const uint8 SerBaroComp[];
 
-extern const char SerRxTest[];
-extern const char SerRxRes[];
-extern const char SerRxFail[];
-extern const char SerRxOK[];
-extern const char SerRxNN[];
+extern const uint8 SerRxTest[];
+extern const uint8 SerRxRes[];
+extern const uint8 SerRxFail[];
+extern const uint8 SerRxOK[];
+extern const uint8 SerRxNN[];
 
 // Prototypes
 
 extern	 void BootStart(void);
 
-extern	 void ShowSetup(uns8);
-extern	 char RecvComChar(void);
+extern	 void ShowSetup(uint8);
+extern	 uint8 RecvComChar(void);
 extern	 void ProcessComCommand(void);
-extern	 void SendComChar(char);
-extern	 void SendComCRLF(void);
-extern	 void SendComValH(uns8);
-extern	 void SendComValUL(uns8);
+extern	 void TxChar(uint8);
+extern	 void TxNextLine(void);
+extern	 void TxValH(uint8);
+extern	 void TxValUL(uint8);
 extern	 void AnalogTest(void);
 extern	 void OutSignals(void);
 extern	 void TestServos(void);
@@ -254,25 +252,25 @@ extern	 void ConfigureESCs(void);
 extern	 void ReceiverTest(void);
 extern	 void TogglePPMPolarity(void);
 
-extern	 void Delay100mS(uns8);
+extern	 void Delay100mS(uint8);
 extern	 void AcqTime(void);
 extern	 void SendLeds(void);
-extern	 void SwitchLedsOn(uns8);
-extern	 void SwitchLedsOff(uns8);
-extern	 uns8 ScanI2CBus(void);
+extern	 void SwitchLedsOn(uint8);
+extern	 void SwitchLedsOff(uint8);
+extern	 uint8 ScanI2CBus(void);
 extern	 void CompassTest(void);
 extern	 void CalibrateCompass(void);
 extern	 void BaroTest(void);
 extern	 void I2CStart(void);
 extern	 void I2CStop(void);
-extern	 uns8 SendI2CByte(uns8);
-extern	 uns8 RecvI2CByte(uns8);
-extern	 void PowerOutput(uns8);
-extern	 void SendComText(const char *);
+extern	 uint8 SendI2CByte(uint8);
+extern	 uint8 RecvI2CByte(uint8);
+extern	 void PowerOutput(uint8);
+extern	 void TxText(const uint8 *);
 
 extern	 void ReadParametersEE(void);
 
-extern	int16 ADC(uns8, uns8);
+extern	int16 ADC(uint8, uint8);
 extern	void InitADC(void);
 
 extern	 void IsLISLactive(void);

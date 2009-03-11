@@ -28,14 +28,14 @@
 
 
 #pragma idata menuhello
-const char  SerHello[] = "\r\nUAVP TEST 18f2xxx V" Version " Copyright (c) 2007"
+const uint8  SerHello[] = "\r\nUAVP TEST 18f2xxx V" Version " Copyright (c) 2007"
 							  " Ing. Wolfgang Mahringer\r\n"
 							  "UAVP comes with ABSOLUTELY NO WARRANTY\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n\0";
 #pragma idata
 #pragma idata menusetup
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
-const char  SerSetup[] = "\r\nProfi-Ufo TEST V" Version " ready.\r\n"
+const uint8  SerSetup[] = "\r\nProfi-Ufo TEST V" Version " ready.\r\n"
 							  "Gyro: "
 #ifdef OPT_ADXRS
 							  "3x ADXRS300\r\n"
@@ -44,14 +44,14 @@ const char  SerSetup[] = "\r\nProfi-Ufo TEST V" Version " ready.\r\n"
 							  "1x ADXRS300, 1x IDG300\r\n"
 #endif
 							  "Linear sensor \0";
-const char  SerLSavail[] = "ONLINE\r\n\0";
-const char SerLSnone[] = "not available\r\n\0";
-const char SerCompass[] = "Compass \0";
-const char SerAlti[] = "Barometer \0";
+const uint8  SerLSavail[] = "ONLINE\r\n\0";
+const uint8 SerLSnone[] = "not available\r\n\0";
+const uint8 SerCompass[] = "Compass \0";
+const uint8 SerAlti[] = "Barometer \0";
 #pragma idata
 
 #pragma idata menuhelp
-const char SerHelp[] = "\r\nCommands:\r\n"
+const uint8 SerHelp[] = "\r\nCommands:\r\n"
 							  "A..analog voltages\r\n"
 							  "B..call Bootloader\r\n"
 							  "C..Compass test\r\n"
@@ -69,83 +69,74 @@ const char SerHelp[] = "\r\nCommands:\r\n"
 #pragma idata
 
 #pragma idata menu3
-const char SerAnTest[] = "\r\nAnalog ch. test:\r\n\0";
+const uint8 SerAnTest[] = "\r\nAnalog ch. test:\r\n\0";
 #pragma idata
 
 #pragma idata menuacc
-const char SerLinTst[] = "\r\nAcc. test:\r\n\0";
-const char SerLinErr[] = "\r\n(Acc. not present)\r\n\0";
+const uint8 SerLinTst[] = "\r\nAcc. test:\r\n\0";
+const uint8 SerLinErr[] = "\r\n(Acc. not present)\r\n\0";
 #pragma idata 
 
 #pragma idata menui2c
-const char SerI2CRun[] = "\r\nI2C devices ...\r\n\0";
-const char SerI2CCnt[] = " device(s) found\r\n\0";
-const char SerI2CFail[] = "I2C failed!\r\n\0";
+const uint8 SerI2CRun[] = "\r\nI2C devices ...\r\n\0";
+const uint8 SerI2CCnt[] = " device(s) found\r\n\0";
+const uint8 SerI2CFail[] = "I2C failed!\r\n\0";
 #pragma idata
 
 #pragma idata menupower
-const char SerPowTst[] = "\r\nOutput test\r\n\0";
-const char SerPowAux1[] = "Aux1\0";
-const char SerPowAux2[] = "Aux2\0";
-const char SerPowAux3[] = "Aux3\0";
+const uint8 SerPowTst[] = "\r\nOutput test\r\n\0";
+const uint8 SerPowAux1[] = "Aux1\0";
+const uint8 SerPowAux2[] = "Aux2\0";
+const uint8 SerPowAux3[] = "Aux3\0";
 #pragma idata
 
 #pragma idata menuleds
-const char SerPowBlue[] = "Blue\0";
-const char SerPowRed[] = "Red\0";
-const char SerPowGreen[] = "Green\0";
-const char SerPowYellow[] = "Yellow\0";
-const char SerPowBeep[] = "Beeper\0";
+const uint8 SerPowBlue[] = "Blue\0";
+const uint8 SerPowRed[] = "Red\0";
+const uint8 SerPowGreen[] = "Green\0";
+const uint8 SerPowYellow[] = "Yellow\0";
+const uint8 SerPowBeep[] = "Beeper\0";
 #pragma idata
 
 #pragma idata menux
-const char SerSrvOK[] = "\r\nDone.\r\n\0";
-const char SerPrompt[] = "\r\n# \0";
+const uint8 SerSrvOK[] = "\r\nDone.\r\n\0";
+const uint8 SerPrompt[] = "\r\n# \0";
 #pragma idata
 
 #pragma idata menu6
-const char SerVolt[] = " V\r\n\0";
-const char SerFail[] = " FAILED\0";
-const char SerGrad[] = " deg\r\n\0";
-const char SerMS[] = " ms\r\n\0";
+const uint8 SerVolt[] = " V\r\n\0";
+const uint8 SerFail[] = " FAILED\0";
+const uint8 SerGrad[] = " deg\r\n\0";
+const uint8 SerMS[] = " ms\r\n\0";
 #pragma idata
 
 #pragma idata menurx
-const char SerPPMP[] = "\r\nSet pos. Rx PPM\r\n\0";
-const char SerPPMN[] = "\r\nSet neg. Rx PPM\r\n\0";
-const char SerLinG[] = " G\r\n\0";
+const uint8 SerPPMP[] = "\r\nSet pos. Rx PPM\r\n\0";
+const uint8 SerPPMN[] = "\r\nSet neg. Rx PPM\r\n\0";
+const uint8 SerLinG[] = " G\r\n\0";
 #pragma idata
 
 #pragma idata menucompass
-const char SerMagTst[] = "\r\nCompass test\r\n\0";
-const char SerCCalib1[] = "\r\nCalib. compass. Press any key to continue\r\n\0";
-const char SerCCalib2[] = "\r\n720 deg turn in ~30 seconds!\r\nPress any key when done\r\n\0"; 
-const char SerCCalib3[] = "\r\nCalib. complete\r\n\0"; 
-const char SerCCalibE[] = "\r\nCalib. error!\r\n\0";
+const uint8 SerMagTst[] = "\r\nCompass test\r\n\0";
+const uint8 SerCCalib1[] = "\r\nCalib. compass. Press any key to continue\r\n\0";
+const uint8 SerCCalib2[] = "\r\n720 deg turn in ~30 seconds!\r\nPress any key when done\r\n\0"; 
+const uint8 SerCCalib3[] = "\r\nCalib. complete\r\n\0"; 
+const uint8 SerCCalibE[] = "\r\nCalib. error!\r\n\0";
 #pragma idata 
 
 #pragma idata menubaro
-const char SerBaroSMD500[] = "\r\nSMD500\0"; 
-const char SerBaroBMP085[] = "\r\nBMP085\0"; 
-const char SerBaroOK[] = "\r\nPress. is:\0";
-const char SerBaroT[] = "; Temp. is:\0"; 
+const uint8 SerBaroSMD500[] = "\r\nSMD500\0"; 
+const uint8 SerBaroBMP085[] = "\r\nBMP085\0"; 
+const uint8 SerBaroOK[] = "\r\nPress. is:\0";
+const uint8 SerBaroT[] = "; Temp. is:\0"; 
 #pragma idata
 	  
 #pragma idata menurx2
-const char SerRxTest[]="\r\nRx values:\r\n\0";
-const char SerRxRes[]="received vals are \0";
-const char SerRxFail[]="NOT valid!\r\n\0";
-const char SerRxOK[]="OK!\r\n\0";
-const char SerRxNN[]="(no new values)\r\n\0";
+const uint8 SerRxTest[]="\r\nRx values:\r\n\0";
+const uint8 SerRxRes[]="received vals are \0";
+const uint8 SerRxFail[]="NOT valid!\r\n\0";
+const uint8 SerRxOK[]="OK!\r\n\0";
+const uint8 SerRxNN[]="(no new values)\r\n\0";
 #pragma idata
 
-// transmit a fix text from a table
-void SendComText(const char *pch)
-{
-	while( *pch != '\0' )
-	{
-		SendComChar(*pch);
-		pch++;
-	}
-}
 

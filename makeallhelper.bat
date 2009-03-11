@@ -13,7 +13,7 @@ set 	ESC=%3
 set 	RX=%4
 
 set CSRC=an-test i2c-scan irq lisl adc output pu-test rxtest serial text utils utils2
-set ASRC=
+set ASRC=bootl18f2520
 
 set CC="C:\MCC18\bin\mcc18"
 set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa-  -DBATCHMODE -DNOLEDGAME 

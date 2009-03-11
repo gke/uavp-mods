@@ -26,77 +26,87 @@
 #include "pu-test.h"
 #include "bits.h"
 
-int24	nilgval;
+int24	val;
 
 // data strings
 
-void SendComCRLF(void)
+void TxNextLine(void)
 {
-	SendComChar(0x0D);
-	SendComChar(0x0A);
-}
+	TxChar(0x0D);
+	TxChar(0x0A);
+} // TxNextLine
 
 void ShowPrompt(void)
 {
-	SendComText(SerPrompt);
-}
+	TxText(SerPrompt);
+} // ShowPrompt
+
+// transmit a fix text from a table
+void TxText(const uint8 *pch)
+{
+	while( *pch != '\0' )
+	{
+		TxChar(*pch);
+		pch++;
+	}
+} // TxText
 
 // send a character to the serial port
-void SendComChar(char ch)
+void TxChar(uint8 ch)
 {
 	while( PIR1bits.TXIF == 0 ) ;	// wait for transmit ready
-	TXREG = ch;		// put new char
-}
+	TXREG = ch;		// put new uint8
+} // TxChar 
 
 
 // converts an unsigned byte to decimal and send it
-void SendComValU(uns8 nival)
+void TxValU(uint8 nival)
 {
-	uns16 i;
+	uint16 i;
 
 	i = nival / 100;
-	SendComChar(i +'0');
+	TxChar(i +'0');
 	nival %= 100;
 
 	i = nival / 10;
-	SendComChar(i+'0');
+	TxChar(i+'0');
 	nival %= 10;
 
-	SendComChar(nival+'0');
-}
+	TxChar(nival+'0');
+} // TxValU
 
 
 // converts a nibble to HEX and sends it
-void SendComNibble(uns8 nival)
+void TxNibble(uint8 nival)
 {
 	nival += '0';
 	if( nival > '9' )
 		nival += 7;		// A to F
-	SendComChar(nival);
-}
+	TxChar(nival);
+}  // TxNibble
 
 // converts an unsigned byte to HEX and sends it
-void SendComValH(uns8 nihex)
+void TxValH(uint8 nihex)
 {
-	SendComNibble(nihex >> 4);
-	SendComNibble(nihex & 0x0F);
-}
+	TxNibble(nihex >> 4);
+	TxNibble(nihex & 0x0F);
+} // TxValH
 
 // converts an unsigned long to decimal and send it
-void SendComValUL(uns8 niformat)
+void TxValUL(uint8 niformat)
 {
 	int24 Temp, v;
-	uns8 ninull=1;
+	uint8 ninull=1;
 
-	v = nilgval;
+	v = val;
 
 	if( niformat & VZ )
 	{
 		if( v >= 0 )
-			SendComChar('+');
+			TxChar('+');
 		else
 		{
-			SendComChar('-');
+			TxChar('-');
 			v = -v;
 		}
 	}
@@ -106,77 +116,77 @@ void SendComValUL(uns8 niformat)
 		((niformat & NKSMASK) < NKS4) )
 	{
 		if( (niformat & LENMASK) >= LEN5 )
-			SendComChar(' ');
+			TxChar(' ');
 	}
 	else
 	{
-		SendComChar(Temp+'0');
+		TxChar(Temp+'0');
 		ninull = 0;
 	}
 	v %= 10000;
 
 	if( (niformat & NKSMASK) == NKS4 )
-		SendComChar('.');
+		TxChar('.');
 
 	Temp = v / 1000;
 	if( (Temp == 0) && (ninull == 1)  && 
 		((niformat & NKSMASK) < NKS3) )
 	{
 		if( (niformat & LENMASK) >= LEN4 )
-			SendComChar(' ');
+			TxChar(' ');
 	}
 	else
 	{
-		SendComChar(Temp+'0');
+		TxChar(Temp+'0');
 		ninull = 0;
 	}
 	v %= 1000;
 
 	if( (niformat & NKSMASK) == NKS3 )
-		SendComChar('.');
+		TxChar('.');
 
 	Temp = v / 100;
 	if( (Temp == 0) && (ninull == 1) && 
 		((niformat & NKSMASK) < NKS2) )
 	{
 		if( (niformat & LENMASK) >= LEN3 )
-			SendComChar(' ');
+			TxChar(' ');
 	}
 	else
 	{
-		SendComChar(Temp+'0');
+		TxChar(Temp+'0');
 		ninull = 0;
 	}
 	v %= 100;
 
 	if( (niformat & NKSMASK) == NKS2 )
-		SendComChar('.');
+		TxChar('.');
 
 	Temp = v / 10;
 	if( (Temp == 0) && (ninull == 1) && 
 		((niformat & NKSMASK) < NKS1)  )
 	{
 		if( (niformat & LENMASK) >= LEN2 )
-			SendComChar(' ');
+			TxChar(' ');
 	}
 	else
 	{
-		SendComChar(Temp+'0');
+		TxChar(Temp+'0');
 		ninull = 0;
 	}
 	v %= 10;
 
 	if( (niformat & NKSMASK) == NKS1 )
-		SendComChar('.');
+		TxChar('.');
 
-	SendComChar(v+'0');
-}
+	TxChar(v+'0');
+} // TxValUL
 
 // if a character is in the buffer
 // return it. Else return the NUL character
-char RecvComChar(void)
+uint8 RecvComChar(void)
 {
-	char chread;
+	uint8 chread;
 
 	if( PIR1bits.RCIF )	// a character is waiting in the buffer
 	{
@@ -189,54 +199,54 @@ char RecvComChar(void)
 		else
 		{
 			chread = RCREG;	// get the character
-			SendComChar(chread);	// echo it
+			TxChar(chread);	// echo it
 			return(chread);		// and return it
 		}
 	}
 	return( '\0' );	// nothing in buffer
-}
+} // RecvComChar
 
 // send the current configuration setup to serial port
-void ShowSetup(uns8 h)
+void ShowSetup(uint8 h)
 {
 
 	if( h )
-		SendComText(SerHello);
+		TxText(SerHello);
 
-	SendComText(SerSetup);	// send hello message
+	TxText(SerSetup);	// send hello message
 	if( _UseLISL )
-		SendComText(SerLSavail);
+		TxText(SerLSavail);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 
 
 // check for compass device
-	SendComText(SerCompass);	// send hello message
+	TxText(SerCompass);	// send hello message
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) == I2C_ACK ) 
-		SendComText(SerLSavail);
+		TxText(SerLSavail);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 	I2CStop();
 
 // check for altimeter device
-	SendComText(SerAlti);	// send hello message
+	TxText(SerAlti);	// send hello message
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) == I2C_ACK ) 
-		SendComText(SerLSavail);
+		TxText(SerLSavail);
 	else
-		SendComText(SerLSnone);
+		TxText(SerLSnone);
 	I2CStop();
 
 	ShowPrompt();
-}
+} // ShowSetup
 
 // if a command is waiting, read and process it.
 // Do NOT call this routine while in flight!
 void ProcessComCommand(void)
 {
-    int *p;
-	char chcmd;
+    int8 *p;
+	uint8 chcmd;
 
 	chcmd = RecvComChar();
 	if( islower(chcmd))							// check lower case
@@ -246,53 +256,54 @@ void ProcessComCommand(void)
 	{
 		case '\0' : break;
 		case 'R'  :	// Receiver test
-			SendComText(SerRxTest);
+			TxText(SerRxTest);
 			if( _NewValues )
 			{
 				ReceiverTest();
 				_NewValues = 0;
-				SendComText(SerRxRes);
+				TxText(SerRxRes);
 				if( _NoSignal )
-					SendComText(SerRxFail);
+					TxText(SerRxFail);
 				else
-					SendComText(SerRxOK);
+					TxText(SerRxOK);
 			}
 			else
-				SendComText(SerRxNN);
+				TxText(SerRxNN);
 			ShowPrompt();
 			break;
 		case 'A' :	// analog test
-			SendComText(SerAnTest);
+			TxText(SerAnTest);
 			AnalogTest();
 			ShowPrompt();
 			break;
 		case 'L' :	// linear sensor
-			SendComText(SerLinTst);
+			TxText(SerLinTst);
 			if( _UseLISL )
 				LinearTest();
 			else
-				SendComText(SerLinErr);
+				TxText(SerLinErr);
 			ShowPrompt();
 			break;
 		case 'I':
-			SendComText(SerI2CRun);
+			TxText(SerI2CRun);
 //			i = ScanI2CBus();
-			SendComValU(ScanI2CBus());
-			SendComText(SerI2CCnt);
+			TxValU(ScanI2CBus());
+			TxText(SerI2CCnt);
 			ShowPrompt();
 			break;
 		case 'C':
-			SendComText(SerMagTst);
+			TxText(SerMagTst);
 			CompassTest();
 			ShowPrompt();
 			break;
 		case 'K':
-			SendComText(SerCCalib1);
+			TxText(SerCCalib1);
 			CalibrateCompass();
 			ShowPrompt();
 			break;
 		case 'H':	// barometer
-			BaroTest();
+			while( !RecvComChar() )
+				BaroTest();
 			ShowPrompt();
 			break;	
 		case 'S' :	// show status
@@ -307,21 +318,21 @@ void ProcessComCommand(void)
 		case '7':
 		case '8':
 
-			SendComText(SerPowTst);
-			SendComChar(chcmd);
-			SendComChar(':');
+			TxText(SerPowTst);
+			TxChar(chcmd);
+			TxChar(':');
 			switch( chcmd )
 			{
-				case '1': SendComText(SerPowAux2);  break;
-				case '2': SendComText(SerPowBlue);  break;
-				case '3': SendComText(SerPowRed);   break;
-				case '4': SendComText(SerPowGreen); break;
-				case '5': SendComText(SerPowAux1);  break;
-				case '6': SendComText(SerPowYellow);break;
-				case '7': SendComText(SerPowAux3);  break;
-				case '8': SendComText(SerPowBeep);  break;
+				case '1': TxText(SerPowAux2);  break;
+				case '2': TxText(SerPowBlue);  break;
+				case '3': TxText(SerPowRed);   break;
+				case '4': TxText(SerPowGreen); break;
+				case '5': TxText(SerPowAux1);  break;
+				case '6': TxText(SerPowYellow);break;
+				case '7': TxText(SerPowAux3);  break;
+				case '8': TxText(SerPowBeep);  break;
 			}
-			SendComCRLF();
+			TxNextLine();
 			PowerOutput(chcmd-'1');
 			ShowPrompt();
 			break;
@@ -332,16 +343,11 @@ void ProcessComCommand(void)
 			break;
 
 		case 'B':	// call bootloader
-			SendComCRLF();
-//_asm
-//			movlw	0x1f
-//			movwf	PCLATH
-//			dw	0x2F00
-//_endasm
-//			BootStart();	// never comes back!
+			TxNextLine();
+			BootStart();	// never comes back!
 		case '?'  : // help
-			SendComText(SerHelp);
+			TxText(SerHelp);
 			ShowPrompt();
 	}
-}
+} // ProcessComCommand
 

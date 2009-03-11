@@ -66,9 +66,9 @@ void EscI2CStop(void)
 // send a byte to I2C slave and return ACK status
 // 0 = ACK
 // 1 = NACK
-uns8 SendEscI2CByte(uns8 nidata)
+uint8 SendEscI2CByte(uint8 nidata)
 {
-	uns8 nii;
+	uint8 nii;
 
 	for(nii=0; nii<8; nii++)
 	{
@@ -125,7 +125,7 @@ uns8 SendEscI2CByte(uns8 nidata)
 //             0     1     2     3 ms
 
 #pragma udata assembly_language=0x080 
-uns8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 // Bootloader ???
 #pragma udata
 

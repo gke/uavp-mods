@@ -32,7 +32,7 @@
 
 #pragma udata irqvars
 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
-uns8	RecFlags;
+uint8	RecFlags;
 #pragma udata
 
 #pragma interrupt low_isr_handler

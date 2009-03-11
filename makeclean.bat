@@ -3,8 +3,8 @@ rem ---------------------------------------------
 rem Delete all working files but not hex files
 rem ---------------------------------------------
 
-set CSRC=pu-test an-test irq lisl mathlib rxtest serial text utils utils2 i2c-scan output
-set ASRC=bootloader
+set CSRC=pu-test an-test adc irq lisl mathlib rxtest serial text utils utils2 i2c-scan output
+set ASRC=bootl18f2520
 
 rem compiler working files...
 for %%i in ( %CSRC% ) do if exist %%i.asm del %%i.asm
@@ -26,4 +26,4 @@ if exist TestSoftware*.cod del TestSoftware*.cod
 if exist TestSoftware*.lst del TestSoftware*.lst
 if exist TestSoftware*.map del TestSoftware*.map
 
-
+if exist log.lst del log.lst

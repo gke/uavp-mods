@@ -30,79 +30,79 @@
 void AnalogTest(void)
 {
 	// UBatt
-	nilgval = ADC(0, ADCVREF5V);	
+	val = ADC(0, ADCVREF5V);	
 		
-	nilgval *= 46;
-	nilgval += 9;	// round up
-	nilgval /= 17;	// resolution is 0,01 Volt
+	val *= 46;
+	val += 9;	// round up
+	val /= 17;	// resolution is 0,01 Volt
 
-	SendComChar('V');
-	SendComChar('b');
-	SendComChar(':');
+	TxChar('V');
+	TxChar('b');
+	TxChar(':');
 	
-	SendComValUL(NKS2 + LEN5);	// print millivolts from nilgval
-	SendComText(SerVolt);
+	TxValUL(NKS2 + LEN5);	// print millivolts from val
+	TxText(SerVolt);
 
 // URoll
 #ifdef OPT_ADXRS
-	nilgval = ADC(1, ADCVREF5V);	
+	val = ADC(1, ADCVREF5V);	
 #endif
 #ifdef OPT_IDG
-	nilgval = ADC(2, ADCVREF5V);	
+	val = ADC(2, ADCVREF5V);	
 #endif
-	nilgval *= 49;
-	nilgval += 5;	// round up
-	nilgval /= 10;	// resolution is 0,001 Volt
+	val *= 49;
+	val += 5;	// round up
+	val /= 10;	// resolution is 0,001 Volt
 
-	SendComChar('V');
-	SendComChar('r');
-	SendComChar(':');
+	TxChar('V');
+	TxChar('r');
+	TxChar(':');
 	
-	SendComValUL(NKS3+LEN5);	// print millivolts from nilgval
-	SendComText(SerVolt);
+	TxValUL(NKS3+LEN5);	// print millivolts from val
+	TxText(SerVolt);
 
 // UNick
 #ifdef OPT_ADXRS
-	nilgval = ADC(2, ADCVREF5V);	
+	val = ADC(2, ADCVREF5V);	
 #endif
 #ifdef OPT_IDG
-	nilgval = ADC(1, ADCVREF5V);	
+	val = ADC(1, ADCVREF5V);	
 #endif
-	nilgval *= 49;
-	nilgval += 5;	// round up
-	nilgval /= 10;	// resolution is 0,001 Volt
+	val *= 49;
+	val += 5;	// round up
+	val /= 10;	// resolution is 0,001 Volt
 
-	SendComChar('V');
-	SendComChar('p');
-	SendComChar(':');
+	TxChar('V');
+	TxChar('p');
+	TxChar(':');
 	
-	SendComValUL(NKS3+LEN5);	// print millivolts from nilgval
-	SendComText(SerVolt);
+	TxValUL(NKS3+LEN5);	// print millivolts from val
+	TxText(SerVolt);
 
 // UYaw
-	nilgval = ADC(4, ADCVREF5V);	
-	nilgval *= 49;
-	nilgval += 5;	// round up
-	nilgval /= 10;	// resolution is 0,001 Volt
+	val = ADC(4, ADCVREF5V);	
+	val *= 49;
+	val += 5;	// round up
+	val /= 10;	// resolution is 0,001 Volt
 
-	SendComChar('V');
-	SendComChar('y');
-	SendComChar(':');
+	TxChar('V');
+	TxChar('y');
+	TxChar(':');
 	
-	SendComValUL(NKS3+LEN5);	// print millivolts from nilgval
-	SendComText(SerVolt);
+	TxValUL(NKS3+LEN5);	// print millivolts from val
+	TxText(SerVolt);
 
 // Uref
-	nilgval = ADC(3, ADCVREF5V);	
-	nilgval *= 49;
-	nilgval += 5;	// round up
-	nilgval /= 10;	// resolution is 0,001 Volt
+	val = ADC(3, ADCVREF5V);	
+	val *= 49;
+	val += 5;	// round up
+	val /= 10;	// resolution is 0,001 Volt
 
-	SendComChar('V');
-	SendComChar('f');
-	SendComChar(':');
+	TxChar('V');
+	TxChar('f');
+	TxChar(':');
 	
-	SendComValUL(NKS3+LEN5);	// print millivolts from nilgval
-	SendComText(SerVolt);
+	TxValUL(NKS3+LEN5);	// print millivolts from val
+	TxText(SerVolt);
 
 }

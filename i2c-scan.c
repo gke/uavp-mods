@@ -42,9 +42,9 @@ void I2CDelay(void)
 
 // put SCL to high-z and wait until line is really hi
 // returns != 0 if ok
-uns8 I2CWaitClkHi(void)
+uint8 I2CWaitClkHi(void)
 {
-	uns8 nii=1;
+	uint8 nii=1;
 
 	I2CDelay();
 	I2C_CIO=1;	// set SCL to input, output a high
@@ -81,12 +81,12 @@ void I2CStop(void)
 	I2CDelay();		// leave clock high
 }
 
-static uns8 nii;	// mus be bank0 or shrBank
+static uint8 nii;	// mus be bank0 or shrBank
 
 // send a byte to I2C slave and return ACK status
 // 0 = ACK
 // 1 = NACK
-uns8 SendI2CByte(uns8 nidata)
+uint8 SendI2CByte(uint8 nidata)
 {
 
 	for(nii=0; nii<8; nii++)
@@ -125,9 +125,9 @@ uns8 SendI2CByte(uns8 nidata)
 // 0 = ACK
 // 1 = NACK
 // returns read byte
-uns8 RecvI2CByte(uns8 niack)
+uint8 RecvI2CByte(uint8 niack)
 {
-	uns8 nidata=0;
+	uint8 nidata=0;
 
 	I2C_DIO=1;	// set SDA to input, output a high
 
@@ -155,10 +155,10 @@ uns8 RecvI2CByte(uns8 niack)
 
 // scan all slave bus addresses (read mode)
 // and list found devices
-uns8 ScanI2CBus(void)
+uint8 ScanI2CBus(void)
 {
-	uns8 nij;
-	uns8 nic = 0;
+	uint8 nij;
+	uint8 nic = 0;
 
 	for(nij=0x10; nij<=0xF6; nij+=2)
 	{	// use all uneven addresses for read mode
@@ -166,10 +166,10 @@ uns8 ScanI2CBus(void)
 		if( SendI2CByte(nij) == I2C_ACK )
 		{
 			nic++;
-			SendComChar('0');
-			SendComChar('x');
-			SendComValH(nij);
-			SendComCRLF();
+			TxChar('0');
+			TxChar('x');
+			TxValH(nij);
+			TxNextLine();
 		}
 		I2CStop();
 
@@ -182,7 +182,7 @@ uns8 ScanI2CBus(void)
 
 void CompassTest(void)
 {
-	uns8 i;
+	uint8 i;
 
 // 20Hz standby mode - random read?
 #define COMP_OPMODE 0b01100000
@@ -250,19 +250,19 @@ void CompassTest(void)
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
-	nilgval = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(I2C_NACK);
+	val = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(I2C_NACK);
 	I2CStop();
 
 	// niltemp has 1/10th degrees
-	nilgval /= 10;
+	val /= 10;
 
-	SendComValUL(NKS0+LEN3);
-	SendComText(SerGrad);
+	TxValUL(NKS0+LEN3);
+	TxText(SerGrad);
 	return;
 CTerror:
-	SendComCRLF();
+	TxNextLine();
 	I2CStop();
-	SendComText(SerI2CFail);
+	TxText(SerI2CFail);
 }
 
 // calibrate the compass by rotating the ufo once smoothly
@@ -276,7 +276,7 @@ void CalibrateCompass(void)
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	SendComText(SerCCalib2);
+	TxText(SerCCalib2);
 
 	while( !RecvComChar() );
 
@@ -286,19 +286,19 @@ void CalibrateCompass(void)
 	if( SendI2CByte('E')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	SendComText(SerCCalib3);
+	TxText(SerCCalib3);
 	return;
 CCerror:
 	I2CStop();
-	SendComText(SerCCalibE);
+	TxText(SerCCalibE);
 }
 
 void BaroTest(void)
 {
-	uns8	BaroType, BaroTemp;
-	uns16 	BaroTemperature, BaroPressure;
+	uint8	BaroType, BaroTemp;
+	uint16 	BaroTemperature, BaroPressure;
 	
-	uns8 i;
+	uint8 i;
 	int16 Temp;
 
 	// SMD500 9.5mS (T) 34mS (P)  
@@ -316,13 +316,13 @@ void BaroTest(void)
 
 	if ( BaroType == BARO_ID_BMP085 )
 	{
-		SendComText(SerBaroBMP085);
+		TxText(SerBaroBMP085);
 		BaroTemp = BaroTemp_BMP085;
 
 	}
 	else
 	{
-		SendComText(SerBaroSMD500);
+		TxText(SerBaroSMD500);
 		BaroTemp = BaroTemp_SMD500;
 	}
 
@@ -356,9 +356,9 @@ void BaroTest(void)
 	BaroPressure |= RecvI2CByte(I2C_NACK);
 	I2CStop();
 
-	nilgval = BaroPressure;
-	SendComText(SerBaroOK);
-	SendComValUL(NKS0+LEN5);
+	val = BaroPressure;
+	TxText(SerBaroOK);
+	TxValUL(NKS0+LEN5);
 
 	// read temp
 	// set baro device to start conversion
@@ -389,17 +389,17 @@ void BaroTest(void)
 	BaroTemperature |= RecvI2CByte(I2C_NACK);
 	I2CStop();
 
-	nilgval = BaroTemperature;
-	SendComText(SerBaroT);
-	SendComValUL(NKS0+LEN5);
+	val = BaroTemperature;
+	TxText(SerBaroT);
+	TxValUL(NKS0+LEN5);
 
-	SendComCRLF();
+	TxNextLine();
 
 	return;
 BAerror:
-	SendComCRLF();
+	TxNextLine();
 	I2CStop();
 
-	SendComText(SerI2CFail);
+	TxText(SerI2CFail);
 }
 
