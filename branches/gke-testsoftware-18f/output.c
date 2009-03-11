@@ -27,9 +27,9 @@
 #include "bits.h"
 
 // flash output for a second, then return to its previous state
-void PowerOutput(uns8 niout)
+void PowerOutput(uint8 niout)
 {
-	uns8 nii, nij;
+	uint8 nii, nij;
 
 	for( nij=0; nij < 10; nij++ )	// 10 flashes (count MUST be even!)
 	{

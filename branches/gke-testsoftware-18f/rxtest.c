@@ -29,40 +29,40 @@
 // output all the signal values and the validity of signal
 void ReceiverTest(void)
 {
-	uns8 nii;
-	uns16 *p;
+	uint8 s;
+	uint16 *p;
 
 	p=&CurrK1;
-	for( nii=1; nii <= 7; nii++ )
+	for( s=1; s <= 7; s++ )
 	{
-		SendComChar(nii+'0');
-		SendComChar(':');
-		nilgval = *p;
-		SendComChar('0');
-		SendComChar('x');
-		SendComValH(nilgval>>8);
-		SendComValH(nilgval&0xff);
-		if( ( nilgval & 0xff00) != 0x0100 ) 
-			SendComText(SerFail);
-		SendComCRLF();
+		TxChar(s+'0');
+		TxChar(':');
+		val = *p;
+		TxChar('0');
+		TxChar('x');
+		TxValH(val>>8);
+		TxValH(val&0xff);
+		if( ( val & 0xff00) != 0x0100 ) 
+			TxText(SerFail);
+		TxNextLine();
 		p++;
 	}
 // show pause time
-	SendComChar('P');
-	SendComChar(':');
-	nilgval = 2*PauseTime;
- 	nilgval += (uns16)TMR2_5MS * 64;	// 78 * 16*16/4 us
-	SendComValUL(NKS3+LEN5);	// print from nilgval
-	SendComText(SerMS);
+	TxChar('P');
+	TxChar(':');
+	val = 2*PauseTime;
+ 	val += (uint16)TMR2_5MS * 64;	// 78 * 16*16/4 us
+	TxValUL(NKS3+LEN5);	// print from val
+	TxText(SerMS);
 }
 
 void TogglePPMPolarity(void)
 {
     Invert(ConfigReg,0);	// toggle bit
 	if( NegativePPM )
-		SendComText(SerPPMN);
+		TxText(SerPPMN);
 	else
-		SendComText(SerPPMP);
+		TxText(SerPPMP);
 
 	CurrK1 = CurrK2 = CurrK3 = CurrK4 = CurrK5 = CurrK6 = CurrK7 = 0xFFFF;
 	PauseTime = 0;

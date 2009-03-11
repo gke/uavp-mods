@@ -24,14 +24,14 @@
 #include "bits.h"
 
 // Prototypes
-int16 ADC(uns8, uns8);
+int16 ADC(uint8, uint8);
 
 void InitADC(void);
 
-int16 ADC(uns8 Channel, uns8 VRef)
+int16 ADC(uint8 Channel, uint8 VRef)
 {
 	int16 Result;
-	uns8 d;
+	uint8 d;
 
 	ADCON1bits.VCFG0 = VRef;
 	SetChanADC(Channel<<3);		// using automatic acq

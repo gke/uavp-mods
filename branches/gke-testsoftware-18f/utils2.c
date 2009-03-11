@@ -32,9 +32,9 @@ static int i;
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delay100mS(uns8 dur)
+void Delay100mS(uint8 dur)
 {
-	uns8 k, j;
+	uint8 k, j;
 
 	// a TMR0 Timeout is 0,25us * 256 * 16 (presc) = 1024 us
 	WriteTimer0(0);
@@ -68,7 +68,7 @@ void nop2()
 //
 void SendLeds(void)
 {
-	uns8 s;
+	uint8 s;
 
 	/* send LedShadow byte to TPIC */
 
@@ -92,13 +92,13 @@ void SendLeds(void)
 	PORTCbits.RC1 = 0;	// latch into drivers
 }
 
-void SwitchLedsOn(uns8 l)
+void SwitchLedsOn(uint8 l)
 {
 	LedShadow |= l;
 	SendLeds();
 }
 
-void SwitchLedsOff(uns8 l)
+void SwitchLedsOff(uint8 l)
 {
 	LedShadow &= ~l;
 	SendLeds();

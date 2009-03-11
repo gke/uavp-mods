@@ -1,27 +1,24 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
+// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.de           =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 // The LISL controller routines
 
@@ -29,74 +26,72 @@
 #include "pu-test.h"
 #include "bits.h"
 
-uns8	nii;
-
 // send an address byte (niaddr) to linear sensor
 // read the answer and return it
-uns8 ReadLISL(uns8 niaddr)
+uint8 ReadLISL(uint8 d)
 {
+	uint8 s;
 
-//	SendCommand(niaddr);
 	LISL_SDA = 1;	// very important!! really!! LIS3L likes it
 	LISL_IO = 0;	// SDA is output
 	LISL_SCL = 0;
 	LISL_CS = 0;	// CS to 0
-	for( nii = 0; nii < 8; nii++ )
+	for( s = 8; s ; s-- )
 	{
 		LISL_SCL = 0;
-		if( niaddr & 0x80 )
+		if( d & 0x80 )
 			LISL_SDA = 1;
 		else
 			LISL_SDA = 0;
-		niaddr <<= 1;
+		d <<= 1;
 		LISL_SCL = 1;
 	}
 
-
 	LISL_IO = 1;	// SDA is input
-	niaddr = 0;
-	for( nii = 0; nii < 8; nii++ )
+	d = 0;
+	for( s = 8; s ; s-- )
 	{
 		LISL_SCL = 0;
-		niaddr <<= 1;
+		d <<= 1;
 		if( LISL_SDA == 1 )
-			niaddr |= 1;	// set LSB
+			d |= 1;	// set LSB
 		LISL_SCL = 1;
 	}
 	LISL_CS = 1;
-	return(niaddr);
+	return(d);
 }
 
 // only needed for CC5X version 3.3 and earlier
-void WriteLISL(uns8, uns8);
+void WriteLISL(uint8, uint8);
 
 // send an address byte (niaddr) to lienar sensor
 // and write data byte (nidata)
-void WriteLISL(uns8 niaddr, uns8 nidata)
+void WriteLISL(uint8 addr, uint8 d)
 {
+	uint8 s;
 
 	LISL_IO = 0;	// SDA is output
 	LISL_SCL = 0;
 	LISL_CS = 0;	// CS to 0
-	for( nii = 0; nii < 8; nii++ )
+	for( s = 8; s ; s-- )
 	{
 		LISL_SCL = 0;
-		if( niaddr & 0x80 )
+		if( addr & 0x80 )
 			LISL_SDA = 1;
 		else
 			LISL_SDA = 0;
-		niaddr <<= 1;
+		addr <<= 1;
 		LISL_SCL = 1;
 	}
 
-	for( nii = 0; nii < 8; nii++ )
+	for( s = 8; s ; s-- )
 	{
 		LISL_SCL = 0;
-		if( nidata & 0x80 )
+		if( d & 0x80 )
 			LISL_SDA = 1;
 		else
 			LISL_SDA = 0;
-		nidata <<= 1;
+		d <<= 1;
 		LISL_SCL = 1;
 	}
 	LISL_CS = 1;
@@ -108,12 +103,13 @@ void WriteLISL(uns8 niaddr, uns8 nidata)
 // setup parachute options
 void IsLISLactive(void)
 {
+	uint8 r;
 
 	LISL_CS = 1;
 	WriteLISL(LISL_CTRLREG_2, 0b01001010); // enable 3-wire, BDU=1, +/-2g
 
-	nii = ReadLISL(LISL_WHOAMI + LISL_READ);
-	if( nii == 0x3A )	// a LIS03L sensor is there!
+	r = ReadLISL(LISL_WHOAMI + LISL_READ);
+	if( r == 0x3A )	// a LIS03L sensor is there!
 	{
 		WriteLISL(LISL_CTRLREG_1, 0b11010111); // startup, enable all axis
 		WriteLISL(LISL_CTRLREG_3, 0b00000000);
@@ -129,35 +125,36 @@ void IsLISLactive(void)
 
 void LinearTest(void)
 {
+	uint8 r;
 
-	nii = ReadLISL(LISL_STATUS + LISL_READ);
-	SendComChar('S');
-	SendComChar(':');
-	SendComChar('0');
-	SendComChar('x');
-	SendComValH(nii);
-	SendComCRLF();
+	r = ReadLISL(LISL_STATUS + LISL_READ);
+	TxChar('S');
+	TxChar(':');
+	TxChar('0');
+	TxChar('x');
+	TxValH(r);
+	TxNextLine();
 
-	nilgval = (int)ReadLISL(LISL_OUTX_H + LISL_READ)<<8;
-	nilgval |= (int)ReadLISL(LISL_OUTX_L + LISL_READ);
-	SendComChar('X');
-	SendComChar(':');
-	SendComValUL(NKS3+LEN5+VZ);
-	SendComText(SerLinG);
+	val = (ReadLISL(LISL_OUTX_H + LISL_READ)*256)
+			| (ReadLISL(LISL_OUTX_L + LISL_READ));
+	TxChar('X');
+	TxChar(':');
+	TxValUL(NKS3+LEN5+VZ);
+	TxText(SerLinG);
 
-	nilgval = (int)ReadLISL(LISL_OUTZ_H + LISL_READ)<<8;
-	nilgval  |= (int)ReadLISL(LISL_OUTZ_L + LISL_READ);
-	SendComChar('Z');
-	SendComChar(':');
-	SendComValUL(NKS3+LEN5+VZ);
-	SendComText(SerLinG);
+	val = (ReadLISL(LISL_OUTZ_H + LISL_READ)*256) 
+			| ( ReadLISL(LISL_OUTZ_L + LISL_READ));
+	TxChar('Z');
+	TxChar(':');
+	TxValUL(NKS3+LEN5+VZ);
+	TxText(SerLinG);
 
-	nilgval = (int)ReadLISL(LISL_OUTY_H + LISL_READ)<<8;
-	nilgval |= (int)ReadLISL(LISL_OUTY_L + LISL_READ);
-	SendComChar('Y');
-	SendComChar(':');
-	SendComValUL(NKS3+LEN5+VZ);
-	SendComText(SerLinG);
+	val = (ReadLISL(LISL_OUTY_H + LISL_READ)*256)
+			| (ReadLISL(LISL_OUTY_L + LISL_READ));
+	TxChar('Y');
+	TxChar(':');
+	TxValUL(NKS3+LEN5+VZ);
+	TxText(SerLinG);
 	
 }
 

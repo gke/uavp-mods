@@ -95,6 +95,9 @@ with support for composite PPM
 02.03.2009 Version derived from V3.14 by Greg Egan
 - Ported to C18 and 18F PIC. No motor test. 
 
+11.03.2009 Version derived from V3.14 by Greg Egan
+- 18F2520 bootloader added.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

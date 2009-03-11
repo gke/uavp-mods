@@ -21,7 +21,7 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #ifdef ICD2_DEBUG
-//#pragma	config = 0x377A	// BODEN, HVP, no WDT, MCLRE disabled, PWRTE disabled
+#pragma	config OSC=HS, WDT=OFF, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
 #else
 #pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
 #endif
@@ -33,19 +33,19 @@
 
 
 #pragma udata mainvars
-uns8 ConfigReg;
-uns8	LedShadow;	// shadow register
-uns8	Flags[8], Flags2[8];
-uns16	CurrK1,CurrK2,CurrK3,CurrK4,CurrK5,CurrK6,CurrK7;
-uns16	PauseTime;
-uns8	EscI2CFlags;
+uint8 ConfigReg;
+uint8	LedShadow;	// shadow register
+uint8	Flags[8], Flags2[8];
+uint16	CurrK1,CurrK2,CurrK3,CurrK4,CurrK5,CurrK6,CurrK7;
+uint16	PauseTime;
+uint8	EscI2CFlags;
 int8	TimeSlot;
-uns8	mSTick;
+uint8	mSTick;
 #pragma udata
 
 void main(void)
 {
-	uns8	i;
+	uint8	i;
 
 	DisableInterrupts;
 
@@ -117,15 +117,19 @@ void main(void)
 	while(1)
 	{
 		// turn red LED on of signal missing or invalid, green if OK
+		// Yellow led to indicate linear sensor functioning.
 		if( _NoSignal )
 		{
 			LedRed_ON;
 			LedGreen_OFF;
+			if ( _UseLISL  )
+				LedYellow_ON;
 		}
 		else
 		{
 			LedGreen_ON;
 			LedRed_OFF;
+			LedYellow_OFF;
 		}
 		// output servo values
 		TimeSlot = 10;
