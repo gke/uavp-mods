@@ -430,7 +430,7 @@ void ProcessComCommand(void)
 //			dw	0x2F00
 //#endasm
 //			DisableInterrupts;
-//			BootStart();							// never comes back!
+			BootStart();							// never comes back!
 		
 #ifndef TESTOUT	
 		case 'T':
