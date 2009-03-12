@@ -1,21 +1,10 @@
 // EXPERIMENTAL
 
+// comment out if not using test software version
+#define TEST_LISL
+
 // reduces the update rate and the additionally the descent rate 
-#define SLOW_BARO
-
-// Reinstated vertical acceleration compensation 
-#define ACCEL_VUD
-
-// Attempts reconnection to the barometer if there is an I2C error
-// I2C comms seems now to be reliable with the BMP085 baro.
-//#define BARO_RETRY
-
-// Increase the severity of the filter on the barometer pressure readings
-// may give better altitude hold ( New=(Old*7+New+4)/8) ).
-#define BARO_HARD_FILTER
-
-// Make a "scratchy" beeper noise while altitude hold is engaged.
-#define BARO_SCRATCHY_BEEPER
+#define NEW_ALT_HOLD
 
 // Loads a "representative" parameter set into EEPROM
 //#define INIT_PARAMS
@@ -125,8 +114,26 @@
 
 #endif // !BATCHMODE
 
+// Accelerometer
+
 // Enable this to use the Accelerator sensors
 #define USE_ACCSENS
+
+// Reinstated vertical acceleration compensation 
+#define ACCEL_VUD
+
+// Baro
+
+// Attempts reconnection to the barometer if there is an I2C error
+// I2C comms seems now to be reliable with the BMP085 baro.
+//#define BARO_RETRY
+
+// Increase the severity of the filter on the barometer pressure readings
+// may give better altitude hold ( New=(Old*7+New+4)/8) ).
+#define BARO_HARD_FILTER
+
+// Make a "scratchy" beeper noise while altitude hold is engaged.
+#define BARO_SCRATCHY_BEEPER
 
 // =====================================
 // end of user-configurable section!
@@ -233,23 +240,46 @@ extern	int16	RE, PE, YE;
 extern	int16	REp,PEp,YEp;
 extern	int16	PitchSum, RollSum, YawSum;
 extern	int16	RollSamples, PitchSamples;
+extern	int16	MidRoll, MidPitch, MidYaw;
 extern	int16	Ax, Ay, Az;
 extern	int8	LRIntKorr, FBIntKorr;
 extern	int8	NeutralLR, NeutralFB, NeutralUD;
 extern	int16 	UDSum;
-extern	uint8	BlinkCount, BlinkCycle, BaroCount;
-extern	int8	Rw,Pw;	// angles
-extern   int8	BatteryVolts; 
-				
+
+// Failsafes
+extern	int8	RollNeutral, PitchNeutral, YawNeutral;
+extern	uint8	ThrNeutral;
+			
 // Variables for barometric sensor PD-controller
 extern	int24	BaroBasePressure, BaroBaseTemp;
 extern	int16	BaroRelPressure, BaroRelTempCorr;
 extern	int16	VBaroComp;
 extern	uint8	BaroType, BaroTemp, BaroRestarts;
 
-// Die Reihenfolge dieser Variablen MUSS gewahrt bleiben!!!!
-// These variables MUST keep their order!!!
 
+extern	uint8	MFront,MLeft,MRight,MBack;	// output channels
+extern	uint8	MCamRoll,MCamPitch;
+extern	int16	Ml, Mr, Mf, Mb;
+extern	int16	Rl,Pl,Yl;	// PID output values
+extern	int16	Rp,Pp,Yp,Vud;
+
+extern	uint8	Flags[8];
+extern	uint8	Flags2[8];
+
+extern	uint8	IntegralCount;
+extern 	uint8	LedCount;
+extern	int16	ThrDownCount;
+extern	uint8 	mSTick;
+extern	uint8	BlinkCount, BlinkCycle, BaroCount;
+extern	int8	Rw,Pw;	// angles
+extern   int8	BatteryVolts; 
+
+extern	uint8	LedShadow;	// shadow register
+extern	int16	AbsDirection;	// wanted heading (240 = 360 deg)
+extern	int16	CurDeviation;	// deviation from correct heading
+
+// Principal quadrocopter parameters - MUST remain in this order
+// for block read/write to EEPROM
 extern	int8	RollPropFactor; 	// 01
 extern	int8	RollIntFactor;		// 02
 extern	int8	RollDiffFactor;		// 03
@@ -288,49 +318,17 @@ extern	int8	BaroThrottleDiff;	// 28
 
 // end of "order-block"
 
-extern	uint8	MFront,MLeft,MRight,MBack;	// output channels
-extern	uint8	MCamRoll,MCamPitch;
-extern	int16	Ml, Mr, Mf, Mb;
-extern	int16	Rl,Pl,Yl;	// PID output values
-extern	int16	Rp,Pp,Yp,Vud;
-
-extern	uint8	Flags[8];
-extern	uint8	Flags2[8];
-
-extern	uint8	IntegralCount;
-extern 	uint8	LedCount;
-
-// measured neutral gyro values
-// current stick neutral values
-extern	int8	RollNeutral, PitchNeutral, YawNeutral;
-extern	uint8	ThrNeutral;
-extern	int16	ThrDownCount;
-extern	uint8 	mSTick;
-extern	int16	MidRoll, MidPitch, MidYaw;
-
-extern	uint8	LedShadow;	// shadow register
-extern	int16	AbsDirection;	// wanted heading (240 = 360 deg)
-extern	int16	CurDeviation;	// deviation from correct heading
-
 #define _ClkOut		(160/4)	/* 16.0 MHz quartz */
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
 #define _PreScale1	8	/* 1:8 TMR1 prescaler */
 #define _PreScale2	16
 #define _PostScale2	16
 
-// wegen dem dummen Compiler muss man händisch rechnen :-(
-
 #define DELAY_MS(ms)	for( mSTick=ms; mSTick!=0; mSTick--){INTCONbits.TMR0IF=0; while(INTCONbits.TMR0IF == 0);}
 
-//#define TMR2_9MS	(9000*_ClkOut/(10*_PreScale2*_PostScale2))
-//#define TMR2_9MS	141	/* 2x 9ms = 18ms pause time */
-// modified for Spectrum DX6 and DX7
 #define TMR2_5MS	78	/* 1x 5ms +  */
 #define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
 
-
-// RX impuls times in 10-microseconds units
-// vvv   ACHTUNG: Auf numerischen Überlauf achten!
 #ifdef ESC_PPM
 #define	_Minimum	1 /*((105* _ClkOut/(2*_PreScale1))&0xFF)*/
 #define _Maximum	240					/* reduced from 255 */
@@ -356,8 +354,6 @@ extern	int16	CurDeviation;	// deviation from correct heading
 #define _ProgDown	((130* _ClkOut/(2*_PreScale1))&0xFF)	/*-60% */
 
 // Sanity checks
-//
-// please leave them as they are!
 
 // check the PPM RX and motor values
 #if _Minimum >= _Maximum
@@ -419,9 +415,9 @@ extern	void GetGyroValues(void);
 extern	void CalcGyroValues(void);
 extern	void CheckAlarms(void);
 extern	void UpdateBlinkCount(void);
-extern	void TxText(const char *);
+extern	void TxText(const uint8 *);
 extern	void TxValH(uint8);
-extern	void TxChar(char);
+extern	void TxChar(uint8);
 extern	void ShowSetup(uint8);
 extern	void ProcessComCommand(void);
 extern	void TxValU(uint8);
@@ -465,11 +461,7 @@ extern	void InitDirection(void);
 extern	void GetDirection(void);
 extern	void InitAltimeter(void);
 extern	void ComputeBaroComp(void);
-//extern	uint8 StartBaroADC(uint8);
-
-//extern	uint8 Sin(void);
-//extern	uint8 Cos(void);
-//extern	uint8 Arctan(uint8);
+extern	uint8 StartBaroADC(uint8);
 
 extern	void nop2(void);
 extern	int16 SRS16(int16, uint8);

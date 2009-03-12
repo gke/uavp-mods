@@ -14,7 +14,6 @@
 ;	16 bit addressing of program memory
 
 #define __18F2520
-;#define BOOT_ONLY
 
         LIST C=200,R=dec
 
@@ -49,11 +48,7 @@
 		endc
 	
 		code
-
-;		goto	BootStart
-
 		org		07d00h				
-
 		global	BootStart
 
 BootStart
@@ -74,12 +69,6 @@ Messages
 		_CSum		dt	"CSUM\0"
 		_OK			dt	"OK\0"
 		_Done		dt	"SUCCESS!\0"
-;#define LOADREC
-#ifdef LOADREC
-		_hex		db	":020000040000FA",0x0a,0x0d ;17
-		;_hex		db	":1000500003011423030177515FE18BC01EF00001FF",0x0a,0x0d ;45
-		;_hex		db	":00000001FF",0x0a,0x0d ;13
-#endif
 		Txt_Hello	equ	_Hello-Messages-1
 		Txt_Err		equ	_Err-Messages-1
 		Txt_CSum	equ	_CSum-Messages-1
@@ -104,27 +93,7 @@ Init
 		movlw	10010000b			;receive async on
 		movwf	RCSTA
  		clrf	PORTB				;SERVOS OFF!
-
-#ifdef LOADREC
-		lfsr	FSR0,RxBuffer		
-		clrf	TBLPTRU
-		movlw	0x7c
-		movwf	TBLPTRH
-		movlw	_hex
-		movwf	TBLPTR
-
-		movlw 	17					
-		movwf 	cc
-xx
-		tblrd*+
-		movf	TABLAT,w
-		movwf 	POSTINC0
-		decfsz 	cc
-		bra 	xx
 	
-		bra		VerifyRec
-#endif
-		
 		movlw	Txt_Hello
 		call	SendString
 
@@ -453,19 +422,25 @@ ASCII2Bin
 ; ____________________________________________________________________________
 BootLeds
 		movwf	LEDs
-		movlw	8
-LEDScan
-		rlf	LEDs,f
-		bcf	PORTC,4				;clear SDA
-		skipnc
-		bsf	PORTC,4				;set SDA
-		bsf	PORTC,3				;set SCLK
-		bcf	PORTC,3				;clr SCLK
-		addlw	-1
-		bne	LEDScan
+		bcf		PORTC,1			;RCLK off
+		bcf		PORTC,3			;clr SCLK
 
-		bsf	PORTC,1				;RCLK on
-		bcf	PORTC,1				;RCLK off
+		movlw	8
+		movwf	cc
+LEDScan
+		rlcf	LEDs,f
+		bcf		PORTC,4				;clear SDA
+		skipnc
+		bsf		PORTC,4				;set SDA
+
+		bsf		PORTC,3				;set SCLK
+		bcf		PORTC,3				;clr SCLK
+
+		decfsz	cc
+		bra		LEDScan
+
+		bsf		PORTC,1				;RCLK on
+		bcf		PORTC,1				;RCLK off
 		return			
 ; ____________________________________________________________________________
 ;
@@ -498,7 +473,8 @@ TxChar
 		movwf	TXREG				;send char
 
 		return
-		
+; bad out with nops to prevent non-boot code above bootloader
+padding		
 		nop
 		nop
 		nop
@@ -524,9 +500,6 @@ TxChar
 		nop
 		nop
 		nop
-		nop
-
-		;nop
-		nop
+		return ; to anchor nops		
 
 		end

@@ -32,7 +32,7 @@ void EscI2CDelay(void)
 	nop2();
 	nop2();
 	nop2();
-}
+} // EscI2CDelay
 
 void EscWaitClkHi(void)
 {
@@ -40,7 +40,7 @@ void EscWaitClkHi(void)
 	ESC_CIO=1;	// set SCL to input, output a high
 	while( ESC_SCL == 0 ) ;	// wait for line to come hi
 	EscI2CDelay();
-}
+} // EscWaitClkHi
 
 // send a start condition
 void EscI2CStart(void)
@@ -52,7 +52,7 @@ void EscI2CStart(void)
 	EscI2CDelay();
 	ESC_SCL = 0;
 	ESC_CIO = 0;	// set SCL to output, output a low
-}
+} // EscI2CStart
 
 // send a stop condition
 void EscI2CStop(void)
@@ -63,7 +63,7 @@ void EscI2CStop(void)
 
 	ESC_DIO=1;	// set SDA to input, output a high, STOP condition
 	EscI2CDelay();		// leave clock high
-}
+} // EscI2CStop
 
 
 // send a byte to I2C slave and return ACK status
@@ -106,7 +106,7 @@ void SendEscI2CByte(uint8 nidata)
 //	I2C_IO = 0;		// set SDA to output
 //	I2C_SDA = 0;	// leave output low
 	return;
-}
+} // SendEscI2CByte
 
 
 #endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
@@ -329,7 +329,7 @@ void OutSignals(void)
 	#endif
 
 	WriteTimer0(0);
-	INTCONbits.TMR0IF = 0;
+	INTCONbits.TMR0IF = false;
 
 	#ifdef ESC_PPM
 	_asm
@@ -433,14 +433,14 @@ OS009:
 	GOTO	OS005
 OS006:
 _endasm
-// This will be the corresponding C code:
-//	while( ALL_OUTPUTS != 0 )
-//	{	// remain in loop as int16 as any output is still high
-//		if( TMR2 = MFront  ) PulseFront  = 0;
-//		if( TMR2 = MBack ) PulseBack = 0;
-//		if( TMR2 = MLeft  ) PulseLeft  = 0;
-//		if( TMR2 = MRight ) PulseRight = 0;
-//	}
+	// This will be the corresponding C code:
+	//	while( ALL_OUTPUTS != 0 )
+	//	{	// remain in loop as int16 as any output is still high
+	//		if( TMR2 = MFront  ) PulseFront  = 0;
+	//		if( TMR2 = MBack ) PulseBack = 0;
+	//		if( TMR2 = MLeft  ) PulseLeft  = 0;
+	//		if( TMR2 = MRight ) PulseRight = 0;
+	//	}
 
 	EnableInterrupts;	// Re-enable interrupt
 
@@ -519,15 +519,10 @@ _endasm
 	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
 	#ifndef DEBUG_MOTORS
-	while( ReadTimer0() < 0x100-3-16 ) ; // wait for 2nd TMR0 near overflow
+	while( ReadTimer0() < 0x100-3-16 ) ; 	// wait for 2nd TMR0 near overflow
 
-	INTCONbits.GIE = 0;					// Int wieder sperren, wegen Jitter
-
-	while( INTCONbits.TMR0IF == 0 ) ;	// wait for 2nd overflow (2 ms)
-
-	// avoid servo overrun when MCamxx == 0 ??? should not be necessary - _Minimum
-	ME = MCamRoll + 1;
-	MT = MCamPitch + 1;
+	INTCONbits.GIE = false;					// Int wieder sperren, wegen Jitter
+	while( INTCONbits.TMR0IF == 0 ) ;		// wait for 2nd overflow (2 ms)
 
 	#if !defined DEBUG && !defined DEBUG_SENSORS
 	// This loop is exactly 16 cycles int16

@@ -50,10 +50,10 @@
 
 #define Switch		PORTAbits.RA4
 
-#define LISL_CS		PORTCbits.RC5
-#define LISL_SDA	PORTCbits.RC4
-#define LISL_SCL	PORTCbits.RC3
-#define LISL_IO		TRISCbits.TRISC4
+#define SPI_CS		PORTCbits.RC5
+#define SPI_SDA		PORTCbits.RC4
+#define SPI_SCL		PORTCbits.RC3
+#define SPI_IO		TRISCbits.TRISC4
 
 // the sensor bus lines
 #define I2C_SDA			PORTBbits.RB6
@@ -67,6 +67,9 @@
 // The LEDs and the beeper
 #define ON	1
 #define OFF	0
+
+#define SEL_LEDS  1
+#define SEL_LISL  0
 
 #define MODELLOSTTIMER		20;	// in 0,2sec units
 				// time until first beep after lost xmit signal

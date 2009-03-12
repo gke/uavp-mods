@@ -49,9 +49,9 @@ void GetEvenValues(void)
 	Pp = SRS16(Pp + 8, 4);
 	Yp = SRS16(Yp + 8, 4);
 
-	NeutralLR = Limit(Rp, -128, 127);
-	NeutralFB = Limit(Pp, -128, 127);
-	NeutralUD = Limit(Yp-1024, -128, 127); // -1g
+	NeutralLR = Limit(Rp, -99, 99);
+	NeutralFB = Limit(Pp, -99, 99);
+	NeutralUD = Limit(Yp-1024, -99, 99); // -1g
 } // GetEvenValues
 
 // read all acceleration values from LISL sensor
@@ -113,12 +113,12 @@ void CheckLISL(void)
 
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
-		Rp -= SRS16(RollSum * 11 + 16, 5);	// Rp um RollSum*11/32 korrigieren
+		Rp -= SRS16(RollSum * 11 + 16, 5);
 		#else // OPT_IDG
-		Rp -= SRS16(RollSum * (-15) + 16, 5); // Rp um RollSum* -15/32 korrigieren
+		Rp -= SRS16(RollSum * (-15) + 16, 5); 
 		#endif
 	
-		// dynamic correction of moved mass
+		// dynamic correction of moved mass - turn coordination
 		#ifdef OPT_ADXRS
 		Rp += (int16)RollSamples << 1;
 		#else // OPT_IDG
@@ -141,9 +141,9 @@ void CheckLISL(void)
 
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
-		Pp -= SRS16(PitchSum * 11 + 16, 5);	// Pp um RollSum* 11/32 korrigieren
+		Pp -= SRS16(PitchSum * 11 + 16, 5);	
 		#else // OPT_IDG
-		Pp -= SRS16(PitchSum * (-15) + 16, 5);	// Pp um RollSum* -14/32 korrigieren
+		Pp -= SRS16(PitchSum * (-15) + 16, 5);
 		#endif
 	
 		// no dynamic correction of moved mass necessary
