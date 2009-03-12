@@ -143,6 +143,7 @@ void CalcGyroValues(void)
 			}
 			MidRoll = RollSum >> 4;	
 			MidPitch = PitchSum >> 4;
+			MidYaw = 0;
 			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
 		}
 	}

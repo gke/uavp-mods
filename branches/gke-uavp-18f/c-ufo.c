@@ -46,21 +46,44 @@ int16	RE, PE, YE;					// gyro rate error
 int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollSamples, PitchSamples;
+int16	MidRoll, MidPitch, MidYaw;
 int16	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
 int16 	UDSum;
 
-uint8	BlinkCount, BlinkCycle, BaroCount;
-uint8 	mSTick;
-int8	BatteryVolts;
-int8	Rw,Pw;
+// Failsafes
+int8	RollNeutral, PitchNeutral, YawNeutral;
+uint8	ThrNeutral;
 
 // Variables for barometric sensor PD-controller
 int24	BaroBasePressure, BaroBaseTemp;
 int16   BaroRelPressure, BaroRelTempCorr;
 int16	VBaroComp;
 uint8	BaroType, BaroTemp, BaroRestarts;
+
+uint8	LedShadow;		// shadow register
+int16	AbsDirection;	// wanted heading (240 = 360 deg)
+int16	CurDeviation;	// deviation from correct heading
+
+uint8	MFront,MLeft,MRight,MBack;	// output channels
+uint8	MCamRoll,MCamPitch;
+int16	Ml, Mr, Mf, Mb;
+int16	Rl,Pl,Yl;		// PID output values
+int16	Rp,Pp,Yp;
+int16	Vud;
+
+uint8	Flags[8];
+uint8	Flags2[8];
+
+uint8	IntegralCount;
+int16	ThrDownCount;
+uint8	DropoutCount;
+uint8	LedCount;
+uint8	BlinkCount, BlinkCycle, BaroCount;
+uint8 	mSTick;
+int8	BatteryVolts;
+int8	Rw,Pw;
 
 #pragma idata params
 // Principal quadrocopter parameters - MUST remain in this order
@@ -98,30 +121,6 @@ int8	BaroThrottleDiff	=4;
 
 // Ende Reihenfolgezwang
 
-int16	MidRoll, MidPitch, MidYaw;
-
-uint8	LedShadow;		// shadow register
-int16	AbsDirection;	// wanted heading (240 = 360 deg)
-int16	CurDeviation;	// deviation from correct heading
-
-uint8	MFront,MLeft,MRight,MBack;	// output channels
-uint8	MCamRoll,MCamPitch;
-int16	Ml, Mr, Mf, Mb;
-int16	Rl,Pl,Yl;		// PID output values
-int16	Rp,Pp,Yp;
-int16	Vud;
-
-uint8	Flags[8];
-uint8	Flags2[8];
-
-uint8	IntegralCount;
-int8	RollNeutral, PitchNeutral, YawNeutral;
-uint8	ThrNeutral;
-int16	ThrDownCount;
-
-uint8	DropoutCount;
-uint8	LedCount;
-
 void WaitThrottleClosed(void)
 {
 	DropoutCount = 1;
@@ -132,7 +131,7 @@ void WaitThrottleClosed(void)
 		if( _NewValues )
 		{
 			OutSignals();
-			_NewValues = 0;
+			_NewValues = false;
 			if( --DropoutCount <= 0 )
 			{
 				LedRed_TOG;	// toggle red Led 
@@ -187,12 +186,12 @@ void WaitForRxSignal(void)
 			{
 				if( --DropoutCount == 0 )
 				{
-					_LostModel = 1;
+					_LostModel = true;
 					DropoutCount = MODELLOSTTIMERINT;
 				}
 			}
 			else
-				_LostModel = 0;
+				_LostModel = false;
 	}
 	while( _NoSignal || !Switch);	// no signal or switch is off
 } // WaitForRXSignal
@@ -221,8 +220,8 @@ void main(void)
 
 	// setup flags register
 	for ( i = 0; i<8; i++ )
-		Flags2[i] = Flags[i] = 0; 
-	_NoSignal = 1;		// assume no signal present
+		Flags2[i] = Flags[i] = false; 
+	_NoSignal = true;		// assume no signal present
 
 	LedShadow = 0;
     ALL_LEDS_OFF;
@@ -237,7 +236,7 @@ void main(void)
 	#endif // INIT_PARAMS
 	ReadParametersEE();
 
-	INTCONbits.PEIE = 1;		// Enable peripheral interrupts
+	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	EnableInterrupts;
 
 	LedRed_ON;
@@ -277,7 +276,7 @@ Restart:
 
 	while(1)
 	{
-		INTCONbits.TMR0IE = 0;		// Disable TMR0 interrupt
+		INTCONbits.TMR0IE = false;		// Disable TMR0 interrupt
 
 		ALL_LEDS_OFF;
 		LedRed_ON;		// Red LED on
@@ -314,20 +313,18 @@ Restart:
 		// else assume use for camera roll trim	
 		_UseCh7Trigger = IK7 < 30;
 			
-		while ( Switch == 1 )	// as int16 as power switch is ON
+		while ( Switch == 1 )
 		{
 			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			WriteTimer0(0);
-			INTCONbits.TMR0IF = 0;
-			INTCONbits.TMR0IE = 1;	// enable TMR0
+			INTCONbits.TMR0IF = false;
+			INTCONbits.TMR0IE = true;	// enable TMR0
 
 			UpdateBlinkCount();
 			RollSamples =PitchSamples = 0;	// zero gyros sum-up memory
 			// sample gyro data and add everything up while waiting for timing delay
 
 			GetGyroValues();
-			GetDirection();	
-			ComputeBaroComp();
 
 			while( TimeSlot > 0 )
 			{
@@ -338,7 +335,10 @@ Restart:
 				// or non-optimal flight behavior might occur!!!
 			}
 
-			INTCONbits.TMR0IE = 0;	// disable timer
+			GetDirection();	
+			ComputeBaroComp();
+
+			INTCONbits.TMR0IE = false;	// disable timer
 			GetGyroValues();
 
 			ReadParametersEE();	// re-sets TimeSlot
@@ -353,7 +353,7 @@ Restart:
 				if( DropoutCount < MAXDROPOUT )
 				{	// FAILSAFE	
 					// hold last throttle
-					_LostModel = 1;
+					_LostModel = true;
 					ALL_LEDS_OFF;
 					IRoll = RollNeutral;
 					IPitch = PitchNeutral;
@@ -412,8 +412,8 @@ Restart:
 					LedCount = 1;
 				}
 
-				_Flying = 1;
-				_LostModel = 0;
+				_Flying = true;
+				_LostModel = false;
 				DropoutCount = 0;
 				LowGasCount = 100;		
 				LedGreen_ON;

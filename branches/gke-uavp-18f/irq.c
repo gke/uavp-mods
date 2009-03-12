@@ -65,14 +65,14 @@ void high_isr_handler(void)
 	// For 2.4GHz systems see README_DSM2_ETC.
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
-		PIR1bits.TMR2IF = 0;	// quit int
+		PIR1bits.TMR2IF = false;	// quit int
 		#ifndef RX_PPM	// single PPM pulse train from receiver
 		if( _FirstTimeout )			// 5 ms have been gone by...
 		{
 			PR2 = TMR2_5MS;			// set compare reg to 5ms
 			goto ErrorRestart;
 		}
-		_FirstTimeout = 1;
+		_FirstTimeout = true;
 		PR2 = TMR2_14MS;			// set compare reg to 14ms
 		#endif
 		RCState = 0;
@@ -81,8 +81,8 @@ void high_isr_handler(void)
 	if( PIR1bits.CCP1IF )
 	{
 		TMR2 = 0;				// re-set timer and postscaler
-		PIR1bits.TMR2IF = 0;				// quit int
-		_FirstTimeout = 0;
+		PIR1bits.TMR2IF = false;				// quit int
+		_FirstTimeout = false;
 
 		#ifndef RX_PPM				// single PPM pulse train from receiver
 							// standard usage (PPM, 3 or 4 channels input)
@@ -126,7 +126,7 @@ void high_isr_handler(void)
 		#ifdef RX_PPM
 			else
 		#else
-			else	// values are uintafe
+			else	// values are unsafe
 				goto ErrorRestart;
 		}
 		else	// a positive edge
@@ -181,11 +181,11 @@ void high_isr_handler(void)
 					IYaw = (NewK4 & 0xff) - (int16)_Neutral;					
 					IK5 = NewK5 & 0xff;
 
-					_NoSignal = 0;
-					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
+					_NoSignal = false;
+					_NewValues = true; // potentially IK6 & IK7 are still about to change ???
 					#endif // !RX_DSM2
 				}
-				else	// values are uintafe
+				else	// values are unsafe
 					goto ErrorRestart;
 			}
 			else
@@ -225,8 +225,8 @@ void high_isr_handler(void)
 					IK7 = NewK2 & 0xff;
 				}	
 
-				_NoSignal = 0;
-				_NewValues = 1;
+				_NoSignal = false;
+				_NewValues = true;
 				#else				
 				IK7 = NewK7 & 0xff;
 				#endif // RX_DSM2 
@@ -235,26 +235,26 @@ void high_isr_handler(void)
 			else
 			{
 ErrorRestart:
-				_NewValues = 0;
-				_NoSignal = 1;				// Signal lost
+				_NewValues = false;
+				_NoSignal = true;				// Signal lost
 				RCState = -1;
 				#ifndef RX_PPM
 				if( NegativePPM )
-					CCP1CONbits.CCP1M0 = 1;	// wait for positive edge next
+					CCP1CONbits.CCP1M0 = true;	// wait for positive edge next
 				else
-					CCP1CONbits.CCP1M0 = 0;	// wait for negative edge next
+					CCP1CONbits.CCP1M0 = false;	// wait for negative edge next
 				#endif
 			}	
 		#ifndef RX_PPM
 		}
 		#endif
-		PIR1bits.CCP1IF = 0;				// quit int
+		PIR1bits.CCP1IF = false;				// quit int
 		RCState++;
 	}
 
 	if( INTCONbits.TMR0IF && INTCONbits.TMR0IE )
 	{
-		INTCONbits.TMR0IF = 0;				// quit int
+		INTCONbits.TMR0IF = false;				// quit int
 		TimeSlot--;
 	}
 	

@@ -49,21 +49,115 @@ void OutSSP(uint8 d)
 } // OutSSP
 #endif
 
+#ifdef TEST_LISL
+
+uint8 ReadLISL(uint8 d)
+{
+	uint8 s;
+
+	SPI_SDA = 1;	// very important!! really!! LIS3L likes it
+	SPI_IO = 0;	// SDA is output
+	SPI_SCL = 0;
+	SPI_CS = SEL_LISL;	
+	for( s = 8; s ; s-- )
+	{
+		SPI_SCL = 0;
+		if( d & 0x80 )
+			SPI_SDA = 1;
+		else
+			SPI_SDA = 0;
+		d <<= 1;
+		SPI_SCL = 1;
+	}
+
+	SPI_IO = 1;	// SDA is input
+	d = 0;
+	for( s = 8; s ; s-- )
+	{
+		SPI_SCL = 0;
+		d <<= 1;
+		if( SPI_SDA == 1 )
+			d |= 1;	// set LSB
+		SPI_SCL = 1;
+	}
+	SPI_CS = SEL_LEDS;
+	return(d);
+} // ReadLISL
+
+void WriteLISL(uint8 addr, uint8 d)
+{
+	uint8 s;
+
+	SPI_IO = 0;	// SDA is output
+	SPI_SCL = 0;
+	SPI_CS = SEL_LISL;	
+	for( s = 8; s ; s-- )
+	{
+		SPI_SCL = 0;
+		if( addr & 0x80 )
+			SPI_SDA = 1;
+		else
+			SPI_SDA = 0;
+		addr <<= 1;
+		SPI_SCL = 1;
+	}
+
+	for( s = 8; s ; s-- )
+	{
+		SPI_SCL = 0;
+		if( d & 0x80 )
+			SPI_SDA = 1;
+		else
+			SPI_SDA = 0;
+		d <<= 1;
+		SPI_SCL = 1;
+	}
+
+	SPI_CS = SEL_LEDS;
+	SPI_IO = 1;	// IO is input (to allow RS232 reception)
+
+} // WriteLISL
+
+void IsLISLactive(void)
+{
+	uint8 r;
+
+	SPI_CS = SEL_LEDS;
+	WriteLISL(LISL_CTRLREG_2, 0b01001010); // enable 3-wire, BDU=1, +/-2g
+
+	r = ReadLISL(LISL_WHOAMI + LISL_READ);
+	if( r == 0x3A )	// a LIS03L sensor is there!
+	{
+		WriteLISL(LISL_CTRLREG_1, 0b11010111); // startup, enable all axis
+		WriteLISL(LISL_CTRLREG_3, 0b00000000);
+		WriteLISL(LISL_FF_CFG,    0b01001000); // Y-axis is height
+		WriteLISL(LISL_FF_THS_L,  0b00000000);
+		WriteLISL(LISL_FF_THS_H,  0b11111100); // -0,5g threshold
+		WriteLISL(LISL_FF_DUR,    255);
+		WriteLISL(LISL_DD_CFG,    0b00000000);
+		_UseLISL = true;
+	}
+} // IsLISLactive
+
+#else
+
 void WriteLISLByte(uint8 d)
 {
 	uint8	s;
 
-	LISL_SCL = 0;						// to give a little more low time
+	SPI_IO = 0;							// write
+	SPI_SCL = 0;
+	SPI_CS = SEL_LISL;
 	for( s = 8; s ; s-- )
 	{
 		Delay10TCY();
-		LISL_SCL = 0;
+		SPI_SCL = 0;
 		if (d & 0x80) 
-			LISL_SDA = 1;
+			SPI_SDA = 1;
 		else
-			LISL_SDA = 0;
+			SPI_SDA = 0;
 		d <<= 1;
-		LISL_SCL = 1;
+		SPI_SCL = 1;
 	}
 } // WriteLISLByte
 
@@ -71,16 +165,18 @@ uint8 ReadLISLNext(void)
 {
 	uint8	s, d;
 	
-	LISL_SCL = 0;					
+	SPI_IO = 1;
+	SPI_SCL = 0;
+	SPI_CS = SEL_LISL;					
 	d = 0;
 	for( s = 8; s ; s-- )
 	{
 		Delay10TCY();
-		LISL_SCL = 0;
+		SPI_SCL = 0;
 		d = (d << 1) & 0xfe;
-		if ( LISL_SDA )
+		if ( SPI_SDA )
 			d |= 1;	
-		LISL_SCL = 1;
+		SPI_SCL = 1;
 	}	
 
 	return(d);
@@ -90,35 +186,29 @@ uint8 ReadLISL(uint8 addr)
 {
 	uint8	d;
 
-	LISL_SDA = 1;						// very important!! really!! LIS3L likes it
-
-	LISL_IO = 0;						// write
-	LISL_CS = 0;
+	SPI_SDA = 1;						// very important!! really!! LIS3L likes it
 	WriteLISLByte(addr);
-
-	LISL_IO = 1;						// read	
 	d=ReadLISLNext();
 	
 	if( (addr & LISL_INCR_ADDR) == 0 )	// is this a single byte Read?
-		LISL_CS = 1;
+		SPI_CS = SEL_LEDS;
 				
 	return(d);
 } // ReadLISL
 
 void WriteLISL(uint8 d, uint8 addr)
 {
-	LISL_IO = 0;						// write
-	LISL_CS = 0;
-
 	WriteLISLByte(addr);
 	WriteLISLByte(d);
 
-	LISL_CS = 1;
-	LISL_IO = 1;						// read
+	SPI_CS = SEL_LEDS;
+	SPI_IO = 1;						// read
 } // WriteLISL
 
 void IsLISLactive(void)
 {
+	SPI_CS = SEL_LEDS;				// just in case
+
 	WriteLISL(0b01001010, LISL_CTRLREG_2); 			// enable 3-wire, BDU=1, +/-2g
 
 	if( ReadLISL(LISL_WHOAMI + LISL_READ) == 0x3a )	// LIS03L sensor ident
@@ -136,13 +226,25 @@ void IsLISLactive(void)
 		_UseLISL = false;
 } // IsLISLactive
 
+#endif // TEST_LISL
+
 void ReadAccelerations()
 {
-	while( (ReadLISL(LISL_STATUS+LISL_READ) & 0x08) == 0 ); //wait until ready
+	uint8 r;
+
+	SPI_CS = SEL_LEDS;				// just in case
+	SPI_IO = 1;						// read
+
+	// while( (ReadLISL(LISL_STATUS+LISL_READ) & 0x08) == 0 ); //may hang
+	r = ReadLISL(LISL_STATUS+LISL_READ);
+
 	// 0.903mS
 	Ax = (ReadLISL(LISL_OUTX_H|LISL_READ)*256)|ReadLISL(LISL_OUTX_L|LISL_READ);
 	Ay = (ReadLISL(LISL_OUTY_H|LISL_READ)*256)|ReadLISL(LISL_OUTY_L|LISL_READ);
 	Az = (ReadLISL(LISL_OUTZ_H|LISL_READ)*256)|ReadLISL(LISL_OUTZ_L|LISL_READ);
-	LISL_IO = 1; // read
+	SPI_IO = 1; // read
 
 } // ReadAccelerations
+
+
+

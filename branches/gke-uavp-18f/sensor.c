@@ -163,7 +163,7 @@ void InitDirection(void)
 
 	// CAUTION: compass calibration must be done using TestSoftware!
 
-	_UseCompass = 1;
+	_UseCompass = true;
 IDerror:
 	I2CStop();
 } // InitDirection
@@ -277,13 +277,13 @@ uint8 ReadValueFromBaro(void)
 
 RVerror:
 	I2CStop();
-	_UseBaro = 0; // read error, disable baro
+	_UseBaro = false; // read error, disable baro
 	#ifdef BARO_RETRY
-	_Hovering = 0;	
+	_Hovering = false;	
 	if ( BaroRestarts < 100 )
 	{
 		InitAltimeter();
-		_BaroRestart = 1;
+		_BaroRestart = true;
 		BaroRestarts++;
 	}
 	#endif
@@ -354,28 +354,28 @@ void InitAltimeter(void)
 	// before first call to ComputeBaroComp
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;	
 
-	_UseBaro = 1;
+	_UseBaro = true;
 
 	return;
 
 BAerror:
-	_UseBaro = _Hovering = 0;
+	_UseBaro = _Hovering = false;
 	I2CStop();
 } // InitAltimeter
 
 void ComputeBaroComp(void)
 {
-	int16 OldBaroRelPressure,  Temp, Delta;
+	int16 OldBaroRelPressure, Temp, Delta;
 
 	BaroCount++;
 
 	if( _UseBaro )
 		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
-#ifdef SLOW_BARO
+#ifdef NEW_ALT_HOLD
 		if (((BaroCount >= 8) && _BaroTempRun) || ((BaroCount >= 32 ) && !_BaroTempRun))
 #else
 		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))
-#endif // SLOW_BARO	
+#endif // NEW_ALT_HOLD	
 		{
 			BaroCount = 0;
 			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value		
@@ -406,10 +406,11 @@ void ComputeBaroComp(void)
 						if ( !_Hovering )
 						{
 							BaroRelPressure = 0;
-							_Hovering = 1;
+							_Hovering = true;
 						}
 	
-						#ifdef NEW_ALT_HOLD
+#ifdef NEW_ALT_HOLD
+// EXPERIMENTAL ALTITUDE HOLD
 						// while holding altitude
 						BaroVal -= BaroBasePressure;
 						// BaroVal has -400..+400 approx
@@ -432,18 +433,16 @@ void ComputeBaroComp(void)
 						else
 							if( VBaroComp < Temp )
 								VBaroComp++; // climb
+
 						if( VBaroComp > Temp )
 							VBaroComp--;
-						else
-							if( VBaroComp < Temp )
-								VBaroComp++;
-		
-						// Differentialanteil		
-						VBaroComp += Limit(Delta, -8, 8) * (int16)BaroThrottleDiff;
+				
+						// Differential		
+						VBaroComp += Limit(Delta, -5, 8) * (int16)BaroThrottleDiff;
 	
 						VBaroComp = Limit(VBaroComp, -5, 15);
 
-						#else
+#else
 
 						// while holding altitude
 						BaroVal -= BaroBasePressure;
@@ -478,7 +477,7 @@ void ComputeBaroComp(void)
 						VBaroComp += Limit(Delta, -8, 8) * (int16)BaroThrottleDiff;
 	
 						VBaroComp = Limit(VBaroComp, -5, 15);
-						#endif // NEW_ALT_HOLD
+#endif // NEW_ALT_HOLD
 	
 						#ifdef BARO_SCRATCHY_BEEPER
 						Beeper_TOG;

@@ -40,12 +40,7 @@ void Delay100mSWithOutput(uint8 dur)
 	{
 		for(i = 0; i < dur; i++)
 		{
-			// wait ca. 10ms (10*1024us (see _Prescale0)) before outputting
-			for( j = 10; j != 0; j-- )
-			{
-				while( INTCONbits.T0IF == 0 );
-				INTCONbits.T0IF = 0;
-			}
+			DELAY_MS(10);
 			OutSignals(); // 1-2 ms Duration
 			// break loop if a serial command is in FIFO
 			if( PIR1bits.RCIF )
@@ -58,7 +53,7 @@ void nop2()
 {
 	Delay1TCY();
 	Delay1TCY();
-}
+} // nop2
 
 int16 SRS16(int16 x, uint8 s)
 {
@@ -132,7 +127,7 @@ void InitPorts(void)
 	PORTC = 0b01100000;								// all outputs to low, except TxD and CS
 	TRISC = 0b10000100;								// RC7, RC2 are inputs
 
-	SSPSTATbits.CKE = 1;							// low logic threshold for LISL
+	SSPSTATbits.CKE = true;							// low logic threshold for LISL
 	INTCON2bits.NOT_RBPU = true;					// enable weak pullups
 } // InitPorts
 
@@ -143,7 +138,7 @@ void InitArrays(void)
 	MFront = MLeft = MRight = MBack = _Minimum;
 	MCamPitch = MCamRoll = _Neutral;
 
-	_Flying = 0;
+	_Flying = false;
 	REp = PEp = YEp = 0;
 	
 	Rp = Pp = Vud = VBaroComp = 0;
@@ -286,19 +281,19 @@ void SendLeds(void)
 	uint8	i, s;
 
 	i = LedShadow;
-	LISL_CS = 1;	// CS to 1
-	LISL_IO = 0;	// SDA is output
-	LISL_SCL = 0;	// because shift is on positive edge
+	SPI_CS = SEL_LEDS;	
+	SPI_IO = 0;	// SDA is output
+	SPI_SCL = 0;	// because shift is on positive edge
 	
 	for(s=8; s!=0; s--)
 	{
 		if( i & 0x80 )
-			LISL_SDA = 1;
+			SPI_SDA = 1;
 		else
-			LISL_SDA = 0;
+			SPI_SDA = 0;
 		i<<=1;
-		LISL_SCL = 1;
-		LISL_SCL = 0;
+		SPI_SCL = 1;
+		SPI_SCL = 0;
 	}
 
 	PORTCbits.RC1 = 1;

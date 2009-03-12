@@ -28,11 +28,11 @@
 // data strings
 
 #pragma idata menu1
-const char SerHello[] = "\r\nU.A.V.P. V" Version " (c) 2007"
+const uint8 SerHello[] = "\r\nUAVP V" Version " (c) 2007"
 							  " Ing. Wolfgang Mahringer\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n";
 
-const char SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
+const uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 							  "Gyro: "
 #ifdef OPT_ADXRS300
 							  "3x ADXRS300\r\n"
@@ -45,23 +45,22 @@ const char SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
 #endif
 							  "Linear sensors ";
 
-const char  SerLSavail[]="ONLINE\r\n";
-const char  SerLSnone[]= "not available\r\n";
-const char  SerBaro[]=   "Baro ";
-const char  SerBaroBMP085[]=   "BMP085\r\n";
-const char  SerBaroSMD500[]=   "SMD500\r\n";
-const char  SerChannel[]="Throttle Ch";
-const char  SerFM_Fut[]= "3";
-const char  SerFM_Grp[]= "1";
-
+const uint8  SerLSavail[]="ONLINE\r\n";
+const uint8  SerLSnone[]= "not available\r\n";
+const uint8  SerBaro[]=   "Baro ";
+const uint8  SerBaroBMP085[]=   "BMP085\r\n";
+const uint8  SerBaroSMD500[]=   "SMD500\r\n";
+const uint8  SerChannel[]="Throttle Ch";
+const uint8  SerFM_Fut[]= "3";
+const uint8  SerFM_Grp[]= "1";
 #pragma idata
-#pragma idata menu2
 
-const char  SerCompass[]="Compass ";
-const char  SerReg1[]  = "\r\nRegister ";
-const char  SerReg2[]  = " = ";
-const char  SerPrompt[]= "\r\n>";
-const char  SerHelp[]  = "\r\nCommands:\r\n"
+#pragma idata menu2
+const uint8  SerCompass[]="Compass ";
+const uint8  SerReg1[]  = "\r\nRegister ";
+const uint8  SerReg2[]  = " = ";
+const uint8  SerPrompt[]= "\r\n>";
+const uint8  SerHelp[]  = "\r\nCommands:\r\n"
 					 		  "L...List param\r\n"
 							  "M...Modify param\r\n"
 							  "S...Show setup\r\n"
@@ -70,38 +69,38 @@ const char  SerHelp[]  = "\r\nCommands:\r\n"
 							  "B...start Boot-Loader\r\n";
 
 // THE FOLLOWING LINE NOT TO BE CHANGED, it is important for UAVPset
-const char  SerList[]  = "\r\nParameter list for set #";
-const char  SerSelSet[]= "\r\nSelected parameter set: ";
+const uint8  SerList[]  = "\r\nParameter list for set #";
+const uint8  SerSelSet[]= "\r\nSelected parameter set: ";
 
-const char  SerNeutralR[]="\r\nNeutral Roll:";
-const char  SerNeutralN[]=" Ptch:";
-const char  SerNeutralY[]=" Yaw:";
+const uint8  SerNeutralR[]="\r\nNeutral Roll:";
+const uint8  SerNeutralN[]=" Ptch:";
+const uint8  SerNeutralY[]=" Yaw:";
 
-const char  SerRecvCh[]=  "\r\nT:";
+const uint8  SerRecvCh[]=  "\r\nT:";
 #pragma idata
 
 // transmit a fix text from a table
-void TxText(const char *pch)
+void TxText(const uint8 *pch)
 {
 	while( *pch != '\0' )
 	{
 		TxChar(*pch);
 		pch++;
 	}
-}
+} // TxText
 
 void ShowPrompt(void)
 {
 	TxText(SerPrompt);
-}
+} // ShowPrompt
 
 // send a character to the serial port
-void TxChar(char ch)
+void TxChar(uint8 ch)
 {
 	while( PIR1bits.TXIF == 0 ) ;	// wait for transmit ready
 	TXREG = ch;		// put new char
 	// register W must be retained on exit!!!! Why???
-}
+} // TxChar
 
 // converts an uintigned byte to decimal and send it
 void TxValU(uint8 v)
@@ -119,7 +118,7 @@ void TxValU(uint8 v)
 	nival %= 10;
 
 	TxChar(nival+'0');
-}
+} // TxValU
 
 // converts a nibble to HEX and sends it
 void TxNibble(uint8 v)
@@ -130,14 +129,14 @@ void TxNibble(uint8 v)
 	if( nival > '9' )
 		nival += 7;		// A to F
 	TxChar(nival);
-}
+} // TxNibble
 
 // converts an uintigned byte to HEX and sends it
 void TxValH(uint8 v)
 {
 	TxNibble(v >> 4);
 	TxNibble(v & 0x0f);
-}
+} // TxValH
 
 // converts an uintigned double byte to HEX and sends it
 void TxValH16(uint16 v)
@@ -159,17 +158,17 @@ void TxValS(int8 v)
 		TxChar('+');	// send sign
 
 	TxValU(v);
-}
+} // TxValS
 
 void TxNextLine(void)
 {
 	TxChar(0x0d);
 	TxChar(0x0a);
-}
+} // TxNextLine
 
 // if a character is in the buffer
 // return it. Else return the NUL character
-char RxChar(void)
+uint8 RxChar(void)
 {
 	uint8 ch;
 	
@@ -177,8 +176,8 @@ char RxChar(void)
 	{
 		if( RCSTAbits.OERR || RCSTAbits.FERR )	// overrun or framing error?
 		{
-			RCSTAbits.CREN = 0;	// diable, then re-enable port to
-			RCSTAbits.CREN = 1;	// reset OERR and FERR bit
+			RCSTAbits.CREN = false;	// diable, then re-enable port to
+			RCSTAbits.CREN = true;	// reset OERR and FERR bit
 			ch = RCREG;	// dummy read
 		}
 		else
@@ -189,13 +188,13 @@ char RxChar(void)
 		}
 	}
 	return( '\0' );	// nothing in buffer
-}
+} // RxChar
 
 
 // enter an uintigned number 00 to 99
 uint8 RxNumU(void)
 {
-	char ch;
+	uint8 ch;
 	uint8 nival;
 
 	nival = 0;
@@ -213,18 +212,18 @@ uint8 RxNumU(void)
 	while( (ch < '0') || (ch > '9') );
 	nival += ch - '0';
 	return(nival);
-}
+} // RxNumU
 
 
 // enter a signed number -99 to 99 (always 2 digits)!
 int8 RxNumS(void)
 {
-	char ch;
+	uint8 ch;
 	int8 nival;
 
 	nival = 0;
 
-	_NegIn = 0;
+	_NegIn = false;
 	do
 	{
 		ch = RxChar();
@@ -233,7 +232,7 @@ int8 RxNumS(void)
            (ch != '-') );
 	if( ch == '-' )
 	{
-		_NegIn = 1;
+		_NegIn = true;
 		do
 		{
 			ch = RxChar();
@@ -252,7 +251,7 @@ int8 RxNumS(void)
 	if( _NegIn )
 		nival = -nival;
 	return(nival);
-}
+} // RxNumS
 
 // send the current configuration setup to serial port
 void ShowSetup(uint8 h)
@@ -298,20 +297,7 @@ void ShowSetup(uint8 h)
 		TxChar('1');
 	
 	ShowPrompt();
-}
-
-void ProgRegister(void)
-{
-	EECON1bits.EEPGD = 0;
-	EECON1bits.WREN = 1;		// enable eeprom writes
-	INTCONbits.GIE = 0;
-	EECON2 = 0x55;	// fix prog sequence (see 16F628A datasheet)
-	EECON2 = 0xAA;
-	EECON1bits.WR = 1;			// start write cycle
-	INTCONbits.GIE = 1;
-	while( EECON1bits.WR == 1 );	// wait to complete
-	EECON1bits.WREN = 0;	// disable EEPROM write
-}
+} // ShowSetup
 
 // if a command is waiting, read and process it.
 // Do NOT call this routine while in flight!
@@ -424,28 +410,12 @@ void ProcessComCommand(void)
 			break;
 
 		case 'B':	// call bootloader
-//#asm
-//			movlw	0x1f
-//			movwf	PCLATH
-//			dw	0x2F00
-//#endasm
-//			DisableInterrupts;
 			BootStart();							// never comes back!
 		
-#ifndef TESTOUT	
-		case 'T':
-			RE = 10;
-			PE = 20;
-			Rw = 30;
-			Pw = 40;
-			//MatrixCompensate();
-			ShowPrompt();
-			break;
-#endif
-
 		case '?'  : // help
 			TxText(SerHelp);
 			ShowPrompt();
+			break;
 	}
-}
+} // ProcessComCommand
 
