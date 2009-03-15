@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -374,7 +374,7 @@ void OutSignals(void)
 
 	// simply wait for nearly 1 ms
 	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( ReadTimer0() < 0x100-3-16 ) ;
+	while( ReadTimer0() < 0x100-3-20 ) ; // 16
 
 	// now stop CCP1 interrupt
 	// capture can survive 1ms without service!
@@ -519,7 +519,7 @@ _endasm
 	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
 	#ifndef DEBUG_MOTORS
-	while( ReadTimer0() < 0x100-3-16 ) ; 	// wait for 2nd TMR0 near overflow
+	while( ReadTimer0() < 0x100-3-20 ) ; 	// wait for 2nd TMR0 near overflow
 
 	INTCONbits.GIE = false;					// Int wieder sperren, wegen Jitter
 	while( INTCONbits.TMR0IF == 0 ) ;		// wait for 2nd overflow (2 ms)
@@ -557,7 +557,7 @@ _endasm
 #endif	// DEBUG
 	EnableInterrupts;	// re-enable interrupt
 
-	while( INTCONbits.TMR0IF == 0 ) ;	// wait for 3rd TMR2 overflow
+//	while( INTCONbits.TMR0IF == 0 ) ;	// wait for 3rd TMR2 overflow
 #endif	// DEBUG_MOTORS
 
 #endif  // !DEBUG_SENSORS

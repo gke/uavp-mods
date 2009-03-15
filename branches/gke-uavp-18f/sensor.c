@@ -1,9 +1,8 @@
-
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -21,8 +20,6 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-// The "sensor bus" routines (barometric and compass)
-
 #include "c-ufo.h"
 #include "bits.h"
 
@@ -39,7 +36,7 @@ uint8 I2CWaitClkHi(void)
 
 	s = 1;
 	I2CDelay();
-	I2C_CIO=1;	// set SCL to input, output a high
+	I2C_CIO=1;								// set SCL to input, output a high
 	while( !I2C_SCL )						// wraparound through 255 1.25mS @ 16MHz							
 		if( ++s == 0 )			 
 			break;	
@@ -249,8 +246,6 @@ void GetDirection(void)
 	#define BaroFilter MediumFilter
 #endif // BARO_HARD_FILTER
 
-static uint16 BaroVal;
-
 // read temp & pressure values from baro sensor
 // return value= niltemp;
 // returns 1 if value is available
@@ -282,7 +277,7 @@ RVerror:
 	_Hovering = false;	
 	if ( BaroRestarts < 100 )
 	{
-		InitAltimeter();
+		InitBarometer();
 		_BaroRestart = true;
 		BaroRestarts++;
 	}
@@ -316,16 +311,18 @@ SBerror:
 } // StartBaroADC
 
 // initialize compass sensor
-void InitAltimeter(void)
+void InitBarometer(void)
 {
 	// SMD500 9.5mS (T) 34mS (P)  
 	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
 	// Baro is assumed offline unless it responds - no retries!
+	uint8 r;
 
 	VBaroComp = BaroCount = 0;
 
 	// Determine baro type
 	I2CStart();
+
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto BAerror;
 	if( SendI2CByte(BARO_TYPE) != I2C_ACK ) goto BAerror;
 	I2CStart();	// restart
@@ -340,14 +337,15 @@ void InitAltimeter(void)
 
 	// read temperature once to get base value
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
-	DELAY_MS(10);
-	ReadValueFromBaro();
+
+	Delay1mS(10);
+	r = ReadValueFromBaro();
 	BaroBaseTemp = BaroVal;	// save start value
 		
 	// read pressure once to get base value
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
-	DELAY_MS(30);
-	ReadValueFromBaro();	
+	Delay1mS(30);
+	r = ReadValueFromBaro();	
 	BaroBasePressure = BaroVal;
 	
 	// set baro device to start temperature conversion
@@ -361,7 +359,7 @@ void InitAltimeter(void)
 BAerror:
 	_UseBaro = _Hovering = false;
 	I2CStop();
-} // InitAltimeter
+} // InitBarometer
 
 void ComputeBaroComp(void)
 {
@@ -395,7 +393,8 @@ void ComputeBaroComp(void)
 					if( ThrDownCount )	// while moving throttle stick
 					{
 						BaroBasePressure = BaroVal;	
-						_Hovering = VBaroComp = 0;	
+						_Hovering = false;
+						VBaroComp = 0;	
 					}
 					else
 					{

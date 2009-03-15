@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -25,28 +25,33 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-static int8 i;
+void Delay1mS(uint16 d)
+{ 	// Timer0 interrupt at 1mS must be running
+	int24 TimeOut;
+	
+	// if d is 1 then delay can be less than 1mS due to 
+	// TMR0 just rolling over
+	TimeOut = ClockMilliSec + d;
+	while ( ClockMilliSec < TimeOut ) {};
+
+} // Delay1mS
+
+#define DELAY_MS(ms)	for( mSTick=ms; mSTick!=0; mSTick--){INTCONbits.TMR0IF=0; while(INTCONbits.TMR0IF == 0);}
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delay100mSWithOutput(uint8 dur)
-{ // max 255x10mS
-	uint8 i, k, j;
+void Delay100mSWithOutput(uint16 dur)
+{ // // Timer0 interrupt at 1mS must be running
+	uint16 i, j;
 
-	// a TMR0 Timeout is 0,25us * 256 * 16 (presc) = 1024 us
-	WriteTimer0(0);
-
-	for (k = 0; k < 10; k++)
-	{
-		for(i = 0; i < dur; i++)
+	for(i = 0; i < dur*10; i++)
 		{
-			DELAY_MS(10);
+			Delay1mS(8);
 			OutSignals(); // 1-2 ms Duration
 			// break loop if a serial command is in FIFO
 			if( PIR1bits.RCIF )
 				return;
 		}
-	}
 } // Delay100mSWithOutput
 
 void nop2()
@@ -131,10 +136,11 @@ void InitPorts(void)
 	INTCON2bits.NOT_RBPU = true;					// enable weak pullups
 } // InitPorts
 
-// resets all important variables
-// Do NOT call that while in flight!
+// resets all important variables - Do NOT call that while in flight!
 void InitArrays(void)
 {
+	ClockMilliSec = 0;
+
 	MFront = MLeft = MRight = MBack = _Minimum;
 	MCamPitch = MCamRoll = _Neutral;
 
