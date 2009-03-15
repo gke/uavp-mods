@@ -14,7 +14,7 @@ set 	DBG=%4
 set 	RX=%5
 set 	CFG=%6
 
-set CSRC=accel adc c-ufo irq lisl menu pid prog sensor serial utils utils2
+set CSRC=accel adc c-ufo irq lisl menu pid prog sensor serial utils outputs
 set ASRC=bootl18f2520
 
 set CC="C:\MCC18\bin\mcc18"

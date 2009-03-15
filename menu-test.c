@@ -1,11 +1,11 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -178,84 +178,88 @@ void ProcessComCommand(void)
 	uint8 i, ch;
 
 	ch = RxChar();
-	if( islower(ch))							// check lower case
-		ch=toupper(ch);
 
-	switch( ch )
+	if ( ch != NUL )
 	{
-		case NUL : break;
-		case 'R'  :	// Receiver test
-			ReceiverTest();
-			ShowPrompt();
-			break;
-		case 'A' :	// analog test
-			AnalogTest();
-			ShowPrompt();
-			break;
-		case 'L' :	// linear sensor
-			LinearTest();
-			ShowPrompt();
-			break;
-		case 'I':
-			TxText(SerI2CRun);
-			TxVal32(ScanI2CBus(),0,0);
-			TxText(SerI2CCnt);
-			ShowPrompt();
-			break;
-		case 'C':
-			DoCompassTest();
-			ShowPrompt();
-			break;
-		case 'K':
-			CalibrateCompass();
-			ShowPrompt();
-			break;
-		case 'H':	// barometer
-			BaroTest();
-			ShowPrompt();
-			break;	
-		case 'S' :	// show status
-			ShowSetup(0);
-			break;
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-
-			TxText(SerPowTst);
-			TxChar(ch);
-			TxChar(':');
-			switch( ch )
-			{
-				case '1': TxText(SerPowAux2);  break;
-				case '2': TxText(SerPowBlue);  break;
-				case '3': TxText(SerPowRed);   break;
-				case '4': TxText(SerPowGreen); break;
-				case '5': TxText(SerPowAux1);  break;
-				case '6': TxText(SerPowYellow);break;
-				case '7': TxText(SerPowAux3);  break;
-				case '8': TxText(SerPowBeep);  break;
-			}
-			TxNextLine();
-			PowerOutput(ch-'1');
-			ShowPrompt();
-			break;
-
-		case 'N':	// toggle PPM polarity
-			TogglePPMPolarity();
-			ShowPrompt();
-			break;
-
-		case 'B':	// call bootloader
-			TxNextLine();
-			BootStart();	// never comes back!
-		case '?'  : // help
-			TxText(SerHelp);
-			ShowPrompt();
+		if( islower(ch))							// check lower case
+			ch=toupper(ch);
+	
+		switch( ch )
+		{
+			case NUL : break;
+			case 'R'  :	// Receiver test
+				ReceiverTest();
+				ShowPrompt();
+				break;
+			case 'A' :	// analog test
+				AnalogTest();
+				ShowPrompt();
+				break;
+			case 'L' :	// linear sensor
+				LinearTest();
+				ShowPrompt();
+				break;
+			case 'I':
+				TxText(SerI2CRun);
+				TxVal32(ScanI2CBus(),0,0);
+				TxText(SerI2CCnt);
+				ShowPrompt();
+				break;
+			case 'C':
+				DoCompassTest();
+				ShowPrompt();
+				break;
+			case 'K':
+				CalibrateCompass();
+				ShowPrompt();
+				break;
+			case 'H':	// barometer
+				BaroTest();
+				ShowPrompt();
+				break;	
+			case 'S' :	// show status
+				ShowSetup(0);
+				break;
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+	
+				TxText(SerPowTst);
+				TxChar(ch);
+				TxChar(':');
+				switch( ch )
+				{
+					case '1': TxText(SerPowAux2);  break;
+					case '2': TxText(SerPowBlue);  break;
+					case '3': TxText(SerPowRed);   break;
+					case '4': TxText(SerPowGreen); break;
+					case '5': TxText(SerPowAux1);  break;
+					case '6': TxText(SerPowYellow);break;
+					case '7': TxText(SerPowAux3);  break;
+					case '8': TxText(SerPowBeep);  break;
+				}
+				TxNextLine();
+				PowerOutput(ch-'1');
+				ShowPrompt();
+				break;
+	
+			case 'N':	// toggle PPM polarity
+				TogglePPMPolarity();
+				ShowPrompt();
+				break;
+	
+			case 'B':	// call bootloader
+				TxNextLine();
+				BootStart();	// never comes back!
+			case '?'  : // help
+				TxText(SerHelp);
+				ShowPrompt();
+		}
 	}
 } // ProcessComCommand
 

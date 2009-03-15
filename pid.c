@@ -1,8 +1,8 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //

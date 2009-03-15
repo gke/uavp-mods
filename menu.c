@@ -1,8 +1,8 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -138,112 +138,115 @@ void ProcessComCommand(void)
 	int8 d;
 	
 	ch = RxChar();
-	if( islower(ch))							// check lower case
-		ch=toupper(ch);
 
-	switch( ch )
+	if ( ch != NUL )
 	{
-		case '\0' : break;
-		case 'L'  :	// List parameters
-			TxText(SerList);	// must send it (UAVPset!)
-			if( IK5 > _Neutral )
-				TxChar('2');
-			else
-				TxChar('1');
-			ReadParametersEE();
-			addr = 1;
-			for(p = &FirstProgReg; p <= &LastProgReg; p++)
-			{
-				TxText(SerReg1);
-				TxValU(addr++);
-				TxText(SerReg2);
-				d = *p;
-				TxValS(d);
-			}
-			ShowPrompt();
-			break;
-		case 'M'  : // modify parameters
-			LedBlue_ON;
-			TxText(SerReg1);
-			addr = RxNumU()-1;
-			TxText(SerReg2);
-			d = RxNumS();
-			if( IK5 > _Neutral )
-				addrbase = _EESet2;
-			else
-				addrbase = _EESet1;
-
-			if( addr ==  (&ConfigParam - &FirstProgReg) )
-				d &=0xf7; // no Double Rates
-
-			WriteEE(addrbase + (uint16)addr, d);
-
-			// update transmitter config bits in the other parameter set
-			if( addr ==  (&ConfigParam - &FirstProgReg) )
-			{									
+		if( islower(ch))							// check lower case
+			ch=toupper(ch);
+	
+		switch( ch )
+		{
+			case 'L'  :	// List parameters
+				TxText(SerList);	// must send it (UAVPset!)
 				if( IK5 > _Neutral )
-					addrbase = _EESet1;				
+					TxChar('2');
 				else
-					addrbase = _EESet2;	
-				// mask only bits _FutabaMode and _NegativePPM
-				d &= 0x12;		
-				d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
+					TxChar('1');
+				ReadParametersEE();
+				addr = 1;
+				for(p = &FirstProgReg; p <= &LastProgReg; p++)
+				{
+					TxText(SerReg1);
+					TxValU(addr++);
+					TxText(SerReg2);
+					d = *p;
+					TxValS(d);
+				}
+				ShowPrompt();
+				break;
+			case 'M'  : // modify parameters
+				LedBlue_ON;
+				TxText(SerReg1);
+				addr = RxNumU()-1;
+				TxText(SerReg2);
+				d = RxNumS();
+				if( IK5 > _Neutral )
+					addrbase = _EESet2;
+				else
+					addrbase = _EESet1;
+	
+				if( addr ==  (&ConfigParam - &FirstProgReg) )
+					d &=0xf7; // no Double Rates
+	
 				WriteEE(addrbase + (uint16)addr, d);
-			}
-			LedBlue_OFF;
-			ShowPrompt();
-			break;
-		case 'S' :	// show status
-			ShowSetup(0);
-			break;
-		case 'N' :	// neutral values
-			TxText(SerNeutralR);
-			TxValS(NeutralLR);
-
-			TxText(SerNeutralN);
-			TxValS(NeutralFB);
-
-			TxText(SerNeutralY);	
-			TxValS(NeutralUD);
-			ShowPrompt();
-			break;
-		case 'R':	// receiver values
-			TxText(SerRecvCh);
-			TxValU(IGas);
-			TxChar(',');
-			TxChar('R');
-			TxChar(':');
-			TxValS(IRoll);
-			TxChar(',');
-			TxChar('N');
-			TxChar(':');
-			TxValS(IPitch);
-			TxChar(',');
-			TxChar('Y');
-			TxChar(':');
-			TxValS(IYaw);
-			TxChar(',');
-			TxChar('5');
-			TxChar(':');
-			TxValU(IK5);
-			TxChar(',');
-			TxChar('6');
-			TxChar(':');
-			TxValU(IK6);
-			TxChar(',');
-			TxChar('7');
-			TxChar(':');
-			TxValU(IK7);
-			ShowPrompt();
-			break;
-
-		case 'B':	// call bootloader
-			BootStart();							// never comes back!
-		
-		case '?'  : // help
-			TxText(SerHelp);
-			ShowPrompt();
-			break;
+	
+				// update transmitter config bits in the other parameter set
+				if( addr ==  (&ConfigParam - &FirstProgReg) )
+				{									
+					if( IK5 > _Neutral )
+						addrbase = _EESet1;				
+					else
+						addrbase = _EESet2;	
+					// mask only bits _FutabaMode and _NegativePPM
+					d &= 0x12;		
+					d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
+					WriteEE(addrbase + (uint16)addr, d);
+				}
+				LedBlue_OFF;
+				ShowPrompt();
+				break;
+			case 'S' :	// show status
+				ShowSetup(0);
+				break;
+			case 'N' :	// neutral values
+				TxText(SerNeutralR);
+				TxValS(NeutralLR);
+	
+				TxText(SerNeutralN);
+				TxValS(NeutralFB);
+	
+				TxText(SerNeutralY);	
+				TxValS(NeutralUD);
+				ShowPrompt();
+				break;
+			case 'R':	// receiver values
+				TxText(SerRecvCh);
+				TxValU(IGas);
+				TxChar(',');
+				TxChar('R');
+				TxChar(':');
+				TxValS(IRoll);
+				TxChar(',');
+				TxChar('N');
+				TxChar(':');
+				TxValS(IPitch);
+				TxChar(',');
+				TxChar('Y');
+				TxChar(':');
+				TxValS(IYaw);
+				TxChar(',');
+				TxChar('5');
+				TxChar(':');
+				TxValU(IK5);
+				TxChar(',');
+				TxChar('6');
+				TxChar(':');
+				TxValU(IK6);
+				TxChar(',');
+				TxChar('7');
+				TxChar(':');
+				TxValU(IK7);
+				ShowPrompt();
+				break;
+	
+			case 'B':	// call bootloader
+				BootStart();							// never comes back!
+			
+			case '?'  : // help
+				TxText(SerHelp);
+				ShowPrompt();
+				break;
+		}
 	}
 } // ProcessComCommand
 

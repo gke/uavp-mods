@@ -1,11 +1,11 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -46,30 +46,30 @@ void TxChar(uint8 ch)
 // converts an uintigned byte to decimal and send it
 void TxValU(uint8 v)
 {	
-	uint8 nival;
+	uint8 n;
 
-	nival = v;
+	n = v;
 
-	v = nival / 100;
+	v = n / 100;
 	TxChar(v+'0');
-	nival %= 100;		// Einsparpotential: Modulo als Mathlib
+	n %= 100;		// Einsparpotential: Modulo als Mathlib
 
-	v = nival / 10;
+	v = n / 10;
 	TxChar(v+'0');
-	nival %= 10;
+	n %= 10;
 
-	TxChar(nival+'0');
+	TxChar(n+'0');
 } // TxValU
 
 // converts a nibble to HEX and sends it
 void TxNibble(uint8 v)
 {
-	uint8 nival;
+	uint8 n;
 
-	nival = v + '0';
-	if( nival > '9' )
-		nival += 7;		// A to F
-	TxChar(nival);
+	n = v + '0';
+	if( n > '9' )
+		n += 7;		// A to F
+	TxChar(n);
 } // TxNibble
 
 // converts an uintigned byte to HEX and sends it
@@ -87,7 +87,7 @@ void TxValH16(uint16 v)
 } // TxValH16
 
 // converts a signed byte to decimal and send it
-// because of dumb compiler nival must be declared as uintigned :-(
+// because of dumb compiler n must be declared as uintigned :-(
 void TxValS(int8 v)
 {
 	if( v < 0 )
@@ -128,7 +128,7 @@ uint8 RxChar(void)
 			return(ch);				// and return it
 		}
 	}
-	return( '\0' );					// nothing in buffer
+	return( NUL );					// nothing in buffer
 } // RxChar
 
 
@@ -136,23 +136,23 @@ uint8 RxChar(void)
 uint8 RxNumU(void)
 {
 	uint8 ch;
-	uint8 nival;
+	uint8 n;
 
-	nival = 0;
+	n = 0;
 	do
 	{
 		ch = RxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
-	nival = ch - '0';
-	nival *= 10;
+	n = ch - '0';
+	n *= 10;
 	do
 	{
 		ch = RxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
-	nival += ch - '0';
-	return(nival);
+	n += ch - '0';
+	return(n);
 } // RxNumU
 
 
@@ -160,9 +160,9 @@ uint8 RxNumU(void)
 int8 RxNumS(void)
 {
 	uint8 ch;
-	int8 nival;
+	int8 n;
 
-	nival = 0;
+	n = 0;
 
 	_NegIn = false;
 	do
@@ -180,18 +180,18 @@ int8 RxNumS(void)
 		}
 		while( (ch < '0') || (ch > '9') );
 	}
-	nival = ch - '0';
-	nival *= 10;
+	n = ch - '0';
+	n *= 10;
 
 	do
 	{
 		ch = RxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
-	nival += ch - '0';
+	n += ch - '0';
 	if( _NegIn )
-		nival = -nival;
-	return(nival);
+		n = -n;
+	return(n);
 } // RxNumS
 
 
@@ -208,6 +208,8 @@ void TxVal32(int32 V, uint8 dp, uint8 Separator)
 		TxChar('-');
 	    V=-V;
 	}
+	else
+		TxChar(' ');
 	
 	c=0;
 	do

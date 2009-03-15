@@ -10,11 +10,11 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -212,6 +212,7 @@ typedef unsigned long uint32;
 
 #define DisableInterrupts (INTCONbits.GIEH=0)
 #define EnableInterrupts (INTCONbits.GIEH=1)
+#define InterruptsEnabled (INTCONbits.GIEH)
 
 // ADC Channels
 #define ADCPORTCONFIG 0b00001010 // AAAAA
@@ -270,7 +271,6 @@ extern	int16	Rp,Pp,Yp,Vud;
 extern	uint8	Flags[8];
 extern	uint8	Flags2[8];
 
-extern	uint32	ClockMilliSec;
 extern	uint8	IntegralCount;
 extern 	uint8	LedCount;
 extern	int16	ThrDownCount;
@@ -302,7 +302,7 @@ extern	int8	YawDiffFactor;		// 13
 extern	int8	YawLimit;			// 14
 extern	int8 	YawIntLimit;		// 15
 extern	int8	ConfigParam;		// 16
-extern	int8 	TimeSlot;			// 17
+extern	int8 	TimeSlot;		// 17
 extern	int8	LowVoltThres;		// 18
 extern	int8	CamRollFactor;		// 19
 extern	int8	LinFBIntFactor;		// 20 free
