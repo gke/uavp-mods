@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -19,6 +19,7 @@
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 
 #include "c-ufo.h"
 #include "bits.h"
@@ -53,6 +54,7 @@ void ReadParametersEE(void)
 
 	// Sanity check
 	//if timing value is lower than 1, set it to 10ms!
+	// Note TimeSlot is re-read from EEPROM each cycle
 	if( TimeSlot < 2 )
 		TimeSlot = 2;
 	else

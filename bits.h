@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -55,6 +55,12 @@
 #define SPI_SCL		PORTCbits.RC3
 #define SPI_IO		TRISCbits.TRISC4
 
+#define	RD_SPI	1
+#define WR_SPI	0
+
+#define SEL_LEDS  1
+#define SEL_LISL  0
+
 // the sensor bus lines
 #define I2C_SDA			PORTBbits.RB6
 #define I2C_DIO			TRISBbits.TRISB6
@@ -68,14 +74,10 @@
 #define ON	1
 #define OFF	0
 
-#define SEL_LEDS  1
-#define SEL_LISL  0
-
-#define MODELLOSTTIMER		20;	// in 0,2sec units
-				// time until first beep after lost xmit signal
-#define MODELLOSTTIMERINT	2;	// in 0,2 sec units
-				// interval beep when active
-
+#define MODELLOSTTIMER		20 	/*in 0,2sec until first beep 
+								after lost xmit signal */
+#define MODELLOSTTIMERINT	2 	/* in 0,2 sec units
+								interval beep when active */
 #define LedYellow	LED6
 #define LedGreen	LED4
 #define	LedBlue		LED2
@@ -126,6 +128,8 @@
 #define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
 #define COMPASS_MIDDLE	10		/* yaw stick neutral dead zone */
 
+#define COMPASS_TIME	50	/* 20Hz */
+
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
 #define BARO_TEMP_BMP085	0x2e
@@ -137,6 +141,9 @@
 #define BARO_TYPE			0xd0
 //#define BARO_ID_SMD500		??
 #define BARO_ID_BMP085		0x55
+
+#define BARO_TEMP_TIME	10
+#define BARO_PRESS_TIME 35
 
 #define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
@@ -197,3 +204,4 @@
 #define LISL_DD_CFG		(0x38)
 #define LISL_INCR_ADDR	(0x40)
 #define LISL_READ		(0x80)
+

@@ -10,7 +10,7 @@ rem Greg Egan 2008-2009
 rem
 rem Uses: makeallhelper.bat and makeclean.bat
 rem 
-rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or IDG300.
+rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or OPT_IDG
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.
 rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
 rem RX_DSM2 for AR7000, RX_PPM for serial PPM frame, or RX_DEFAULT for default PPM Graupner/JR etc Rx.
@@ -46,6 +46,14 @@ rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
 
 for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do call makeallhelper.bat %VERSION% %%g %%e %%d %%r %%c
 
+rem Delete working files
+call makeclean.bat
+echo Starting makeall uavptest > gen.lst
+echo Starting makeall uavptest > log.lst
+
+rem Parameters for makealltesthelper.bat are VERSION BARO GYRO ESC DBG RX
+
+for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%r in (%RX%) do call makealltesthelper.bat %VERSION% %%g %%e %%r
 
 
 

@@ -100,22 +100,19 @@ void high_isr_handler(void)
 			if( RCState == 2 )
 			{
 				NewK3 = CCPR1;
-				NewK2 = NewK3 - NewK2;
-				NewK2 >>= 1;
+				NewK2 = (NewK3 - NewK2) >> 1;
 			}
 			else
 			if( RCState == 4 )
 			{
 				NewK5 = CCPR1;
-				NewK4 = NewK5 - NewK4;
-				NewK4 >>= 1;
+				NewK4 = (NewK5 - NewK4) >> 1;
 			}
 			else
 			if( RCState == 6 )
 			{
 				NewK7 = CCPR1;
-				NewK6 = NewK7 - NewK6;
-				NewK6 >>= 1; 		
+				NewK6 = (NewK7 - NewK6) >> 1;		
 		#ifdef RX_DSM2
 				if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
 					goto ErrorRestart;
@@ -135,22 +132,19 @@ void high_isr_handler(void)
 			if( RCState == 1 )
 			{
 				NewK2 = CCPR1;
-				NewK1 = NewK2 - NewK1;
-				NewK1 >>= 1;
+				NewK1 = (NewK2 - NewK1) >> 1;
 			}
 			else
 			if( RCState == 3 )
 			{
 				NewK4 = CCPR1;
-				NewK3 = NewK4 - NewK3;
-				NewK3 >>= 1;
+				NewK3 = (NewK4 - NewK3) >> 1;
 			}
 			else
 			if( RCState == 5 )
 			{
 				NewK6 = CCPR1;
-				NewK5 = NewK6 - NewK5;
-				NewK5 >>= 1;
+				NewK5 = (NewK6 - NewK5) >> 1;
 
 				// sanity check - NewKx has values in 4us units now. 
 				// content must be 256..511 (1024-2047us)
@@ -164,13 +158,8 @@ void high_isr_handler(void)
 					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 					{
 						IGas = NewK3 & 0xff;
-						#ifdef EXCHROLLNICK
-						IRoll = (NewK2 & 0xff) - (int16)_Neutral;
-						IPitch = (NewK1 & 0xff) - (int16)_Neutral;
-						#else
 						IRoll = (NewK1 & 0xff) - (int16)_Neutral;
 						IPitch = (NewK2 & 0xff) - (int16)_Neutral;
-						#endif // EXCHROLLNICK
 					}
 					else
 					{
@@ -191,8 +180,7 @@ void high_isr_handler(void)
 			else
 			if( RCState == 7 )
 			{
-				NewK7 = CCPR1 - NewK7;
-				NewK7 >>= 1;	
+				NewK7 = (CCPR1 - NewK7) >> 1;	
 				#ifdef RX_DSM2
 				if ( (NewK7>>8) !=1)	
 					goto ErrorRestart;
@@ -256,6 +244,7 @@ ErrorRestart:
 	{
 		INTCONbits.TMR0IF = false;				// quit int
 		TimeSlot--;
+		ClockMilliSec++;
 	}
 	
 } // high_isr_handler

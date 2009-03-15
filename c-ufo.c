@@ -2,7 +2,7 @@
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
 // =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -59,6 +59,7 @@ uint8	ThrNeutral;
 // Variables for barometric sensor PD-controller
 int24	BaroBasePressure, BaroBaseTemp;
 int16   BaroRelPressure, BaroRelTempCorr;
+uint16	BaroVal;
 int16	VBaroComp;
 uint8	BaroType, BaroTemp, BaroRestarts;
 
@@ -76,6 +77,7 @@ int16	Vud;
 uint8	Flags[8];
 uint8	Flags2[8];
 
+uint32	ClockMilliSec;
 uint8	IntegralCount;
 int16	ThrDownCount;
 uint8	DropoutCount;
@@ -237,6 +239,7 @@ void main(void)
 	ReadParametersEE();
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
+	INTCONbits.TMR0IE = true;	// enable TMR0
 	EnableInterrupts;
 
 	LedRed_ON;
@@ -261,7 +264,7 @@ void main(void)
 	Delay100mSWithOutput(1);	// just to see the output after powerup
 
 	InitDirection();	// init compass sensor
-	InitAltimeter();
+	InitBarometer();
 
 	ShowSetup(1);
 
@@ -276,7 +279,7 @@ Restart:
 
 	while(1)
 	{
-		INTCONbits.TMR0IE = false;		// Disable TMR0 interrupt
+	//	INTCONbits.TMR0IE = false;		// Disable TMR0 interrupt
 
 		ALL_LEDS_OFF;
 		LedRed_ON;		// Red LED on
