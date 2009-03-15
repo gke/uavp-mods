@@ -1,11 +1,11 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =               Rewritten by 2008-9 by Prof. Greg Egan                =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -16,27 +16,9 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.//
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-
-// Interrupt routine
-// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
-// use at your own risk - see GPL.
 
 // The 64uS assumed for the maximum interrupt latency in the generation of the 
 // output pulse preamble in utils.c  most likely applies to the Timer0 interrupt. 
@@ -100,19 +82,22 @@ void high_isr_handler(void)
 			if( RCState == 2 )
 			{
 				NewK3 = CCPR1;
-				NewK2 = (NewK3 - NewK2) >> 1;
+				NewK2 = NewK3 - NewK2;
+				NewK2 >>= 1;
 			}
 			else
 			if( RCState == 4 )
 			{
 				NewK5 = CCPR1;
-				NewK4 = (NewK5 - NewK4) >> 1;
+				NewK4 = NewK5 - NewK4;
+				NewK4 >>= 1;
 			}
 			else
 			if( RCState == 6 )
 			{
 				NewK7 = CCPR1;
-				NewK6 = (NewK7 - NewK6) >> 1;		
+				NewK6 = NewK7 - NewK6;
+				NewK6 >>= 1; 		
 		#ifdef RX_DSM2
 				if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
 					goto ErrorRestart;
@@ -132,19 +117,22 @@ void high_isr_handler(void)
 			if( RCState == 1 )
 			{
 				NewK2 = CCPR1;
-				NewK1 = (NewK2 - NewK1) >> 1;
+				NewK1 = NewK2 - NewK1;
+				NewK1 >>= 1;
 			}
 			else
 			if( RCState == 3 )
 			{
 				NewK4 = CCPR1;
-				NewK3 = (NewK4 - NewK3) >> 1;
+				NewK3 = NewK4 - NewK3;
+				NewK3 >>= 1;
 			}
 			else
 			if( RCState == 5 )
 			{
 				NewK6 = CCPR1;
-				NewK5 = (NewK6 - NewK5) >> 1;
+				NewK5 = NewK6 - NewK5;
+				NewK5 >>= 1;
 
 				// sanity check - NewKx has values in 4us units now. 
 				// content must be 256..511 (1024-2047us)
@@ -158,8 +146,13 @@ void high_isr_handler(void)
 					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 					{
 						IGas = NewK3 & 0xff;
+						#ifdef EXCHROLLNICK
+						IRoll = (NewK2 & 0xff) - (int16)_Neutral;
+						IPitch = (NewK1 & 0xff) - (int16)_Neutral;
+						#else
 						IRoll = (NewK1 & 0xff) - (int16)_Neutral;
 						IPitch = (NewK2 & 0xff) - (int16)_Neutral;
+						#endif // EXCHROLLNICK
 					}
 					else
 					{
@@ -180,7 +173,8 @@ void high_isr_handler(void)
 			else
 			if( RCState == 7 )
 			{
-				NewK7 = (CCPR1 - NewK7) >> 1;	
+				NewK7 = CCPR1 - NewK7;
+				NewK7 >>= 1;	
 				#ifdef RX_DSM2
 				if ( (NewK7>>8) !=1)	
 					goto ErrorRestart;
@@ -244,7 +238,6 @@ ErrorRestart:
 	{
 		INTCONbits.TMR0IF = false;				// quit int
 		TimeSlot--;
-		ClockMilliSec++;
 	}
 	
 } // high_isr_handler

@@ -1,11 +1,11 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =     Extensively rewritten Copyright (c) 2008-9 by Prof. Greg Egan   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -35,8 +35,6 @@
 uint8	IGas;	
 uint8	IK5, IK6, IK7;
 int8 	IRoll,IPitch,IYaw;
-
-uint32	ClockMilliSec;
 
 // PID Regler Variablen
 int16	RE, PE, YE;					// gyro rate error	
@@ -496,7 +494,6 @@ void main(void)
 	for ( i = 0; i<8; i++ )
 		Flags2[i] = Flags[i] = false;
 
-	ClockMilliSec = 0;
 	_NoSignal = true;
 	InitArrays();
 	ReadParametersEE();

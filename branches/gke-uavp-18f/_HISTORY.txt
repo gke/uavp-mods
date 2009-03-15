@@ -184,7 +184,8 @@ First public released version.
 
 13.03.2009 v3.15m3-18f Greg Egan
 - Merged test and flight dource directories removing all
-  redundant routines
+  redundant routines.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
