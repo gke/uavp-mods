@@ -4,9 +4,12 @@ rem Delete all working files but not hex files
 rem ---------------------------------------------
 
 set CSRC=accel adc c-ufo irq lisl prog pu-test sensor serial menu-test menu pid utils outputs
-set ASRC=bootl18f2520
+set ASRC=bootl18f
 
 rem compiler working files...
+if exist *.mcs del *.mcs
+if exist *.cof del *.cof
+
 for %%i in ( %CSRC% ) do if exist %%i.asm del %%i.asm
 for %%i in ( %CSRC% ) do if exist %%i.err del %%i.err
 for %%i in ( %CSRC% ) do if exist %%i.fcs del %%i.fcs
@@ -19,11 +22,12 @@ rem assembler working files...
 for %%i in ( %ASRC% ) do if exist %%i.err del %%i.err
 for %%i in ( %ASRC% ) do if exist %%i.lst del %%i.lst
 for %%i in ( %ASRC% ) do if exist %%i.o   del %%i.o
+if exist general.err del general.err
 
 rem linker working files...
-if exist profi-ufo*.cod del profi-ufo*.cod
-if exist profi-ufo*.lst del profi-ufo*.lst
-if exist profi-ufo*.map del profi-ufo*.map
+if exist *.cod del *.cod
+if exist *.lst del *.lst
+if exist *.map del *.map
 
 
 

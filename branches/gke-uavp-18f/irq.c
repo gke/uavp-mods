@@ -5,7 +5,7 @@
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
-
+//
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +19,15 @@
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+// Interrupt routine
+// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
+// use at your own risk - see GPL.
 
 // The 64uS assumed for the maximum interrupt latency in the generation of the 
 // output pulse preamble in utils.c  most likely applies to the Timer0 interrupt. 
@@ -34,6 +43,7 @@
 
 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 int8	RCState;
+int24	PrevEdge = 0;
 
 #pragma interrupt low_isr_handler
 void low_isr_handler(void)
@@ -43,7 +53,9 @@ void low_isr_handler(void)
 
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
-{		
+{
+	int24	CurrEdge, Width;
+		
 	// For 2.4GHz systems see README_DSM2_ETC.
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
@@ -62,12 +74,18 @@ void high_isr_handler(void)
 
 	if( PIR1bits.CCP1IF )
 	{
-		TMR2 = 0;				// re-set timer and postscaler
-		PIR1bits.TMR2IF = false;				// quit int
+		TMR2 = 0;					// re-set timer and postscaler
+		PIR1bits.TMR2IF = false;	// quit int
 		_FirstTimeout = false;
 
+		CurrEdge = CCPR1;
+		if ( CurrEdge < PrevEdge )
+			PrevEdge -= 0xffff;		// Deal with Timer1 wraparound
+		Width = (CurrEdge - PrevEdge) >> 1;
+		PrevEdge = CurrEdge;
+
 		#ifndef RX_PPM				// single PPM pulse train from receiver
-							// standard usage (PPM, 3 or 4 channels input)
+									// standard usage (PPM, 3 or 4 channels input)
 		CCP1CONbits.CCP1M0 ^= 1;	// toggle edge bit
 		PR2 = TMR2_5MS;				// set compare reg to 5ms
 
@@ -76,28 +94,18 @@ void high_isr_handler(void)
 		#endif
 			if( RCState == 0 )
 			{
-				NewK1 = CCPR1;
+			// initial vale of PrevEdge	
 			}
 			else
 			if( RCState == 2 )
-			{
-				NewK3 = CCPR1;
-				NewK2 = NewK3 - NewK2;
-				NewK2 >>= 1;
-			}
+				NewK2 = Width;
 			else
 			if( RCState == 4 )
-			{
-				NewK5 = CCPR1;
-				NewK4 = NewK5 - NewK4;
-				NewK4 >>= 1;
-			}
+				NewK4 = Width;
 			else
 			if( RCState == 6 )
 			{
-				NewK7 = CCPR1;
-				NewK6 = NewK7 - NewK6;
-				NewK6 >>= 1; 		
+				NewK6 = Width;		
 		#ifdef RX_DSM2
 				if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
 					goto ErrorRestart;
@@ -115,24 +123,14 @@ void high_isr_handler(void)
 		{
 		#endif // RX_PPM 
 			if( RCState == 1 )
-			{
-				NewK2 = CCPR1;
-				NewK1 = NewK2 - NewK1;
-				NewK1 >>= 1;
-			}
+				NewK1 = Width;
 			else
 			if( RCState == 3 )
-			{
-				NewK4 = CCPR1;
-				NewK3 = NewK4 - NewK3;
-				NewK3 >>= 1;
-			}
+				NewK3 = Width;
 			else
 			if( RCState == 5 )
 			{
-				NewK6 = CCPR1;
-				NewK5 = NewK6 - NewK5;
-				NewK5 >>= 1;
+				NewK5 = Width;
 
 				// sanity check - NewKx has values in 4us units now. 
 				// content must be 256..511 (1024-2047us)
@@ -146,13 +144,8 @@ void high_isr_handler(void)
 					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 					{
 						IGas = NewK3 & 0xff;
-						#ifdef EXCHROLLNICK
-						IRoll = (NewK2 & 0xff) - (int16)_Neutral;
-						IPitch = (NewK1 & 0xff) - (int16)_Neutral;
-						#else
 						IRoll = (NewK1 & 0xff) - (int16)_Neutral;
 						IPitch = (NewK2 & 0xff) - (int16)_Neutral;
-						#endif // EXCHROLLNICK
 					}
 					else
 					{
@@ -173,8 +166,7 @@ void high_isr_handler(void)
 			else
 			if( RCState == 7 )
 			{
-				NewK7 = CCPR1 - NewK7;
-				NewK7 >>= 1;	
+				NewK7 = Width;	
 				#ifdef RX_DSM2
 				if ( (NewK7>>8) !=1)	
 					goto ErrorRestart;
@@ -219,6 +211,7 @@ void high_isr_handler(void)
 ErrorRestart:
 				_NewValues = false;
 				_NoSignal = true;				// Signal lost
+				RCGlitchCount++;
 				RCState = -1;
 				#ifndef RX_PPM
 				if( NegativePPM )

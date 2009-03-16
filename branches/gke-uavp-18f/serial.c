@@ -200,7 +200,7 @@ int8 RxNumS(void)
 void TxVal32(int32 V, uint8 dp, uint8 Separator)
 {
 	uint8 S[12];
-	int8 c, Rem;
+	int8 c, Rem, zeros;
 	int32 NewV, i;
 	 
 	if (V<0)
@@ -227,8 +227,10 @@ void TxVal32(int32 V, uint8 dp, uint8 Separator)
 	    TxChar('.');
 	} 
 
-	for (i=dp-c-1; i>=0; i--)
-		TxChar('0');
+	zeros = (int8)dp-c-1;
+	if ( zeros >= 0 ) 
+		for (i=zeros; i>=0; i--)
+			TxChar('0');
 
 	do
 	{

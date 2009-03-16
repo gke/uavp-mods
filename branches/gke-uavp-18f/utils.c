@@ -30,7 +30,7 @@ void Delay1mS(uint16 d)
 	uint8 i;
 	uint8 T0IntEn;
 
-	T0IntEn = INTCONbits.TMR0IE;
+	T0IntEn = INTCONbits.TMR0IE;	// not protected?
 	INTCONbits.TMR0IE = false;
 
 	// if d is 1 then delay can be less than 1mS due to 	
@@ -51,7 +51,7 @@ void Delay100mSWithOutput(uint16 dur)
 	uint16 i, j;
 	uint8 T0IntEn;
 
-	T0IntEn = INTCONbits.TMR0IE;
+	T0IntEn = INTCONbits.TMR0IE;	// not protected?
 	INTCONbits.TMR0IE = false;
 
 	for(i = 0; i < dur*10; i++)
@@ -170,6 +170,7 @@ void InitArrays(void)
 	YawSum = RollSum = PitchSum = 0;
 
 	BaroRestarts = 0;
+	RCGlitchCount = 0;
 } // InitArrays
 
 

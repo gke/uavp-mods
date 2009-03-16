@@ -46,6 +46,7 @@ rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
 
 for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do call makeallhelper.bat %VERSION% %%g %%e %%d %%r %%c
 
+set RX=RX_DEFAULT RX_PPM
 
 echo Starting makeall uavptest > gen.lst
 echo Starting makeall uavptest > log.lst
