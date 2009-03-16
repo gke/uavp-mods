@@ -1,8 +1,8 @@
 @echo off
-rem To see why we do the setlocal, see:
-rem http://www.robvanderwoude.com/variableexpansion.html
-rem http://www.robvanderwoude.com/ntset.html
+
 SETLOCAL ENABLEDELAYEDEXPANSION
+
+set PIC=18F2520
 
 rem Helper script for makeall.bat
 rem =======================================================
@@ -15,16 +15,16 @@ set 	RX=%5
 set 	CFG=%6
 
 set CSRC=accel adc c-ufo irq lisl menu pid prog sensor serial utils outputs
-set ASRC=bootl18f2520
+set ASRC=bootl18f
 
 set CC="C:\MCC18\bin\mcc18"
 rem set CCMD=  -DBATCHMODE -DNOLEDGAME 
-set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa-  -DBATCHMODE -DNOLEDGAME 
+set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa- -Oi -DBATCHMODE -DNOLEDGAME 
 
-set ACMD=/o+ /e+ /l+ /x- /p18f2520 /c+ /q
+set ACMD=/o+ /e+ /l+ /x- /p%PIC% /c+ /q
 set AEXE="%ProgramFiles%\microchip\MPASM Suite\MPASMwin.exe"
 
-set LCMD=/p18F2520 /l"C:\MCC18\lib" /k"C:\MCC18\lkr"
+set LCMD=/p%PIC% /l"C:\MCC18\lib" /k"C:\MCC18\lkr"
 set LEXE="C:\MCC18\bin\mplink.exe"
 
 rem Set all the name tokens for the HEX files
@@ -59,7 +59,7 @@ rem the mathematics module.
 rem The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 rem As a consequence there are several warnings on bank allocation in the compile.
 
-for %%i in ( %CSRC% ) do %CC% -p=18F2520 /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
+for %%i in ( %CSRC% ) do %CC% -p=%PIC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% >> log.lst
 
@@ -79,6 +79,13 @@ echo failed - UAVP-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH
+
+
+
+
+
+
+
 
 
 

@@ -129,6 +129,7 @@ const uint8 SerBaroT[] = "; Temp. is:\0";
 #pragma idata menurx2
 const uint8 SerRxTest[]="Rx vals:\r\n\0";
 const uint8 SerRxNN[]="(no new vals)\r\n\0";
+const uint8 SerRxGlitch[]="Glitches \0";
 #pragma idata
 
 
@@ -181,7 +182,7 @@ void ProcessComCommand(void)
 
 	if ( ch != NUL )
 	{
-		if( islower(ch))							// check lower case
+		if( islower(ch))
 			ch=toupper(ch);
 	
 		switch( ch )
@@ -228,7 +229,6 @@ void ProcessComCommand(void)
 			case '6':
 			case '7':
 			case '8':
-	
 				TxText(SerPowTst);
 				TxChar(ch);
 				TxChar(':');
@@ -255,7 +255,7 @@ void ProcessComCommand(void)
 	
 			case 'B':	// call bootloader
 				TxNextLine();
-				BootStart();	// never comes back!
+				BootStart();
 			case '?'  : // help
 				TxText(SerHelp);
 				ShowPrompt();

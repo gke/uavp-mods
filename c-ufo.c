@@ -80,6 +80,7 @@ uint8	Flags2[8];
 uint8	IntegralCount;
 int16	ThrDownCount;
 uint8	DropoutCount;
+uint24	RCGlitchCount;
 uint8	LedCount;
 uint8	BlinkCount, BlinkCycle, BaroCount;
 uint8 	mSTick;

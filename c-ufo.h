@@ -274,6 +274,7 @@ extern	uint8	Flags2[8];
 extern	uint8	IntegralCount;
 extern 	uint8	LedCount;
 extern	int16	ThrDownCount;
+extern	uint24	RCGlitchCount;
 extern	uint8	BlinkCount, BlinkCycle, BaroCount;
 extern	int8	Rw,Pw;	// angles
 extern   int8	BatteryVolts; 
@@ -452,6 +453,7 @@ extern	void InitDirection(void);
 extern	void GetDirection(void);
 extern	void InitBarometer(void);
 extern	void ComputeBaroComp(void);
+extern	uint8 ReadValueFromBaro(void);
 extern	uint8 StartBaroADC(uint8);
 
 extern	void GetEvenValues(void);
@@ -534,6 +536,7 @@ extern const uint8 SerBaroBMP085[];
 extern const uint8 SerBaroComp[];
 extern const uint8 SerRxTest[];
 extern const uint8 SerRxRes[];
+extern const uint8 SerRxGlitch[];
 extern const uint8 SerOK[];
 extern const uint8 SerRxNN[];
 

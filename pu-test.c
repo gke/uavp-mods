@@ -74,6 +74,7 @@ uint16	PauseTime;
 uint8	IntegralCount;
 int16	ThrDownCount;
 uint8	DropoutCount;
+uint24	RCGlitchCount;
 uint8	LedCount;
 uint8	BlinkCount, BlinkCycle, BaroCount;
 int16	TestTimeSlot;
@@ -129,22 +130,25 @@ void LinearTest(void)
 	
 		ReadAccelerations();
 	
-		TxChar('X');
+		TxChar('L');
+		TxChar('R');
 		TxChar(':');
 		TxChar(HT);	
 		TxVal32(((int32)Ax*1000+512)/1024, 3, 'G');	
 		TxNextLine();
-	
-		TxChar('Z');
-		TxChar(':');
-		TxChar(HT);	
-		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');	
-		TxNextLine();
-	
-		TxChar('Y');
+
+		TxChar('D');
+		TxChar('U');
 		TxChar(':');
 		TxChar(HT);	
 		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');	
+		TxNextLine();
+	
+		TxChar('F');
+		TxChar('B');
+		TxChar(':');
+		TxChar(HT);	
+		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 	}
 	else
@@ -183,7 +187,6 @@ void ReceiverTest(void)
 	uint8 s;
 	int16 *p;
 	uint16 v;
-	uint8 NoSig, NewVal;
 
 	TxNextLine();
 	if( NegativePPM )
@@ -195,7 +198,7 @@ void ReceiverTest(void)
 	
 	// Be wary as new RC frames are being received as this
 	// is being displayed so data may be from overlapping frames
-	NoSig = _NoSignal;			// partial protection
+
 	if( _NewValues )
 	{
 		_NewValues = false;
@@ -212,11 +215,12 @@ void ReceiverTest(void)
 			TxValH((v >> 8) & 0x00ff);
 			TxValH(v & 0x00ff);
 			TxChar(HT);	
-			TxVal32(((int32)(v & 0x00ff)*100)/250, 0, '%');
+			TxVal32(((int32)(v & 0x00ff)*100)/_Maximum, 0, '%');
 			if( ( v & 0xff00) != 0x0100 ) 
 				TxText(SerFail);
 			TxNextLine();
 		}
+
 		// show pause time
 		TxChar('P');
 		TxChar(':');
@@ -225,10 +229,13 @@ void ReceiverTest(void)
 		TxChar(HT);
 		TxVal32( v, 3, 0);		
 		TxText(SerMS);
-		if( NoSig )
-			TxText(SerFail);
-		else
-			TxText(SerOK);
+		TxText(SerRxGlitch);
+		TxVal32(RCGlitchCount,0,0);
+		TxNextLine();
+		//if( _NoSignal )
+		//	TxText(SerFail);
+		//else
+		//	TxText(SerOK);
 	}
 	else
 		TxText(SerRxNN);	
@@ -312,7 +319,7 @@ void DoCompassTest(void)
 	if( SendI2CByte('A')  != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(COMPASS_TIME);
+	Delay1mS(100);//COMPASS_TIME);
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
@@ -481,7 +488,7 @@ void main(void)
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 	
-	OpenTimer0(TIMER_INT_ON&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
+	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
@@ -489,6 +496,8 @@ void main(void)
 
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
+
+	INTCONbits.TMR0IE = false;
 
 	// setup flags register
 	for ( i = 0; i<8; i++ )
@@ -526,11 +535,13 @@ void main(void)
 
 	ShowSetup(true);
 
+Delay1mS(50);
+
 	while(1)
 	{
 		// turn red LED on of signal missing or invalid, green if OK
 		// Yellow led to indicate linear sensor functioning.
-		if( _NoSignal )
+		if( _NoSignal || !Switch )
 		{
 			LedRed_ON;
 			LedGreen_OFF;

@@ -66,27 +66,26 @@ file_010=no
 file_011=no
 file_012=no
 [FILE_INFO]
-file_000=lisl.c
-file_001=pu-test.c
-file_002=utils.c
-file_003=adc.c
-file_004=bootl18f2520.asm
-file_005=sensor.c
+file_000=utils.c
+file_001=adc.c
+file_002=irq.c
+file_003=lisl.c
+file_004=menu-test.c
+file_005=outputs.c
 file_006=prog.c
-file_007=serial.c
-file_008=menu-test.c
-file_009=irq.c
-file_010=outputs.c
-file_011=bits.h
-file_012=c-ufo.h
+file_007=pu-test.c
+file_008=sensor.c
+file_009=serial.c
+file_010=bootl18f.asm
+file_011=c-ufo.h
+file_012=bits.h
 [SUITE_INFO]
 suite_guid={5B7D72DD-9861-47BD-9F60-2BE967BF8416}
 suite_state=
 [TOOL_SETTINGS]
 TS{DD2213A8-6310-47B1-8376-9430CDFC013F}=
 TS{BFD27FBA-4A02-4C0E-A5E5-B812F3E7707C}=/o"$(BINDIR_)$(TARGETBASE).cof" /M"$(BINDIR_)$(TARGETBASE).map" /W
-TS{C2AF05E7-1416-4625-923D-E114DB6E2B96}=-Oi -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa- -DTEST_SOFTWARE
-TS{C2AF05E7-1416-4625-923D-E114DB6E2B96}_alt=yes
+TS{C2AF05E7-1416-4625-923D-E114DB6E2B96}=-Oi -DTEST_SOFTWARE -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa-
 TS{ADE93A55-C7C7-4D4D-A4BA-59305F7D0391}=
 [INSTRUMENTED_TRACE]
 enable=0
