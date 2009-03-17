@@ -25,11 +25,39 @@
 #include "bits.h"
 
 #pragma idata menu1
-const uint8 SerHello[] = "\r\nUAVP V" Version " (c) 2007"
-							  " Ing. Wolfgang Mahringer\r\n"
+const uint8 SerHello[] = "\r\nUAVP " Version " Copyright (c) 2007-9"
+							  " G.K. Egan & W. Mahringer\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n";
 
 const uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
+
+#ifdef DEBUG_SENSORS
+	"Debug: Sensors\r\n"
+#endif
+#ifdef DEBUG_MOTORS
+	"Debug: Motors\r\n"
+#endif
+
+#ifdef RX_DEFAULT
+	"Rx: PPM Odd Channel\r\n"
+#endif
+#ifdef RX_PPM
+	"Rx: PPM Composite\r\n"
+#endif
+#ifdef RX_DSM2
+	"Rx: PPM DSM2\r\n"
+#endif
+
+#ifdef ESC_PPM
+	"ESC: PPM\r\n"
+#endif
+#ifdef ESC_YGEI2C
+	"ESC: YGE I2C\r\n"
+#endif
+#ifdef ESC_HOLGER
+	"ESC: Holger I2C\r\n"
+#endif
+	
 							  "Gyro: "
 #ifdef OPT_ADXRS300
 							  "3x ADXRS300\r\n"
@@ -41,44 +69,21 @@ const uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 							  "1x ADXRS300, 1x IDG300\r\n"
 #endif
 							  "Linear sensors ";
-
-const uint8  SerLSavail[]="ONLINE\r\n";
-const uint8  SerLSnone[]= "not available\r\n";
-const uint8  SerBaro[]=   "Baro ";
-const uint8  SerBaroBMP085[]=   "BMP085\r\n";
-const uint8  SerBaroSMD500[]=   "SMD500\r\n";
-const uint8  SerChannel[]="Throttle Ch";
-const uint8  SerFM_Fut[]= "3";
-const uint8  SerFM_Grp[]= "1";
 #pragma idata
 
 #pragma idata menu2
-const uint8  SerCompass[]="Compass ";
-const uint8  SerReg1[]  = "\r\nRegister ";
-const uint8  SerReg2[]  = " = ";
-const uint8  SerPrompt[]= "\r\n>";
 const uint8  SerHelp[]  = "\r\nCommands:\r\n"
-					 		  "L...List param\r\n"
-							  "M...Modify param\r\n"
-							  "S...Show setup\r\n"
-							  "N...Neutral values\r\n"
-							  "R...Show receiver channels\r\n"
-							  "B...start Boot-Loader\r\n";
-
-// THE FOLLOWING LINE NOT TO BE CHANGED, it is important for UAVPset
-const uint8  SerList[]  = "\r\nParameter list for set #";
-const uint8  SerSelSet[]= "\r\nSelected parameter set: ";
-
-const uint8  SerNeutralR[]="\r\nNeutral Roll:";
-const uint8  SerNeutralN[]=" Ptch:";
-const uint8  SerNeutralY[]=" Yaw:";
-
-const uint8  SerRecvCh[]=  "\r\nT:";
+	"L...List param\r\n"
+	"M...Modify param\r\n"
+	"S...Show setup\r\n"
+	"N...Neutral values\r\n"
+	"R...Show receiver channels\r\n"
+	"B...start Boot-Loader\r\n";
 #pragma idata
 
 void ShowPrompt(void)
 {
-	TxText(SerPrompt);
+	TxString("\r\n>");
 } // ShowPrompt
 
 // send the current configuration setup to serial port
@@ -92,33 +97,33 @@ void ShowSetup(uint8 h)
 
 	TxText(SerSetup);	// send hello message
 	if( _UseLISL )
-		TxText(SerLSavail);
+		TxString("ONLINE\r\n");
 	else
-		TxText(SerLSnone);
+		TxString("not available\r\n");
 
-	TxText(SerCompass);
+	TxString("Compass ");
 	if( _UseCompass )
-		TxText(SerLSavail);
+		TxString("ONLINE\r\n");
 	else
-		TxText(SerLSnone);
+		TxString("not available\r\n");
 
-	TxText(SerBaro);
+	TxString("Baro ");
 	if( _UseBaro )
 		if ( BaroType == BARO_ID_BMP085 )
-			TxText(SerBaroBMP085);
+			TxString("BMP085\r\n");
 		else
-			TxText(SerBaroSMD500);
+			TxString("SMD500\r\n");
 	else
-		TxText(SerLSnone);
+		TxString("not available\r\n");
 
 	ReadParametersEE();
-	TxText(SerChannel);
+	TxString("Throttle Ch");
 	if( FutabaMode )
-		TxText(SerFM_Fut);
+		TxChar('3');
 	else
-		TxText(SerFM_Grp);
+		TxChar('1');
 
-	TxText(SerSelSet);
+	TxString("\r\nSelected parameter set: ");
 	if( IK5 > _Neutral )
 		TxChar('2');
 	else
@@ -147,7 +152,7 @@ void ProcessComCommand(void)
 		switch( ch )
 		{
 			case 'L'  :	// List parameters
-				TxText(SerList);	// must send it (UAVPset!)
+				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				if( IK5 > _Neutral )
 					TxChar('2');
 				else
@@ -156,9 +161,9 @@ void ProcessComCommand(void)
 				addr = 1;
 				for(p = &FirstProgReg; p <= &LastProgReg; p++)
 				{
-					TxText(SerReg1);
+					TxString("\r\nRegister ");
 					TxValU(addr++);
-					TxText(SerReg2);
+					TxText(" = ");
 					d = *p;
 					TxValS(d);
 				}
@@ -166,9 +171,9 @@ void ProcessComCommand(void)
 				break;
 			case 'M'  : // modify parameters
 				LedBlue_ON;
-				TxText(SerReg1);
+				TxString("\r\nRegister ");
 				addr = RxNumU()-1;
-				TxText(SerReg2);
+				TxString(" = ");
 				d = RxNumS();
 				if( IK5 > _Neutral )
 					addrbase = _EESet2;
@@ -199,18 +204,18 @@ void ProcessComCommand(void)
 				ShowSetup(0);
 				break;
 			case 'N' :	// neutral values
-				TxText(SerNeutralR);
+				TxString("\r\nNeutral Roll:");
 				TxValS(NeutralLR);
 	
-				TxText(SerNeutralN);
+				TxString(" Ptch:");
 				TxValS(NeutralFB);
 	
-				TxText(SerNeutralY);	
+				TxText(" Yaw:");	
 				TxValS(NeutralUD);
 				ShowPrompt();
 				break;
 			case 'R':	// receiver values
-				TxText(SerRecvCh);
+				TxString("\r\nT:");
 				TxValU(IGas);
 				TxChar(',');
 				TxChar('R');

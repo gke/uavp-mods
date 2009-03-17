@@ -38,7 +38,7 @@ uint8 I2CWaitClkHi(void)
 	I2CDelay();
 	I2C_CIO=1;								// set SCL to input, output a high
 	while( !I2C_SCL )						// wraparound through 255 1.25mS @ 16MHz							
-		if( ++s == 0 )			 
+		if( ++s == (uint8)0 )			 
 			break;	
 	I2CDelay();
 	return(s);

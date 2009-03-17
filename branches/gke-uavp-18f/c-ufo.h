@@ -236,85 +236,81 @@ typedef unsigned long uint32;
 // == External variables
 // ==============================================
 
-extern	uint8	IGas;
-extern	int8 	IRoll,IPitch,IYaw;
-extern	uint8	IK5,IK6,IK7;
+extern uint8	IGas;
+extern int8 	IRoll,IPitch,IYaw;
+extern uint8	IK5,IK6,IK7;
 
-extern	int16	RE, PE, YE;
-extern	int16	REp,PEp,YEp;
-extern	int16	PitchSum, RollSum, YawSum;
-extern	int16	RollSamples, PitchSamples;
-extern	int16	MidRoll, MidPitch, MidYaw;
-extern	int16	Ax, Ay, Az;
-extern	int8	LRIntKorr, FBIntKorr;
-extern	int8	NeutralLR, NeutralFB, NeutralUD;
-extern	int16 	UDSum;
+extern int16	RE, PE, YE;
+extern int16	REp,PEp,YEp;
+extern int16	PitchSum, RollSum, YawSum;
+extern int16	RollSamples, PitchSamples;
+extern int16	MidRoll, MidPitch, MidYaw;
+extern int16	Ax, Ay, Az;
+extern int8	LRIntKorr, FBIntKorr;
+extern int8	NeutralLR, NeutralFB, NeutralUD;
+extern int16 	UDSum;
 
 // Failsafes
-extern	int8	RollNeutral, PitchNeutral, YawNeutral;
-extern	uint8	ThrNeutral;
+extern int8	RollNeutral, PitchNeutral, YawNeutral;
+extern uint8	ThrNeutral;
 			
 // Variables for barometric sensor PD-controller
-extern	int24	BaroBasePressure, BaroBaseTemp;
-extern	int16	BaroRelPressure, BaroRelTempCorr;
-extern	uint16	BaroVal;
-extern	int16	VBaroComp;
-extern	uint8	BaroType, BaroTemp, BaroRestarts;
+extern int24	BaroBasePressure, BaroBaseTemp;
+extern int16	BaroRelPressure, BaroRelTempCorr;
+extern uint16	BaroVal;
+extern int16	VBaroComp;
+extern uint8	BaroType, BaroTemp, BaroRestarts;
 
+extern uint8	MFront,MLeft,MRight,MBack;	// output channels
+extern uint8	MCamRoll,MCamPitch;
+extern int16	Ml, Mr, Mf, Mb;
+extern int16	Rl,Pl,Yl;	// PID output values
+extern int16	Rp,Pp,Yp,Vud;
 
-extern	uint8	MFront,MLeft,MRight,MBack;	// output channels
-extern	uint8	MCamRoll,MCamPitch;
-extern	int16	Ml, Mr, Mf, Mb;
-extern	int16	Rl,Pl,Yl;	// PID output values
-extern	int16	Rp,Pp,Yp,Vud;
+extern uint8	Flags[8];
+extern uint8	Flags2[8];
 
-extern	uint8	Flags[8];
-extern	uint8	Flags2[8];
-
-extern	uint8	IntegralCount;
-extern 	uint8	LedCount;
-extern	int16	ThrDownCount;
-extern	uint24	RCGlitchCount;
-extern	uint8	BlinkCount, BlinkCycle, BaroCount;
-extern	int8	Rw,Pw;	// angles
+extern int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
+extern uint24	RCGlitchCount;
+extern int8	Rw,Pw;	// angles
 extern   int8	BatteryVolts; 
 
-extern	uint8	mSTick;
+extern uint8	mSTick;
 
-extern	uint8	LedShadow;	// shadow register
-extern	int16	AbsDirection;	// wanted heading (240 = 360 deg)
-extern	int16	CurDeviation;	// deviation from correct heading
+extern uint8	LedShadow;	// shadow register
+extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
+extern int16	CurDeviation;	// deviation from correct heading
 
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
-extern	int8	RollPropFactor; 	// 01
-extern	int8	RollIntFactor;		// 02
-extern	int8	RollDiffFactor;		// 03
-extern	int8 	BaroTempCoeff;		// 04
-extern	int8	RollIntLimit;		// 05
-extern	int8	PitchPropFactor;	// 06
-extern	int8	PitchIntFactor;		// 07
-extern	int8	PitchDiffFactor;	// 08
-extern	int8 	BaroThrottleProp;	// 09
-extern	int8	PitchIntLimit;		// 10
-extern	int8	YawPropFactor; 		// 11
-extern	int8	YawIntFactor;		// 12
-extern	int8	YawDiffFactor;		// 13
-extern	int8	YawLimit;			// 14
-extern	int8 	YawIntLimit;		// 15
-extern	int8	ConfigParam;		// 16
-extern	int8 	TimeSlot;		// 17
-extern	int8	LowVoltThres;		// 18
-extern	int8	CamRollFactor;		// 19
-extern	int8	LinFBIntFactor;		// 20 free
-extern	int8	LinUDIntFactor;		// 21
-extern	int8 	MiddleUD;			// 22
-extern	int8	MotorLowRun;		// 23
-extern	int8	MiddleLR;			// 24
-extern	int8	MiddleFB;			// 25
-extern	int8	CamPitchFactor;		// 26
-extern	int8	CompassFactor;		// 27
-extern	int8	BaroThrottleDiff;	// 28
+extern int8	RollPropFactor; 	// 01
+extern int8	RollIntFactor;		// 02
+extern int8	RollDiffFactor;		// 03
+extern int8 	BaroTempCoeff;		// 04
+extern int8	RollIntLimit;		// 05
+extern int8	PitchPropFactor;	// 06
+extern int8	PitchIntFactor;		// 07
+extern int8	PitchDiffFactor;	// 08
+extern int8 	BaroThrottleProp;	// 09
+extern int8	PitchIntLimit;		// 10
+extern int8	YawPropFactor; 		// 11
+extern int8	YawIntFactor;		// 12
+extern int8	YawDiffFactor;		// 13
+extern int8	YawLimit;			// 14
+extern int8 	YawIntLimit;		// 15
+extern int8	ConfigParam;		// 16
+extern int8 	TimeSlot;		// 17
+extern int8	LowVoltThres;		// 18
+extern int8	CamRollFactor;		// 19
+extern int8	LinFBIntFactor;		// 20 free
+extern int8	LinUDIntFactor;		// 21
+extern int8 	MiddleUD;			// 22
+extern int8	MotorLowRun;		// 23
+extern int8	MiddleLR;			// 24
+extern int8	MiddleFB;			// 25
+extern int8	CamPitchFactor;		// 26
+extern int8	CompassFactor;		// 27
+extern int8	BaroThrottleDiff;	// 28
 
 // these 2 dummy registers (they do not occupy any RAM location)
 // are here for defining the first and the last programmable 
@@ -354,9 +350,6 @@ extern	int8	BaroThrottleDiff;	// 28
 #define _Neutral	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
 #define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
-#define _ProgMode	((160* _ClkOut/(2*_PreScale1))&0xFF)	/*+75% */
-#define _ProgUp		((150* _ClkOut/(2*_PreScale1))&0xFF)	/*+60% */
-#define _ProgDown	((130* _ClkOut/(2*_PreScale1))&0xFF)	/*-60% */
 
 // Sanity checks
 
@@ -413,141 +406,103 @@ extern	int8	BaroThrottleDiff;	// 28
 
 // Prototypes
 
-extern	void BootStart(void);
+extern void BootStart(void);
 
-extern	void ShowSetup(uint8);
-extern	void ProcessComCommand(void);
-extern	void TxNextLine(void);
-extern	void ShowPrompt(void);
-extern	void TxText(const uint8 *);
-extern	void TxChar(uint8);
-extern	void TxValH(uint8);
-extern	void TxValU(uint8);
-extern	void TxValS(int8);
-extern	void TxValH16(uint16);
-extern	void TxVal32(int32, uint8, uint8);
-extern	void TxNextLine(void);
-extern	uint8 RxChar(void);
-extern	uint8 RxNumU(void);
-extern	int8 RxNumS(void);
+extern void ShowSetup(uint8);
+extern void ProcessComCommand(void);
+extern void TxNextLine(void);
+extern void ShowPrompt(void);
+extern void TxText(const uint8 *);
+extern void TxString(const rom uint8 *);
+extern void TxChar(uint8);
+extern void TxValH(uint8);
+extern void TxValU(uint8);
+extern void TxValS(int8);
+extern void TxValH16(uint16);
+extern void TxVal32(int32, int8, uint8);
+extern void TxNextLine(void);
+extern uint8 RxChar(void);
+extern uint8 RxNumU(void);
+extern int8 RxNumS(void);
 
-extern	void ReadParametersEE(void);
-extern	void WriteParametersEE(uint8);
-extern	void WriteEE(uint8, int8);
-extern	void ReadParametersEE(void);
-extern	int8 ReadEE(uint8);
+extern void ReadParametersEE(void);
+extern void WriteParametersEE(int8);
+extern void WriteEE(uint8, int8);
+extern void ReadParametersEE(void);
+extern int8 ReadEE(uint8);
 
 extern void I2CStart(void);
 extern void I2CStop(void);extern uint8 SendI2CByte(uint8);
 extern uint8 RecvI2CByte(uint8);
 
-extern	void OutSSP(uint8);
+extern void OutSSP(uint8);
 
-extern	void CheckLISL(void);
-extern	void IsLISLactive(void);
+extern void CheckLISL(void);
+extern void IsLISLactive(void);
 extern 	uint8 ReadLISL(uint8);
 extern 	uint8 ReadLISLNext(void);
-extern	void ReadAccelerations(void);
+extern void ReadAccelerations(void);
 
-extern	void InitDirection(void);
-extern	void GetDirection(void);
-extern	void InitBarometer(void);
-extern	void ComputeBaroComp(void);
-extern	uint8 ReadValueFromBaro(void);
-extern	uint8 StartBaroADC(uint8);
+extern void InitDirection(void);
+extern void GetDirection(void);
+extern void InitBarometer(void);
+extern void ComputeBaroComp(void);
+extern uint8 ReadValueFromBaro(void);
+extern uint8 StartBaroADC(uint8);
 
-extern	void GetEvenValues(void);
-extern	void GetGyroValues(void);
-extern	void CalcGyroValues(void);
-extern	void PID(void);
-extern	void LimitRollSum(void);
-extern	void LimitPitchSum(void);
-extern	void LimitYawSum(void);
+extern void GetEvenValues(void);
+extern void GetGyroValues(void);
+extern void CalcGyroValues(void);
+extern void PID(void);
+extern void LimitRollSum(void);
+extern void LimitPitchSum(void);
+extern void LimitYawSum(void);
 
-extern	void Out(uint8);
-extern	void OutG(uint8);
-extern	void MixAndLimit(void);
-extern	void MixAndLimitCam(void);
-extern	void OutSignals(void);
+extern void Out(uint8);
+extern void OutG(uint8);
+extern void MixAndLimit(void);
+extern void MixAndLimitCam(void);
+extern void OutSignals(void);
 
-extern	void SendLeds(void);
-extern	void SwitchLedsOn(uint8);
-extern	void SwitchLedsOff(uint8);
-extern	void DoPIDDisplays(void);
-extern	void LedGame(void);
+extern void SendLeds(void);
+extern void SwitchLedsOn(uint8);
+extern void SwitchLedsOff(uint8);
+extern void DoPIDDisplays(void);
+extern void LedGame(void);
 
-extern	void InitADC(void);
-extern	int16 ADC(uint8, uint8);
+extern void InitADC(void);
+extern int16 ADC(uint8, uint8);
 
-extern	void InitArrays(void);
-extern	void InitPorts(void);
-extern	void Delay100mSWithOutput(uint16);
-extern	void Delay1mS(uint16);
-extern	void UpdateBlinkCount(void);
-extern	void CheckAlarms(void);
-extern	void nop2(void);
-extern	int16 SRS16(int16, uint8);
+extern void InitArrays(void);
+extern void InitPorts(void);
+extern void Delay100mSWithOutput(int16);
+extern void Delay1mS(int16);
+extern void UpdateBlinkCount(void);
+extern void CheckAlarms(void);
+extern void nop2(void);
+extern int16 SRS16(int16, uint8);
 
 #ifdef TEST_SOFTWARE
 
-extern	int16	TestTimeSlot;
-extern	uint16	PauseTime;
-extern	int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
+extern int16	TestTimeSlot;
+extern uint16	PauseTime;
+extern int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 
 // Menu strings
 
 extern const uint8  SerHello[];
 extern const uint8  SerSetup[];
-extern const uint8  SerLSavail[];
-extern const uint8 SerLSnone[];
-extern const uint8 SerCompass[];
-extern const uint8 SerAlti[];
-extern const uint8 SerHelp[];
-extern const uint8 SerAnTest[];
-extern const uint8 SerLinTst[];
-extern const uint8 SerLinErr[];
-extern const uint8 SerSrvRun[];
-extern const uint8 SerI2CRun[];
-extern const uint8 SerI2CCnt[];
-extern const uint8 SerMagTst[];
-extern const uint8 SerPowTst[];
-extern const uint8 SerPowAux1[];
-extern const uint8 SerPowAux2[];
-extern const uint8 SerPowAux3[];
-extern const uint8 SerPowBlue[];
-extern const uint8 SerPowRed[];
-extern const uint8 SerPowGreen[];
-extern const uint8 SerPowYellow[];
-extern const uint8 SerPowBeep[];
-extern const uint8 SerSrvOK[];
 extern const uint8 SerPrompt[];
-extern const uint8 SerVolt[];
-extern const uint8 SerFail[];
-extern const uint8 SerGrad[];
-extern const uint8 SerMS[];
-extern const uint8 SerPPMP[];
-extern const uint8 SerPPMN[]; 
-extern const uint8 SerBaroOK[];
-extern const uint8 SerBaroT[];
-extern const uint8 SerCCalib1[];
-extern const uint8 SerCCalib2[]; 
-extern const uint8 SerBaroSMD500[];
-extern const uint8 SerBaroBMP085[];
-extern const uint8 SerBaroComp[];
-extern const uint8 SerRxTest[];
-extern const uint8 SerRxRes[];
-extern const uint8 SerRxGlitch[];
-extern const uint8 SerOK[];
-extern const uint8 SerRxNN[];
 
 extern void AnalogTest(void);extern void DoCompassTest(void);
 extern void CalibrateCompass(void);
-extern void PowerOutput(uint8);
+extern void PowerOutput(int8);
 extern void ReceiverTest(void);
 extern void TogglePPMPolarity(void);
 extern void BaroTest(void);
 extern void LinearTest(void);
 extern uint8 ScanI2CBus(void);
+
 
 #endif // TEST_SOFTWARE
 

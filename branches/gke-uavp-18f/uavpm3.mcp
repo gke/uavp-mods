@@ -82,9 +82,9 @@ file_006=utils.c
 file_007=irq.c
 file_008=pid.c
 file_009=adc.c
-file_010=bootl18f2520.asm
-file_011=menu.c
-file_012=outputs.c
+file_010=menu.c
+file_011=outputs.c
+file_012=bootl18f.asm
 file_013=bits.h
 file_014=c-ufo.h
 [SUITE_INFO]

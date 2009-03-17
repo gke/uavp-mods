@@ -99,7 +99,7 @@ uint8 ReadLISL(uint8 addr)
 	WriteLISLByte(addr);
 	d=ReadLISLNext();
 	
-	if( (addr & LISL_INCR_ADDR) == 0 )	// is this a single byte Read?
+	if( (addr & LISL_INCR_ADDR) == (uint8)0 )	// is this a single byte Read?
 		SPI_CS = SEL_LEDS;
 				
 	return(d);
@@ -120,7 +120,7 @@ void IsLISLactive(void)
 
 	WriteLISL(LISL_CTRLREG_2, 0b01001010); 			// enable 3-wire, BDU=1, +/-2g
 
-	if( ReadLISL(LISL_WHOAMI + LISL_READ) == 0x3a )	// LIS03L sensor ident
+	if( ReadLISL(LISL_WHOAMI + LISL_READ) == (uint8)0x3a )	// LIS03L sensor ident
 	{
 		WriteLISL(LISL_CTRLREG_1, 0b11010111); // startup, enable all axis
 		WriteLISL(LISL_CTRLREG_3, 0b00000000);

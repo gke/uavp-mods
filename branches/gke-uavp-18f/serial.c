@@ -35,10 +35,19 @@ void TxText(const uint8 *pch)
 	}
 } // TxText
 
+void TxString(const rom uint8 *pch)
+{
+	while( *pch != '\0' )
+	{
+		TxChar(*pch);
+		pch++;
+	}
+} // TxString
+
 // send a character to the serial port
 void TxChar(uint8 ch)
 {
-	while( PIR1bits.TXIF == 0 ) ;	// wait for transmit ready
+	while( !PIR1bits.TXIF ) ;	// wait for transmit ready
 	TXREG = ch;		// put new char
 	// register W must be retained on exit!!!! Why???
 } // TxChar
@@ -197,7 +206,7 @@ int8 RxNumS(void)
 
 #ifdef TEST_SOFTWARE
 
-void TxVal32(int32 V, uint8 dp, uint8 Separator)
+void TxVal32(int32 V, int8 dp, uint8 Separator)
 {
 	uint8 S[12];
 	int8 c, Rem, zeros;
@@ -241,7 +250,7 @@ void TxVal32(int32 V, uint8 dp, uint8 Separator)
 	}
 	while (c>0);
 
-	if (Separator!=0)
+	if ( Separator != NUL )
 		TxChar(Separator);
 } // TxVal32
 
