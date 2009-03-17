@@ -71,13 +71,8 @@ uint8	EscI2CFlags;
 
 uint16	PauseTime;
 
-uint8	IntegralCount;
-int16	ThrDownCount;
-uint8	DropoutCount;
+int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
 uint24	RCGlitchCount;
-uint8	LedCount;
-uint8	BlinkCount, BlinkCycle, BaroCount;
-int16	TestTimeSlot;
 int8	BatteryVolts;
 #pragma udata
 
@@ -117,49 +112,36 @@ int8	BaroThrottleDiff	=4;
 
 void LinearTest(void)
 {
-	TxText(SerLinTst);
+	TxString("\r\nAccelerometer test:\r\n");
 	if( _UseLISL )
 	{
-		TxChar('S');
-		TxChar(':');
-		TxChar(HT);
-		TxChar('0');
-		TxChar('x');
+		TxString("Status:\t 0x");
 		TxValH(ReadLISL(LISL_STATUS + LISL_READ));
 		TxNextLine();
-	
+
 		ReadAccelerations();
 	
-		TxChar('L');
-		TxChar('R');
-		TxChar(':');
-		TxChar(HT);	
+		TxString("X-Right: \t");
 		TxVal32(((int32)Ax*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 
-		TxChar('D');
-		TxChar('U');
-		TxChar(':');
-		TxChar(HT);	
+		TxString("Y-Up:   \t");	
 		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');	
 		TxNextLine();
-	
-		TxChar('F');
-		TxChar('B');
-		TxChar(':');
-		TxChar(HT);	
+
+		TxString("Z-Back: \t");	
 		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 	}
 	else
-		TxText(SerLinErr);
+		TxString("\r\n(Acc. not present)\r\n");
 } // LinearTest
 
 // scan all slave bus addresses (read mode)
 // and list found devices
 uint8 ScanI2CBus(void)
 {
-	uint8 s;
+	int16 s;
 	uint8 d = 0;
 
 	for(s=0x10; s<=0xf6; s+=2)
@@ -168,9 +150,7 @@ uint8 ScanI2CBus(void)
 		if( SendI2CByte(s) == I2C_ACK )
 		{
 			d++;
-			TxChar(HT);
-			TxChar('0');
-			TxChar('x');
+			TxString("\t0x");
 			TxValH(s);
 			TxNextLine();
 		}
@@ -184,17 +164,16 @@ uint8 ScanI2CBus(void)
 // output all the signal values and the validity of signal
 void ReceiverTest(void)
 {
-	uint8 s;
+	int8 s;
 	int16 *p;
 	uint16 v;
 
-	TxNextLine();
 	if( NegativePPM )
-		TxText(SerPPMN);
+		TxString("\r\nNeg. Rx PPM\r\n");
 	else
-		TxText(SerPPMP);
+		TxString("\r\nPos. Rx PPM\r\n");
 	
-	TxText(SerRxTest);
+	TxString("Rx vals:\r\n");
 	
 	// Be wary as new RC frames are being received as this
 	// is being displayed so data may be from overlapping frames
@@ -207,54 +186,42 @@ void ReceiverTest(void)
 		for( s=1; s <= 7; s++ )
 		{
 			TxChar(s+'0');
-			TxChar(':');
-			TxChar(HT);
+			TxString(":\t 0x");
 			v = *p++;
-			TxChar('0');
-			TxChar('x');
 			TxValH((v >> 8) & 0x00ff);
 			TxValH(v & 0x00ff);
 			TxChar(HT);	
 			TxVal32(((int32)(v & 0x00ff)*100)/_Maximum, 0, '%');
-			if( ( v & 0xff00) != 0x0100 ) 
-				TxText(SerFail);
+			if( ( v & 0xff00) != (uint16)0x0100 ) 
+				TxString(" FAIL");
 			TxNextLine();
 		}
 
 		// show pause time
-		TxChar('P');
-		TxChar(':');
+		TxString("Gap:\t");
 		v = 2*PauseTime;
 	 	v += (uint16)TMR2_5MS * 64;	// 78 * 16*16/4 us
-		TxChar(HT);
 		TxVal32( v, 3, 0);		
-		TxText(SerMS);
-		TxText(SerRxGlitch);
+		TxString("mS\r\nGlitches:\t");
 		TxVal32(RCGlitchCount,0,0);
 		TxNextLine();
-		//if( _NoSignal )
-		//	TxText(SerFail);
-		//else
-		//	TxText(SerOK);
 	}
 	else
-		TxText(SerRxNN);	
+		TxString("(no new vals)\r\n");	
 } // ReceiverTest
 
 void TogglePPMPolarity(void)
 {
-	uint8 i;
-
     Invert(ConfigParam, 4);	// toggle bit
 
-	TxNextLine();
 	if( NegativePPM )
-		TxText(SerPPMN);
+		TxString("\r\nNeg. Rx PPM\r\n");
 	else
-		TxText(SerPPMP);
+		TxString("\r\nPos. Rx PPM\r\n");
 
 	NewK1=NewK2=NewK3=NewK4=NewK5=NewK6=NewK7=0xFFFF;
-
+	
+	RCGlitchCount = 0;
 	PauseTime = 0;
 	_NewValues = false;
 	_NoSignal = true;
@@ -262,14 +229,13 @@ void TogglePPMPolarity(void)
 
 void DoCompassTest(void)
 {
-	uint8 i;
 	uint16 v;
 
 	// 20Hz standby mode - random read?
 	#define COMP_OPMODE 0b01100000
 	#define COMP_MULT	16
 
-	TxText(SerMagTst);
+	TxString("\r\nCompass test\r\n");
 
 	// set Compass device to Compass mode 
 	I2CStart();
@@ -326,21 +292,20 @@ void DoCompassTest(void)
 	v = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(I2C_NACK);
 	I2CStop();
 
-	TxChar(HT);
-	TxVal32(v, 1, 0);		
-	TxText(SerGrad);
+	TxVal32(v, 1, 0);
+	TxString("deg\r\n");		
 
 	return;
 CTerror:
 	TxNextLine();
 	I2CStop();
-	TxText(SerFail);
+	TxString("FAIL");
 } // DoCompassTest
 
 // calibrate the compass by rotating the ufo through 720 deg smoothly
 void CalibrateCompass(void)
 {	
-	TxText(SerCCalib1);
+	TxString("\r\nCalib. compass. Press any key to cont.\r\n");
 
 	while( !RxChar() );
 	
@@ -350,7 +315,7 @@ void CalibrateCompass(void)
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	TxText(SerCCalib2);
+	TxString("\r\n720 deg in ~30 sec.!\r\nPress any key to cont.\r\n\0");
 
 	while( !RxChar() );
 
@@ -360,35 +325,35 @@ void CalibrateCompass(void)
 	if( SendI2CByte('E')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	TxText(SerOK);
+	TxString("OK\r\n");
 	return;
 CCerror:
 	I2CStop();
-	TxText(SerFail);
+	TxString("FAIL");
 } // CalibrateCompass
 
 void BaroTest(void)
 {
 	uint8 r;
 
+	TxString("\r\nBarometer test\r\n");
 	if ( !_UseBaro ) goto BAerror;
 
 	if ( BaroType == BARO_ID_BMP085 )
-		TxText(SerBaroBMP085);
+		TxString("Type:\tBMP085\r\n");
 	else
-		TxText(SerBaroSMD500);
+		TxString("Type:\tSMD500\r\n");
 	
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	Delay1mS(BARO_PRESS_TIME);
 	r = ReadValueFromBaro();
-	TxChar(HT);
-	TxText(SerBaroOK);	
+	TxString("Press: \t");	
 	TxVal32(BaroVal, 0, 0);	
 		
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	Delay1mS(BARO_TEMP_TIME);
 	r = ReadValueFromBaro();
-	TxText(SerBaroT);
+	TxString("\tTemp: ");
 	TxVal32(BaroVal, 0, 0);	
 	TxNextLine();
 
@@ -399,26 +364,21 @@ BAerror:
 	TxNextLine();
 	I2CStop();
 
-	TxText(SerFail);
+	TxString("FAIL");
 } // BaroTest
 
 // flash output for a second, then return to its previous state
-void PowerOutput(uint8 d)
+void PowerOutput(int8 d)
 {
-	uint8 s;
+	int8 s;
+	uint8 m;
+
+	m = 1 << (d+1);
 
 	for( s=0; s < 10; s++ )	// 10 flashes (count MUST be even!)
 	{
-		if (d == 0 ) LedShadow ^= 0x01; else 	// toggle AUX
-		if (d == 1 ) LedShadow ^= 0x02; else 	// toggle BLUE
-		if (d == 2 ) LedShadow ^= 0x04; else 	// toggle RED
-		if (d == 3 ) LedShadow ^= 0x08; else 	// toggle GREEN
-		if (d == 4 ) LedShadow ^= 0x10; else 	// toggle AUX
-		if (d == 5 ) LedShadow ^= 0x20; else 	// toggle YELLOW
-		if (d == 7 ) LedShadow ^= 0x40; else 	// toggle AUX
-		if (d == 7 ) LedShadow ^= 0x80; 		// toggle BEEPER
-
-		SendLeds();	// send LEDs to bus
+		LedShadow ^= m;
+		SendLeds();
 		Delay1mS(200);
 	}		
 } // PowerOutput
@@ -427,58 +387,53 @@ void AnalogTest(void)
 {
 	int32 v;
 
-	TxText(SerAnTest);
+	TxString("\r\nAnalog ch. test\r\n");
 
 	// Battery
 	v = ((int24)ADC(ADCBattVoltsChan, ADCVREF5V) * 46 + 9)/17; // resolution is 0,01 Volt
-	TxChar('V');
-	TxChar('b');
-	TxChar(':');
-	TxChar(HT);	
+	TxVal32(ADCBattVoltsChan, 0, ' ');
+	TxString("Batt:\t");
 	TxVal32(v, 2, 'V');	
 	TxNextLine();
 
 	// Roll
 	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxChar('V'); 
-	TxChar('r'); 
-	TxChar(':');
-	TxChar(HT);	
+	TxVal32(ADCRollChan, 0, ' ');
+	TxString("Roll: \t"); 
 	TxVal32(v, 3, 'V'); 
 	TxNextLine();
 
 	// Pitch
 	v = ((int24)ADC(ADCPitchChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxChar('V');
-	TxChar('p');
-	TxChar(':');
-	TxChar(HT);		
+	TxVal32(ADCVRefChan, 0, ' ');
+	TxString("Pitch:\t");		
 	TxVal32(v, 3, 'V');	
 	TxNextLine();
 
 	// Yaw
 	v = ((int24)ADC(ADCYawChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxChar('V');
-	TxChar('y');
-	TxChar(':');
-	TxChar(HT);	
+	TxVal32(ADCPitchChan, 0, ' ');
+	TxString("Yaw:  \t");
 	TxVal32(v, 3, 'V');	
 	TxNextLine();
 
 	// VRef
-	v = ((int24)ADC(ADCVRefChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt	
-	TxChar('V');
-	TxChar('f');
-	TxChar(':');
-	TxChar(HT);		
+	v = ((int24)ADC(ADCVRefChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	TxVal32(ADCVRefChan, 0, ' ');	
+	TxString("Ref:  \t");	
 	TxVal32(v, 3, 'V');	
 	TxNextLine();
 
 } // AnalogTest
 
+void OutSignals()
+{
+  // no motors in Test Software
+} // OutSignals
+
 void main(void)
 {
-	uint8	i;
+	int8	i;
 
 	DisableInterrupts;
 
@@ -513,12 +468,12 @@ void main(void)
 
 	LedBlue_ON;
 
-//	INTCONbits.TMR0IE = true;
 	INTCONbits.PEIE = true;		// enable peripheral interrupts
 	EnableInterrupts;
 
 	LedRed_ON;		// red LED on
-	Delay100mSWithOutput(1);	// wait 1/10 sec until LISL is ready to talk
+
+	Delay1mS(100);
 	IsLISLactive();
 #ifdef ICD2_DEBUG
 	_UseLISL = 1;	// because debugger uses RB7 (=LISL-CS) :-(
@@ -531,11 +486,8 @@ void main(void)
 	InitBarometer();
 
 	// send hello text to serial COM
-	Delay100mSWithOutput(1);	// just to see the output after powerup
-
+	Delay1mS(100);
 	ShowSetup(true);
-
-Delay1mS(50);
 
 	while(1)
 	{
@@ -555,13 +507,8 @@ Delay1mS(50);
 			LedYellow_OFF;
 		}
 
-		TestTimeSlot = 10; // ignore parameter settings
-		while( TestTimeSlot-- > 0 )
-		{
-			Delay1mS(1);	
-			ProcessComCommand();
-		}
-		OutSignals();
+		ProcessComCommand();
+
 	}
 } // main
 

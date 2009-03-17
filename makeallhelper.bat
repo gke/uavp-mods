@@ -59,7 +59,7 @@ rem the mathematics module.
 rem The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 rem As a consequence there are several warnings on bank allocation in the compile.
 
-for %%i in ( %CSRC% ) do %CC% -p=%PIC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
+for %%i in ( %CSRC% ) do %CC% -p=%PIC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% >> log.lst
 

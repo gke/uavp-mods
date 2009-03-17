@@ -89,7 +89,7 @@ void WriteEE(uint8 addr, int8 d)
 
 } // WriteEE
 
-void WriteParametersEE(uint8 s)
+void WriteParametersEE(int8 s)
 {
 	int8 *p;
 	uint8 b;

@@ -77,13 +77,8 @@ int16	Vud;
 uint8	Flags[8];
 uint8	Flags2[8];
 
-uint8	IntegralCount;
-int16	ThrDownCount;
-uint8	DropoutCount;
+int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
 uint24	RCGlitchCount;
-uint8	LedCount;
-uint8	BlinkCount, BlinkCycle, BaroCount;
-uint8 	mSTick;
 int8	BatteryVolts;
 int8	Rw,Pw;
 

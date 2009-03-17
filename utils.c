@@ -25,9 +25,9 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-void Delay1mS(uint16 d)
+void Delay1mS(int16 d)
 { 	// Timer0 interrupt at 1mS must be running
-	uint8 i;
+	int8 i;
 	uint8 T0IntEn;
 
 	T0IntEn = INTCONbits.TMR0IE;	// not protected?
@@ -46,9 +46,9 @@ void Delay1mS(uint16 d)
 
 // wait blocking for "dur" * 0.1 seconds
 // Motor and servo pulses are still output every 10ms
-void Delay100mSWithOutput(uint16 dur)
+void Delay100mSWithOutput(int16 dur)
 { // Timer0 Interrupts must be off 
-	uint16 i, j;
+	int16 i, j;
 	uint8 T0IntEn;
 
 	T0IntEn = INTCONbits.TMR0IE;	// not protected?
@@ -301,7 +301,7 @@ void UpdateBlinkCount(void)
 
 void SendLeds(void)
 {
-	uint8	i, s;
+	int8	i, s;
 
 	i = LedShadow;
 	SPI_CS = SEL_LEDS;	

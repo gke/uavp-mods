@@ -65,8 +65,8 @@
 #define I2C_SCL			PORTBbits.RB7
 #define I2C_CIO			TRISBbits.TRISB7
 
-#define	I2C_ACK		0
-#define	I2C_NACK	1
+#define	I2C_ACK		((uint8)(0))
+#define	I2C_NACK	((uint8)(1))
 
 // The LEDs and the beeper
 #define ON	1
@@ -138,7 +138,7 @@
 #define BARO_ADC_LSB		0xf7
 #define BARO_TYPE			0xd0
 //#define BARO_ID_SMD500		??
-#define BARO_ID_BMP085		0x55
+#define BARO_ID_BMP085		((uint8)(0x55))
 
 #define BARO_TEMP_TIME	10
 #define BARO_PRESS_TIME 35

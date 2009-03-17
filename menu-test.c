@@ -26,116 +26,72 @@
 #include "bits.h"
 
 #pragma idata menuhello
-const uint8  SerHello[] = "\r\nUAVPTest V18F Copyright (c) 2007-9"
-							  " W. Mahringer & G.K. Egan\r\n"
+const uint8  SerHello[] = "\r\nUAVPTest " Version "\r\nCopyright (c) 2007-9"
+							  " G.K. Egan & W. Mahringer\r\n"
 							  "Comes with ABSOLUTELY NO WARRANTY\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n\0";
 #pragma idata
 #pragma idata menusetup
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
-const uint8  SerSetup[] = "\r\nUAVPTest V18F ready.\r\n"
-							  "Gyro: "
+const uint8  SerSetup[] = "\r\nUAVPTest " Version " ready.\r\n"
+
+#ifdef DEBUG_SENSORS
+	"Debug: Sensors\r\n"
+#endif
+#ifdef DEBUG_MOTORS
+	"Debug: Motors\r\n"
+#endif
+
+#ifdef RX_DEFAULT
+	"Rx: PPM Odd Channel\r\n"
+#endif
+#ifdef RX_PPM
+	"Rx: PPM Composite\r\n"
+#endif
+#ifdef RX_DSM2
+	"Rx: PPM DSM2\r\n"
+#endif
+
+#ifdef ESC_PPM
+	"ESC: PPM\r\n"
+#endif
+#ifdef ESC_YGEI2C
+	"ESC: YGE I2C\r\n"
+#endif
+#ifdef ESC_HOLGER
+	"ESC: Holger I2C\r\n"
+#endif
+
+	"Gyro: "
 #ifdef OPT_ADXRS
-							  "3x ADXRS300\r\n"
+	"3x ADXRS300\r\n"
 #endif
 #ifdef OPT_IDG
-							  "1x ADXRS300, 1x IDG300\r\n"
+	"1x ADXRS300, 1x IDG300\r\n"
 #endif
-							  "Linear sensor \0";
-const uint8  SerLSavail[] = "ONLINE\r\n\0";
-const uint8 SerLSnone[] = "not available\r\n\0";
-const uint8 SerCompass[] = "Compass \0";
-const uint8 SerAlti[] = "Barometer \0";
+	"Linear sensor \0";
 #pragma idata
 
 #pragma idata menuhelp
 const uint8 SerHelp[] = "\r\nCommands:\r\n"
-							  "A..Analog ch.\r\n"
-							  "B..Bootloader\r\n"
-							  "C..Compass test\r\n"
-							  "K..Calib. Compass\r\n"
-							  "I..I2C bus scan\r\n"
-							  "L..Linear test\r\n"
-							  "H..Baro. test\r\n"
-							  "N..Negated RX-PPM\r\n"
-							  "R..RX test\r\n"
-							  "S..Setup\r\n"
-							  "1-8.."
+	"A..Analog ch.\r\n"
+	"B..Bootloader\r\n"
+	"C..Compass test\r\n"
+	"K..Calib. Compass\r\n"
+	"I..I2C bus scan\r\n"
+	"L..Linear test\r\n"
+	"H..Baro. test\r\n"
+	"N..Negated RX-PPM\r\n"
+	"R..RX test\r\n"
+	"S..Setup\r\n"
+	"1-8.."
 /* CAUTION: The following line MUST REMAIN THE LAST in that help string!
    This is for UAVPset to correctly read the available commands! */
-							  "Power output test\r\n\0";
-#pragma idata
-
-#pragma idata menu3
-const uint8 SerAnTest[] = "\r\nAnalog ch. test:\r\n\0";
-#pragma idata
-
-#pragma idata menuacc
-const uint8 SerLinTst[] = "\r\nAcc. test:\r\n\0";
-const uint8 SerLinErr[] = "\r\n(Acc. not present)\r\n\0";
-#pragma idata 
-
-#pragma idata menui2c
-const uint8 SerI2CRun[] = "\r\nI2C devices ...\r\n\0";
-const uint8 SerI2CCnt[] = " device(s) found\r\n\0";
-const uint8 SerI2CFail[] = "I2C fail!\r\n\0";
-#pragma idata
-
-#pragma idata menupower
-const uint8 SerPowTst[] = "\r\nOutput test\r\n\0";
-const uint8 SerPowAux1[] = "Aux1\0";
-const uint8 SerPowAux2[] = "Aux2\0";
-const uint8 SerPowAux3[] = "Aux3\0";
-#pragma idata
-
-#pragma idata menuleds
-const uint8 SerPowBlue[] = "Blue\0";
-const uint8 SerPowRed[] = "Red\0";
-const uint8 SerPowGreen[] = "Green\0";
-const uint8 SerPowYellow[] = "Yellow\0";
-const uint8 SerPowBeep[] = "Beeper\0";
-#pragma idata
-
-#pragma idata menux
-const uint8 SerSrvOK[] = "\r\nDone.\r\n\0";
-const uint8 SerPrompt[] = "\r\n# \0";
-#pragma idata
-
-#pragma idata menu6
-const uint8 SerFail[] = " FAIL\0";
-const uint8 SerOK[] = "OK\r\n\0";
-const uint8 SerGrad[] = " deg\r\n\0";
-const uint8 SerMS[] = " ms\r\n\0";
-#pragma idata
-
-#pragma idata menurx
-const uint8 SerPPMP[] = "Pos. Rx PPM\r\n\0";
-const uint8 SerPPMN[] = "Neg. Rx PPM\r\n\0";
-#pragma idata
-
-#pragma idata menucompass
-const uint8 SerMagTst[] = "\r\nCompass test\r\n\0";
-const uint8 SerCCalib1[] = "\r\nCalib. compass. Any key to cont.\r\n\0";
-const uint8 SerCCalib2[] = "\r\n720 deg in ~30 sec.!\r\nAny key to cont.\r\n\0"; 
-#pragma idata 
-
-#pragma idata menubaro
-const uint8 SerBaroSMD500[] = "\r\nSMD500\0"; 
-const uint8 SerBaroBMP085[] = "\r\nBMP085\0"; 
-const uint8 SerBaroOK[] = "\r\nPress. is:\0";
-const uint8 SerBaroT[] = "; Temp. is:\0"; 
-#pragma idata
-	  
-#pragma idata menurx2
-const uint8 SerRxTest[]="Rx vals:\r\n\0";
-const uint8 SerRxNN[]="(no new vals)\r\n\0";
-const uint8 SerRxGlitch[]="Glitches \0";
-#pragma idata
-
+	"Power output test\r\n";
 
 void ShowPrompt(void)
 {
-	TxText(SerPrompt);
+	TxString("\r\n# ");
 } // ShowPrompt
 
 // send the current configuration setup to serial port
@@ -146,26 +102,26 @@ void ShowSetup(uint8 h)
 
 	TxText(SerSetup);	// send hello message
 	if( _UseLISL )
-		TxText(SerLSavail);
+		TxString("ONLINE\r\n\0");
 	else
-		TxText(SerLSnone);
+		TxString("not available\r\n");
 
 	// check for compass device
-	TxText(SerCompass);	// send hello message
+	TxString("Compass ");	// send hello message
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) == I2C_ACK ) 
-		TxText(SerLSavail);
+		TxString("ONLINE\r\n");
 	else
-		TxText(SerLSnone);
+		TxString("not available\r\n");
 	I2CStop();
 
 	// check for altimeter device
-	TxText(SerAlti);	// send hello message
+	TxString("Barometer ");	// send hello message
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) == I2C_ACK ) 
-		TxText(SerLSavail);
+		TxString("ONLINE\r\n");
 	else
-		TxText(SerLSnone);
+		TxString("not available\r\n");
 	I2CStop();
 
 	ShowPrompt();
@@ -201,9 +157,9 @@ void ProcessComCommand(void)
 				ShowPrompt();
 				break;
 			case 'I':
-				TxText(SerI2CRun);
+				TxString("\r\nI2C devices ...\r\n");
 				TxVal32(ScanI2CBus(),0,0);
-				TxText(SerI2CCnt);
+				TxString(" device(s) found\r\n");
 				ShowPrompt();
 				break;
 			case 'C':
@@ -229,19 +185,19 @@ void ProcessComCommand(void)
 			case '6':
 			case '7':
 			case '8':
-				TxText(SerPowTst);
+				TxString("\r\nOutput test\r\n");
 				TxChar(ch);
 				TxChar(':');
 				switch( ch )
 				{
-					case '1': TxText(SerPowAux2);  break;
-					case '2': TxText(SerPowBlue);  break;
-					case '3': TxText(SerPowRed);   break;
-					case '4': TxText(SerPowGreen); break;
-					case '5': TxText(SerPowAux1);  break;
-					case '6': TxText(SerPowYellow);break;
-					case '7': TxText(SerPowAux3);  break;
-					case '8': TxText(SerPowBeep);  break;
+					case '1': TxString("Aux2");  break;
+					case '2': TxString("Blue");  break;
+					case '3': TxString("Red");   break;
+					case '4': TxString("Green"); break;
+					case '5': TxString("Aux1");  break;
+					case '6': TxString("Yellow");break;
+					case '7': TxString("Aux3");  break;
+					case '8': TxString("Beeper");  break;
 				}
 				TxNextLine();
 				PowerOutput(ch-'1');
