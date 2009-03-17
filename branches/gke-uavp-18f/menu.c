@@ -163,7 +163,7 @@ void ProcessComCommand(void)
 				{
 					TxString("\r\nRegister ");
 					TxValU(addr++);
-					TxText(" = ");
+					TxString(" = ");
 					d = *p;
 					TxValS(d);
 				}
@@ -210,7 +210,7 @@ void ProcessComCommand(void)
 				TxString(" Ptch:");
 				TxValS(NeutralFB);
 	
-				TxText(" Yaw:");	
+				TxString(" Yaw:");	
 				TxValS(NeutralUD);
 				ShowPrompt();
 				break;
