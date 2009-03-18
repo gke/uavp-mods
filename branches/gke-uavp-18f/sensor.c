@@ -28,8 +28,6 @@ void I2CDelay(void)
 	Delay10TCY();
 } // I2CDelay
 
-// put SCL to high-z and wait until line is really hi
-// returns != 0 if ok
 uint8 I2CWaitClkHi(void)
 {
 	uint8 s;
@@ -44,7 +42,6 @@ uint8 I2CWaitClkHi(void)
 	return(s);
 } // I2CWaitClkHi
 
-// send a start condition
 void I2CStart(void)
 {
 	uint8 r;
@@ -58,7 +55,6 @@ void I2CStart(void)
 	I2C_CIO = 0;							// set SCL to output, output a low
 } // I2CStart
 
-// send a stop condition
 void I2CStop(void)
 {
 	uint8 r;
@@ -71,9 +67,6 @@ void I2CStop(void)
 	I2CDelay();								// leave clock high
 } // I2CStop 
 
-// send a byte to I2C slave and return ACK status
-// 0 = ACK
-// 1 = NACK
 uint8 SendI2CByte(uint8 d)
 {
 	uint8 s;
@@ -110,14 +103,10 @@ uint8 SendI2CByte(uint8 d)
 	return(s);
 } // SendI2CByte
 
-
-// read a byte from I2C slave and set ACK status
-// 0 = ACK
-// 1 = NACK
-// returns read byte
 uint8 RecvI2CByte(uint8 r)
 {
-	uint8 s, d;
+	uint8 d;
+	int8 s;
 
 	d = 0;
 	I2C_DIO = 1;							// set SDA to input, output a high
@@ -150,11 +139,9 @@ uint8 RecvI2CByte(uint8 r)
 } // RecvI2CByte
 
 
-// initialize compass sensor
 void InitDirection(void)
 {
-
-// set Compass device to Compass mode 
+	// set Compass device to Compass mode 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
 
@@ -165,11 +152,12 @@ IDerror:
 	I2CStop();
 } // InitDirection
 
-// Read direction, convert it to 2 degrees unit
-// and store result in variable AbsDirection.
-// The current heading correction is stored in CurDeviation
+
 void GetDirection(void)
 {
+	// Read direction, convert it to 2 degrees unit
+	// and store result in variable AbsDirection.
+	// The current heading correction is stored in CurDeviation
 	int16 DirVal, temp;
 
 	if( _UseCompass && ((BlinkCount & 0x03) == 0) )	// enter every 4th scan
@@ -226,16 +214,13 @@ void GetDirection(void)
 		}
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
-		{
-			TxValH(AbsDirection);
-			TxChar(';');
-		}
+			Trace[TAbsDirection] = AbsDirection << 1; // scale for UAVPSet
 		#endif				
 	}
 	#ifdef DEBUG_SENSORS
 	else	// no new value received
 		if( IntegralCount == 0 )
-			TxChar(';');
+			Trace[TAbsDirection] = 0;
 	#endif
 
 } // GetDirection
@@ -246,9 +231,6 @@ void GetDirection(void)
 	#define BaroFilter MediumFilter
 #endif // BARO_HARD_FILTER
 
-// read temp & pressure values from baro sensor
-// return value= niltemp;
-// returns 1 if value is available
 uint8 ReadValueFromBaro(void)
 {
 	// Possible I2C protocol error - split read of ADC
@@ -285,10 +267,6 @@ RVerror:
 	return(I2C_ACK);
 } // ReadValueFromBaro
 
-// start A/D conversion on altimeter sensor
-// TempOrPress = BARO_TEMP to convert temperature
-//               BARO_PRESS to convert pressure
-// returns 1 if successful, else 0
 uint8 StartBaroADC(uint8 TempOrPress)
 {
 	I2CStart();
@@ -420,7 +398,7 @@ void ComputeBaroComp(void)
 
 						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal);
 	
-						Delta = BaroRelPressure - OldBaroRelPressure;	// subtract new height to get delta
+						Delta = BaroRelPressure - OldBaroRelPressure;
 
 						BaroRelPressure = Limit(BaroRelPressure, -2, 8); // was: +10 and -5
 		
@@ -489,15 +467,13 @@ void ComputeBaroComp(void)
 	if( IntegralCount == 0 )
 		if ( _UseBaro )
 		{
-			TxValH(VBaroComp);
-			TxChar(';');
-			TxValH16(BaroRelPressure);
-			TxChar(';');
+			Trace[TVBaroComp] = VBaroComp << 4; // scale for UAVPSet
+			Trace[TBaroRelPressure] = BaroRelPressure << 4;
 		}
-		else	// no baro sensor active
+		else	// baro sensor not active
 		{
-			TxChar(';');
-			TxChar(';');
+			Trace[TVBaroComp] = 0;
+			Trace[TBaroRelPressure] = 0;
 		}
 	#endif
 } // ComputeBaroComp	

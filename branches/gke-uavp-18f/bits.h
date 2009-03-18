@@ -56,7 +56,7 @@
 #define	RD_SPI	1
 #define WR_SPI	0
 
-#define SEL_LEDS  1
+#define DSEL_LISL  1
 #define SEL_LISL  0
 
 // the sensor bus lines

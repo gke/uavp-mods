@@ -25,78 +25,37 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-// transmit a fix text from a table
 void TxText(const uint8 *pch)
 {
 	while( *pch != '\0' )
-	{
-		TxChar(*pch);
-		pch++;
-	}
+		TxChar(*pch++);
+
 } // TxText
 
 void TxString(const rom uint8 *pch)
 {
 	while( *pch != '\0' )
-	{
-		TxChar(*pch);
-		pch++;
-	}
+		TxChar(*pch++);
+
 } // TxString
 
-// send a character to the serial port
 void TxChar(uint8 ch)
 {
 	while( !PIR1bits.TXIF ) ;	// wait for transmit ready
 	TXREG = ch;		// put new char
-	// register W must be retained on exit!!!! Why???
 } // TxChar
 
-// converts an uintigned byte to decimal and send it
 void TxValU(uint8 v)
 {	
-	uint8 n;
+	TxChar((v/100) + '0');
+	v %= 100;	
 
-	n = v;
+	TxChar((v/10) + '0');
+	v %= 10;
 
-	v = n / 100;
-	TxChar(v+'0');
-	n %= 100;		// Einsparpotential: Modulo als Mathlib
-
-	v = n / 10;
-	TxChar(v+'0');
-	n %= 10;
-
-	TxChar(n+'0');
+	TxChar(v + '0');
 } // TxValU
 
-// converts a nibble to HEX and sends it
-void TxNibble(uint8 v)
-{
-	uint8 n;
-
-	n = v + '0';
-	if( n > '9' )
-		n += 7;		// A to F
-	TxChar(n);
-} // TxNibble
-
-// converts an uintigned byte to HEX and sends it
-void TxValH(uint8 v)
-{
-	TxNibble(v >> 4);
-	TxNibble(v & 0x0f);
-} // TxValH
-
-// converts an uintigned double byte to HEX and sends it
-void TxValH16(uint16 v)
-{
-	TxValH(v >> 8);
-	TxValH(v & 0xff);
-} // TxValH16
-
-// converts a signed byte to decimal and send it
-// because of dumb compiler n must be declared as uintigned :-(
 void TxValS(int8 v)
 {
 	if( v < 0 )
@@ -116,8 +75,28 @@ void TxNextLine(void)
 	TxChar(LF);
 } // TxNextLine
 
-// if a character is in the buffer
-// return it. Else return the NUL character
+void TxNibble(uint8 v)
+{
+	if ( v > 9)
+		TxChar('A' + v - 10);
+	else
+		TxChar('0' + v);
+} // TxNibble
+
+void TxValH(uint8 v)
+{
+	TxNibble(v >> 4);
+	TxNibble(v & 0x0f);
+	TxChar(';');
+} // TxValH
+
+void TxValH16(uint16 v)
+{
+	TxNibble((uint8)(v >> 12) & 0x0f);
+	TxNibble((uint8)(v >> 8) & 0x0f);
+	TxValH((uint8)v);
+} // TxValH16
+
 uint8 RxChar(void)
 {
 	uint8 ch;

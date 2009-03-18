@@ -41,9 +41,12 @@
 
 // Interrupt Routine
 
+#pragma udata isrvars=0x090
 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 int8	RCState;
-int24	PrevEdge = 0;
+int24	PrevEdge, CurrEdge;
+int16 	Width;
+#pragma udata
 
 #pragma interrupt low_isr_handler
 void low_isr_handler(void)
@@ -54,7 +57,7 @@ void low_isr_handler(void)
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
 {
-	int24	CurrEdge, Width;
+//	int24	CurrEdge, Width;
 		
 	// For 2.4GHz systems see README_DSM2_ETC.
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge

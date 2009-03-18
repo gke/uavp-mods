@@ -42,7 +42,7 @@ void EscWaitClkHi(void)
 	EscI2CDelay();
 } // EscWaitClkHi
 
-// send a start condition
+
 void EscI2CStart(void)
 {
 	ESC_DIO=1;	// set SDA to input, output a high
@@ -54,7 +54,6 @@ void EscI2CStart(void)
 	ESC_CIO = 0;	// set SCL to output, output a low
 } // EscI2CStart
 
-// send a stop condition
 void EscI2CStop(void)
 {
 	ESC_DIO=0;	// set SDA to output
@@ -66,12 +65,9 @@ void EscI2CStop(void)
 } // EscI2CStop
 
 
-// send a byte to I2C slave and return ACK status
-// 0 = ACK
-// 1 = NACK
 void SendEscI2CByte(uint8 nidata)
 {
-	uint8 s;
+	int8 s;
 
 	for(s=8; s!=0; s--)
 	{
@@ -98,23 +94,19 @@ void SendEscI2CByte(uint8 nidata)
 	while( ESC_SCL == 0 ) ;	// wait for line to come hi
 
 	EscI2CDelay();		// here is the ACK
-//	nii = I2C_SDA;	
+	//	nii = I2C_SDA;	
 
 	ESC_SCL = 0;
 	ESC_CIO = 0;	// set SCL to output, output a low
 	EscI2CDelay();
-//	I2C_IO = 0;		// set SDA to output
-//	I2C_SDA = 0;	// leave output low
+	//	I2C_IO = 0;		// set SDA to output
+	//	I2C_SDA = 0;	// leave output low
 	return;
 } // SendEscI2CByte
 
 
 #endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
 
-// to avoid stopping motors in the air, the
-// motor values are limited to a minimum and
-// a maximum
-// the eventually corrected value is returned
 int8 SaturInt(int16 l)
 {
 	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
@@ -137,8 +129,6 @@ int8 SaturInt(int16 l)
 	return((int8)l);
 } // SaturInt
 
-// mix the PID-results (Rl, Pl and Yl) and the throttle
-// on the motors and check for numerical overrun
 void MixAndLimit(void)
 {
 	int16 CurrGas;
@@ -257,20 +247,26 @@ void MixAndLimit(void)
 // camera servos. 
 void MixAndLimitCam(void)
 {
-// Cam Servos
+	int16 Cr, Cp;
 
-	if( IntegralCount > 0 )
-		Rp = Pp = _Minimum;
+	// use only roll/pitch angle estimates
+//	if( (IntegralCount == 0) && ((CamRollFactor != 0) || (CamPitchFactor != 0)) )
+//	{
+		Cr = RollSum / (int16)CamRollFactor;
+		Cp = PitchSum / (int16)CamPitchFactor;
+//	}
+//	else
+//		Cr = Cp = _Minimum;
 
 	if( _UseCh7Trigger )
-		Rp += _Neutral;
+		Cr += _Neutral;
 	else
-		Rp += IK7;
+		Cr += IK7;
 		
-	Pp += IK6;		// only Pitch servo is controlled by channel 6
+	Cp += IK6;		// only Pitch servo is controlled by channel 6
 
-	MCamRoll = Limit(Rp, _Minimum, _Maximum);
-	MCamPitch = Limit(Pp, _Minimum, _Maximum);
+	MCamRoll = Limit(Cr, _Minimum, _Maximum);
+	MCamPitch = Limit(Cp, _Minimum, _Maximum);
 
 } // MixAndLimitCam
 
@@ -292,15 +288,13 @@ void MixAndLimitCam(void)
 
 #pragma udata assembly_language=0x080 
 uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-// Bootloader ???
 #pragma udata
 
 void OutSignals(void)
 {
 	#ifdef NADA
-	TxValH(MCamRoll);
-	TxValH(MCamPitch);
-	TxNextLine();
+	Trace[TMCamRoll] = MCamRoll;
+	Trace[TMCamPitch] = MCamPitch;
 	#endif
 
 	#ifndef DEBUG_SENSORS
@@ -309,22 +303,14 @@ void OutSignals(void)
 	if( _Flying && IsSet(CamPitchFactor,4) )
 	{
 		TxValU(IGas);
-		TxChar(';');
 		TxValS(IRoll);
-		TxChar(';');
 		TxValS(IPitch);
-		TxChar(';');
 		TxValS(IYaw);
-		TxChar(';');
 		TxValU(MFront);
-		TxChar(';');
 		TxValU(MBack);
-		TxChar(';');
 		TxValU(MLeft);
-		TxChar(';');
 		TxValU(MRight);
-		TxChar(0x0d);
-		TxChar(0x0a);
+		TxNextLine();
 	}
 	#endif
 
@@ -369,6 +355,9 @@ void OutSignals(void)
 	MR = _Minimum;
 	#endif
 	#endif
+
+	MT = MCamRoll;
+	ME = MCamPitch;
 
 	#ifdef ESC_PPM
 

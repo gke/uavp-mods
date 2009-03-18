@@ -37,9 +37,9 @@
 
 uint8	IGas;			// actual input channel, can only be positive!
 int8 	IRoll,IPitch,IYaw;	// actual input channels, 0 = neutral
-uint8	IK5;		// actual channel 5 input
-uint8	IK6;		// actual channel 6 input
-uint8	IK7;		// actual channel 7 input
+uint8	IK5;						// actual channel 5 input
+uint8	IK6;						// actual channel 6 input
+uint8	IK7;						// actual channel 7 input
 
 // PID Regler Variablen
 int16	RE, PE, YE;					// gyro rate error	
@@ -74,6 +74,8 @@ int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
 
+int16	Trace[LastTrace];
+
 uint8	Flags[8];
 uint8	Flags2[8];
 
@@ -103,14 +105,14 @@ int8	YawIntLimit			=6;
 int8	ConfigParam			=0b00000000;
 int8	TimeSlot			=4;	// control update interval + LEGACY_OFFSET
 int8	LowVoltThres		=43;
-int8	CamRollFactor		=0;	// unused
+int8	CamRollFactor		=4;	
 int8	LinFBIntFactor		=0;	// unused
-int8	LinUDIntFactor		=8;
+int8	LinUDIntFactor		=8; // unused
 int8	MiddleUD			=0;
 int8	MotorLowRun			= 40;
 int8	MiddleLR			=0;
 int8	MiddleFB			=0;
-int8	CamPitchFactor		=0x44;
+int8	CamPitchFactor		=4;
 int8	CompassFactor		=5;
 int8	BaroThrottleDiff	=4;
 #pragma idata
@@ -443,7 +445,7 @@ DoPID:
 
 			#ifdef DEBUG_SENSORS
 			if( IntegralCount == 0 )
-				TxNextLine();
+				DumpTrace();
 			#endif			
 
 		}	// END NORMAL OPERATION WHILE LOOP

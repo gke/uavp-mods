@@ -25,11 +25,11 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-// this routine is called ONLY ONCE while booting
-// read 16 time all 3 axis of linear sensor.
-// Puts values in Neutralxxx registers.
 void GetEvenValues(void)
-{	// get the even values
+{
+	// this routine is called ONLY ONCE while booting
+	// read 16 time all 3 axis of linear sensor.
+	// Puts values in Neutralxxx registers.
 	uint8 i;
 
 	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
@@ -54,8 +54,6 @@ void GetEvenValues(void)
 	NeutralUD = Limit(Yp-1024, -99, 99); // -1g
 } // GetEvenValues
 
-// read all acceleration values from LISL sensor
-// and compute correction adders (Rp, Pp, Vud)
 void CheckLISL(void)
 {
 	if( _UseLISL )
@@ -66,18 +64,6 @@ void CheckLISL(void)
 		Yp = Ay;
 		Pp = Az;;
 		
-		#ifdef DEBUG_SENSORS
-		if( IntegralCount == 0 )
-		{
-			TxValH16(Rp);
-			TxChar(';');
-			TxValH16(Pp);
-			TxChar(';');
-			TxValH16(Yp);
-			TxChar(';');
-		}
-		#endif
-	
 		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
 		// and come back as MiddleLR etc.
 	
@@ -88,6 +74,15 @@ void CheckLISL(void)
 	
 		Yp -= 1024;	// subtract 1g
 	
+		#ifdef DEBUG_SENSORS
+		if( IntegralCount == 0 )
+		{
+			Trace[TAx]= Rp;
+			Trace[TAz] = Pp;
+			Trace[TAy] = Yp;
+		}
+		#endif
+
 		#ifdef ACCEL_VUD
 		// UDSum rises if ufo climbs
 		UDSum += Yp;
@@ -118,7 +113,7 @@ void CheckLISL(void)
 		Rp -= SRS16(RollSum * (-15) + 16, 5); 
 		#endif
 	
-		// dynamic correction of moved mass - turn coordination
+		// dynamic correction of moved mass
 		#ifdef OPT_ADXRS
 		Rp += (int16)RollSamples << 1;
 		#else // OPT_IDG
@@ -139,6 +134,8 @@ void CheckLISL(void)
 	
 		// Pitch
 
+		Pp = -Pp;
+
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
 		Pp -= SRS16(PitchSum * 11 + 16, 5);	
@@ -146,7 +143,7 @@ void CheckLISL(void)
 		Pp -= SRS16(PitchSum * (-15) + 16, 5);
 		#endif
 	
-		// no dynamic correction of moved mass necessary
+		// no dynamic correction of moved mass
 	
 		// correct DC level of the integral
 		FBIntKorr = 0;
@@ -159,20 +156,16 @@ void CheckLISL(void)
 		if( Pp > 10 ) FBIntKorr = -1;
 		else
 			if( Pp < 10 ) FBIntKorr =  1;
-		#endif
+		#endif		
 	}	
 	else
 	{
 		Vud = 0;
-
 		#ifdef DEBUG_SENSORS
-		TxValH16(-1);
-		TxChar(';');
-		TxValH16(-1);
-		TxChar(';');
-		TxValH16(-1);
-		TxChar(';');
+		Trace[TAx] = 0;
+		Trace[TAz] = 0;
+		Trace[TAy] = 0;	
 		#endif
-	}	
+	}
 } // CheckLISL
 

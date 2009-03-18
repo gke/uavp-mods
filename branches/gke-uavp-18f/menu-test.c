@@ -64,12 +64,12 @@ const uint8  SerSetup[] = "\r\nUAVPTest " Version " ready.\r\n"
 
 	"Gyro: "
 #ifdef OPT_ADXRS
-	"3x ADXRS300\r\n"
+	"ADXRS300 (Roll/Pitch/Yaw)\r\n"
 #endif
 #ifdef OPT_IDG
-	"1x ADXRS300, 1x IDG300\r\n"
+	"ADXRS300 (Yaw), IDG300 (Roll/Pitch)o\r\n"
 #endif
-	"Linear sensor \0";
+	"Accelerometer: LIS3LV02DQ 3 Axis\0";
 #pragma idata
 
 #pragma idata menuhelp

@@ -304,8 +304,8 @@ void SendLeds(void)
 	int8	i, s;
 
 	i = LedShadow;
-	SPI_CS = SEL_LEDS;	
-	SPI_IO = 0;	// SDA is output
+	SPI_CS = DSEL_LISL;	
+	SPI_IO = WR_SPI;	// SDA is output
 	SPI_SCL = 0;	// because shift is on positive edge
 	
 	for(s=8; s!=0; s--)
@@ -321,6 +321,7 @@ void SendLeds(void)
 
 	PORTCbits.RC1 = 1;
 	PORTCbits.RC1 = 0;	// latch into drivers
+	SPI_IO = RD_SPI;
 }
 
 void SwitchLedsOn(uint8 l)
@@ -335,4 +336,13 @@ void SwitchLedsOff(uint8 l)
 	SendLeds();
 } // SwitchLedsOff
 
+#ifdef DEBUG_SENSORS
+void DumpTrace(void)
+{
+	int8 t;
 
+	for (t=0; t <= TopTrace; t++)
+		TxValH16(Trace[t]);
+	TxNextLine();
+} // DumpTrace
+#endif // DEBUG_SENSORS

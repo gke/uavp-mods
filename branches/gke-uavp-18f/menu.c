@@ -58,17 +58,14 @@ const uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 	"ESC: Holger I2C\r\n"
 #endif
 	
-							  "Gyro: "
-#ifdef OPT_ADXRS300
-							  "3x ADXRS300\r\n"
-#endif
-#ifdef OPT_ADXRS150
-							  "3x ADXRS150\r\n"
+	"Gyro: "
+#ifdef OPT_ADXRS
+	"ADXRS300 (Roll/Pitch/Yaw)\r\n"
 #endif
 #ifdef OPT_IDG
-							  "1x ADXRS300, 1x IDG300\r\n"
+	"ADXRS300 (Yaw), IDG300 (Roll/Pitch)o\r\n"
 #endif
-							  "Linear sensors ";
+	"Acc: LIS3LV02DQ 3 Axis\0";
 #pragma idata
 
 #pragma idata menu2

@@ -25,9 +25,6 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-// Limit integral sum of Roll gyros
-// it must be limited to avoid numeric overflow
-// which would cause a serious flip -> crash
 void LimitRollSum(void)
 {
 	RollSum += RollSamples;
@@ -41,9 +38,6 @@ void LimitRollSum(void)
 
 } // LimitRollSum
 
-// Limit integral sum of Pitch gyros
-// it must be limited to avoid numeric overflow
-// which would cause a serious flip -> crash
 void LimitPitchSum(void)
 {
 	PitchSum += PitchSamples;
@@ -56,19 +50,16 @@ void LimitPitchSum(void)
 	}
 } // LimitPitchSum
 
-// Limit integral sum of Yaw gyros
-// it must be limited to avoid numeric overflow
-// which would cause a uncontrolled yawing -> crash
 void LimitYawSum(void)
 {
 	int16 Temp;
-	// add the yaw stick value
-	YE += IYaw;
+
+	YE += IYaw;						// add the yaw stick value
 
 	if ( _UseCompass )
 	{
 		// add compass heading correction
-		// CurDeviation is negative if Ufo has yawed to the right (go back left)
+		// CurDeviation is negative if quadrocopter has yawed to the right (go back left)
 
 		// this double "if" is necessary because of dumb CC5X compiler
 		Temp = YawNeutral + COMPASS_MIDDLE;
@@ -95,6 +86,9 @@ void LimitYawSum(void)
 
 	YawSum += (int16)YE;
 	YawSum = Limit(YawSum, -YawIntLimit*256, YawIntLimit*256);
+#ifdef KILL_YAW_DRIFT
+	YawSum = Decay(YawSum); YawSum = Decay(YawSum); // GKE added to kill gyro drift
+#endif // KILL_YAW_DRIFT
 
 } // LimitYawSum
 
@@ -166,10 +160,8 @@ void CalcGyroValues(void)
 		}
 
 		#ifdef DEBUG_SENSORS
-		TxValH16(RollSamples);
-		TxChar(';');
-		TxValH16(PitchSamples);
-		TxChar(';');
+		Trace[TRollSamples] = RollSamples;
+		Trace[TPitchSamples] = PitchSamples;
 		#endif
 	
 		// Roll
@@ -207,21 +199,14 @@ void CalcGyroValues(void)
 		LimitYawSum();
 
 		#ifdef DEBUG_SENSORS
-		TxValH(YE);
-		TxChar(';');
-		TxValH16(RollSum);
-		TxChar(';');
-		TxValH16(PitchSum);
-		TxChar(';');
-		TxValH16(YawSum);
-		TxChar(';');
+		Trace[TYE] = YE;
+		Trace[TRollSum] = RollSum;
+		Trace[TPitchSum] = PitchSum;
+		Trace[TYawSum] = YawSum;
 		#endif
 	}
 } // CalcGyroValues
 
-// compute the correction adders for the motors
-// using the gyro values (PID controller)
-// for the axes Roll and Pitch
 void PID(void)
 {
 
@@ -248,8 +233,7 @@ void PID(void)
 	if( IntegralCount == 0 )
 		Rl += SRS16(RollSum * (int16)RollIntFactor + 128, 8); // thanks Jim
 
-	// subtract stick signal
-	Rl -= IRoll;
+	Rl -= IRoll;								// subtract stick signal
 
 	// Pitch
 
@@ -260,29 +244,17 @@ void PID(void)
 	if( IntegralCount == 0 )
 		Pl += SRS16(PitchSum * (int16)PitchIntFactor +128, 8);
 
-	// subtract stick signal
-	Pl -= IPitch;
+	Pl -= IPitch;								// subtract stick signal
 
 	// Yaw
 
 	// the yaw stick signal is already added in LimitYawSum() !
 	//	YE += IYaw;
 
-	// Differential for Yaw (for quick and stable reaction)
+	// Differential and Proportional for Yaw
 	Yl  = SRS16(YE *(int16)YawPropFactor + (YEp-YE) * YawDiffFactor + 8, 4);
 	Yl += SRS16(YawSum * (int16)YawIntFactor + 128, 8);
-	Yl = Limit(Yl, -YawLimit, YawLimit);
-
-	// Camera
-
-	// use only roll/pitch angle
-	if( (IntegralCount == 0) && (CamRollFactor != 0) && (CamPitchFactor != 0) )
-	{
-		Rp = RollSum / (int16)CamRollFactor;
-		Pp = PitchSum / (int16)CamPitchFactor;
-	}
-	else
-		Rp = Pp = 0;
+	Yl = Limit(Yl, -YawLimit, YawLimit);		// effective slew limit
 
 	DoPIDDisplays();
 
