@@ -1,6 +1,12 @@
 // EXPERIMENTAL
 
-// reduces the update rate and the additionally the descent rate 
+// Forces sensor debug trace to display AccXYZ, Gyros and Angles
+#define ALT_TRACE
+
+// Forces Yaw angle to decay to zero over time.
+#define KILL_YAW_DRIFT
+
+// Reduces the update rate and the additionally the descent rate 
 #define NEW_ALT_HOLD
 
 // Loads a "representative" parameter set into EEPROM
@@ -236,6 +242,21 @@ typedef unsigned long uint32;
 // == External variables
 // ==============================================
 
+#ifdef ALT_TRACE
+enum TraceTags {TAx,TAz,TAy,
+				TRollSamples,TPitchSamples,TYE,				TRollSum,TPitchSum,TYawSum,
+	
+				TAbsDirection,TVBaroComp,TBaroRelPressure,				TMCamRoll,TMCamPitch, LastTrace
+				};
+#define TopTrace TBaroRelPressure
+#else
+enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollSamples,TPitchSamples,TYE,				TRollSum,TPitchSum,TYawSum,
+
+				TAx,TAz,TAy,				TMCamRoll,TMCamPitch, LastTrace
+				};
+#define TopTrace TAy
+#endif // ALT_TRACE
+
 extern uint8	IGas;
 extern int8 	IRoll,IPitch,IYaw;
 extern uint8	IK5,IK6,IK7;
@@ -246,8 +267,8 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollSamples, PitchSamples;
 extern int16	MidRoll, MidPitch, MidYaw;
 extern int16	Ax, Ay, Az;
-extern int8	LRIntKorr, FBIntKorr;
-extern int8	NeutralLR, NeutralFB, NeutralUD;
+extern int8		LRIntKorr, FBIntKorr;
+extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDSum;
 
 // Failsafes
@@ -280,6 +301,10 @@ extern uint8	mSTick;
 extern uint8	LedShadow;	// shadow register
 extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern int16	CurDeviation;	// deviation from correct heading
+
+#ifdef DEBUG_SENSORS
+extern int16	Trace[LastTrace];
+#endif // DEBUG_SENSORS
 
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
@@ -481,6 +506,10 @@ extern void UpdateBlinkCount(void);
 extern void CheckAlarms(void);
 extern void nop2(void);
 extern int16 SRS16(int16, uint8);
+
+#ifdef DEBUG_SENSORS
+extern void DumpTrace(void);
+#endif
 
 #ifdef TEST_SOFTWARE
 
