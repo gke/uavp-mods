@@ -39,6 +39,7 @@ void GetEvenValues(void)
 	Yp = 0;
 	for( i=0; i < 16; i++)
 	{
+		while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == 0 );
 		ReadAccelerations();
 		
 		Rp += Ax;
