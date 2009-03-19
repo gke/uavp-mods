@@ -242,20 +242,10 @@ typedef unsigned long uint32;
 // == External variables
 // ==============================================
 
-#ifdef ALT_TRACE
-enum TraceTags {TAx,TAz,TAy,
-				TRollSamples,TPitchSamples,TYE,				TRollSum,TPitchSum,TYawSum,
-	
-				TAbsDirection,TVBaroComp,TBaroRelPressure,				TMCamRoll,TMCamPitch, LastTrace
-				};
-#define TopTrace TBaroRelPressure
-#else
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollSamples,TPitchSamples,TYE,				TRollSum,TPitchSum,TYawSum,
-
 				TAx,TAz,TAy,				TMCamRoll,TMCamPitch, LastTrace
 				};
 #define TopTrace TAy
-#endif // ALT_TRACE
 
 extern uint8	IGas;
 extern int8 	IRoll,IPitch,IYaw;

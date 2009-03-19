@@ -27,7 +27,7 @@
 
 void Delay1mS(int16 d)
 { 	// Timer0 interrupt at 1mS must be running
-	int8 i;
+	int16 i;
 	uint8 T0IntEn;
 
 	T0IntEn = INTCONbits.TMR0IE;	// not protected?
@@ -342,7 +342,10 @@ void DumpTrace(void)
 	int8 t;
 
 	for (t=0; t <= TopTrace; t++)
+	{
 		TxValH16(Trace[t]);
+		TxChar(';');
+	}
 	TxNextLine();
 } // DumpTrace
 #endif // DEBUG_SENSORS

@@ -87,14 +87,12 @@ void TxValH(uint8 v)
 {
 	TxNibble(v >> 4);
 	TxNibble(v & 0x0f);
-	TxChar(';');
 } // TxValH
 
 void TxValH16(uint16 v)
 {
-	TxNibble((uint8)(v >> 12) & 0x0f);
-	TxNibble((uint8)(v >> 8) & 0x0f);
-	TxValH((uint8)v);
+	TxValH(v>>8);
+	TxValH(v);
 } // TxValH16
 
 uint8 RxChar(void)

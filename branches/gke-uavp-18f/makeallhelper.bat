@@ -18,8 +18,8 @@ set CSRC=accel adc c-ufo irq lisl menu pid prog sensor serial utils outputs
 set ASRC=bootl18f
 
 set CC="C:\MCC18\bin\mcc18"
-set CCMD=  -Oi -DBATCHMODE -DNOLEDGAME 
-rem set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa- -Oi -DBATCHMODE -DNOLEDGAME 
+rem set CCMD=  -DBATCHMODE -DNOLEDGAME 
+set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa- -DBATCHMODE -DNOLEDGAME 
 
 set ACMD=/o+ /e+ /l+ /x- /p%PIC% /c+ /q
 set AEXE="%ProgramFiles%\microchip\MPASM Suite\MPASMwin.exe"
