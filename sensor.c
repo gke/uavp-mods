@@ -36,7 +36,7 @@ uint8 I2CWaitClkHi(void)
 	I2CDelay();
 	I2C_CIO=1;								// set SCL to input, output a high
 	while( !I2C_SCL )						// wraparound through 255 1.25mS @ 16MHz							
-		if( ++s == (uint8)0 )			 
+		if( ++s == 0 )			 
 			break;	
 	I2CDelay();
 	return(s);
@@ -69,7 +69,7 @@ void I2CStop(void)
 
 uint8 SendI2CByte(uint8 d)
 {
-	uint8 s;
+	int8 s;
 
 	for(s=8; s ; s--)
 	{
@@ -141,14 +141,42 @@ uint8 RecvI2CByte(uint8 r)
 
 void InitDirection(void)
 {
-	// set Compass device to Compass mode 
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
+	// 20Hz continuous read with periodic reset.
+	#define COMP_OPMODE 0b01110010
+	#define COMP_MULT	16
 
-	// CAUTION: compass calibration must be done using TestSoftware!
+	// Set device to Compass mode 
+	I2CStart();
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(0x74) != I2C_ACK ) goto CTerror;
+
+	// select operation mode, standby mode
+	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+	// set EEPROM shadow register
+	I2CStart();
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('w')  != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(0x08) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+	Delay1mS(2);
+
+	// use default heading mode (1/10th degrees)
+
+	// set multiple read option, can only be written to EEPROM
+	I2CStart();
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('w')  != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(0x06) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMP_MULT)   != I2C_ACK ) goto CTerror;
+	I2CStop();
 
 	_UseCompass = true;
-IDerror:
+CTerror:
 	I2CStop();
 } // InitDirection
 
@@ -158,12 +186,14 @@ void GetDirection(void)
 	// Read direction, convert it to 2 degrees unit
 	// and store result in variable AbsDirection.
 	// The current heading correction is stored in CurDeviation
-	int16 DirVal, temp;
+	int16 DirVal,  temp;
+	uint16 Compass;
 
-	if( _UseCompass && ((BlinkCount & 0x03) == 0) )	// enter every 4th scan
+	if( _UseCompass  ) // continuous mode but Compass only updates avery 50mS
 	{
 		// set Compass device to Compass mode 
 		I2CStart();
+
 		if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) 
 		{
 			I2CStop();
@@ -171,12 +201,13 @@ void GetDirection(void)
 		}
 		else
 		{		
-			DirVal = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(I2C_NACK);
+			Compass = (uint16)RecvI2CByte(I2C_ACK)*256 | RecvI2CByte(I2C_NACK);
 			I2CStop();
 	
 			// DirVal has 1/10th degrees
 			// convert to set 360.0 deg = 240 units
-			DirVal /= 15;
+			Compass /= 15;
+			DirVal = Compass;
 	
 			// must use pre-decrement, because of dumb compiler
 			if( AbsDirection > COMPASS_MAX )
@@ -214,8 +245,8 @@ void GetDirection(void)
 		}
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
-			Trace[TAbsDirection] = AbsDirection << 1; // scale for UAVPSet
-		#endif				
+			Trace[TAbsDirection] = DirVal * 4; //AbsDirection; // scale for UAVPSet
+		#endif					
 	}
 	#ifdef DEBUG_SENSORS
 	else	// no new value received
@@ -239,7 +270,7 @@ uint8 ReadValueFromBaro(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto RVerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
-	BaroVal = RecvI2CByte(I2C_NACK) << 8;
+	BaroVal = (uint16)RecvI2CByte(I2C_NACK) * 256;
 	I2CStop();
 		
 	I2CStart();

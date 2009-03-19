@@ -259,7 +259,7 @@ void main(void)
 	// send hello text to serial COM
 	Delay100mSWithOutput(1);	// just to see the output after powerup
 
-	InitDirection();	// init compass sensor
+	InitDirection();
 	InitBarometer();
 
 	ShowSetup(1);

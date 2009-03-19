@@ -64,8 +64,6 @@ int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
 
-int16	Ax, Ay, Az;
-
 uint8	Flags[8], Flags2[8];
 uint8	EscI2CFlags;
 
@@ -115,21 +113,17 @@ void LinearTest(void)
 	TxString("\r\nAccelerometer test:\r\n");
 	if( _UseLISL )
 	{
-		TxString("Status:\t 0x");
-		TxValH(ReadLISL(LISL_STATUS + LISL_READ));
-		TxNextLine();
-
 		ReadAccelerations();
 	
-		TxString("X-Right: \t");
+		TxString("X: \t");
 		TxVal32(((int32)Ax*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 
-		TxString("Y-Up:   \t");	
+		TxString("Y:   \t");	
 		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 
-		TxString("Z-Back: \t");	
+		TxString("Z: \t");	
 		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 	}
@@ -188,8 +182,7 @@ void ReceiverTest(void)
 			TxChar(s+'0');
 			TxString(":\t 0x");
 			v = *p++;
-			TxValH((v >> 8) & 0x00ff);
-			TxValH(v & 0x00ff);
+			TxValH16(v);
 			TxChar(HT);	
 			TxVal32(((int32)(v & 0x00ff)*100)/_Maximum, 0, '%');
 			if( ( v & 0xff00) != (uint16)0x0100 ) 
@@ -227,74 +220,19 @@ void TogglePPMPolarity(void)
 	_NoSignal = true;
 } // TogglePPMPolarity
 
-void DoCompassTest(void)
+void DoCompassTest()
 {
 	uint16 v;
 
-	// 20Hz standby mode - random read?
-	#define COMP_OPMODE 0b01100000
-	#define COMP_MULT	16
-
 	TxString("\r\nCompass test\r\n");
-
-	// set Compass device to Compass mode 
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
-	if( SendI2CByte(0x74) != I2C_ACK ) goto CTerror;
-
-	// select operation mode, standby mode
-	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
-	I2CStop();
-
-	// set EEPROM shadow register
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('w')  != I2C_ACK ) goto CTerror;
-	if( SendI2CByte(0x08) != I2C_ACK ) goto CTerror;
-
-	// select operation mode, standby mode
-	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
-	I2CStop();
-
-	Delay1mS(2);
-
-	// set output mode, cannot be shadowed in EEPROM :-(
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
-	if( SendI2CByte(0x4e) != I2C_ACK ) goto CTerror;
-
-	// select heading mode (1/10th degrees)
-	if( SendI2CByte(0x00) != I2C_ACK ) goto CTerror;
-	I2CStop();
-
-	// set multiple read option, can only be written to EEPROM
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('w')  != I2C_ACK ) goto CTerror;
-	if( SendI2CByte(0x06) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte(COMP_MULT)   != I2C_ACK ) goto CTerror;
-	I2CStop();
-
-	Delay1mS(2);
-
-	// read a direction
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('A')  != I2C_ACK ) goto CTerror;
-	I2CStop();
-
-	Delay1mS(100);//COMPASS_TIME);
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
-	v = (RecvI2CByte(I2C_ACK)<<8) | RecvI2CByte(I2C_NACK);
+	v = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
 	I2CStop();
 
-	TxVal32(v, 1, 0);
+	TxVal32((int32)v, 1, 0);
 	TxString("deg\r\n");		
-
 	return;
 CTerror:
 	TxNextLine();
@@ -302,9 +240,10 @@ CTerror:
 	TxString("FAIL");
 } // DoCompassTest
 
+
 // calibrate the compass by rotating the ufo through 720 deg smoothly
 void CalibrateCompass(void)
-{	
+{
 	TxString("\r\nCalib. compass. Press any key to cont.\r\n");
 
 	while( !RxChar() );
@@ -348,13 +287,13 @@ void BaroTest(void)
 	Delay1mS(BARO_PRESS_TIME);
 	r = ReadValueFromBaro();
 	TxString("Press: \t");	
-	TxVal32(BaroVal, 0, 0);	
+	TxVal32((int32)BaroVal, 0, 0);
 		
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	Delay1mS(BARO_TEMP_TIME);
 	r = ReadValueFromBaro();
 	TxString("\tTemp: ");
-	TxVal32(BaroVal, 0, 0);	
+	TxVal32((int32)BaroVal, 0, 0);	
 	TxNextLine();
 
 	TxNextLine();
@@ -485,10 +424,13 @@ void main(void)
 
 	InitBarometer();
 
+	InitDirection();
+	Delay1mS(COMPASS_TIME);
+
 	// send hello text to serial COM
 	Delay1mS(100);
 	ShowSetup(true);
-
+	Delay1mS(BARO_PRESS_TIME);
 	while(1)
 	{
 		// turn red LED on of signal missing or invalid, green if OK
