@@ -143,7 +143,9 @@ void IsLISLactive(void)
 
 void ReadAccelerations()
 {
-	ReadLISL(LISL_STATUS + LISL_READ);
+	uint8 r;
+
+	r = ReadLISL(LISL_STATUS + LISL_READ);
 	Ax  = (int16)ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
 	Ax |= (int16)ReadLISLNext()*256;
 	Ay  = (int16)ReadLISLNext();
