@@ -189,19 +189,15 @@ uns8 ScanI2CBus(void)
 
 void CompassTest(void)
 {
-	uns8 i;
+	// 20Hz continuous read with periodic reset.
+	#define COMP_OPMODE 0b01110010
+	#define COMP_MULT	16
 
-// 20Hz standby mode - random read?
-#define COMP_OPMODE 0b0.11.0.00.00
-#define COMP_MULT	16
-
-	// set Compass device to Compass mode 
+	// Set device to Compass mode 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(0x74) != I2C_ACK ) goto CTerror;
-
-	// select operation mode, standby mode
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
@@ -210,24 +206,12 @@ void CompassTest(void)
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('w')  != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(0x08) != I2C_ACK ) goto CTerror;
-
-	// select operation mode, standby mode
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
+	
+	DELAY_MS(2);
 
-	TMR0 = 0;
-	while ( T0IF == 0 ) {}; // 1mS wait
-	T0IF = 0;
-
-	// set output mode, cannot be shadowd in EEPROM :-(
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
-	if( SendI2CByte(0x4e) != I2C_ACK ) goto CTerror;
-
-	// select heading mode (1/10th degrees)
-	if( SendI2CByte(0x00) != I2C_ACK ) goto CTerror;
-	I2CStop();
+	// use default heading mode (1/10th degrees)
 
 	// set multiple read option, can only be written to EEPROM
 	I2CStart();
@@ -236,24 +220,8 @@ void CompassTest(void)
 	if( SendI2CByte(0x06) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(COMP_MULT)   != I2C_ACK ) goto CTerror;
 	I2CStop();
-
-	TMR0 = 0;
-	while ( T0IF == 0 ) {}; // 1mS wait
-	T0IF = 0;
-
-	// read a direction
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('A')  != I2C_ACK ) goto CTerror;
-	I2CStop();
-
-	// wait 25ms for command to complete
-	for (i = 30; i; i--)
-	{
-		TMR0 = 0;
-		while ( T0IF == 0 ) {}; // 1mS wait
-		T0IF = 0;
-	}
+	
+	DELAY_MS(50);
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;

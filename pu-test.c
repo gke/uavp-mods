@@ -199,5 +199,5 @@ void main(void)
 		}
 		OutSignals();
 	}
-}
+} // main
 
