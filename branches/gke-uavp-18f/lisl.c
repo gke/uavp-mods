@@ -49,7 +49,6 @@ void OutSSP(uint8 d)
 } // OutSSP
 #endif
 
-#define SPI_BACKTRACK
 #ifdef SPI_BACKTRACK
 
 void SendCommand(int8 c)

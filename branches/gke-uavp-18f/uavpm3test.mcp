@@ -69,10 +69,10 @@ file_002=irq.c
 file_003=lisl.c
 file_004=menu-test.c
 file_005=prog.c
-file_006=pu-test.c
-file_007=sensor.c
-file_008=serial.c
-file_009=bootl18f.asm
+file_006=sensor.c
+file_007=serial.c
+file_008=bootl18f.asm
+file_009=pu-test.c
 file_010=c-ufo.h
 file_011=bits.h
 [SUITE_INFO]
