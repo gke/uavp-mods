@@ -191,6 +191,8 @@ void CheckLISL(void)
 		// Pitch-Achse
 		// =====================================
 		// Static compensation due to Gravity
+
+		Pp =-Pp; // long standing error???
 	
 		#ifdef OPT_ADXRS
 		Yl = PitchSum * 11;	// Pp um RollSum* 11/32 korrigieren

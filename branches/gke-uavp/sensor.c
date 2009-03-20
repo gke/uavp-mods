@@ -1,4 +1,3 @@
-
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
@@ -162,15 +161,29 @@ uns8 RecvI2CByte(uns8 niack)
 // initialize compass sensor
 void InitDirection(void)
 {
+	_UseCompass = 0;
 
-// set Compass device to Compass mode 
+	// set Compass device to Compass mode 
 	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto IDerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 
 	// CAUTION: compass calibration must be done using TestSoftware!
+	// 20Hz continuous read with periodic reset.
+	#define COMP_OPMODE 0b01110010
+	#define COMP_MULT	16
+
+	// Set device to Compass mode 
+	I2CStart();
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(0x74) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+	// balance of initialisation using Test Software
 
 	_UseCompass = 1;
-IDerror:
+CTerror:
 	I2CStop();
 } // InitDirection
 
@@ -182,7 +195,7 @@ void GetDirection(void)
 
 	bank2 int16 DirVal, temp;
 
-	if( _UseCompass && ((BlinkCount & 0x03) == 0) )	// enter every 4th scan
+	if( _UseCompass )	// Compass output is always valid but updated every 50mS
 	{
 		// set Compass device to Compass mode 
 		I2CStart();
@@ -244,7 +257,7 @@ GAError:
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
 		{
-			SendComValH(AbsDirection);
+			SendComValH(DirVal);//AbsDirection);
 			SendComChar(';');
 		}
 		#endif				
@@ -283,15 +296,6 @@ uns8 ReadValueFromBaro(void)
 RVerror:
 	I2CStop();
 	_UseBaro = 0; // read error, disable baro
-	#ifdef BARO_RETRY
-	_Hovering = 0;	
-	if ( BaroRestarts < 100 )
-	{
-		InitAltimeter();
-		_BaroRestart = 1;
-		BaroRestarts++;
-	}
-	#endif
 	return(I2C_ACK);
 } // ReadValueFromBaro
 
@@ -377,11 +381,7 @@ void ComputeBaroComp(void)
 
 	if( _UseBaro )
 		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
-#ifdef SLOW_BARO
-		if (((BaroCount >= 8) && _BaroTempRun) || ((BaroCount >= 32 ) && !_BaroTempRun))
-#else
 		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))
-#endif // SLOW_BARO	
 		{
 			BaroCount = 0;
 			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value		
@@ -392,7 +392,6 @@ void ComputeBaroComp(void)
 						BaroBaseTemp = niltemp; // current read value
 					else 
 						BaroRelTempCorr = niltemp - BaroBaseTemp;
-	
 				}
 				else
 				{	// current measurement was "pressure"
@@ -462,11 +461,9 @@ void ComputeBaroComp(void)
 						else
 							if( VBaroComp < nitemp )
 								VBaroComp++; // climb
-#ifndef SLOW_BARO
 						if( VBaroComp > nitemp )
 							VBaroComp--;
 						else
-#endif // SLOW_BARO
 							if( VBaroComp < nitemp )
 								VBaroComp++;
 		

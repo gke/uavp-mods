@@ -180,6 +180,9 @@ First public released version.
 - Abandoned further development on cc5x based version in 
   favour of the C18 compiler and 18Fxxxx PICs.
 
+20.03.2006 v3.15m3 Greg Egan
+- Updated compass initialisation and corrected Pitch compensation.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

@@ -110,16 +110,9 @@
 
 // Barometer
 
-// reduces the update rate and the additionally the descent rate 
-//#define SLOW_BARO
-
 // Increase the severity of the filter on the baromater pressure readings
 // may give better altitude hold ( New=(Old*7+New+4)/8) ).
 #define BARO_HARD_FILTER
-
-// Attempts reconnection to the barometer if there is an I2C error
-// I2C comms seems now to be reliable with the BMP085 baro.
-//#define BARO_RETRY
 
 // Make a "scratchy" beeper noise while altitude hold is engaged.
 //#define BARO_SCRATCHY_BEEPER
