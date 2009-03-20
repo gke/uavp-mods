@@ -46,22 +46,7 @@ void CheckLISL(void)
 		Pp.low8  = (int8)ReadLISLNext();
 		Pp.high8 = (int8)ReadLISLNext();
 		LISL_CS = 1;	// end transmission
-		
-		#ifdef DEBUG_SENSORS
-		if( IntegralCount == 0 )
-		{
-			SendComValH(Rp.high8);
-			SendComValH(Rp.low8);
-			SendComChar(';');
-			SendComValH(Pp.high8);
-			SendComValH(Pp.low8);
-			SendComChar(';');
-			SendComValH(Yp.high8);
-			SendComValH(Yp.low8);
-			SendComChar(';');
-		}
-		#endif
-	
+			
 		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
 		// and come back as MiddleLR etc.
 	
@@ -94,6 +79,21 @@ void CheckLISL(void)
 		#endif
 		
 		Yp -= 1024;	// subtract 1g
+
+		#ifdef DEBUG_SENSORS
+		if( IntegralCount == 0 )
+		{
+			SendComValH(Rp.high8);
+			SendComValH(Rp.low8);
+			SendComChar(';');
+			SendComValH(Pp.high8);
+			SendComValH(Pp.low8);
+			SendComChar(';');
+			SendComValH(Yp.high8);
+			SendComValH(Yp.low8);
+			SendComChar(';');
+		}
+		#endif
 	
 		#ifdef ACCEL_VUD
 		// UDSum rises if ufo climbs

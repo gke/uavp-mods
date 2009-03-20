@@ -154,6 +154,19 @@ void LimitYawSum(void)
 			YawSum.high8 = NegFact;
 			YawSum.low8 = 0;
 		}
+
+	if ( YawSum > 0) 
+		YawSum--; 
+	else 
+		if ( YawSum < 0 ) 
+			YawSum++;
+
+	if ( YawSum > 0) 
+		YawSum--; 
+	else 
+		if ( YawSum < 0 ) 
+			YawSum++;
+
 } // LimitYawSum
 
 // to avoid stopping motors in the air, the
