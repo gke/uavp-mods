@@ -108,6 +108,81 @@ int8	BaroThrottleDiff	=4;
 #pragma idata
 // End Parameters
 
+#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
+
+void EscI2CDelay(void)
+{
+	nop2();
+}
+
+// send a start condition
+void EscI2CStart(void)
+{
+	ESC_DIO=1;	// set SDA to input, output a high
+	EscI2CDelay();
+	ESC_CIO=1;	// set SCL to input, output a high
+	while( ESC_SCL == 0 ) ;	// wait for line to come hi
+	EscI2CDelay();
+	ESC_SDA = 0;	// start condition
+	ESC_DIO = 0;	// output a low
+	EscI2CDelay();
+	ESC_SCL = 0;
+	ESC_CIO = 0;	// set SCL to output, output a low
+} // EscI2CStart
+
+
+void EscI2CStop(void)
+{
+	ESC_DIO=0;				// set SDA to output
+	ESC_SDA = 0;			// output a low
+	EscI2CDelay();
+	ESC_CIO=1;				// set SCL to input, output a high
+	while( ESC_SCL == 0 ) ;	// wait for line to come hi
+	EscI2CDelay();
+
+	ESC_DIO=1;				// set SDA to input, output a high, STOP condition
+	EscI2CDelay();			// leave clock high
+} // EscI2CStop
+
+uint8 SendEscI2CByte(uint8 d)
+{
+	int8 i;
+
+	for( i=0; i<8; i++)
+	{
+		if( (d & 0x80) != 0 )
+			ESC_DIO = 1;	// switch to input, line is high
+		else
+		{
+			ESC_SDA = 0;			
+			ESC_DIO = 0;	// switch to output, line is low
+		}
+	
+		ESC_CIO=1;			// set SCL to input, output a high
+		while( ESC_SCL == 0 ) ;	// wait for line to come hi
+		EscI2CDelay();
+		ESC_SCL = 0;
+		ESC_CIO = 0;		// set SCL to output, output a low
+		d <<= 1;
+	}
+	ESC_DIO = 1;			// set SDA to input
+	EscI2CDelay();
+	ESC_CIO=1;				// set SCL to input, output a high
+	while( ESC_SCL == 0 ) ;	// wait for line to come hi
+
+	EscI2CDelay();			// here is the ACK
+	i = ESC_SDA;	
+
+	ESC_SCL = 0;
+	ESC_CIO = 0;			// set SCL to output, output a low
+	EscI2CDelay();
+//	ESC_IO = 0;				// set SDA to output
+//	ESC_SDA = 0;			// leave output low
+	return(i);
+} // SendEscI2CByte
+
+#endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
+
 void LinearTest(void)
 {
 	TxString("\r\nAccelerometer test:\r\n");
@@ -115,24 +190,22 @@ void LinearTest(void)
 	{
 		ReadAccelerations();
 	
-		TxString("X: \t");
+		TxString("LR: \t");
 		TxVal32(((int32)Ax*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 
-		TxString("Y:   \t");	
-		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');	
+		TxString("FB: \t");	
+		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 
-		TxString("Z: \t");	
-		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');	
+		TxString("DU:   \t");	
+		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 	}
 	else
 		TxString("\r\n(Acc. not present)\r\n");
 } // LinearTest
 
-// scan all slave bus addresses (read mode)
-// and list found devices
 uint8 ScanI2CBus(void)
 {
 	int16 s;
@@ -155,7 +228,6 @@ uint8 ScanI2CBus(void)
 	return(d);
 } // ScanI2CBus
 
-// output all the signal values and the validity of signal
 void ReceiverTest(void)
 {
 	int8 s;
@@ -235,15 +307,12 @@ void DoCompassTest()
 	TxString("deg\r\n");		
 	return;
 CTerror:
-	TxNextLine();
 	I2CStop();
-	TxString("FAIL");
+	TxString("FAIL\r\n");
 } // DoCompassTest
 
-
-// calibrate the compass by rotating the ufo through 720 deg smoothly
 void CalibrateCompass(void)
-{
+{	// calibrate the compass by rotating the ufo through 720 deg smoothly
 	TxString("\r\nCalib. compass. Press any key to cont.\r\n");
 
 	while( !RxChar() );
@@ -254,8 +323,7 @@ void CalibrateCompass(void)
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	TxString("\r\n720 deg in ~30 sec.!\r\nPress any key to cont.\r\n\0");
-
+	TxString("\r\n720 deg in ~30 sec.!\r\nPress any key to cont.\r\n");
 	while( !RxChar() );
 
 	// set Compass device to End-Calibration mode 
@@ -264,11 +332,15 @@ void CalibrateCompass(void)
 	if( SendI2CByte('E')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
+	Beeper_ON;
+	Delay1mS(100);
+	Beeper_OFF;
+
 	TxString("OK\r\n");
 	return;
 CCerror:
 	I2CStop();
-	TxString("FAIL");
+	TxString("FAIL\r\n");
 } // CalibrateCompass
 
 void BaroTest(void)
@@ -300,10 +372,8 @@ void BaroTest(void)
 
 	return;
 BAerror:
-	TxNextLine();
 	I2CStop();
-
-	TxString("FAIL");
+	TxString("FAIL\r\n");
 } // BaroTest
 
 // flash output for a second, then return to its previous state
@@ -312,7 +382,7 @@ void PowerOutput(int8 d)
 	int8 s;
 	uint8 m;
 
-	m = 1 << (d+1);
+	m = 1 << d;
 
 	for( s=0; s < 10; s++ )	// 10 flashes (count MUST be even!)
 	{
@@ -365,9 +435,77 @@ void AnalogTest(void)
 
 } // AnalogTest
 
-void OutSignals()
+#ifdef ESC_YGEI2C
+
+//const char page2 SerYGEConf1[] = ;
+
+void Program_SLA(uint8 niaddr)
 {
-  // no motors in Test Software
+	uint8 nii;
+
+	for(nii = 0x10; nii<0xF0; nii+=2)
+	{
+		EscI2CStart();
+		if( SendEscI2CByte(nii) == 0 )
+		{
+			if( nii == niaddr )
+			{	// controller is already programmed OK
+				EscI2CStop();
+				TxText("controller at SLA 0x");
+				TxValH(nii);
+				TxText(" is already programmed OK\r\n");
+				return;
+			}
+			else
+			{
+				if( SendEscI2CByte(0x87) == 0 ) // select register 0x07
+				{
+					if( SendEscI2CByte(niaddr) == 0 ) // new slave address
+					{
+						EscI2CStop();
+						TxText("controller at SLA 0x");
+						TxValH(nii);
+						TxText(" reprogrammed to SLA 0x");
+						TxValH(niaddr);
+						TxNextLine();
+						return;
+					}
+				}
+			}
+		}
+		EscI2CStop();
+	}
+	TxText("no controller found or reprogram failed\r\n");
+}
+
+void ConfigureESCs(void)
+{
+	uint8 nic;
+
+	for( nic=0; nic<4; nic++)
+	{
+		TxText("\r\nConnect ONLY ");
+		switch(nic)
+		{
+			case 0 : TxText("front"); break;
+			case 1 : TxText("back");  break;
+			case 2 : TxText("right"); break;
+			case 3 : TxText("left");  break;
+		}
+		TxText(" controller, then press any key\r\n");
+		while( RxChar() == '\0' );
+		TxText("\rprogramming the controller...\r\n");
+
+		Program_SLA(0x62+nic+nic);
+	}
+}
+#endif // ESC_YGEI2C
+
+void OutSignals(void)
+{
+
+	// no motor output
+
 } // OutSignals
 
 void main(void)

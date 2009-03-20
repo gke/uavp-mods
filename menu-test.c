@@ -26,14 +26,14 @@
 #include "bits.h"
 
 #pragma idata menuhello
-const uint8  SerHello[] = "\r\nUAVPTest " Version "\r\nCopyright (c) 2007-9"
+const uint8  SerHello[] = "\r\nProfi-Ufo TEST V" Version "\r\nCopyright (c) 2007-9"
 							  " G.K. Egan & W. Mahringer\r\n"
 							  "Comes with ABSOLUTELY NO WARRANTY\r\n"
-							  "This is FREE SOFTWARE, see GPL license!\r\n\0";
+							  "This is FREE SOFTWARE, see GPL license!\r\n";
 #pragma idata
 #pragma idata menusetup
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
-const uint8  SerSetup[] = "\r\nUAVPTest " Version " ready.\r\n"
+const uint8  SerSetup[] = "\r\nProfi-Ufo TEST V" Version " ready.\r\n"
 
 #ifdef DEBUG_SENSORS
 	"Debug: Sensors\r\n"
@@ -43,7 +43,7 @@ const uint8  SerSetup[] = "\r\nUAVPTest " Version " ready.\r\n"
 #endif
 
 #ifdef RX_DEFAULT
-	"Rx: PPM Odd Channel\r\n"
+	"Rx: PPM Odd Channels\r\n"
 #endif
 #ifdef RX_PPM
 	"Rx: PPM Composite\r\n"
@@ -78,19 +78,19 @@ const uint8  SerSetup[] = "\r\nUAVPTest " Version " ready.\r\n"
 #pragma idata menuhelp
 const uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"A..Analog ch.\r\n"
-	"B..Bootloader\r\n"
+	"B..Boot\r\n"
 	"C..Compass test\r\n"
 	"K..Calib. Compass\r\n"
 	"I..I2C bus scan\r\n"
 	"L..Linear test\r\n"
 	"H..Baro. test\r\n"
-	"N..Negated RX-PPM\r\n"
+	"N..Negate Rx-PPM\r\n"
 	"R..RX test\r\n"
 	"S..Setup\r\n"
-	"1-8.."
-/* CAUTION: The following line MUST REMAIN THE LAST in that help string!
-   This is for UAVPset to correctly read the available commands! */
-	"Power output test\r\n";
+	#ifdef ESC_YGEI2C
+	"Y..Prog. YGE\r\n"
+	#endif
+	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
 
 void ShowPrompt(void)
 {
@@ -211,7 +211,14 @@ void ProcessComCommand(void)
 				TogglePPMPolarity();
 				ShowPrompt();
 				break;
-	
+
+		#ifdef ESC_YGEI2C
+		case 'Y':	// configure YGE30i EScs
+			ConfigureESCs();
+			ShowPrompt();
+			break;
+		#endif // ESC_YGEI2C
+
 			case 'B':	// call bootloader
 				TxNextLine();
 				BootStart();

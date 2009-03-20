@@ -1,10 +1,7 @@
 // EXPERIMENTAL
 
-// Forces sensor debug trace to display AccXYZ, Gyros and Angles
-#define ALT_TRACE
-
-// Forces Yaw angle to decay to zero over time.
-#define KILL_YAW_DRIFT
+// comment out to go to alternate ACC/Compass SPI read routines
+//#define SPI_BACKTRACK
 
 // Reduces the update rate and the additionally the descent rate 
 #define NEW_ALT_HOLD
@@ -131,6 +128,11 @@
 
 // Make a "scratchy" beeper noise while altitude hold is engaged.
 #define BARO_SCRATCHY_BEEPER
+
+// Gyros
+
+// Forces Yaw angle to decay to zero over time.
+#define KILL_YAW_DRIFT
 
 // =====================================
 // end of user-configurable section!
@@ -521,7 +523,6 @@ extern void TogglePPMPolarity(void);
 extern void BaroTest(void);
 extern void LinearTest(void);
 extern uint8 ScanI2CBus(void);
-
 
 #endif // TEST_SOFTWARE
 
