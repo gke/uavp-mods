@@ -261,7 +261,7 @@ void main(void)
 
 	InitDirection();
 	InitBarometer();
-
+SendCommand(0);
 	ShowSetup(1);
 
 	IK6 = IK7 = _Neutral;

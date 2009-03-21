@@ -302,11 +302,10 @@ void UpdateBlinkCount(void)
 void SendLeds(void)
 {
 	int8	i, s;
-
 	i = LedShadow;
 	SPI_CS = DSEL_LISL;	
 	SPI_IO = WR_SPI;	// SDA is output
-	SPI_SCL = 0;	// because shift is on positive edge
+	SPI_SCL = 0;		// because shift is on positive edge
 	
 	for(s=8; s!=0; s--)
 	{
@@ -315,12 +314,15 @@ void SendLeds(void)
 		else
 			SPI_SDA = 0;
 		i<<=1;
+		Delay10TCY();
 		SPI_SCL = 1;
+		Delay10TCY();
 		SPI_SCL = 0;
 	}
 
 	PORTCbits.RC1 = 1;
 	PORTCbits.RC1 = 0;	// latch into drivers
+	SPI_SCL = 1;		// rest state for LISL
 	SPI_IO = RD_SPI;
 }
 
