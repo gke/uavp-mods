@@ -418,7 +418,7 @@ void ProcessComCommand(void)
 			ShowPrompt();
 			break;
 
-#ifdef ESC_YGEI2C
+#ifdef ESC_YGEI2C_NOT_SUPPORTED
 		case 'Y':	// configure YGE30i EScs
 			ConfigureESCs();
 			ShowPrompt();

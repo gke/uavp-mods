@@ -64,7 +64,7 @@ const char page2 SerHello[] = "\r\nU.A.V.P. TESTSOFTWARE V" Version " Copyright 
 							  "R....RX test\r\n"
 							  "S....Show setup\r\n"
 							  "V....Servo test (CAUTION!)\r\n"
-#ifdef ESC_YGEI2C
+#ifdef ESC_YGEI2CESC_YGEI2C_NOT_SUPPORTED
 							  "Y....Configure YGE I2C ESCs\r\n"
 #endif
 							  "1-8.."

@@ -11,7 +11,8 @@ rem
 rem Uses: makeallhelper.bat and makeclean.bat
 rem 
 rem Type of gyros in use. May be OPT_ADXRS or IDG300.
-rem Type of ESC in use. May be ESC_PWM,  ESC_HOLGER.
+rem Type of ESC in use. May be ESC_PWM,  ESC_HOLGER
+rem ESC_YGEI2C is not supported - Use official 3.15 Test Software.
 rem Type of Rx. May RX_PPM for serial composite PPM frame, or 
 rem RX_DEFAULT for default PPM Graupner/JR etc Rx.
 
@@ -24,7 +25,6 @@ set DBGS=NO_DEBUG
 set RXS=RX_DEFAULT RX_PPM
 
 rem Personal choice
-
 
 rem Delete working files
 call makeclean.bat
