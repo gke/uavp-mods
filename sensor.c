@@ -166,7 +166,7 @@ void InitDirection(void)
 	Delay1mS(2);
 
 	// use default heading mode (1/10th degrees)
-
+/*
 	// set multiple read option, can only be written to EEPROM
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
@@ -174,7 +174,7 @@ void InitDirection(void)
 	if( SendI2CByte(0x06) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(COMP_MULT)   != I2C_ACK ) goto CTerror;
 	I2CStop();
-
+*/
 	_UseCompass = true;
 CTerror:
 	I2CStop();
