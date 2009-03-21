@@ -272,7 +272,7 @@ OS006
 	EscI2CStop();
 #endif	// ESC_HOLGER
 
-#ifdef ESC_YGEI2C
+#ifdef ESC_YGEI2CESC_YGEI2C_NOT_SUPPORTED
 	EscI2CStart();
 	niret = SendEscI2CByte(0x62);	// one cmd, one data byte per motor
 	if( niret == 0 )
@@ -435,7 +435,7 @@ EmergStop:
 #endif
 }
 
-#ifdef ESC_YGEI2C
+#ifdef ESC_YGEI2CESC_YGEI2C_NOT_SUPPORTED
 const char page2 SerYGEConf1[] = "\r\nConnect ONLY ";
 const char page2 SerYGEFront[] = "front";
 const char page2 SerYGERear[]  = "rear";
