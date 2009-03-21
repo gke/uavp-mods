@@ -20,4 +20,4 @@ To compile your own firmware:
    * All of the revisions on this site now contain an MPLab project workspace file (mcw). For the older 16F876 PICs the compiler is used is cc5x which does not readily support simulation within MPLab.
    * For 18F2520 and compatible PICs the compiler used is the C18 provided by Microchip free for non-commercial use. With the exception of sensor inputs full simulation can be performed within MPLab.
 = Compiling all versions =
-   * All versions of test and flight software for the 16F876 and 18F2520 versions of the software may be compiled using makeall.bat. The make_mine.bat file may be edited to produce a smaller subset of these files for the particular Rx, sensor and ESCs you are interested in. See the relevant README files. 
+   * All versions of test and flight software for the 16F876 and 18Fxxxx may be compiled using makeall.bat. The make_mine.bat file may be edited to produce a smaller subset of these files for the particular Rx, sensor and ESCs you are interested in. See the relevant README files. 
