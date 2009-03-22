@@ -86,9 +86,11 @@ void LimitYawSum(void)
 
 	YawSum += (int16)YE;
 	YawSum = Limit(YawSum, -YawIntLimit*256, YawIntLimit*256);
-#ifdef KILL_YAW_DRIFT
-	YawSum = Decay(YawSum); YawSum = Decay(YawSum); // GKE added to kill gyro drift
-#endif // KILL_YAW_DRIFT
+
+	#ifdef KILL_YAW_DRIFT
+	YawSum = Decay(YawSum); // GKE added to kill gyro drift
+	YawSum = Decay(YawSum); 
+	#endif // KILL_YAW_DRIFT
 
 } // LimitYawSum
 

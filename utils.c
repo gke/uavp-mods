@@ -34,7 +34,7 @@ void Delay1mS(int16 d)
 	INTCONbits.TMR0IE = false;
 
 	// if d is 1 then delay can be less than 1mS due to 	
-	for (i=0; i<d; i++)
+	for (i=d; i; i--)
 	{						// compromises ClockMilliSec;
 		while ( !INTCONbits.TMR0IF ) {};
 		INTCONbits.TMR0IF = 0;
@@ -56,7 +56,7 @@ void Delay100mSWithOutput(int16 dur)
 
 	for(i = 0; i < dur*10; i++)
 		{
-			for (j = 0; j<8; j++)
+			for (j = 8; j ; j--)
 			{
 				while ( !INTCONbits.TMR0IF ) {};
 				INTCONbits.TMR0IF = 0;

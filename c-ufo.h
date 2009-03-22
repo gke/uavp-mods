@@ -38,12 +38,6 @@
 // == Global compiler switches
 // ==============================================
 
-// To enable output of values via Out(), OutG() and OutSSP()
-//#define DEBUGOUT
-//#define DEBUGOUTG
-//#define DEBUGSSP
-//#define DEBUG_RXERRORS
-
 // Only one of the following 3 defines must be activated:
 // When using 3 ADXRS300 gyros
 //#define OPT_ADXRS300
