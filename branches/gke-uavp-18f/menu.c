@@ -31,12 +31,12 @@ const uint8 SerHello[] = "\r\nUAVP " Version " Copyright (c) 2007-9"
 
 const uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 
-#ifdef DEBUG_SENSORS
-	"Debug: Sensors\r\n"
+#ifdef DEBUG
+	"Debug: ON\r\n"
+#else
+	"Debug: OFF\r\n"
 #endif
-#ifdef DEBUG_MOTORS
-	"Debug: Motors\r\n"
-#endif
+
 
 #ifdef RX_DEFAULT
 	"Rx: PPM Odd Channel\r\n"

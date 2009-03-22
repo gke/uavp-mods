@@ -287,22 +287,21 @@ uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 
 void OutSignals(void)
 {
-	#ifndef DEBUG_SENSORS
+	#ifdef DEBUG_SENSORS
+	Trace[TIGas] = IGas;
 
-	#ifdef DEBUG_MOTORS
-	if( _Flying && IsSet(CamPitchFactor,4) )
-	{
-		TxValU(IGas);
-		TxValS(IRoll);
-		TxValS(IPitch);
-		TxValS(IYaw);
-		TxValU(MFront);
-		TxValU(MBack);
-		TxValU(MLeft);
-		TxValU(MRight);
-		TxNextLine();
-	}
-	#endif
+	Trace[TIRoll] = IRoll;
+	Trace[TIPitch] = IPitch;
+	Trace[TIYaw] = IYaw;
+
+	Trace[TMFront] = MFront;
+	Trace[TMBack] = MBack;
+	Trace[TMLeft] = MLeft;
+	Trace[TMRight] = MRight;
+
+	Trace[TMCamRoll] = MCamRoll;
+	Trace[TMCamPitch] = MCamPitch;
+	#else // !DEBUG_SENSORS
 
 	WriteTimer0(0);
 	INTCONbits.TMR0IF = false;
@@ -310,7 +309,7 @@ void OutSignals(void)
 	#ifdef ESC_PPM
 	_asm
 	MOVLB	0						// select Bank0
-	MOVLW	0x0f				// turn on motors
+	MOVLW	0x0f					// turn on motors
 	MOVWF	SHADOWB,1
 	_endasm	
 	PORTB |= 0x0f;
@@ -337,13 +336,6 @@ void OutSignals(void)
 		ML = _Minimum;
 	if( IsSet(CamPitchFactor,3) )
 		MR = _Minimum;
-	#else
-	#ifdef INTTEST
-	MF = _Minimum;
-	MB = _Minimum;
-	ML = _Minimum;
-	MR = _Minimum;
-	#endif
 	#endif
 
 	MT = MCamRoll;
@@ -366,7 +358,6 @@ void OutSignals(void)
 	while( !INTCONbits.TMR0IF ) ;	// wait for first overflow
 	INTCONbits.TMR0IF=0;		// quit TMR0 interrupt
 
-	#if !defined DEBUG && !defined DEBUG_MOTORS
 	if( _OutToggle )	// driver cam servos only every 2nd pulse
 	{
 		_asm
@@ -377,7 +368,6 @@ void OutSignals(void)
 		PORTB |= 0x3f;
 	}
 	_OutToggle ^= 1;
-	#endif
 
 // This loop is exactly 16 cycles int16
 // under no circumstances should the loop cycle time be changed
@@ -427,7 +417,6 @@ _endasm
 
 	#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
 
-	#if !defined DEBUG && !defined DEBUG_MOTORS
 	if( _OutToggle )	// driver cam servos only every 2nd pulse
 	{
 		_asm
@@ -438,7 +427,6 @@ _endasm
 		PORTB |= 0x3f;
 	}
 	_OutToggle ^= 1;
-	#endif
 
 	// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
 	#ifdef ESC_X3D
@@ -497,13 +485,11 @@ _endasm
 
 	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
-	#ifndef DEBUG_MOTORS
 	while( ReadTimer0() < (uint16)(0x100-3-20) ) ; 	// wait for 2nd TMR0 near overflow
 
 	INTCONbits.GIE = false;					// Int wieder sperren, wegen Jitter
 	while( !INTCONbits.TMR0IF ) ;		// wait for 2nd overflow (2 ms)
 
-	#if !defined DEBUG && !defined DEBUG_SENSORS
 	// This loop is exactly 16 cycles int16
 	// under no circumstances should the loop cycle time be changed
 _asm
@@ -533,12 +519,10 @@ _asm
 	GOTO	OS001
 OS002:
 _endasm
-#endif	// DEBUG
+
 	EnableInterrupts;	// re-enable interrupt
 
-#endif	// DEBUG_MOTORS
-
-#endif  // !DEBUG_SENSORS
+#endif  // DEBUG_SENSORS
 } // OutSignals
 
 

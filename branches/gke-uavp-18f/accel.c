@@ -75,14 +75,6 @@ void AccelerationCompensation(void)
 	
 		Yp -= 1024;	// subtract 1g
 	
-		#ifdef DEBUG_SENSORS
-		if( IntegralCount == 0 )
-		{
-			Trace[TAx]= Rp;
-			Trace[TAz] = Pp;
-			Trace[TAy] = Yp;
-		}
-		#endif
 
 		#ifdef ACCEL_VUD
 		// UDSum rises if ufo climbs
@@ -104,6 +96,18 @@ void AccelerationCompensation(void)
 		UDSum = DecayBand(UDSum, -10, 10, 10);
 	
 		#endif // ACCEL_VUD
+
+		#ifdef DEBUG_SENSORS
+		if( IntegralCount == 0 )
+		{
+			Trace[TAx]= Rp;
+			Trace[TAz] = Pp;
+			Trace[TAy] = Yp;
+
+			Trace[TUDSum] = UDSum;
+			Trace[TVud] = Vud;
+		}
+		#endif
 	
 		// Roll
 
