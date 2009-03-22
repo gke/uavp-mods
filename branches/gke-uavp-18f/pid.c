@@ -212,12 +212,18 @@ void CalcGyroValues(void)
 
 void PID(void)
 {
-
 	#ifdef TWIRL_KILL
 	AverageYawRate = HardFilter(AverageYawRate, YawRate);
-	if ( Abs(AverageYawRate)  < TWIRL_THRESHOLD )
-	#endif // TWIRL_KILL
-		AccelerationCompensation();	
+	if ( Abs(AverageYawRate)  > TWIRL_THRESHOLD )
+		LedYellow_ON;	// no compensation
+	else
+	{
+		LedYellow_OFF;
+		AccelerationCompensation();
+	}
+	#else
+		AccelerationCompensation();
+	#endif // TWIRL_KILL	
 	
 	// PID controller
 	// E0 = current gyro error

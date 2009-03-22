@@ -2,11 +2,11 @@
 
 // Disables accelerometer roll/pitch compensation when yawing "rapidly"
 #define TWIRL_KILL
-// TWIRL_THRESHOLD is absolute gyro swing about yaw neutral at 
-// which accelerometer input is disabled (max 2047).
+// The absolute gyro swing about yaw neutral at which accelerometer 
+// input is disabled (max 2047).
 #define TWIRL_THRESHOLD 500
 
-// additional pitch angle related compensation
+// Additional pitch angle related compensation
 #define PITCH_MM_COMP
 
 // Reduces the update rate and the additionally the descent rate 
