@@ -1,5 +1,11 @@
 // EXPERIMENTAL
 
+// Disables accelerometer roll/pitch compensation when yawing "rapidly"
+#define TWIRL_KILL
+// TWIRL_THRESHOLD is absolute gyro swing about yaw neutral at 
+// which accelerometer input is disabled (max 2047).
+#define TWIRL_THRESHOLD 500
+
 // additional pitch angle related compensation
 #define PITCH_MM_COMP
 
@@ -192,6 +198,8 @@ typedef unsigned long uint32;
 #define IsClear(S,b) 	((uint8)(!(S>>b)&1))
 #define Invert(S,b) 	((uint8)(S^=(1<<b)))
 
+#define Abs(i)			((i<0) ? -i : i)	
+
 #define Max(i,j) 		((i<j) ? j : ((i>j) ? j : i))
 #define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
 #define DecayBand(i,l,u,d) 	((i<l) ? i+d : ((i>u) ? i-d : i))
@@ -238,7 +246,7 @@ typedef unsigned long uint32;
 // == External variables
 // ==============================================
 
-enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollSamples,TPitchSamples,TYE,				TRollSum,TPitchSum,TYawSum,
+enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,				TMCamRoll,TMCamPitch, LastTrace
 				};
 #define TopTrace TAy
@@ -250,7 +258,8 @@ extern uint8	IK5,IK6,IK7;
 extern int16	RE, PE, YE;
 extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
-extern int16	RollSamples, PitchSamples;
+extern int16	RollRate, PitchRate;
+extern int16	AverageYawRate, YawRate;
 extern int16	MidRoll, MidPitch, MidYaw;
 extern int16	Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
