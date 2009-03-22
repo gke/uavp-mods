@@ -85,26 +85,16 @@
 // special version for Willi Pirngruber :-)
 //#define MOUNT_45
 
-// Debugging output of the 4 motors on RS232
-// When throttling up, every cycle  4 numbers are output
-// on the com port:
-// <front>;<rear>;<left>;<right> CR LF
-// these are the throttle value to the 4 speed controllers
-// log them with a terminal proggie to make nice charts :-)
+// Debugging output of the 4 motors 
 // Reg. 26 controls if motors should run or not
 // bit 0 = front, 1 = rear, 2 = left, 3 = right
 // if a bit is 1 motor is always stopped, only comport output
 // if a bit is 0 motor is running as normal.
 // so you can test individual axis easily!
-// Reg. 26 bit 4: 1=serial data output on
-// NOTE: enable DEBUG_MOTORS only on 3.1 boards (black PCB)!
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-//#define DEBUG_SENSORS
-
-// internal test switch...DO NOT USE FOR REAL UFO'S!
-//#define INTTEST
+#define DEBUG_SENSORS
 
 #endif // !BATCHMODE
 
@@ -247,9 +237,15 @@ typedef unsigned long uint32;
 // ==============================================
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
-				TAx,TAz,TAy,				TMCamRoll,TMCamPitch, LastTrace
+				TAx,TAz,TAy,
+				TUDSum, TVud,
+				TIGas,
+				TIRoll, TIPitch, TIYaw,
+				TMFront, TMBack, TMLeft, TMRight,
+				TMCamRoll, TMCamPitch,
+				LastTrace
 				};
-#define TopTrace TAy
+#define TopTrace TMCamPitch
 
 extern uint8	IGas;
 extern int8 	IRoll,IPitch,IYaw;
