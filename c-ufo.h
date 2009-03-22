@@ -50,11 +50,11 @@
 
 // Select what speeed controllers to use:
 // to use standard PPM pulse
-#define ESC_PPM
+//#define ESC_PPM
 // to use X3D BL controllers (not yet tested. Info courtesy to Jast :-)
 //#define ESC_X3D
 // to use Holgers ESCs (tested and confirmed by ufo-hans)
-//#define ESC_HOLGER
+#define ESC_HOLGER
 // to use YGE I2C controllers (for standard YGEs use ESC_PPM)
 //#define ESC_YGEI2C
 
@@ -95,7 +95,7 @@
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-#define DEBUG_SENSORS
+//#define DEBUG_SENSORS
 
 // internal test switch...DO NOT USE FOR REAL UFO'S!
 //#define INTTEST
