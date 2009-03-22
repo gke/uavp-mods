@@ -27,7 +27,7 @@
 
 #if (defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C) && !defined DEBUG_SENSORS
 
-#define EscI2CDelay Delay10TCY()
+#define ESC_I2C_DELAY Delay10TCY()
 
 void EscWaitClkHi(void)
 {
