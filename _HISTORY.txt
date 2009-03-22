@@ -183,6 +183,9 @@ First public released version.
 20.03.2006 v3.15m3 Greg Egan
 - Updated compass initialisation and corrected Pitch compensation.
 
+22.03.2006 v3.15m3 Greg Egan
+- Reinstated PORTB pullups to prevent I2C hangs.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================
