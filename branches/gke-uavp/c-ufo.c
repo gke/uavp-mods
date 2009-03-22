@@ -258,7 +258,7 @@ void main(void)
 	TRISB = 0b.0100.0000;	// all servo and LED outputs
 	PORTC = 0b.0110.0000;		// all outputs to low, except TxD and CS
 	TRISC = 0b.10000100;	// RC7, RC2 are inputs
-	RBPU_ = 1;			// disable weak pullups
+	RBPU_ = 0;			// enable weak pullups
 	CKE = 1;		// default I2C - enable SMBus thresholds for 3.3V LISL
 	LedShadow = 0;
     ALL_LEDS_OFF;
