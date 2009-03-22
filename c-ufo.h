@@ -1,7 +1,7 @@
 // EXPERIMENTAL
 
-// comment out to go to alternate ACC/Compass SPI read routines
-//#define SPI_BACKTRACK
+// additional pitch angle related compensation
+#define PITCH_MM_COMP
 
 // Reduces the update rate and the additionally the descent rate 
 #define NEW_ALT_HOLD
@@ -101,7 +101,7 @@
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-//#define DEBUG_SENSORS
+#define DEBUG_SENSORS
 
 // internal test switch...DO NOT USE FOR REAL UFO'S!
 //#define INTTEST
@@ -454,7 +454,7 @@ extern uint8 RecvI2CByte(uint8);
 
 extern void OutSSP(uint8);
 
-extern void CheckLISL(void);
+extern void AccelerationCompensation(void);
 extern void IsLISLactive(void);
 extern 	uint8 ReadLISL(uint8);
 extern 	uint8 ReadLISLNext(void);
@@ -467,7 +467,7 @@ extern void ComputeBaroComp(void);
 extern uint8 ReadValueFromBaro(void);
 extern uint8 StartBaroADC(uint8);
 
-extern void GetEvenValues(void);
+extern void GetNeutralAccelerations(void);
 extern void GetGyroValues(void);
 extern void CalcGyroValues(void);
 extern void PID(void);
@@ -496,7 +496,6 @@ extern void Delay100mSWithOutput(int16);
 extern void Delay1mS(int16);
 extern void UpdateBlinkCount(void);
 extern void CheckAlarms(void);
-extern void nop2(void);
 extern int16 SRS16(int16, uint8);
 
 #ifdef DEBUG_SENSORS

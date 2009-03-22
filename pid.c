@@ -210,7 +210,7 @@ void CalcGyroValues(void)
 void PID(void)
 {
 
-	CheckLISL();	// get accelerations, if available
+	AccelerationCompensation();	
 
 	// PID controller
 	// E0 = current gyro error

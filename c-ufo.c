@@ -251,7 +251,7 @@ void main(void)
 	NeutralFB = 0;
 	NeutralUD = 0;
 	if( _UseLISL )
-		GetEvenValues();	// into Rp, Pp, Yp
+		GetNeutralAccelerations();	// into Rp, Pp, Yp
 	#endif  // USE_ACCSENS
 
 	ThrNeutral = 0xFF;
@@ -261,7 +261,7 @@ void main(void)
 
 	InitDirection();
 	InitBarometer();
-SendCommand(0);
+
 	ShowSetup(1);
 
 	IK6 = IK7 = _Neutral;

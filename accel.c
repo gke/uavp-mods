@@ -25,7 +25,7 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-void GetEvenValues(void)
+void GetNeutralAccelerations(void)
 {
 	// this routine is called ONLY ONCE while booting
 	// read 16 time all 3 axis of linear sensor.
@@ -53,9 +53,9 @@ void GetEvenValues(void)
 	NeutralLR = Limit(Rp, -99, 99);
 	NeutralFB = Limit(Pp, -99, 99);
 	NeutralUD = Limit(Yp-1024, -99, 99); // -1g
-} // GetEvenValues
+} // GetNeutralAccelerations
 
-void CheckLISL(void)
+void AccelerationCompensation(void)
 {
 	if( _UseLISL )
 	{
@@ -135,7 +135,7 @@ void CheckLISL(void)
 	
 		// Pitch
 
-		Pp = -Pp;
+		Pp = -Pp;				// long standing BUG ???
 
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
@@ -143,8 +143,17 @@ void CheckLISL(void)
 		#else // OPT_IDG
 		Pp -= SRS16(PitchSum * (-15) + 16, 5);
 		#endif
-	
+		
+	#ifdef PITCH_MM_COMP
+		// dynamic correction of moved mass
+		#ifdef OPT_ADXRS
+		Pp += (int16)PitchSamples << 1;
+		#else // OPT_IDG
+		Pp -= (int16)PitchSamples;
+		#endif
+	#else
 		// no dynamic correction of moved mass
+	#endif // PITCH_MM_COMP
 	
 		// correct DC level of the integral
 		FBIntKorr = 0;
@@ -168,5 +177,5 @@ void CheckLISL(void)
 		Trace[TAy] = 0;	
 		#endif
 	}
-} // CheckLISL
+} // AccelerationCompensation
 

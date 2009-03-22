@@ -25,13 +25,16 @@
 #include "c-ufo.h"
 #include "bits.h"
 
+#define SPI_HI_DELAY Delay10TCY()
+#define SPI_LO_DELAY Delay10TCY()
+
 void SendCommand(int8 c)
 {
 	int8 s;
 
 	SPI_IO = WR_SPI;	
 	SPI_CS = SEL_LISL;	
-	for( s = 0; s < 8; s++ )
+	for( s = 8; s; s-- )
 	{
 		SPI_SCL = 0;
 		if( c & 0x80 )
@@ -39,9 +42,9 @@ void SendCommand(int8 c)
 		else
 			SPI_SDA = 0;
 		c <<= 1;
-		Delay10TCY();
+		SPI_LO_DELAY;
 		SPI_SCL = 1;
-		Delay10TCY();
+		SPI_HI_DELAY;
 	}
 } // SendCommand
 
@@ -64,15 +67,15 @@ uint8 ReadLISLNext(void)
 	int8 s;
 	uint8 d;
 
-	for( s = 0; s<8; s++ )
+	for( s = 8; s; s-- )
 	{
 		SPI_SCL = 0;
-		Delay10TCY();
+		SPI_LO_DELAY;
 		d <<= 1;
 		if( SPI_SDA == 1 )
 			d |= 1;	
 		SPI_SCL = 1;
-		Delay10TCY();
+		SPI_HI_DELAY;
 	}
 	return(d);
 } // ReadLISLNext
@@ -83,7 +86,7 @@ void WriteLISL(uint8 d, uint8 c)
 
 	SendCommand(c);
 
-	for( s = 0; s<8; s++ )
+	for( s = 8; s; s-- )
 	{
 		SPI_SCL = 0;
 		if( d & 0x80 )
@@ -91,9 +94,9 @@ void WriteLISL(uint8 d, uint8 c)
 		else
 			SPI_SDA = 0;
 		d <<= 1;
-		Delay10TCY();
+		SPI_LO_DELAY;
 		SPI_SCL = 1;
-		Delay10TCY();
+		SPI_HI_DELAY;
 	}
 	SPI_CS = DSEL_LISL;
 	SPI_IO = RD_SPI;	// IO is input (to allow RS232 reception)
