@@ -27,7 +27,7 @@
 
 void LimitRollSum(void)
 {
-	RollSum += RollSamples;
+	RollSum += RollRate;
 
 	if( IntegralCount == 0 )
 	{
@@ -40,7 +40,7 @@ void LimitRollSum(void)
 
 void LimitPitchSum(void)
 {
-	PitchSum += PitchSamples;
+	PitchSum += PitchRate;
 
 	if( IntegralCount == 0 )
 	{
@@ -97,36 +97,36 @@ void LimitYawSum(void)
 void GetGyroValues(void)
 {
 	#ifdef OPT_IDG
-	RollSamples += ADC(ADCRollChan, ADCVREF);
-	PitchSamples += ADC(ADCPitchChan, ADCVREF);
+	RollRate += ADC(ADCRollChan, ADCVREF);
+	PitchRate += ADC(ADCPitchChan, ADCVREF);
 	#else
-	RollSamples += ADC(ADCRollChan, ADCVREF5V);
-	PitchSamples += ADC(ADCPitchChan, ADCVREF5V);
+	RollRate += ADC(ADCRollChan, ADCVREF5V);
+	PitchRate += ADC(ADCPitchChan, ADCVREF5V);
 	#endif // OPT_IDG
 } // GetGyroValues
 
-// Calc the gyro values from added RollSamples and PitchSamples
+// Calc the gyro values from added RollRate and PitchRate
 void CalcGyroValues(void)
 {
 	int16 Temp;
 
-	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
+	// RollRate & Pitchsamples hold the sum of 2 consecutive conversions
 	// Approximately 4 bits of precision are discarded in this and related 
 	// calculations presumably because of the range of the 16 bit arithmetic.
 
 	#ifdef OPT_ADXRS150
-	RollSamples = (RollSamples + 2)>>2; // recreate the 10 bit resolution
-	PitchSamples = (PitchSamples + 2)>>2;
+	RollRate = (RollRate + 2)>>2; // recreate the 10 bit resolution
+	PitchRate = (PitchRate + 2)>>2;
 	#else // IDG300 and ADXRS300
-	RollSamples = (RollSamples + 1)>>1;	
-	PitchSamples = (PitchSamples + 1)>>1;
+	RollRate = (RollRate + 1)>>1;	
+	PitchRate = (PitchRate + 1)>>1;
 	#endif
 	
 	if( IntegralCount > 0 )
 	{
 		// pre-flight auto-zero mode
-		RollSum += RollSamples;
-		PitchSum += PitchSamples;
+		RollSum += RollRate;
+		PitchSum += PitchRate;
 
 		if( IntegralCount == 1 )
 		{
@@ -146,8 +146,8 @@ void CalcGyroValues(void)
 	else
 	{
 		// standard flight mode
-		RollSamples -= MidRoll;
-		PitchSamples -= MidPitch;
+		RollRate -= MidRoll;
+		PitchRate -= MidPitch;
 
 		// calc Cross flying mode
 		if( FlyCrossMode )
@@ -155,48 +155,49 @@ void CalcGyroValues(void)
 			// Real Roll = 0.707 * (P + R)
 			//      Pitch = 0.707 * (P - R)
 			// the constant factor 0.667 is used instead
-			Temp = RollSamples + PitchSamples;	
-			PitchSamples -= RollSamples;	
-			RollSamples = (Temp * 2)/3;
-			PitchSamples = (PitchSamples * 2)/3; // 7/10 with int24
+			Temp = RollRate + PitchRate;	
+			PitchRate -= RollRate;	
+			RollRate = (Temp * 2)/3;
+			PitchRate = (PitchRate * 2)/3; // 7/10 with int24
 		}
 
 		#ifdef DEBUG_SENSORS
-		Trace[TRollSamples] = RollSamples;
-		Trace[TPitchSamples] = PitchSamples;
+		Trace[TRollRate] = RollRate;
+		Trace[TPitchRate] = PitchRate;
 		#endif
 	
 		// Roll
 		#ifdef OPT_ADXRS
-		RE = SRS16(RollSamples + 2, 2);
+		RE = SRS16(RollRate + 2, 2);
 		#else // OPT_IDG
-		RE = SRS16(RollSamples + 1, 1); // use 8 bit res. for PD controller
+		RE = SRS16(RollRate + 1, 1); // use 8 bit res. for PD controller
 		#endif	
 
 		#ifdef OPT_ADXRS
-		RollSamples = SRS16(RollSamples + 1, 1); // use 9 bit res. for I controller	
+		RollRate = SRS16(RollRate + 1, 1); // use 9 bit res. for I controller	
 		#endif
 
 		LimitRollSum();		// for roll integration
 
 		// Pitch
 		#ifdef OPT_ADXRS
-		PE = SRS16(PitchSamples + 2, 2);
+		PE = SRS16(PitchRate + 2, 2);
 		#else // OPT_IDG
-		PE = SRS16(PitchSamples + 1, 1);
+		PE = SRS16(PitchRate + 1, 1);
 		#endif
 
 		#ifdef OPT_ADXRS
-		PitchSamples = SRS16(PitchSamples + 1, 1); // use 9 bit res. for I controller	
+		PitchRate = SRS16(PitchRate + 1, 1); // use 9 bit res. for I controller	
 		#endif
 
 		LimitPitchSum();		// for pitch integration
 
 		// Yaw is sampled only once every frame, 8 bit A/D resolution
-		YE = ADC(ADCYawChan, ADCVREF5V)>>2;
+		YE = ADC(ADCYawChan, ADCVREF5V)>>2;	
 		if( MidYaw == 0 )
 			MidYaw = YE;
 		YE -= MidYaw;
+		YawRate = YE;
 
 		LimitYawSum();
 
@@ -212,8 +213,12 @@ void CalcGyroValues(void)
 void PID(void)
 {
 
-	AccelerationCompensation();	
-
+	#ifdef TWIRL_KILL
+	AverageYawRate = HardFilter(AverageYawRate, YawRate);
+	if ( Abs(AverageYawRate)  < TWIRL_THRESHOLD )
+	#endif // TWIRL_KILL
+		AccelerationCompensation();	
+	
 	// PID controller
 	// E0 = current gyro error
 	// E1 = previous gyro error

@@ -41,6 +41,7 @@ int16	RE, PE, YE;					// gyro rate error
 int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollSamples, PitchSamples;
+int16	AverageYawRate, YawRate;
 int16	MidRoll, MidPitch, MidYaw;
 int16	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;

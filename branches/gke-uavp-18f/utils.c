@@ -108,6 +108,8 @@ void InitArrays(void)
 	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
 
+	AverageYawRate = 0;
+
 	BaroRestarts = 0;
 	RCGlitchCount = 0;
 } // InitArrays

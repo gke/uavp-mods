@@ -116,9 +116,9 @@ void AccelerationCompensation(void)
 	
 		// dynamic correction of moved mass
 		#ifdef OPT_ADXRS
-		Rp += (int16)RollSamples << 1;
+		Rp += (int16)RollRate << 1;
 		#else // OPT_IDG
-		Rp -= (int16)RollSamples;
+		Rp -= (int16)RollRate;
 		#endif
 	
 		// correct DC level of the integral
@@ -147,9 +147,9 @@ void AccelerationCompensation(void)
 	#ifdef PITCH_MM_COMP
 		// dynamic correction of moved mass
 		#ifdef OPT_ADXRS
-		Pp += (int16)PitchSamples << 1;
+		Pp += (int16)PitchRate << 1;
 		#else // OPT_IDG
-		Pp -= (int16)PitchSamples;
+		Pp -= (int16)PitchRate;
 		#endif
 	#else
 		// no dynamic correction of moved mass

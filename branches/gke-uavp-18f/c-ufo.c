@@ -45,7 +45,8 @@ uint8	IK7;						// actual channel 7 input
 int16	RE, PE, YE;					// gyro rate error	
 int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
-int16	RollSamples, PitchSamples;
+int16	RollRate, PitchRate;
+int16	AverageYawRate, YawRate;
 int16	MidRoll, MidPitch, MidYaw;
 int16	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
@@ -320,7 +321,7 @@ Restart:
 			INTCONbits.TMR0IE = true;	// enable TMR0
 
 			UpdateBlinkCount();
-			RollSamples =PitchSamples = 0;	// zero gyros sum-up memory
+			RollRate =PitchRate = 0;	// zero gyros sum-up memory
 			// sample gyro data and add everything up while waiting for timing delay
 
 			GetGyroValues();
