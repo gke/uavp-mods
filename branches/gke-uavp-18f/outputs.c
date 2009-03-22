@@ -287,11 +287,6 @@ uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 
 void OutSignals(void)
 {
-	#ifdef NADA
-	Trace[TMCamRoll] = MCamRoll;
-	Trace[TMCamPitch] = MCamPitch;
-	#endif
-
 	#ifndef DEBUG_SENSORS
 
 	#ifdef DEBUG_MOTORS

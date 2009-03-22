@@ -218,7 +218,7 @@ void main(void)
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
 	// setup flags register
-	for ( i = 0; i<8; i++ )
+	for ( i = 8; i ; i-- )
 		Flags2[i] = Flags[i] = false; 
 	_NoSignal = true;		// assume no signal present
 
