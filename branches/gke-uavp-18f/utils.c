@@ -89,8 +89,8 @@ void InitPorts(void)
 	TRISC = 0b10000100;								// RC7, RC2 are inputs
 
 	SSPSTATbits.CKE = true;							// low logic threshold for LISL
-	INTCON2bits.NOT_RBPU = true;					// WEAK PULLUPS MUST BE ENABLED OTHERWISE I2C VERSIONS 
-								// WITHOUT ESCS INSTALLED WILL PREVENT ANY FURTHER BOOTLOADS
+	INTCON2bits.NOT_RBPU = false;	// WEAK PULLUPS MUST BE ENABLED OTHERWISE I2C VERSIONS 
+									// WITHOUT ESCS INSTALLED WILL PREVENT ANY FURTHER BOOTLOADS
 } // InitPorts
 
 // resets all important variables - Do NOT call that while in flight!
