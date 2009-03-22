@@ -27,19 +27,14 @@
 
 #if (defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C) && !defined DEBUG_SENSORS
 
-void EscI2CDelay(void)
-{
-	nop2();
-	nop2();
-	nop2();
-} // EscI2CDelay
+#define EscI2CDelay Delay10TCY()
 
 void EscWaitClkHi(void)
 {
-	EscI2CDelay();
+	ESC_I2C_DELAY;
 	ESC_CIO=1;	// set SCL to input, output a high
 	while( ESC_SCL == 0 ) ;	// wait for line to come hi
-	EscI2CDelay();
+	ESC_I2C_DELAY;
 } // EscWaitClkHi
 
 
@@ -49,7 +44,7 @@ void EscI2CStart(void)
 	EscWaitClkHi();
 	ESC_SDA = 0;	// start condition
 	ESC_DIO = 0;	// output a low
-	EscI2CDelay();
+	ESC_I2C_DELAY;
 	ESC_SCL = 0;
 	ESC_CIO = 0;	// set SCL to output, output a low
 } // EscI2CStart
@@ -61,7 +56,7 @@ void EscI2CStop(void)
 	EscWaitClkHi();
 
 	ESC_DIO=1;	// set SDA to input, output a high, STOP condition
-	EscI2CDelay();		// leave clock high
+	ESC_I2C_DELAY;		// leave clock high
 } // EscI2CStop
 
 
@@ -83,22 +78,22 @@ void SendEscI2CByte(uint8 nidata)
 	
 		ESC_CIO=1;	// set SCL to input, output a high
 		while( ESC_SCL == 0 ) ;	// wait for line to come hi
-		EscI2CDelay();
+		ESC_I2C_DELAY;
 		ESC_SCL = 0;
 		ESC_CIO = 0;	// set SCL to output, output a low
 		nidata <<= 1;
 	}
 	ESC_DIO = 1;	// set SDA to input
-	EscI2CDelay();
+	ESC_I2C_DELAY;
 	ESC_CIO=1;	// set SCL to input, output a high
 	while( ESC_SCL == 0 ) ;	// wait for line to come hi
 
-	EscI2CDelay();		// here is the ACK
+	ESC_I2C_DELAY;		// here is the ACK
 	//	nii = I2C_SDA;	
 
 	ESC_SCL = 0;
 	ESC_CIO = 0;	// set SCL to output, output a low
-	EscI2CDelay();
+	ESC_I2C_DELAY;
 	//	I2C_IO = 0;		// set SDA to output
 	//	I2C_SDA = 0;	// leave output low
 	return;

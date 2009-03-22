@@ -72,72 +72,10 @@ void Delay100mSWithOutput(int16 dur)
 	INTCONbits.TMR0IE = T0IntEn;
 } // Delay100mSWithOutput
 
-void nop2()
-{
-	Delay1TCY();
-	Delay1TCY();
-} // nop2
-
 int16 SRS16(int16 x, uint8 s)
 {
 	return((x<0) ? -((-x)>>s) : (x>>s));
 } // SRS16
-
-#ifdef DEBUGOUT
-// output a value on connector K5
-// for observation via an oscilloscope
-// with 8 narrow (bit=0) or broad (bit=1) pulses
-// MSB first
-void Out(uint8 l)
-{
-	for(i=0; i<8; i++)
-	{
-		PORTBbits.RB5=1;
-		if(l & 0x80)
-		{
-			nop2();
-			nop2();
-			nop2();
-		}
-		PORTBbits.RB5=0;
-		if(!(l & 0x80))
-		{
-			nop2();
-			nop2();
-			nop2();
-		}
-		l<<=1;
-	}
-} // Out
-#endif
-
-#ifdef DEBUGOUTG
-// output a signed value in a graphic manner on connector K5
-// use an oscilloscope to observe
-//     Trigger    ______________
-// ____|_________|_____|________|_____|
-//      128  negative  0  positive  127
-void OutG(uint8 l)
-{
-	uint8 v;
-
-	PORTB.5=1;
-	PORTB.5=0;
-	for(v=128; v!=1; v++)	// -128 .. 0
-	{
-		if(v==l)
-			PORTB.5=1;
-	}
-	PORTB.5^=1;
-	for(v=1; v!=128; v++)	// +1 .. +127
-	{
-		if(v==l)
-			PORTB.5=0;
-	}
-
-	PORTB.5=0;
-} // OutG
-#endif
 
 void InitPorts(void)
 {
