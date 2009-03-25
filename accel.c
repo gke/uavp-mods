@@ -95,9 +95,10 @@ void CheckLISL(void)
 		}
 		#endif
 	
-		#ifdef ACCEL_VUD
+		// DO NOT USE - Requires roll & pitch angle compensation
+		#ifdef NADA
 		// UDSum rises if ufo climbs
-		UDSum += Yp;
+		UDSum += Yp - RollPitchComp;
 	
 		Yp = UDSum;
 		Yp += 8;
@@ -127,7 +128,7 @@ void CheckLISL(void)
 		#endif // ACCEL_VUD
 	
 		// =====================================
-		// Roll-Achse
+		// Roll-Axis
 		// =====================================
 		// Static compensation due to Gravity
 	
@@ -188,7 +189,7 @@ void CheckLISL(void)
 		#endif // NADA
 	
 		// =====================================
-		// Pitch-Achse
+		// Pitch-Axis
 		// =====================================
 		// Static compensation due to Gravity
 
