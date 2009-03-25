@@ -1,4 +1,9 @@
 
+// Alternative mix and limit routine due to Gary Stofer
+
+//#define ALT_MIXANDLIMIT
+
+
 #ifndef BATCHMODE
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
