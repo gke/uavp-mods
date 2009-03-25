@@ -164,7 +164,8 @@ First public released version.
 07.1.2009 v3.15m3 Greg Egan
 - Reduced _Maximum output pulse width to prevent 
   minimum width Rx pulses from being missed with
-  interrupts masked.  
+  interrupts masked.
+- Double rates removed (code space!) - use Tx limits instead. 
 
 12.02.2009 v3.15m3 Greg Egan
 - Auto sensing of SMD500 and BMP085 Baros
@@ -175,16 +176,12 @@ First public released version.
 27.02.2006 v3.15m3 Greg Egan
 - Tricopter version reinstated in makefiles (makeall.bat)
 
-02.03.2009 v3.15m3-18f Greg Egan
-- Quick port to 18F2xxx series of PIC
-  Bootloader not working.
+08.03.2006 v3.15m3 Greg Egan
+- Abandoned further development on cc5x based version in 
+  favour of the C18 compiler and 18Fxxxx PICs.
 
-11.03.2007 v3.15m3-18f Greg Egan
-- Bootloader added.
-
-13.03.2009 v3.15m3-18f Greg Egan
-- Merged test and flight dource directories removing all
-  redundant routines.
+20.03.2006 v3.15m3 Greg Egan
+- Updated compass initialisation and corrected Pitch compensation.
 
 ==============================================
 = Transferring firmware to the PIC           =

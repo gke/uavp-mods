@@ -1,5 +1,4 @@
         title   "general.asm"
-
 clc     MACRO
         bcf    STATUS,C
         ENDM
@@ -71,10 +70,4 @@ SETPCH	MACRO	_Label_
         movwf   PCLATH
 #endif
 	ENDM
-
-
-; added for 18f2520
-#define rrf rrncf
-#define rlf rlncf
-
 
