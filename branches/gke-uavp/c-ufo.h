@@ -1,3 +1,8 @@
+
+// alternate motor mixing scheme due to Gary Stofer
+// NOT TESTED
+//#define ALT_MIXANDLIMIT
+
 #ifndef BATCHMODE
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
@@ -104,9 +109,6 @@
 
 // Enable this to use the Accelerator sensors
 #define USE_ACCSENS
-
-// Vertical acceleration compensation 
-#define ACCEL_VUD
 
 // Barometer
 

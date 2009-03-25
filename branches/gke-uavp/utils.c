@@ -437,6 +437,8 @@ void GetGyroValues(void)
 // and PitchSamples (global variable "nisampcnt")
 void CalcGyroValues(void)
 {
+	int16 Temp;
+
 	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
 	// Approximately 4 bits of precision are discarded in this and related 
 	// presumably because of the range of the 16 bit arithmetic.
@@ -565,7 +567,9 @@ void CalcGyroValues(void)
 		LimitYawSum();
 
 		#ifdef DEBUG_SENSORS
-		SendComValH(YE);
+		Temp = (int16)YE;
+		SendComValH(Temp.high8);
+		SendComValH(Temp.low8);
 		SendComChar(';');
 		SendComValH(RollSum.high8);
 		SendComValH(RollSum.low8);

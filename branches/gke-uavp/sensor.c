@@ -257,7 +257,9 @@ GAError:
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
 		{
-			SendComValH(DirVal);//AbsDirection);
+			temp = (int16)DirVal;
+			SendComValH(temp.high8);
+			SendComValH(temp.low8);//AbsDirection);
 			SendComChar(';');
 		}
 		#endif				
