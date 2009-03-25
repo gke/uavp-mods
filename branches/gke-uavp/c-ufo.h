@@ -1,8 +1,4 @@
 
-// alternate motor mixing scheme due to Gary Stofer
-// NOT TESTED
-//#define ALT_MIXANDLIMIT
-
 #ifndef BATCHMODE
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
