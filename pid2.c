@@ -196,87 +196,7 @@ int8 SaturInt(int16 l)
 } // SaturInt
 
 
-#ifdef ALT_MIXANDLIMIT
-// mix the PID-results (Rl, Pl and Yl) and the throttle
-// on the motors and check for numerical overrun
-// Alternate scheme due to Gary Stofer
-void MixAndLimit(void)
-{
-	int16 bank2 MinMotor;
 
-	#ifndef TRICOPTER
-
-	MinMotor = (int16) IGas;
-
-	if ( MinMotor < Rl )
-		Rl = MinMotor;
-	if ( MinMotor < Pl )
-		Pl = MinMotor;
-
-	MinMotor = -MinMotor;
-	
-	if ( Rl < MinMotor )
-		Rl = MinMotor;
-	if ( Pl < MinMotor )
-		Pl = MinMotor;
-
-	Ml = IGas - Rl;
-	Mr = IGas + Rl;
-	Mf = IGas - Pl;
-	Mb = IGas + Pl;
-
-	if ( Mf < Mb )
-		MinMotor = Mf;
-	if ( Ml < MinMotor )
-		MinMotor = Ml;
-	if ( Mr < MinMotor )
-		MinMotor = Mr;
-	
-	if ( MinMotor < Yl )
-		Yl = MinMotor;
-
-	MinMotor = - MinMotor;
-
-	if ( Yl < MinMotor )
-		Yl = MinMotor;
-
-	Mf += Yl;
-	Mb += Yl;
-	Ml -= Yl;
-	Mr -= Yl;
-
-	Mf += MotorLowRun;
-	Mb += MotorLowRun;
-	Ml += MotorLowRun;
-	Mr += MotorLowRun;
-
-	// Barometer
-	Mf += VBaroComp;
-	Mb += VBaroComp;
-	Ml += VBaroComp;
-	Mr += VBaroComp;
-
-	#ifdef NADA
-	// Vertical velocity damping
-	Mf += Vud;
-	Mb += Vud;
-	Ml += Vud;
-	Mr += Vud;
-	#endif
-
-	#else
-
-		No Tricopter
-
-	#endif // !TRICOPTER
-
-	MFront = SaturInt(Mf);
-	MLeft = SaturInt(Ml);
-	MRight = SaturInt(Mr);
-	MBack = SaturInt(Mb);
-} // MixAndLimit
-
-#else
 
 // mix the PID-results (Rl, Pl and Yl) and the throttle
 // on the motors and check for numerical overrun
@@ -392,4 +312,3 @@ void MixAndLimit(void)
 	MBack = SaturInt(Mb);
 } // MixAndLimit
 
-#endif // ALT_MIXANDLIMIT
