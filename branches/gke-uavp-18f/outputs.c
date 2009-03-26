@@ -28,101 +28,96 @@
 #if (defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C) && !defined DEBUG_SENSORS
 
 #define ESC_I2C_DELAY Delay10TCY()
+#define INP_ESC 1
+#define OUT_ESC 0
 
 void EscWaitClkHi(void)
 {
 	ESC_I2C_DELAY;
-	ESC_CIO=1;	// set SCL to input, output a high
-	while( ESC_SCL == 0 ) ;	// wait for line to come hi
+	ESC_CIO=1;	
+	while( ESC_SCL == OUT_ESC ) ;	// Ensure PORTB Pullups enabled
 	ESC_I2C_DELAY;
 } // EscWaitClkHi
 
-
 void EscI2CStart(void)
 {
-	ESC_DIO=1;	// set SDA to input, output a high
+	ESC_DIO = INP_ESC;	
 	EscWaitClkHi();
-	ESC_SDA = 0;	// start condition
-	ESC_DIO = 0;	// output a low
+	ESC_SDA = 0;
+	ESC_DIO = OUT_ESC;
 	ESC_I2C_DELAY;
-	ESC_SCL = 0;
-	ESC_CIO = 0;	// set SCL to output, output a low
+	ESC_SCL = OUT_ESC;
+	ESC_CIO = 0;
 } // EscI2CStart
 
 void EscI2CStop(void)
 {
-	ESC_DIO=0;	// set SDA to output
-	ESC_SDA = 0;	// output a low
+	ESC_DIO = OUT_ESC;
+	ESC_SDA = 0;
 	EscWaitClkHi();
 
-	ESC_DIO=1;	// set SDA to input, output a high, STOP condition
-	ESC_I2C_DELAY;		// leave clock high
+	ESC_DIO = INP_ESC;	// STOP condition
+	ESC_I2C_DELAY;	
 } // EscI2CStop
 
 
-void SendEscI2CByte(uint8 nidata)
+void SendEscI2CByte(uint8 d)
 {
 	int8 s;
 
-	for(s=8; s!=0; s--)
+	for( s = 8; s ; s-- )
 	{
-		if( IsSet(nidata,7) )
-		{
-			ESC_DIO = 1;	// switch to input, line is high
-		}
+		if( (d & 0x80) !=0 )
+			ESC_DIO = INP_ESC;	
 		else
 		{
 			ESC_SDA = 0;			
-			ESC_DIO = 0;	// switch to output, line is low
+			ESC_DIO = OUT_ESC;	
 		}
 	
-		ESC_CIO=1;	// set SCL to input, output a high
-		while( ESC_SCL == 0 ) ;	// wait for line to come hi
+		ESC_CIO = 1;
+		while( ESC_SCL == OUT_ESC ) ;
 		ESC_I2C_DELAY;
-		ESC_SCL = 0;
-		ESC_CIO = 0;	// set SCL to output, output a low
-		nidata <<= 1;
+		ESC_SCL = OUT_ESC;
+		ESC_CIO = 0;
+		d <<= 1;
 	}
-	ESC_DIO = 1;	// set SDA to input
+	ESC_DIO = INP_ESC;	
 	ESC_I2C_DELAY;
-	ESC_CIO=1;	// set SCL to input, output a high
-	while( ESC_SCL == 0 ) ;	// wait for line to come hi
+	ESC_CIO = 1;	
+	while( ESC_SCL == OUT_ESC ) ;	
 
-	ESC_I2C_DELAY;		// here is the ACK
+	ESC_I2C_DELAY;		
 	//	nii = I2C_SDA;	
 
-	ESC_SCL = 0;
-	ESC_CIO = 0;	// set SCL to output, output a low
+	ESC_SCL = OUT_ESC;
+	ESC_CIO = 0;	
 	ESC_I2C_DELAY;
-	//	I2C_IO = 0;		// set SDA to output
-	//	I2C_SDA = 0;	// leave output low
+	//	I2C_IO = 0;	
+	//	I2C_SDA = 0;
 	return;
 } // SendEscI2CByte
 
-
 #endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
 
-int8 SaturInt(int16 l)
+uint8 SaturInt(int16 l)
 {
+	int16 r;
+
 	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
-	if( l > _Maximum )
-		return(_Maximum);
-	if( l < MotorLowRun )
-		return(MotorLowRun);
-	// just for safety
-	if( l < _Minimum )
-		return(_Minimum);
+	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
 	#endif
 
 	#ifdef ESC_X3D
-	l -= _Minimum;
-	if( l > 200 )
-		return(200);
-	if( l < 1 )
-		return(1);
+	r = Limit(l - _Minimum, 200, 200);
 	#endif
-	return((int8)l);
+	return((uint8) r);
 } // SaturInt
+
+
+#ifdef TRADITIONAL_MOTOR_MIX
+
+#ifndef GARYMIX
 
 void MixAndLimit(void)
 {
@@ -130,27 +125,34 @@ void MixAndLimit(void)
     int16 Temp;
 
 	CurrGas = IGas;	// to protect against IGas being changed in interrupt
- 
+
+	// Altitude stabilization factor
+	CurrGas = CurrGas + (Vud + VBaroComp);
+	Mf = Ml = Mr = CurrGas;
+	#ifndef TRICOPTER
+	Mb = CurrGas;
+	#endif // TRICOPTER
+
 	#ifndef TRICOPTER
 	if( FlyCrossMode )
 	{	// "Cross" Mode
-		Ml = CurrGas + Pl; Ml -= Rl;
-		Mr = CurrGas - Pl; Mr += Rl;
-		Mf = CurrGas - Pl; Mf -= Rl;
-		Mb = CurrGas + Pl; Mb += Rl;
+		Ml +=  Pl - Rl;
+		Mr += -Pl + Rl;
+		Mf += -Pl - Rl;
+		Mb +=  Pl + Rl;
 	}
 	else
 	{	// "Plus" Mode
 		#ifdef MOUNT_45
-		Ml = CurrGas - Rl; Ml -= Pl;	// K2 -> Front right
-		Mr = CurrGas + Rl; Mr += Pl;	// K3 -> Rear left
-		Mf = CurrGas + Rl; Mf -= Pl;	// K1 -> Front left
-		Mb = IGas - Rl; Mb += Pl;	// K4 -> Rear rigt
+		Ml += -Rl - Pl;	
+		Mr +=  Rl + Pl;	
+		Mf +=  Rl - Pl;	
+		Mb += -Rl + Pl;
 		#else
-		Ml = CurrGas - Rl;	// K2 -> Front right
-		Mr = CurrGas + Rl;	// K3 -> Rear left
-		Mf = CurrGas - Pl;	// K1 -> Front left
-		Mb = CurrGas + Pl;	// K4 -> Rear rigt
+		Ml += -Rl;
+		Mr +=  Rl;
+		Mf += -Pl;
+		Mb +=  Pl;
 		#endif
 	}
 
@@ -158,17 +160,6 @@ void MixAndLimit(void)
 	Mb += Yl;
 	Ml -= Yl;
 	Mr -= Yl;
-
-	// Altitude stabilization factor
-	Mf += Vud;
-	Mb += Vud;
-	Ml += Vud;
-	Mr += Vud;
-
-	Mf += VBaroComp;
-	Mb += VBaroComp;
-	Ml += VBaroComp;
-	Mr += VBaroComp;
 
 	// if low-throttle limiting occurs, must limit other motor too
 	// to prevent flips!
@@ -205,58 +196,210 @@ void MixAndLimit(void)
 		}
 	}
 	#else	// TRICOPTER
-	Mf = CurrGas + Pl;	// front motor
-	Ml = CurrGas + Rl;
-	Mr = CurrGas - Rl;
-	Rl >>= 1;
-	Ml -= Rl;	// rear left
-    Mr -= Pl;	// rear right
-	Mb = Yl + _Neutral;	// yaw servo
+	Temp = SRS16(Rl - Pl, 1); 
+	Motor[Front] += Pl ;			// front motor
+	Motor[Left]  += Temp;			// rear left
+	Motor[Right] -= Temp; 			// rear right
+	Motor[Back]   = Yl + _Neutral;	// yaw servo
 
 	if( CurrGas > MotorLowRun )
 	{
 		if( (Ml > Mr) && (Mr < MotorLowRun) )
 		{
-			// Mf += Mb - MotorLowRun
 			Ml += Mr;
 			Ml -= MotorLowRun;
 		}
 		if( (Mr > Ml) && (Ml < MotorLowRun) )
 		{
-			// Mb += Mf - MotorLowRun
 			Mr += Ml;
 			Mr -= MotorLowRun;
 		}
 	}
 	#endif
 
-	// Ergebnisse auf Überlauf testen und korrigieren
 	MFront = SaturInt(Mf);
 	MLeft = SaturInt(Ml);
 	MRight = SaturInt(Mr);
 	MBack = SaturInt(Mb);
 } // MixAndLimit
 
-// Mix the Camera tilt channel (Ch6) and the
-// ufo air angles (roll and nick) to the 
-// camera servos. 
+#else
+
+void MixAndLimit(void)
+{
+    int16 MinMotor, CurrGas;
+
+	// Altitude stabilization factor
+	CurrGas = IGas + (Vud + VBaroComp); // vertical compensation not optional
+	CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
+
+	MinMotor = CurrGas;
+	if ( MinMotor < Rl )
+		Rl = MinMotor;
+	if ( MinMotor < Pl )
+		Pl = MinMotor;
+
+	MinMotor = -MinMotor;
+	
+	if ( Rl < MinMotor )
+		Rl = MinMotor;
+	if ( Pl < MinMotor )
+		Pl = MinMotor;
+
+	Ml = CurrGas - Rl;
+	Mr = CurrGas + Rl;
+	Mf = CurrGas - Pl;
+	Mb = CurrGas + Pl;
+
+	MinMotor = Min(Mf, Mb);
+	MinMotor = Min(MinMotor, Ml);
+	MinMotor = Min(MinMotor, Mr);
+	
+	if ( MinMotor < Yl )
+		Yl = MinMotor;
+
+	MinMotor = - MinMotor;
+
+	if ( Yl < MinMotor )
+		Yl = MinMotor;
+
+	Mf += Yl;
+	Mb += Yl;
+	Ml -= Yl;
+	Mr -= Yl;
+
+	Mf += MotorLowRun;
+	Mb += MotorLowRun;
+	Ml += MotorLowRun;
+	Mr += MotorLowRun;
+
+	MFront = SaturInt(Mf);
+	MLeft = SaturInt(Ml);
+	MRight = SaturInt(Mr);
+	MBack = SaturInt(Mb);
+}  // GaryMixAndLimit
+
+#endif // GARYMIX
+
+#else
+
+void DoMix(int16 CurrGas)
+{
+	int16 Temp;
+
+	Motor[Front] = Motor[Left] = Motor[Right] = CurrGas;
+	#ifndef TRICOPTER
+	Motor[Back] = CurrGas;
+	#endif // !TRICOPTER
+
+	#ifndef TRICOPTER
+	if( FlyCrossMode )
+	{	// "Cross" Mode
+		Motor[Left] +=   Pl - Rl - Yl;
+		Motor[Right] += -Pl + Rl - Yl;
+		Motor[Front] += -Pl - Rl + Yl;
+		Motor[Back] +=   Pl + Rl + Yl; //*
+	}
+	else
+	{	// "Plus" Mode
+		#ifdef MOUNT_45
+		Motor[Left]  += -Rl - Pl - Yl; //*	
+		Motor[Right] +=  Rl + Pl - Yl;
+		Motor[Front] +=  Rl - Pl + Yl;
+		Motor[Back]  += -Rl + Pl + Yl;	
+		#else
+		Motor[Left]  += -Rl - Yl;	
+		Motor[Right] +=  Rl - Yl;
+		Motor[Front] += -Pl + Yl;
+		Motor[Back]  +=  Pl + Yl;
+		#endif
+	}
+
+	#else	// TRICOPTER
+	Temp = SRS16(Rl - Pl, 1); 
+	Motor[Front] += Pl ;			// front motor
+	Motor[Left]  += Temp;			// rear left
+	Motor[Right] -= Temp; 			// rear right
+	Motor[Back]   = Yl + _Neutral;	// yaw servo
+	#endif
+
+} // DoMix
+
+uint8 	MotorDemandRescale;
+
+void CheckDemand(int16 CurrGas)
+{
+	int8 s;
+	int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
+
+	MaxMotor = Max(Motor[Front], Motor[Left]);
+	MaxMotor = Max(MaxMotor, Motor[Right]);
+	#ifndef TRICOPTER
+	MaxMotor = Max(MaxMotor, Motor[Back]);
+	#endif // TRICOPTER
+
+	DemandSwing = MaxMotor - CurrGas;
+
+	if ( DemandSwing > 0 )
+	{		
+		ScaleHigh = (( _Maximum - (int24)CurrGas) * 256 )/ DemandSwing;	 
+		ScaleLow = (( (int24)CurrGas - MotorLowRun) * 256 )/ DemandSwing;
+		Scale = Min(ScaleHigh, ScaleLow);
+		if ( Scale < 256 )
+		{
+			MotorDemandRescale = true;
+			Rl = (Rl * Scale + 128)/256;  
+			Pl = (Pl * Scale + 128)/256; 
+			Yl = (Yl * Scale + 128)/256; 
+		}
+		else
+			 MotorDemandRescale = false;	
+	}
+	else
+		MotorDemandRescale = false;	
+
+} // CheckDemand
+
+void MixAndLimit(void)
+{ 	// expensive ~400uSec @16MHz
+    int16 Temp, CurrGas;
+
+	// Altitude stabilization factor
+	CurrGas = IGas + (Vud + VBaroComp); // vertical compensation not optional
+	CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
+
+	DoMix(CurrGas);
+
+	CheckDemand(CurrGas);
+
+	if ( MotorDemandRescale )
+		DoMix(CurrGas);
+
+} // MixAndLimit
+
+#endif // TRADITIONAL_MOTOR_MIX
+
 void MixAndLimitCam(void)
 {
 	int16 Cr, Cp;
 
 	// use only roll/pitch angle estimates
-//	if( (IntegralCount == 0) && ((CamRollFactor != 0) || (CamPitchFactor != 0)) )
-//	{
+	if( (IntegralCount == 0) && ((CamRollFactor != 0) || (CamPitchFactor != 0)) )
+	{
 		Cr = RollSum / (int16)CamRollFactor;
 		Cp = PitchSum / (int16)CamPitchFactor;
-//	}
-//	else
-//		Cr = Cp = _Minimum;
+	}
+	else
+		Cr = Cp = _Minimum;
 
+	#ifdef DISABLE_ACC_ON_HIGH_YAWRATE
+	Cr += _Neutral; // use IK7 for Yaw Rate threshold control
+	#else
 	if( _UseCh7Trigger )
 		Cr += _Neutral;
 	else
 		Cr += IK7;
+	#endif // DISABLE_ACC_ON_HIGH_YAWRATE
 		
 	Cp += IK6;		// only Pitch servo is controlled by channel 6
 
@@ -264,22 +407,6 @@ void MixAndLimitCam(void)
 	MCamPitch = Limit(Cp, _Minimum, _Maximum);
 
 } // MixAndLimitCam
-
-// Outputs signals to the speed controllers
-// using timer 0
-// all motor outputs are driven simultaneously
-//
-// 0x80 gives 1,52ms, 0x60 = 1,40ms, 0xA0 = 1,64ms
-//
-// This routine needs exactly 3 ms to complete:
-//
-// Motors:      ___________
-//          ___|     |_____|_____________
-//
-// Camservos:         ___________
-//          _________|     |_____|______
-//
-//             0     1     2     3 ms
 
 #pragma udata assembly_language=0x080 
 uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs

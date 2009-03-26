@@ -1,11 +1,11 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -22,55 +22,60 @@
 
 // Bit definitions
 
-#define	NULL	0
-
-// when changing, see OutSignal() in utils.c
+// when changing, see OutSignal() in outputs.c
 #ifdef ESC_PPM
-bit	PulseFront		@PORTB.0;
-bit	PulseLeft		@PORTB.1;
-bit	PulseRight		@PORTB.2;
-bit	PulseBack		@PORTB.3;
+#define	PulseFront		0
+#define	PulseLeft		1
+#define	PulseRight		2
+#define	PulseBack		3
 #endif
+
 #if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
-bit ESC_SDA			@PORTB.1;
-bit ESC_SCL			@PORTB.2;
-bit ESC_DIO			@TRISB.1;
-bit ESC_CIO			@TRISB.2;
+// Wolfgang's SW I2C ESC
+#define	 ESC_SDA		PORTBbits.RB1
+#define	 ESC_SCL		PORTBbits.RB2
+#define	 ESC_DIO		TRISBbits.TRISB1
+#define	 ESC_CIO		TRISBbits.TRISB2
 #endif
 
-bit PulseCamRoll	@PORTB.4;
-bit PulseCamPitch	@PORTB.5;
+#define	PulseCamRoll	4
+#define	PulseCamPitch	5
 
-#define ALL_PULSE_ON	PORTB |= 0b.0000.1111
-#define ALL_OUTPUTS_OFF	PORTB &= 0b.1111.0000
-#define ALL_OUTPUTS		(PORTB & 0b.0000.1111)
-#define CAM_PULSE_ON	PORTB |= 0b.0011.0000;
+#define ALL_PULSE_ON	PORTB |= 0b00001111
+#define ALL_OUTPUTS_OFF	PORTB &= 0b11110000
+#define ALL_OUTPUTS		(PORTB & 0b00001111)
+#define CAM_PULSE_ON	PORTB |= 0b00110000;
 
-bit	Switch		@PORTA.4;
+#define Switch		PORTAbits.RA4
 
-bit	LISL_CS		@PORTC.5;
-bit LISL_SDA	@PORTC.4;
-bit LISL_SCL	@PORTC.3;
-bit	LISL_IO		@TRISC.4;
+#define SPI_CS		PORTCbits.RC5
+#define SPI_SDA		PORTCbits.RC4
+#define SPI_SCL		PORTCbits.RC3
+#define SPI_IO		TRISCbits.TRISC4
+
+#define	RD_SPI	1
+#define WR_SPI	0
+
+#define DSEL_LISL  1
+#define SEL_LISL  0
 
 // the sensor bus lines
-bit I2C_SDA			@PORTB.6;
-bit I2C_DIO			@TRISB.6;
-bit I2C_SCL			@PORTB.7;
-bit	I2C_CIO			@TRISB.7;
+#define I2C_SDA			PORTBbits.RB6
+#define I2C_DIO			TRISBbits.TRISB6
+#define I2C_SCL			PORTBbits.RB7
+#define I2C_CIO			TRISBbits.TRISB7
 
-#define	I2C_ACK		0
-#define	I2C_NACK	1
+#define	I2C_ACK		((uint8)(0))
+#define	I2C_NACK	((uint8)(1))
 
 // The LEDs and the beeper
 #define ON	1
 #define OFF	0
 
-#define MODELLOSTTIMER		20;	// in 0,2sec units
-				// time until first beep after lost xmit signal
-#define MODELLOSTTIMERINT	2;	// in 0,2 sec units
-				// interval beep when active
-
+#define MODELLOSTTIMER		20 	/*in 0,2sec until first beep 
+								after lost xmit signal */
+#define MODELLOSTTIMERINT	2 	/* in 0,2 sec units
+								interval beep when active */
 #define LedYellow	LED6
 #define LedGreen	LED4
 #define	LedBlue		LED2
@@ -121,6 +126,8 @@ bit	I2C_CIO			@TRISB.7;
 #define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
 #define COMPASS_MIDDLE	10		/* yaw stick neutral dead zone */
 
+#define COMPASS_TIME	50	/* 20Hz */
+
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
 #define BARO_TEMP_BMP085	0x2e
@@ -131,39 +138,42 @@ bit	I2C_CIO			@TRISB.7;
 #define BARO_ADC_LSB		0xf7
 #define BARO_TYPE			0xd0
 //#define BARO_ID_SMD500		??
-#define BARO_ID_BMP085		0x55
+#define BARO_ID_BMP085		((uint8)(0x55))
+
+#define BARO_TEMP_TIME	10
+#define BARO_PRESS_TIME 35
 
 #define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
 #define THR_HOVER		75		/* min throttle stick for alti lock */
 
-bit _NoSignal		@Flags.0;	// if no valid signal is received
-bit _Flying			@Flags.1;	// UFO is flying
-bit _NewValues		@Flags.2;	// new RX channel values sampled
-bit _FirstTimeout	@Flags.3;	// is 1 after first 9ms TO expired
-bit _NegIn			@Flags.4;	// negative signed input (serial.c)
-bit _LowBatt		@Flags.5;	// if Batt voltage is low
-bit _UseLISL		@Flags.6;	// 1 if LISL Sensor is used
-bit	_UseCompass		@Flags.7;	// 1 if compass sensor is enabled
+#define	_NoSignal		Flags[0]	/* if no valid signal is received */
+#define	_Flying			Flags[1]	/* UFO is flying */
+#define	_NewValues		Flags[2]	/* new RX channel values sampled */
+#define _FirstTimeout	Flags[3]	/* is 1 after first 9ms TO expired */
+#define _NegIn			Flags[4]	/* negative signed input (serial.c) */
+#define _LowBatt		Flags[5]	/* if Batt voltage is low */
+#define _UseLISL		Flags[6]	/* 1 if LISL Sensor is used */
+#define	_UseCompass		Flags[7]	/* 1 if compass sensor is enabled */
 
-bit _UseBaro		@Flags2.0;	// 1 if baro sensor active
-bit _BaroTempRun	@Flags2.1;	// 1 if baro temp a/d conversion is running
-								// 0 means: pressure a/d conversion is running
-bit _OutToggle		@Flags2.2;	// cam servos only evers 2nd output pulse								
-bit _UseCh7Trigger	@Flags2.3;	// 1: don't use Ch7
-								// 0: use Ch7 as Cam Roll trim
-bit _TrigSign		@Flags2.4;	// used in trig.c
-bit _BaroRestart	@Flags2.5; // Baro restart required
-bit _Hovering		@Flags2.6;	// QC is hovering
-bit _LostModel		@Flags2.7;	// Rx timeout - model lost?
+#define _UseBaro		Flags2[0]	/* 1 if baro sensor active */
+#define _BaroTempRun	Flags2[1]	/* 1 if baro temp a/d conversion is running */
+									/* 0 means: pressure a/d conversion is running */
+#define _OutToggle		Flags2[2]	/* cam servos only evers 2nd output pulse */								
+#define _UseCh7Trigger	Flags2[3]	/* 1: don't use Ch7 */
+									/* 0: use Ch7 as Cam Roll trim */
+#define _TrigSign		Flags2[4]	/* used in trig.c */
+#define _BaroRestart	Flags2[5] /* Baro restart required */
+#define _Hovering		Flags2[6]	/* QC is hovering */
+#define _LostModel		Flags2[7]	/* Rx timeout - model lost? */
 
 // Mask Bits of ConfigParam
-bit FlyCrossMode 	@ConfigParam.0;
-bit FutabaMode		@ConfigParam.1;
-bit IntegralTest	@ConfigParam.2;
-bit DoubleRate		@ConfigParam.3;	// Speckys bit :-)
-bit NegativePPM		@ConfigParam.4;
-bit CompassTest		@ConfigParam.5;
+#define FlyCrossMode 	IsSet(ConfigParam,0)
+#define FutabaMode		IsSet(ConfigParam,1)
+#define IntegralTest	IsSet(ConfigParam,2)
+#define DoubleRate		IsSet(ConfigParam,3)
+#define NegativePPM		IsSet(ConfigParam,4)
+#define CompassTest		IsSet(ConfigParam,5)
 
 // LISL-Register mapping
 #define	LISL_WHOAMI		(0x0f)
@@ -192,3 +202,4 @@ bit CompassTest		@ConfigParam.5;
 #define LISL_DD_CFG		(0x38)
 #define LISL_INCR_ADDR	(0x40)
 #define LISL_READ		(0x80)
+
