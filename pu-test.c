@@ -58,6 +58,8 @@ uint8	LedShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
+int8		RCRollNeutral, RCPitchNeutral, RCYawNeutral;
+
 uint8	MFront,MLeft,MRight,MBack;	// output channels
 uint8	MCamRoll,MCamPitch;
 int16	Ml, Mr, Mf, Mb;
@@ -67,6 +69,10 @@ int16	Vud;
 
 uint8	Flags[8], Flags2[8];
 uint8	EscI2CFlags;
+
+#ifdef DEBUG_SENSORS
+int16	Trace[LastTrace];
+#endif // DEBUG_SENSORS
 
 uint16	PauseTime;
 
@@ -113,7 +119,8 @@ int8	BaroThrottleDiff	=4;
 
 void EscI2CDelay(void)
 {
-	nop2();
+	Delay1TCY();
+	Delay1TCY();
 }
 
 // send a start condition
@@ -438,8 +445,6 @@ void AnalogTest(void)
 
 #ifdef ESC_YGEI2C
 
-//const char page2 SerYGEConf1[] = ;
-
 void Program_SLA(uint8 niaddr)
 {
 	uint8 nii;
@@ -452,9 +457,9 @@ void Program_SLA(uint8 niaddr)
 			if( nii == niaddr )
 			{	// controller is already programmed OK
 				EscI2CStop();
-				TxText("controller at SLA 0x");
+				TxString("controller at SLA 0x");
 				TxValH(nii);
-				TxText(" is already programmed OK\r\n");
+				TxString(" is already programmed OK\r\n");
 				return;
 			}
 			else
@@ -464,9 +469,9 @@ void Program_SLA(uint8 niaddr)
 					if( SendEscI2CByte(niaddr) == 0 ) // new slave address
 					{
 						EscI2CStop();
-						TxText("controller at SLA 0x");
+						TxString("controller at SLA 0x");
 						TxValH(nii);
-						TxText(" reprogrammed to SLA 0x");
+						TxString(" reprogrammed to SLA 0x");
 						TxValH(niaddr);
 						TxNextLine();
 						return;
@@ -476,8 +481,8 @@ void Program_SLA(uint8 niaddr)
 		}
 		EscI2CStop();
 	}
-	TxText("no controller found or reprogram failed\r\n");
-}
+	TxString("no controller found or reprogram failed\r\n");
+} // Program_SLA
 
 void ConfigureESCs(void)
 {
@@ -485,21 +490,22 @@ void ConfigureESCs(void)
 
 	for( nic=0; nic<4; nic++)
 	{
-		TxText("\r\nConnect ONLY ");
+		TxString("\r\nConnect ONLY ");
 		switch(nic)
 		{
-			case 0 : TxText("front"); break;
-			case 1 : TxText("back");  break;
-			case 2 : TxText("right"); break;
-			case 3 : TxText("left");  break;
+			case 0 : TxString("front"); break;
+			case 1 : TxString("back");  break;
+			case 2 : TxString("right"); break;
+			case 3 : TxString("left");  break;
 		}
-		TxText(" controller, then press any key\r\n");
+		TxString(" controller, then press any key\r\n");
 		while( RxChar() == '\0' );
-		TxText("\rprogramming the controller...\r\n");
+		TxString("\r\nprogramming the controller...\r\n");
 
 		Program_SLA(0x62+nic+nic);
 	}
-}
+} // ConfigureESCs
+
 #endif // ESC_YGEI2C
 
 void OutSignals(void)
