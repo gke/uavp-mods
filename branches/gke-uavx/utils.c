@@ -1,8 +1,8 @@
 // =======================================================================
-// =                   U.A.V.P Brushless UFO Controller                  =
-// =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =      Rewritten and ported to 18F2xxx 2008 by Prof. Greg Egan        =
+// =                                 UAVX                                =
+// =                         Quadrocopter Control                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -356,110 +356,9 @@ void WriteParametersEE(uint8 s)
 void DoDebugTraces()
 {
 #ifdef DEBUG_SENSORS
-	/*
-	1 AbsDirection
-	2 VBaroComp
-	3 VBaroCompSum effective density altitude
-	7 RollRate Roll rate
-	8 NickRate Pitch rate
-	9 TE Yaw rate
-	10 RollSum Roll angle
-	11 NickSum Pitch angle
-	12 YawSum Yaw angle
-	4 Rp left-right accel
-	5 Np fore-aft accel
-	6 Tp vertical accel
 
-	*/
-	#ifndef DRIFT
-	if(  (State != Landed) && (State != Initialising) )
-	{
-		TxValH(CompassHeading);
-		TxChar(';');
-//
-		TxValH(HE);
-		TxChar(';');
-//
-		TxValH(Valt);
-		TxChar(';');
-		TxValH16(SumAE);
-		TxChar(';');
-
-		// rates
-		TxValH(YE);
-		TxChar(';');
-		TxValH16(RollRate);
-		TxChar(';');
-		TxValH16(PitchRate);
-		TxChar(';');
-		TxValH(YawRate);
-		TxChar(';');
-
-		// angles
-		TxValH16(YE);
-		TxChar(';');
-		TxValH16(RollAngle);
-		TxChar(';');
-		TxValH16(PitchAngle);
-		TxChar(';');
-		TxValH16(YawAngle);
-		TxChar(';');
-
-		// accelerations
-		TxValH16(ACCSIGN_X * Ax);
-		TxChar(';');
-		TxValH16(ACCSIGN_Z * Az);
-		TxChar(';');
-		TxValH16(ACCSIGN_Y * Ay);
-		TxChar(';');
-
-
-		TxValH16(MFront);
-		TxChar(';');
-		TxValH16(MBack);
-		TxChar(';');
-		TxValH16(MLeft);
-		TxChar(';');
-		TxValH16(MRight);
-		TxChar(';');
 		TxNextLine();
-	};
-#else
-#ifdef DEBUG_MOTORS
-
-	if( _Flying ) //&& IsSet(CamNickFactor,4) )
-	{
-		TxValU(DesiredThrottle);
-		TxChar(';');
-		TxValS(DesiredRoll);
-		TxChar(';');
-		TxValS(DesiredPitch);
-		TxChar(';');
-		TxValS(DesiredYawRate);
-		TxChar(';');
-		TxValU(MFront);
-		TxChar(';');
-		TxValU(MBack);
-		TxChar(';');
-		TxValU(MLeft);
-		TxChar(';');
-		TxValU(MRight);
-		TxChar(';');
-#ifdef DEBUG_CAMERAS
-		TxValU(IK6);
-		TxChar(';');
-		TxValU(MCamRoll);
-		TxChar(';');
-		TxValU(IK7);
-		TxChar(';');
-		TxValU(MCamPitch);
-		TxChar(';');
 #endif
-		TxNextLine();
-	}
-#endif
-#endif
-#endif // DRIFT
 } // DoDebugTraces
 
 

@@ -1,8 +1,8 @@
 // =======================================================================
-// =                   U.A.V.P Brushless UFO Controller                  =
-// =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =      Rewritten and ported to 18F2xxx 2008 by Prof. Greg Egan        =
+// =                                 UAVX                                =
+// =                         Quadrocopter Control                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -213,7 +213,7 @@ void InitAccelerometers(void)
 		LedYellow_ON;
 		for( s=256; s ; s--)
 		{
-			ReadLISLXYZ();
+			ReadAccelerations();
 			Tx += ACCSIGN_X * Ax;
 			Ty += ACCSIGN_Y * Ay;
 			Tz += ACCSIGN_Z * Az;
@@ -231,7 +231,7 @@ void CompensateGyros(void)
 {	// + Ax right, + Ay up, + Az back
 	int16 Rc, Pc, Uc, Temp;
 
-	ReadLISLXYZ();		
+	ReadAccelerations();		
 	Rc = ACCSIGN_X * Ax - NeutralLR;
 	Uc = ACCSIGN_Y * Ay - NeutralUD;	
 	Pc = ACCSIGN_Z * Az - NeutralFB;

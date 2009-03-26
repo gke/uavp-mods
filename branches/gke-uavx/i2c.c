@@ -1,8 +1,8 @@
 // =======================================================================
-// =                   U.A.V.P Brushless UFO Controller                  =
-// =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =              Ported to 18F2xxx 2008 by Prof. Greg Egan              =
+// =                                 UAVX                                =
+// =                         Quadrocopter Control                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //

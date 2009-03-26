@@ -17,10 +17,10 @@
 
 #ifndef BATCHMODE
 // =======================================================================
-// =                   U.A.V.P Brushless UFO Controller                  =
-// =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =      Rewritten and ported to 18F2xxx 2008 by Prof. Greg Egan        =
+// =                                 UAVX                                =
+// =                         Quadrocopter Control                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -195,7 +195,8 @@ typedef uint8 boolean;
 #define Abs(a) 			(a<0 ? -a: a)
 #define Sense(a) 		(a<0 ? -1 : (a>0 ? 1 : 1))
  	
-#define Max(i,j) 		((i<j) ? j : ((i>j) ? j : i))
+#define Max(i,j) 		((i<j) ? j : i)
+#define Min(i,j) 		((i<j) ? i : j)
 #define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
 #define DecayBand(i,l,u,d) 	((i<l) ? i+d : ((i>u) ? i-d : i))
 #define Decay(i) 		((i<0) ? i+1 : ((i>0) ? i-1 : 0))
@@ -609,7 +610,7 @@ extern void TxValS(int8);
 
 // spi.c
 extern void IsLISLactive(void);
-extern void ReadLISLXYZ(void);
+extern void ReadAccelerations(void);
 
 // utils.c
 extern int24 SRS24(int24, uint8);
@@ -697,7 +698,7 @@ extern int16    CompassReading;
 extern int16	RE, PE, YE, BE;					
 extern int16	SumRE, SumPE, SumYE, SumBE;
 extern int16	RollRate, PitchRate, YawRate;			
-extern uint8	MFront, MBack, MLeft, MRight, MCamPitch, MCamRoll;
+extern uint8	MCamPitch, MCamRoll;
 
 #endif // DEBUG_SENSORS
 

@@ -81,7 +81,7 @@ file_008=outputs.c
 file_009=gps.c
 file_010=irq.c
 file_011=UAVX.c
-file_012=bootl18f2520.asm
+file_012=bootl18f.asm
 file_013=UAVX.h
 [SUITE_INFO]
 suite_guid={5B7D72DD-9861-47BD-9F60-2BE967BF8416}

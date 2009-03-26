@@ -1,8 +1,8 @@
 // =======================================================================
-// =                   U.A.V.P Brushless UFO Controller                  =
-// =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =      Rewritten and ported to 18F2xxx 2008 by Prof. Greg Egan        =
+// =                                 UAVX                                =
+// =                         Quadrocopter Control                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://www.uavp.org                        =
 // =======================================================================
 //
@@ -63,6 +63,9 @@ void MixAndLimitMotors(void);
 #define	 ESC_CIO		TRISBbits.TRISB2
 #endif
 
+enum MotorTags {Front, Left, Right, Back};
+#define NoOfMotors 4
+
 #pragma udata assembly_language=0x080 
 uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 #pragma udata
@@ -72,133 +75,104 @@ uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 uint8 PWMPostPulse;  				// Set if performing the initial 1mS of a PWM pulse
 uint8 volatile EmitPWMFrame;		// Enable the output of a single PWM frame
 int16	DesiredCamRoll, DesiredCamPitch;
-uint8	MFront, MBack, MLeft, MRight, MCamPitch, MCamRoll;
+int16	Motor[NoOfMotors];
+uint8	MCamPitch, MCamRoll;
 #pragma udata
 
-uint8 Saturate(int24 l)
+void DoMix(int16 CurrThrottle)
 {
-	// do not let a motor drop below idle
-	return(Limit(l,Max(OUT_MINIMUM, MotorLowRun),OUT_MAXIMUM));
-} // Saturate
- 
-// mix the PID-results (Rl, Pl and Yl) and the throttle
-// on the motors and check for numerical overrun
-void MixAndLimitMotors(void)
-{
-	uint8 Th;								
 	int16 Temp;
-	int16 Ml, Mr, Mf, Mb;		
 
-	Th = DesiredThrottle;
+	Motor[Front] = Motor[Left] = Motor[Right] = CurrThrottle;
+	#ifndef TRICOPTER
+	Motor[Back] = CurrThrottle;
+	#endif // !TRICOPTER
 
-	#ifdef TRICOPTER
-	Mf = Th + Pl;							// front motor
-	Ml = Th + Rl;
-	Mr = Th - Rl;
-	Rl >>= 1;
-	Ml -= Rl;								// rear left
-    Mr -= Pl;								// rear right
-	Mb = -Yl + _Neutral;					// yaw servo
-
-	if( Th > MotorLowRun )
-	{
-		if( (Ml > Mr) && (Mr < MotorLowRun) )
-		{
-			// Mf += Mb - MotorLowRun
-			Ml += Mr;
-			Ml -= MotorLowRun;
-		}
-		if( (Mr > Ml) && (Ml < MotorLowRun) )
-		{
-			// Mb += Mf - MotorLowRun
-			Mr += Ml;
-			Mr -= MotorLowRun;
-		}
-	}
-	#else // QUADROCOPTER
+	#ifndef TRICOPTER
 	if( FlyCrossMode )
 	{	// "Cross" Mode
-		Ml = Th + Pl;	Ml -= Rl;
-		Mr = Th - Pl;	Mr += Rl;
-		Mf = Th - Pl;	Mf -= Rl;
-		Mb = Th + Pl;	Mb += Rl;
+		Motor[Left] +=   Pl - Rl - Yl;
+		Motor[Right] += -Pl + Rl - Yl;
+		Motor[Front] += -Pl - Rl + Yl;
+		Motor[Back] +=   Pl + Rl + Yl; //*
 	}
 	else
 	{	// "Plus" Mode
-		Ml = Th - Rl;
-		Mr = Th + Rl;
-		Mf = Th - Pl;
-		Mb = Th + Pl;
+		#ifdef MOUNT_45
+		Motor[Left]  += -Rl - Pl - Yl; //*	
+		Motor[Right] +=  Rl + Pl - Yl;
+		Motor[Front] +=  Rl - Pl + Yl;
+		Motor[Back]  += -Rl + Pl + Yl;	
+		#else
+		Motor[Left]  += -Rl - Yl;	
+		Motor[Right] +=  Rl - Yl;
+		Motor[Front] += -Pl + Yl;
+		Motor[Back]  +=  Pl + Yl;
+		#endif
 	}
 
-	// Yaw
-	Mf -= Yl;
-	Mb -= Yl;
-	Ml += Yl;
-	Mr += Yl;
+	#else	// TRICOPTER
+	Temp = SRS16(Rl - Pl, 1); 
+	Motor[Front] += Pl ;			// front motor
+	Motor[Left]  += Temp;			// rear left
+	Motor[Right] -= Temp; 			// rear right
+	Motor[Back]   = Yl + _Neutral;	// yaw servo
+	#endif
 
-	// Altitude stabilisation from vertical accelerometer
-	Mf += Vud;
-	Mb += Vud;
-	Ml += Vud;
-	Mr += Vud;
+} // DoMix
 
-	// Altitude stabilisation from barometer/altimeter
-	Mf += Valt;
-	Mb += Valt;
-	Ml += Valt;
-	Mr += Valt;
+uint8 	MotorDemandRescale;
 
-	// If low-throttle limiting occurs, must limit other motor too
-	// to prevent flips! needs further thought ???
-	if( Th > MotorLowRun )
-	{
-		if( (Mf > Mb) && (Mb < MotorLowRun) )
-		{
-			Temp = Mb - MotorLowRun;
-			Mf += Temp;
-			Ml += Temp;
-			Mr += Temp;
-		}
-		if( (Mb > Mf) && (Mf < MotorLowRun) )
-		{
-			Temp = Mf - MotorLowRun;
-			Mb += Temp;
-			Ml += Temp;
-			Mr += Temp;
-		}
-		if( (Ml > Mr) && (Mr < MotorLowRun) )
-		{
-			Temp = Mr - MotorLowRun;
-			Ml += Temp;
-			Mf += Temp;
-			Mb += Temp;
-		}
-		if( (Mr > Ml) && (Ml < MotorLowRun) )
-		{	
-			Temp = Ml - MotorLowRun;
-			Mr += Temp;
-			Mf += Temp;
-			Mb += Temp;
-		}
-	}
+void CheckDemand(int16 CurrThrottle)
+{
+	int8 s;
+	int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
+
+	MaxMotor = Max(Motor[Front], Motor[Left]);
+	MaxMotor = Max(MaxMotor, Motor[Right]);
+	#ifndef TRICOPTER
+	MaxMotor = Max(MaxMotor, Motor[Back]);
 	#endif // TRICOPTER
 
-	if ( _MotorsEnabled && ( DesiredThrottle > RC_THRES_START ))
-	{
-		// limit to motor_idle..OUT_MAXIMUM
-		MFront = Saturate(Mf);
-		MLeft = Saturate(Ml);
-		MRight = Saturate(Mr);
-		MBack = Saturate(Mb);
+	DemandSwing = MaxMotor - CurrThrottle;
+
+	if ( DemandSwing > 0 )
+	{		
+		ScaleHigh = (( OUT_MAXIMUM - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
+		ScaleLow = (( (int24)CurrThrottle - MotorLowRun) * 256 )/ DemandSwing;
+		Scale = Min(ScaleHigh, ScaleLow);
+		if ( Scale < 256 )
+		{
+			MotorDemandRescale = true;
+			Rl = (Rl * Scale + 128)/256;  
+			Pl = (Pl * Scale + 128)/256; 
+			Yl = (Yl * Scale + 128)/256; 
+		}
+		else
+			 MotorDemandRescale = false;	
 	}
 	else
-		MFront = MBack = MRight = MLeft = OUT_MINIMUM;	
+		MotorDemandRescale = false;	
 
-} // MixAndLimitMotors
+} // CheckDemand
 
-// Mix the Camera tilt channel (Ch6) and the quadrocopter 
-// attitude angles (roll and pitch) to the camera servos. 
+void MixAndLimitMotors(void)
+{ 	// expensive ~400uSec @16MHz
+    int16 Temp, CurrThrottle;
+
+	// Altitude stabilization factor
+	CurrThrottle = DesiredThrottle; //+ (Vud + VBaroSum); // vertical compensation not optional
+	CurrThrottle = Limit(CurrThrottle, 0, (int16)(OUT_MAXIMUM * 90 + 50) / 100); // 10% headroom for control
+
+	DoMix(CurrThrottle);
+
+	CheckDemand(CurrThrottle);
+
+	if ( MotorDemandRescale )
+		DoMix(CurrThrottle);
+
+} // MixAndLimit
+
 void MixAndLimitCam(void)
 {
 	int24 Rp, Pp;
@@ -318,10 +292,10 @@ void OutSignals(void)
 
 	MixAndLimitMotors();
 
-	MF = MFront;
-	ML = MLeft;
-	MR = MRight;
-	MB = MBack;
+	MF = Motor[Front];
+	ML = Motor[Left];
+	MR = Motor[Right];
+	MB = Motor[Back];
 
 	MixAndLimitCam();
 
@@ -397,8 +371,11 @@ void OutSignals(void)
 
 void InitOutputs(void)
 {
+	int8 i;
+
 	_MotorsEnabled = false;
-	MFront = MLeft = MRight = MBack = OUT_MINIMUM;
+	for ( i = 0; i<NoOfMotors; i++ )
+		Motor[i] = OUT_MINIMUM;
 	MCamPitch = MCamRoll = OUT_NEUTRAL;
 
 	EmitPWMFrame = false;

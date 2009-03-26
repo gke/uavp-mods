@@ -1,7 +1,7 @@
 // =======================================================================
-// =                     UAVX Quadrocopter Controller                    =
-// =                         Professional Version                        =
-// =                 Copyright (c) 2007  Prof. Greg Egan                 =
+// =                                 UAVX                                =
+// =                         Quadrocopter Control                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
