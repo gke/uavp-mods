@@ -29,9 +29,6 @@
 // Math Library
 #include "mymath16.h"
 
-// Limit integral sum of Roll gyros
-// it must be limited to avoid numeric overflow
-// which would cause a serious flip -> crash
 void LimitRollSum(void)
 {
 
@@ -63,9 +60,7 @@ void LimitRollSum(void)
 
 } // LimitRollSum
 
-// Limit integral sum of Pitch gyros
-// it must be limited to avoid numeric overflow
-// which would cause a serious flip -> crash
+
 void LimitPitchSum(void)
 {
 
@@ -105,9 +100,6 @@ void LimitPitchSum(void)
 	}
 } // LimitPitchSum
 
-// Limit integral sum of Yaw gyros
-// it must be limited to avoid numeric overflow
-// which would cause a uncontrolled yawing -> crash
 void LimitYawSum(void)
 {
 	// add the yaw stick value
@@ -169,10 +161,7 @@ void LimitYawSum(void)
 
 } // LimitYawSum
 
-// to avoid stopping motors in the air, the
-// motor values are limited to a minimum and
-// a maximum
-// the eventually corrected value is returned
+
 uns8 SaturInt(int16 l)
 {
 	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
@@ -197,8 +186,7 @@ uns8 SaturInt(int16 l)
 
 
 #ifdef ALT_MIXANDLIMIT
-// mix the PID-results (Rl, Pl and Yl) and the throttle
-// on the motors and check for numerical overrun
+
 // Alternate scheme due to Gary Stofer
 void MixAndLimit(void)
 {
@@ -278,8 +266,6 @@ void MixAndLimit(void)
 
 #else
 
-// mix the PID-results (Rl, Pl and Yl) and the throttle
-// on the motors and check for numerical overrun
 void MixAndLimit(void)
 {
 	uns8 CurrGas;
@@ -385,11 +371,11 @@ void MixAndLimit(void)
 	}
 	#endif
 
-	// Ergebnisse auf Überlauf testen und korrigieren
 	MFront = SaturInt(Mf);
 	MLeft = SaturInt(Ml);
 	MRight = SaturInt(Mr);
 	MBack = SaturInt(Mb);
+
 } // MixAndLimit
 
 #endif // ALT_MIXANDLIMIT
