@@ -231,7 +231,7 @@ void MixAndLimit(void)
 
 	// Altitude stabilization factor
 	CurrGas = IGas + (Vud + VBaroComp); // vertical compensation not optional
-	CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
+	//CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
 
 	MinMotor = CurrGas;
 	if ( MinMotor < Rl )
