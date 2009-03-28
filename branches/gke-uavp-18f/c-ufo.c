@@ -275,6 +275,7 @@ void main(void)
 	ShowSetup(1);
 
 	IK6 = IK7 = _Minimum;
+	NeutralsAcquired = false;
 
 Restart:
 	IGas =IK5 = _Minimum;	// Assume parameter set #1
@@ -321,9 +322,7 @@ Restart:
 		// if Ch7 below +20 (near minimum) assume use for camera trigger
 		// else assume use for camera roll trim	
 		_UseCh7Trigger = IK7 < 30;
-
-		NeutralsAcquired = false;
-			
+	
 		while ( Switch == 1 )
 		{
 			#ifdef ADJUST_STICK_NEUTRALS

@@ -2,10 +2,6 @@
 
 // Accelerometer
 
-// Enable this to use the Accelerometer sensor 
-// Usually ENABLED
-#define USE_ACCELEROMETER
-
 // Enable vertical acceleration compensation 
 //#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
@@ -13,23 +9,19 @@
 // Channel 7 is used to control the threshold - full off means no 
 // accelerometer input. Full on means accelerometer compensation always on.
 //#define ENABLE_ACC_ON_HIGH_YAWRATE
+// Gyros
+
 // Enable "Dynamic mass" compensation Roll and/or Pitch
 // Normally enabled for Roll only 
 #define ENABLE_DYNAMIC_MASS_COMP_ROLL
 //#define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
-// Takes the settings of Roll, Pitch and Yaw as Neutral values just as
-// the ARMING switch is activated.
-#define ADJUST_STICK_NEUTRALS
-
-// Enables original motor mixing scheme
-#define ENABLE_NEW_MOTOR_MIX
+// Barometer
 
 // Reduces the update rate and the additionally the descent rate 
 //#define ENABLE_NEW_ALT_HOLD
 
-// Loads a "representative" parameter set into EEPROM
-//#define INIT_PARAMS
+// Modifications which have been adopted are included BELOW.
 
 #ifndef BATCHMODE
 // =======================================================================
@@ -114,6 +106,7 @@
 
 #endif // !BATCHMODE
 
+// Adopted extensions or major modifications to original version
 
 // Baro
 
@@ -128,10 +121,31 @@
 // Make a "scratchy" beeper noise while altitude hold is engaged.
 #define BARO_SCRATCHY_BEEPER
 
+// Accelerometers
+
+// Enable this to use the Accelerometer sensor 
+// Usually ENABLED
+#define USE_ACCELEROMETER
+
 // Gyros
 
 // Forces Yaw angle to decay to zero over time.
 #define KILL_YAW_DRIFT
+
+// Motors
+
+// Enables original motor mixing scheme
+#define ENABLE_NEW_MOTOR_MIX
+
+// Misc
+
+// Takes the settings of Roll, Pitch and Yaw as Neutral values just as
+// the ARMING switch is activated. This is done ONLY ONCE after power up.
+// Ensure Tx trims are neutral before applying power if this option is used.
+//#define ADJUST_STICK_NEUTRALS
+
+// Loads a "representative" parameter set into EEPROM
+//#define INIT_PARAMS
 
 // =====================================
 // end of user-configurable section!
