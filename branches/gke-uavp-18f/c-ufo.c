@@ -68,13 +68,15 @@ uint8	LedShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
-uint8	MFront,MLeft,MRight,MBack;	// output channels
 uint8	MCamRoll,MCamPitch;
-#ifdef TRADITIONAL_MOTOR_MIX
-int16	Ml, Mr, Mf, Mb;
-#else
+
+#ifdef 	ENABLE_NEW_MOTOR_MIX
 int16	Motor[NoOfMotors];
-#endif
+#else
+uint8	MFront,MLeft,MRight,MBack;	// output channels
+int16	Ml, Mr, Mf, Mb;
+#endif // ENABLE_NEW_MOTOR_MIX
+
 int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
@@ -83,6 +85,7 @@ int16	Trace[LastTrace];
 
 uint8	Flags[8];
 uint8	Flags2[8];
+uint8	NeutralsAcquired;
 
 int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
 uint24	RCGlitchCount;
@@ -232,6 +235,8 @@ void main(void)
 
 	InitArrays();
 
+	RCRollNeutral = RCPitchNeutral = RCYawNeutral = _Neutral;
+
 	#ifdef INIT_PARAMS
 	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
 		WriteEE(i, -1);
@@ -316,9 +321,21 @@ Restart:
 		// if Ch7 below +20 (near minimum) assume use for camera trigger
 		// else assume use for camera roll trim	
 		_UseCh7Trigger = IK7 < 30;
+
+		NeutralsAcquired = false;
 			
 		while ( Switch == 1 )
 		{
+			#ifdef ADJUST_STICK_NEUTRALS
+			if ( !NeutralsAcquired )
+			{
+				RCRollNeutral += IRoll;
+				RCPitchNeutral += IPitch;
+				RCYawNeutral += IYaw;
+				NeutralsAcquired = true;
+			}
+			#endif // ADJUST_STICK_NEUTRALS					
+
 			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			WriteTimer0(0);
 			INTCONbits.TMR0IF = false;
@@ -400,15 +417,9 @@ Restart:
 			else
 			{	// UFO is flying!
 				if( !_Flying )	// about to start
-				{	// adjust neutrals
-					#ifdef ADJUST_STICK_NEUTRALS
-					RCRollNeutral += IRoll;
-					RCPitchNeutral += IPitch;
-					RCYawNeutral += IYaw;
-					#endif // ADJUST_STICK_NEUTRALS					AbsDirection = COMPASS_INVAL;
-
-					ProcessComCommand();
-						
+				{	
+					AbsDirection = COMPASS_INVAL;
+					ProcessComCommand();						
 					LedCount = 1;
 				}
 
@@ -438,7 +449,7 @@ DoPID:
 				PEp = PE;
 				YEp = YE;
 			}
-			
+		
 			MixAndLimitCam();
 			OutSignals();
 

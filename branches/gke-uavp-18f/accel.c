@@ -76,7 +76,7 @@ void AccelerationCompensation(void)
 	
 		Yp -= 1024;	// subtract 1g
 	
-		#ifdef ACCEL_VUD
+		#ifdef ENABLE_VERTICAL_VELOCITY_DAMPING
 		// UDSum rises if ufo climbs
 		// Empirical - vertical acceleration decreases at ~approx Angle/8
 
@@ -99,7 +99,7 @@ void AccelerationCompensation(void)
 	
 		Vud = Limit(Vud, -10, 10); // was 20
 	
-		#endif // ACCEL_VUD
+		#endif // ENABLE_VERTICAL_VELOCITY_DAMPING
 
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
@@ -122,7 +122,7 @@ void AccelerationCompensation(void)
 		Rp -= SRS16(RollSum * (-15) + 16, 5); 
 		#endif
 	
-		#ifdef DYNAMIC_MASS_COMP
+		#ifndef ENABLE_DYNAMIC_MASS_COMP_ROLL
 		// dynamic correction of moved mass
 		#ifdef OPT_ADXRS
 		Rp += (int16)RollRate << 1;
@@ -156,7 +156,16 @@ void AccelerationCompensation(void)
 		Pp -= SRS16(PitchSum * (-15) + 16, 5);
 		#endif
 		
+		#ifndef ENABLE_DYNAMIC_MASS_COMP_PITCH
+		// dynamic correction of moved mass
+		#ifdef OPT_ADXRS
+		Pp += (int16)PitchRate << 1;
+		#else // OPT_IDG
+		Pp -= (int16)PitchRate;
+		#endif	
+		#else
 		// no dynamic correction of moved mass
+		#endif
 	
 		// correct DC level of the integral
 		FBIntKorr = 0;

@@ -101,12 +101,19 @@ void InitPorts(void)
 // resets all important variables - Do NOT call that while in flight!
 void InitArrays(void)
 {
+	int8 i;
+
+	#ifdef 	ENABLE_NEW_MOTOR_MIX
+	for (i = 0; i < NoOfMotors; i++)
+		Motor[i] = _Minimum;
+	#else
 	MFront = MLeft = MRight = MBack = _Minimum;
+	#endif // ENABLE_NEW_MOTOR_MIX
+
 	MCamPitch = MCamRoll = _Neutral;
 
 	_Flying = false;
 	REp = PEp = YEp = 0;
-	RCRollNeutral, RCPitchNeutral = RCYawNeutral = _Neutral;
 	
 	Rp = Pp = Vud = VBaroComp = 0;
 	
