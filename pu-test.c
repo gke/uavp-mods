@@ -417,7 +417,16 @@ void AnalogTest(void)
 	v = ((int24)ADC(ADCBattVoltsChan, ADCVREF5V) * 46 + 9)/17; // resolution is 0,01 Volt
 	TxVal32(ADCBattVoltsChan, 0, ' ');
 	TxString("Batt:\t");
-	TxVal32(v, 2, 'V');	
+	TxVal32(v, 2, 'V');
+	if ( v < 900 )
+	{
+		TxString(" ** LIPO ALARM < 9V ** ");
+		Beeper_ON;
+	}
+	else	
+	if ( v < 950 )
+		TxString(" ** LOW < 9.5V ** ");
+	
 	TxNextLine();
 
 	// Roll
@@ -429,7 +438,7 @@ void AnalogTest(void)
 
 	// Pitch
 	v = ((int24)ADC(ADCPitchChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxVal32(ADCVRefChan, 0, ' ');
+	TxVal32(ADCPitchChan, 0, ' ');
 	TxString("Pitch:\t");		
 	TxVal32(v, 3, 'V');	
 	TxNextLine();
