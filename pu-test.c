@@ -60,8 +60,15 @@ int16	CurDeviation;	// deviation from correct heading
 
 int8		RCRollNeutral, RCPitchNeutral, RCYawNeutral;
 
-uint8	MFront,MLeft,MRight,MBack;	// output channels
 uint8	MCamRoll,MCamPitch;
+
+#ifdef 	ENABLE_NEW_MOTOR_MIX
+int16	Motor[NoOfMotors];
+#else
+uint8	MFront,MLeft,MRight,MBack;	// output channels
+int16	Ml, Mr, Mf, Mb;
+#endif // ENABLE_NEW_MOTOR_MIX
+
 int16	Ml, Mr, Mf, Mb;
 int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;

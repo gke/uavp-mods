@@ -378,11 +378,11 @@ void ComputeBaroComp(void)
 
 	if( _UseBaro )
 		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
-#ifdef NEW_ALT_HOLD
+#ifdef ENABLE_NEW_ALT_HOLD
 		if (((BaroCount >= 8) && _BaroTempRun) || ((BaroCount >= 32 ) && !_BaroTempRun))
 #else
 		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))
-#endif // NEW_ALT_HOLD	
+#endif // ENABLE_NEW_ALT_HOLD	
 		{
 			BaroCount = 0;
 			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value		
@@ -417,7 +417,7 @@ void ComputeBaroComp(void)
 							_Hovering = true;
 						}
 	
-#ifdef NEW_ALT_HOLD
+#ifdef ENABLE_NEW_ALT_HOLD
 // EXPERIMENTAL ALTITUDE HOLD
 						// while holding altitude
 						BaroVal -= BaroBasePressure;
@@ -485,7 +485,7 @@ void ComputeBaroComp(void)
 						VBaroComp += Limit(Delta, -8, 8) * (int16)BaroThrottleDiff;
 	
 						VBaroComp = Limit(VBaroComp, -5, 15);
-#endif // NEW_ALT_HOLD
+#endif // ENABLE_NEW_ALT_HOLD
 	
 						#ifdef BARO_SCRATCHY_BEEPER
 						Beeper_TOG;

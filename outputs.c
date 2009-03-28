@@ -115,9 +115,104 @@ uint8 SaturInt(int16 l)
 } // SaturInt
 
 
-#ifdef TRADITIONAL_MOTOR_MIX
+#ifdef ENABLE_NEW_MOTOR_MIX
 
-#ifndef GARYMIX
+void DoMix(int16 CurrGas)
+{
+	int16 Temp;
+
+	Motor[Front] = Motor[Left] = Motor[Right] = CurrGas;
+	#ifndef TRICOPTER
+	Motor[Back] = CurrGas;
+	#endif // !TRICOPTER
+
+	#ifndef TRICOPTER
+	if( FlyCrossMode )
+	{	// "Cross" Mode
+		Motor[Left] +=   Pl - Rl - Yl;
+		Motor[Right] += -Pl + Rl - Yl;
+		Motor[Front] += -Pl - Rl + Yl;
+		Motor[Back] +=   Pl + Rl + Yl; //*
+	}
+	else
+	{	// "Plus" Mode
+		#ifdef MOUNT_45
+		Motor[Left]  += -Rl - Pl - Yl; //*	
+		Motor[Right] +=  Rl + Pl - Yl;
+		Motor[Front] +=  Rl - Pl + Yl;
+		Motor[Back]  += -Rl + Pl + Yl;	
+		#else
+		Motor[Left]  += -Rl - Yl;	
+		Motor[Right] +=  Rl - Yl;
+		Motor[Front] += -Pl + Yl;
+		Motor[Back]  +=  Pl + Yl;
+		#endif
+	}
+
+	#else	// TRICOPTER
+	Temp = SRS16(Rl - Pl, 1); 
+	Motor[Front] += Pl ;			// front motor
+	Motor[Left]  += Temp;			// rear left
+	Motor[Right] -= Temp; 			// rear right
+	Motor[Back]   = Yl + _Neutral;	// yaw servo
+	#endif
+
+} // DoMix
+
+uint8 	MotorDemandRescale;
+
+void CheckDemand(int16 CurrGas)
+{
+	int8 s;
+	int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
+
+	MaxMotor = Max(Motor[Front], Motor[Left]);
+	MaxMotor = Max(MaxMotor, Motor[Right]);
+	#ifndef TRICOPTER
+	MaxMotor = Max(MaxMotor, Motor[Back]);
+	#endif // TRICOPTER
+
+	DemandSwing = MaxMotor - CurrGas;
+
+	if ( DemandSwing > 0 )
+	{		
+		ScaleHigh = (( _Maximum - (int24)CurrGas) * 256 )/ DemandSwing;	 
+		ScaleLow = (( (int24)CurrGas - MotorLowRun) * 256 )/ DemandSwing;
+		Scale = Min(ScaleHigh, ScaleLow);
+		if ( Scale < 256 )
+		{
+			MotorDemandRescale = true;
+			Rl = (Rl * Scale + 128)/256;  
+			Pl = (Pl * Scale + 128)/256; 
+			Yl = (Yl * Scale + 128)/256; 
+		}
+		else
+			 MotorDemandRescale = false;	
+	}
+	else
+		MotorDemandRescale = false;	
+
+} // CheckDemand
+
+void MixAndLimit(void)
+{ 	// expensive ~400uSec @16MHz
+    int16 Temp, CurrGas;
+
+	// Altitude stabilization factor
+	CurrGas = IGas + (Vud + VBaroComp); // vertical compensation not optional
+	CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
+
+	DoMix(CurrGas);
+
+	CheckDemand(CurrGas);
+
+	if ( MotorDemandRescale )
+		DoMix(CurrGas);
+
+} // MixAndLimit
+
+
+#else
 
 void MixAndLimit(void)
 {
@@ -223,161 +318,7 @@ void MixAndLimit(void)
 	MBack = SaturInt(Mb);
 } // MixAndLimit
 
-#else
-
-void MixAndLimit(void)
-{
-    int16 MinMotor, CurrGas;
-
-	// Altitude stabilization factor
-	CurrGas = IGas + (Vud + VBaroComp); // vertical compensation not optional
-	//CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
-
-	MinMotor = CurrGas;
-	if ( MinMotor < Rl )
-		Rl = MinMotor;
-	if ( MinMotor < Pl )
-		Pl = MinMotor;
-
-	MinMotor = -MinMotor;
-	
-	if ( Rl < MinMotor )
-		Rl = MinMotor;
-	if ( Pl < MinMotor )
-		Pl = MinMotor;
-
-	Ml = CurrGas - Rl;
-	Mr = CurrGas + Rl;
-	Mf = CurrGas - Pl;
-	Mb = CurrGas + Pl;
-
-	MinMotor = Min(Mf, Mb);
-	MinMotor = Min(MinMotor, Ml);
-	MinMotor = Min(MinMotor, Mr);
-	
-	if ( MinMotor < Yl )
-		Yl = MinMotor;
-
-	MinMotor = - MinMotor;
-
-	if ( Yl < MinMotor )
-		Yl = MinMotor;
-
-	Mf += Yl;
-	Mb += Yl;
-	Ml -= Yl;
-	Mr -= Yl;
-
-	Mf += MotorLowRun;
-	Mb += MotorLowRun;
-	Ml += MotorLowRun;
-	Mr += MotorLowRun;
-
-	MFront = SaturInt(Mf);
-	MLeft = SaturInt(Ml);
-	MRight = SaturInt(Mr);
-	MBack = SaturInt(Mb);
-}  // GaryMixAndLimit
-
-#endif // GARYMIX
-
-#else
-
-void DoMix(int16 CurrGas)
-{
-	int16 Temp;
-
-	Motor[Front] = Motor[Left] = Motor[Right] = CurrGas;
-	#ifndef TRICOPTER
-	Motor[Back] = CurrGas;
-	#endif // !TRICOPTER
-
-	#ifndef TRICOPTER
-	if( FlyCrossMode )
-	{	// "Cross" Mode
-		Motor[Left] +=   Pl - Rl - Yl;
-		Motor[Right] += -Pl + Rl - Yl;
-		Motor[Front] += -Pl - Rl + Yl;
-		Motor[Back] +=   Pl + Rl + Yl; //*
-	}
-	else
-	{	// "Plus" Mode
-		#ifdef MOUNT_45
-		Motor[Left]  += -Rl - Pl - Yl; //*	
-		Motor[Right] +=  Rl + Pl - Yl;
-		Motor[Front] +=  Rl - Pl + Yl;
-		Motor[Back]  += -Rl + Pl + Yl;	
-		#else
-		Motor[Left]  += -Rl - Yl;	
-		Motor[Right] +=  Rl - Yl;
-		Motor[Front] += -Pl + Yl;
-		Motor[Back]  +=  Pl + Yl;
-		#endif
-	}
-
-	#else	// TRICOPTER
-	Temp = SRS16(Rl - Pl, 1); 
-	Motor[Front] += Pl ;			// front motor
-	Motor[Left]  += Temp;			// rear left
-	Motor[Right] -= Temp; 			// rear right
-	Motor[Back]   = Yl + _Neutral;	// yaw servo
-	#endif
-
-} // DoMix
-
-uint8 	MotorDemandRescale;
-
-void CheckDemand(int16 CurrGas)
-{
-	int8 s;
-	int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
-
-	MaxMotor = Max(Motor[Front], Motor[Left]);
-	MaxMotor = Max(MaxMotor, Motor[Right]);
-	#ifndef TRICOPTER
-	MaxMotor = Max(MaxMotor, Motor[Back]);
-	#endif // TRICOPTER
-
-	DemandSwing = MaxMotor - CurrGas;
-
-	if ( DemandSwing > 0 )
-	{		
-		ScaleHigh = (( _Maximum - (int24)CurrGas) * 256 )/ DemandSwing;	 
-		ScaleLow = (( (int24)CurrGas - MotorLowRun) * 256 )/ DemandSwing;
-		Scale = Min(ScaleHigh, ScaleLow);
-		if ( Scale < 256 )
-		{
-			MotorDemandRescale = true;
-			Rl = (Rl * Scale + 128)/256;  
-			Pl = (Pl * Scale + 128)/256; 
-			Yl = (Yl * Scale + 128)/256; 
-		}
-		else
-			 MotorDemandRescale = false;	
-	}
-	else
-		MotorDemandRescale = false;	
-
-} // CheckDemand
-
-void MixAndLimit(void)
-{ 	// expensive ~400uSec @16MHz
-    int16 Temp, CurrGas;
-
-	// Altitude stabilization factor
-	CurrGas = IGas + (Vud + VBaroComp); // vertical compensation not optional
-	CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
-
-	DoMix(CurrGas);
-
-	CheckDemand(CurrGas);
-
-	if ( MotorDemandRescale )
-		DoMix(CurrGas);
-
-} // MixAndLimit
-
-#endif // TRADITIONAL_MOTOR_MIX
+#endif // ENABLE_NEW_MOTOR_MIX
 
 void MixAndLimitCam(void)
 {
@@ -392,14 +333,14 @@ void MixAndLimitCam(void)
 	else
 		Cr = Cp = _Minimum;
 
-	#ifdef DISABLE_ACC_ON_HIGH_YAWRATE
-	Cr += _Neutral; // use IK7 for Yaw Rate threshold control
-	#else
+	#ifdef ENABLE_ACC _ON_HIGH_YAWRATE
 	if( _UseCh7Trigger )
 		Cr += _Neutral;
 	else
 		Cr += IK7;
-	#endif // DISABLE_ACC_ON_HIGH_YAWRATE
+	#else
+	Cr += _Neutral; // use IK7 for Yaw Rate threshold control
+	#endif // ENABLE_ACC _ON_HIGH_YAWRATE
 		
 	Cp += IK6;		// only Pitch servo is controlled by channel 6
 
@@ -421,10 +362,17 @@ void OutSignals(void)
 	Trace[TIPitch] = IPitch;
 	Trace[TIYaw] = IYaw;
 
+	#ifdef 	ENABLE_NEW_MOTOR_MIX
+	Trace[TMFront] = Motor[Front];
+	Trace[TMBack] = Motor[Back];
+	Trace[TMLeft] = Motor[Left];
+	Trace[TMRight] = Motor[Right];
+	#else
 	Trace[TMFront] = MFront;
 	Trace[TMBack] = MBack;
 	Trace[TMLeft] = MLeft;
 	Trace[TMRight] = MRight;
+	#endif // 	ENABLE_NEW_MOTOR_MIX
 
 	Trace[TMCamRoll] = MCamRoll;
 	Trace[TMCamPitch] = MCamPitch;
@@ -442,10 +390,17 @@ void OutSignals(void)
 	PORTB |= 0x0f;
 	#endif
 
+	#ifdef 	ENABLE_NEW_MOTOR_MIX
+	MF = Motor[Front];
+	MB = Motor[Back];
+	ML = Motor[Left];
+	MR = Motor[Right];
+	#else
 	MF = MFront;
 	MB = MBack;
 	ML = MLeft;
 	MR = MRight;
+	#endif // 	ENABLE_NEW_MOTOR_MIX
 
 	#ifdef DEBUG_MOTORS
 	// if DEBUG_MOTORS is active, CamIntFactor is a bitmap:

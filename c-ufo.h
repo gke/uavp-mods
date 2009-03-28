@@ -2,30 +2,31 @@
 
 // Accelerometer
 
-// Enable this to use the Accelerometer sensor
+// Enable this to use the Accelerometer sensor 
+// Usually ENABLED
 #define USE_ACCELEROMETER
 
 // Enable vertical acceleration compensation 
-//#define ACCEL_VUD
+//#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Disable accelerometer roll/pitch compensation when yawing "rapidly"
 // Channel 7 is used to control the threshold - full off means no 
 // accelerometer input. Full on means accelerometer compensation always on.
-#define DISABLE_ACC_ON_HIGH_YAWRATE
+//#define ENABLE_ACC_ON_HIGH_YAWRATE
+// Enable "Dynamic mass" compensation Roll and/or Pitch
+// Normally enabled for Roll only 
+#define ENABLE_DYNAMIC_MASS_COMP_ROLL
+//#define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
-// Enable "Dynamic mass" compensation in Roll 
-//#define DYNAMIC_MASS_COMP
-
-// Takes the settings of Roll, Pitch and Yaw as neutral values just 
-// prior to launch
+// Takes the settings of Roll, Pitch and Yaw as Neutral values just as
+// the ARMING switch is activated.
 #define ADJUST_STICK_NEUTRALS
 
 // Enables original motor mixing scheme
-//#define TRADITIONAL_MOTOR_MIX
-//#define GARYMIX
+#define ENABLE_NEW_MOTOR_MIX
 
 // Reduces the update rate and the additionally the descent rate 
-//#define NEW_ALT_HOLD
+//#define ENABLE_NEW_ALT_HOLD
 
 // Loads a "representative" parameter set into EEPROM
 //#define INIT_PARAMS
@@ -109,7 +110,7 @@
 //#define DEBUG_MOTORS
 
 // special mode for sensor data output (with UAVPset)
-#define DEBUG_SENSORS
+//#define DEBUG_SENSORS
 
 #endif // !BATCHMODE
 
@@ -285,13 +286,15 @@ extern uint16	BaroVal;
 extern int16	VBaroComp;
 extern uint8	BaroType, BaroTemp, BaroRestarts;
 
-extern uint8	MFront,MLeft,MRight,MBack;	// output channels
 extern uint8	MCamRoll,MCamPitch;
-#ifdef TRADITIONAL_MOTOR_MIX
-extern int16	Ml, Mr, Mf, Mb;
-#else
+
+#ifdef 	ENABLE_NEW_MOTOR_MIX
 extern int16	Motor[NoOfMotors];
-#endif // TRADITIONAL_MOTOR_MIX
+#else
+extern uint8	MFront,MLeft,MRight,MBack;	// output channels
+extern int16	Ml, Mr, Mf, Mb;
+#endif // ENABLE_NEW_MOTOR_MIX
+
 extern int16	Rl,Pl,Yl;	// PID output values
 extern int16	Rp,Pp,Yp,Vud;
 
