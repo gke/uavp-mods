@@ -199,9 +199,7 @@ void CalcGyroValues(void)
 
 void PID(void)
 {
-	#ifdef ENABLE_ACC _ON_HIGH_YAWRATE
-		AccelerationCompensation();
-	#else
+	#ifdef DISABLE_ACC_ON_HIGH_YAWRATE
 	AverageYawRate = YawRate; //HardFilter(AverageYawRate, YawRate);
 	if ( Abs(AverageYawRate)  > (IK7 * 4) )
 		LedYellow_ON;	// no compensation
@@ -210,7 +208,9 @@ void PID(void)
 		LedYellow_OFF;
 		AccelerationCompensation();
 	}
-	#endif // ENABLE_ACC _ON_HIGH_YAWRATE	
+	#else
+		AccelerationCompensation();
+	#endif // DISABLE_ACC_ON_HIGH_YAWRATE	
 	
 	// PID controller
 	// E0 = current gyro error

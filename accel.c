@@ -97,7 +97,7 @@ void AccelerationCompensation(void)
 				if( Temp < Vud )
 					Vud--;
 	
-		Vud = Limit(Vud, -10, 10); // was 20
+		Vud = Limit(Vud, -20, 20);
 	
 		#endif // ENABLE_VERTICAL_VELOCITY_DAMPING
 
@@ -186,7 +186,10 @@ void AccelerationCompensation(void)
 		#ifdef DEBUG_SENSORS
 		Trace[TAx] = 0;
 		Trace[TAz] = 0;
-		Trace[TAy] = 0;	
+		Trace[TAy] = 0;
+
+		Trace[TUDSum] = 0;
+		Trace[TVud] = 0;
 		#endif
 	}
 } // AccelerationCompensation

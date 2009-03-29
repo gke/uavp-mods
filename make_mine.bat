@@ -14,7 +14,8 @@ rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or OPT_IDG
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.
 rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
 rem RX_DSM2 for AR7000, RX_PPM for serial PPM frame, or RX_DEFAULT for default PPM Graupner/JR etc Rx.
-rem Type of debugging to use. May be DEBUG_MOTORS (3.1 only) or DEBUG_SENSORS.
+rem DEBUG_SENSORS to generate trace files of all main program and sensor values which can be plotted
+rem using UAVPSet (blank option in menu below testsoftware).
 rem Configuration TRICOPTER for three motor and QUAD for 4.
 rem Motors are disabled for DEBUG_SENSORS as there is not enough program space
 rem in the 876 PIC.
@@ -26,7 +27,7 @@ set VERSION=3_15m3_18fexp
 rem Add/Delete required combinations to these sets
 set GYRO=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
 set ESC=ESC_PPM ESC_HOLGER
-set DBG=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
+set DBG=NO_DEBUG DEBUG_SENSORS 
 set RX=RX_DEFAULT RX_DSM2 RX_PPM
 set CFG=QUAD TRICOPTER
 

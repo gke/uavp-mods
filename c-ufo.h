@@ -8,7 +8,8 @@
 // Disable accelerometer roll/pitch compensation when yawing "rapidly"
 // Channel 7 is used to control the threshold - full off means no 
 // accelerometer input. Full on means accelerometer compensation always on.
-//#define ENABLE_ACC_ON_HIGH_YAWRATE
+//#define DISABLE_ACC_ON_HIGH_YAWRATE
+
 // Gyros
 
 // Enable "Dynamic mass" compensation Roll and/or Pitch
@@ -93,14 +94,6 @@
 // special version for Willi Pirngruber :-)
 //#define MOUNT_45
 
-// Debugging output of the 4 motors 
-// Reg. 26 controls if motors should run or not
-// bit 0 = front, 1 = rear, 2 = left, 3 = right
-// if a bit is 1 motor is always stopped, only comport output
-// if a bit is 0 motor is running as normal.
-// so you can test individual axis easily!
-//#define DEBUG_MOTORS
-
 // special mode for sensor data output (with UAVPset)
 //#define DEBUG_SENSORS
 
@@ -131,11 +124,6 @@
 
 // Forces Yaw angle to decay to zero over time.
 #define KILL_YAW_DRIFT
-
-// Motors
-
-// Enables original motor mixing scheme
-#define ENABLE_NEW_MOTOR_MIX
 
 // Misc
 
@@ -301,19 +289,11 @@ extern int16	VBaroComp;
 extern uint8	BaroType, BaroTemp, BaroRestarts;
 
 extern uint8	MCamRoll,MCamPitch;
-
-#ifdef 	ENABLE_NEW_MOTOR_MIX
 extern int16	Motor[NoOfMotors];
-#else
-extern uint8	MFront,MLeft,MRight,MBack;	// output channels
-extern int16	Ml, Mr, Mf, Mb;
-#endif // ENABLE_NEW_MOTOR_MIX
-
 extern int16	Rl,Pl,Yl;	// PID output values
 extern int16	Rp,Pp,Yp,Vud;
 
-extern uint8	Flags[8];
-extern uint8	Flags2[8];
+extern uint8	Flags[16];
 
 extern int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
 extern uint24	RCGlitchCount;
@@ -426,10 +406,6 @@ extern int8	BaroThrottleDiff;	// 28
 #error Define only ONE out of RX_DEFAULT RX_PPM RX_DSM2
 #endif
 
-// check debug settings
-#if defined DEBUG_MOTORS + defined DEBUG_SENSORS > 1
-#error Define only ONE or NONE out of DEBUG_MOTORS DEBUG_SENSORS
-#endif
 // end of sanity checks
 
 #define MAXDROPOUT	200	// max 200x 20ms = 4sec. dropout allowable

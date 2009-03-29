@@ -186,6 +186,10 @@ First public released version.
 - Merged test and flight dource directories removing all
   redundant routines.
 
+29.03.2009 v3.15m3-18f Greg Egan
+- Replaced old motor mixing scheme. Added battery alarm to
+  TestSoftware. Improved vertical velocity damping scheme.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

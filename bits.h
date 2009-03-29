@@ -156,16 +156,16 @@
 #define _UseLISL		Flags[6]	/* 1 if LISL Sensor is used */
 #define	_UseCompass		Flags[7]	/* 1 if compass sensor is enabled */
 
-#define _UseBaro		Flags2[0]	/* 1 if baro sensor active */
-#define _BaroTempRun	Flags2[1]	/* 1 if baro temp a/d conversion is running */
+#define _UseBaro		Flags[8]	/* 1 if baro sensor active */
+#define _BaroTempRun	Flags[9]	/* 1 if baro temp a/d conversion is running */
 									/* 0 means: pressure a/d conversion is running */
-#define _OutToggle		Flags2[2]	/* cam servos only evers 2nd output pulse */								
-#define _UseCh7Trigger	Flags2[3]	/* 1: don't use Ch7 */
+#define _OutToggle		Flags[10]	/* cam servos only evers 2nd output pulse */								
+#define _UseCh7Trigger	Flags[11]	/* 1: don't use Ch7 */
 									/* 0: use Ch7 as Cam Roll trim */
-#define _TrigSign		Flags2[4]	/* used in trig.c */
-#define _BaroRestart	Flags2[5] /* Baro restart required */
-#define _Hovering		Flags2[6]	/* QC is hovering */
-#define _LostModel		Flags2[7]	/* Rx timeout - model lost? */
+#define _TrigSign		Flags[12]	/* used in trig.c */
+#define _BaroRestart	Flags[13] /* Baro restart required */
+#define _Hovering		Flags[14]	/* QC is hovering */
+#define _LostModel		Flags[15]	/* Rx timeout - model lost? */
 
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)
