@@ -114,9 +114,6 @@ uint8 SaturInt(int16 l)
 	return((uint8) r);
 } // SaturInt
 
-
-#ifdef ENABLE_NEW_MOTOR_MIX
-
 void DoMix(int16 CurrGas)
 {
 	int16 Temp;
@@ -211,115 +208,6 @@ void MixAndLimit(void)
 
 } // MixAndLimit
 
-
-#else
-
-void MixAndLimit(void)
-{
-	int16 CurrGas;
-    int16 Temp;
-
-	CurrGas = IGas;	// to protect against IGas being changed in interrupt
-
-	// Altitude stabilization factor
-	CurrGas = CurrGas + (Vud + VBaroComp);
-	Mf = Ml = Mr = CurrGas;
-	#ifndef TRICOPTER
-	Mb = CurrGas;
-	#endif // TRICOPTER
-
-	#ifndef TRICOPTER
-	if( FlyCrossMode )
-	{	// "Cross" Mode
-		Ml +=  Pl - Rl;
-		Mr += -Pl + Rl;
-		Mf += -Pl - Rl;
-		Mb +=  Pl + Rl;
-	}
-	else
-	{	// "Plus" Mode
-		#ifdef MOUNT_45
-		Ml += -Rl - Pl;	
-		Mr +=  Rl + Pl;	
-		Mf +=  Rl - Pl;	
-		Mb += -Rl + Pl;
-		#else
-		Ml += -Rl;
-		Mr +=  Rl;
-		Mf += -Pl;
-		Mb +=  Pl;
-		#endif
-	}
-
-	Mf += Yl;
-	Mb += Yl;
-	Ml -= Yl;
-	Mr -= Yl;
-
-	// if low-throttle limiting occurs, must limit other motor too
-	// to prevent flips!
-
-	if( CurrGas > MotorLowRun )
-	{
-		if( (Mf > Mb) && (Mb < MotorLowRun) )
-		{
-			Temp = Mb - MotorLowRun;
-			Mf += Temp;
-			Ml += Temp;
-			Mr += Temp;
-		}
-		if( (Mb > Mf) && (Mf < MotorLowRun) )
-		{
-			Temp = Mf - MotorLowRun;
-			Mb += Temp;
-			Ml += Temp;
-			Mr += Temp;
-		}
-		if( (Ml > Mr) && (Mr < MotorLowRun) )
-		{
-			Temp = Mr - MotorLowRun;
-			Ml += Temp;
-			Mf += Temp;
-			Mb += Temp;
-		}
-		if( (Mr > Ml) && (Ml < MotorLowRun) )
-		{	
-			Temp = Ml - MotorLowRun;
-			Mr += Temp;
-			Mf += Temp;
-			Mb += Temp;
-		}
-	}
-	#else	// TRICOPTER
-	Temp = SRS16(Rl - Pl, 1); 
-	Motor[Front] += Pl ;			// front motor
-	Motor[Left]  += Temp;			// rear left
-	Motor[Right] -= Temp; 			// rear right
-	Motor[Back]   = Yl + _Neutral;	// yaw servo
-
-	if( CurrGas > MotorLowRun )
-	{
-		if( (Ml > Mr) && (Mr < MotorLowRun) )
-		{
-			Ml += Mr;
-			Ml -= MotorLowRun;
-		}
-		if( (Mr > Ml) && (Ml < MotorLowRun) )
-		{
-			Mr += Ml;
-			Mr -= MotorLowRun;
-		}
-	}
-	#endif
-
-	MFront = SaturInt(Mf);
-	MLeft = SaturInt(Ml);
-	MRight = SaturInt(Mr);
-	MBack = SaturInt(Mb);
-} // MixAndLimit
-
-#endif // ENABLE_NEW_MOTOR_MIX
-
 void MixAndLimitCam(void)
 {
 	int16 Cr, Cp;
@@ -362,17 +250,10 @@ void OutSignals(void)
 	Trace[TIPitch] = IPitch;
 	Trace[TIYaw] = IYaw;
 
-	#ifdef 	ENABLE_NEW_MOTOR_MIX
 	Trace[TMFront] = Motor[Front];
 	Trace[TMBack] = Motor[Back];
 	Trace[TMLeft] = Motor[Left];
 	Trace[TMRight] = Motor[Right];
-	#else
-	Trace[TMFront] = MFront;
-	Trace[TMBack] = MBack;
-	Trace[TMLeft] = MLeft;
-	Trace[TMRight] = MRight;
-	#endif // 	ENABLE_NEW_MOTOR_MIX
 
 	Trace[TMCamRoll] = MCamRoll;
 	Trace[TMCamPitch] = MCamPitch;
@@ -390,35 +271,10 @@ void OutSignals(void)
 	PORTB |= 0x0f;
 	#endif
 
-	#ifdef 	ENABLE_NEW_MOTOR_MIX
 	MF = Motor[Front];
 	MB = Motor[Back];
 	ML = Motor[Left];
 	MR = Motor[Right];
-	#else
-	MF = MFront;
-	MB = MBack;
-	ML = MLeft;
-	MR = MRight;
-	#endif // 	ENABLE_NEW_MOTOR_MIX
-
-	#ifdef DEBUG_MOTORS
-	// if DEBUG_MOTORS is active, CamIntFactor is a bitmap:
-	// bit 0 = no front motor
-	// bit 1 = no rear motor
-	// bit 2 = no left motor
-	// bit 3 = no right motor
-	// bit 4 = turns on the serial output
-
-	if( IsSet(CamPitchFactor,0) )
-		MF = _Minimum;
-	if( IsSet(CamPitchFactor,1) )
-		MB = _Minimum;
-	if( IsSet(CamPitchFactor,2) )
-		ML = _Minimum;
-	if( IsSet(CamPitchFactor,3) )
-		MR = _Minimum;
-	#endif
 
 	MT = MCamRoll;
 	ME = MCamPitch;

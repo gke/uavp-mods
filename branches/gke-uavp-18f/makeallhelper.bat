@@ -42,7 +42,7 @@ if "%ESC%"   == "ESC_PPM"           set E=PPM
 if "%ESC%"   == "ESC_HOLGER"        set E=HOL
 if "%ESC%"   == "ESC_X3D"           set E=X3D
 if "%ESC%"   == "ESC_YGEI2C"        set E=YGE
-if "%DBG%"   == "DEBUG_MOTORS"      set D=Debug_MOTORS-
+rem if "%DBG%"   == "DEBUG_MOTORS"      set D=Debug_MOTORS-
 if "%DBG%"   == "DEBUG_SENSORS"     set D=Debug_SENSORS-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_DSM2"           set R=DSM2-

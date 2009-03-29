@@ -69,13 +69,7 @@ int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
 uint8	MCamRoll,MCamPitch;
-
-#ifdef 	ENABLE_NEW_MOTOR_MIX
 int16	Motor[NoOfMotors];
-#else
-uint8	MFront,MLeft,MRight,MBack;	// output channels
-int16	Ml, Mr, Mf, Mb;
-#endif // ENABLE_NEW_MOTOR_MIX
 
 int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;
@@ -83,8 +77,7 @@ int16	Vud;
 
 int16	Trace[LastTrace];
 
-uint8	Flags[8];
-uint8	Flags2[8];
+uint8	Flags[16];
 uint8	NeutralsAcquired;
 
 int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
@@ -226,8 +219,8 @@ void main(void)
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
 	// setup flags register
-	for ( i = 8; i ; i-- )
-		Flags2[i] = Flags[i] = false; 
+	for ( i = 16; i ; i-- )
+		Flags[i] = false; 
 	_NoSignal = true;		// assume no signal present
 
 	LedShadow = 0;

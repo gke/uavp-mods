@@ -58,24 +58,16 @@ uint8	LedShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
-int8		RCRollNeutral, RCPitchNeutral, RCYawNeutral;
+int8	RCRollNeutral, RCPitchNeutral, RCYawNeutral;
 
 uint8	MCamRoll,MCamPitch;
-
-#ifdef 	ENABLE_NEW_MOTOR_MIX
 int16	Motor[NoOfMotors];
-#else
-uint8	MFront,MLeft,MRight,MBack;	// output channels
-int16	Ml, Mr, Mf, Mb;
-#endif // ENABLE_NEW_MOTOR_MIX
 
-int16	Ml, Mr, Mf, Mb;
 int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
 
-uint8	Flags[8], Flags2[8];
-uint8	EscI2CFlags;
+uint8	Flags[16];
 
 #ifdef DEBUG_SENSORS
 int16	Trace[LastTrace];
@@ -555,8 +547,8 @@ void main(void)
 	INTCONbits.TMR0IE = false;
 
 	// setup flags register
-	for ( i = 0; i<8; i++ )
-		Flags2[i] = Flags[i] = false;
+	for ( i = 0; i<16; i++ )
+		Flags[i] = false;
 
 	_NoSignal = true;
 	InitArrays();
