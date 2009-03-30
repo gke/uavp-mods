@@ -201,7 +201,7 @@ void PID(void)
 {
 	#ifdef DISABLE_ACC_ON_HIGH_YAWRATE
 	AverageYawRate = YawRate; //HardFilter(AverageYawRate, YawRate);
-	if ( Abs(AverageYawRate)  > (IK7 * 4) )
+	if ( Abs(AverageYawRate)  > IK7 )
 		LedYellow_ON;	// no compensation
 	else
 	{

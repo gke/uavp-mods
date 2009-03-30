@@ -2,7 +2,7 @@
 
 // Accelerometer
 
-// Enable vertical acceleration compensation 
+// Enable vertical acclerometer compensation of vertical velocity 
 //#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Disable accelerometer roll/pitch compensation when yawing "rapidly"
