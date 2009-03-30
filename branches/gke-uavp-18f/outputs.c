@@ -100,20 +100,6 @@ void SendEscI2CByte(uint8 d)
 
 #endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
 
-uint8 SaturInt(int16 l)
-{
-	int16 r;
-
-	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
-	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
-	#endif
-
-	#ifdef ESC_X3D
-	r = Limit(l - _Minimum, 200, 200);
-	#endif
-	return((uint8) r);
-} // SaturInt
-
 void DoMix(int16 CurrGas)
 {
 	int16 Temp;
