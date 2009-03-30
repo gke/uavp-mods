@@ -411,10 +411,7 @@ void AnalogTest(void)
 	TxString("Batt:\t");
 	TxVal32(v, 2, 'V');
 	if ( v < 900 )
-	{
 		TxString(" ** LIPO ALARM < 9V ** ");
-		Beeper_ON;
-	}
 	else	
 	if ( v < 950 )
 		TxString(" ** LOW < 9.5V ** ");
