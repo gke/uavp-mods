@@ -24,11 +24,7 @@
 // CC5X Compiler parameters:
 // -CC -fINHX8M -a -L -Q -V -FM -DMATHBANK_VARS=bank0 -DMATHBANK_PROG=2
 
-#ifdef ICD2_DEBUG
-#pragma	config OSC=HS, WDT=OFF, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC
-#else
 #pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
-#endif
 
 #include "c-ufo.h"
 #include "bits.h"
@@ -245,11 +241,7 @@ void main(void)
 	Delay100mSWithOutput(1);	// wait 1/10 sec until LISL is ready to talk
 
 	#ifdef USE_ACCELEROMETER
-	IsLISLactive();
-	#ifdef ICD2_DEBUG
-	_UseLISL = true;	// because debugger uses RB7 (=LISL-CS) :-(
-	#endif
-
+	IsLISLactive();	
 	NeutralLR = 0;
 	NeutralFB = 0;
 	NeutralUD = 0;
