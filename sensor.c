@@ -143,31 +143,26 @@ void InitDirection(void)
 {
 	// 20Hz continuous read with periodic reset.
 	#define COMP_OPMODE 0b01110010
-	#define COMP_MULT	16
 
 	// Set device to Compass mode 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(0x74) != I2C_ACK ) goto CTerror;
-
-	// select operation mode, standby mode
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	// set EEPROM shadow register
-	I2CStart();
+	I2CStart(); // save operation mode in EEPROM
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('w')  != I2C_ACK ) goto CTerror;
-	if( SendI2CByte(0x08) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('L')  != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(2);
+	Delay1mS(50);
 
 	// use default heading mode (1/10th degrees)
 
 	_UseCompass = true;
+	return;
 CTerror:
 	_UseCompass = false;
 	I2CStop();
@@ -185,56 +180,47 @@ void GetDirection(void)
 	if( _UseCompass  ) // continuous mode but Compass only updates avery 50mS
 	{
 		// set Compass device to Compass mode 
-		I2CStart();
-
-		if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) 
+		I2CStart();		
+		Compass = (uint16)RecvI2CByte(I2C_ACK)*256 | RecvI2CByte(I2C_NACK);
+		I2CStop();
+	
+		// DirVal has 1/10th degrees
+		// convert to set 360.0 deg = 240 units
+		Compass /= 15;
+		DirVal = Compass;
+	
+		// must use pre-decrement, because of dumb compiler
+		if( AbsDirection > COMPASS_MAX )
 		{
-			I2CStop();
-			CurDeviation = 0;	// no sensor present, deviation = 0
+			CurDeviation = 0;
+			AbsDirection--;
 		}
 		else
-		{		
-			Compass = (uint16)RecvI2CByte(I2C_ACK)*256 | RecvI2CByte(I2C_NACK);
-			I2CStop();
-	
-			// DirVal has 1/10th degrees
-			// convert to set 360.0 deg = 240 units
-			Compass /= 15;
-			DirVal = Compass;
-	
-			// must use pre-decrement, because of dumb compiler
-			if( AbsDirection > COMPASS_MAX )
+		{
+			// setup desired heading (AbsDirection)
+			if( AbsDirection == COMPASS_MAX )	// no heading stored yet
 			{
+				AbsDirection = DirVal;	// store current heading
 				CurDeviation = 0;
-				AbsDirection--;
 			}
+			// calc deviation and direction of deviation
+			DirVal = AbsDirection - DirVal;
+			// handle wraparound
+			if( DirVal <= -240/2 ) 
+				DirVal +=  240;
 			else
-			{
-				// setup desired heading (AbsDirection)
-				if( AbsDirection == COMPASS_MAX )	// no heading stored yet
-				{
-					AbsDirection = DirVal;	// store current heading
-					CurDeviation = 0;
-				}
-				// calc deviation and direction of deviation
-				DirVal = AbsDirection - DirVal;
-				// handle wraparound
-				if( DirVal <= -240/2 ) 
-					DirVal +=  240;
-				else
-					if( DirVal > 240/2 ) 
-						DirVal -=  240;
+				if( DirVal > 240/2 ) 
+					DirVal -=  240;
 	
-				// positive means ufo is left off-heading
-				// negative means ufo is right off-heading
+			// positive means ufo is left off-heading
+			// negative means ufo is right off-heading
 	
-				DirVal = Limit(DirVal, -20, 20); // limit to give soft reaction
+			DirVal = Limit(DirVal, -20, 20); // limit to give soft reaction
 	
-				// Empirical found :-)
-				// New_CurDev = ((3*Old_CurDev) + DirVal) / 4
-				CurDeviation = SRS16((((int16)CurDeviation *3 + DirVal) << 2) 
+			// Empirical found :-)
+			// New_CurDev = ((3*Old_CurDev) + DirVal) / 4
+			CurDeviation = SRS16((((int16)CurDeviation *3 + DirVal) << 2) 
 								* (int16)CompassFactor, 8);
-			}
 		}
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )

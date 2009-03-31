@@ -339,9 +339,7 @@ void CalibrateCompass(void)
 	if( SendI2CByte('E')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	Beeper_ON;
-	Delay1mS(100);
-	Beeper_OFF;
+	Delay1mS(50);
 
 	TxString("OK\r\n");
 	return;
