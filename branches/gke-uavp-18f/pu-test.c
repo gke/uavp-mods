@@ -413,14 +413,6 @@ void AnalogTest(void)
 	else	
 	if ( v < 950 )
 		TxString(" ** LOW < 9.5V ** ");
-	
-	TxNextLine();
-
-	// Roll
-	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxVal32(ADCRollChan, 0, ' ');
-	TxString("Roll: \t"); 
-	TxVal32(v, 3, 'V'); 
 	TxNextLine();
 
 	// Pitch
@@ -430,17 +422,24 @@ void AnalogTest(void)
 	TxVal32(v, 3, 'V');	
 	TxNextLine();
 
-	// Yaw
-	v = ((int24)ADC(ADCYawChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxVal32(ADCPitchChan, 0, ' ');
-	TxString("Yaw:  \t");
-	TxVal32(v, 3, 'V');	
+	// Roll
+	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	TxVal32(ADCRollChan, 0, ' ');
+	TxString("Roll: \t"); 
+	TxVal32(v, 3, 'V'); 
 	TxNextLine();
 
 	// VRef
 	v = ((int24)ADC(ADCVRefChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
 	TxVal32(ADCVRefChan, 0, ' ');	
 	TxString("Ref:  \t");	
+	TxVal32(v, 3, 'V');	
+	TxNextLine();
+
+	// Yaw
+	v = ((int24)ADC(ADCYawChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	TxVal32(ADCYawChan, 0, ' ');
+	TxString("Yaw:  \t");
 	TxVal32(v, 3, 'V');	
 	TxNextLine();
 
