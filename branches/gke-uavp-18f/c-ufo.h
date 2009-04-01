@@ -3,7 +3,7 @@
 // Accelerometer
 
 // Enable vertical acclerometer compensation of vertical velocity 
-//#define ENABLE_VERTICAL_VELOCITY_DAMPING
+#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
 
@@ -47,6 +47,8 @@
 // ==============================================
 // == Global compiler switches
 // ==============================================
+
+#define CLOCK_16MHZ
 
 // Only one of the following 3 defines must be activated:
 // When using 3 ADXRS300 gyros
@@ -107,6 +109,7 @@
 #define BARO_HARD_FILTER
 
 // Make a "scratchy" beeper noise while altitude hold is engaged.
+// A better method is to use the auxilliary LEDs - see Manual.
 #define BARO_SCRATCHY_BEEPER
 
 // Accelerometers
@@ -285,7 +288,7 @@ extern uint8	Flags[16];
 extern int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
 extern uint24	RCGlitchCount;
 extern int8		Rw,Pw;	// angles
-extern   int8	BatteryVolts; 
+extern int8		BatteryVolts; 
 
 extern uint8	LedShadow;	// shadow register
 extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
@@ -335,7 +338,12 @@ extern int8	BaroThrottleDiff;	// 28
 
 // end of "order-block"
 
-#define _ClkOut		(160/4)	/* 16.0 MHz quartz */
+#ifdef CLOCK_16MHZ
+#define _ClkOut		(160/4)	/* 16.0 MHz Xtal */
+#else // CLOCK_40MHZ
+NOT IMPLEMENTED YET #define _ClkOut		(400/4)	/* 10.0 MHz Xtal * 4 PLL */
+#endif
+
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
 #define _PreScale1	8	/* 1:8 TMR1 prescaler */
 #define _PreScale2	16

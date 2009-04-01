@@ -10,7 +10,7 @@ rem Greg Egan 2008-2009
 rem
 rem Uses: makeallhelper.bat and makeclean.bat
 rem
-rem Clock rate CLOCK_16MHZ CLOCK_40MHZ
+rem Clock rate CLOCK_16MHZ (Only 16MHZ available for UAVP version)
 rem Type of PIC processor 18F2620 and 18F2520
 rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or OPT_IDG
 rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.

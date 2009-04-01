@@ -100,6 +100,21 @@ void SendEscI2CByte(uint8 d)
 
 #endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
 
+uint8 SaturInt(int16 l)
+{
+	int16 r;
+
+	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
+	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
+	#endif
+
+	#ifdef ESC_X3D
+	l -= _Minimum;
+	r = Limit(l, 1, 200);
+	#endif
+	return((uint8) r);
+} // SaturInt
+
 void DoMix(int16 CurrGas)
 {
 	int16 Temp;
@@ -157,23 +172,29 @@ void CheckDemand(int16 CurrGas)
 
 	DemandSwing = MaxMotor - CurrGas;
 
-	if ( DemandSwing > 0 )
-	{		
-		ScaleHigh = (( _Maximum - (int24)CurrGas) * 256 )/ DemandSwing;	 
-		ScaleLow = (( (int24)CurrGas - MotorLowRun) * 256 )/ DemandSwing;
-		Scale = Min(ScaleHigh, ScaleLow);
-		if ( Scale < 256 )
-		{
-			MotorDemandRescale = true;
-			Rl = (Rl * Scale + 128)/256;  
-			Pl = (Pl * Scale + 128)/256; 
-			Yl = (Yl * Scale + 128)/256; 
-		}
-		else
-			 MotorDemandRescale = false;	
+	if ( CurrGas < MotorLowRun )
+	{
+		Scale = 0;
+		MotorDemandRescale = true;
 	}
 	else
-		MotorDemandRescale = false;	
+		if ( DemandSwing > 0 )
+		{		
+			ScaleHigh = (( _Maximum - (int24)CurrGas) * 256 )/ DemandSwing;	 
+			ScaleLow = (( (int24)CurrGas - MotorLowRun) * 256 )/ DemandSwing;
+			Scale = Min(ScaleHigh, ScaleLow);
+			if ( Scale < 256 )
+			{
+				MotorDemandRescale = true;
+				Rl = (Rl * Scale + 128)/256;  
+				Pl = (Pl * Scale + 128)/256; 
+				Yl = (Yl * Scale + 128)/256; 
+			}
+			else
+				 MotorDemandRescale = false;	
+		}
+		else
+			MotorDemandRescale = false;	
 
 } // CheckDemand
 
@@ -191,6 +212,11 @@ void MixAndLimit(void)
 
 	if ( MotorDemandRescale )
 		DoMix(CurrGas);
+
+	Motor[Front] = SaturInt(Motor[Front]);
+	Motor[Back] = SaturInt(Motor[Back]);
+	Motor[Left] = SaturInt(Motor[Left]);
+	Motor[Right] = SaturInt(Motor[Right]);
 
 } // MixAndLimit
 
