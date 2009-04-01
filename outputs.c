@@ -207,14 +207,10 @@ void MixAndLimitCam(void)
 	else
 		Cr = Cp = _Minimum;
 
-	#ifdef ENABLE_ACC _ON_HIGH_YAWRATE
 	if( _UseCh7Trigger )
 		Cr += _Neutral;
 	else
 		Cr += IK7;
-	#else
-	Cr += _Neutral; // use IK7 for Yaw Rate threshold control
-	#endif // ENABLE_ACC _ON_HIGH_YAWRATE
 		
 	Cp += IK6;		// only Pitch servo is controlled by channel 6
 

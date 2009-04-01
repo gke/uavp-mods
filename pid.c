@@ -74,10 +74,8 @@ void LimitYawSum(void)
 	YawSum += (int16)YE;
 	YawSum = Limit(YawSum, -YawIntLimit*256, YawIntLimit*256);
 
-	#ifdef KILL_YAW_DRIFT
 	YawSum = Decay(YawSum); // GKE added to kill gyro drift
 	YawSum = Decay(YawSum); 
-	#endif // KILL_YAW_DRIFT
 
 } // LimitYawSum
 
@@ -199,18 +197,8 @@ void CalcGyroValues(void)
 
 void PID(void)
 {
-	#ifdef DISABLE_ACC_ON_HIGH_YAWRATE
-	AverageYawRate = YawRate; //HardFilter(AverageYawRate, YawRate);
-	if ( Abs(AverageYawRate)  > IK7 )
-		LedYellow_ON;	// no compensation
-	else
-	{
-		LedYellow_OFF;
-		AccelerationCompensation();
-	}
-	#else
-		AccelerationCompensation();
-	#endif // DISABLE_ACC_ON_HIGH_YAWRATE	
+
+	AccelerationCompensation();	
 	
 	// PID controller
 	// E0 = current gyro error

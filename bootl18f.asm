@@ -29,14 +29,12 @@
 ;	loader records do not cross 32 byte boundaries
 ;	16 bit addressing of program memory
 
-#define __18F2520
-
         LIST C=200,R=dec
 
 ; config is already defined in main routine!
 ;        config=3F72h
-        
-        include "p18f2520.inc"
+
+		include "p18cxxx.inc"     
         include "general.asm"
 
 		_B38400			equ		25
@@ -64,7 +62,11 @@
 		endc
 	
 		code
-		org		07d00h				
+#ifdef __18F2620
+		org		0fd00h
+#else
+		org		07d00h
+#endif				
 		global	BootStart
 
 BootStart

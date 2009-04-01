@@ -7,9 +7,10 @@ rem Helper script for makeall.bat
 rem =======================================================
 rem parameters passed are:
 set 	VERSION=%1
-set 	GYRO=%2
-set 	ESC=%3
-set 	RX=%4
+set	PROC=%2
+set 	GYRO=%3
+set 	ESC=%4
+set 	RX=%5
 
 set CSRC=adc irq lisl prog pu-test sensor serial menu-test utils
 set ASRC=bootl18f
@@ -18,10 +19,10 @@ set CC="C:\MCC18\bin\mcc18"
 rem set CCMD=   -DBATCHMODE -DTEST_SOFTWARE 
 set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa- -DBATCHMODE -DTEST_SOFTWARE 
 
-set ACMD=/o+ /e+ /l+ /x- /p%PIC% /c+ /q
-set AEXE="%ProgramFiles%\microchip\MPASM Suite\MPASMwin.exe"
+set ACMD=/q /p%PROC% %%i.asm /l%%i.lst /e%%i.err /o%%i.o
+set AEXE="C:\MCC18\mpasm\mpasmwin.exe"
 
-set LCMD=/p%PIC% /l"C:\MCC18\lib" /k"C:\MCC18\lkr"
+set LCMD=/p%PROC% /l"C:\MCC18\lib" /k"C:\MCC18\lkr"
 set LEXE="C:\MCC18\bin\mplink.exe"
 
 rem Set all the name tokens for the HEX files
@@ -56,23 +57,23 @@ rem the mathematics module.
 rem The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 rem As a consequence there are several warnings on bank allocation in the compile.
 
-for %%i in ( %CSRC% ) do %CC% -p=%PIC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
+for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
 
-for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% >> log.lst
+for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVPTest-V%VERSION%-%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVPTest-V%VERSION%%PROC%-%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - UAVPTest-V%VERSION%-%D%%T%%G%%R%%E%.hex
-echo compiled - UAVPTest-V%VERSION%-%D%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - UAVPTest-V%VERSION%%PROC%-%D%%T%%G%%R%%E%.hex
+echo compiled - UAVPTest-V%VERSION%%PROC%-%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - UAVPTest-V%VERSION%-%T%%G%%R%%E%.hex
-echo failed - UAVPTest-V%VERSION%-%T%%G%%R%%E%.hex >> gen.lst
+echo failed - UAVPTest-V%VERSION%%PROC%-%T%%G%%R%%E%.hex
+echo failed - UAVPTest-V%VERSION%%PROC%-%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH

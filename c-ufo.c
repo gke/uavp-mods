@@ -50,7 +50,6 @@ int8	NeutralLR, NeutralFB, NeutralUD;
 int16 	UDSum;
 
 // Failsafes
-int8	RCRollNeutral, RCPitchNeutral, RCYawNeutral;
 uint8	ThrNeutral;
 
 // Variables for barometric sensor PD-controller
@@ -224,8 +223,6 @@ void main(void)
 
 	InitArrays();
 
-	RCRollNeutral = RCPitchNeutral = RCYawNeutral = _Neutral;
-
 	#ifdef INIT_PARAMS
 	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
 		WriteEE(i, -1);
@@ -310,16 +307,6 @@ Restart:
 	
 		while ( Switch == 1 )
 		{
-			#ifdef ADJUST_STICK_NEUTRALS
-			if ( !NeutralsAcquired )
-			{
-				RCRollNeutral += IRoll;
-				RCPitchNeutral += IPitch;
-				RCYawNeutral += IYaw;
-				NeutralsAcquired = true;
-			}
-			#endif // ADJUST_STICK_NEUTRALS					
-
 			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			WriteTimer0(0);
 			INTCONbits.TMR0IF = false;
