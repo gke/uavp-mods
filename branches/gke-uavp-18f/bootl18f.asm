@@ -34,10 +34,16 @@
 ; config is already defined in main routine!
 ;        config=3F72h
 
-		include "p18cxxx.inc"     
+	include "p18cxxx.inc"     
         include "general.asm"
 
-		_B38400			equ		25
+		; need to include clock for baud calculation
+#ifdef CLOCK_16MHZ
+		_ClkOut			equ		(160/4)
+#else
+		_ClkOut			equ		(400/4)
+#endif
+		_B38400			equ		(_ClkOut*100000/(4*38400) - 1)
 		_RestoreVec		equ		0
 		_MaxRxBuffer	equ		80	;normal max 64 hex chars + tags
 

@@ -20,7 +20,7 @@ set CC="C:\MCC18\bin\mcc18"
 rem set CCMD=   -DBATCHMODE -DTEST_SOFTWARE 
 set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa- -DBATCHMODE -DTEST_SOFTWARE 
 
-set ACMD=/q /p%PROC% %%i.asm /l%%i.lst /e%%i.err /o%%i.o
+set ACMD=/q /d%CLOCK% /p%PROC% %%i.asm /l%%i.lst /e%%i.err /o%%i.o
 set AEXE="C:\MCC18\mpasm\mpasmwin.exe"
 
 set LCMD=/p%PROC% /l"C:\MCC18\lib" /k"C:\MCC18\lkr"
