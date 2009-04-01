@@ -147,16 +147,16 @@ void high_isr_handler(void)
 					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
 					{
 						IGas = NewK3 & 0xff;
-						IRoll = (NewK1 & 0xff) - (int16)RCRollNeutral;
-						IPitch = (NewK2 & 0xff) - (int16)RCPitchNeutral;
+						IRoll = (NewK1 & 0xff) - (int16)_Neutral;
+						IPitch = (NewK2 & 0xff) - (int16)_Neutral;
 					}
 					else
 					{
 						IGas  = NewK1  & 0xff;
-						IRoll = (NewK2 & 0xff) - (int16)RCRollNeutral;
-						IPitch = (NewK3 & 0xff) - (int16)RCPitchNeutral;
+						IRoll = (NewK2 & 0xff) - (int16)_Neutral;
+						IPitch = (NewK3 & 0xff) - (int16)_Neutral;
 					}
-					IYaw = (NewK4 & 0xff) - (int16)RCYawNeutral;					
+					IYaw = (NewK4 & 0xff) - (int16)_Neutral;					
 					IK5 = NewK5 & 0xff;
 
 					_NoSignal = false;
@@ -180,9 +180,9 @@ void high_isr_handler(void)
 			// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
 					IGas = NewK5 & 0xff;
 
-					IRoll = (NewK3 & 0xff) - (int16)RCRollNeutral; 
-					IPitch = (NewK2 & 0xff) - (int16)RCPitchNeutral;
-					IYaw = (NewK1 & 0xff) - (int16)RCYawNeutral;
+					IRoll = (NewK3 & 0xff) - (int16)_Neutral; 
+					IPitch = (NewK2 & 0xff) - (int16)_Neutral;
+					IYaw = (NewK1 & 0xff) - (int16)_Neutral;
 
 					IK5 = NewK6 & 0xff; // do not filter
 					IK6 = NewK4 & 0xff;
@@ -193,9 +193,9 @@ void high_isr_handler(void)
 				{
 					IGas = NewK6 & 0xff;
 
-					IRoll = (int16)(NewK1 & 0xff) - (int16)RCRollNeutral; 
-					IPitch = (int16)(NewK4 & 0xff) - (int16)RCPitchNeutral;
-					IYaw = (int16)(NewK7 & 0xff) - (int16)RCYawNeutral;
+					IRoll = (int16)(NewK1 & 0xff) - (int16)_Neutral; 
+					IPitch = (int16)(NewK4 & 0xff) - (int16)_Neutral;
+					IYaw = (int16)(NewK7 & 0xff) - (int16)_Neutral;
 
 					IK5 = NewK3 & 0xff; // do not filter
 					IK6 = NewK5 & 0xff;

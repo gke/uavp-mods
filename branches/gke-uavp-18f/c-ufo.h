@@ -5,17 +5,12 @@
 // Enable vertical acclerometer compensation of vertical velocity 
 //#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
-// Disable accelerometer roll/pitch compensation when yawing "rapidly"
-// Channel 7 is used to control the threshold - full off means no 
-// accelerometer input. Full on means accelerometer compensation always on.
-//#define DISABLE_ACC_ON_HIGH_YAWRATE
-
 // Gyros
 
 // Enable "Dynamic mass" compensation Roll and/or Pitch
 // Normally enabled for Roll only 
 #define ENABLE_DYNAMIC_MASS_COMP_ROLL
-//#define ENABLE_DYNAMIC_MASS_COMP_PITCH
+#define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
 // Barometer
 
@@ -122,15 +117,8 @@
 
 // Gyros
 
-// Forces Yaw angle to decay to zero over time.
-#define KILL_YAW_DRIFT
 
 // Misc
-
-// Takes the settings of Roll, Pitch and Yaw as Neutral values just as
-// the ARMING switch is activated. This is done ONLY ONCE after power up.
-// Ensure Tx trims are neutral before applying power if this option is used.
-//#define ADJUST_STICK_NEUTRALS
 
 // Loads a "representative" parameter set into EEPROM
 //#define INIT_PARAMS
@@ -278,7 +266,6 @@ extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDSum;
 
 // Failsafes
-extern int8		RCRollNeutral, RCPitchNeutral, RCYawNeutral;
 extern uint8	ThrNeutral;
 			
 // Variables for barometric sensor PD-controller
