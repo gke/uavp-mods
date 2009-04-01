@@ -7,12 +7,13 @@ rem =======================================================
 rem parameters passed are:
 
 set	VERSION=%1
-set 	PROC=%2
-set 	GYRO=%3
-set 	ESC=%4
-set 	DBG=%5
-set 	RX=%6
-set 	CFG=%7
+set	CLOCK=%2
+set 	PROC=%3
+set 	GYRO=%4
+set 	ESC=%5
+set 	DBG=%6
+set 	RX=%7
+set 	CFG=%8
 
 set CSRC=accel adc c-ufo irq lisl menu pid prog sensor serial utils outputs
 set ASRC=bootl18f
@@ -47,6 +48,9 @@ if "%DBG%"   == "DEBUG_SENSORS"     set D=Debug_SENSORS-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_DSM2"           set R=DSM2-
 if "%CFG%"    == "TRICOPTER"           set C=TRI-
+if "%CLOCK%"    == "CLOCK_16MHZ"           set X=_16
+if "%CLOCK%"    == "CLOCK_40MHZ"           set X=_40
+
 
 rem Build the list of expected object files
 set F=
@@ -59,23 +63,23 @@ rem the mathematics module.
 rem The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
 rem As a consequence there are several warnings on bank allocation in the compile.
 
-for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
+for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -D%CLOCK% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
 
 for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVP-V%VERSION%%PROC%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVP-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - UAVP-V%VERSION%%PROC%-%C%%D%%T%%G%%R%%E%.hex
-echo compiled - UAVP-V%VERSION%%PROC%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - UAVP-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex
+echo compiled - UAVP-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - UAVP-V%VERSION%%PROC%-%C%%D%%T%%G%%R%%E%.hex
-echo failed - UAVP-V%VERSION%%PROC%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo failed - UAVP-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex
+echo failed - UAVP-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH
