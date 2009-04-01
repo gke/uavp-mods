@@ -3,7 +3,7 @@
 ;// =                   U.A.V.P Brushless UFO Controller                  =
 ;// =                         Professional Version                        =
 ;// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-;// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+;// =              Original (c) 2007 Ing. Wolfgang Mahringer              =
 ;// =                          http://www.uavp.org                        =
 ;// =======================================================================
 
@@ -22,30 +22,31 @@
 ;//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ; Version
-; 1.0 .... Erste Version
+; 1.0 .... W. Mahringer?
 ; 2.0 .... G.K. Egan 2008
 
 ; Assumptions:
-;	loader records do not cross 32 byte boundaries
-;	16 bit addressing of program memory
+; -loader records do not cross 32 byte boundaries
+; -16 bit addressing of program memory
 
         LIST C=200,R=dec
-
-; config is already defined in main routine!
-;        config=3F72h
 
 	include "p18cxxx.inc"     
         include "general.asm"
 
 		; need to include clock for baud calculation
-#ifdef CLOCK_16MHZ
+		#ifdef CLOCK_16MHZ
 		_ClkOut			equ		(160/4)
-#else
+		#else // CLOCK_40MHZ
 		_ClkOut			equ		(400/4)
-#endif
-		_B38400			equ		(_ClkOut*100000/(4*38400) - 1)
+		#endif
+
+		; use 38400 Baud throughout for now.
+		_B38400			equ		(_ClkOut*100000/(4*38400) - 1)
+
+
 		_RestoreVec		equ		0
-		_MaxRxBuffer	equ		80	;normal max 64 hex chars + tags
+		_MaxRxBuffer		equ		80	;normal max 64 hex chars + tags
 
 		; RAM variables all in Bank 0
 		cblock 16
@@ -68,11 +69,12 @@
 		endc
 	
 		code
-#ifdef __18F2620
+		#ifdef __18F2620
 		org		0fd00h
-#else
+		#else
 		org		07d00h
-#endif				
+		#endif
+				
 		global	BootStart
 
 BootStart

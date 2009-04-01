@@ -24,7 +24,11 @@
 // CC5X Compiler parameters:
 // -CC -fINHX8M -a -L -Q -V -FM -DMATHBANK_VARS=bank0 -DMATHBANK_PROG=2
 
+#ifdef CLOCK_16MHZ
 #pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
+#else // CLOCK_40MHz
+#pragma	config OSC=HSPLL, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
+#endif
 
 #include "c-ufo.h"
 #include "bits.h"
