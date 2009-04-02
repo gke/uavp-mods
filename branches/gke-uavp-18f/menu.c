@@ -182,7 +182,7 @@ void ProcessComCommand(void)
 	
 				if( addr ==  (&ConfigParam - &FirstProgReg) )
 					d &=0xf7; // no Double Rates
-	
+
 				WriteEE(addrbase + (uint16)addr, d);
 	
 				// update transmitter config bits in the other parameter set
@@ -197,6 +197,16 @@ void ProcessComCommand(void)
 					d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
 					WriteEE(addrbase + (uint16)addr, d);
 				}
+
+				// this is not strictly necessary as UAVPSet enforces it.
+				// Hovever direct edits of parameter files can easily exceed
+				// intermediate arithmetic limits.
+				if ( ((int16)Abs(YawIntFactor) * (int16)YawIntLimit) > 127 )
+				{
+					d = 127 / YawIntFactor;
+					WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
+				}
+
 				LedBlue_OFF;
 				ShowPrompt();
 				break;
