@@ -1,5 +1,16 @@
 // EXPERIMENTAL
 
+// Navigation
+
+#define MAX_ANGLE 20
+
+#define RX_INTERRUPTS
+
+#define ENABLE_AUTONOMOUS
+
+#define USE_GPS
+#define GPS_NMEA
+
 // Accelerometer
 
 // Enable vertical acclerometer compensation of vertical velocity 
@@ -47,8 +58,6 @@
 // ==============================================
 // == Global compiler switches
 // ==============================================
-
-#define CLOCK_16MHZ
 
 // Only one of the following 3 defines must be activated:
 // When using 3 ADXRS300 gyros
@@ -141,7 +150,7 @@
 #define DEBUG
 #endif
 
-#define Version	"3.15m3_18f"
+#define Version	"3.15m3gps_18f"
 
 // ==============================================
 // == Additional declarations etc for C18 port
@@ -172,6 +181,27 @@
 #define true 1
 #define false 0
 
+#define EarthR (real32)(6378140.0)
+#define Pi (real32)(3.141592654)
+#define RecipEarthR (real32)(1.5678552E-7)
+
+#define DEGTOM (real32)(111319.5431531) 
+#define MILLIPI 3142 
+#define CENTIPI 314 
+#define HALFMILLIPI 1571 
+#define TWOMILLIPI 6284
+
+#define MILLIRAD 18 
+#define CENTIRAD 2
+#define DEGMILLIRAD (real32)(17.453292) 
+#define DECIDEGMILLIRAD (real32)(1.7453292)
+#define MILLIRADDEG (real32)(0.05729578)
+#define MILLIRADDEG100 (real32)(5.729578)
+#define CENTIRADDEG (real32)(0.5729578)
+#define DEGRAD (real32)(0.017453292)
+#define RADDEG (real32)(57.2957812)
+#define RADDEG1000000 (real32)(57295781.2)
+
 #define MAXINT32 0x7fffffff;
 #define	MAXINT16 0x7fff;
 
@@ -183,6 +213,8 @@ typedef short long int24;
 typedef unsigned short long uint24;
 typedef long int32;
 typedef unsigned long uint32;
+typedef uint8 boolean;
+typedef float real32;
 
 #define Set(S,b) 		((uint8)(S|=(1<<b)))
 #define Clear(S,b) 		((uint8)(S&=(~(1<<b))))
@@ -239,6 +271,7 @@ typedef unsigned long uint32;
 // == External variables
 // ==============================================
 
+
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
 				TUDSum, TVud,
@@ -263,10 +296,14 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate;
 extern int16	AverageYawRate, YawRate;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
+extern	int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, CompassHeading;
 extern int16	Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDSum;
+
+// GPS
+extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
 
 // Failsafes
 extern uint8	ThrNeutral;
@@ -283,7 +320,7 @@ extern int16	Motor[NoOfMotors];
 extern int16	Rl,Pl,Yl;	// PID output values
 extern int16	Rp,Pp,Yp,Vud;
 
-extern uint8	Flags[16];
+extern uint8	Flags[32];
 
 extern int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
 extern uint24	RCGlitchCount;
@@ -293,6 +330,12 @@ extern int8		BatteryVolts;
 extern uint8	LedShadow;	// shadow register
 extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern int16	CurDeviation;	// deviation from correct heading
+
+#define RXBUFFMASK	63L
+#ifdef RX_INTERRUPTS
+extern uint8 RxCheckSum, RxHead, RxTail;
+extern uint8 RxBuff[RXBUFFMASK+1];
+#endif // RX_INTERRUPTS
 
 #ifdef DEBUG_SENSORS
 extern int16	Trace[LastTrace];
@@ -338,11 +381,11 @@ extern int8	BaroThrottleDiff;	// 28
 
 // end of "order-block"
 
-#ifdef CLOCK_16MHZ
+//#ifdef CLOCK_16MHZ
 #define _ClkOut		(160/4)	/* 16.0 MHz Xtal */
-#else // CLOCK_40MHZ
-NOT IMPLEMENTED YET #define _ClkOut		(400/4)	/* 10.0 MHz Xtal * 4 PLL */
-#endif
+//#else // CLOCK_40MHZ
+//NOT IMPLEMENTED YET #define _ClkOut		(400/4)	/* 10.0 MHz Xtal * 4 PLL */
+//#endif
 
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
 #define _PreScale1	8	/* 1:8 TMR1 prescaler */
@@ -426,6 +469,19 @@ NOT IMPLEMENTED YET #define _ClkOut		(400/4)	/* 10.0 MHz Xtal * 4 PLL */
 
 extern void BootStart(void);
 
+// autonomous.c
+extern void AcquireSatellites(void);
+extern void ReturnHome(void);
+extern void HoldStation(void);
+
+// gps.c
+extern void InitGPS(void);
+extern void PollGPS(void);
+extern void ParseGPSSentence(void);
+extern void UpdateGPS(void);
+extern void GPSAltitudeHold(int16);
+extern void GPSHeadingHold(int16);
+
 extern void ShowSetup(uint8);
 extern void ProcessComCommand(void);
 extern void TxNextLine(void);
@@ -439,6 +495,7 @@ extern void TxValS(int8);
 extern void TxValH16(uint16);
 extern void TxVal32(int32, int8, uint8);
 extern void TxNextLine(void);
+extern uint8 PollRxChar(void);
 extern uint8 RxChar(void);
 extern uint8 RxNumU(void);
 extern int8 RxNumS(void);
@@ -516,6 +573,7 @@ extern const uint8  SerSetup[];
 extern const uint8 SerPrompt[];
 
 extern void AnalogTest(void);extern void DoCompassTest(void);
+extern void GPSTest(void);
 extern void CalibrateCompass(void);
 extern void PowerOutput(int8);
 extern void ReceiverTest(void);

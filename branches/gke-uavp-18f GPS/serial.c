@@ -95,28 +95,59 @@ void TxValH16(uint16 v)
 	TxValH(v);
 } // TxValH16
 
+#ifdef RX_INTERRUPTS
 uint8 RxChar(void)
 {
-	uint8 ch;
-	
+	uint8	ch;
+
+	ch = RxBuff[RxHead];
+	//	DisableInterrupts;
+	RxHead = (RxHead + 1) & RXBUFFMASK;
+	//	EnableInterrupts;
+
+	return(ch);	
+} // RxChar
+#endif // RX_INTERRUPTS
+
+uint8 PollRxChar(void)
+{
+	uint8	ch;	
+
+	#ifdef RX_INTERRUPTS
+	if ( RxTail != RxHead )
+	{
+		ch = RxBuff[RxHead];
+	//	DisableInterrupts;
+		RxHead = (RxHead + 1) & RXBUFFMASK;
+	//	EnableInterrupts;	
+	}
+	else
+		ch = NUL;
+
+	return(ch);
+
+	#else
+
 	if( PIR1bits.RCIF )	// a character is waiting in the buffer
 	{
 		if( RCSTAbits.OERR || RCSTAbits.FERR )	// overrun or framing error?
 		{
 			RCSTAbits.CREN = false;	// disable, then re-enable port to
 			RCSTAbits.CREN = true;	// reset OERR and FERR bit
-			ch = RCREG;				// dummy read
+			ch = RCREG;	// dummy read
 		}
 		else
 		{
-			ch = RCREG;				// get the character
-			TxChar(ch);				// echo it
-			return(ch);				// and return it
+			ch = RCREG;	// get the character
+			TxChar(ch);	// echo it
+			return(ch);		// and return it
 		}
 	}
-	return( NUL );					// nothing in buffer
-} // RxChar
+	return( '\0' );	// nothing in buffer
 
+	#endif // RX_INTERRUPTS
+
+} // PollRxChar
 
 // enter an uintigned number 00 to 99
 uint8 RxNumU(void)
@@ -127,14 +158,14 @@ uint8 RxNumU(void)
 	n = 0;
 	do
 	{
-		ch = RxChar();
+		ch = PollRxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
 	n = ch - '0';
 	n *= 10;
 	do
 	{
-		ch = RxChar();
+		ch = PollRxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
 	n += ch - '0';
@@ -153,7 +184,7 @@ int8 RxNumS(void)
 	_NegIn = false;
 	do
 	{
-		ch = RxChar();
+		ch = PollRxChar();
 	}
 	while( ((ch < '0') || (ch > '9')) &&
            (ch != '-') );
@@ -162,7 +193,7 @@ int8 RxNumS(void)
 		_NegIn = true;
 		do
 		{
-			ch = RxChar();
+			ch = PollRxChar();
 		}
 		while( (ch < '0') || (ch > '9') );
 	}
@@ -171,7 +202,7 @@ int8 RxNumS(void)
 
 	do
 	{
-		ch = RxChar();
+		ch = PollRxChar();
 	}
 	while( (ch < '0') || (ch > '9') );
 	n += ch - '0';

@@ -31,19 +31,19 @@
 
         LIST C=200,R=dec
 
-	include "p18cxxx.inc"     
+		include "p18cxxx.inc"     
         include "general.asm"
 
 		; need to include clock for baud calculation
-		#ifdef CLOCK_16MHZ
+	;	#ifdef CLOCK_16MHZ
 		_ClkOut			equ		(160/4)
-		#else // CLOCK_40MHZ
-		_ClkOut			equ		(400/4)
-		#endif
+	;	#else // CLOCK_40MHZ
+	;	_ClkOut			equ		(400/4)
+	;	#endif
 
 		; use 38400 Baud throughout for now.
-		_B38400			equ		(_ClkOut*100000/(4*38400) - 1)
-
+	;	_BAUDRATE			equ		(_ClkOut*100000/(4*38400) - 1)
+		_BAUDRATE			equ		(_ClkOut*100000/(4*9600) - 1)
 
 		_RestoreVec		equ		0
 		_MaxRxBuffer		equ		80	;normal max 64 hex chars + tags
@@ -69,11 +69,11 @@
 		endc
 	
 		code
-		#ifdef __18F2620
-		org		0fd00h
-		#else
+	;	#ifdef __18F2620
+	;	org		0fd00h
+	;	#else
 		org		07d00h
-		#endif
+	;	#endif
 				
 		global	BootStart
 
@@ -110,7 +110,7 @@ Init
 		movlw	10100100b			;set RC6 as output (TxD), LEDs
 		movwf	TRISC
 		clrf	TRISB				;all output
-		movlw	_B38400
+		movlw	_BAUDRATE
 		movwf	SPBRG
 		movlw	00100100b			;async mode, BRGH = 1
 		movwf	TXSTA

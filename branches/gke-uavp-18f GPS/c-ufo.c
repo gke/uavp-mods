@@ -24,11 +24,11 @@
 // CC5X Compiler parameters:
 // -CC -fINHX8M -a -L -Q -V -FM -DMATHBANK_VARS=bank0 -DMATHBANK_PROG=2
 
-#ifdef CLOCK_16MHZ
-#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
-#else // CLOCK_40MHz
-#pragma	config OSC=HSPLL, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC 
-#endif
+//#ifdef CLOCK_40MHZ
+//#pragma	config OSC=HSPLL, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC
+//#else
+#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC  
+//#endif
 
 #include "c-ufo.h"
 #include "bits.h"
@@ -48,6 +48,7 @@ int16	RollSum, PitchSum, YawSum;	// integral
 int16	RollRate, PitchRate;
 int16	AverageYawRate, YawRate;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
+int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, CompassHeading;
 int16	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
@@ -76,7 +77,7 @@ int16	Vud;
 
 int16	Trace[LastTrace];
 
-uint8	Flags[16];
+uint8	Flags[32];
 uint8	NeutralsAcquired;
 
 int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
@@ -98,10 +99,10 @@ int8	PitchDiffFactor		=-40;
 int8	BaroThrottleProp	=2;
 int8	PitchIntLimit		=16;
 int8	YawPropFactor		=20;
-int8	YawIntFactor		=40;
+int8	YawIntFactor		=45;
 int8	YawDiffFactor		=6;
 int8	YawLimit			=50;
-int8	YawIntLimit			=6;
+int8	YawIntLimit			=3;
 int8	ConfigParam			=0b00000000;
 int8	TimeSlot			=4;	// control update interval + LEGACY_OFFSET
 int8	LowVoltThres		=43;
@@ -204,7 +205,7 @@ void main(void)
 
 	InitPorts();
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
-			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
+			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B9600);
 	
 	InitADC();
 	
@@ -217,8 +218,15 @@ void main(void)
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
+	#ifdef RX_INTERRUPTS
+	RxCheckSum = RxHead = RxTail = 0;
+   	PIE1bits.RCIE = true;
+	#else
+   	PIE1bits.RCIE = false;
+	#endif
+
 	// setup flags register
-	for ( i = 16; i ; i-- )
+	for ( i = 32; i ; i-- )
 		Flags[i] = false; 
 	_NoSignal = true;		// assume no signal present
 
@@ -257,6 +265,11 @@ void main(void)
 
 	InitDirection();
 	InitBarometer();
+
+	#ifdef USE_GPS
+	InitGPS();
+	#endif // USE_GPS
+
 
 	ShowSetup(1);
 
@@ -331,6 +344,8 @@ Restart:
 				// or non-optimal flight behavior might occur!!!
 			}
 
+			CheckAutonomous();
+
 			GetDirection();	
 			ComputeBaroComp();
 
@@ -352,6 +367,10 @@ Restart:
 					_LostModel = true;
 					ALL_LEDS_OFF;
 					IRoll = IPitch = IYaw = 0;
+					IK5 = _Maximum;
+					#ifdef ENABLE_AUTONOMOUS
+					ReturnHome();
+					#endif // ENABLE_AUTONOMOUS
 					goto DoPID;
 				}
 				break;	// timeout, stop everything
@@ -363,13 +382,13 @@ Restart:
 
 			// allow motors to run on low throttle 
 			// even if stick is at minimum for a short time
-			if( _Flying && (IGas <= _ThresStop) )
+			if( _Flying && (DesiredThrottle <= _ThresStop) )
 				if( --LowGasCount > 0 )
 					goto DoPID;
 
 			if( _NoSignal || 
-			    ( (_Flying && (IGas <= _ThresStop)) ||
-			      (!_Flying && (IGas <= _ThresStart)) ) )
+			    ( (_Flying && (DesiredThrottle <= _ThresStop)) ||
+			      (!_Flying && (DesiredThrottle <= _ThresStart)) ) )
 			{	// UFO is landed, stop all motors
 
 				TimeSlot += 2; // to compensate PID() calc time!

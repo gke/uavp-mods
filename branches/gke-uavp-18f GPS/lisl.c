@@ -105,6 +105,7 @@ void WriteLISL(uint8 d, uint8 c)
 void IsLISLactive(void)
 {
 
+	_UseLISL = false;
 	SPI_CS = DSEL_LISL;
 	WriteLISL(0b01001010, LISL_CTRLREG_2); // enable 3-wire, BDU=1, +/-2g
 

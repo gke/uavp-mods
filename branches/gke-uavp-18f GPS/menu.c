@@ -142,7 +142,7 @@ void ProcessComCommand(void)
 	uint16 addrbase, curraddr;
 	int8 d;
 	
-	ch = RxChar();
+	ch = PollRxChar();
 
 	if ( ch != NUL )
 	{
@@ -151,6 +151,9 @@ void ProcessComCommand(void)
 	
 		switch( ch )
 		{
+			case '$' : // NMEA sentence
+				_NMEADetected = true;
+				break;
 			case 'L'  :	// List parameters
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				if( IK5 > _Neutral )
@@ -182,7 +185,7 @@ void ProcessComCommand(void)
 	
 				if( addr ==  (&ConfigParam - &FirstProgReg) )
 					d &=0xf7; // no Double Rates
-
+	
 				WriteEE(addrbase + (uint16)addr, d);
 	
 				// update transmitter config bits in the other parameter set
@@ -198,7 +201,7 @@ void ProcessComCommand(void)
 					WriteEE(addrbase + (uint16)addr, d);
 				}
 
-				// this is not strictly necessary as UAVPSet enforces it.
+				// This is not strictly necessary as UAVPSet enforces it.
 				// Hovever direct edits of parameter files can easily exceed
 				// intermediate arithmetic limits.
 				if ( ((int16)Abs(YawIntFactor) * (int16)YawIntLimit) > 127 )

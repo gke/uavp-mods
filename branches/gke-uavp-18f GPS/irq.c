@@ -41,12 +41,19 @@
 
 // Interrupt Routine
 
-#pragma udata isrvars=0x090
+#pragma udata isrvars
 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 int8	RCState;
 int24	PrevEdge, CurrEdge;
 int16 	Width;
 #pragma udata
+
+#pragma udata rxfifo
+#ifdef RX_INTERRUPTS
+uint8 RxCheckSum, RxHead, RxTail;
+uint8 RxBuff[RXBUFFMASK+1];
+#endif // RX_INTERRUPTS
+#pragma udata 
 
 #pragma interrupt low_isr_handler
 void low_isr_handler(void)
@@ -57,7 +64,7 @@ void low_isr_handler(void)
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
 {
-//	int24	CurrEdge, Width;
+	uint8 ch;
 		
 	// For 2.4GHz systems see README_DSM2_ETC.
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
@@ -229,6 +236,29 @@ ErrorRestart:
 		PIR1bits.CCP1IF = false;				// quit int
 		RCState++;
 	}
+
+	#ifdef RX_INTERRUPTS
+	if (PIR1bits.RCIF && PIE1bits.RCIE)	// GPS and commands
+	{
+		if (RCSTAbits.OERR)
+		{
+			ch = RCREG; // flush
+			RCSTAbits.CREN = false;
+			RCSTAbits.CREN = true;
+		}
+		else
+		{
+			RxTail = (RxTail+1) & RXBUFFMASK;	// no check for overflow yet
+			RxBuff[RxTail] = RCREG;
+		}
+		PIR1bits.RCIF = false;
+		
+		#ifdef USE_GPS		
+		if ( _NMEADetected )
+			PollGPS();
+		#endif // USE_GPS
+	} 	
+	#endif // RX_INTERRUPTS
 
 	if( INTCONbits.TMR0IF && INTCONbits.TMR0IE )
 	{

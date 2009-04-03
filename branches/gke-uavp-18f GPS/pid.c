@@ -54,12 +54,12 @@ void LimitYawSum(void)
 {
 	int16 Temp;
 
-	YE += IYaw;						// add the yaw stick value
+	YE += DesiredYaw;						// add the yaw stick value
 
 	if ( _UseCompass )
 	{
 		// CurDeviation is negative if quadrocopter has yawed to the right (go back left)
-		if ( Abs(IYaw) > COMPASS_MIDDLE )
+		if ( Abs(DesiredYaw) > COMPASS_MIDDLE )
 			AbsDirection = COMPASS_INVAL; // acquire new heading
 		else		
 			if( CurDeviation > COMPASS_MAXDEV )
@@ -221,7 +221,7 @@ void PID(void)
 	if( IntegralCount == 0 )
 		Rl += SRS16(RollSum * (int16)RollIntFactor + 128, 8); // thanks Jim
 
-	Rl -= IRoll;								// subtract stick signal
+	Rl -= DesiredRoll;								// subtract stick signal
 
 	// Pitch
 
@@ -232,7 +232,7 @@ void PID(void)
 	if( IntegralCount == 0 )
 		Pl += SRS16(PitchSum * (int16)PitchIntFactor +128, 8);
 
-	Pl -= IPitch;								// subtract stick signal
+	Pl -= DesiredPitch;								// subtract stick signal
 
 	// Yaw
 

@@ -13,7 +13,7 @@ set 	GYRO=%4
 set 	ESC=%5
 set 	RX=%6
 
-set CSRC=adc irq lisl prog pu-test sensor serial menu-test utils
+set CSRC=adc irq lisl prog pu-test sensor serial menu-test utils gps autonomous
 set ASRC=bootl18f
 
 set CC="C:\MCC18\bin\mcc18"
