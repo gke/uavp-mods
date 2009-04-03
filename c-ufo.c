@@ -226,13 +226,12 @@ void main(void)
 	#endif
 
 	// setup flags register
-	for ( i = 32; i ; i-- )
+	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
-	_NoSignal = true;		// assume no signal present
 
+	_NoSignal = true;		// assume no signal present
 	LedShadow = 0;
     ALL_LEDS_OFF;
-
 	InitArrays();
 
 	#ifdef INIT_PARAMS

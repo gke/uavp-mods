@@ -80,6 +80,7 @@
 BootStart
 		; absolutely no C registers or variables are preserved
 	;	movf	PCL,f					;for message table address
+		DII							;disable all interrupts
 		movlw	high Messages
 		movwf	PCLATH
 
@@ -103,7 +104,6 @@ Messages
 
 Init		
 		movlb	0
-		DII							;disable interrupts
 		clrf	EECON1				;disable all program memory writes
 
 		clrf	T0CON

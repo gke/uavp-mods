@@ -240,7 +240,9 @@ ErrorRestart:
 	#ifdef RX_INTERRUPTS
 	if (PIR1bits.RCIF && PIE1bits.RCIE)	// GPS and commands
 	{
-		if (RCSTAbits.OERR)
+		PIR1bits.RCIF = false;
+
+		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
 			ch = RCREG; // flush
 			RCSTAbits.CREN = false;
@@ -251,8 +253,7 @@ ErrorRestart:
 			RxTail = (RxTail+1) & RXBUFFMASK;	// no check for overflow yet
 			RxBuff[RxTail] = RCREG;
 		}
-		PIR1bits.RCIF = false;
-		
+	
 		#ifdef USE_GPS		
 		if ( _NMEADetected )
 			PollGPS();

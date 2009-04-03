@@ -2,14 +2,14 @@
 
 // Navigation
 
-#define MAX_ANGLE 20
-
-#define RX_INTERRUPTS
+#define MAX_ANGLE 15
 
 #define ENABLE_AUTONOMOUS
-
-#define USE_GPS
-#define GPS_NMEA
+#ifdef ENABLE_AUTONOMOU
+	#define RX_INTERRUPTS
+	#define USE_GPS
+	#define GPS_NMEA
+#endif
 
 // Accelerometer
 

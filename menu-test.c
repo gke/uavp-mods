@@ -114,21 +114,17 @@ void ShowSetup(uint8 h)
 
 	// check for compass device
 	TxString("Compass ");	// send hello message
-	I2CStart();
-	if( SendI2CByte(COMPASS_I2C_ID) == I2C_ACK ) 
+	if( _UseCompass ) 
 		TxString("ONLINE\r\n");
 	else
 		TxString("not available\r\n");
-	I2CStop();
 
 	// check for altimeter device
 	TxString("Barometer ");	// send hello message
-	I2CStart();
-	if( SendI2CByte(BARO_I2C_ID) == I2C_ACK ) 
+	if( _UseBaro ) 
 		TxString("ONLINE\r\n");
 	else
 		TxString("not available\r\n");
-	I2CStop();
 
 	ShowPrompt();
 } // ShowSetup
@@ -230,6 +226,7 @@ void ProcessComCommand(void)
 
 			case 'B':	// call bootloader
 				TxNextLine();
+				DisableInterrupts;
 				BootStart();
 			case '?'  : // help
 				TxText(SerHelp);

@@ -338,7 +338,6 @@ void CalibrateCompass(void)
 
 	TxString("\r\n720 deg in ~30 sec.!\r\nPress any key to cont.\r\n");
 	while( !PollRxChar() );
-	TxString("Calibrating\r\n");
 
 	// set Compass device to End-Calibration mode 
 	I2CStart();
@@ -424,13 +423,16 @@ void GPSTest(void)
 
 	while (1)
 	{
-		UpdateGPS();
-		GetDirection();
+		UpdateGPS();	
 		if ( _GPSValid )
 		{
+			GetDirection();
 			ReturnHome();
 			TxNextLine();
-			TxVal32((int32)((real32)CompassHeading*MILLIRADDEG+0.5), 0, ' ');
+		//	if ( _UseCompass )
+				TxVal32((int32)((real32)CompassHeading*CENTIRADDEG+0.5), 1, ' ');
+		//	else
+		//		TxString(" ?.?");
 			TxChar(' ');
 			TxVal32(GPSNorth,0,'M');
 			TxString(" North ");
@@ -439,7 +441,7 @@ void GPSTest(void)
 			TxVal32((DesiredRoll*100+MAX_ANGLE/2)/MAX_ANGLE, 0, '%');
 			TxString(" Roll ");
 			TxVal32((DesiredPitch*100+MAX_ANGLE/2)/MAX_ANGLE, 0, '%');
-			TxString(" Pitch "); 
+			TxString(" Pitch"); 
 			TxNextLine();
 		}
 	}
@@ -592,41 +594,45 @@ void main(void)
 	#else
    	PIE1bits.RCIE = false;
 	#endif
+
 	INTCONbits.TMR0IE = false;
 
 	// setup flags register
-	for ( i = 0; i<32; i++ )
+	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false;
 
 	_NoSignal = true;		// assume no signal present
+	PauseTime = 0;
+
 	InitArrays();
+
+	#ifdef INIT_PARAMS
+	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
+		WriteEE(i, -1);
+	WriteParametersEE(1);						// copy RAM initial values to EE
+	WriteParametersEE(2);
+	#endif // INIT_PARAMS
 	ReadParametersEE();
+
 	ConfigParam = 0;
 
     ALL_LEDS_OFF;
 	Beeper_OFF;
-
 	LedBlue_ON;
 
 	INTCONbits.PEIE = true;		// enable peripheral interrupts
 	EnableInterrupts;
 
-	LedRed_ON;		// red LED on
-
-	NewK1 = NewK2 = NewK3 = NewK4 =NewK5 = NewK6 = NewK7 = 0xFFFF;
-
-	PauseTime = 0;
-
-	InitBarometer();
 	InitGPS();
-
+	InitBarometer();
+	Delay1mS(BARO_PRESS_TIME);
 	InitDirection();
 	Delay1mS(COMPASS_TIME);
 
 	// send hello text to serial COM
 	Delay1mS(100);
 	ShowSetup(true);
-	Delay1mS(BARO_PRESS_TIME);
+
 	while(1)
 	{
 		// turn red LED on of signal missing or invalid, green if OK
