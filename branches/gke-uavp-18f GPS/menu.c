@@ -239,6 +239,7 @@ void ProcessComCommand(void)
 				break;
 	
 			case 'B':	// call bootloader
+				DisableInterrupts;
 				BootStart();							// never comes back!
 			
 			case '?'  : // help

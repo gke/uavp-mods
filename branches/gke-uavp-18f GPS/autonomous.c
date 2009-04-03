@@ -62,6 +62,8 @@ void AcquireSatellites(void)
 	#endif // USE_GPS
 } // AcquireSatellites
 
+#define GPSFilter MediumFilter
+
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
 	// This routine does not point the quadrocopter at the destination
@@ -82,9 +84,12 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	while ( Angle >= MILLIPI ) Angle -= TWOMILLIPI;
 
 	Temp = -int16sin(Angle) * RangeApprox/PROXIMITY;
-	DesiredRoll = Limit(Temp, -MAX_ANGLE, MAX_ANGLE); // removed scaling of trig result
+	Temp = Limit(Temp, -MAX_ANGLE, MAX_ANGLE); // removed scaling of trig result
+	DesiredRoll = GPSFilter(DesiredRoll, Temp);
+
 	Temp = -int16cos(Angle) * RangeApprox/PROXIMITY;
-	DesiredPitch = Limit(Temp, -MAX_ANGLE, MAX_ANGLE);
+	Temp = Limit(Temp, -MAX_ANGLE, MAX_ANGLE);
+	DesiredPitch = GPSFilter(DesiredPitch, Temp);
 
 } // Navigate
 
@@ -107,14 +112,14 @@ void HoldStation()
 
 void ReturnHome(void)
 {
-	if ( _GPSValid ) //&& _UseCompass )
+	if ( _GPSValid ) // zzz&& _UseCompass )
 	{
 		Navigate(0, 0);
 //		AltitudeHold(RETURN_ALT);
 	}
 	else
 	{
-		DesiredRoll = DesiredPitch = -1;
+		DesiredRoll = DesiredPitch = 0;
 		Descend();
 	}
 } // ReturnHome
