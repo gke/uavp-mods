@@ -62,12 +62,19 @@ void Delay100mSWithOutput(int16 dur)
 				INTCONbits.TMR0IF = 0;
 			}
 			OutSignals(); // 1-2 ms Duration
-			// break loop if a serial command is in FIFO
+			#ifdef RX_INTERRUPTS
+			if ( RxTail != RxHead )
+			{
+				INTCONbits.TMR0IE = T0IntEn;
+				return;
+			}
+			#else
 			if( PIR1bits.RCIF )
 			{
 				INTCONbits.TMR0IE = T0IntEn;
 				return;
 			}
+			#endif // RX_INTERRUPTS
 		}
 	INTCONbits.TMR0IE = T0IntEn;
 } // Delay100mSWithOutput
@@ -122,23 +129,106 @@ void InitArrays(void)
 	RCGlitchCount = 0;
 } // InitArrays
 
-int16 int32sqrt(int32 n)
-// 32 bit numbers 
-{
-  int32 b;
-  int16 r;
+#pragma idata sintable
+const uint8 SineTable[17]={ 
+	0, 50, 98, 142, 180, 212, 236, 250, 255,
+	250, 236, 212, 180, 142, 98, 50, 0
+   };
+#pragma idata
 
-  b=65536;
-  r=0;
-  while (b>0) 
-    {
-    if (((int32)(r)*(int32)(r))>n)
-      r-=b;
-    b=(b>>1);
-    r+=b;
-    }
-  return(r);
-} // int32sqrt
+int16 Table16(int16 Val, uint8 *T)
+{
+	uint8 Index,Offset;
+	int16 Temp, Low, High, Result;
+
+	Index = (uint8) (Val >> 4);
+	Offset = (uint8) (Val & 0x0f);
+	Low = T[Index];
+	High = T[++Index];
+	Temp = (High-Low) * Offset;
+	Result = Low + SRS16(Temp, 4);
+
+	return(Result);
+} // Table16
+
+int16 int16sin(int16 A)
+{	// A is in milliradian 0 to 2000Pi, result is -255 to 255
+	int16 	v;
+	uint8	Negate;
+
+	while ( A < 0 ) A += TWOMILLIPI;
+	while ( A >= TWOMILLIPI ) A -= TWOMILLIPI;
+
+	Negate = A >= MILLIPI;
+	if ( Negate )
+		A -= MILLIPI;
+
+	v = Table16((((int24)A * 256 + HALFMILLIPI)/MILLIPI)-1, &SineTable);
+
+	if ( Negate )
+		v= -v;
+
+	return(v);
+} // int16sin
+
+int16 int16cos(int16 A)
+{	// A is in milliradian 0 to 2000Pi, result is -255 to 255
+	return(int16sin(A + HALFMILLIPI));
+} // int16cos
+
+#pragma idata arctan
+const int16 ArctanTable[17]={
+    0,  62, 124, 185, 245, 303, 359, 412,
+  464, 512, 559, 602, 644, 682, 719, 753,785
+   };
+#pragma idata
+
+int16 int16atan2(int16 y, int16 x)
+{	// Result is in milliradian
+	// Caution - this routine is intended to be acceptably accurate for 
+	// angles less Pi/4 within a quadrant. Larger angles are directly interpolated
+	// to Pi/2. 
+ 
+	int32 Absx, Absy, TL;
+	int16 A;
+
+	Absy = Abs(y);
+	Absx = Abs(x);
+
+	if ( x == 0 )
+		if ( y < 0 )
+			A = -HALFMILLIPI;
+		else
+			A = HALFMILLIPI;
+	else
+		if (y == 0)
+			if ( x < 0 )
+				A=MILLIPI;
+			else
+				A = 0;
+		else
+		{
+			TL = (Absy * 256)/Absx;
+			if ( TL < 256 )
+				A = Table16(TL, &ArctanTable);
+			else
+			{  // interpolate above ~Pi/4
+				TL >>= 8;
+				A = ArctanTable[16] + ((HALFMILLIPI - ArctanTable[16])*TL)/(32767-256);
+			}
+
+			if ( x < 0 )
+				if ( y > 0 ) // 2nd Quadrant 
+					A = MILLIPI - A;
+				else // 3rd Quadrant 
+					A = MILLIPI + A;
+			else
+				if ( y < 0 ) // 4th Quadrant 
+					A = TWOMILLIPI-A;
+	}
+	return(A);
+} // int16atan2
+
 
 void CheckAlarms(void)
 {

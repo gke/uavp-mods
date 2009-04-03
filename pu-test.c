@@ -43,6 +43,7 @@ int16	RollSum, PitchSum, YawSum;	// integral
 int16	RollSamples, PitchSamples;
 int16	AverageYawRate, YawRate;
 int16	MidRoll, MidPitch, MidYaw;
+int16 	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw;
 int16	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int16 	UDSum;
@@ -58,7 +59,8 @@ uint8	LedShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
-int8	RCRollNeutral, RCPitchNeutral, RCYawNeutral;
+//int8	RCRollNeutral, RCPitchNeutral, RCYawNeutral;
+int16 	CompassHeading;
 
 uint8	MCamRoll,MCamPitch;
 int16	Motor[NoOfMotors];
@@ -67,7 +69,7 @@ int16	Rl,Pl,Yl;		// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
 
-uint8	Flags[16];
+uint8	Flags[32];
 
 #ifdef DEBUG_SENSORS
 int16	Trace[LastTrace];
@@ -193,6 +195,10 @@ uint8 SendEscI2CByte(uint8 d)
 void LinearTest(void)
 {
 	TxString("\r\nAccelerometer test:\r\n");
+
+	Delay1mS(100);
+	IsLISLactive();
+
 	if( _UseLISL )
 	{
 		ReadAccelerations();
@@ -322,7 +328,7 @@ void CalibrateCompass(void)
 {	// calibrate the compass by rotating the ufo through 720 deg smoothly
 	TxString("\r\nCalib. compass. Press any key to cont.\r\n");
 
-	while( !RxChar() );
+	while( !PollRxChar() );
 	
 	// set Compass device to Calibration mode 
 	I2CStart();
@@ -331,7 +337,8 @@ void CalibrateCompass(void)
 	I2CStop();
 
 	TxString("\r\n720 deg in ~30 sec.!\r\nPress any key to cont.\r\n");
-	while( !RxChar() );
+	while( !PollRxChar() );
+	TxString("Calibrating\r\n");
 
 	// set Compass device to End-Calibration mode 
 	I2CStart();
@@ -388,7 +395,6 @@ void PowerOutput(int8 d)
 	uint8 m;
 
 	m = 1 << d;
-
 	for( s=0; s < 10; s++ )	// 10 flashes (count MUST be even!)
 	{
 		LedShadow ^= m;
@@ -396,6 +402,48 @@ void PowerOutput(int8 d)
 		Delay1mS(200);
 	}		
 } // PowerOutput
+
+void GPSTest(void)
+{
+	uint8 ch; 
+
+	TxString("\r\nGPS test\r\n");
+	TxString("monitors GPS input until full power reset\r\n");
+
+	DoCompassTest();
+
+	TxString("CONNECT GPS\r\n");
+	TxString("\r\nPress any key to cont.\r\n");
+
+	while( !PollRxChar() );
+	while( !PollRxChar() );
+
+	_NMEADetected = true;
+	DesiredRoll = IRoll;
+	DesiredPitch = IPitch;
+
+	while (1)
+	{
+		UpdateGPS();
+		GetDirection();
+		if ( _GPSValid )
+		{
+			ReturnHome();
+			TxNextLine();
+			TxVal32((int32)((real32)CompassHeading*MILLIRADDEG+0.5), 0, ' ');
+			TxChar(' ');
+			TxVal32(GPSNorth,0,'M');
+			TxString(" North ");
+			TxVal32(GPSEast,0,'M');
+			TxString(" East ");
+			TxVal32((DesiredRoll*100+MAX_ANGLE/2)/MAX_ANGLE, 0, '%');
+			TxString(" Roll ");
+			TxVal32((DesiredPitch*100+MAX_ANGLE/2)/MAX_ANGLE, 0, '%');
+			TxString(" Pitch "); 
+			TxNextLine();
+		}
+	}
+} // GPSTest
 
 void AnalogTest(void)
 {
@@ -501,7 +549,7 @@ void ConfigureESCs(void)
 			case 3 : TxString("left");  break;
 		}
 		TxString(" controller, then press any key\r\n");
-		while( RxChar() == '\0' );
+		while( PollRxChar() == '\0' );
 		TxString("\r\nprogramming the controller...\r\n");
 
 		Program_SLA(0x62+nic+nic);
@@ -527,7 +575,7 @@ void main(void)
 	InitADC();
 
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
-			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
+			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B9600);
 	
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
@@ -538,13 +586,19 @@ void main(void)
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
+	#ifdef RX_INTERRUPTS
+	RxCheckSum = RxHead = RxTail = 0;
+   	PIE1bits.RCIE = true;
+	#else
+   	PIE1bits.RCIE = false;
+	#endif
 	INTCONbits.TMR0IE = false;
 
 	// setup flags register
-	for ( i = 0; i<16; i++ )
+	for ( i = 0; i<32; i++ )
 		Flags[i] = false;
 
-	_NoSignal = true;
+	_NoSignal = true;		// assume no signal present
 	InitArrays();
 	ReadParametersEE();
 	ConfigParam = 0;
@@ -559,17 +613,12 @@ void main(void)
 
 	LedRed_ON;		// red LED on
 
-	Delay1mS(100);
-	IsLISLactive();
-#ifdef ICD2_DEBUG
-	_UseLISL = 1;	// because debugger uses RB7 (=LISL-CS) :-(
-#endif
-
 	NewK1 = NewK2 = NewK3 = NewK4 =NewK5 = NewK6 = NewK7 = 0xFFFF;
 
 	PauseTime = 0;
 
 	InitBarometer();
+	InitGPS();
 
 	InitDirection();
 	Delay1mS(COMPASS_TIME);

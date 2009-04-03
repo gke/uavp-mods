@@ -23,7 +23,7 @@ rem Motors are disabled for DEBUG_SENSORS for safety reasons.
 rem Prevous switches THC and CAM have been abandoned in favour of Tx based
 rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
 
-set VERSION=3_15m3_
+set VERSION=3_15m3gps_
 
 rem Add/Delete required combinations to these sets
 set CLOCK=CLOCK_16MHZ

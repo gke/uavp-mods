@@ -115,13 +115,13 @@ uint8 SaturInt(int16 l)
 	return((uint8) r);
 } // SaturInt
 
-void DoMix(int16 CurrGas)
+void DoMix(int16 CurrThrottle)
 {
 	int16 Temp;
 
-	Motor[Front] = Motor[Left] = Motor[Right] = CurrGas;
+	Motor[Front] = Motor[Left] = Motor[Right] = CurrThrottle;
 	#ifndef TRICOPTER
-	Motor[Back] = CurrGas;
+	Motor[Back] = CurrThrottle;
 	#endif // !TRICOPTER
 
 	#ifndef TRICOPTER
@@ -159,7 +159,7 @@ void DoMix(int16 CurrGas)
 
 uint8 	MotorDemandRescale;
 
-void CheckDemand(int16 CurrGas)
+void CheckDemand(int16 CurrThrottle)
 {
 	int8 s;
 	int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
@@ -170,9 +170,9 @@ void CheckDemand(int16 CurrGas)
 	MaxMotor = Max(MaxMotor, Motor[Back]);
 	#endif // TRICOPTER
 
-	DemandSwing = MaxMotor - CurrGas;
+	DemandSwing = MaxMotor - CurrThrottle;
 
-	if ( CurrGas < MotorLowRun )
+	if ( CurrThrottle < MotorLowRun )
 	{
 		Scale = 0;
 		MotorDemandRescale = true;
@@ -180,8 +180,8 @@ void CheckDemand(int16 CurrGas)
 	else
 		if ( DemandSwing > 0 )
 		{		
-			ScaleHigh = (( _Maximum - (int24)CurrGas) * 256 )/ DemandSwing;	 
-			ScaleLow = (( (int24)CurrGas - MotorLowRun) * 256 )/ DemandSwing;
+			ScaleHigh = (( _Maximum - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
+			ScaleLow = (( (int24)CurrThrottle - MotorLowRun) * 256 )/ DemandSwing;
 			Scale = Min(ScaleHigh, ScaleLow);
 			if ( Scale < 256 )
 			{
@@ -200,18 +200,18 @@ void CheckDemand(int16 CurrGas)
 
 void MixAndLimit(void)
 { 	// expensive ~400uSec @16MHz
-    int16 Temp, CurrGas;
+    int16 Temp, CurrThrottle;
 
 	// Altitude stabilization factor
-	CurrGas = IGas + (Vud + VBaroComp); // vertical compensation not optional
-	CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
+	CurrThrottle = DesiredThrottle + (Vud + VBaroComp); // vertical compensation not optional
+	CurrThrottle = Limit(CurrThrottle, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
 
-	DoMix(CurrGas);
+	DoMix(CurrThrottle);
 
-	CheckDemand(CurrGas);
+	CheckDemand(CurrThrottle);
 
 	if ( MotorDemandRescale )
-		DoMix(CurrGas);
+		DoMix(CurrThrottle);
 
 	Motor[Front] = SaturInt(Motor[Front]);
 	Motor[Back] = SaturInt(Motor[Back]);
@@ -254,9 +254,9 @@ void OutSignals(void)
 	#ifdef DEBUG_SENSORS
 	Trace[TIGas] = IGas;
 
-	Trace[TIRoll] = IRoll;
-	Trace[TIPitch] = IPitch;
-	Trace[TIYaw] = IYaw;
+	Trace[TIRoll] = DesiredRoll;
+	Trace[TIPitch] = DesiredPitch;
+	Trace[TIYaw] = DesiredYaw;
 
 	Trace[TMFront] = Motor[Front];
 	Trace[TMBack] = Motor[Back];

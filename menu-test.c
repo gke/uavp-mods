@@ -81,9 +81,12 @@ const uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"B..Boot\r\n"
 	"C..Compass test\r\n"
 	"K..Calib. Compass\r\n"
+	#ifdef USE_GPS
+	"G..GPS test\r\n"
+	#endif
+	"H..Baro. test\r\n"
 	"I..I2C bus scan\r\n"
 	"L..Linear test\r\n"
-	"H..Baro. test\r\n"
 	"N..Negate Rx-PPM\r\n"
 	"R..RX test\r\n"
 	"S..Setup\r\n"
@@ -137,7 +140,7 @@ void ProcessComCommand(void)
     int8 *p;
 	uint8 i, ch;
 
-	ch = RxChar();
+	ch = PollRxChar();
 
 	if ( ch != NUL )
 	{
@@ -155,6 +158,12 @@ void ProcessComCommand(void)
 				AnalogTest();
 				ShowPrompt();
 				break;
+			#ifdef USE_GPS
+			case 'G' : // GPS test
+				GPSTest();
+				ShowPrompt();
+				break;
+			#endif // USE_GPS			
 			case 'L' :	// linear sensor
 				LinearTest();
 				ShowPrompt();

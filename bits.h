@@ -166,6 +166,9 @@
 #define _BaroRestart	Flags[13] /* Baro restart required */
 #define _Hovering		Flags[14]	/* QC is hovering */
 #define _LostModel		Flags[15]	/* Rx timeout - model lost? */
+#define _HoldingStation Flags[16]
+#define _GPSValid 		Flags[17]
+#define _NMEADetected 	Flags[18]
 
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)

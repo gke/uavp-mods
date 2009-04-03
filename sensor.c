@@ -168,6 +168,7 @@ CTerror:
 	I2CStop();
 } // InitDirection
 
+#define COMPASS_OFFSET  MILLIPI
 
 void GetDirection(void)
 {
@@ -183,7 +184,13 @@ void GetDirection(void)
 		I2CStart();		
 		Compass = (uint16)RecvI2CByte(I2C_ACK)*256 | RecvI2CByte(I2C_NACK);
 		I2CStop();
-	
+
+		#ifdef ENABLE_AUTONOMOUS 
+		CompassHeading =  (int16)((real32)Compass * DECIDEGMILLIRAD) + COMPASS_OFFSET;
+		while ( CompassHeading >= TWOMILLIPI )
+			CompassHeading -= TWOMILLIPI;
+		#endif // ENABLE_AUTONOMOUS
+
 		// DirVal has 1/10th degrees
 		// convert to set 360.0 deg = 240 units
 		Compass /= 15;
