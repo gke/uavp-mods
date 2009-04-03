@@ -95,7 +95,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void HoldStation()
 {
-	if ( _GPSValid )
+	if ( _GPSValid ) // zzz && _UseCompass ) 
 	{ 
 		if ( !_HoldingStation )
 		{
@@ -104,18 +104,22 @@ void HoldStation()
 			_HoldingStation = true;
 		}		
 		Navigate(GPSNorthHold, GPSEastHold);
+		//AltitudeHold(CurrAltitude);
 	}
-
-//	AltitudeHold(CurrAltitude);
+	else
+	{
+		DesiredRoll = IRoll;
+		DesiredPitch = IPitch;
+	}
 
 } // HoldStation
 
 void ReturnHome(void)
 {
-	if ( _GPSValid ) // zzz&& _UseCompass )
+	if ( _GPSValid ) // zzz && _UseCompass )
 	{
 		Navigate(0, 0);
-//		AltitudeHold(RETURN_ALT);
+		//AltitudeHold(RETURN_ALT);
 	}
 	else
 	{
@@ -126,28 +130,29 @@ void ReturnHome(void)
 
 void CheckAutonomous(void)
 {
+	DesiredThrottle = IGas;
+	DesiredYaw = IYaw;
+
 	#ifdef ENABLE_AUTONOMOUS
+
+	UpdateGPS();
+
 	if ( _Hovering )
-	{
 		HoldStation();
-		DesiredThrottle = IGas;
-		DesiredYaw = IYaw;
-	}
 	else
+	{
+		_HoldingStation = false;
 		if ( IK5 > _Neutral )
 			ReturnHome();
 		else
 		{
-			DesiredThrottle = IGas;
 			DesiredRoll = IRoll;
 			DesiredPitch = IPitch;
-			DesiredYaw = IYaw;
 		}
+	}
 	#else
-		DesiredThrottle = IGas;
 		DesiredRoll = IRoll;
 		DesiredPitch = IPitch;
-		DesiredYaw = IYaw;
 	#endif // ENABLE_AUTONOMOUS
 
 } // CheckAutonomous

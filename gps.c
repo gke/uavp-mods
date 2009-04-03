@@ -335,12 +335,19 @@ void UpdateGPS(void)
 {
 	if ( GPSSentenceReceived )
 	{
+		LEDGreen_ON;
+
 		GPSSentenceReceived=false; // 7.5mS 18f2520 @ 16MHz 
 		ParseGPSSentence();
 	}
 	else
-//zzz		if ( mS[Clock] >= mS[GPSTimeout] )
-			_GPSValid = false;
+	{
+		if( (BlinkCount & 0x0f) == 0 )
+			GPSCount++;
+				if( GPSCount > GPSDROPOUT )
+				_GPSValid = false;
+	}
+	LEDGreen_OFF;
 
 } // UpdateGPS
 
