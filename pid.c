@@ -1,225 +1,249 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =                          http://www.uavp.org                        =
+// =======================================================================
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
-//
+
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
-//
+
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
 
 // The PID controller algorithm
 
-#pragma codepage=1
 #include "c-ufo.h"
 #include "bits.h"
 
-// Math Library
-#include "mymath16.h"
+void LimitRollSum(void)
+{
+	RollSum += RollRate;
 
+	if( IntegralCount == 0 )
+	{
+		RollSum = Limit(RollSum, -RollIntLimit*256, RollIntLimit*256);
+		RollSum += LRIntKorr;
+		RollSum = Decay(RollSum);		// damps to zero even if still rolled
+	}
 
-// compute the correction adders for the motors
-// using the gyro values (PID controller)
-// for the axes Roll and Nick
+} // LimitRollSum
+
+void LimitPitchSum(void)
+{
+	PitchSum += PitchRate;
+
+	if( IntegralCount == 0 )
+	{
+		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);
+		PitchSum += FBIntKorr;		
+		PitchSum = Decay(PitchSum);	// damps to zero even if still pitched
+	}
+} // LimitPitchSum
+
+void LimitYawSum(void)
+{
+	int16 Temp;
+
+	YE += IYaw;						// add the yaw stick value
+
+	if ( _UseCompass )
+	{
+		// CurDeviation is negative if quadrocopter has yawed to the right (go back left)
+		if ( Abs(IYaw) > COMPASS_MIDDLE )
+			AbsDirection = COMPASS_INVAL; // acquire new heading
+		else		
+			if( CurDeviation > COMPASS_MAXDEV )
+				YE -= COMPASS_MAXDEV;
+			else
+				if( CurDeviation < -COMPASS_MAXDEV )
+					YE += COMPASS_MAXDEV;
+				else
+					YE -= CurDeviation;
+	}
+
+	YawSum += (int16)YE;
+	YawSum = Limit(YawSum, -YawIntLimit*256, YawIntLimit*256);
+
+	YawSum = Decay(YawSum); // GKE added to kill gyro drift
+	YawSum = Decay(YawSum); 
+
+} // LimitYawSum
+
+void GetGyroValues(void)
+{
+	#ifdef OPT_IDG
+	RollRate += ADC(ADCRollChan, ADCVREF);
+	PitchRate += ADC(ADCPitchChan, ADCVREF);
+	#else
+	RollRate += ADC(ADCRollChan, ADCVREF5V);
+	PitchRate += ADC(ADCPitchChan, ADCVREF5V);
+	#endif // OPT_IDG
+} // GetGyroValues
+
+// Calc the gyro values from added RollRate and PitchRate
+void CalcGyroValues(void)
+{
+	int16 Temp;
+
+	// RollRate & Pitchsamples hold the sum of 2 consecutive conversions
+	// Approximately 4 bits of precision are discarded in this and related 
+	// calculations presumably because of the range of the 16 bit arithmetic.
+
+	#ifdef OPT_ADXRS150
+	RollRate = (RollRate + 2)>>2; // recreate the 10 bit resolution
+	PitchRate = (PitchRate + 2)>>2;
+	#else // IDG300 and ADXRS300
+	RollRate = (RollRate + 1)>>1;	
+	PitchRate = (PitchRate + 1)>>1;
+	#endif
+	
+	if( IntegralCount > 0 )
+	{
+		// pre-flight auto-zero mode
+		RollSum += RollRate;
+		PitchSum += PitchRate;
+
+		if( IntegralCount == 1 )
+		{
+			RollSum += 8;
+			PitchSum += 8;
+			if( !_UseLISL )
+			{
+				RollSum = RollSum + MiddleLR;
+				PitchSum = PitchSum + MiddleFB;
+			}
+			GyroMidRoll = RollSum >> 4;	
+			GyroMidPitch = PitchSum >> 4;
+			GyroMidYaw = 0;
+			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
+		}
+	}
+	else
+	{
+		// standard flight mode
+		RollRate -= GyroMidRoll;
+		PitchRate -= GyroMidPitch;
+
+		// calc Cross flying mode
+		if( FlyCrossMode )
+		{
+			// Real Roll = 0.707 * (P + R)
+			//      Pitch = 0.707 * (P - R)
+			// the constant factor 0.667 is used instead
+			Temp = RollRate + PitchRate;	
+			PitchRate -= RollRate;	
+			RollRate = (Temp * 2)/3;
+			PitchRate = (PitchRate * 2)/3; // 7/10 with int24
+		}
+
+		#ifdef DEBUG_SENSORS
+		Trace[TRollRate] = RollRate;
+		Trace[TPitchRate] = PitchRate;
+		#endif
+	
+		// Roll
+		#ifdef OPT_ADXRS
+		RE = SRS16(RollRate + 2, 2);
+		#else // OPT_IDG
+		RE = SRS16(RollRate + 1, 1); // use 8 bit res. for PD controller
+		#endif	
+
+		#ifdef OPT_ADXRS
+		RollRate = SRS16(RollRate + 1, 1); // use 9 bit res. for I controller	
+		#endif
+
+		LimitRollSum();		// for roll integration
+
+		// Pitch
+		#ifdef OPT_ADXRS
+		PE = SRS16(PitchRate + 2, 2);
+		#else // OPT_IDG
+		PE = SRS16(PitchRate + 1, 1);
+		#endif
+
+		#ifdef OPT_ADXRS
+		PitchRate = SRS16(PitchRate + 1, 1); // use 9 bit res. for I controller	
+		#endif
+
+		LimitPitchSum();		// for pitch integration
+
+		// Yaw is sampled only once every frame, 8 bit A/D resolution
+		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;	
+		if( GyroMidYaw == 0 )
+			GyroMidYaw = YE;
+		YE -= GyroMidYaw;
+		YawRate = YE;
+
+		LimitYawSum();
+
+		#ifdef DEBUG_SENSORS
+		Trace[TYE] = YE;
+		Trace[TRollSum] = RollSum;
+		Trace[TPitchSum] = PitchSum;
+		Trace[TYawSum] = YawSum;
+		#endif
+	}
+} // CalcGyroValues
+
 void PID(void)
 {
 
-	if( IntegralTest
-#ifdef BOARD_3_1
-        || CompassTest
-#endif
-                       )
-		ALL_LEDS_OFF;
-
-// Roll/Nick Linearsensoren
-	Rp = 0;
-	Np = 0;
-//	Vud = 0;
-
-	if( _UseLISL )
-	{
-		CheckLISL();	// get the linear sensors data, if available
-	}
-#ifdef DEBUG_SENSORS
-	else
-	{
-		SendComChar(';');
-		SendComChar(';');
-		SendComChar(';');
-	}
-#endif
-
-// PID controller
-// E0 = current gyro error
-// E1 = previous gyro error
-// Sum(Ex) = integrated gyro error, sinst start of ufo!
-// A0 = current correction value
-// fx = programmable controller factors
-//
-// for Roll and Nick:
-//       E0*fP + E1*fD     Sum(Ex)*fI
-// A0 = --------------- + ------------
-//            16               256
-
-
-// ####################################
-// Roll
-
-// Differential and Proportional for Roll axis
-
-	Rl  = -RE;
-	Rl += REp;
-	Rl *= (long)RollDiffFactor;
-	Rl += (long)RE   * (long)RollPropFactor;
-
-	Rl += 8;
-	Rl >>= 4;
-
-	Rl += Rp;	// add proportional part
-
-#ifdef BOARD_3_1
-	if( CompassTest )
-	{
-		if( CurDeviation > 0 )
-			LedGreen_ON;
-		if( CurDeviation < 0 )
-			LedRed_ON;
-		if( AbsDirection > COMPASS_MAX )
-			LedYellow_ON;
-	}
-#endif
-
-	if( IntegralTest )
-	{
-		if( (int)RollSum.high8 > 0 )
-		{
-			LedRed_ON;
-		}
-		if( (int)RollSum.high8 < -1 )
-		{
-			LedGreen_ON;
-		}
-	}
-
-// Integral part for Roll
-
-	if( IntegralCount == 0 )
-	{
-		Rp = RollSum * (long)RollIntFactor;
-		Rp += 128;
-		Rl += (int)Rp.high8;
-	}
-
-// muss so gemacht werden, weil CC5X kein if(Nl < -RollNickLimit) kann!
-//	NegFact = -RollLimit;
-//	if( Rl < NegFact ) Rl = NegFact;
-//	if( Rl > RollLimit ) Rl = RollLimit;
-
-// subtract stick signal
-	Rl -= IRoll;
-
-
-// ####################################
-// Nick
-
-// Differential and Proportional for Nick
-
-	Nl  = -NE;
-	Nl += NEp;
-	Nl *= (long)NickDiffFactor;
-	Nl += (long)NE   * (long)NickPropFactor;
+	AccelerationCompensation();	
 	
-	Nl += 8;
-	Nl >>= 4;	// divide rounded by 16
+	// PID controller
+	// E0 = current gyro error
+	// E1 = previous gyro error
+	// Sum(Ex) = integrated gyro error, sinst start of ufo!
+	// A0 = current correction value
+	// fx = programmable controller factors
+	//
+	// for Roll and Pitch:
+	//       E0*fP + E1*fD     Sum(Ex)*fI
+	// A0 = --------------- + ------------
+	//            16               256
 
-	Nl += Np;	// add proportional part
+	// Roll
 
-	if( IntegralTest )
-	{
-		if( (int)NickSum.high8 >  0 )
-		{
-			LedYellow_ON;
-		}
-		if( (int)NickSum.high8 < -1 )
-		{
-			LedBlue_ON;
-		}
-	}
+	// Differential and Proportional for Roll axis
+	Rl  = SRS16(RE *(int16)RollPropFactor + (REp-RE) * RollDiffFactor + 8, 4);
 
-// Integral part for Nick
+	// Integral part for Roll
 	if( IntegralCount == 0 )
-	{
-		Np = NickSum * (long)NickIntFactor;
-		Np += 128;
-		Nl += (int)Np.high8;
-	}
+		Rl += SRS16(RollSum * (int16)RollIntFactor + 128, 8); // thanks Jim
 
-// muss so gemacht werden, weil CC5X kein if(Nl < -RollNickLimit) kann!
-//	NegFact = -NickLimit;
-//	if( Nl < NegFact ) Nl = NegFact;
-//	if( Nl > NickLimit ) Nl = NickLimit;
+	Rl -= IRoll;								// subtract stick signal
 
-// subtract stick signal
-	Nl -= INick;
+	// Pitch
 
-// PID controller for Yaw (Heading Lock)
-//       E0*fp + E1*fD     Sum(Ex)*fI
-// A0 = --------------- + ------------
-//             16              256
+	// Differential and Proportional for Pitch
+	Pl  = SRS16(PE *(int16)PitchPropFactor + (PEp-PE) * PitchDiffFactor + 8, 4);
 
-// ####################################
-// Yaw
+	// Integral part for Pitch
+	if( IntegralCount == 0 )
+		Pl += SRS16(PitchSum * (int16)PitchIntFactor +128, 8);
 
-// the yaw stick signal is already added in LimitYawSum() !
-//	TE += ITurn;
+	Pl -= IPitch;								// subtract stick signal
 
-	Tl = YawSum * (long)TurnIntFactor;
-	Tl += 128;		// divide rounded by 256
-	Tl = (int)Tl.high8;
+	// Yaw
 
-// Differential for Yaw (for quick and stable reaction)
+	// the yaw stick signal is already added in LimitYawSum() !
+	//	YE += IYaw;
 
-	Tp  = -TE;
-	Tp += TEp;
-	Tp *= (long)TurnDiffFactor;
-	Tp += (long)TE  * (long)TurnPropFactor;
-	Tp += 8;
-	Tp >>= 4;	// divide rounded by 16
-	Tl += Tp;
+	// Differential and Proportional for Yaw
+	Yl  = SRS16(YE *(int16)YawPropFactor + (YEp-YE) * YawDiffFactor + 8, 4);
+	Yl += SRS16(YawSum * (int16)YawIntFactor + 128, 8);
+	Yl = Limit(Yl, -YawLimit, YawLimit);		// effective slew limit
 
-	NegFact = -YawLimit;
-	if( Tl < NegFact ) Tl = NegFact;
-	if( Tl > YawLimit ) Tl = YawLimit;
+	DoPIDDisplays();
 
-//
-// calculate camera servos
-//
-// use only integral part (direct angle)
-//
-	if( (IntegralCount == 0) && 
-		(CamRollFactor != 0) && (CamNickFactor != 0) )
-	{
-		Rp = RollSum / (long)CamRollFactor;
-		Np = NickSum / (long)CamNickFactor;
-	}
-	else
-	{
-		Rp = 0;
-		Np = 0;
-	}
-}
+} // PID
