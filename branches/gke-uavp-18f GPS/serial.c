@@ -105,6 +105,11 @@ uint8 RxChar(void)
 	RxHead = (RxHead + 1) & RXBUFFMASK;
 	//	EnableInterrupts;
 
+	#ifdef TEST_SOFTWARE
+	if ( _NMEADetected )
+		TxChar(ch);
+	#endif // TEST_SOFTWARE
+
 	return(ch);	
 } // RxChar
 #endif // RX_INTERRUPTS

@@ -334,6 +334,9 @@ Restart:
 
 			GetGyroValues();
 
+			GetDirection();
+			CheckAutonomous(); // before timeslot delay to give maximum time
+
 			while( TimeSlot > 0 )
 			{
 				// Here is the place to insert own routines
@@ -343,9 +346,6 @@ Restart:
 				// or non-optimal flight behavior might occur!!!
 			}
 
-			CheckAutonomous();
-
-			GetDirection();	
 			ComputeBaroComp();
 
 			INTCONbits.TMR0IE = false;	// disable timer

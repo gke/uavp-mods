@@ -2,7 +2,7 @@
 
 // Navigation
 
-#define MAX_ANGLE 15
+#define MAX_ANGLE 10		/* Rx stick units */
 
 #define ENABLE_AUTONOMOUS
 #ifdef ENABLE_AUTONOMOU
@@ -322,7 +322,7 @@ extern int16	Rp,Pp,Yp,Vud;
 
 extern uint8	Flags[32];
 
-extern int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
+extern int16	IntegralCount, ThrDownCount, GPSCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
 extern uint24	RCGlitchCount;
 extern int8		Rw,Pw;	// angles
 extern int8		BatteryVolts; 
@@ -446,7 +446,8 @@ extern int8	BaroThrottleDiff;	// 28
 
 // end of sanity checks
 
-#define MAXDROPOUT	200	// max 200x 20ms = 4sec. dropout allowable
+#define MAXDROPOUT	400L	// max 400x 10ms = 4sec. dropout allowable
+#define GPSDROPOUT	200L	// 2sec.
 
 // Counter for flashing Low-Power LEDs
 #define BLINK_LIMIT 100	// should be a number dividable by 4!
