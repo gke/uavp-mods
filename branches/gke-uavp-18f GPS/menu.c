@@ -144,16 +144,18 @@ void ProcessComCommand(void)
 	
 	ch = PollRxChar();
 
-	if ( ch != NUL )
+	if ( ch != NUL   )
 	{
 		if( islower(ch))							// check lower case
 			ch=toupper(ch);
-	
+		
 		switch( ch )
 		{
+			#ifdef USE_GPS
 			case '$' : // NMEA sentence
 				_NMEADetected = true;
 				break;
+			#endif // USE_GPS
 			case 'L'  :	// List parameters
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				if( IK5 > _Neutral )
@@ -182,12 +184,12 @@ void ProcessComCommand(void)
 					addrbase = _EESet2;
 				else
 					addrbase = _EESet1;
-	
+		
 				if( addr ==  (&ConfigParam - &FirstProgReg) )
 					d &=0xf7; // no Double Rates
-	
+		
 				WriteEE(addrbase + (uint16)addr, d);
-	
+		
 				// update transmitter config bits in the other parameter set
 				if( addr ==  (&ConfigParam - &FirstProgReg) )
 				{									
@@ -200,7 +202,7 @@ void ProcessComCommand(void)
 					d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
 					WriteEE(addrbase + (uint16)addr, d);
 				}
-
+	
 				// This is not strictly necessary as UAVPSet enforces it.
 				// Hovever direct edits of parameter files can easily exceed
 				// intermediate arithmetic limits.
@@ -209,7 +211,7 @@ void ProcessComCommand(void)
 					d = 127 / YawIntFactor;
 					WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
 				}
-
+	
 				LedBlue_OFF;
 				ShowPrompt();
 				break;
@@ -219,10 +221,10 @@ void ProcessComCommand(void)
 			case 'N' :	// neutral values
 				TxString("\r\nNeutral Roll:");
 				TxValS(NeutralLR);
-	
+		
 				TxString(" Ptch:");
 				TxValS(NeutralFB);
-	
+		
 				TxString(" Yaw:");	
 				TxValS(NeutralUD);
 				ShowPrompt();
@@ -237,11 +239,11 @@ void ProcessComCommand(void)
 				TxString(",7:");TxValU(IK7);
 				ShowPrompt();
 				break;
-	
+		
 			case 'B':	// call bootloader
 				DisableInterrupts;
-				BootStart();							// never comes back!
-			
+				BootStart();		// never comes back!
+				
 			case '?'  : // help
 				TxText(SerHelp);
 				ShowPrompt();

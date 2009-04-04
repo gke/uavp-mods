@@ -80,7 +80,7 @@ int16	Trace[LastTrace];
 uint8	Flags[32];
 uint8	NeutralsAcquired;
 
-int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
+int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
 uint24	RCGlitchCount;
 int8	BatteryVolts;
 int8	Rw,Pw;

@@ -166,6 +166,10 @@ void InitDirection(void)
 	return;
 CTerror:
 	_UseCompass = false;
+
+#ifdef TEST_SOFTWARE
+_UseCompass = true; // override bug for test code
+#endif
 	I2CStop();
 } // InitDirection
 
@@ -187,13 +191,11 @@ void GetDirection(void)
 		I2CStop();
 
 		#ifdef ENABLE_AUTONOMOUS 
-		CompassHeading =  (int16)((real32)Compass * DECIDEGMILLIRAD) + COMPASS_OFFSET;
-		while ( CompassHeading >= TWOMILLIPI )
+		CompassHeading = ((int24)Compass * MILLIRAD)/1800L + COMPASS_OFFSET;
+		while ( CompassHeading > TWOMILLIPI )
 			CompassHeading -= TWOMILLIPI;
 		#endif // ENABLE_AUTONOMOUS
 
-		// DirVal has 1/10th degrees
-		// convert to set 360.0 deg = 240 units
 		Compass /= 15;
 		DirVal = Compass;
 	
@@ -237,8 +239,11 @@ void GetDirection(void)
 	}
 	#ifdef DEBUG_SENSORS
 	else	// no new value received
+	{
+		CompassHeading = 0;
 		if( IntegralCount == 0 )
 			Trace[TAbsDirection] = 0;
+	}
 	#endif
 
 } // GetDirection

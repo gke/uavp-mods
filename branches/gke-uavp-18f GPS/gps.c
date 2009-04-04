@@ -244,7 +244,7 @@ void ParseGPSSentence()
 
 void PollGPS(void)
 {
-  if (RxHead!=RxTail)
+  if (RxHead != RxTail)
     switch (GPSRxState) {
     case WaitGPSBody:
       {
@@ -335,19 +335,21 @@ void UpdateGPS(void)
 {
 	if ( GPSSentenceReceived )
 	{
-		LEDGreen_ON;
+		LedGreen_ON;
 
 		GPSSentenceReceived=false; // 7.5mS 18f2520 @ 16MHz 
 		ParseGPSSentence();
+		GPSCount = 0;
 	}
 	else
 	{
 		if( (BlinkCount & 0x0f) == 0 )
-			GPSCount++;
-				if( GPSCount > GPSDROPOUT )
+			if( GPSCount > GPSDROPOUT )
 				_GPSValid = false;
+			else
+				GPSCount++;
 	}
-	LEDGreen_OFF;
+	LedGreen_OFF;
 
 } // UpdateGPS
 

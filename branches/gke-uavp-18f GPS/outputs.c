@@ -291,7 +291,7 @@ void OutSignals(void)
 
 	// simply wait for nearly 1 ms
 	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( ReadTimer0() < (uint16)(0x100-3-20) ) ; // 16
+	while( ReadTimer0() < (uint16)(0x100-3-100) ) ; // 16
 
 	// now stop CCP1 interrupt
 	// capture can survive 1ms without service!
@@ -431,7 +431,7 @@ _endasm
 
 	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
-	while( ReadTimer0() < (uint16)(0x100-3-20) ) ; 	// wait for 2nd TMR0 near overflow
+	while( ReadTimer0() < (uint16)(0x100-3-100) ) ; 	// wait for 2nd TMR0 near overflow
 
 	INTCONbits.GIE = false;					// Int wieder sperren, wegen Jitter
 	while( !INTCONbits.TMR0IF ) ;		// wait for 2nd overflow (2 ms)

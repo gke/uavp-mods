@@ -261,7 +261,7 @@ ErrorRestart:
 	} 	
 	#endif // RX_INTERRUPTS
 
-	if( INTCONbits.TMR0IF && INTCONbits.TMR0IE )
+	if( INTCONbits.TMR0IE && INTCONbits.TMR0IF )
 	{
 		INTCONbits.TMR0IF = false;				// quit int
 		TimeSlot--;

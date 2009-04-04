@@ -26,14 +26,14 @@
 #include "bits.h"
 
 #pragma idata menuhello
-const uint8  SerHello[] = "\r\nProfi-Ufo TEST V" Version "\r\nCopyright (c) 2007-9"
+const uint8  SerHello[] = "\r\nUAVP TEST V" Version "\r\nCopyright (c) 2007-9"
 							  " G.K. Egan & W. Mahringer\r\n"
 							  "Comes with ABSOLUTELY NO WARRANTY\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n";
 #pragma idata
 #pragma idata menusetup
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
-const uint8  SerSetup[] = "\r\nProfi-Ufo TEST V" Version " ready.\r\n"
+const uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
 
 #ifdef DEBUG_SENSORS
 	"Debug: Sensors\r\n"
@@ -145,6 +145,9 @@ void ProcessComCommand(void)
 	
 		switch( ch )
 		{
+			case '$' : // GPS NMEA sentences
+				_NMEADetected = true;
+				break;
 			case NUL : break;
 			case 'R'  :	// Receiver test
 				ReceiverTest();
