@@ -2,10 +2,12 @@
 
 // Navigation
 
-#define MAX_ANGLE 10		/* Rx stick units */
+#define MAX_ANGLE 10L		/* Rx stick units */
+
+//#define RX_INTERRUPTS
 
 #define ENABLE_AUTONOMOUS
-#ifdef ENABLE_AUTONOMOU
+#ifdef ENABLE_AUTONOMOUS
 	#define RX_INTERRUPTS
 	#define USE_GPS
 	#define GPS_NMEA
@@ -14,7 +16,7 @@
 // Accelerometer
 
 // Enable vertical acclerometer compensation of vertical velocity 
-#define ENABLE_VERTICAL_VELOCITY_DAMPING
+//#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
 

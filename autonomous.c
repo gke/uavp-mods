@@ -33,7 +33,7 @@ void HoldStation(void);
 
 // Defines
 
-#define PROXIMITY	20
+#define PROXIMITY	20L
 
 // Variables
 extern boolean FirstGPSSentence;
@@ -42,27 +42,12 @@ extern boolean GPSSentenceReceived;
 
 void Descend(void)
 {	
-		DesiredThrottle = 0; // safest	
+	if( (BlinkCount & 0x0f) == 0 )
+		DesiredThrottle = Limit(DesiredThrottle--, 0, _Maximum); // safest	
 } // Descend
 
-void AcquireSatellites(void)
-{
-	#ifdef USE_GPS
-	LedBlue_ON;
-	if ( !FirstGPSSentence )
-		while ( !_GPSValid )
-		{
-			if ( GPSSentenceReceived )
-			{
-				GPSSentenceReceived=false; 
-				ParseGPSSentence();
-			}
-		}
-	LedBlue_OFF;
-	#endif // USE_GPS
-} // AcquireSatellites
-
-#define GPSFilter MediumFilter
+#define GPSFilter SoftFilter
+#define ANGLE_SCALE ((PROXIMITY * 256L + MAX_ANGLE/2)/MAX_ANGLE)
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
@@ -73,29 +58,29 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	int16 Angle, Temp;
 	int16 RangeApprox;
 	int16 EastDiff, NorthDiff;
+	int24 Temp2;
 
 	EastDiff = GPSEastWay - GPSEast;
 	NorthDiff = GPSNorthWay - GPSNorth;
 
-	RangeApprox = Limit((int24)NorthDiff*(int24)NorthDiff + (int24)EastDiff*(int24)EastDiff, 0, PROXIMITY);
+	Temp2 = (int24)NorthDiff*(int24)NorthDiff + (int24)EastDiff*(int24)EastDiff;
+	RangeApprox = Limit(Temp2, 0, PROXIMITY);
 		
 	Angle = int16atan2(-EastDiff, NorthDiff) - CompassHeading;
-	while ( Angle < MILLIPI ) Angle += TWOMILLIPI;
-	while ( Angle >= MILLIPI ) Angle -= TWOMILLIPI;
+	while ( Angle < 0 ) Angle += TWOMILLIPI;
+	while ( Angle >= TWOMILLIPI ) Angle -= TWOMILLIPI;
 
-	Temp = -int16sin(Angle) * RangeApprox/PROXIMITY;
-	Temp = Limit(Temp, -MAX_ANGLE, MAX_ANGLE); // removed scaling of trig result
-	DesiredRoll = GPSFilter(DesiredRoll, Temp);
+	DesiredRoll = (int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
+	//DesiredRoll = GPSFilter(DesiredRoll, Temp);
 
-	Temp = -int16cos(Angle) * RangeApprox/PROXIMITY;
-	Temp = Limit(Temp, -MAX_ANGLE, MAX_ANGLE);
-	DesiredPitch = GPSFilter(DesiredPitch, Temp);
+	DesiredPitch = (-int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
+	//DesiredPitch = GPSFilter(DesiredPitch, Temp);
 
 } // Navigate
 
 void HoldStation()
 {
-	if ( _GPSValid ) // zzz && _UseCompass ) 
+	if ( _GPSValid ) //zzz&& _UseCompass ) 
 	{ 
 		if ( !_HoldingStation )
 		{
@@ -111,28 +96,30 @@ void HoldStation()
 		DesiredRoll = IRoll;
 		DesiredPitch = IPitch;
 	}
+	
+	DesiredThrottle = IGas;
+	DesiredYaw = IYaw;
 
 } // HoldStation
 
 void ReturnHome(void)
 {
-	if ( _GPSValid ) // zzz && _UseCompass )
+	if ( _GPSValid ) //zzz&& _UseCompass )
 	{
 		Navigate(0, 0);
-		//AltitudeHold(RETURN_ALT);
+		DesiredThrottle = IGas;
+		//AltitudeHold(RETURN_ALT); // rely on Baro hold for now
 	}
 	else
 	{
 		DesiredRoll = DesiredPitch = 0;
 		Descend();
 	}
+	DesiredYaw = IYaw;
 } // ReturnHome
 
 void CheckAutonomous(void)
 {
-	DesiredThrottle = IGas;
-	DesiredYaw = IYaw;
-
 	#ifdef ENABLE_AUTONOMOUS
 
 	UpdateGPS();
@@ -146,13 +133,17 @@ void CheckAutonomous(void)
 			ReturnHome();
 		else
 		{
+			DesiredThrottle = IGas;
 			DesiredRoll = IRoll;
 			DesiredPitch = IPitch;
+			DesiredYaw = IYaw;
 		}
 	}
 	#else
+		DesiredThrottle = IGas;
 		DesiredRoll = IRoll;
 		DesiredPitch = IPitch;
+		DesiredYaw = IYaw;
 	#endif // ENABLE_AUTONOMOUS
 
 } // CheckAutonomous

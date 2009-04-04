@@ -62,6 +62,8 @@ int16	CurDeviation;	// deviation from correct heading
 //int8	RCRollNeutral, RCPitchNeutral, RCYawNeutral;
 int16 	CompassHeading;
 
+int16	GPSCount;
+
 uint8	MCamRoll,MCamPitch;
 int16	Motor[NoOfMotors];
 
@@ -195,9 +197,6 @@ uint8 SendEscI2CByte(uint8 d)
 void LinearTest(void)
 {
 	TxString("\r\nAccelerometer test:\r\n");
-
-	Delay1mS(100);
-	IsLISLactive();
 
 	if( _UseLISL )
 	{
@@ -404,10 +403,13 @@ void PowerOutput(int8 d)
 
 void GPSTest(void)
 {
-	uint8 ch; 
+	uint8 ch, Raw; 
+
+	Raw = false;
 
 	TxString("\r\nGPS test\r\n");
 	TxString("monitors GPS input until full power reset\r\n");
+	TxString("units Metres and Degrees\r\n");
 
 	DoCompassTest();
 
@@ -426,24 +428,43 @@ void GPSTest(void)
 		UpdateGPS();	
 		if ( _GPSValid )
 		{
-			GetDirection();
+		//	GetDirection();
+CompassHeading = 0;
 			ReturnHome();
-			TxNextLine();
-		//	if ( _UseCompass )
-				TxVal32((int32)((real32)CompassHeading*CENTIRADDEG+0.5), 1, ' ');
-		//	else
-		//		TxString(" ?.?");
-			TxChar(' ');
-			TxVal32(GPSNorth,0,'M');
-			TxString(" North ");
-			TxVal32(GPSEast,0,'M');
-			TxString(" East ");
-			TxVal32((DesiredRoll*100+MAX_ANGLE/2)/MAX_ANGLE, 0, '%');
-			TxString(" Roll ");
-			TxVal32((DesiredPitch*100+MAX_ANGLE/2)/MAX_ANGLE, 0, '%');
-			TxString(" Pitch"); 
-			TxNextLine();
-		}
+
+			if ( Raw )
+			{
+				TxVal32(((int32)CompassHeading*180L)/(int32)MILLIPI, 3, ';');
+				TxVal32(GPSNorth,0,';');
+				TxVal32(GPSEast,0,';');
+				TxVal32(DesiredRoll, 0, ';');
+				TxVal32(DesiredPitch, 0, ';');
+				TxNextLine();
+			}
+			else
+			{
+				TxVal32(((int32)CompassHeading*180L)/(int32)MILLIPI, 3, ' ');
+				TxString("\t ");
+				TxVal32(Abs(GPSNorth), 0, 0);
+				if ( GPSNorth >=0 )
+					TxChar('N');
+				else
+					TxChar('S');
+				TxString("\t ");
+				TxVal32(Abs(GPSEast), 0, 0);
+				if ( GPSEast >=0 )
+					TxChar('E');
+				else
+					TxChar('W');
+
+				TxString("\t -> R=");
+				TxVal32(DesiredRoll, 0, ' ');
+				TxString("\t P=");		
+				TxVal32(DesiredPitch, 0, ' ');
+				TxNextLine();
+			}	
+			_GPSValid = false;
+		}	
 	}
 } // GPSTest
 
@@ -571,6 +592,9 @@ void main(void)
 {
 	int8	i;
 
+int16 x,y; //zzz
+
+
 	DisableInterrupts;
 
 	InitPorts();
@@ -604,6 +628,31 @@ void main(void)
 	_NoSignal = true;		// assume no signal present
 	PauseTime = 0;
 
+//#define CHECK_TRIG
+#ifdef CHECK_TRIG
+for (x = 0; x <=TWOMILLIPI; x+=10)
+{
+	TxVal32(x,0,';');
+ TxVal32(int16sin(x),0,';');
+TxVal32(int16cos(x),0,';');
+TxNextLine();
+}
+TxNextLine();
+for (x = -1000; x <=1000; x+=10)
+for (y = 1000; y >=-1000; y-=10)
+{
+	TxVal32(x,0,';');
+	TxVal32(y,0,';');
+ TxVal32(int16atan2(y, x),0,';');
+
+TxNextLine();
+}
+
+TxChar('*');
+TxNextLine();
+
+#endif
+
 	InitArrays();
 
 	#ifdef INIT_PARAMS
@@ -624,8 +673,13 @@ void main(void)
 	EnableInterrupts;
 
 	InitGPS();
+
+	Delay1mS(100);
+	IsLISLactive();
+
 	InitBarometer();
 	Delay1mS(BARO_PRESS_TIME);
+
 	InitDirection();
 	Delay1mS(COMPASS_TIME);
 
