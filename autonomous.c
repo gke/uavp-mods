@@ -70,11 +70,11 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	while ( Angle < 0 ) Angle += TWOMILLIPI;
 	while ( Angle >= TWOMILLIPI ) Angle -= TWOMILLIPI;
 
-	Temp = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
-	DesiredRoll = GPSFilter(DesiredRoll, Temp);
+	DesiredRoll = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
+	// TOO SLOW DesiredRoll = GPSFilter(DesiredRoll, Temp);
 
-	Temp = (int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
-	DesiredPitch = GPSFilter(DesiredPitch, Temp);
+	DesiredPitch = (int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
+	// TOO SLOW DesiredPitch = GPSFilter(DesiredPitch, Temp);
 
 } // Navigate
 
