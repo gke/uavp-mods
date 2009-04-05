@@ -54,10 +54,11 @@ CTerror:
 #ifdef TEST_SOFTWARE
 _UseCompass = true; // override bug for test code
 #endif
+
 	I2CStop();
 } // InitDirection
 
-#define COMPASS_OFFSET  MILLIPI
+#define COMPASS_OFFSET  ((COMPASS_OFFSET_DEG*MILLIPI)/180L)
 
 void GetDirection(void)
 {
