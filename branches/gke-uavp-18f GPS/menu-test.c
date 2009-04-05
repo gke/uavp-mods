@@ -26,14 +26,14 @@
 #include "bits.h"
 
 #pragma idata menuhello
-const uint8  SerHello[] = "\r\nUAVP TEST V" Version "\r\nCopyright (c) 2007-9"
+const rom uint8  SerHello[] = "\r\nUAVP TEST V" Version "\r\nCopyright (c) 2007-9"
 							  " G.K. Egan & W. Mahringer\r\n"
 							  "Comes with ABSOLUTELY NO WARRANTY\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n";
 #pragma idata
 #pragma idata menusetup
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
-const uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
+const rom uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
 
 #ifdef DEBUG_SENSORS
 	"Debug: Sensors\r\n"
@@ -76,7 +76,7 @@ const uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
 #pragma idata
 
 #pragma idata menuhelp
-const uint8 SerHelp[] = "\r\nCommands:\r\n"
+const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"A..Analog ch.\r\n"
 	"B..Boot\r\n"
 	"C..Compass test\r\n"
@@ -104,9 +104,9 @@ void ShowPrompt(void)
 void ShowSetup(uint8 h)
 {
 	if( h )
-		TxText(SerHello);
+		TxString(SerHello);
 
-	TxText(SerSetup);	// send hello message
+	TxString(SerSetup);	// send hello message
 	if( _UseLISL )
 		TxString("ONLINE\r\n\0");
 	else
@@ -232,7 +232,7 @@ void ProcessComCommand(void)
 				DisableInterrupts;
 				BootStart();
 			case '?'  : // help
-				TxText(SerHelp);
+				TxString(SerHelp);
 				ShowPrompt();
 		}
 	}

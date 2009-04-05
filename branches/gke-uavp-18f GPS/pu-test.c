@@ -405,6 +405,13 @@ void GPSTest(void)
 {
 	uint8 ch, Raw; 
 
+	#ifdef XXX
+	int16 Angle, Temp;
+	int16 RangeApprox;
+	int16 EastDiff, NorthDiff;
+	int24 Temp2;
+	#endif // XXX
+
 	Raw = false;
 
 	TxString("\r\nGPS test\r\n");
@@ -416,7 +423,6 @@ void GPSTest(void)
 	TxString("CONNECT GPS\r\n");
 	TxString("\r\nPress any key to cont.\r\n");
 
-	while( !PollRxChar() );
 	while( !PollRxChar() );
 
 	_NMEADetected = true;
@@ -434,9 +440,33 @@ CompassHeading = 0;
 
 			if ( Raw )
 			{
+				#ifdef XXX
+				#define ANGLE_SCALE ((PROXIMITY * 256L + MAX_ANGLE/2)/MAX_ANGLE)
+				GPSEast = 100;
+				GPSNorth = 100;
+
+				EastDiff = - GPSEast;
+				NorthDiff = - GPSNorth;
+			
+				Temp2 = (int24)NorthDiff*(int24)NorthDiff + (int24)EastDiff*(int24)EastDiff;
+				RangeApprox = Limit(Temp2, 0, PROXIMITY);
+					
+				Angle = int16atan2(-EastDiff, NorthDiff) + CompassHeading;
+				while ( Angle < 0 ) Angle += TWOMILLIPI;
+				while ( Angle >= TWOMILLIPI ) Angle -= TWOMILLIPI;
+
+				Temp = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
+				DesiredRoll = GPSFilter(DesiredRoll, Temp);
+			
+				Temp = (int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
+				DesiredPitch = GPSFilter(DesiredPitch, Temp);
+				#endif // XXX
+
 				TxVal32(((int32)CompassHeading*180L)/(int32)MILLIPI, 3, ';');
+
 				TxVal32(GPSNorth,0,';');
 				TxVal32(GPSEast,0,';');
+
 				TxVal32(DesiredRoll, 0, ';');
 				TxVal32(DesiredPitch, 0, ';');
 				TxNextLine();

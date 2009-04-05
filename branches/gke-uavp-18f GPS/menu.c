@@ -25,11 +25,11 @@
 #include "bits.h"
 
 #pragma idata menu1
-const uint8 SerHello[] = "\r\nUAVP " Version " Copyright (c) 2007-9"
+const rom uint8 SerHello[] = "\r\nUAVP " Version " Copyright (c) 2007-9"
 							  " G.K. Egan & W. Mahringer\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n";
 
-const uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
+const rom uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 
 #ifdef DEBUG
 	"Debug: ON\r\n"
@@ -72,7 +72,7 @@ const uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 #pragma idata
 
 #pragma idata menu2
-const uint8  SerHelp[]  = "\r\nCommands:\r\n"
+const rom uint8  SerHelp[]  = "\r\nCommands:\r\n"
 	"L...List param\r\n"
 	"M...Modify param\r\n"
 	"S...Show setup\r\n"
@@ -91,11 +91,11 @@ void ShowSetup(uint8 h)
 {
 	if( h )
 	{
-		TxText(SerHello);
+		TxString(SerHello);
 		IK5 = _Minimum;	
 	}
 
-	TxText(SerSetup);	// send hello message
+	TxString(SerSetup);	// send hello message
 	if( _UseLISL )
 		TxString("ONLINE\r\n");
 	else
@@ -245,7 +245,7 @@ void ProcessComCommand(void)
 				BootStart();		// never comes back!
 				
 			case '?'  : // help
-				TxText(SerHelp);
+				TxString(SerHelp);
 				ShowPrompt();
 				break;
 		}

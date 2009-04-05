@@ -334,21 +334,24 @@ void UpdateGPS(void)
 {
 	if ( GPSSentenceReceived )
 	{
-		LedGreen_ON;
-
-		GPSSentenceReceived=false; // 7.5mS 18f2520 @ 16MHz 
-		ParseGPSSentence();
-		GPSCount = 0;
+		LedYellow_ON;
+		LedRed_OFF;
+		GPSSentenceReceived=false;  
+		ParseGPSSentence(); // 7.5mS 18f2520 @ 16MHz
+		if ( _GPSValid )
+			GPSCount = 0;
 	}
 	else
-	{
 		if( (BlinkCount & 0x0f) == 0 )
 			if( GPSCount > GPSDROPOUT )
+			{
+				LedRed_ON;
 				_GPSValid = false;
+			}
 			else
 				GPSCount++;
-	}
-	LedGreen_OFF;
+
+	LedYellow_OFF;
 
 } // UpdateGPS
 
