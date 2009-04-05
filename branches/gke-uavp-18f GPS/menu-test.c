@@ -138,15 +138,18 @@ void ProcessComCommand(void)
 
 	ch = PollRxChar();
 
-	if ( ch != NUL )
+	if ( !_NMEADetected )
 	{
-		if( islower(ch))
-			ch=toupper(ch);
-	
-		switch( ch )
+		if ( ch != NUL )
 		{
+			if( islower(ch))
+				ch=toupper(ch);
+		
+			switch( ch )
+			{
 			case '$' : // GPS NMEA sentences
 				_NMEADetected = true;
+   				PIE1bits.RCIE = true; // turn on Rx interrupts
 				break;
 			case NUL : break;
 			case 'R'  :	// Receiver test
@@ -234,6 +237,7 @@ void ProcessComCommand(void)
 			case '?'  : // help
 				TxString(SerHelp);
 				ShowPrompt();
+			}
 		}
 	}
 } // ProcessComCommand

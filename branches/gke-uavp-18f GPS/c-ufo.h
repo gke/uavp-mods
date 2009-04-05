@@ -11,7 +11,6 @@
 
 #define ENABLE_AUTONOMOUS
 #ifdef ENABLE_AUTONOMOUS
-	#define RX_INTERRUPTS
 	#define USE_GPS
 	#define GPS_NMEA
 #endif
@@ -138,7 +137,7 @@
 // Misc
 
 // Loads a "representative" parameter set into EEPROM
-//#define INIT_PARAMS
+#define INIT_PARAMS
 
 // =====================================
 // end of user-configurable section!
@@ -337,10 +336,8 @@ extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern int16	CurDeviation;	// deviation from correct heading
 
 #define RXBUFFMASK	63L
-#ifdef RX_INTERRUPTS
 extern uint8 RxCheckSum, RxHead, RxTail;
 extern uint8 RxBuff[RXBUFFMASK+1];
-#endif // RX_INTERRUPTS
 
 #ifdef DEBUG_SENSORS
 extern int16	Trace[LastTrace];

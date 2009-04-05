@@ -351,6 +351,8 @@ void GPSTest(void)
 	while( !PollRxChar() );
 
 	_NMEADetected = true;
+	PIE1bits.RCIE = true; // turn on Rx interrupts
+
 	DesiredRoll = IRoll;
 	DesiredPitch = IPitch;
 

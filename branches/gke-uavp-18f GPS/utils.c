@@ -62,19 +62,18 @@ void Delay100mSWithOutput(int16 dur)
 				INTCONbits.TMR0IF = 0;
 			}
 			OutSignals(); // 1-2 ms Duration
-			#ifdef RX_INTERRUPTS
-			if ( RxTail != RxHead )
-			{
-				INTCONbits.TMR0IE = T0IntEn;
-				return;
-			}
-			#else
-			if( PIR1bits.RCIF )
-			{
-				INTCONbits.TMR0IE = T0IntEn;
-				return;
-			}
-			#endif // RX_INTERRUPTS
+			if ( PIE1bits.RCIE == true )
+				if ( RxTail != RxHead )
+				{
+					INTCONbits.TMR0IE = T0IntEn;
+					return;
+				}
+				else
+				if( PIR1bits.RCIF )
+				{
+					INTCONbits.TMR0IE = T0IntEn;
+					return;
+				}
 		}
 	INTCONbits.TMR0IE = T0IntEn;
 } // Delay100mSWithOutput
