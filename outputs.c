@@ -177,7 +177,7 @@ uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 void OutSignals(void)
 {
 	#ifdef DEBUG_SENSORS
-	Trace[TIGas] = IGas;
+	Trace[TIGas] = DesiredThrottle;
 
 	Trace[TIRoll] = DesiredRoll;
 	Trace[TIPitch] = DesiredPitch;

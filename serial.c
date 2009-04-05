@@ -25,18 +25,10 @@
 #include "c-ufo.h"
 #include "bits.h"
 
-void TxText(const uint8 *pch)
-{
-	while( *pch != '\0' )
-		TxChar(*pch++);
-
-} // TxText
-
 void TxString(const rom uint8 *pch)
 {
 	while( *pch != '\0' )
 		TxChar(*pch++);
-
 } // TxString
 
 void TxChar(uint8 ch)

@@ -104,7 +104,7 @@ int8	YawDiffFactor		=6;
 int8	YawLimit			=50;
 int8	YawIntLimit			=3;
 int8	ConfigParam			=0b00000000;
-int8	TimeSlot			=4;	// control update interval + LEGACY_OFFSET
+int8	TimeSlot			=2;	// control update interval + LEGACY_OFFSET
 int8	LowVoltThres		=43;
 int8	CamRollFactor		=4;	
 int8	LinFBIntFactor		=0;	// unused
@@ -154,7 +154,7 @@ void CheckThrottleMoved(void)
 			if( (LedCount & 1) == 0 )
 				ThrDownCount--;
 			if( ThrDownCount == 0 )
-				ThrNeutral = IGas;	// remember current Throttle level
+				ThrNeutral = DesiredThrottle;	// remember current Throttle level
 		}
 		else
 		{
@@ -163,12 +163,12 @@ void CheckThrottleMoved(void)
 			else
 				Temp = ThrNeutral - THR_MIDDLE;
 
-			if( IGas < THR_HOVER ) // no hovering below this throttle setting
+			if( DesiredThrottle < THR_HOVER ) // no hovering below this throttle setting
 				ThrDownCount = THR_DOWNCOUNT;	// left dead area
 
-			if( IGas < Temp )
+			if( DesiredThrottle < Temp )
 				ThrDownCount = THR_DOWNCOUNT;	// left dead area
-			if( IGas > ThrNeutral + THR_MIDDLE )
+			if( DesiredThrottle > ThrNeutral + THR_MIDDLE )
 				ThrDownCount = THR_DOWNCOUNT;	// left dead area
 		}
 	}

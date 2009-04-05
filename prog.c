@@ -50,16 +50,9 @@ void ReadParametersEE(void)
 		*p = ReadEE(addr++);
 
 	BatteryVolts = LowVoltThres;
-
-	// Sanity check
-	//if timing value is lower than 1, set it to 10ms!
-	// Note TimeSlot is re-read from EEPROM each cycle
 	
-	if( TimeSlot < 2 )
-		TimeSlot = 2;
-	else
-	if ( TimeSlot > 20 )
-		TimeSlot = 20;
+	TimeSlot = Limit(TimeSlot, 2, 20);
+
 } // ReadParametersEE
 
 void WriteEE(uint8 addr, int8 d)

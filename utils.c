@@ -163,7 +163,7 @@ int16 int16sin(int16 A)
 	if ( Negate )
 		A -= MILLIPI;
 
-	v = Table16((((int24)A * 256 + HALFMILLIPI)/MILLIPI)-1, SineTable);
+	v = Table16(((int24)A * 256 + HALFMILLIPI)/MILLIPI, SineTable);
 
 	if ( Negate )
 		v= -v;
@@ -288,7 +288,7 @@ void LedGame(void)
 {
 	if( --LedCount == 0 )
 	{
-		LedCount = ((255-IGas)>>3) +5;	// new setup
+		LedCount = ((255-DesiredThrottle)>>3) +5;	// new setup
 		if( _Hovering )
 		{
 			AUX_LEDS_ON;	// baro locked, all aux-leds on

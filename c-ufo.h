@@ -449,8 +449,8 @@ extern int8	BaroThrottleDiff;	// 28
 
 // end of sanity checks
 
-#define MAXDROPOUT	400L	// max 400x 10ms = 4sec. dropout allowable
-#define GPSDROPOUT	200L	// 2sec.
+#define MAXDROPOUT	400L	// 400 x 16 x 7ms = 40sec. dropout allowable
+#define GPSDROPOUT	20L		// 2sec.
 
 // Counter for flashing Low-Power LEDs
 #define BLINK_LIMIT 100	// should be a number dividable by 4!
@@ -544,7 +544,6 @@ extern void TxChar(uint8);
 extern void TxNextLine(void);
 extern void TxValU(uint8);
 extern void TxValS(int8);
-extern void TxText(const uint8 *);
 extern void TxString(const rom uint8 *);
 
 // spi.c
@@ -593,9 +592,9 @@ extern int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 
 // Menu strings
 
-extern const uint8  SerHello[];
-extern const uint8  SerSetup[];
-extern const uint8 SerPrompt[];
+extern const rom uint8  SerHello[];
+extern const rom uint8  SerSetup[];
+extern const rom uint8 SerPrompt[];
 
 extern void AnalogTest(void);extern void DoCompassTest(void);
 extern void GPSTest(void);

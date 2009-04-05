@@ -66,21 +66,21 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	Temp2 = (int24)NorthDiff*(int24)NorthDiff + (int24)EastDiff*(int24)EastDiff;
 	RangeApprox = Limit(Temp2, 0, PROXIMITY);
 		
-	Angle = int16atan2(-EastDiff, NorthDiff) - CompassHeading;
+	Angle = int16atan2(-EastDiff, NorthDiff) + CompassHeading;
 	while ( Angle < 0 ) Angle += TWOMILLIPI;
 	while ( Angle >= TWOMILLIPI ) Angle -= TWOMILLIPI;
 
-	DesiredRoll = (int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
-	//DesiredRoll = GPSFilter(DesiredRoll, Temp);
+	Temp = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
+	DesiredRoll = GPSFilter(DesiredRoll, Temp);
 
-	DesiredPitch = (-int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
-	//DesiredPitch = GPSFilter(DesiredPitch, Temp);
+	Temp = (int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
+	DesiredPitch = GPSFilter(DesiredPitch, Temp);
 
 } // Navigate
 
 void HoldStation()
 {
-	if ( _GPSValid ) //zzz&& _UseCompass ) 
+	if ( _GPSValid && _UseCompass ) 
 	{ 
 		if ( !_HoldingStation )
 		{
@@ -104,7 +104,7 @@ void HoldStation()
 
 void ReturnHome(void)
 {
-	if ( _GPSValid ) //zzz&& _UseCompass )
+	if ( _GPSValid && _UseCompass )
 	{
 		Navigate(0, 0);
 		DesiredThrottle = IGas;
