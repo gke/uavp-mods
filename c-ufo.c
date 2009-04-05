@@ -209,21 +209,7 @@ void main(void)
 	
 	InitADC();
 	
-	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
-	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
-
-	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
-	CCP1CONbits.CCP1M0 = NegativePPM;
-
-	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
-	PR2 = TMR2_5MS;		// set compare reg to 9ms
-
-	#ifdef RX_INTERRUPTS
-	RxCheckSum = RxHead = RxTail = 0;
-   	PIE1bits.RCIE = true;
-	#else
-   	PIE1bits.RCIE = false;
-	#endif
+	InitTimersAndInterrupts();
 
 	// setup flags register
 	for ( i = 0; i<32 ; i++ )

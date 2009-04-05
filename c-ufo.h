@@ -2,10 +2,12 @@
 
 // Navigation
 
-#define MAX_ANGLE 20L		/* Rx stick units */
-#define PROXIMITY	25L		/* square of the closing radius in metres */
+// The "Ls" are important
 
-//#define RX_INTERRUPTS
+#define COMPASS_OFFSET_DEG		180L	/* North degrees CW from Front */
+
+#define MAX_ANGLE 20L					/* Rx stick units */
+#define PROXIMITY	25L					/* square of the closing radius in metres */
 
 #define ENABLE_AUTONOMOUS
 #ifdef ENABLE_AUTONOMOUS
@@ -21,15 +23,11 @@
 
 // Gyros
 
-// Enable "Dynamic mass" compensation Roll and/or Pitch
-// Normally enabled for Roll only 
-#define ENABLE_DYNAMIC_MASS_COMP_ROLL
-#define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
 // Barometer
 
 // Reduces the update rate and the additionally the descent rate 
-//#define ENABLE_NEW_ALT_HOLD
+#define ENABLE_NEW_ALT_HOLD
 
 // Modifications which have been adopted are included BELOW.
 
@@ -132,6 +130,10 @@
 
 // Gyros
 
+// Enable "Dynamic mass" compensation Roll and/or Pitch
+// Normally enabled for Roll only 
+#define ENABLE_DYNAMIC_MASS_COMP_ROLL
+#define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
 // Misc
 
@@ -495,6 +497,9 @@ extern void InitBarometer(void);
 extern void StartBaroAcq(uint8);
 extern uint16 ReadBaro(void);
 extern void GetBaroAltitude(void);
+
+// irq.c
+void InitTimersAndInterrupts(void);
 
 // pid.c
 extern void GetNeutralAccelerations(void);

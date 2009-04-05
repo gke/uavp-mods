@@ -141,16 +141,18 @@ void ProcessComCommand(void)
 	uint8 addr;
 	uint16 addrbase, curraddr;
 	int8 d;
-	
-	ch = PollRxChar();
 
-	if ( ch != NUL   )
+	if ( !_NMEADetected )
 	{
-		if( islower(ch))							// check lower case
-			ch=toupper(ch);
-		
-		switch( ch )
+		ch = PollRxChar();
+	
+		if ( ch != NUL   )
 		{
+			if( islower(ch))							// check lower case
+				ch=toupper(ch);
+			
+			switch( ch )
+			{
 			#ifdef USE_GPS
 			case '$' : // NMEA sentence
 				_NMEADetected = true;
@@ -248,6 +250,7 @@ void ProcessComCommand(void)
 				TxString(SerHelp);
 				ShowPrompt();
 				break;
+			}
 		}
 	}
 } // ProcessComCommand

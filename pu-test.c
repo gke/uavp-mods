@@ -118,81 +118,6 @@ int8	BaroThrottleDiff	=4;
 #pragma idata
 // End Parameters
 
-#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
-
-void EscI2CDelay(void)
-{
-	Delay1TCY();
-	Delay1TCY();
-}
-
-// send a start condition
-void EscI2CStart(void)
-{
-	ESC_DIO=1;	// set SDA to input, output a high
-	EscI2CDelay();
-	ESC_CIO=1;	// set SCL to input, output a high
-	while( ESC_SCL == 0 ) ;	// wait for line to come hi
-	EscI2CDelay();
-	ESC_SDA = 0;	// start condition
-	ESC_DIO = 0;	// output a low
-	EscI2CDelay();
-	ESC_SCL = 0;
-	ESC_CIO = 0;	// set SCL to output, output a low
-} // EscI2CStart
-
-
-void EscI2CStop(void)
-{
-	ESC_DIO=0;				// set SDA to output
-	ESC_SDA = 0;			// output a low
-	EscI2CDelay();
-	ESC_CIO=1;				// set SCL to input, output a high
-	while( ESC_SCL == 0 ) ;	// wait for line to come hi
-	EscI2CDelay();
-
-	ESC_DIO=1;				// set SDA to input, output a high, STOP condition
-	EscI2CDelay();			// leave clock high
-} // EscI2CStop
-
-uint8 SendEscI2CByte(uint8 d)
-{
-	int8 i;
-
-	for( i=0; i<8; i++)
-	{
-		if( (d & 0x80) != 0 )
-			ESC_DIO = 1;	// switch to input, line is high
-		else
-		{
-			ESC_SDA = 0;			
-			ESC_DIO = 0;	// switch to output, line is low
-		}
-	
-		ESC_CIO=1;			// set SCL to input, output a high
-		while( ESC_SCL == 0 ) ;	// wait for line to come hi
-		EscI2CDelay();
-		ESC_SCL = 0;
-		ESC_CIO = 0;		// set SCL to output, output a low
-		d <<= 1;
-	}
-	ESC_DIO = 1;			// set SDA to input
-	EscI2CDelay();
-	ESC_CIO=1;				// set SCL to input, output a high
-	while( ESC_SCL == 0 ) ;	// wait for line to come hi
-
-	EscI2CDelay();			// here is the ACK
-	i = ESC_SDA;	
-
-	ESC_SCL = 0;
-	ESC_CIO = 0;			// set SCL to output, output a low
-	EscI2CDelay();
-//	ESC_IO = 0;				// set SDA to output
-//	ESC_SDA = 0;			// leave output low
-	return(i);
-} // SendEscI2CByte
-
-#endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
 
 void LinearTest(void)
 {
@@ -434,8 +359,8 @@ void GPSTest(void)
 		UpdateGPS();	
 		if ( _GPSValid )
 		{
-		//	GetDirection();
-CompassHeading = 0;
+			GetDirection();
+
 			ReturnHome();
 
 			if ( Raw )
