@@ -156,6 +156,7 @@ void ProcessComCommand(void)
 			#ifdef USE_GPS
 			case '$' : // NMEA sentence
 				_NMEADetected = true;
+   				PIE1bits.RCIE = true; // turn on Rx interrupts
 				break;
 			#endif // USE_GPS
 			case 'L'  :	// List parameters

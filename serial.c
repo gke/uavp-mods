@@ -87,7 +87,6 @@ void TxValH16(uint16 v)
 	TxValH(v);
 } // TxValH16
 
-#ifdef RX_INTERRUPTS
 uint8 RxChar(void)
 {
 	uint8	ch;
@@ -96,53 +95,47 @@ uint8 RxChar(void)
 	//	DisableInterrupts;
 	RxHead = (RxHead + 1) & RXBUFFMASK;
 	//	EnableInterrupts;
-/*
-	#ifdef TEST_SOFTWARE
-	if ( _NMEADetected )
-		TxChar(ch);
-	#endif // TEST_SOFTWARE
-*/
+
 	return(ch);	
 } // RxChar
-#endif // RX_INTERRUPTS
 
 uint8 PollRxChar(void)
 {
 	uint8	ch;	
 
-	#ifdef RX_INTERRUPTS
-	if ( RxTail != RxHead )
+	if ( PIE1bits.RCIE == true )
 	{
-		ch = RxBuff[RxHead];
-	//	DisableInterrupts;
-		RxHead = (RxHead + 1) & RXBUFFMASK;
-	//	EnableInterrupts;	
-	}
-	else
-		ch = NUL;
-
-	return(ch);
-
-	#else
-
-	if( PIR1bits.RCIF )	// a character is waiting in the buffer
-	{
-		if( RCSTAbits.OERR || RCSTAbits.FERR )	// overrun or framing error?
+		if ( RxTail != RxHead )
 		{
-			RCSTAbits.CREN = false;	// disable, then re-enable port to
-			RCSTAbits.CREN = true;	// reset OERR and FERR bit
-			ch = RCREG;	// dummy read
+			ch = RxBuff[RxHead];
+		//	DisableInterrupts;
+			RxHead = (RxHead + 1) & RXBUFFMASK;
+		//	EnableInterrupts;	
 		}
 		else
-		{
-			ch = RCREG;	// get the character
-			TxChar(ch);	// echo it
-			return(ch);		// and return it
-		}
+			ch = NUL;
+	
+		return(ch);
 	}
-	return( '\0' );	// nothing in buffer
-
-	#endif // RX_INTERRUPTS
+	else
+	{
+		if( PIR1bits.RCIF )	// a character is waiting in the buffer
+		{
+			if( RCSTAbits.OERR || RCSTAbits.FERR )	// overrun or framing error?
+			{
+				RCSTAbits.CREN = false;	// disable, then re-enable port to
+				RCSTAbits.CREN = true;	// reset OERR and FERR bit
+				ch = RCREG;	// dummy read
+			}
+			else
+			{
+				ch = RCREG;	// get the character
+				TxChar(ch);	// echo it
+				return(ch);		// and return it
+			}
+		}
+		return( '\0' );	// nothing in buffer
+	}
 
 } // PollRxChar
 

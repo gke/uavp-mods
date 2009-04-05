@@ -49,10 +49,8 @@ int16 	Width;
 #pragma udata
 
 #pragma udata rxfifo
-#ifdef RX_INTERRUPTS
 uint8 RxCheckSum, RxHead, RxTail;
 uint8 RxBuff[RXBUFFMASK+1];
-#endif // RX_INTERRUPTS
 #pragma udata 
 
 void InitTimersAndInterrupts(void)
@@ -66,12 +64,8 @@ void InitTimersAndInterrupts(void)
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
-	#ifdef RX_INTERRUPTS
 	RxCheckSum = RxHead = RxTail = 0;
-   	PIE1bits.RCIE = true;
-	#else
    	PIE1bits.RCIE = false;
-	#endif
 
 } // InitTimersAndInterrupts
 
@@ -258,7 +252,6 @@ ErrorRestart:
 		RCState++;
 	}
 
-	#ifdef RX_INTERRUPTS
 	if (PIR1bits.RCIF && PIE1bits.RCIE)	// GPS and commands
 	{
 		PIR1bits.RCIF = false;
@@ -280,7 +273,6 @@ ErrorRestart:
 			PollGPS();
 		#endif // USE_GPS
 	} 	
-	#endif // RX_INTERRUPTS
 
 	if( INTCONbits.TMR0IE && INTCONbits.TMR0IF )
 	{

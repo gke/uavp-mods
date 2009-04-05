@@ -80,6 +80,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void HoldStation()
 {
+
 	if ( _GPSValid && _UseCompass ) 
 	{ 
 		if ( !_HoldingStation )
@@ -124,21 +125,29 @@ void CheckAutonomous(void)
 
 	UpdateGPS();
 
-	if ( _Hovering )
-		HoldStation();
+	if ( _NoSignal )
+	{ // NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
+		DesiredThrottle = IGas;
+		DesiredRoll = IRoll;
+		DesiredPitch = IPitch;
+		DesiredYaw = IYaw;
+	}
 	else
-	{
-		_HoldingStation = false;
-		if ( IK5 > _Neutral )
-			ReturnHome();
+		if ( _Hovering )
+			HoldStation();
 		else
 		{
-			DesiredThrottle = IGas;
-			DesiredRoll = IRoll;
-			DesiredPitch = IPitch;
-			DesiredYaw = IYaw;
+			_HoldingStation = false;
+			if ( IK5 > _Neutral )
+				ReturnHome();
+			else
+			{
+				DesiredThrottle = IGas;
+				DesiredRoll = IRoll;
+				DesiredPitch = IPitch;
+				DesiredYaw = IYaw;
+			}
 		}
-	}
 	#else
 		DesiredThrottle = IGas;
 		DesiredRoll = IRoll;
