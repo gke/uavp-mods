@@ -592,9 +592,6 @@ void main(void)
 {
 	int8	i;
 
-int16 x,y; //zzz
-
-
 	DisableInterrupts;
 
 	InitPorts();
@@ -627,31 +624,6 @@ int16 x,y; //zzz
 
 	_NoSignal = true;		// assume no signal present
 	PauseTime = 0;
-
-//#define CHECK_TRIG
-#ifdef CHECK_TRIG
-for (x = 0; x <=TWOMILLIPI; x+=10)
-{
-	TxVal32(x,0,';');
- TxVal32(int16sin(x),0,';');
-TxVal32(int16cos(x),0,';');
-TxNextLine();
-}
-TxNextLine();
-for (x = -1000; x <=1000; x+=10)
-for (y = 1000; y >=-1000; y-=10)
-{
-	TxVal32(x,0,';');
-	TxVal32(y,0,';');
- TxVal32(int16atan2(y, x),0,';');
-
-TxNextLine();
-}
-
-TxChar('*');
-TxNextLine();
-
-#endif
 
 	InitArrays();
 

@@ -224,7 +224,6 @@ void ParseGPSSentence()
     //UpdateField();   // GHeightUnit 
  
     _GPSValid=(GPSFix>0);
-// zzz	mS[GPSTimeout] = mS[Clock] + GPS_TIMEOUT;
     
     if (FirstGPSSentence&&_GPSValid)
 	{

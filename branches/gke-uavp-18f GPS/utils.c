@@ -130,13 +130,13 @@ void InitArrays(void)
 } // InitArrays
 
 #pragma idata sintable
-const uint8 SineTable[17]={ 
+const int16 SineTable[17]={ 
 	0, 50, 98, 142, 180, 212, 236, 250, 255,
 	250, 236, 212, 180, 142, 98, 50, 0
    };
 #pragma idata
 
-int16 Table16(int16 Val, uint8 *T)
+int16 Table16(int16 Val, const int16 *T)
 {
 	uint8 Index,Offset;
 	int16 Temp, Low, High, Result;
@@ -163,7 +163,7 @@ int16 int16sin(int16 A)
 	if ( Negate )
 		A -= MILLIPI;
 
-	v = Table16((((int24)A * 256 + HALFMILLIPI)/MILLIPI)-1, &SineTable);
+	v = Table16((((int24)A * 256 + HALFMILLIPI)/MILLIPI)-1, SineTable);
 
 	if ( Negate )
 		v= -v;
@@ -178,8 +178,8 @@ int16 int16cos(int16 A)
 
 #pragma idata arctan
 const int16 ArctanTable[17]={
-    0,  62, 124, 185, 245, 303, 359, 412,
-  464, 512, 559, 602, 644, 682, 719, 753,785
+	0, 464, 785, 983, 1107, 1190, 1249, 1292, 1326,
+	1352, 1373, 1391, 1406, 1418, 1429, 1438, 1446
    };
 #pragma idata
 
@@ -208,13 +208,14 @@ int16 int16atan2(int16 y, int16 x)
 				A = 0;
 		else
 		{
-			TL = (Absy * 256)/Absx;
+			TL = (Absy * 32)/Absx;
 			if ( TL < 256 )
-				A = Table16(TL, &ArctanTable);
+				A = Table16(TL, ArctanTable);
 			else
-			{  // interpolate above ~Pi/4
-				TL >>= 8;
-				A = ArctanTable[16] + ((HALFMILLIPI - ArctanTable[16])*TL)/(32767-256);
+			{  // extrapolate outside table
+				TL -= 256;
+				A =  ArctanTable[16] + (TL >> 2);
+				A = Limit(A, 0, HALFMILLIPI);
 			}
 
 			if ( x < 0 )
