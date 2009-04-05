@@ -137,7 +137,7 @@
 // Misc
 
 // Loads a "representative" parameter set into EEPROM
-#define INIT_PARAMS
+//#define INIT_PARAMS
 
 // =====================================
 // end of user-configurable section!
