@@ -3,7 +3,7 @@ rem ---------------------------------------------
 rem Delete all working files but not hex files
 rem ---------------------------------------------
 
-set CSRC=accel adc c-ufo irq lisl prog pu-test sensor serial menu-test menu pid  gps autonomous utils outputs
+set CSRC=accel adc c-ufo irq lisl prog pu-test sensor i2c serial menu-test menu pid  gps autonomous utils outputs
 set ASRC=bootl18f
 
 rem compiler working files...

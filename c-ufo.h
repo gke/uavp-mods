@@ -2,7 +2,8 @@
 
 // Navigation
 
-#define MAX_ANGLE 10L		/* Rx stick units */
+#define MAX_ANGLE 20L		/* Rx stick units */
+#define PROXIMITY	25L		/* square of the closing radius in metres */
 
 //#define RX_INTERRUPTS
 
@@ -470,64 +471,32 @@ extern int8	BaroThrottleDiff;	// 28
 
 // Prototypes
 
-extern void BootStart(void);
-
-// autonomous.c
-extern void AcquireSatellites(void);
-extern void ReturnHome(void);
-extern void HoldStation(void);
-
-// gps.c
-extern void InitGPS(void);
-extern void PollGPS(void);
-extern void ParseGPSSentence(void);
-extern void UpdateGPS(void);
-extern void GPSAltitudeHold(int16);
-extern void GPSHeadingHold(int16);
-
-extern void ShowSetup(uint8);
-extern void ProcessComCommand(void);
-extern void TxNextLine(void);
-extern void ShowPrompt(void);
-extern void TxText(const uint8 *);
-extern void TxString(const rom uint8 *);
-extern void TxChar(uint8);
-extern void TxValH(uint8);
-extern void TxValU(uint8);
-extern void TxValS(int8);
-extern void TxValH16(uint16);
-extern void TxVal32(int32, int8, uint8);
-extern void TxNextLine(void);
-extern uint8 PollRxChar(void);
-extern uint8 RxChar(void);
-extern uint8 RxNumU(void);
-extern int8 RxNumS(void);
-
-extern void ReadParametersEE(void);
-extern void WriteParametersEE(int8);
-extern void WriteEE(uint8, int8);
-extern void ReadParametersEE(void);
-extern int8 ReadEE(uint8);
-
-extern void I2CStart(void);
-extern void I2CStop(void);extern uint8 SendI2CByte(uint8);
-extern uint8 RecvI2CByte(uint8);
-
-extern void OutSSP(uint8);
-
+// accel.c
 extern void AccelerationCompensation(void);
 extern void IsLISLactive(void);
 extern 	uint8 ReadLISL(uint8);
 extern 	uint8 ReadLISLNext(void);
 extern void ReadAccelerations(void);
 
+// adc.c
+extern int16 ADC(uint8, uint8);
+extern void InitADC(void);
+
+// autonomous.c
+extern void AcquireSatellites(void);
+extern void ReturnHome(void);
+extern void Descend(void);
+extern void HoldStation(void);
+
+// compass_altimeter.c
 extern void InitDirection(void);
 extern void GetDirection(void);
 extern void InitBarometer(void);
-extern void ComputeBaroComp(void);
-extern uint8 ReadValueFromBaro(void);
-extern uint8 StartBaroADC(uint8);
+extern void StartBaroAcq(uint8);
+extern uint16 ReadBaro(void);
+extern void GetBaroAltitude(void);
 
+// pid.c
 extern void GetNeutralAccelerations(void);
 extern void GetGyroValues(void);
 extern void CalcGyroValues(void);
@@ -536,32 +505,85 @@ extern void LimitRollSum(void);
 extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 
-extern void Out(uint8);
-extern void OutG(uint8);
+// gps.c
+extern void InitGPS(void);
+extern void PollGPS(void);
+extern void ParseGPSSentence(void);
+extern void UpdateGPS(void);
+
+// i2c.c
+extern void I2CStart(void);
+extern void I2CStop(void);
+extern uint8 SendI2CByte(uint8);
+extern uint8 RecvI2CByte(uint8);
+
+// outputs.c
 extern void MixAndLimit(void);
 extern void MixAndLimitCam(void);
 extern void OutSignals(void);
 
+// sensors.c
+extern void InitDirection(void);
+extern void GetDirection(void);
+extern void InitBarometer(void);
+extern void ComputeBaroComp(void);
+extern uint8 ReadValueFromBaro(void);
+extern uint8 StartBaroADC(uint8);
+
+// serial.c
+extern void ProcessCommand(void);
+extern void ShowSetup(uint8);
+extern uint8 RxChar(void);
+extern uint8 PollRxChar(void);
+extern int8 RxNumS(void);
+extern uint8 RxNumU(void);
+extern void TxValH16(uint16);
+extern void TxValH(uint8);
+extern void TxVal32(int32, int8, uint8);
+extern void TxChar(uint8);
+extern void TxNextLine(void);
+extern void TxValU(uint8);
+extern void TxValS(int8);
+extern void TxText(const uint8 *);
+extern void TxString(const rom uint8 *);
+
+// spi.c
+extern void IsLISLactive(void);
+extern void WaitLISLReady(void);
+extern void ReadAccelerations(void);
+
+// utils.c
+extern int24 SRS24(int24, uint8);
+extern int16 SRS16(int16, uint8);
+extern void CheckAlarms(void);
+extern void ReadParametersEE(void);
+extern void WriteParametersEE(uint8);
+extern 	void WriteEE(uint8, int8);
+extern 	int8 ReadEE(uint8);
+
 extern void SendLeds(void);
-extern void SwitchLedsOn(uint8);
+extern 	void SwitchLedsOn(uint8);
 extern void SwitchLedsOff(uint8);
-extern void DoPIDDisplays(void);
-extern void LedGame(void);
+extern void LEDGame(void);
 
-extern void InitADC(void);
-extern int16 ADC(uint8, uint8);
-
-extern void InitArrays(void);
-extern void InitPorts(void);
+extern void DoDebugTraces(void);
 extern void Delay100mSWithOutput(int16);
 extern void Delay1mS(int16);
-extern void UpdateBlinkCount(void);
-extern void CheckAlarms(void);
-extern int16 SRS16(int16, uint8);
+extern void InitPorts(void);
+extern int16 Table16(int16, const int16 *);
+extern int16 int16atan2(int16, int16);
+extern int16 int16sin(int16);
+extern int16 int16cos(int16);
 
+extern void InitArrays(void);
+
+extern void UpdateBlinkCount(void);
 #ifdef DEBUG_SENSORS
 extern void DumpTrace(void);
 #endif
+
+// bootl18f.asm
+extern void BootStart(void);
 
 #ifdef TEST_SOFTWARE
 

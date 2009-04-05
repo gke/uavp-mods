@@ -33,7 +33,7 @@ void HoldStation(void);
 
 // Defines
 
-#define PROXIMITY	20L
+
 
 // Variables
 extern boolean FirstGPSSentence;
