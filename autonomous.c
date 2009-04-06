@@ -42,7 +42,7 @@ extern boolean GPSSentenceReceived;
 
 void Descend(void)
 {	
-	if( (BlinkCount & 0x0f) == 0 )
+	if( (BlinkCount & 0x000f) == 0 )
 		DesiredThrottle = Limit(DesiredThrottle--, 0, _Maximum); // safest	
 } // Descend
 
@@ -66,9 +66,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	Temp2 = (int24)NorthDiff*(int24)NorthDiff + (int24)EastDiff*(int24)EastDiff;
 	RangeApprox = Limit(Temp2, 0, PROXIMITY);
 		
-	Angle = int16atan2(-EastDiff, NorthDiff) + CompassHeading;
-	while ( Angle < 0 ) Angle += TWOMILLIPI;
-	while ( Angle >= TWOMILLIPI ) Angle -= TWOMILLIPI;
+	Angle = Make2Pi(int16atan2(-EastDiff, NorthDiff) - CompassHeading);
 
 	DesiredRoll = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
 	// TOO SLOW DesiredRoll = GPSFilter(DesiredRoll, Temp);
@@ -80,7 +78,6 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void HoldStation()
 {
-
 	if ( _GPSValid && _UseCompass ) 
 	{ 
 		if ( !_HoldingStation )
@@ -125,7 +122,7 @@ void CheckAutonomous(void)
 
 	UpdateGPS();
 
-	if ( _NoSignal )
+	if ( _NoSignal && _Flying )
 	{ // NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
 		DesiredThrottle = IGas;
 		DesiredRoll = IRoll;

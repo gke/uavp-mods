@@ -4,7 +4,7 @@
 
 // The "Ls" are important
 
-#define COMPASS_OFFSET_DEG		180L	/* North degrees CW from Front */
+#define COMPASS_OFFSET_DEG		270L	/* North degrees CW from Front */
 
 #define MAX_ANGLE 20L					/* Rx stick units */
 #define PROXIMITY	25L					/* square of the closing radius in metres */
@@ -14,6 +14,9 @@
 	#define USE_GPS
 	#define GPS_NMEA
 #endif
+
+// gives flight mode RC signal representation in test program
+#define MENU_ALT_RX
 
 // Accelerometer
 
@@ -326,7 +329,8 @@ extern int16	Rp,Pp,Yp,Vud;
 
 extern uint8	Flags[32];
 
-extern int16	IntegralCount, ThrDownCount, GPSCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
+extern int16	IntegralCount, ThrDownCount, GPSCount, DropoutCount, LedCount, BaroCount;
+extern int32	BlinkCount;
 extern uint24	RCGlitchCount;
 extern int8		Rw,Pw;	// angles
 extern int8		BatteryVolts; 
@@ -451,10 +455,6 @@ extern int8	BaroThrottleDiff;	// 28
 #define MAXDROPOUT	400L	// 400 x 16 x 7ms = 40sec. dropout allowable
 #define GPSDROPOUT	20L		// 2sec.
 
-// Counter for flashing Low-Power LEDs
-#define BLINK_LIMIT 100	// should be a number dividable by 4!
-#define BLINK_CYCLES 8
-
 // Parameters for UART port
 
 #define _B9600		(_ClkOut*100000/(4*9600) - 1)
@@ -520,7 +520,7 @@ extern uint8 SendI2CByte(uint8);
 extern uint8 RecvI2CByte(uint8);
 
 // outputs.c
-extern void MixAndLimit(void);
+extern void MixAndLimitMotors(void);
 extern void MixAndLimitCam(void);
 extern void OutSignals(void);
 
@@ -572,13 +572,13 @@ extern void Delay100mSWithOutput(int16);
 extern void Delay1mS(int16);
 extern void InitPorts(void);
 extern int16 Table16(int16, const int16 *);
+extern int16 Make2Pi(int16);
 extern int16 int16atan2(int16, int16);
 extern int16 int16sin(int16);
 extern int16 int16cos(int16);
 
 extern void InitArrays(void);
 
-extern void UpdateBlinkCount(void);
 #ifdef DEBUG_SENSORS
 extern void DumpTrace(void);
 #endif

@@ -264,8 +264,10 @@ ErrorRestart:
 		}
 		else
 		{
+			ch = RCREG;
+			// TxChar(ch); // echo
 			RxTail = (RxTail+1) & RXBUFFMASK;	// no check for overflow yet
-			RxBuff[RxTail] = RCREG;
+			RxBuff[RxTail] = ch;
 		}
 	
 		#ifdef USE_GPS		

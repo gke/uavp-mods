@@ -51,10 +51,6 @@ void InitDirection(void)
 CTerror:
 	_UseCompass = false;
 
-#ifdef TEST_SOFTWARE
-_UseCompass = true; // override bug for test code
-#endif
-
 	I2CStop();
 } // InitDirection
 
@@ -66,19 +62,20 @@ void GetDirection(void)
 	// and store result in variable AbsDirection.
 	// The current heading correction is stored in CurDeviation
 	int16 DirVal,  temp;
-	uint16 Compass;
+	int16 Compass;
+	int32 Temp2;
+	int8 r;
 
 	if( _UseCompass  ) // continuous mode but Compass only updates avery 50mS
 	{
-		// set Compass device to Compass mode 
-		I2CStart();		
-		Compass = (uint16)RecvI2CByte(I2C_ACK)*256 | RecvI2CByte(I2C_NACK);
+		I2CStart();
+		r = SendI2CByte(COMPASS_I2C_ID+1); // no check
+		Compass = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
 		I2CStop();
 
 		#ifdef ENABLE_AUTONOMOUS 
-		CompassHeading = ((int24)Compass * MILLIRAD)/1800L + COMPASS_OFFSET;
-		while ( CompassHeading > TWOMILLIPI )
-			CompassHeading -= TWOMILLIPI;
+		Temp2 = (int32)((int32)Compass * MILLIPI)/1800L - COMPASS_OFFSET;
+		CompassHeading = Make2Pi((int16) Temp2);
 		#endif // ENABLE_AUTONOMOUS
 
 		Compass /= 15;

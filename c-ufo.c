@@ -80,7 +80,8 @@ int16	Trace[LastTrace];
 uint8	Flags[32];
 uint8	NeutralsAcquired;
 
-int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
+int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LedCount, BlinkCycle, BaroCount;
+int32	BlinkCount;
 uint24	RCGlitchCount;
 int8	BatteryVolts;
 int8	Rw,Pw;
@@ -260,6 +261,7 @@ void main(void)
 
 	IK6 = IK7 = _Minimum;
 	NeutralsAcquired = false;
+	BlinkCount = 0;
 
 Restart:
 	IGas = DesiredThrottle = IK5 = _Minimum;	// Assume parameter set #1
@@ -296,8 +298,6 @@ Restart:
 		// loop length is controlled by a programmable variable "TimeSlot"
 
 		DropoutCount = 0;
-		BlinkCount = 0;
-		BlinkCycle = 0;			// number of full blink cycles
 
 		IntegralCount = 16;	// do 16 cycles to find integral zero point
 
@@ -309,12 +309,13 @@ Restart:
 	
 		while ( Switch == 1 )
 		{
+			BlinkCount++;
+
 			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			WriteTimer0(0);
 			INTCONbits.TMR0IF = false;
 			INTCONbits.TMR0IE = true;	// enable TMR0
 
-			UpdateBlinkCount();
 			RollRate =PitchRate = 0;	// zero gyros sum-up memory
 			// sample gyro data and add everything up while waiting for timing delay
 
@@ -344,15 +345,14 @@ Restart:
 			// check for signal dropout while in flight
 			if( _NoSignal && _Flying )
 			{
-				if( (BlinkCount & 0x0f) == 0 )
+				if( ( BlinkCount & 0x000f ) == 0 )
 					DropoutCount++;
 				if( DropoutCount < MAXDROPOUT )
 				{	// FAILSAFE	
 					// hold last throttle
 					_LostModel = true;
 					ALL_LEDS_OFF;
-					IRoll = IPitch = IYaw = 0;
-					IK5 = _Minimum;
+					DesiredRoll = DesiredPitch = DesiredYaw = _Minimum;
 					goto DoPID;
 				}
 				break;	// timeout, stop everything
@@ -360,7 +360,7 @@ Restart:
 
 			// allow motors to run on low throttle 
 			// even if stick is at minimum for a short time
-			if( _Flying && (DesiredThrottle <= _ThresStop) )
+			if( _Flying && ( DesiredThrottle <= _ThresStop ) )
 				if( --LowGasCount > 0 )
 					goto DoPID;
 
@@ -413,7 +413,7 @@ DoPID:
 				else
 				{
 					PID();
-					MixAndLimit();
+					MixAndLimitMotors();
 				}
 
 				// remember old gyro values
@@ -432,13 +432,12 @@ DoPID:
 				DumpTrace();
 			#endif			
 
-		}	// END NORMAL OPERATION WHILE LOOP
+		} // flight while armed
 
 		Beeper_OFF;
 
 		// CPU kommt hierher wenn der Schalter ausgeschaltet wird
 	}
-	// CPU does /never/ arrive here
-	//	ALL_OUTPUTS_OFF;
+
 } // main
 
