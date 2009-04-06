@@ -43,7 +43,7 @@ const rom uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
 #endif
 
 #ifdef RX_DEFAULT
-	"Rx: PPM Odd Channels\r\n"
+	"Rx: PPM odd channels only\r\n"
 #endif
 #ifdef RX_PPM
 	"Rx: PPM Composite\r\n"
@@ -77,18 +77,18 @@ const rom uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
 
 #pragma idata menuhelp
 const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
-	"A..Analog ch.\r\n"
+	"V..Analog ch.\r\n"
 	"B..Boot\r\n"
 	"C..Compass test\r\n"
 	"K..Calib. Compass\r\n"
 	#ifdef USE_GPS
-	"G..GPS test\r\n"
+	"G..GPS test (Use HyperTerm)\r\n"
 	#endif
 	"H..Baro. test\r\n"
 	"I..I2C bus scan\r\n"
-	"L..Linear test\r\n"
-	"N..Negate Rx-PPM\r\n"
-	"R..RX test\r\n"
+	"A..Linear test\r\n"
+// use normal param change	"P..Negate Rx-PPM\r\n"
+	"X..RX test\r\n"
 	"S..Setup\r\n"
 	#ifdef ESC_YGEI2C
 	"Y..Prog. YGE\r\n"
@@ -135,6 +135,9 @@ void ProcessComCommand(void)
 {
     int8 *p;
 	uint8 i, ch;
+	uint8 addr;
+	uint16 addrbase, curraddr;
+	int8 d;
 
 	ch = PollRxChar();
 
@@ -147,26 +150,105 @@ void ProcessComCommand(void)
 		
 			switch( ch )
 			{
-			case '$' : // GPS NMEA sentences
-				_NMEADetected = true;
-   				PIE1bits.RCIE = true; // turn on Rx interrupts
+			case 'L'  :	// List parameters
+				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
+				if( IK5 > _Neutral )
+					TxChar('2');
+				else
+					TxChar('1');
+				ReadParametersEE();
+				addr = 1;
+				for(p = &FirstProgReg; p <= &LastProgReg; p++)
+				{
+					TxString("\r\nRegister ");
+					TxValU(addr++);
+					TxString(" = ");
+					d = *p;
+					TxValS(d);
+				}
+				ShowPrompt();
 				break;
-			case NUL : break;
-			case 'R'  :	// Receiver test
+			case 'M'  : // modify parameters
+				LedBlue_ON;
+				TxString("\r\nRegister ");
+				addr = RxNumU()-1;
+				TxString(" = ");
+				d = RxNumS();
+				if( IK5 > _Neutral )
+					addrbase = _EESet2;
+				else
+					addrbase = _EESet1;
+		
+				if( addr ==  (&ConfigParam - &FirstProgReg) )
+					d &=0xf7; // no Double Rates
+		
+				WriteEE(addrbase + (uint16)addr, d);
+		
+				// update transmitter config bits in the other parameter set
+				if( addr ==  (&ConfigParam - &FirstProgReg) )
+				{									
+					if( IK5 > _Neutral )
+						addrbase = _EESet1;				
+					else
+						addrbase = _EESet2;	
+					// mask only bits _FutabaMode and _NegativePPM
+					d &= 0x12;		
+					d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
+					WriteEE(addrbase + (uint16)addr, d);
+				}
+	
+				// This is not strictly necessary as UAVPSet enforces it.
+				// Hovever direct edits of parameter files can easily exceed
+				// intermediate arithmetic limits.
+				if ( ((int16)Abs(YawIntFactor) * (int16)YawIntLimit) > 127 )
+				{
+					d = 127 / YawIntFactor;
+					WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
+				}
+	
+				LedBlue_OFF;
+				ShowPrompt();
+				break;
+			case 'N' :	// neutral values
+				TxString("\r\nNeutral Roll:");
+				TxValS(NeutralLR);
+		
+				TxString(" Ptch:");
+				TxValS(NeutralFB);
+		
+				TxString(" Yaw:");	
+				TxValS(NeutralUD);
+				ShowPrompt();
+				break;
+			case 'X'  :	// Receiver test			
 				ReceiverTest();
 				ShowPrompt();
 				break;
-			case 'A' :	// analog test
+			case 'R'  :	// Receiver display
+				TxString("\r\nT:");TxValU(IGas);
+				TxString(",R:");TxValS(IRoll);
+				TxString(",N:");TxValS(IPitch);
+				TxString(",Y:");TxValS(IYaw);
+				TxString(",5:");TxValU(IK5);
+				TxString(",6:");TxValU(IK6);
+				TxString(",7:");TxValU(IK7);
+				ShowPrompt();
+				break;
+			case 'V' :	// analog test
 				AnalogTest();
 				ShowPrompt();
 				break;
 			#ifdef USE_GPS
+			case '$' : // GPS NMEA sentences
+				_NMEADetected = true;
+   				PIE1bits.RCIE = true; // turn on Rx interrupts
+				break;
 			case 'G' : // GPS test
 				GPSTest();
 				ShowPrompt();
 				break;
 			#endif // USE_GPS			
-			case 'L' :	// linear sensor
+			case 'A' :	// linear sensor
 				LinearTest();
 				ShowPrompt();
 				break;
@@ -217,12 +299,12 @@ void ProcessComCommand(void)
 				PowerOutput(ch-'1');
 				ShowPrompt();
 				break;
-	
-			case 'N':	// toggle PPM polarity
+			/* use normal config change
+			case 'P':	// toggle PPM polarity
 				TogglePPMPolarity();
 				ShowPrompt();
 				break;
-
+			*/
 		#ifdef ESC_YGEI2C
 		case 'Y':	// configure YGE30i EScs
 			ConfigureESCs();

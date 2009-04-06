@@ -103,7 +103,7 @@ uint8 PollRxChar(void)
 {
 	uint8	ch;	
 
-	if ( PIE1bits.RCIE == true )
+	if ( PIE1bits.RCIE )
 	{
 		if ( RxTail != RxHead )
 		{
@@ -130,11 +130,11 @@ uint8 PollRxChar(void)
 			else
 			{
 				ch = RCREG;	// get the character
-				TxChar(ch);	// echo it
+				TxChar(ch);	// echo it for UAVPSet
 				return(ch);		// and return it
 			}
 		}
-		return( '\0' );	// nothing in buffer
+		return( NUL );	// nothing in buffer
 	}
 
 } // PollRxChar
@@ -147,16 +147,11 @@ uint8 RxNumU(void)
 
 	n = 0;
 	do
-	{
 		ch = PollRxChar();
-	}
 	while( (ch < '0') || (ch > '9') );
-	n = ch - '0';
-	n *= 10;
+	n = (ch - '0') * 10;
 	do
-	{
 		ch = PollRxChar();
-	}
 	while( (ch < '0') || (ch > '9') );
 	n += ch - '0';
 	return(n);
@@ -173,27 +168,20 @@ int8 RxNumS(void)
 
 	_NegIn = false;
 	do
-	{
 		ch = PollRxChar();
-	}
 	while( ((ch < '0') || (ch > '9')) &&
            (ch != '-') );
 	if( ch == '-' )
 	{
 		_NegIn = true;
 		do
-		{
 			ch = PollRxChar();
-		}
 		while( (ch < '0') || (ch > '9') );
 	}
-	n = ch - '0';
-	n *= 10;
+	n = (ch - '0') * 10;
 
 	do
-	{
 		ch = PollRxChar();
-	}
 	while( (ch < '0') || (ch > '9') );
 	n += ch - '0';
 	if( _NegIn )
@@ -202,7 +190,7 @@ int8 RxNumS(void)
 } // RxNumS
 
 
-#ifdef TEST_SOFTWARE
+//#ifdef TEST_SOFTWARE
 
 void TxVal32(int32 V, int8 dp, uint8 Separator)
 {
@@ -252,5 +240,5 @@ void TxVal32(int32 V, int8 dp, uint8 Separator)
 		TxChar(Separator);
 } // TxVal32
 
-#endif // TEST_SOFTWARE
+//#endif // TEST_SOFTWARE
 

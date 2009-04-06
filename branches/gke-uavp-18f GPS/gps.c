@@ -324,6 +324,7 @@ void InitGPS()
 	GPSSentenceReceived=false;
 	FirstGPSSentence = true;
 	_GPSValid = false; 
+	GPSCount = 0;
   	GPSRxState=WaitGPSSentinel; 
   	ll=0;
   	cc=ll;
@@ -342,16 +343,17 @@ void UpdateGPS(void)
 			GPSCount = 0;
 	}
 	else
-		if( (BlinkCount & 0x0f) == 0 )
+		if( (BlinkCount & 0x000f) == 0 )
 			if( GPSCount > GPSDROPOUT )
-			{
-				LedRed_ON;
 				_GPSValid = false;
-			}
 			else
 				GPSCount++;
 
 	LedYellow_OFF;
+	if ( _GPSValid )
+		LedRed_OFF;
+	else
+		LedRed_ON;	
 
 } // UpdateGPS
 

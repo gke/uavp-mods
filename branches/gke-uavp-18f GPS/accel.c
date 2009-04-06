@@ -90,7 +90,7 @@ void AccelerationCompensation(void)
 		UDSum = DecayBand(UDSum, -10, 10, 10);
 	
 		Temp = SRS16(SRS16(UDSum + 8, 4) * (int16) LinUDIntFactor + 128, 8);
-		if( (BlinkCount & 0x03) == 0 )	
+		if( (BlinkCount & 0x0003) == 0 )	
 			if( Temp > Vud ) 
 				Vud++;
 			else

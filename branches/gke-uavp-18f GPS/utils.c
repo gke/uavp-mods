@@ -62,13 +62,15 @@ void Delay100mSWithOutput(int16 dur)
 				INTCONbits.TMR0IF = 0;
 			}
 			OutSignals(); // 1-2 ms Duration
-			if ( PIE1bits.RCIE == true )
+			if ( PIE1bits.RCIE )
+			{
 				if ( RxTail != RxHead )
 				{
 					INTCONbits.TMR0IE = T0IntEn;
 					return;
 				}
-				else
+			}
+			else
 				if( PIR1bits.RCIF )
 				{
 					INTCONbits.TMR0IE = T0IntEn;
@@ -127,6 +129,14 @@ void InitArrays(void)
 	BaroRestarts = 0;
 	RCGlitchCount = 0;
 } // InitArrays
+
+
+int16 Make2Pi(int16 A)
+{
+	while ( A < 0 ) A += TWOMILLIPI;
+	while ( A >= TWOMILLIPI ) A -= TWOMILLIPI;
+	return( A );
+} // Make2Pi
 
 #pragma idata sintable
 const int16 SineTable[17]={ 
@@ -238,9 +248,11 @@ void CheckAlarms(void)
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
 	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
 
+// zzz fix later
+
 	if( _LowBatt ) // repeating beep
 	{
-		if( BlinkCount < BLINK_LIMIT/2 )
+		if( ( BlinkCount & 0x0040) == 0 )
 		{
 			Beeper_ON;
 			LedRed_ON;
@@ -253,19 +265,7 @@ void CheckAlarms(void)
 	}
 	else
 	if ( _LostModel ) // 2 beeps with interval
-		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle < (BLINK_CYCLES/4 )) )
-		{
-			Beeper_ON;
-			LedRed_ON;
-		}
-		else
-		{
-			Beeper_OFF;
-			LedRed_OFF;
-		}	
-	else
-	if ( _BaroRestart ) // 1 beep with interval
-		if( (BlinkCount < (BLINK_LIMIT/2)) && ( BlinkCycle == 0 ) )
+		if( (BlinkCount & 0x0080) == 0 )
 		{
 			Beeper_ON;
 			LedRed_ON;
@@ -342,18 +342,6 @@ void DoPIDDisplays()
 				LedYellow_ON;
 		}
 } // DoPIDDisplays
-
-void UpdateBlinkCount(void)
-{
-	if( BlinkCount == 0 )
-	{
-		BlinkCount = BLINK_LIMIT;
-		if ( BlinkCycle == 0)
-			BlinkCycle = BLINK_CYCLES;
-		BlinkCycle--;
-	}
-	BlinkCount--;
-} // UpdateBlinkCount
 
 void SendLeds(void)
 {

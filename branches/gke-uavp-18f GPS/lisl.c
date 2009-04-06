@@ -104,13 +104,14 @@ void WriteLISL(uint8 d, uint8 c)
 
 void IsLISLactive(void)
 {
+	int8 r;
 
 	_UseLISL = false;
 	SPI_CS = DSEL_LISL;
 	WriteLISL(0b01001010, LISL_CTRLREG_2); // enable 3-wire, BDU=1, +/-2g
 
-	W = ReadLISL(LISL_WHOAMI + LISL_READ);
-	if( W == 0x3A )	// a LIS03L sensor is there!
+	r = ReadLISL(LISL_WHOAMI + LISL_READ);
+	if( r == 0x3A )	// a LIS03L sensor is there!
 	{
 		WriteLISL(0b11000111, LISL_CTRLREG_1); // startup, enable all axis
 		WriteLISL(0b00000000, LISL_CTRLREG_3);
@@ -127,7 +128,7 @@ void ReadAccelerations()
 {
 	uint8 r;
 
-	r = ReadLISL(LISL_STATUS + LISL_READ);
+	r = ReadLISL(LISL_STATUS + LISL_READ); // no check for 0x3a
 	Ax  = (int16)ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
 	Ax |= (int16)ReadLISLNext()*256;
 	Ay  = (int16)ReadLISLNext();

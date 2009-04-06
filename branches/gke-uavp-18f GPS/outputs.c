@@ -123,7 +123,7 @@ void CheckDemand(int16 CurrThrottle)
 
 } // CheckDemand
 
-void MixAndLimit(void)
+void MixAndLimitMotors(void)
 { 	// expensive ~400uSec @16MHz
     int16 Temp, CurrThrottle;
 
@@ -143,7 +143,7 @@ void MixAndLimit(void)
 	Motor[Left] = SaturInt(Motor[Left]);
 	Motor[Right] = SaturInt(Motor[Right]);
 
-} // MixAndLimit
+} // MixAndLimitMotors
 
 void MixAndLimitCam(void)
 {

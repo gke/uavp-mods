@@ -47,6 +47,7 @@ int16 	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw;
 int16	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int16 	UDSum;
+int8	NeutralLR, NeutralFB, NeutralUD;
 
 // Variables for barometric sensor PD-controller
 int24	BaroBasePressure, BaroBaseTemp;
@@ -79,7 +80,8 @@ int16	Trace[LastTrace];
 
 uint16	PauseTime;
 
-int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BlinkCount, BlinkCycle, BaroCount;
+int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BaroCount;
+int32 BlinkCount;
 uint24	RCGlitchCount;
 int8	BatteryVolts;
 #pragma udata
@@ -127,15 +129,15 @@ void LinearTest(void)
 	{
 		ReadAccelerations();
 	
-		TxString("LR: \t");
+		TxString("Left->Right: \t");
 		TxVal32(((int32)Ax*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 
-		TxString("FB: \t");	
+		TxString("Front->Back: \t");	
 		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 
-		TxString("DU:   \t");	
+		TxString("Down->Up:    \t");	
 		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');	
 		TxNextLine();
 	}
@@ -209,9 +211,10 @@ void ReceiverTest(void)
 		TxNextLine();
 	}
 	else
-		TxString("(no new vals)\r\n");	
+		TxString("(no new vals)\r\n");
 } // ReceiverTest
 
+/*
 void TogglePPMPolarity(void)
 {
     Invert(ConfigParam, 4);	// toggle bit
@@ -228,6 +231,7 @@ void TogglePPMPolarity(void)
 	_NewValues = false;
 	_NoSignal = true;
 } // TogglePPMPolarity
+*/
 
 void DoCompassTest()
 {
@@ -241,7 +245,7 @@ void DoCompassTest()
 	I2CStop();
 
 	TxVal32((int32)v, 1, 0);
-	TxString("deg\r\n");		
+	TxString("deg (not corrected for orientation on airframe)\r\n");		
 	return;
 CTerror:
 	I2CStop();
@@ -250,18 +254,17 @@ CTerror:
 
 void CalibrateCompass(void)
 {	// calibrate the compass by rotating the ufo through 720 deg smoothly
-	TxString("\r\nCalib. compass. Press any key to cont.\r\n");
+	TxString("\r\nCalib. compass \r\nRotate horizontally 720 deg in ~30 sec.! \r\nPress space key to START.\r\n");
+	while( PollRxChar() == NUL );
 
-	while( !PollRxChar() );
-	
 	// set Compass device to Calibration mode 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CCerror;
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	TxString("\r\n720 deg in ~30 sec.!\r\nPress any key to cont.\r\n");
-	while( !PollRxChar() );
+	TxString("\r\nPress space key to FINISH\r\n");
+	while( PollRxChar() == NUL );
 
 	// set Compass device to End-Calibration mode 
 	I2CStart();
@@ -346,7 +349,7 @@ void GPSTest(void)
 	DoCompassTest();
 
 	TxString("CONNECT GPS\r\n");
-	TxString("\r\nPress any key to cont.\r\n");
+	TxString("\r\nPress space key to cont.\r\n");
 
 	while( !PollRxChar() );
 
@@ -362,7 +365,6 @@ void GPSTest(void)
 		if ( _GPSValid )
 		{
 			GetDirection();
-
 			ReturnHome();
 
 			if ( Raw )
@@ -400,7 +402,8 @@ void GPSTest(void)
 			}
 			else
 			{
-				TxVal32(((int32)CompassHeading*180L)/(int32)MILLIPI, 3, ' ');
+				TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, ' ');
+
 				TxString("\t ");
 				TxVal32(Abs(GPSNorth), 0, 0);
 				if ( GPSNorth >=0 )
@@ -528,7 +531,7 @@ void ConfigureESCs(void)
 			case 2 : TxString("right"); break;
 			case 3 : TxString("left");  break;
 		}
-		TxString(" controller, then press any key\r\n");
+		TxString(" controller, then press space key\r\n");
 		while( PollRxChar() == '\0' );
 		TxString("\r\nprogramming the controller...\r\n");
 
@@ -553,7 +556,7 @@ void main(void)
 
 	InitPorts();
 	InitADC();
-
+ 
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B9600);
 
@@ -576,13 +579,12 @@ void main(void)
 	WriteParametersEE(1);						// copy RAM initial values to EE
 	WriteParametersEE(2);
 	#endif // INIT_PARAMS
+	IK5 = _Minimum;
 	ReadParametersEE();
-
-	ConfigParam = 0;
 
     ALL_LEDS_OFF;
 	Beeper_OFF;
-	LedBlue_ON;
+//	LedBlue_ON;
 
 	INTCONbits.PEIE = true;		// enable peripheral interrupts
 	EnableInterrupts;
@@ -591,6 +593,15 @@ void main(void)
 
 	Delay1mS(100);
 	IsLISLactive();
+	NeutralLR = 0;
+	NeutralFB = 0;
+	NeutralUD = 0;
+	if ( _UseLISL )
+	{
+		LedYellow_ON;
+		GetNeutralAccelerations();
+		LedYellow_OFF;
+	}
 
 	InitBarometer();
 	Delay1mS(BARO_PRESS_TIME);
@@ -620,6 +631,7 @@ void main(void)
 			LedYellow_OFF;
 		}
 
+		ReadParametersEE();
 		ProcessComCommand();
 
 	}
