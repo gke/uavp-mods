@@ -254,7 +254,7 @@ CTerror:
 
 void CalibrateCompass(void)
 {	// calibrate the compass by rotating the ufo through 720 deg smoothly
-	TxString("\r\nCalib. compass \r\nRotate horizontally 720 deg in ~30 sec.! \r\nPress space key to START.\r\n");
+	TxString("\r\nCalib. compass \r\nRotate horizontally 720 deg in ~30 sec.! \r\nPress any key to START.\r\n");
 	while( PollRxChar() == NUL );
 
 	// set Compass device to Calibration mode 
@@ -263,7 +263,7 @@ void CalibrateCompass(void)
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	TxString("\r\nPress space key to FINISH\r\n");
+	TxString("\r\nPress any key to FINISH\r\n");
 	while( PollRxChar() == NUL );
 
 	// set Compass device to End-Calibration mode 
@@ -349,7 +349,7 @@ void GPSTest(void)
 	DoCompassTest();
 
 	TxString("CONNECT GPS\r\n");
-	TxString("\r\nPress space key to cont.\r\n");
+	TxString("\r\nPress any key to cont.\r\n");
 
 	while( !PollRxChar() );
 
@@ -434,9 +434,31 @@ void AnalogTest(void)
 
 	TxString("\r\nAnalog ch. test\r\n");
 
+	// Roll
+	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	//TxVal32(ADCRollChan, 0, ' ');
+	TxString("Roll: \t"); 
+	TxVal32(v, 3, 'V'); 
+	TxNextLine();
+
+	// Pitch
+	v = ((int24)ADC(ADCPitchChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	//TxVal32(ADCPitchChan, 0, ' ');
+	TxString("Pitch:\t");		
+	TxVal32(v, 3, 'V');	
+	TxNextLine();
+
+	// Yaw
+	v = ((int24)ADC(ADCYawChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	//TxVal32(ADCYawChan, 0, ' ');
+	TxString("Yaw:  \t");
+	TxVal32(v, 3, 'V');	
+	TxNextLine();
+	TxNextLine();
+
 	// Battery
 	v = ((int24)ADC(ADCBattVoltsChan, ADCVREF5V) * 46 + 9)/17; // resolution is 0,01 Volt
-	TxVal32(ADCBattVoltsChan, 0, ' ');
+	//TxVal32(ADCBattVoltsChan, 0, ' ');
 	TxString("Batt:\t");
 	TxVal32(v, 2, 'V');
 	if ( v < 900 )
@@ -446,34 +468,14 @@ void AnalogTest(void)
 		TxString(" ** LOW < 9.5V ** ");
 	TxNextLine();
 
-	// Pitch
-	v = ((int24)ADC(ADCPitchChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxVal32(ADCPitchChan, 0, ' ');
-	TxString("Pitch:\t");		
-	TxVal32(v, 3, 'V');	
-	TxNextLine();
-
-	// Roll
-	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxVal32(ADCRollChan, 0, ' ');
-	TxString("Roll: \t"); 
-	TxVal32(v, 3, 'V'); 
-	TxNextLine();
-
 	// VRef
 	v = ((int24)ADC(ADCVRefChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxVal32(ADCVRefChan, 0, ' ');	
+	//TxVal32(ADCVRefChan, 0, ' ');	
 	TxString("Ref:  \t");	
 	TxVal32(v, 3, 'V');	
 	TxNextLine();
 
-	// Yaw
-	v = ((int24)ADC(ADCYawChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
-	TxVal32(ADCYawChan, 0, ' ');
-	TxString("Yaw:  \t");
-	TxVal32(v, 3, 'V');	
-	TxNextLine();
-
+	
 } // AnalogTest
 
 #ifdef ESC_YGEI2C
@@ -531,7 +533,7 @@ void ConfigureESCs(void)
 			case 2 : TxString("right"); break;
 			case 3 : TxString("left");  break;
 		}
-		TxString(" controller, then press space key\r\n");
+		TxString(" controller, then press any key\r\n");
 		while( PollRxChar() == '\0' );
 		TxString("\r\nprogramming the controller...\r\n");
 
