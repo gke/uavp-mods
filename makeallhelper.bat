@@ -57,17 +57,12 @@ set F=
 for %%i in ( %CSRC% ) do set F=!F! %%i.o
 for %%i in ( %ASRC% ) do set F=!F! %%i.o
 
-rem The warnings etc. previously directed to NUL have been reinstated to log.lst. These 
-rem include a number associated with argument passing other than by function parameters to
-rem the mathematics module.
-rem The local variable offset -ro1 is to overcome aliasing of variables caused by cc5x!
-rem As a consequence there are several warnings on bank allocation in the compile.
 
 for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -D%CLOCK% -D%GYRO% -D%ESC% -D%DBG% -D%RX% -D%CFG% >> log.lst
 
 for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVP-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o %PROC%\UAVP-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED

@@ -64,7 +64,7 @@ for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD% -D
 
 for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVPTest-V%VERSION%%PROC%%X%-%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o %PROC%\UAVPTest-V%VERSION%%PROC%%X%-%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED

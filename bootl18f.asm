@@ -1,6 +1,6 @@
         title   "BootLoader.asm"
 ;// =======================================================================
-;// =                   U.A.V.P Brushless UFO Controller                  =
+;// =                    UAVP Brushless UFO Controller                    =
 ;// =                         Professional Version                        =
 ;// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 ;// =              Original (c) 2007 Ing. Wolfgang Mahringer              =
