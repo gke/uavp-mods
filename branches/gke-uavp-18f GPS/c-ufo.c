@@ -274,6 +274,16 @@ Restart:
 	{
 		INTCONbits.TMR0IE = false;		// Disable TMR0 interrupt
 
+		// no command processing while the Quadrocopter is armed
+		// GPS signals must be connected by a second switch ganged with the
+		// arming switch
+		if ( _NMEADetected )
+		{
+			_NMEADetected = false;
+   			PIE1bits.RCIE = false; // turn off Rx interrupts
+			Delay1mS(10);
+		}
+
 		ALL_LEDS_OFF;
 		LedRed_ON;		// Red LED on
 		if( _UseLISL )
@@ -310,6 +320,13 @@ Restart:
 		while ( Switch == 1 )
 		{
 			BlinkCount++;
+
+			if ( !_NMEADetected )
+			{
+			_NMEADetected = true;
+   			PIE1bits.RCIE = true; // turn on Rx interrupts
+			Delay1mS(10); // wait for switch bounce
+			} 
 
 			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			WriteTimer0(0);
@@ -391,7 +408,7 @@ Restart:
 				if( !_Flying )	// about to start
 				{	
 					AbsDirection = COMPASS_INVAL;
-					ProcessComCommand();						
+//					ProcessComCommand();						
 					LedCount = 1;
 				}
 
