@@ -259,13 +259,15 @@ ErrorRestart:
 		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
 			ch = RCREG; // flush
+// if ( RCSTAbits.OERR) TxChar('?'); // echo
+// if ( RCSTAbits.FERR) TxChar('!'); // echo
 			RCSTAbits.CREN = false;
 			RCSTAbits.CREN = true;
 		}
 		else
 		{
 			ch = RCREG;
-			// TxChar(ch); // echo
+// TxChar(ch); // echo
 			RxTail = (RxTail+1) & RXBUFFMASK;	// no check for overflow yet
 			RxBuff[RxTail] = ch;
 		}
