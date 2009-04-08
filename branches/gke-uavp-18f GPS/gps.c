@@ -119,7 +119,7 @@ real32 ConvertReal(uint8 lo, uint8 hi)
     whole=ConvertInt(lo, dp-1);
     rval=ConvertInt(dp + 1, hi);
 
-    n=hi-dp;
+    n = hi - dp;
     for (i=1;i<=n;i++)
       rval/=10.0;
 	  
@@ -248,6 +248,9 @@ void PollGPS(void)
     case WaitGPSBody:
       {
       ch=RxChar(); RxCheckSum^=ch;
+	#ifdef ECHO_NMEA
+	TxChar(ch);
+	#endif // ECHO_NMEA
       GPSRxBuffer[ll]=ch;
       ll++;         
       if ((ch=='*')||(ll==GPSRXBUFFLENGTH))      
@@ -272,6 +275,9 @@ void PollGPS(void)
     case WaitGPSCheckSum:
       {
       ch=RxChar();
+	#ifdef ECHO_NMEA
+	TxChar(ch);
+	#endif // ECHO_NMEA
       if (GPSCheckSumChar<2)
         {
         if (ch>='A')
@@ -290,6 +296,9 @@ void PollGPS(void)
     case WaitGPSTag:
       {
       ch=RxChar(); RxCheckSum^=ch;
+	#ifdef ECHO_NMEA
+	TxChar(ch);
+	#endif // ECHO_NMEA
       if (ch==GPGGATag[tt])
         if (tt==MAXTAGINDEX)
           GPSRxState=WaitGPSBody;
@@ -302,6 +311,9 @@ void PollGPS(void)
     case WaitGPSSentinel:
       {
       ch=RxChar();
+	#ifdef ECHO_NMEA
+	TxChar(ch);
+	#endif // ECHO_NMEA
       if (ch=='$')
         {
         ll=0;
@@ -335,7 +347,7 @@ void UpdateGPS(void)
 {
 	if ( GPSSentenceReceived )
 	{
-		LedYellow_ON;
+		LedBlue_ON;
 		LedRed_OFF;
 		GPSSentenceReceived=false;  
 		ParseGPSSentence(); // 7.5mS 18f2520 @ 16MHz
@@ -349,7 +361,7 @@ void UpdateGPS(void)
 			else
 				GPSCount++;
 
-	LedYellow_OFF;
+	LedBlue_OFF;
 	if ( _GPSValid )
 		LedRed_OFF;
 	else

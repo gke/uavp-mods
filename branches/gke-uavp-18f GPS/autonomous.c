@@ -102,7 +102,11 @@ void HoldStation()
 
 void ReturnHome(void)
 {
+	#ifdef TEST_SOFTWARE
+	if ( _GPSValid )
+	#else
 	if ( _GPSValid && _UseCompass )
+	#endif
 	{
 		Navigate(0, 0);
 		DesiredThrottle = IGas;

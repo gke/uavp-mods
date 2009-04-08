@@ -586,7 +586,8 @@ void main(void)
 
     ALL_LEDS_OFF;
 	Beeper_OFF;
-//	LedBlue_ON;
+	LedBlue_ON;
+	AUX_LEDS_ON;
 
 	INTCONbits.PEIE = true;		// enable peripheral interrupts
 	EnableInterrupts;
