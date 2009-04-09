@@ -248,9 +248,6 @@ void PollGPS(void)
     case WaitGPSBody:
       {
       ch=RxChar(); RxCheckSum^=ch;
-	#ifdef ECHO_NMEA
-	TxChar(ch);
-	#endif // ECHO_NMEA
       GPSRxBuffer[ll]=ch;
       ll++;         
       if ((ch=='*')||(ll==GPSRXBUFFLENGTH))      
@@ -275,9 +272,6 @@ void PollGPS(void)
     case WaitGPSCheckSum:
       {
       ch=RxChar();
-	#ifdef ECHO_NMEA
-	TxChar(ch);
-	#endif // ECHO_NMEA
       if (GPSCheckSumChar<2)
         {
         if (ch>='A')
@@ -296,9 +290,6 @@ void PollGPS(void)
     case WaitGPSTag:
       {
       ch=RxChar(); RxCheckSum^=ch;
-	#ifdef ECHO_NMEA
-	TxChar(ch);
-	#endif // ECHO_NMEA
       if (ch==GPGGATag[tt])
         if (tt==MAXTAGINDEX)
           GPSRxState=WaitGPSBody;
@@ -311,9 +302,6 @@ void PollGPS(void)
     case WaitGPSSentinel:
       {
       ch=RxChar();
-	#ifdef ECHO_NMEA
-	TxChar(ch);
-	#endif // ECHO_NMEA
       if (ch=='$')
         {
         ll=0;

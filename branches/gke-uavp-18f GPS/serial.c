@@ -125,11 +125,13 @@ uint8 PollRxChar(void)
 			{
 				RCSTAbits.CREN = false;	// disable, then re-enable port to
 				RCSTAbits.CREN = true;	// reset OERR and FERR bit
+				if ( _RxECHO ) TxChar('!');
 				ch = RCREG;	// dummy read
 			}
 			else
 			{
 				ch = RCREG;	// get the character
+ 				if ( _RxECHO ) TxChar(ch);
 				TxChar(ch);	// echo it for UAVPSet
 				return(ch);		// and return it
 			}
@@ -163,17 +165,17 @@ int8 RxNumS(void)
 {
 	uint8 ch;
 	int8 n;
-
+	uint8 Neg;
 	n = 0;
 
-	_NegIn = false;
+	Neg = false;
 	do
 		ch = PollRxChar();
 	while( ((ch < '0') || (ch > '9')) &&
            (ch != '-') );
 	if( ch == '-' )
 	{
-		_NegIn = true;
+		Neg = true;
 		do
 			ch = PollRxChar();
 		while( (ch < '0') || (ch > '9') );
@@ -184,7 +186,7 @@ int8 RxNumS(void)
 		ch = PollRxChar();
 	while( (ch < '0') || (ch > '9') );
 	n += ch - '0';
-	if( _NegIn )
+	if( Neg )
 		n = -n;
 	return(n);
 } // RxNumS
