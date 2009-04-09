@@ -151,24 +151,24 @@
 #define	_Flying			Flags[1]	/* UFO is flying */
 #define	_NewValues		Flags[2]	/* new RX channel values sampled */
 #define _FirstTimeout	Flags[3]	/* is 1 after first 9ms TO expired */
-#define _NegIn			Flags[4]	/* negative signed input (serial.c) */
-#define _LowBatt		Flags[5]	/* if Batt voltage is low */
-#define _UseLISL		Flags[6]	/* 1 if LISL Sensor is used */
-#define	_UseCompass		Flags[7]	/* 1 if compass sensor is enabled */
 
-#define _UseBaro		Flags[8]	/* 1 if baro sensor active */
-#define _BaroTempRun	Flags[9]	/* 1 if baro temp a/d conversion is running */
-									/* 0 means: pressure a/d conversion is running */
+#define _LowBatt		Flags[4]	/* if Batt voltage is low */
+#define _UseLISL		Flags[5]	/* 1 if LISL Sensor is used */
+#define	_UseCompass		Flags[6]	/* 1 if compass sensor is enabled */
+#define _UseBaro		Flags[7]	/* 1 if baro sensor active */
+#define _BaroTempRun	Flags[8]	/* 1 if baro temp a/d conversion is running */
+#define _BaroRestart	Flags[9] 	/* Baro restart required */
 #define _OutToggle		Flags[10]	/* cam servos only evers 2nd output pulse */								
 #define _UseCh7Trigger	Flags[11]	/* 1: don't use Ch7 */
 									/* 0: use Ch7 as Cam Roll trim */
-#define _TrigSign		Flags[12]	/* used in trig.c */
-#define _BaroRestart	Flags[13] /* Baro restart required */
-#define _Hovering		Flags[14]	/* QC is hovering */
-#define _LostModel		Flags[15]	/* Rx timeout - model lost? */
-#define _HoldingStation Flags[16]
+#define _NMEADetected 	Flags[16]
 #define _GPSValid 		Flags[17]
-#define _NMEADetected 	Flags[18]
+#define _LostModel		Flags[18]
+#define _Hovering		Flags[19]
+#define _HoldingStation Flags[20]
+#define _ReturningHome  Flags[21]
+
+#define _RxECHO			Flags[31]	/* Echo received characters */
 
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)
