@@ -320,7 +320,7 @@ void InitGPS()
 	uint8 c;
 
 	GPSEast = GPSNorth = 0;
-	_NMEADetected = false;
+	_ReceivingGPS = false;
 	GPSSentenceReceived=false;
 	FirstGPSSentence = true;
 	_GPSValid = false; 

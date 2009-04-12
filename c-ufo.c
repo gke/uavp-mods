@@ -183,7 +183,7 @@ void WaitForRxSignal(void)
 		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
 		ProcessComCommand();
 		if( _NoSignal )
-			if( Switch )
+			if( Armed )
 			{
 				if( --DropoutCount == 0 )
 				{
@@ -194,7 +194,7 @@ void WaitForRxSignal(void)
 			else
 				_LostModel = false;
 	}
-	while( _NoSignal || !Switch);	// no signal or switch is off
+	while( _NoSignal || !Armed );	// no signal or switch is off
 } // WaitForRXSignal
 
 void main(void)
@@ -270,16 +270,16 @@ Restart:
 	// DON'T MOVE THE UFO!
 	// ES KANN LOSGEHEN!
 
-	while(1)
+	while( true )
 	{
 		INTCONbits.TMR0IE = false;		// Disable TMR0 interrupt
 
 		// no command processing while the Quadrocopter is armed
 		// GPS signals must be connected by a second switch ganged with the
 		// arming switch
-		if ( _NMEADetected )
+		if ( _ReceivingGPS )
 		{
-			_NMEADetected = false;
+			_ReceivingGPS = false;
    			PIE1bits.RCIE = false; // turn off Rx interrupts
 			Delay1mS(10);
 		}
@@ -317,13 +317,13 @@ Restart:
 		// else assume use for camera roll trim	
 		_UseCh7Trigger = IK7 < 30;
 	
-		while ( Switch == 1 )
+		while ( Armed )
 		{
 			BlinkCount++;
 
-			if ( !_NMEADetected )
+			if ( !_ReceivingGPS )
 			{
-			_NMEADetected = true;
+			_ReceivingGPS = true;
    			PIE1bits.RCIE = true; // turn on Rx interrupts
 			Delay1mS(10); // wait for switch bounce
 			} 
@@ -350,9 +350,10 @@ Restart:
 				// or non-optimal flight behavior might occur!!!
 			}
 
+			INTCONbits.TMR0IE = false;	// disable timer
+			
 			ComputeBaroComp();
 
-			INTCONbits.TMR0IE = false;	// disable timer
 			GetGyroValues();
 
 			ReadParametersEE();	// re-sets TimeSlot
@@ -365,11 +366,10 @@ Restart:
 				if( ( BlinkCount & 0x000f ) == 0 )
 					DropoutCount++;
 				if( DropoutCount < MAXDROPOUT )
-				{	// FAILSAFE	
-					// hold last throttle
+				{	// FAILSAFE	- hold last throttle
 					_LostModel = true;
 					ALL_LEDS_OFF;
-					DesiredRoll = DesiredPitch = DesiredYaw = _Minimum;
+					DesiredRoll = DesiredPitch = DesiredYaw = 0;
 					goto DoPID;
 				}
 				break;	// timeout, stop everything
@@ -394,14 +394,14 @@ Restart:
 				
 				InitArrays();	// resets _Flying flag!
 				GyroMidRoll = GyroMidPitch = GyroMidYaw = 0;
-				if( _NoSignal && Switch )	// _NoSignal set, but Switch is on?
+				if( _NoSignal && Armed )	// _NoSignal set, but Switch is on?
 					break;	// then RX signal was lost
 
 				ALL_LEDS_OFF;				
 				AUX_LEDS_OFF;
 				LedGreen_ON;
 
-				ProcessComCommand();
+//				ProcessComCommand();
 			}
 			else
 			{	// UFO is flying!
@@ -452,8 +452,6 @@ DoPID:
 		} // flight while armed
 
 		Beeper_OFF;
-
-		// CPU kommt hierher wenn der Schalter ausgeschaltet wird
 	}
 
 } // main

@@ -46,7 +46,7 @@
 #define ALL_OUTPUTS		(PORTB & 0b00001111)
 #define CAM_PULSE_ON	PORTB |= 0b00110000;
 
-#define Switch		PORTAbits.RA4
+#define Armed		(PORTAbits.RA4)
 
 #define SPI_CS		PORTCbits.RC5
 #define SPI_SDA		PORTCbits.RC4
@@ -161,7 +161,7 @@
 #define _OutToggle		Flags[10]	/* cam servos only evers 2nd output pulse */								
 #define _UseCh7Trigger	Flags[11]	/* 1: don't use Ch7 */
 									/* 0: use Ch7 as Cam Roll trim */
-#define _NMEADetected 	Flags[16]
+#define _ReceivingGPS 	Flags[16]
 #define _GPSValid 		Flags[17]
 #define _LostModel		Flags[18]
 #define _Hovering		Flags[19]

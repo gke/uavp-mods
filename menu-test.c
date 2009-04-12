@@ -141,7 +141,7 @@ void ProcessComCommand(void)
 
 	ch = PollRxChar();
 
-	if ( !_NMEADetected )
+	if ( !_ReceivingGPS )
 	{
 		if ( ch != NUL )
 		{
@@ -240,7 +240,7 @@ void ProcessComCommand(void)
 				break;
 			#ifdef USE_GPS
 			case '$' : // GPS NMEA sentences
-				_NMEADetected = true;
+				_ReceivingGPS = true;
    				PIE1bits.RCIE = true; // turn on Rx interrupts
 				break;
 			case 'G' : // GPS test

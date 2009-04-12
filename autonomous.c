@@ -58,6 +58,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	int16 Angle, Temp;
 	int16 RangeApprox;
 	int16 EastDiff, NorthDiff;
+	int16 RollCorrection, PitchCorrection;
 	int24 Temp2;
 
 	EastDiff = GPSEastWay - GPSEast;
@@ -68,11 +69,13 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		
 	Angle = Make2Pi(int16atan2(-EastDiff, NorthDiff) - CompassHeading);
 
-	DesiredRoll = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
-	// TOO SLOW DesiredRoll = GPSFilter(DesiredRoll, Temp);
+	RollCorrection = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
+	DesiredRoll += RollCorrection;
+	DesiredRoll = Limit(DesiredRoll, -_Maximum, _Maximum);
 
-	DesiredPitch = (int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
-	// TOO SLOW DesiredPitch = GPSFilter(DesiredPitch, Temp);
+	PitchCorrection = (-int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
+	DesiredPitch += PitchCorrection;
+	DesiredPitch = Limit(DesiredPitch, -_Maximum, _Maximum);
 
 } // Navigate
 
@@ -89,14 +92,6 @@ void HoldStation()
 		Navigate(GPSNorthHold, GPSEastHold);
 		//AltitudeHold(CurrAltitude);
 	}
-	else
-	{
-		DesiredRoll = IRoll;
-		DesiredPitch = IPitch;
-	}
-	
-	DesiredThrottle = IGas;
-	DesiredYaw = IYaw;
 
 } // HoldStation
 
@@ -107,31 +102,24 @@ void ReturnHome(void)
 	#else
 	if ( _GPSValid && _UseCompass )
 	#endif
-	{
 		Navigate(0, 0);
-		DesiredThrottle = IGas;
 		//AltitudeHold(RETURN_ALT); // rely on Baro hold for now
-	}
-	else
-	{
-		DesiredRoll = DesiredPitch = 0;
-		Descend();
-	}
-	DesiredYaw = IYaw;
 } // ReturnHome
 
 void CheckAutonomous(void)
 {
+	DesiredThrottle = IGas;
+	DesiredRoll = IRoll;
+	DesiredPitch = IPitch;
+	DesiredYaw = IYaw;
+
 	#ifdef ENABLE_AUTONOMOUS
 
 	UpdateGPS();
 
 	if ( _NoSignal && _Flying )
 	{ // NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
-		DesiredThrottle = IGas;
-		DesiredRoll = IRoll;
-		DesiredPitch = IPitch;
-		DesiredYaw = IYaw;
+	  // do nothing - use Wolfgang's failsafe
 	}
 	else
 		if ( _Hovering )
@@ -141,19 +129,7 @@ void CheckAutonomous(void)
 			_HoldingStation = false;
 			if ( IK5 > _Neutral )
 				ReturnHome();
-			else
-			{
-				DesiredThrottle = IGas;
-				DesiredRoll = IRoll;
-				DesiredPitch = IPitch;
-				DesiredYaw = IYaw;
-			}
 		}
-	#else
-		DesiredThrottle = IGas;
-		DesiredRoll = IRoll;
-		DesiredPitch = IPitch;
-		DesiredYaw = IYaw;
 	#endif // ENABLE_AUTONOMOUS
 
 } // CheckAutonomous

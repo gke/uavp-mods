@@ -131,7 +131,6 @@ uint8 PollRxChar(void)
 			else
 			{
 				ch = RCREG;	// get the character
- 				if ( _RxECHO ) TxChar(ch);
 				TxChar(ch);	// echo it for UAVPSet
 				return(ch);		// and return it
 			}

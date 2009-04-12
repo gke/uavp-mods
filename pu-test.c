@@ -353,7 +353,7 @@ void GPSTest(void)
 
 	while( !PollRxChar() );
 
-	_NMEADetected = true;
+	_ReceivingGPS = true;
 	PIE1bits.RCIE = true; // turn on Rx interrupts
 
 	DesiredRoll = IRoll;
@@ -620,7 +620,7 @@ void main(void)
 	{
 		// turn red LED on of signal missing or invalid, green if OK
 		// Yellow led to indicate linear sensor functioning.
-		if( _NoSignal || !Switch )
+		if( _NoSignal || !Armed )
 		{
 			LedRed_ON;
 			LedGreen_OFF;
