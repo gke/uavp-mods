@@ -4,7 +4,7 @@
 
 // The "Ls" are important
 
-#define COMPASS_OFFSET_DEG		270L	/* North degrees CW from Front */
+#define COMPASS_OFFSET_DEG		90L	/* North degrees CW from Front */
 
 #define MAX_ANGLE 20L					/* Rx stick units */
 #define PROXIMITY	25L					/* square of the closing radius in metres */

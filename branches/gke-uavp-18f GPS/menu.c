@@ -142,7 +142,7 @@ void ProcessComCommand(void)
 	uint16 addrbase, curraddr;
 	int8 d;
 
-	if ( !_NMEADetected )
+	if ( !_ReceivingGPS )
 	{
 		ch = PollRxChar();
 	
@@ -153,12 +153,6 @@ void ProcessComCommand(void)
 			
 			switch( ch )
 			{
-			#ifdef USE_GPS
-			case '$' : // NMEA sentence
-				_NMEADetected = true;
-   				PIE1bits.RCIE = true; // turn on Rx interrupts
-				break;
-			#endif // USE_GPS
 			case 'L'  :	// List parameters
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				if( IK5 > _Neutral )
@@ -178,44 +172,47 @@ void ProcessComCommand(void)
 				ShowPrompt();
 				break;
 			case 'M'  : // modify parameters
-				LedBlue_ON;
-				TxString("\r\nRegister ");
-				addr = RxNumU()-1;
-				TxString(" = ");
-				d = RxNumS();
-				if( IK5 > _Neutral )
-					addrbase = _EESet2;
-				else
-					addrbase = _EESet1;
-		
-				if( addr ==  (&ConfigParam - &FirstProgReg) )
-					d &=0xf7; // no Double Rates
-		
-				WriteEE(addrbase + (uint16)addr, d);
-		
-				// update transmitter config bits in the other parameter set
-				if( addr ==  (&ConfigParam - &FirstProgReg) )
-				{									
+				if ( !Armed )
+				{ // no reprogramming in flight!!!!!!!!!!!!!!!
+					LedBlue_ON;
+					TxString("\r\nRegister ");
+					addr = RxNumU()-1;
+					TxString(" = ");
+					d = RxNumS();
 					if( IK5 > _Neutral )
-						addrbase = _EESet1;				
+						addrbase = _EESet2;
 					else
-						addrbase = _EESet2;	
-					// mask only bits _FutabaMode and _NegativePPM
-					d &= 0x12;		
-					d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
+						addrbase = _EESet1;
+			
+					if( addr ==  (&ConfigParam - &FirstProgReg) )
+						d &=0xf7; // no Double Rates
+			
 					WriteEE(addrbase + (uint16)addr, d);
+			
+					// update transmitter config bits in the other parameter set
+					if( addr ==  (&ConfigParam - &FirstProgReg) )
+					{									
+						if( IK5 > _Neutral )
+							addrbase = _EESet1;				
+						else
+							addrbase = _EESet2;	
+						// mask only bits _FutabaMode and _NegativePPM
+						d &= 0x12;		
+						d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
+						WriteEE(addrbase + (uint16)addr, d);
+					}
+		
+					// This is not strictly necessary as UAVPSet enforces it.
+					// Hovever direct edits of parameter files can easily exceed
+					// intermediate arithmetic limits.
+					if ( ((int16)Abs(YawIntFactor) * (int16)YawIntLimit) > 127 )
+					{
+						d = 127 / YawIntFactor;
+						WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
+					}
+		
+					LedBlue_OFF;
 				}
-	
-				// This is not strictly necessary as UAVPSet enforces it.
-				// Hovever direct edits of parameter files can easily exceed
-				// intermediate arithmetic limits.
-				if ( ((int16)Abs(YawIntFactor) * (int16)YawIntLimit) > 127 )
-				{
-					d = 127 / YawIntFactor;
-					WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
-				}
-	
-				LedBlue_OFF;
 				ShowPrompt();
 				break;
 			case 'S' :	// show status
@@ -244,9 +241,11 @@ void ProcessComCommand(void)
 				break;
 		
 			case 'B':	// call bootloader
-				DisableInterrupts;
-				BootStart();		// never comes back!
-				
+				if ( !Armed )
+				{ // arming switch must be OFF to call bootloader!!!
+					DisableInterrupts;
+					BootStart();		// never comes back!
+				}	
 			case '?'  : // help
 				TxString(SerHelp);
 				ShowPrompt();

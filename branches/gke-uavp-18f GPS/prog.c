@@ -79,8 +79,8 @@ void WriteEE(uint8 addr, int8 d)
 
 		EECON1bits.WREN = false;
 	}
-
 } // WriteEE
+
 
 void WriteParametersEE(uint8 s)
 {
@@ -97,3 +97,5 @@ void WriteParametersEE(uint8 s)
 	while ( p <= &LastProgReg)
 		WriteEE(addr++, *p++);
 } // WriteParametersEE
+
+

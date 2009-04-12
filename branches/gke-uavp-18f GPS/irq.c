@@ -272,7 +272,7 @@ ErrorRestart:
 		}
 	
 		#ifdef USE_GPS		
-		if ( _NMEADetected )
+		if ( _ReceivingGPS )
 			PollGPS();
 		#endif // USE_GPS
 	} 	
