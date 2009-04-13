@@ -180,8 +180,9 @@ void GetDirection(void)
 	if( _UseCompass  ) // continuous mode but Compass only updates avery 50mS
 	{
 		// set Compass device to Compass mode 
-		I2CStart();		
-		Compass = (uint16)RecvI2CByte(I2C_ACK)*256 | RecvI2CByte(I2C_NACK);
+		I2CStart();
+		r = SendI2CByte(COMPASS_I2C_ID+1); // no check
+		Compass = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
 		I2CStop();
 	
 		// DirVal has 1/10th degrees

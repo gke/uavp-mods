@@ -3,14 +3,11 @@
 // Accelerometer
 
 // Enable vertical acclerometer compensation of vertical velocity 
-#define ENABLE_VERTICAL_VELOCITY_DAMPING
+//#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
 
-// Enable "Dynamic mass" compensation Roll and/or Pitch
-// Normally enabled for Roll only 
-#define ENABLE_DYNAMIC_MASS_COMP_ROLL
-#define ENABLE_DYNAMIC_MASS_COMP_PITCH
+
 
 // Barometer
 
@@ -120,6 +117,10 @@
 
 // Gyros
 
+// Enable "Dynamic mass" compensation Roll and/or Pitch
+// Normally enabled for Roll only 
+#define ENABLE_DYNAMIC_MASS_COMP_ROLL
+#define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
 // Misc
 
