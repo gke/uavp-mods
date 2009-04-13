@@ -31,7 +31,7 @@
 
         LIST C=200,R=dec
 
-	include "p18cxxx.inc"     
+		include "p18cxxx.inc"     
         include "general.asm"
 
 		; need to include clock for baud calculation
@@ -44,7 +44,6 @@
 		; use 38400 Baud throughout for now.
 		_B38400			equ		(_ClkOut*100000/(4*38400) - 1)
 
-
 		_RestoreVec		equ		0
 		_MaxRxBuffer		equ		80	;normal max 64 hex chars + tags
 
