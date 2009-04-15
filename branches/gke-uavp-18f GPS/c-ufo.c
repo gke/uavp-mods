@@ -27,7 +27,7 @@
 //#ifdef CLOCK_40MHZ
 //#pragma	config OSC=HSPLL, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC
 //#else
-#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC  
+#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF//zzz, CCP2MX = PORTC  
 //#endif
 
 #include "c-ufo.h"
@@ -256,6 +256,13 @@ void main(void)
 	InitGPS();
 	#endif // USE_GPS
 
+while (1)
+{
+CompassHeading = 0; //zzzz
+Navigate(0, 0);
+GPSNorth++;
+//GPSEast--;
+}
 
 	ShowSetup(1);
 

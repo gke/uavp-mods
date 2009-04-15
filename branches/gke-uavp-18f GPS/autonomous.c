@@ -64,47 +64,19 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	EastDiff = GPSEastWay - GPSEast;
 	NorthDiff = GPSNorthWay - GPSNorth;
 
-	Temp2 = (int24)NorthDiff*(int24)NorthDiff + (int24)EastDiff*(int24)EastDiff;
-	RangeApprox = Limit(Temp2, 0, PROXIMITY);
+	RangeApprox = Limit(Max(Abs(NorthDiff), Abs(EastDiff)), 0, PROXIMITY);
 		
-	Angle = Make2Pi(int16atan2(-EastDiff, NorthDiff) - CompassHeading);
+	Angle = int16atan2(EastDiff, NorthDiff);
+	Angle -= CompassHeading;
+ 	Angle = Make2Pi(Angle);
 
-	RollCorrection = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
-	DesiredRoll += RollCorrection;
-	DesiredRoll = Limit(DesiredRoll, -_Maximum, _Maximum);
+	RollCorrection = (int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
+	DesiredRoll = Limit(DesiredRoll + RollCorrection, -_Maximum, _Maximum);
 
 	PitchCorrection = (-int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
-	DesiredPitch += PitchCorrection;
-	DesiredPitch = Limit(DesiredPitch, -_Maximum, _Maximum);
+	DesiredPitch = Limit(DesiredPitch + PitchCorrection, -_Maximum, _Maximum);
 
 } // Navigate
-
-void HoldStation()
-{
-	if ( _GPSValid && _UseCompass ) 
-	{ 
-		if ( !_HoldingStation )
-		{
-			GPSNorthHold = GPSNorth;
-			GPSEastHold = GPSEast;
-			_HoldingStation = true;
-		}		
-		Navigate(GPSNorthHold, GPSEastHold);
-		//AltitudeHold(CurrAltitude);
-	}
-
-} // HoldStation
-
-void ReturnHome(void)
-{
-	#ifdef TEST_SOFTWARE
-	if ( _GPSValid )
-	#else
-	if ( _GPSValid && _UseCompass )
-	#endif
-		Navigate(0, 0);
-		//AltitudeHold(RETURN_ALT); // rely on Baro hold for now
-} // ReturnHome
 
 void CheckAutonomous(void)
 {
@@ -118,18 +90,29 @@ void CheckAutonomous(void)
 	UpdateGPS();
 
 	if ( _NoSignal && _Flying )
-	{ // NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
-	  // do nothing - use Wolfgang's failsafe
+	{ 
+		// NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
+	  	// do nothing - use Wolfgang's failsafe
 	}
 	else
-		if ( _Hovering )
-			HoldStation();
-		else
-		{
-			_HoldingStation = false;
-			if ( IK5 > _Neutral )
-				ReturnHome();
-		}
+		if ( _GPSValid && _UseCompass )
+			if ( _Hovering )
+			{
+				if ( !_HoldingStation )
+				{
+					// acquire hold coordinates
+					GPSNorthHold = GPSNorth;
+					GPSEastHold = GPSEast;
+					_HoldingStation = true;
+				}		
+				Navigate(GPSNorthHold, GPSEastHold);
+			}
+			else
+			{
+				_HoldingStation = false;
+				if ( IK5 > _Neutral )
+					Navigate(0, 0);
+			}
 	#endif // ENABLE_AUTONOMOUS
 
 } // CheckAutonomous
