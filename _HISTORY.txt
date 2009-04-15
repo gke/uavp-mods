@@ -225,8 +225,8 @@ First public released version.
   DEBUG_Motors removed.
 
 03.04.2009 v3.15m3-18f Greg Egan
-- Added NMEA GPS test to test software.
-  Reduced baud rates to 9600b to makeinter character 
+- Added NMEA GPS test to test and flight software.
+  Reduced baud rates to 9600b to make inter-character 
   delay greater than 1mS to avoid Rx capture clash.
 
 ==============================================

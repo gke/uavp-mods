@@ -275,7 +275,8 @@ void ComputeBaroComp(void)
 
 					if( ThrDownCount )	// while moving throttle stick
 					{
-						BaroBasePressure = BaroVal;	
+						BaroBasePressure = BaroVal;
+						_HoldingStation = false; // just in case!
 						_Hovering = false;
 						VBaroComp = 0;	
 					}

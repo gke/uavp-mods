@@ -365,7 +365,7 @@ void GPSTest(void)
 		if ( _GPSValid )
 		{
 			GetDirection();
-			ReturnHome();
+			Navigate(0, 0);
 
 			if ( Raw )
 			{
