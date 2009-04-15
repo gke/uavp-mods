@@ -256,13 +256,6 @@ void main(void)
 	InitGPS();
 	#endif // USE_GPS
 
-while (1)
-{
-CompassHeading = 0; //zzzz
-Navigate(0, 0);
-GPSNorth++;
-//GPSEast--;
-}
 
 	ShowSetup(1);
 
