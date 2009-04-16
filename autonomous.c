@@ -25,11 +25,9 @@
 
 // Prototypes
 void Descend(void);
-void ReturnHome(void);
 void ParseGPSSentence(void);
 void ResetTimeOuts(void);
 void Navigate(int16, int16);
-void HoldStation(void);
 
 // Defines
 
@@ -55,22 +53,19 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// waypoint. It simply rolls/pitches towards the destination
 	// To avoid cos/sin/arctan calls a simple look up process is used.
 
-	int16 Angle, Temp;
+	int16 Angle;
 	int16 RangeApprox;
 	int16 EastDiff, NorthDiff;
 	int16 RollCorrection, PitchCorrection;
-	int24 Temp2;
 
 	EastDiff = GPSEastWay - GPSEast;
 	NorthDiff = GPSNorthWay - GPSNorth;
 
 	RangeApprox = Limit(Max(Abs(NorthDiff), Abs(EastDiff)), 0, PROXIMITY);
 		
-	Angle = int16atan2(EastDiff, NorthDiff);
-	Angle -= CompassHeading;
- 	Angle = Make2Pi(Angle);
+	Angle = Make2Pi(int16atan2(EastDiff, NorthDiff)-  CompassHeading);
 
-	RollCorrection = (int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
+	RollCorrection = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
 	DesiredRoll = Limit(DesiredRoll + RollCorrection, -_Maximum, _Maximum);
 
 	PitchCorrection = (-int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
