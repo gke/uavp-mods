@@ -1,12 +1,14 @@
 // EXPERIMENTAL
 
+// This is temporary and for testing GPS only. It does not activate
+// flight code.
+//#define SIMULATION
+
 // Navigation
 
 // The "Ls" are important
-
-#define COMPASS_OFFSET_DEG		90L	/* North degrees CW from Front */
-
-#define MAX_ANGLE 20L					/* Rx stick units */
+#define COMPASS_OFFSET_DEG		90L		/* North degrees CW from Front */
+#define MAX_ANGLE 	20L					/* Rx stick units */
 #define PROXIMITY	25L					/* square of the closing radius in metres */
 
 #define ENABLE_AUTONOMOUS
@@ -14,9 +16,6 @@
 	#define USE_GPS
 	#define GPS_NMEA
 #endif
-
-// gives flight mode RC signal representation in test program
-#define MENU_ALT_RX
 
 // Accelerometer
 
@@ -485,9 +484,8 @@ extern void InitADC(void);
 
 // autonomous.c
 extern void AcquireSatellites(void);
-extern void ReturnHome(void);
+extern void Navigate(int16, int16);
 extern void Descend(void);
-extern void HoldStation(void);
 
 // compass_altimeter.c
 extern void InitDirection(void);

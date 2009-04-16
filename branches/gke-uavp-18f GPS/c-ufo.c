@@ -78,7 +78,6 @@ int16	Vud;
 int16	Trace[LastTrace];
 
 uint8	Flags[32];
-uint8	NeutralsAcquired;
 
 int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LedCount, BlinkCycle, BaroCount;
 int32	BlinkCount;
@@ -121,6 +120,45 @@ int8	BaroThrottleDiff	=4;
 
 
 // Ende Reihenfolgezwang
+
+#ifdef SIMULATION
+
+void Simulate()
+{
+	int16 CosH, SinH, NorthD, EastD, A;
+
+	GPSNorth = 10000;
+	GPSEast = -10000;
+
+	CompassHeading = 0;
+	while( true)
+	{
+		DesiredRoll = DesiredPitch = 0; // controls neutral
+		Navigate(0, 100);
+	
+		CosH = int16cos(CompassHeading);
+		SinH = int16sin(CompassHeading);
+		GPSEast += ((int32)(-DesiredPitch) * SinH)/256;
+		GPSNorth += ((int32)(-DesiredPitch) * CosH)/256;
+
+		A = Make2Pi(CompassHeading - HALFMILLIPI);
+		CosH = int16cos(A);
+		SinH = int16sin(A);
+		GPSEast += ((int32)DesiredRoll * SinH)/256L;
+		GPSNorth += ((int32)DesiredRoll * CosH)/256L;
+
+		TxVal32(((int32)CompassHeading*180L)/MILLIPI, 0, ' ');
+		TxVal32(DesiredRoll, 0, ' ');
+		TxVal32(DesiredPitch, 0, ' ');
+		TxVal32(GPSNorth, 0, ' ');
+		TxVal32(GPSEast, 0, ' ');
+		TxNextLine();
+		CompassHeading = Make2Pi(CompassHeading + 10);
+	}
+
+} // Simulate
+
+#endif // SIMULATION
 
 void WaitThrottleClosed(void)
 {
@@ -207,6 +245,10 @@ void main(void)
 	InitPorts();
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B9600);
+
+#ifdef SIMULATION
+	Simulate();
+#else
 	
 	InitADC();
 	
@@ -251,16 +293,11 @@ void main(void)
 
 	InitDirection();
 	InitBarometer();
-
-	#ifdef USE_GPS
 	InitGPS();
-	#endif // USE_GPS
-
 
 	ShowSetup(1);
 
 	IK6 = IK7 = _Minimum;
-	NeutralsAcquired = false;
 	BlinkCount = 0;
 
 Restart:
@@ -323,9 +360,9 @@ Restart:
 
 			if ( !_ReceivingGPS )
 			{
-			_ReceivingGPS = true;
-   			PIE1bits.RCIE = true; // turn on Rx interrupts
-			Delay1mS(10); // wait for switch bounce
+				_ReceivingGPS = true;
+	   			PIE1bits.RCIE = true; // turn on Rx interrupts
+				Delay1mS(10); // wait for switch bounce
 			} 
 
 			// wait pulse pause delay time (TMR0 has 1024us for one loop)
@@ -333,7 +370,7 @@ Restart:
 			INTCONbits.TMR0IF = false;
 			INTCONbits.TMR0IE = true;	// enable TMR0
 
-			RollRate =PitchRate = 0;	// zero gyros sum-up memory
+			RollRate = PitchRate = 0;	// zero gyros sum-up memory
 			// sample gyro data and add everything up while waiting for timing delay
 
 			GetGyroValues();
@@ -400,15 +437,12 @@ Restart:
 				ALL_LEDS_OFF;				
 				AUX_LEDS_OFF;
 				LedGreen_ON;
-
-//				ProcessComCommand();
 			}
 			else
 			{	// UFO is flying!
 				if( !_Flying )	// about to start
 				{	
-					AbsDirection = COMPASS_INVAL;
-//					ProcessComCommand();						
+					AbsDirection = COMPASS_INVAL;						
 					LedCount = 1;
 				}
 
@@ -454,5 +488,6 @@ DoPID:
 		Beeper_OFF;
 	}
 
+#endif // SIMULATION
 } // main
 
