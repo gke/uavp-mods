@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                           http://uavp.ch                            =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -245,7 +245,7 @@ void DoCompassTest()
 	I2CStop();
 
 	TxVal32((int32)v, 1, 0);
-	TxString("deg (not corrected for orientation on airframe)\r\n");		
+	TxString(" deg (not corrected for orientation on airframe)\r\n");		
 	return;
 CTerror:
 	I2CStop();
@@ -284,6 +284,7 @@ CCerror:
 void BaroTest(void)
 {
 	uint8 r;
+	uint16 P, T, C;
 
 	TxString("\r\nBarometer test\r\n");
 	if ( !_UseBaro ) goto BAerror;
@@ -296,14 +297,20 @@ void BaroTest(void)
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	Delay1mS(BARO_PRESS_TIME);
 	r = ReadValueFromBaro();
+	P = BaroVal;
 	TxString("Press: \t");	
-	TxVal32((int32)BaroVal, 0, 0);
+	TxVal32((int32)P, 0, 0);
 		
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	Delay1mS(BARO_TEMP_TIME);
 	r = ReadValueFromBaro();
+	T = BaroVal;
 	TxString("\tTemp: ");
-	TxVal32((int32)BaroVal, 0, 0);	
+	TxVal32((int32)T, 0, 0);	
+
+	TxString("\tComp: ");
+	C = P + SRS16((int16)T * (int16)BaroTempCoeff + 16, 5);
+	TxVal32((int32)C, 0, 0);
 	TxNextLine();
 
 	TxNextLine();
@@ -331,16 +338,7 @@ void PowerOutput(int8 d)
 
 void GPSTest(void)
 {
-	uint8 ch, Raw; 
-
-	#ifdef XXX
-	int16 Angle, Temp;
-	int16 RangeApprox;
-	int16 EastDiff, NorthDiff;
-	int24 Temp2;
-	#endif // XXX
-
-	Raw = false;
+	uint8 ch; 
 
 	TxString("\r\nGPS test\r\n");
 	TxString("monitors GPS input until full power reset\r\n");
@@ -353,80 +351,42 @@ void GPSTest(void)
 
 	while( !PollRxChar() );
 
-	_ReceivingGPS = true;
-	PIE1bits.RCIE = true; // turn on Rx interrupts
-
+	ReceiveGPSOnly(true);
 
 	while (1)
 	{
 		UpdateGPS();	
 		if ( _GPSValid )
 		{
-
 			DesiredRoll = IRoll;
 			DesiredPitch = IPitch;
-
 			GetDirection();
 			Navigate(0, 0);
 
-			if ( Raw )
-			{
-				#ifdef XXX
-				#define ANGLE_SCALE ((PROXIMITY * 256L + MAX_ANGLE/2)/MAX_ANGLE)
-				GPSEast = 100;
-				GPSNorth = 100;
+			TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, ' ');
+			if ( _CompassMisRead )
+				TxChar('?');
 
-				EastDiff = - GPSEast;
-				NorthDiff = - GPSNorth;
-			
-				Temp2 = (int24)NorthDiff*(int24)NorthDiff + (int24)EastDiff*(int24)EastDiff;
-				RangeApprox = Limit(Temp2, 0, PROXIMITY);
-					
-				Angle = int16atan2(-EastDiff, NorthDiff) + CompassHeading;
-				while ( Angle < 0 ) Angle += TWOMILLIPI;
-				while ( Angle >= TWOMILLIPI ) Angle -= TWOMILLIPI;
-
-				Temp = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
-				DesiredRoll = GPSFilter(DesiredRoll, Temp);
-			
-				Temp = (int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
-				DesiredPitch = GPSFilter(DesiredPitch, Temp);
-				#endif // XXX
-
-				TxVal32(((int32)CompassHeading*180L)/(int32)MILLIPI, 3, ';');
-
-				TxVal32(GPSNorth,0,';');
-				TxVal32(GPSEast,0,';');
-
-				TxVal32(DesiredRoll, 0, ';');
-				TxVal32(DesiredPitch, 0, ';');
-				TxNextLine();
-			}
+			TxString("\t ");
+			TxVal32(Abs(GPSNorth), 0, 0);
+			if ( GPSNorth >=0 )
+				TxChar('N');
 			else
-			{
-				TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, ' ');
+				TxChar('S');
+			TxString("\t ");
+			TxVal32(Abs(GPSEast), 0, 0);
+			if ( GPSEast >=0 )
+				TxChar('E');
+			else
+				TxChar('W');
 
-				TxString("\t ");
-				TxVal32(Abs(GPSNorth), 0, 0);
-				if ( GPSNorth >=0 )
-					TxChar('N');
-				else
-					TxChar('S');
-				TxString("\t ");
-				TxVal32(Abs(GPSEast), 0, 0);
-				if ( GPSEast >=0 )
-					TxChar('E');
-				else
-					TxChar('W');
-
-				TxString("\t -> R=");
-				TxVal32(DesiredRoll, 0, ' ');
-				TxString("\t P=");		
-				TxVal32(DesiredPitch, 0, ' ');
-				TxNextLine();
-			}	
-			_GPSValid = false;
+			TxString("\t -> R=");
+			TxVal32(DesiredRoll, 0, ' ');
+			TxString("\t P=");		
+			TxVal32(DesiredPitch, 0, ' ');
+			TxNextLine();
 		}	
+		_GPSValid = false;	
 	}
 } // GPSTest
 
@@ -572,7 +532,6 @@ void main(void)
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false;
 
-	_NoSignal = true;		// assume no signal present
 	PauseTime = 0;
 
 	InitArrays();
@@ -622,7 +581,7 @@ void main(void)
 	{
 		// turn red LED on of signal missing or invalid, green if OK
 		// Yellow led to indicate linear sensor functioning.
-		if( _NoSignal || !Armed )
+		if( !( _Signal && Armed ) )
 		{
 			LedRed_ON;
 			LedGreen_OFF;

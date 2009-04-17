@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://uavp.ch                       =
+// =                           http://uavp.ch                            =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -116,13 +116,10 @@ void InitArrays(void)
 	MCamPitch = MCamRoll = _Neutral;
 
 	_Flying = false;
-	REp = PEp = YEp = 0;
 	
 	Rp = Pp = Vud = VBaroComp = 0;
 	
 	UDSum = 0;
-	LRIntKorr = FBIntKorr = 0;
-	YawSum = RollSum = PitchSum = 0;
 
 	BaroRestarts = 0;
 	RCGlitchCount = 0;
@@ -467,9 +464,10 @@ void SwitchLedsOff(uint8 l)
 	SendLeds();
 } // SwitchLedsOff
 
-#ifdef DEBUG_SENSORS
+
 void DumpTrace(void)
 {
+#ifdef DEBUG_SENSORS
 	int8 t;
 
 	for (t=0; t <= TopTrace; t++)
@@ -478,5 +476,6 @@ void DumpTrace(void)
 		TxChar(';');
 	}
 	TxNextLine();
-} // DumpTrace
 #endif // DEBUG_SENSORS
+} // DumpTrace
+

@@ -84,13 +84,13 @@ void CheckAutonomous(void)
 
 	UpdateGPS();
 
-	if ( _NoSignal && _Flying )
+	if ( _Flying && !_Signal )
 	{ 
 		// NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
 	  	// do nothing - use Wolfgang's failsafe
 	}
 	else
-		if ( _GPSValid ) // && _UseCompass )
+		if ( _GPSValid ) // zzz && _UseCompass )
 			if ( _Hovering )
 			{
 				if ( !_HoldingStation )

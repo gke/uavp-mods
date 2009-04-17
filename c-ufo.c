@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://uavp.ch                       =
+// =                           http://uavp.ch                            =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -31,8 +31,8 @@
 
 // The globals
 
-uint8	IGas;			// actual input channel, can only be positive!
-int8 	IRoll,IPitch,IYaw;	// actual input channels, 0 = neutral
+uint8	IGas;						// actual input channel, can only be positive!
+int8 	IRoll,IPitch,IYaw;			// actual input channels, 0 = neutral
 uint8	IK5;						// actual channel 5 input
 uint8	IK6;						// actual channel 6 input
 uint8	IK7;						// actual channel 7 input
@@ -59,14 +59,14 @@ uint16	BaroVal;
 int16	VBaroComp;
 uint8	BaroType, BaroTemp, BaroRestarts;
 
-uint8	LedShadow;		// shadow register
-int16	AbsDirection;	// wanted heading (240 = 360 deg)
-int16	CurDeviation;	// deviation from correct heading
+uint8	LedShadow;					// shadow register
+int16	AbsDirection;				// wanted heading (240 = 360 deg)
+int16	CurDeviation;				// deviation from correct heading
 
 uint8	MCamRoll,MCamPitch;
 int16	Motor[NoOfMotors];
 
-int16	Rl,Pl,Yl;		// PID output values
+int16	Rl,Pl,Yl;					// PID output values
 int16	Rp,Pp,Yp;
 int16	Vud;
 
@@ -74,7 +74,7 @@ int16	Trace[LastTrace];
 
 uint8	Flags[32];
 
-int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LedCount, BlinkCycle, BaroCount;
+int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LedCount, BaroCount;
 int32	BlinkCount;
 uint24	RCGlitchCount;
 int8	BatteryVolts;
@@ -99,7 +99,7 @@ int8	YawDiffFactor		=6;
 int8	YawLimit			=50;
 int8	YawIntLimit			=3;
 int8	ConfigParam			=0b00000000;
-int8	TimeSlot			=2;	// control update interval + LEGACY_OFFSET
+int8	TimeSlot			=10;	// control update interval + LEGACY_OFFSET
 int8	LowVoltThres		=43;
 int8	CamRollFactor		=4;	
 int8	LinFBIntFactor		=0;	// unused
@@ -122,6 +122,7 @@ void Simulate()
 {
 	int16 CosH, SinH, NorthD, EastD, A;
 
+	// assume some initial position of the quadrocopter
 	GPSNorth = 10000;
 	GPSEast = -10000;
 
@@ -150,7 +151,6 @@ void Simulate()
 		TxNextLine();
 		CompassHeading = Make2Pi(CompassHeading + 10);
 	}
-
 } // Simulate
 
 #endif // SIMULATION
@@ -158,17 +158,15 @@ void Simulate()
 void WaitThrottleClosed(void)
 {
 	DropoutCount = 1;
-	while( (IGas >= _ThresStop) )
+	while( (IGas >= _ThresStop) && _Signal )
 	{
-		if ( _NoSignal)
-			break;
 		if( _NewValues )
 		{
 			OutSignals();
 			_NewValues = false;
 			if( --DropoutCount <= 0 )
 			{
-				LedRed_TOG;	// toggle red Led 
+				LedRed_TOG;	
 				DropoutCount = 10;		// to signal: THROTTLE OPEN
 			}
 		}
@@ -215,7 +213,7 @@ void WaitForRxSignal(void)
 	{
 		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
 		ProcessComCommand();
-		if( _NoSignal )
+		if( !_Signal )
 			if( Armed )
 			{
 				if( --DropoutCount == 0 )
@@ -227,8 +225,52 @@ void WaitForRxSignal(void)
 			else
 				_LostModel = false;
 	}
-	while( _NoSignal || !Armed );	// no signal or switch is off
+	while( !( _Signal && Armed ) );		// wait until signal and armed
 } // WaitForRXSignal
+
+void Landed(void)
+{
+	IntegralCount = 16;					// do 16 cycles to find integral zero point
+	ThrDownCount = THR_DOWNCOUNT;				
+	InitArrays();						// resets _Flying flag!
+
+	ALL_LEDS_OFF;				
+	AUX_LEDS_OFF;
+	LedGreen_ON;
+} // Landed
+
+void FlightTerminated(void)
+{
+	_Flying = false;
+
+	IGas = DesiredThrottle = _Minimum;
+	DesiredRoll = DesiredPitch = DesiredYaw = 0;
+	IK6 = IK7 = _Neutral;
+
+	MixAndLimitMotors();
+
+} // FlightTerminated
+
+void DoPID(void)
+{
+	Rp = Pp = 0;
+
+	LedGame();
+	CheckThrottleMoved(); 				// for altitude hold
+
+	if(	IntegralCount > 0 )
+		IntegralCount--;
+	else
+	{
+		PID();
+		MixAndLimitMotors();
+	}
+
+	// remember old gyro values
+	REp = RE;
+	PEp = PE;
+	YEp = YE;
+} // DoPID
 
 void main(void)
 {
@@ -249,36 +291,31 @@ void main(void)
 	
 	InitTimersAndInterrupts();
 
-	for ( i = 0; i<32 ; i++ )
+	for ( i = 0; i < 32 ; i++ )
 		Flags[i] = false; 
-	_NoSignal = true;		// assume no signal present
 	
 	LedShadow = 0;
     ALL_LEDS_OFF;
+	Beeper_OFF;
 	LedRed_ON;
 
-	InitArrays();`
+	InitArrays();
 	InitParams();
 
-	INTCONbits.PEIE = true;		// Enable peripheral interrupts
+	INTCONbits.PEIE = true;				// Enable peripheral interrupts
 	EnableInterrupts;
 
-	Delay100mSWithOutput(1);	// wait 1/10 sec until LISL is ready to talk
+	Delay100mSWithOutput(1);			// wait until LISL is ready to talk
 	InitLISL();
 
 	InitDirection();
 	InitBarometer();
 	InitGPS();
 
-	ShowSetup(1);
+	ShowSetup(true);
 
-	ThrNeutral = 0xFF;
-	IK6 = IK7 = _Minimum;
+	FlightTerminated();					// failsafe settings initially
 	BlinkCount = 0;
-
-Restart:
-	IGas = DesiredThrottle = IK5 = _Minimum;	// Assume parameter set #1
-	Beeper_OFF;
 
 	// DON'T MOVE THE UFO!
 	// ES KANN LOSGEHEN!
@@ -290,178 +327,121 @@ Restart:
 		// no command processing while the Quadrocopter is armed
 		// GPS signals must be connected by a second switch ganged with the
 		// arming switch
-		if ( _ReceivingGPS )
-		{
-			_ReceivingGPS = false;
-   			PIE1bits.RCIE = false; // turn off Rx interrupts
-			Delay1mS(10);
-		}
+		ReceiveGPSOnly(false);
 
 		ALL_LEDS_OFF;
-		LedRed_ON;		// Red LED on
-		if( _UseLISL )
-			LedYellow_ON;	// To signal LISL sensor is active
+		LedRed_ON;		
+		if( _UseLISL ) LedYellow_ON;
 
 		InitArrays();
 		ThrNeutral = 0xFF;
 
-		EnableInterrupts;		// Enable all interrupts
-	
-		WaitForRxSignal(); // Wait until a valid RX signal is received
-
+		EnableInterrupts;	
+		WaitForRxSignal(); 				// Wait for valid RX signal
 		ReadParametersEE();
-
 		WaitThrottleClosed();
 
-		if ( _NoSignal )
-			goto Restart;
-
-		// ######## MAIN LOOP ########
-
-		// loop length is controlled by a programmable variable "TimeSlot"
-
-		DropoutCount = 0;
-
-		IntegralCount = 16;	// do 16 cycles to find integral zero point
-
-		ThrDownCount = THR_DOWNCOUNT;
-
-		// if Ch7 below +20 (near minimum) assume use for camera trigger
-		// else assume use for camera roll trim	
-		_UseCh7Trigger = IK7 < 30;
+		if ( _Signal )
+		{	
+			DropoutCount = 0;	
+			IntegralCount = 16;			// do 16 cycles to find integral zero point	
+			ThrDownCount = THR_DOWNCOUNT;
 	
-		while ( Armed )
-		{
-			BlinkCount++;
-
-			if ( !_ReceivingGPS )
+			// if Ch7 below +20 (near minimum) assume use for camera trigger
+			// else assume use for camera roll trim	
+			_UseCh7Trigger = IK7 < _Neutral;
+		
+			while ( Armed )
 			{
-				_ReceivingGPS = true;
-	   			PIE1bits.RCIE = true; // turn on Rx interrupts
-				Delay1mS(10); // wait for switch bounce
-			} 
-
-			// wait pulse pause delay time (TMR0 has 1024us for one loop)
-			WriteTimer0(0);
-			INTCONbits.TMR0IF = false;
-			INTCONbits.TMR0IE = true;	// enable TMR0
-
-			RollRate = PitchRate = 0;	// zero gyros sum-up memory
-			// sample gyro data and add everything up while waiting for timing delay
-
-			GetGyroValues();
-
-			GetDirection();
-			CheckAutonomous(); // before timeslot delay to give maximum time
-
-			while( TimeSlot > 0 )
-			{
-				// Here is the place to insert own routines
-				// It should consume as little time as possible!
-				// ATTENTION:
-				// Your routine must return BEFORE TimeSlot reaches 0
-				// or non-optimal flight behavior might occur!!!
-			}
-
-			INTCONbits.TMR0IE = false;	// disable timer
-			
-			ComputeBaroComp();
-
-			GetGyroValues();
-
-			ReadParametersEE();	// re-sets TimeSlot
-
-			CalcGyroValues();
-
-			// check for signal dropout while in flight
-			if( _NoSignal && _Flying )
-			{
-				if( ( BlinkCount & 0x000f ) == 0 )
-					DropoutCount++;
-				if( DropoutCount < MAXDROPOUT )
-				{	// FAILSAFE	- hold last throttle
-					_LostModel = true;
-					ALL_LEDS_OFF;
-					DesiredRoll = DesiredPitch = DesiredYaw = 0;
-					goto DoPID;
-				}
-				break;	// timeout, stop everything
-			}
-
-			// allow motors to run on low throttle 
-			// even if stick is at minimum for a short time
-			if( _Flying && ( DesiredThrottle <= _ThresStop ) )
-				if( --LowGasCount > 0 )
-					goto DoPID;
-
-			if( _NoSignal || 
-			    ( (_Flying && (DesiredThrottle <= _ThresStop)) ||
-			      (!_Flying && (DesiredThrottle <= _ThresStart)) ) )
-			{	// UFO is landed, stop all motors
-
-				TimeSlot += 2; // to compensate PID() calc time!
-
-				IntegralCount = 16;	// do 16 cycles to find integral zero point
-
-				ThrDownCount = THR_DOWNCOUNT;
+				BlinkCount++;
+	
+				ReceiveGPSOnly(true);
+	
+				// wait pulse pause delay time (TMR0 has 1024us for one loop)
+				WriteTimer0(0);
+				INTCONbits.TMR0IF = false;
+				INTCONbits.TMR0IE = true;
+	
+				RollRate = PitchRate = 0;	
+				GetGyroValues();
+				GetDirection();
+				CheckAutonomous(); 		
+	
+				while( TimeSlot > 0 ) {};
+	
+				INTCONbits.TMR0IE = false;	// disable timer
 				
-				InitArrays();	// resets _Flying flag!
-				GyroMidRoll = GyroMidPitch = GyroMidYaw = 0;
-				if( _NoSignal && Armed )	// _NoSignal set, but Switch is on?
-					break;	// then RX signal was lost
+				ComputeBaroComp();
+				GetGyroValues();
+				ReadParametersEE();			// re-sets TimeSlot
+				CalcGyroValues();
+	
+				if ( _Signal )
+				{
+					LedGreen_ON;	
+					if ( _Flying )					
+						if ( DesiredThrottle > _ThresStop )
+							DoPID();
+						else
+							if( --LowGasCount > 0 )
+								DoPID;
+							else
+								Landed();
+					else
+				 		if (DesiredThrottle > _ThresStart)
+						{	// about to fly
 
-				ALL_LEDS_OFF;				
-				AUX_LEDS_OFF;
-				LedGreen_ON;
-			}
-			else
-			{	// UFO is flying!
-				if( !_Flying )	// about to start
-				{	
-					AbsDirection = COMPASS_INVAL;						
-					LedCount = 1;
-				}
-
-				_Flying = true;
-				_LostModel = false;
-				DropoutCount = 0;
-				LowGasCount = 100;		
-				LedGreen_ON;
-				LedGame();
-DoPID:
-				// do the calculations
-				Rp = 0;
-				Pp = 0;
-
-				CheckThrottleMoved();
-
-				if(	IntegralCount > 0 )
-					IntegralCount--;
+							_Flying = true;
+	
+							AbsDirection = COMPASS_INVAL;						
+							LedCount = 1;
+		
+							_LostModel = false;
+							DropoutCount = 0;
+							LowGasCount = 100;		
+							DoPID();
+						}
+						else
+							Landed();
+				}				
 				else
 				{
-					PID();
-					MixAndLimitMotors();
+					LedGreen_OFF;
+					if ( _Flying )
+					{
+						if( ( BlinkCount & 0x000f ) == 0 )
+							DropoutCount++;
+						if( DropoutCount < MAXDROPOUT )
+						{	// FAILSAFE	- hold last throttle
+							_LostModel = ( DropoutCount > (MAXDROPOUT/2) );
+							ALL_LEDS_OFF;
+							DesiredRoll = DesiredPitch = DesiredYaw = 0;
+							DoPID();
+						}
+						else
+							FlightTerminated();
+					}
+					else
+						FlightTerminated();
 				}
-
-				// remember old gyro values
-				REp = RE;
-				PEp = PE;
-				YEp = YE;
-			}
-		
-			MixAndLimitCam();
-			OutSignals();
-
-			CheckAlarms();
-
-			#ifdef DEBUG_SENSORS
-			if( IntegralCount == 0 )
-				DumpTrace();
-			#endif			
-
-		} // flight while armed
-
-		Beeper_OFF;
+			
+				MixAndLimitCam();
+				OutSignals();
+	
+				CheckAlarms();
+	
+				if( IntegralCount == 0 )
+					DumpTrace();			
+	
+			} // flight while armed
+	
+			Beeper_OFF;
+		}
+		else // no signal
+		{
+			FlightTerminated();
+			_LostModel = false;
+		}
 	}
 
 #endif // SIMULATION

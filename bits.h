@@ -147,7 +147,7 @@
 #define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
 #define THR_HOVER		75		/* min throttle stick for alti lock */
 
-#define	_NoSignal		Flags[0]	/* if no valid signal is received */
+#define	_Signal			Flags[0]	/* if no valid signal is received */
 #define	_Flying			Flags[1]	/* UFO is flying */
 #define	_NewValues		Flags[2]	/* new RX channel values sampled */
 #define _FirstTimeout	Flags[3]	/* is 1 after first 9ms TO expired */
@@ -155,11 +155,12 @@
 #define _LowBatt		Flags[4]	/* if Batt voltage is low */
 #define _UseLISL		Flags[5]	/* 1 if LISL Sensor is used */
 #define	_UseCompass		Flags[6]	/* 1 if compass sensor is enabled */
-#define _UseBaro		Flags[7]	/* 1 if baro sensor active */
-#define _BaroTempRun	Flags[8]	/* 1 if baro temp a/d conversion is running */
-#define _BaroRestart	Flags[9] 	/* Baro restart required */
-#define _OutToggle		Flags[10]	/* cam servos only evers 2nd output pulse */								
-#define _UseCh7Trigger	Flags[11]	/* 1: don't use Ch7 */
+#define _CompassMisRead	Flags[7]    /* transient misread of compass */
+#define _UseBaro		Flags[8]	/* 1 if baro sensor active */
+#define _BaroTempRun	Flags[9]	/* 1 if baro temp a/d conversion is running */
+#define _BaroRestart	Flags[10] 	/* Baro restart required */
+#define _OutToggle		Flags[11]	/* cam servos only evers 2nd output pulse */								
+#define _UseCh7Trigger	Flags[12]	/* 1: don't use Ch7 */
 									/* 0: use Ch7 as Cam Roll trim */
 #define _ReceivingGPS 	Flags[16]
 #define _GPSValid 		Flags[17]

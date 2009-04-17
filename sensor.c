@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://uavp.ch                       =
+// =                           http://uavp.ch                            =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -69,7 +69,7 @@ void GetDirection(void)
 	if( _UseCompass  ) // continuous mode but Compass only updates avery 50mS
 	{
 		I2CStart();
-		r = SendI2CByte(COMPASS_I2C_ID+1); // no check
+		_CompassMisRead = SendI2CByte(COMPASS_I2C_ID+1)!= I2C_ACK; // no check
 		Compass = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
 		I2CStop();
 

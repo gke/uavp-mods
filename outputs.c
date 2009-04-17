@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://uavp.ch                       =
+// =                           http://uavp.ch                            =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,10 @@
 
 #include "c-ufo.h"
 #include "bits.h"
+
+// 64 is fairly clean but slightly glitching with 5Hz GPS 
+// less than 64 gives motor glitches
+#define MAGICNUMBER 84
 
 uint8 SaturInt(int16 l)
 {
@@ -209,7 +213,7 @@ void OutSignals(void)
 
 	// simply wait for nearly 1 ms
 	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( ReadTimer0() < (uint16)(0x100-3-100) ) ; // 16
+	while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; // 16
 
 	// now stop CCP1 interrupt
 	// capture can survive 1ms without service!
@@ -349,7 +353,7 @@ _endasm
 
 	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
-	while( ReadTimer0() < (uint16)(0x100-3-100) ) ; 	// wait for 2nd TMR0 near overflow
+	while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; 	// wait for 2nd TMR0 near overflow
 
 	INTCONbits.GIE = false;					// Int wieder sperren, wegen Jitter
 	while( !INTCONbits.TMR0IF ) ;		// wait for 2nd overflow (2 ms)
