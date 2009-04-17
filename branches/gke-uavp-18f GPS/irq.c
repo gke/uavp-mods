@@ -3,9 +3,9 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                       =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -16,10 +16,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -259,22 +255,18 @@ ErrorRestart:
 		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
 			ch = RCREG; // flush
-			if ( _RxECHO ) TxChar('!');
 			RCSTAbits.CREN = false;
 			RCSTAbits.CREN = true;
 		}
 		else
 		{
 			ch = RCREG;
- 			if ( _RxECHO ) TxChar(ch); 
 			RxTail = (RxTail+1) & RXBUFFMASK;	// no check for overflow yet
 			RxBuff[RxTail] = ch;
 		}
-	
-		#ifdef USE_GPS		
+			
 		if ( _ReceivingGPS )
 			PollGPS();
-		#endif // USE_GPS
 	} 	
 
 	if( INTCONbits.TMR0IE && INTCONbits.TMR0IF )

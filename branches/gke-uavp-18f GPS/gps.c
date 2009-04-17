@@ -239,6 +239,7 @@ void ParseGPSSentence()
 	// all cordinates in Metres relative to Origin
 	GPSNorth = GPSLatitude - GPSOriginLatitude;
 	GPSEast = GPSLongitude - GPSOriginLongitude; 
+	GPSAltitude -= GPSOriginAltitude;
 } // ParseGPSSentence
 
 void PollGPS(void)
@@ -371,6 +372,11 @@ void InitGPS(void)
 	GPSSentenceReceived=false;
 	_GPSValid=false;  
 }  // InitGPS
+
+void PollGPS(void)
+{
+
+}  // PollGPS
 
 void UpdateGPS(void)
 {

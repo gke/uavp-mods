@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -55,21 +55,14 @@ void DoMix(int16 CurrThrottle)
 		Motor[Left] +=   Pl - Rl - Yl;
 		Motor[Right] += -Pl + Rl - Yl;
 		Motor[Front] += -Pl - Rl + Yl;
-		Motor[Back] +=   Pl + Rl + Yl; //*
+		Motor[Back] +=   Pl + Rl + Yl; 
 	}
 	else
-	{	// "Plus" Mode
-		#ifdef MOUNT_45
-		Motor[Left]  += -Rl - Pl - Yl; //*	
-		Motor[Right] +=  Rl + Pl - Yl;
-		Motor[Front] +=  Rl - Pl + Yl;
-		Motor[Back]  += -Rl + Pl + Yl;	
-		#else
+	{	// Normal "Plus" Mode
 		Motor[Left]  += -Rl - Yl;	
 		Motor[Right] +=  Rl - Yl;
 		Motor[Front] += -Pl + Yl;
 		Motor[Back]  +=  Pl + Yl;
-		#endif
 	}
 
 	#else	// TRICOPTER
