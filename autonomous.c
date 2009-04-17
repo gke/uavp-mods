@@ -90,7 +90,7 @@ void CheckAutonomous(void)
 	  	// do nothing - use Wolfgang's failsafe
 	}
 	else
-		if ( _GPSValid && _UseCompass )
+		if ( _GPSValid ) // && _UseCompass )
 			if ( _Hovering )
 			{
 				if ( !_HoldingStation )
