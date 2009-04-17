@@ -356,14 +356,16 @@ void GPSTest(void)
 	_ReceivingGPS = true;
 	PIE1bits.RCIE = true; // turn on Rx interrupts
 
-	DesiredRoll = IRoll;
-	DesiredPitch = IPitch;
 
 	while (1)
 	{
 		UpdateGPS();	
 		if ( _GPSValid )
 		{
+
+			DesiredRoll = IRoll;
+			DesiredPitch = IPitch;
+
 			GetDirection();
 			Navigate(0, 0);
 
