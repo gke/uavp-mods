@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -125,7 +125,6 @@ uint8 PollRxChar(void)
 			{
 				RCSTAbits.CREN = false;	// disable, then re-enable port to
 				RCSTAbits.CREN = true;	// reset OERR and FERR bit
-				if ( _RxECHO ) TxChar('!');
 				ch = RCREG;	// dummy read
 			}
 			else

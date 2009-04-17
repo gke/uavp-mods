@@ -36,7 +36,7 @@
 
 The original project may be found at:
 
-	http://www.uavp.org 
+	http://uavp.ch 
 
 The variants of UAVP to which this readme applies are hosted
 at http:
@@ -292,7 +292,7 @@ If you have any questions on the Official UAVP Project, please go to the forum a
 
 or the original project site at:
 
-	http://www.uavp.org 
+	http://uavp.ch  
 
 There are a lot of people that will happily help you,
 including the original author (his nickname is "Wolferl").

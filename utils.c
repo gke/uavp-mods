@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -124,12 +124,97 @@ void InitArrays(void)
 	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
 
-	AverageYawRate = 0;
-
 	BaroRestarts = 0;
 	RCGlitchCount = 0;
 } // InitArrays
 
+
+int8 ReadEE(uint8 addr)
+{
+	int8 b;
+
+	EEADR = addr;
+	EECON1bits.EEPGD = false;
+	EECON1bits.RD = true;
+	b=EEDATA;
+	EECON1 = 0;
+	return(b);	
+} // ReadEE
+
+
+void ReadParametersEE(void)
+{
+	int8 *p, c; 
+	uint16 addr;
+
+	if( IK5 > _Neutral )
+		addr = _EESet2;	
+	else
+		addr = _EESet1;
+	
+	for(p = &FirstProgReg; p <= &LastProgReg; p++)
+		*p = ReadEE(addr++);
+
+	BatteryVolts = LowVoltThres;
+	
+	TimeSlot = Limit(TimeSlot, 2, 20);
+
+} // ReadParametersEE
+
+void WriteEE(uint8 addr, int8 d)
+{
+	int8 rd;
+	uint8 IntsWereEnabled;
+	
+	rd = ReadEE(addr);
+	if ( rd != d )						// avoid redundant writes
+	{
+		EEDATA = d;				
+		EEADR = addr;
+		EECON1bits.EEPGD = false;
+		EECON1bits.WREN = true;
+		
+		IntsWereEnabled = InterruptsEnabled;
+		DisableInterrupts;
+		EECON2 = 0x55;
+		EECON2 = 0xaa;
+		EECON1bits.WR = true;
+		while(EECON1bits.WR);
+		if ( IntsWereEnabled )
+			EnableInterrupts;
+
+		EECON1bits.WREN = false;
+	}
+} // WriteEE
+
+void WriteParametersEE(uint8 s)
+{
+	int8 *p;
+	uint8 b;
+	uint16 addr;
+	
+	if( s == 1 )
+		addr = _EESet1;	
+	else
+		addr = _EESet2;
+
+	p = &FirstProgReg; 
+	while ( p <= &LastProgReg)
+		WriteEE(addr++, *p++);
+} // WriteParametersEE
+
+void InitParams(void)
+{
+	int16 i;
+
+	#ifdef INIT_PARAMS
+	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
+		WriteEE(i, -1);
+	WriteParametersEE(1);						// copy RAM initial values to EE
+	WriteParametersEE(2);
+	#endif // INIT_PARAMS
+	ReadParametersEE();
+}  // InitParams
 
 int16 Make2Pi(int16 A)
 {

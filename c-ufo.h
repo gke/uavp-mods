@@ -38,7 +38,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -54,7 +54,6 @@
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
 // C-Ufo Header File
 
 // ==============================================
@@ -98,10 +97,6 @@
 // Camera controlling can be used!
 //#define TRICOPTER
 
-// PCB mounted 45 deg rotated, "VORNE" points between FL and FR
-// special version for Willi Pirngruber :-)
-//#define MOUNT_45
-
 // special mode for sensor data output (with UAVPset)
 //#define DEBUG_SENSORS
 
@@ -126,7 +121,7 @@
 // Accelerometers
 
 // Enable this to use the Accelerometer sensor 
-// Usually ENABLED
+// Normally ENABLED
 #define USE_ACCELEROMETER
 
 // Gyros
@@ -299,8 +294,7 @@ extern uint8	IK5,IK6,IK7;
 extern int16	RE, PE, YE;
 extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
-extern int16	RollRate, PitchRate;
-extern int16	AverageYawRate, YawRate;
+extern int16	RollRate, PitchRate, YawRate;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern	int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, CompassHeading;
 extern int16	Ax, Ay, Az;
@@ -474,8 +468,9 @@ extern int8	BaroThrottleDiff;	// 28
 // accel.c
 extern void AccelerationCompensation(void);
 extern void IsLISLactive(void);
-extern 	uint8 ReadLISL(uint8);
-extern 	uint8 ReadLISLNext(void);
+extern void InitLISL(void);
+extern uint8 ReadLISL(uint8);
+extern uint8 ReadLISLNext(void);
 extern void ReadAccelerations(void);
 
 // adc.c
@@ -559,6 +554,7 @@ extern int16 SRS16(int16, uint8);
 extern void CheckAlarms(void);
 extern void ReadParametersEE(void);
 extern void WriteParametersEE(uint8);
+extern void InitParams(void);
 extern 	void WriteEE(uint8, int8);
 extern 	int8 ReadEE(uint8);
 

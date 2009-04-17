@@ -3,9 +3,9 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                       =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -20,14 +20,10 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-// CC5X Compiler parameters:
-// -CC -fINHX8M -a -L -Q -V -FM -DMATHBANK_VARS=bank0 -DMATHBANK_PROG=2
-
 //#ifdef CLOCK_40MHZ
 //#pragma	config OSC=HSPLL, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC
 //#else
-#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF//zzz, CCP2MX = PORTC  
+#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC  
 //#endif
 
 #include "c-ufo.h"
@@ -45,8 +41,7 @@ uint8	IK7;						// actual channel 7 input
 int16	RE, PE, YE;					// gyro rate error	
 int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
-int16	RollRate, PitchRate;
-int16	AverageYawRate, YawRate;
+int16	RollRate, PitchRate, YawRate;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, CompassHeading;
 int16	Ax, Ay, Az;
@@ -254,42 +249,22 @@ void main(void)
 	
 	InitTimersAndInterrupts();
 
-	// setup flags register
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
-
 	_NoSignal = true;		// assume no signal present
+	
 	LedShadow = 0;
     ALL_LEDS_OFF;
-	InitArrays();
+	LedRed_ON;
 
-	#ifdef INIT_PARAMS
-	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
-		WriteEE(i, -1);
-	WriteParametersEE(1);						// copy RAM initial values to EE
-	WriteParametersEE(2);
-	#endif // INIT_PARAMS
-	ReadParametersEE();
+	InitArrays();`
+	InitParams();
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	EnableInterrupts;
 
-	LedRed_ON;
 	Delay100mSWithOutput(1);	// wait 1/10 sec until LISL is ready to talk
-
-	#ifdef USE_ACCELEROMETER
-	IsLISLactive();	
-	NeutralLR = 0;
-	NeutralFB = 0;
-	NeutralUD = 0;
-	if( _UseLISL )
-		GetNeutralAccelerations();	// into Rp, Pp, Yp
-	#endif  // USE_ACCELEROMETER
-
-	ThrNeutral = 0xFF;
-
-	// send hello text to serial COM
-	Delay100mSWithOutput(1);	// just to see the output after powerup
+	InitLISL();
 
 	InitDirection();
 	InitBarometer();
@@ -297,6 +272,7 @@ void main(void)
 
 	ShowSetup(1);
 
+	ThrNeutral = 0xFF;
 	IK6 = IK7 = _Minimum;
 	BlinkCount = 0;
 

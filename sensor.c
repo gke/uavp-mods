@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -267,7 +267,6 @@ void ComputeBaroComp(void)
 						BaroBaseTemp = BaroVal; // current read value
 					else 
 						BaroRelTempCorr = BaroVal - BaroBaseTemp;
-	
 				}
 				else
 				{	// current measurement was "pressure"
@@ -276,7 +275,6 @@ void ComputeBaroComp(void)
 					if( ThrDownCount )	// while moving throttle stick
 					{
 						BaroBasePressure = BaroVal;
-						_HoldingStation = false; // just in case!
 						_Hovering = false;
 						VBaroComp = 0;	
 					}
