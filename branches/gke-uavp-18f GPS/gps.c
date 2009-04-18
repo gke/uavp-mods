@@ -37,7 +37,7 @@ void UpdateGPS(void);
 #pragma udata gpsvars
 boolean GPSSentenceReceived; 
 int32 GPSOriginLatitude, GPSOriginLongitude;
-int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+int32 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
 int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSGroundSpeed;
 #pragma udata
 
@@ -182,7 +182,6 @@ void UpdateField()
 void ParseGPSSentence()
 { 	// full position $GPGGA fix 
 	// ~7.5mS 18f2520 @ 16MHz
-	real32 TempR;
 	int32 GPSLatitude, GPSLongitude;
 	uint8 GPSFix;
 
@@ -194,24 +193,20 @@ void ParseGPSSentence()
 	#else
 //	GPSMissionTime = 0;
 	#endif // NMEA_ALL      
-     
-    UpdateField();   //Lat
-    TempR = ConvertLatLon(lo,hi);
+
+	UpdateField();   //Lat
+    GPSLatitude = (int32)(ConvertLatLon(lo,hi) * DEGTOM);
     UpdateField();   //LatH
     if (GPSRxBuffer[lo]=='S')
-      	GPSLatitude= (int32)((90.0 - TempR) * DEGTOM);
-	else
-    	GPSLatitude = (int32)(90.0 + TempR * DEGTOM);
+      	GPSLatitude = -GPSLatitude;
 
     UpdateField();   //Lon
     // no latitude compensation on longditude    
-    TempR = ConvertLatLon(lo,hi);
+    GPSLongitude = (int32)(ConvertLatLon(lo,hi) * DEGTOM);
     UpdateField();   //LonH
 	if (GPSRxBuffer[lo]=='W')
-      	GPSLongitude= (int32)((360.0 - TempR) * DEGTOM);
-	else
-    	GPSLongitude = (int32)(TempR * DEGTOM);
-           
+      	GPSLongitude = -GPSLongitude;
+         
     UpdateField();   //Fix 
     GPSFix=(uint8)(ConvertInt(lo,hi));
 
@@ -233,8 +228,8 @@ void ParseGPSSentence()
     if (FirstGPSSentence&&_GPSValid)
 	{
 //		GPSStartTime=GPSMissionTime;
-      	GPSOriginLatitude=GPSLatitude;
-      	GPSOriginLongitude=GPSLongitude;
+      	GPSOriginLatitude = GPSLatitude;
+      	GPSOriginLongitude = GPSLongitude;
 
 		// No Longitude correction
 

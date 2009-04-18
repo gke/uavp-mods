@@ -31,6 +31,7 @@ void GetNeutralAccelerations(void)
 	// read 16 time all 3 axis of linear sensor.
 	// Puts values in Neutralxxx registers.
 	uint8 i;
+	int16 Rp, Pp, Yp;
 
 	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
@@ -58,6 +59,8 @@ void GetNeutralAccelerations(void)
 void AccelerationCompensation(void)
 {
 	int16 AbsRollSum, AbsPitchSum, Temp;
+	int16 Rp, Pp, Yp;
+
 	if( _UseLISL )
 	{
 		ReadAccelerations();

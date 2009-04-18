@@ -132,7 +132,7 @@ void InitLISL(void)
 	#ifdef USE_ACCELEROMETER
 	IsLISLactive();	
 	if( _UseLISL )
-		GetNeutralAccelerations();	// into Rp, Pp, Yp
+		GetNeutralAccelerations();
 	#endif  // USE_ACCELEROMETER
 } // InitLISL
 

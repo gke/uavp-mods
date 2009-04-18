@@ -81,7 +81,7 @@ int16	Trace[LastTrace];
 uint16	PauseTime;
 
 int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BaroCount;
-int32 BlinkCount;
+uint32 BlinkCount;
 uint24	RCGlitchCount;
 int8	BatteryVolts;
 #pragma udata
@@ -371,28 +371,6 @@ void GPSTest(void)
 
 			if ( Raw )
 			{
-				#ifdef XXX
-				#define ANGLE_SCALE ((PROXIMITY * 256L + MAX_ANGLE/2)/MAX_ANGLE)
-				GPSEast = 100;
-				GPSNorth = 100;
-
-				EastDiff = - GPSEast;
-				NorthDiff = - GPSNorth;
-			
-				Temp2 = (int24)NorthDiff*(int24)NorthDiff + (int24)EastDiff*(int24)EastDiff;
-				RangeApprox = Limit(Temp2, 0, PROXIMITY);
-					
-				Angle = int16atan2(-EastDiff, NorthDiff) + CompassHeading;
-				while ( Angle < 0 ) Angle += TWOMILLIPI;
-				while ( Angle >= TWOMILLIPI ) Angle -= TWOMILLIPI;
-
-				Temp = (-int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
-				DesiredRoll = GPSFilter(DesiredRoll, Temp);
-			
-				Temp = (int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
-				DesiredPitch = GPSFilter(DesiredPitch, Temp);
-				#endif // XXX
-
 				TxVal32(((int32)CompassHeading*180L)/(int32)MILLIPI, 3, ';');
 
 				TxVal32(GPSNorth,0,';');
