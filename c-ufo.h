@@ -9,7 +9,9 @@
 // The "Ls" are important
 #define COMPASS_OFFSET_DEG		90L		/* North degrees CW from Front */
 #define MAX_ANGLE 	15L					/* Rx stick units */
-#define PROXIMITY	400L				/* square of the closing radius in metres */
+
+// JIM: DO NOT CHANGE PROXIMITY FOR NOW - LEAVE AT 25
+#define PROXIMITY	25L				/* square of the closing radius in metres */
 
 #define ENABLE_AUTONOMOUS
 #ifdef ENABLE_AUTONOMOUS
