@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                           http://uavp.ch                            =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -107,97 +107,92 @@ void CalcGyroValues(void)
 	PitchRate = (PitchRate + 1)>>1;
 	#endif
 	
-	if ( IntegralCount >= 16 )
-		GyroMidRoll = GyroMidPitch = GyroMidYaw = 
-		RollSum = PitchSum = LRIntKorr = FBIntKorr = 
-		REp = PEp = YEp = 0;
+	if( IntegralCount > 0 )
+	{
+		// pre-flight auto-zero mode
+		RollSum += RollRate;
+		PitchSum += PitchRate;
+
+		if( IntegralCount == 1 )
+		{
+			RollSum += 8;
+			PitchSum += 8;
+			if( !_UseLISL )
+			{
+				RollSum = RollSum + MiddleLR;
+				PitchSum = PitchSum + MiddleFB;
+			}
+			GyroMidRoll = RollSum >> 4;	
+			GyroMidPitch = PitchSum >> 4;
+			GyroMidYaw = 0;
+			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
+		}
+	}
 	else
-		if( IntegralCount > 0 )
+	{
+		// standard flight mode
+		RollRate -= GyroMidRoll;
+		PitchRate -= GyroMidPitch;
+
+		// calc Cross flying mode
+		if( FlyCrossMode )
 		{
-			// pre-flight auto-zero mode
-			RollSum += RollRate;
-			PitchSum += PitchRate;
-	
-			if( IntegralCount == 1 )
-			{
-				RollSum += 8;
-				PitchSum += 8;
-				if( !_UseLISL )
-				{
-					RollSum = RollSum + MiddleLR;
-					PitchSum = PitchSum + MiddleFB;
-				}
-				GyroMidRoll = RollSum >> 4;	
-				GyroMidPitch = PitchSum >> 4;
-				GyroMidYaw = 0;
-				RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
-			}
+			// Real Roll = 0.707 * (P + R)
+			//      Pitch = 0.707 * (P - R)
+			// the constant factor 0.667 is used instead
+			Temp = RollRate + PitchRate;	
+			PitchRate -= RollRate;	
+			RollRate = (Temp * 2)/3;
+			PitchRate = (PitchRate * 2)/3; // 7/10 with int24
 		}
-		else
-		{
-			// standard flight mode
-			RollRate -= GyroMidRoll;
-			PitchRate -= GyroMidPitch;
+
+		#ifdef DEBUG_SENSORS
+		Trace[TRollRate] = RollRate;
+		Trace[TPitchRate] = PitchRate;
+		#endif
 	
-			// calc Cross flying mode
-			if( FlyCrossMode )
-			{
-				// Real Roll = 0.707 * (P + R)
-				//      Pitch = 0.707 * (P - R)
-				// the constant factor 0.667 is used instead
-				Temp = RollRate + PitchRate;	
-				PitchRate -= RollRate;	
-				RollRate = (Temp * 2)/3;
-				PitchRate = (PitchRate * 2)/3; // 7/10 with int24
-			}
-	
-			#ifdef DEBUG_SENSORS
-			Trace[TRollRate] = RollRate;
-			Trace[TPitchRate] = PitchRate;
-			#endif
-		
-			// Roll
-			#ifdef OPT_ADXRS
-			RE = SRS16(RollRate + 2, 2);
-			#else // OPT_IDG
-			RE = SRS16(RollRate + 1, 1); // use 8 bit res. for PD controller
-			#endif	
-	
-			#ifdef OPT_ADXRS
-			RollRate = SRS16(RollRate + 1, 1); // use 9 bit res. for I controller	
-			#endif
-	
-			LimitRollSum();		// for roll integration
-	
-			// Pitch
-			#ifdef OPT_ADXRS
-			PE = SRS16(PitchRate + 2, 2);
-			#else // OPT_IDG
-			PE = SRS16(PitchRate + 1, 1);
-			#endif
-	
-			#ifdef OPT_ADXRS
-			PitchRate = SRS16(PitchRate + 1, 1); // use 9 bit res. for I controller	
-			#endif
-	
-			LimitPitchSum();		// for pitch integration
-	
-			// Yaw is sampled only once every frame, 8 bit A/D resolution
-			YE = ADC(ADCYawChan, ADCVREF5V) >> 2;	
-			if( GyroMidYaw == 0 )
-				GyroMidYaw = YE;
-			YE -= GyroMidYaw;
-			YawRate = YE;
-	
-			LimitYawSum();
-	
-			#ifdef DEBUG_SENSORS
-			Trace[TYE] = YE;
-			Trace[TRollSum] = RollSum;
-			Trace[TPitchSum] = PitchSum;
-			Trace[TYawSum] = YawSum;
-			#endif
-		}
+		// Roll
+		#ifdef OPT_ADXRS
+		RE = SRS16(RollRate + 2, 2);
+		#else // OPT_IDG
+		RE = SRS16(RollRate + 1, 1); // use 8 bit res. for PD controller
+		#endif	
+
+		#ifdef OPT_ADXRS
+		RollRate = SRS16(RollRate + 1, 1); // use 9 bit res. for I controller	
+		#endif
+
+		LimitRollSum();		// for roll integration
+
+		// Pitch
+		#ifdef OPT_ADXRS
+		PE = SRS16(PitchRate + 2, 2);
+		#else // OPT_IDG
+		PE = SRS16(PitchRate + 1, 1);
+		#endif
+
+		#ifdef OPT_ADXRS
+		PitchRate = SRS16(PitchRate + 1, 1); // use 9 bit res. for I controller	
+		#endif
+
+		LimitPitchSum();		// for pitch integration
+
+		// Yaw is sampled only once every frame, 8 bit A/D resolution
+		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;	
+		if( GyroMidYaw == 0 )
+			GyroMidYaw = YE;
+		YE -= GyroMidYaw;
+		YawRate = YE;
+
+		LimitYawSum();
+
+		#ifdef DEBUG_SENSORS
+		Trace[TYE] = YE;
+		Trace[TRollSum] = RollSum;
+		Trace[TPitchSum] = PitchSum;
+		Trace[TYawSum] = YawSum;
+		#endif
+	}
 } // CalcGyroValues
 
 void PID(void)

@@ -182,6 +182,7 @@ void UpdateField()
 void ParseGPSSentence()
 { 	// full position $GPGGA fix 
 	// ~7.5mS 18f2520 @ 16MHz
+	real32 TempR;
 	int32 GPSLatitude, GPSLongitude;
 	uint8 GPSFix;
 
@@ -195,17 +196,21 @@ void ParseGPSSentence()
 	#endif // NMEA_ALL      
      
     UpdateField();   //Lat
-    GPSLatitude=(int32)(ConvertLatLon(lo,hi)*DEGTOM);
+    TempR = ConvertLatLon(lo,hi);
     UpdateField();   //LatH
     if (GPSRxBuffer[lo]=='S')
-      GPSLatitude= -GPSLatitude;
-    
+      	GPSLatitude= (int32)((90.0 - TempR) * DEGTOM);
+	else
+    	GPSLatitude = (int32)(90.0 + TempR * DEGTOM);
+
     UpdateField();   //Lon
     // no latitude compensation on longditude    
-    GPSLongitude=(int32)(ConvertLatLon(lo,hi)*DEGTOM);
+    TempR = ConvertLatLon(lo,hi);
     UpdateField();   //LonH
 	if (GPSRxBuffer[lo]=='W')
-      GPSLongitude=-GPSLongitude;
+      	GPSLongitude= (int32)((360.0 - TempR) * DEGTOM);
+	else
+    	GPSLongitude = (int32)(TempR * DEGTOM);
            
     UpdateField();   //Fix 
     GPSFix=(uint8)(ConvertInt(lo,hi));
