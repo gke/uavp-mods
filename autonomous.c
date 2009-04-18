@@ -55,15 +55,18 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 	int16 Angle;
 	int16 RangeApprox;
-	int16 EastDiff, NorthDiff;
+	int16 EastDiff, NorthDiff, REast, RNorth;
 	int16 RollCorrection, PitchCorrection;
 
 	EastDiff = GPSEastWay - GPSEast;
 	NorthDiff = GPSNorthWay - GPSNorth;
 
-	RangeApprox = Limit(Max(Abs(NorthDiff), Abs(EastDiff)), 0, PROXIMITY);
+	REast = Limit(EastDiff, -64, 64);
+	RNorth = Limit(NorthDiff, -64, 64);
+
+	RangeApprox = Limit(REast*REast + RNorth*RNorth, 0, PROXIMITY);
 		
-	Angle = Make2Pi(int16atan2(EastDiff, NorthDiff)-  CompassHeading);
+	Angle = Make2Pi(int16atan2(EastDiff, NorthDiff) -  CompassHeading);
 
 	RollCorrection = (int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
 	DesiredRoll = Limit(DesiredRoll + RollCorrection, -_Maximum, _Maximum);
