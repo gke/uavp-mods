@@ -8,8 +8,8 @@
 
 // The "Ls" are important
 #define COMPASS_OFFSET_DEG		90L		/* North degrees CW from Front */
-#define MAX_ANGLE 	20L					/* Rx stick units */
-#define PROXIMITY	25L					/* square of the closing radius in metres */
+#define MAX_ANGLE 	15L					/* Rx stick units */
+#define PROXIMITY	400L				/* square of the closing radius in metres */
 
 #define ENABLE_AUTONOMOUS
 #ifdef ENABLE_AUTONOMOUS
@@ -165,7 +165,20 @@
 #include <capture.h>
 #include <adc.h>
 
-// Types
+// Additional Types
+
+typedef unsigned char uint8 ;
+typedef signed char int8;
+typedef unsigned int uint16;
+typedef int int16;
+typedef short long int24;
+typedef unsigned short long uint24;
+typedef long int32;
+typedef unsigned long uint32;
+typedef uint8 boolean;
+typedef float real32;
+
+// Useful Constants
 
 #define NUL 0
 #define SOH 1
@@ -206,16 +219,7 @@
 #define MAXINT32 0x7fffffff;
 #define	MAXINT16 0x7fff;
 
-typedef unsigned char uint8 ;
-typedef signed char int8;
-typedef unsigned int uint16;
-typedef int int16;
-typedef short long int24;
-typedef unsigned short long uint24;
-typedef long int32;
-typedef unsigned long uint32;
-typedef uint8 boolean;
-typedef float real32;
+// Macros
 
 #define Set(S,b) 		((uint8)(S|=(1<<b)))
 #define Clear(S,b) 		((uint8)(S&=(~(1<<b))))
@@ -250,6 +254,8 @@ typedef float real32;
 #define EnableInterrupts (INTCONbits.GIEH=1)
 #define InterruptsEnabled (INTCONbits.GIEH)
 
+// Constants 
+
 // ADC Channels
 #define ADCPORTCONFIG 0b00001010 // AAAAA
 #define ADCBattVoltsChan 	0 
@@ -267,118 +273,6 @@ typedef float real32;
 
 #define ADCVREF5V 			0
 #define ADCVREF 			1
-
-// ==============================================
-// == External variables
-// ==============================================
-
-
-enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
-				TAx,TAz,TAy,
-				TUDSum, TVud,
-				TIGas,
-				TIRoll, TIPitch, TIYaw,
-				TMFront, TMBack, TMLeft, TMRight,
-				TMCamRoll, TMCamPitch,
-				LastTrace
-				};
-#define TopTrace TMCamPitch
-
-enum MotorTags {Front, Left, Right, Back};
-#define NoOfMotors 4
-
-extern uint8	IGas;
-extern int8 	IRoll,IPitch,IYaw;
-extern uint8	IK5,IK6,IK7;
-
-extern int16	RE, PE, YE;
-extern int16	REp,PEp,YEp;
-extern int16	PitchSum, RollSum, YawSum;
-extern int16	RollRate, PitchRate, YawRate;
-extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern	int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, CompassHeading;
-extern int16	Ax, Ay, Az;
-extern int8		LRIntKorr, FBIntKorr;
-extern int8		NeutralLR, NeutralFB, NeutralUD;
-extern int16 	UDSum;
-
-// GPS
-extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
-
-// Failsafes
-extern uint8	ThrNeutral;
-			
-// Variables for barometric sensor PD-controller
-extern int24	BaroBasePressure, BaroBaseTemp;
-extern int16	BaroRelPressure, BaroRelTempCorr;
-extern uint16	BaroVal;
-extern int16	VBaroComp;
-extern uint8	BaroType, BaroTemp, BaroRestarts;
-
-extern uint8	MCamRoll,MCamPitch;
-extern int16	Motor[NoOfMotors];
-extern int16	Rl,Pl,Yl;	// PID output values
-extern int16	Rp,Pp,Yp,Vud;
-
-extern uint8	Flags[32];
-
-extern int16	IntegralCount, ThrDownCount, GPSCount, DropoutCount, LedCount, BaroCount;
-extern int32	BlinkCount;
-extern uint24	RCGlitchCount;
-extern int8		Rw,Pw;	// angles
-extern int8		BatteryVolts; 
-
-extern uint8	LedShadow;	// shadow register
-extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
-extern int16	CurDeviation;	// deviation from correct heading
-
-#define RXBUFFMASK	63L
-extern uint8 RxCheckSum, RxHead, RxTail;
-extern uint8 RxBuff[RXBUFFMASK+1];
-
-#ifdef DEBUG_SENSORS
-extern int16	Trace[LastTrace];
-#endif // DEBUG_SENSORS
-
-// Principal quadrocopter parameters - MUST remain in this order
-// for block read/write to EEPROM
-extern int8	RollPropFactor; 	// 01
-extern int8	RollIntFactor;		// 02
-extern int8	RollDiffFactor;		// 03
-extern int8 BaroTempCoeff;		// 04
-extern int8	RollIntLimit;		// 05
-extern int8	PitchPropFactor;	// 06
-extern int8	PitchIntFactor;		// 07
-extern int8	PitchDiffFactor;	// 08
-extern int8 BaroThrottleProp;	// 09
-extern int8	PitchIntLimit;		// 10
-extern int8	YawPropFactor; 		// 11
-extern int8	YawIntFactor;		// 12
-extern int8	YawDiffFactor;		// 13
-extern int8	YawLimit;			// 14
-extern int8 YawIntLimit;		// 15
-extern int8	ConfigParam;		// 16
-extern int8 TimeSlot;		// 17
-extern int8	LowVoltThres;		// 18
-extern int8	CamRollFactor;		// 19
-extern int8	LinFBIntFactor;		// 20 free
-extern int8	LinUDIntFactor;		// 21
-extern int8 MiddleUD;			// 22
-extern int8	MotorLowRun;		// 23
-extern int8	MiddleLR;			// 24
-extern int8	MiddleFB;			// 25
-extern int8	CamPitchFactor;		// 26
-extern int8	CompassFactor;		// 27
-extern int8	BaroThrottleDiff;	// 28
-
-// these 2 dummy registers (they do not occupy any RAM location)
-// are here for defining the first and the last programmable 
-// register in a set
-
-#define FirstProgReg RollPropFactor
-#define	LastProgReg BaroThrottleDiff
-
-// end of "order-block"
 
 //#ifdef CLOCK_16MHZ
 #define _ClkOut		(160/4)	/* 16.0 MHz Xtal */
@@ -415,6 +309,26 @@ extern int8	BaroThrottleDiff;	// 28
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
 #define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
 
+
+
+#define MAXDROPOUT	400L	// 400 x 16 x 7ms = 40sec. dropout allowable
+#define GPSDROPOUT	20L		// 2sec.
+
+// Parameters for UART port
+
+// ClockHz/(16*(BaudRate+1))
+
+#define _B9600		104 
+#define _B19200		(_ClkOut*100000/(4*19200) - 1)
+#define _B38400		26 
+#define _B115200	(_ClkOut*104000/(4*115200) - 1)
+#define _B230400	(_ClkOut*100000/(4*115200) - 1)
+
+// EEPROM parameter set addresses
+
+#define _EESet1	0		// first set starts at address 0x00
+#define _EESet2	0x20	// second set starts at address 0x20
+
 // Sanity checks
 
 // check the PPM RX and motor values
@@ -444,24 +358,6 @@ extern int8	BaroThrottleDiff;	// 28
 #endif
 
 // end of sanity checks
-
-#define MAXDROPOUT	400L	// 400 x 16 x 7ms = 40sec. dropout allowable
-#define GPSDROPOUT	20L		// 2sec.
-
-// Parameters for UART port
-
-// ClockHz/(16*(BaudRate+1))
-
-#define _B9600		104 
-#define _B19200		(_ClkOut*100000/(4*19200) - 1)
-#define _B38400		26 
-#define _B115200	(_ClkOut*104000/(4*115200) - 1)
-#define _B230400	(_ClkOut*100000/(4*115200) - 1)
-
-// EEPROM parameter set addresses
-
-#define _EESet1	0		// first set starts at address 0x00
-#define _EESet2	0x20	// second set starts at address 0x20
 
 // Prototypes
 
@@ -606,6 +502,119 @@ extern uint8 ScanI2CBus(void);
 extern int16 int32sqrt(int32);
 
 #endif // TEST_SOFTWARE
+
+
+// ==============================================
+// == External variables
+// ==============================================
+
+
+enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
+				TAx,TAz,TAy,
+				TUDSum, TVud,
+				TIGas,
+				TIRoll, TIPitch, TIYaw,
+				TMFront, TMBack, TMLeft, TMRight,
+				TMCamRoll, TMCamPitch,
+				LastTrace
+				};
+#define TopTrace TMCamPitch
+
+enum MotorTags {Front, Left, Right, Back};
+#define NoOfMotors 4
+
+extern uint8	IGas;
+extern int8 	IRoll,IPitch,IYaw;
+extern uint8	IK5,IK6,IK7;
+
+extern int16	RE, PE, YE;
+extern int16	REp,PEp,YEp;
+extern int16	PitchSum, RollSum, YawSum;
+extern int16	RollRate, PitchRate, YawRate;
+extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
+extern	int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, CompassHeading;
+extern int16	Ax, Ay, Az;
+extern int8		LRIntKorr, FBIntKorr;
+extern int8		NeutralLR, NeutralFB, NeutralUD;
+extern int16 	UDSum;
+
+// GPS
+extern int32 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+
+// Failsafes
+extern uint8	ThrNeutral;
+			
+// Variables for barometric sensor PD-controller
+extern int24	BaroBasePressure, BaroBaseTemp;
+extern int16	BaroRelPressure, BaroRelTempCorr;
+extern uint16	BaroVal;
+extern int16	VBaroComp;
+extern uint8	BaroType, BaroTemp, BaroRestarts;
+
+extern uint8	MCamRoll,MCamPitch;
+extern int16	Motor[NoOfMotors];
+extern int16	Rl,Pl,Yl;	// PID output values
+extern int16	Vud;
+
+extern uint8	Flags[32];
+
+extern int16	IntegralCount, ThrDownCount, GPSCount, DropoutCount, LedCount, BaroCount;
+extern uint32	BlinkCount;
+extern uint24	RCGlitchCount;
+extern int8		Rw,Pw;	// angles
+extern int8		BatteryVolts; 
+
+extern uint8	LedShadow;	// shadow register
+extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
+extern int16	CurDeviation;	// deviation from correct heading
+
+#define RXBUFFMASK	63L
+extern uint8 RxCheckSum, RxHead, RxTail;
+extern uint8 RxBuff[RXBUFFMASK+1];
+
+#ifdef DEBUG_SENSORS
+extern int16	Trace[LastTrace];
+#endif // DEBUG_SENSORS
+
+// Principal quadrocopter parameters - MUST remain in this order
+// for block read/write to EEPROM
+extern int8	RollPropFactor; 	// 01
+extern int8	RollIntFactor;		// 02
+extern int8	RollDiffFactor;		// 03
+extern int8 BaroTempCoeff;		// 04
+extern int8	RollIntLimit;		// 05
+extern int8	PitchPropFactor;	// 06
+extern int8	PitchIntFactor;		// 07
+extern int8	PitchDiffFactor;	// 08
+extern int8 BaroThrottleProp;	// 09
+extern int8	PitchIntLimit;		// 10
+extern int8	YawPropFactor; 		// 11
+extern int8	YawIntFactor;		// 12
+extern int8	YawDiffFactor;		// 13
+extern int8	YawLimit;			// 14
+extern int8 YawIntLimit;		// 15
+extern int8	ConfigParam;		// 16
+extern int8 TimeSlot;			// 17
+extern int8	LowVoltThres;		// 18
+extern int8	CamRollFactor;		// 19
+extern int8	LinFBIntFactor;		// 20 free
+extern int8	LinUDIntFactor;		// 21
+extern int8 MiddleUD;			// 22
+extern int8	MotorLowRun;		// 23
+extern int8	MiddleLR;			// 24
+extern int8	MiddleFB;			// 25
+extern int8	CamPitchFactor;		// 26
+extern int8	CompassFactor;		// 27
+extern int8	BaroThrottleDiff;	// 28
+
+// these 2 dummy registers (they do not occupy any RAM location)
+// are here for defining the first and the last programmable 
+// register in a set
+
+#define FirstProgReg RollPropFactor
+#define	LastProgReg BaroThrottleDiff
+
+// end of "order-block"
 
 // End of c-ufo.h
 

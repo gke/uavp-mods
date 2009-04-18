@@ -35,11 +35,12 @@ const rom uint8  SerHello[] = "\r\nUAVP TEST V" Version "\r\nCopyright (c) 2007-
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
 const rom uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
 
+#ifdef USE_GPS
+	"GPS enabled\r\n"
+#endif
+
 #ifdef DEBUG_SENSORS
 	"Debug: Sensors\r\n"
-#endif
-#ifdef DEBUG_MOTORS
-	"Debug: Motors\r\n"
 #endif
 
 #ifdef RX_DEFAULT

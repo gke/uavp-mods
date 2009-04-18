@@ -67,7 +67,6 @@ uint8	MCamRoll,MCamPitch;
 int16	Motor[NoOfMotors];
 
 int16	Rl,Pl,Yl;		// PID output values
-int16	Rp,Pp,Yp;
 int16	Vud;
 
 int16	Trace[LastTrace];
@@ -75,7 +74,7 @@ int16	Trace[LastTrace];
 uint8	Flags[32];
 
 int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LedCount, BlinkCycle, BaroCount;
-int32	BlinkCount;
+uint32	BlinkCount;
 uint24	RCGlitchCount;
 int8	BatteryVolts;
 int8	Rw,Pw;
@@ -122,8 +121,8 @@ void Simulate()
 {
 	int16 CosH, SinH, NorthD, EastD, A;
 
-	GPSNorth = 10000;
-	GPSEast = -10000;
+	GPSNorth = 1000;
+	GPSEast = -1000;
 
 	CompassHeading = 0;
 	while( true)
@@ -136,7 +135,7 @@ void Simulate()
 		GPSEast += ((int32)(-DesiredPitch) * SinH)/256;
 		GPSNorth += ((int32)(-DesiredPitch) * CosH)/256;
 
-		A = Make2Pi(CompassHeading - HALFMILLIPI);
+		A = Make2Pi(CompassHeading + HALFMILLIPI);
 		CosH = int16cos(A);
 		SinH = int16sin(A);
 		GPSEast += ((int32)DesiredRoll * SinH)/256L;
@@ -429,10 +428,6 @@ Restart:
 				LedGreen_ON;
 				LedGame();
 DoPID:
-				// do the calculations
-				Rp = 0;
-				Pp = 0;
-
 				CheckThrottleMoved();
 
 				if(	IntegralCount > 0 )

@@ -31,12 +31,13 @@ const rom uint8 SerHello[] = "\r\nUAVP " Version " Copyright (c) 2007-9"
 
 const rom uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 
-#ifdef DEBUG
-	"Debug: ON\r\n"
-#else
-	"Debug: OFF\r\n"
+#ifdef USE_GPS
+	"GPS enabled\r\n"
 #endif
 
+#ifdef DEBUG_SENSORS
+	"Debug: Sensors\r\n"
+#endif
 
 #ifdef RX_DEFAULT
 	"Rx: PPM Odd Channel\r\n"

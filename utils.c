@@ -118,7 +118,7 @@ void InitArrays(void)
 	_Flying = false;
 	REp = PEp = YEp = 0;
 	
-	Rp = Pp = Vud = VBaroComp = 0;
+	Vud = VBaroComp = 0;
 	
 	UDSum = 0;
 	LRIntKorr = FBIntKorr = 0;
