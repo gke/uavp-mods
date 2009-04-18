@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                           http://uavp.ch                            =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -31,11 +31,7 @@ const rom uint8 SerHello[] = "\r\nUAVP " Version " Copyright (c) 2007-9"
 
 const rom uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 
-#ifdef USE_GPS
-	"GPS enabled\r\n"
-#endif
-
-#ifdef DEBUG_SENSORS
+#ifdef DEBUG
 	"Debug: ON\r\n"
 #else
 	"Debug: OFF\r\n"
@@ -220,7 +216,7 @@ void ProcessComCommand(void)
 				ShowPrompt();
 				break;
 			case 'S' :	// show status
-				ShowSetup(false);
+				ShowSetup(0);
 				break;
 			case 'N' :	// neutral values
 				TxString("\r\nNeutral Roll:");

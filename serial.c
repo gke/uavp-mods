@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                           http://uavp.ch                            =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -24,16 +24,6 @@
 
 #include "c-ufo.h"
 #include "bits.h"
-
-void ReceiveGPSOnly(uint8 r)
-{
-	if ( r ^ _ReceivingGPS ) 			// check not equal
-	{
-		_ReceivingGPS = r;
-	   	PIE1bits.RCIE = r; 				// turn off Rx interrupts
-		Delay1mS(10); 					// switch bounce
-	}
-} // ReceiveGPSOnly
 
 void TxString(const rom uint8 *pch)
 {

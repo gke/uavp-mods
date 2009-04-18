@@ -38,7 +38,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                           http://uavp.ch                            =
+// =                          http://uavp.ch                       =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -54,6 +54,7 @@
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// C-Ufo Header File
 
 // ==============================================
 // == Global compiler switches
@@ -528,7 +529,6 @@ extern uint8 StartBaroADC(uint8);
 
 // serial.c
 extern void ProcessCommand(void);
-extern void ReceiveGPSOnly(uint8);
 extern void ShowSetup(uint8);
 extern uint8 RxChar(void);
 extern uint8 PollRxChar(void);

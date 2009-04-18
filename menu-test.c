@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                           http://uavp.ch                            =
+// =                          http://www.uavp.org                        =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -35,14 +35,11 @@ const rom uint8  SerHello[] = "\r\nUAVP TEST V" Version "\r\nCopyright (c) 2007-
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
 const rom uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
 
-#ifdef USE_GPS
-	"GPS enabled\r\n"
-#endif
-
 #ifdef DEBUG_SENSORS
-	"Debug: ON\r\n"
-#else
-	"Debug: OFF\r\n"
+	"Debug: Sensors\r\n"
+#endif
+#ifdef DEBUG_MOTORS
+	"Debug: Motors\r\n"
 #endif
 
 #ifdef RX_DEFAULT
