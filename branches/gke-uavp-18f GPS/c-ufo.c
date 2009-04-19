@@ -121,25 +121,25 @@ void Simulate()
 {
 	int16 CosH, SinH, NorthD, EastD, A;
 
-	GPSNorth = 1000;
+	GPSNorth = 5000;
 	GPSEast = -1000;
 
 	CompassHeading = 0;
 	while( true)
 	{
 		DesiredRoll = DesiredPitch = 0; // controls neutral
-		Navigate(0, 100);
+		Navigate(0, 0);
 	
 		CosH = int16cos(CompassHeading);
 		SinH = int16sin(CompassHeading);
-		GPSEast += ((int32)(-DesiredPitch) * SinH)/256;
-		GPSNorth += ((int32)(-DesiredPitch) * CosH)/256;
+		GPSEast += ((int32)(-DesiredPitch) * SinH + 128)/256;
+		GPSNorth += ((int32)(-DesiredPitch) * CosH + 128)/256;
 
 		A = Make2Pi(CompassHeading + HALFMILLIPI);
 		CosH = int16cos(A);
 		SinH = int16sin(A);
-		GPSEast += ((int32)DesiredRoll * SinH)/256L;
-		GPSNorth += ((int32)DesiredRoll * CosH)/256L;
+		GPSEast += ((int32)DesiredRoll * SinH + 128)/256L;
+		GPSNorth += ((int32)DesiredRoll * CosH + 128)/256L;
 
 		TxVal32(((int32)CompassHeading*180L)/MILLIPI, 0, ' ');
 		TxVal32(DesiredRoll, 0, ' ');
@@ -159,7 +159,7 @@ void WaitThrottleClosed(void)
 	DropoutCount = 1;
 	while( (IGas >= _ThresStop) )
 	{
-		if ( _NoSignal)
+		if ( !_Signal)
 			break;
 		if( _NewValues )
 		{
@@ -214,7 +214,7 @@ void WaitForRxSignal(void)
 	{
 		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
 		ProcessComCommand();
-		if( _NoSignal )
+		if( !_Signal )
 			if( Armed )
 			{
 				if( --DropoutCount == 0 )
@@ -226,7 +226,7 @@ void WaitForRxSignal(void)
 			else
 				_LostModel = false;
 	}
-	while( _NoSignal || !Armed );	// no signal or switch is off
+	while( !( _Signal && Armed ) );	// no signal or switch is off
 } // WaitForRXSignal
 
 void main(void)
@@ -250,7 +250,6 @@ void main(void)
 
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
-	_NoSignal = true;		// assume no signal present
 	
 	LedShadow = 0;
     ALL_LEDS_OFF;
@@ -287,32 +286,22 @@ Restart:
 		INTCONbits.TMR0IE = false;		// Disable TMR0 interrupt
 
 		// no command processing while the Quadrocopter is armed
-		// GPS signals must be connected by a second switch ganged with the
-		// arming switch
-		if ( _ReceivingGPS )
-		{
-			_ReceivingGPS = false;
-   			PIE1bits.RCIE = false; // turn off Rx interrupts
-			Delay1mS(10);
-		}
+		ReceivingGPSOnly(false);
 
 		ALL_LEDS_OFF;
-		LedRed_ON;		// Red LED on
+		LedRed_ON;	
 		if( _UseLISL )
-			LedYellow_ON;	// To signal LISL sensor is active
+			LedYellow_ON;
 
 		InitArrays();
 		ThrNeutral = 0xFF;
 
-		EnableInterrupts;		// Enable all interrupts
-	
+		EnableInterrupts;	
 		WaitForRxSignal(); // Wait until a valid RX signal is received
-
 		ReadParametersEE();
-
 		WaitThrottleClosed();
 
-		if ( _NoSignal )
+		if ( !_Signal )
 			goto Restart;
 
 		// ######## MAIN LOOP ########
@@ -320,9 +309,7 @@ Restart:
 		// loop length is controlled by a programmable variable "TimeSlot"
 
 		DropoutCount = 0;
-
 		IntegralCount = 16;	// do 16 cycles to find integral zero point
-
 		ThrDownCount = THR_DOWNCOUNT;
 
 		// if Ch7 below +20 (near minimum) assume use for camera trigger
@@ -333,17 +320,12 @@ Restart:
 		{
 			BlinkCount++;
 
-			if ( !_ReceivingGPS )
-			{
-				_ReceivingGPS = true;
-	   			PIE1bits.RCIE = true; // turn on Rx interrupts
-				Delay1mS(10); // wait for switch bounce
-			} 
+			ReceivingGPSOnly(true);
 
 			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			WriteTimer0(0);
 			INTCONbits.TMR0IF = false;
-			INTCONbits.TMR0IE = true;	// enable TMR0
+			INTCONbits.TMR0IE = true;
 
 			RollRate = PitchRate = 0;	// zero gyros sum-up memory
 			// sample gyro data and add everything up while waiting for timing delay
@@ -353,27 +335,17 @@ Restart:
 			GetDirection();
 			CheckAutonomous(); // before timeslot delay to give maximum time
 
-			while( TimeSlot > 0 )
-			{
-				// Here is the place to insert own routines
-				// It should consume as little time as possible!
-				// ATTENTION:
-				// Your routine must return BEFORE TimeSlot reaches 0
-				// or non-optimal flight behavior might occur!!!
-			}
+			while( TimeSlot > 0 ) {}
 
 			INTCONbits.TMR0IE = false;	// disable timer
 			
 			ComputeBaroComp();
-
 			GetGyroValues();
-
 			ReadParametersEE();	// re-sets TimeSlot
-
 			CalcGyroValues();
 
 			// check for signal dropout while in flight
-			if( _NoSignal && _Flying )
+			if( _Flying && !_Signal )
 			{
 				if( ( BlinkCount & 0x000f ) == 0 )
 					DropoutCount++;
@@ -393,20 +365,18 @@ Restart:
 				if( --LowGasCount > 0 )
 					goto DoPID;
 
-			if( _NoSignal || 
+			if( ( !_Signal ) || 
 			    ( (_Flying && (DesiredThrottle <= _ThresStop)) ||
 			      (!_Flying && (DesiredThrottle <= _ThresStart)) ) )
 			{	// UFO is landed, stop all motors
 
 				TimeSlot += 2; // to compensate PID() calc time!
-
 				IntegralCount = 16;	// do 16 cycles to find integral zero point
-
 				ThrDownCount = THR_DOWNCOUNT;
 				
 				InitArrays();	// resets _Flying flag!
 				GyroMidRoll = GyroMidPitch = GyroMidYaw = 0;
-				if( _NoSignal && Armed )	// _NoSignal set, but Switch is on?
+				if( Armed && !_Signal )	
 					break;	// then RX signal was lost
 
 				ALL_LEDS_OFF;				
@@ -449,10 +419,8 @@ DoPID:
 
 			CheckAlarms();
 
-			#ifdef DEBUG_SENSORS
 			if( IntegralCount == 0 )
-				DumpTrace();
-			#endif			
+				DumpTrace();		
 
 		} // flight while armed
 

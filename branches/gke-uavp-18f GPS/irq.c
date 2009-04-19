@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://uavp.ch                       =
+// =                           http://uavp.ch                            =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -49,6 +49,17 @@ uint8 RxCheckSum, RxHead, RxTail;
 uint8 RxBuff[RXBUFFMASK+1];
 #pragma udata 
 
+
+void ReceivingGPSOnly(uint8 r)
+{
+	if ( r != _ReceivingGPS )
+	{
+		_ReceivingGPS = r;
+   		PIE1bits.RCIE = r;
+		Delay1mS(10);				// switch bounce
+	}
+} // ReceivingGPSOnly
+
 void InitTimersAndInterrupts(void)
 {
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
@@ -61,7 +72,7 @@ void InitTimersAndInterrupts(void)
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
 	RxCheckSum = RxHead = RxTail = 0;
-   	PIE1bits.RCIE = false;
+   	ReceivingGPSOnly(false);
 
 } // InitTimersAndInterrupts
 
@@ -81,7 +92,7 @@ void high_isr_handler(void)
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
 		PIR1bits.TMR2IF = false;	// quit int
-		#ifndef RX_PPM	// single PPM pulse train from receiver
+		#ifndef RX_PPM				// single PPM pulse train from receiver
 		if( _FirstTimeout )			// 5 ms have been gone by...
 		{
 			PR2 = TMR2_5MS;			// set compare reg to 5ms
@@ -104,55 +115,17 @@ void high_isr_handler(void)
 			PrevEdge -= 0xffff;		// Deal with Timer1 wraparound
 		Width = (CurrEdge - PrevEdge) >> 1;
 		PrevEdge = CurrEdge;
-
-		#ifndef RX_PPM				// single PPM pulse train from receiver
-									// standard usage (PPM, 3 or 4 channels input)
-		CCP1CONbits.CCP1M0 ^= 1;	// toggle edge bit
-		PR2 = TMR2_5MS;				// set compare reg to 5ms
-
-		if( NegativePPM ^ CCP1CONbits.CCP1M0  )		// a negative edge
+		
+		switch ( RCState )
 		{
-		#endif
-			if( RCState == 0 )
-			{
-			// initial vale of PrevEdge	
-			}
-			else
-			if( RCState == 2 )
-				NewK2 = Width;
-			else
-			if( RCState == 4 )
-				NewK4 = Width;
-			else
-			if( RCState == 6 )
-			{
-				NewK6 = Width;		
-		#ifdef RX_DSM2
-				if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
-					goto ErrorRestart;
-		#else
-				IK6 = NewK6 & 0xff;
-		#endif // RX_DSM2	
-			}
-		#ifdef RX_PPM
-			else
-		#else
-			else	// values are unsafe
-				goto ErrorRestart;
-		}
-		else	// a positive edge
-		{
-		#endif // RX_PPM 
-			if( RCState == 1 )
-				NewK1 = Width;
-			else
-			if( RCState == 3 )
-				NewK3 = Width;
-			else
-			if( RCState == 5 )
+			case 0: break;
+			case 1: NewK1 = Width; break;
+			case 2: NewK2 = Width; break;
+			case 3: NewK3 = Width; break;
+			case 4: NewK4 = Width; break;
+			case 5:
 			{
 				NewK5 = Width;
-
 				// sanity check - NewKx has values in 4us units now. 
 				// content must be 256..511 (1024-2047us)
 				if( ((NewK1 >>8 ) == 1) &&
@@ -177,15 +150,25 @@ void high_isr_handler(void)
 					IYaw = (NewK4 & 0xff) - (int16)_Neutral;					
 					IK5 = NewK5 & 0xff;
 
-					_NoSignal = false;
-					_NewValues = true; // potentially IK6 & IK7 are still about to change ???
+					_Signal = _NewValues = true; // potentially IK6 & IK7 are still about to change ???
 					#endif // !RX_DSM2
+					break;
 				}
 				else	// values are unsafe
 					goto ErrorRestart;
 			}
-			else
-			if( RCState == 7 )
+			case 6:
+			{
+				NewK6 = Width;		
+				#ifdef RX_DSM2
+				if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
+					goto ErrorRestart;
+				#else
+				IK6 = NewK6 & 0xff;
+				#endif // RX_DSM2
+				break;	
+			}
+			case 7:
 			{
 				NewK7 = Width;	
 				#ifdef RX_DSM2
@@ -220,30 +203,31 @@ void high_isr_handler(void)
 					IK7 = NewK2 & 0xff;
 				}	
 
-				_NoSignal = false;
-				_NewValues = true;
+				_Signal = _NewValues = true;
 				#else				
 				IK7 = NewK7 & 0xff;
 				#endif // RX_DSM2 
 				RCState = -1;
+				break;
 			}
-			else
-			{
-ErrorRestart:
-				_NewValues = false;
-				_NoSignal = true;				// Signal lost
+			default: 
+			ErrorRestart:
+			{	
+				_Signal = _NewValues = false;	
 				RCGlitchCount++;
 				RCState = -1;
 				#ifndef RX_PPM
-				if( NegativePPM )
-					CCP1CONbits.CCP1M0 = true;	// wait for positive edge next
-				else
-					CCP1CONbits.CCP1M0 = false;	// wait for negative edge next
+				CCP1CONbits.CCP1M0 = NegativePPM;
 				#endif
-			}	
-		#ifndef RX_PPM
-		}
+				break;
+			}
+		} // switch
+	
+		#ifndef RX_PPM				
+		CCP1CONbits.CCP1M0 ^= 1;
+		PR2 = TMR2_5MS;	
 		#endif
+
 		PIR1bits.CCP1IF = false;				// quit int
 		RCState++;
 	}

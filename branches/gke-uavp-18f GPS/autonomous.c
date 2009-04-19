@@ -34,9 +34,10 @@ void Navigate(int16, int16);
 
 
 // Variables
-extern boolean FirstGPSSentence;
-extern int32 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+extern int8 ValidGPSSentences;
 extern boolean GPSSentenceReceived;
+
+int8  SumGPSRoll, SumGPSPitch;
 
 void Descend(void)
 {	
@@ -45,7 +46,7 @@ void Descend(void)
 } // Descend
 
 #define GPSFilter SoftFilter
-#define ANGLE_SCALE ((PROXIMITY * 256L + MAX_ANGLE/2)/MAX_ANGLE)
+#define DESIRED_ANGLE (((int32)MAX_ANGLE * 256L ) / ( (int32)CLOSING_RADIUS * 5L))
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
@@ -54,25 +55,39 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// To avoid cos/sin/arctan calls a simple look up process is used.
 
 	int16 Angle;
+	int32 Temp;
 	int16 RangeApprox;
-	int16 EastDiff, NorthDiff, REast, RNorth;
+	int16 EastDiff, NorthDiff;
 	int16 RollCorrection, PitchCorrection;
 
 	EastDiff = GPSEastWay - GPSEast;
 	NorthDiff = GPSNorthWay - GPSNorth;
 
-	REast = Limit(EastDiff, -64, 64);
-	RNorth = Limit(NorthDiff, -64, 64);
-
-	RangeApprox = Limit(REast*REast + RNorth*RNorth, 0, PROXIMITY);
+	if ( (Abs(EastDiff) !=0 ) || (Abs(NorthDiff) != 0 ))
+	{ 
+		RangeApprox = Max(Abs(NorthDiff), Abs(EastDiff)); 
+	
+		if ( RangeApprox < ( CLOSING_RADIUS * 5 ) )
+			RangeApprox = int16sqrt( NorthDiff*NorthDiff + EastDiff*EastDiff); // 252uS @ 16MHz
+		else
+			RangeApprox = Limit(RangeApprox, 0, CLOSING_RADIUS * 5); // 5 ~M->GPS
 		
-	Angle = Make2Pi(int16atan2(EastDiff, NorthDiff) -  CompassHeading);
+		Angle = Make2Pi(int16atan2(EastDiff, NorthDiff) - CompassHeading);
+	
+		Temp = ((int32)RangeApprox * DESIRED_ANGLE)/256;
 
-	RollCorrection = (int16sin(Angle) * RangeApprox + ANGLE_SCALE/2)/ (int16)ANGLE_SCALE;
-	DesiredRoll = Limit(DesiredRoll + RollCorrection, -_Maximum, _Maximum);
-
-	PitchCorrection = (-int16cos(Angle) * RangeApprox + ANGLE_SCALE/2)/(int16)ANGLE_SCALE;
-	DesiredPitch = Limit(DesiredPitch + PitchCorrection, -_Maximum, _Maximum);
+		RollCorrection = ((int32)int16sin(Angle) * Temp)/256;
+	//	SumGPSRoll = Limit(SumGPSRoll + RollCorrection, -GPSIntLimit, GPSIntLimit);
+		DesiredRoll = Limit(DesiredRoll + RollCorrection + SumGPSRoll, -_Maximum, _Maximum);
+	
+		PitchCorrection = (-(int32)int16cos(Angle) * Temp)/256;
+	//	SumGPSPitch = Limit(SumGPSPitch + PitchCorrection, -GPSIntLimit, GPSIntLimit);
+		DesiredPitch = Limit(DesiredPitch + PitchCorrection + SumGPSPitch, -_Maximum, _Maximum);
+	}
+	else
+	{
+		Angle = 0;
+	}
 
 } // Navigate
 
@@ -87,7 +102,7 @@ void CheckAutonomous(void)
 
 	UpdateGPS();
 
-	if ( _NoSignal && _Flying )
+	if ( _Flying && !_Signal )
 	{ 
 		// NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
 	  	// do nothing - use Wolfgang's failsafe

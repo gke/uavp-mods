@@ -69,7 +69,7 @@ void GetDirection(void)
 	if( _UseCompass  ) // continuous mode but Compass only updates avery 50mS
 	{
 		I2CStart();
-		r = SendI2CByte(COMPASS_I2C_ID+1); // no check
+		_CompassMisRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 
 		Compass = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
 		I2CStop();
 

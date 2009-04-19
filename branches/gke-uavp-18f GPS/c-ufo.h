@@ -6,18 +6,21 @@
 
 // Navigation
 
+#define INITIAL_GPS_SENTENCES 	30		/* good sentences required to establish origin */
+#define	MIN_SATELLITES			4		/* minimum no of satellites for sentence to be acceptable */
+
 // The "Ls" are important
 #define COMPASS_OFFSET_DEG		90L		/* North degrees CW from Front */
-#define MAX_ANGLE 	15L					/* Rx stick units */
-
-// JIM: DO NOT CHANGE PROXIMITY FOR NOW - LEAVE AT 25
-#define PROXIMITY	25L				/* square of the closing radius in metres */
+#define MAX_ANGLE 				15L		/* Rx stick units */
+#define CLOSING_RADIUS			10L		/* closing radius in metres */
 
 #define ENABLE_AUTONOMOUS
 #ifdef ENABLE_AUTONOMOUS
 	#define USE_GPS
 	#define GPS_NMEA
 #endif
+
+#define GPSIntLimit 0
 
 // Accelerometer
 
@@ -155,9 +158,7 @@
 
 #define Version	"3.15m3gps_18f"
 
-// ==============================================
-// == Additional declarations etc for C18 port
-// ==============================================
+// 18Fxxx C18 includes
 
 #include <p18cxxx.h> 
 #include <math.h>
@@ -389,7 +390,8 @@ extern uint16 ReadBaro(void);
 extern void GetBaroAltitude(void);
 
 // irq.c
-void InitTimersAndInterrupts(void);
+extern void InitTimersAndInterrupts(void);
+extern void ReceivingGPSOnly(uint8);
 
 // pid.c
 extern void GetNeutralAccelerations(void);
@@ -447,7 +449,7 @@ extern void WaitLISLReady(void);
 extern void ReadAccelerations(void);
 
 // utils.c
-extern int24 SRS24(int24, uint8);
+extern int32 SRS32(int32, uint8);
 extern int16 SRS16(int16, uint8);
 extern void CheckAlarms(void);
 extern void ReadParametersEE(void);
@@ -457,7 +459,7 @@ extern 	void WriteEE(uint8, int8);
 extern 	int8 ReadEE(uint8);
 
 extern void SendLeds(void);
-extern 	void SwitchLedsOn(uint8);
+extern void SwitchLedsOn(uint8);
 extern void SwitchLedsOff(uint8);
 extern void LEDGame(void);
 
@@ -470,6 +472,9 @@ extern int16 Make2Pi(int16);
 extern int16 int16atan2(int16, int16);
 extern int16 int16sin(int16);
 extern int16 int16cos(int16);
+
+extern int16 ConvertMToGPS(int16);
+extern int16 ConvertGPSToM(int16);
 
 extern void InitArrays(void);
 
@@ -501,7 +506,7 @@ extern void TogglePPMPolarity(void);
 extern void BaroTest(void);
 extern void LinearTest(void);
 extern uint8 ScanI2CBus(void);
-extern int16 int32sqrt(int32);
+extern int16 int16sqrt(int16);
 
 #endif // TEST_SOFTWARE
 
@@ -541,8 +546,8 @@ extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDSum;
 
 // GPS
-extern int32 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
-
+extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSAltitude;
+extern int8  SumGPSRoll, SumGPSPitch;
 // Failsafes
 extern uint8	ThrNeutral;
 			
