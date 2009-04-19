@@ -3,7 +3,7 @@
 // =                         Professional Version                        =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                           http://uavp.ch                            =
 // =======================================================================
 
 //  This program is free software; you can redistribute it and/or modify
@@ -81,7 +81,7 @@ int16	Trace[LastTrace];
 uint16	PauseTime;
 
 int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BaroCount;
-uint32 BlinkCount;
+uint32 	BlinkCount;
 uint24	RCGlitchCount;
 int8	BatteryVolts;
 #pragma udata
@@ -131,14 +131,21 @@ void LinearTest(void)
 	
 		TxString("Left->Right: \t");
 		TxVal32(((int32)Ax*1000+512)/1024, 3, 'G');	
+		if ( Abs(Ax) > 128 )
+			TxString(" fault?");
 		TxNextLine();
 
 		TxString("Front->Back: \t");	
-		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');	
+		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');
+		if ( Abs(Az) > 128 )
+			TxString(" fault?");	
 		TxNextLine();
 
-		TxString("Down->Up:    \t");	
-		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');	
+		TxString("Down->Up:    \t");
+	
+		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');
+		if ( ( Ay < 896 ) || ( Ay > 1152 ) )
+			TxString(" fault?");	
 		TxNextLine();
 	}
 	else
@@ -214,25 +221,6 @@ void ReceiverTest(void)
 		TxString("(no new vals)\r\n");
 } // ReceiverTest
 
-/*
-void TogglePPMPolarity(void)
-{
-    Invert(ConfigParam, 4);	// toggle bit
-
-	if( NegativePPM )
-		TxString("\r\nNeg. Rx PPM\r\n");
-	else
-		TxString("\r\nPos. Rx PPM\r\n");
-
-	NewK1=NewK2=NewK3=NewK4=NewK5=NewK6=NewK7=0xFFFF;
-	
-	RCGlitchCount = 0;
-	PauseTime = 0;
-	_NewValues = false;
-	_NoSignal = true;
-} // TogglePPMPolarity
-*/
-
 void DoCompassTest()
 {
 	uint16 v;
@@ -245,7 +233,7 @@ void DoCompassTest()
 	I2CStop();
 
 	TxVal32((int32)v, 1, 0);
-	TxString("deg (not corrected for orientation on airframe)\r\n");		
+	TxString(" deg (not corrected for orientation on airframe)\r\n");		
 	return;
 CTerror:
 	I2CStop();
@@ -284,6 +272,7 @@ CCerror:
 void BaroTest(void)
 {
 	uint8 r;
+	uint16 P, T, C;
 
 	TxString("\r\nBarometer test\r\n");
 	if ( !_UseBaro ) goto BAerror;
@@ -296,14 +285,20 @@ void BaroTest(void)
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	Delay1mS(BARO_PRESS_TIME);
 	r = ReadValueFromBaro();
+	P = BaroVal;
 	TxString("Press: \t");	
-	TxVal32((int32)BaroVal, 0, 0);
+	TxVal32((int32)P, 0, 0);
 		
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	Delay1mS(BARO_TEMP_TIME);
 	r = ReadValueFromBaro();
+	T = BaroVal;
 	TxString("\tTemp: ");
-	TxVal32((int32)BaroVal, 0, 0);	
+	TxVal32((int32)T, 0, 0);	
+
+	TxString("\tComp: ");
+	C = P + SRS16((int16)T * (int16)BaroTempCoeff + 16, 5);
+	TxVal32((int32)C, 0, 0);
 	TxNextLine();
 
 	TxNextLine();
@@ -331,80 +326,65 @@ void PowerOutput(int8 d)
 
 void GPSTest(void)
 {
-	uint8 ch, Raw; 
-
-	#ifdef XXX
-	int16 Angle, Temp;
-	int16 RangeApprox;
-	int16 EastDiff, NorthDiff;
-	int24 Temp2;
-	#endif // XXX
-
-	Raw = false;
+	uint8 ch; 
 
 	TxString("\r\nGPS test\r\n");
-	TxString("monitors GPS input until full power reset\r\n");
+	TxString("monitors GPS input until full power reconnect\r\n");
 	TxString("units Metres and Degrees\r\n");
 
 	DoCompassTest();
-
+//CompassHeading = 0; // zzz
 	TxString("CONNECT GPS\r\n");
 	TxString("\r\nPress any key to cont.\r\n");
 
 	while( !PollRxChar() );
 
-	_ReceivingGPS = true;
-	PIE1bits.RCIE = true; // turn on Rx interrupts
+	ReceivingGPSOnly(true);
 
-
-	while (1)
+	while ( true )
 	{
 		UpdateGPS();	
 		if ( _GPSValid )
 		{
-
-			DesiredRoll = IRoll;
-			DesiredPitch = IPitch;
-
-			GetDirection();
-			Navigate(0, 0);
-
-			if ( Raw )
+			if ( Armed && _Signal )
 			{
-				TxVal32(((int32)CompassHeading*180L)/(int32)MILLIPI, 3, ';');
-
-				TxVal32(GPSNorth,0,';');
-				TxVal32(GPSEast,0,';');
-
-				TxVal32(DesiredRoll, 0, ';');
-				TxVal32(DesiredPitch, 0, ';');
-				TxNextLine();
+				DesiredRoll = IRoll;
+				DesiredPitch = IPitch;
 			}
 			else
-			{
-				TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, ' ');
+				DesiredRoll = DesiredPitch = 0;
 
-				TxString("\t ");
-				TxVal32(Abs(GPSNorth), 0, 0);
-				if ( GPSNorth >=0 )
-					TxChar('N');
-				else
-					TxChar('S');
-				TxString("\t ");
-				TxVal32(Abs(GPSEast), 0, 0);
-				if ( GPSEast >=0 )
-					TxChar('E');
-				else
-					TxChar('W');
+			GetDirection();
+//CompassHeading +=MILLIPI/32;
+			Navigate(0, 0);
 
-				TxString("\t -> R=");
-				TxVal32(DesiredRoll, 0, ' ');
-				TxString("\t P=");		
-				TxVal32(DesiredPitch, 0, ' ');
-				TxNextLine();
-			}	
-			_GPSValid = false;
+			TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, ' ');
+			if ( _CompassMisRead )
+				TxChar('?');
+
+			TxString("\t ");
+			TxVal32(GPSAltitude, 1, 0);
+
+			TxString("\t ");
+			TxVal32(Abs(ConvertGPSToM(GPSNorth)), 0, 0);
+			if ( GPSNorth >=0 )
+				TxChar('N');
+			else
+				TxChar('S');
+			TxString("\t ");
+			TxVal32(Abs(ConvertGPSToM(GPSEast)), 0, 0);
+			if ( GPSEast >=0 )
+				TxChar('E');
+			else
+				TxChar('W');
+
+			TxString("\t -> R=");
+			TxVal32(DesiredRoll, 0, ' ');
+			TxString("\t P=");		
+			TxVal32(DesiredPitch, 0, ' ');
+			TxNextLine();
 		}	
+		_GPSValid = false;	
 	}
 } // GPSTest
 
@@ -415,24 +395,38 @@ void AnalogTest(void)
 	TxString("\r\nAnalog ch. test\r\n");
 
 	// Roll
-	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
 	//TxVal32(ADCRollChan, 0, ' ');
 	TxString("Roll: \t"); 
-	TxVal32(v, 3, 'V'); 
+	TxVal32(v, 3, 'V');
+	#ifdef OPT_IDG
+	if ( ( v < 750 ) || ( v > 1750 ) )
+	#else
+	if ( ( v < 2000 ) || ( v > 3000 ) )
+	#endif
+		TxString(" gyro NC or fault?"); 
 	TxNextLine();
 
 	// Pitch
-	v = ((int24)ADC(ADCPitchChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	v = ((int24)ADC(ADCPitchChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
 	//TxVal32(ADCPitchChan, 0, ' ');
 	TxString("Pitch:\t");		
-	TxVal32(v, 3, 'V');	
+	TxVal32(v, 3, 'V');
+	#ifdef OPT_IDG
+	if ( ( v < 750 ) || ( v > 1750 ) )
+	#else
+	if ( ( v < 2000 ) || ( v > 3000 ) )
+	#endif
+		TxString(" gyro NC or fault?");	
 	TxNextLine();
 
 	// Yaw
-	v = ((int24)ADC(ADCYawChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	v = ((int24)ADC(ADCYawChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
 	//TxVal32(ADCYawChan, 0, ' ');
 	TxString("Yaw:  \t");
-	TxVal32(v, 3, 'V');	
+	TxVal32(v, 3, 'V');
+	if ( ( v < 2000 ) || ( v > 3000 ) )
+		TxString(" gyro NC or fault?");	
 	TxNextLine();
 	TxNextLine();
 
@@ -449,10 +443,12 @@ void AnalogTest(void)
 	TxNextLine();
 
 	// VRef
-	v = ((int24)ADC(ADCVRefChan, ADCVREF5V) * 49 + 5)/10; // resolution is 0,001 Volt
+	v = ((int24)ADC(ADCVRefChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
 	//TxVal32(ADCVRefChan, 0, ' ');	
 	TxString("Ref:  \t");	
-	TxVal32(v, 3, 'V');	
+	TxVal32(v, 3, 'V');
+	if ( ( v < 3000 ) || ( v > 4000 ) )
+		TxString(" fault?");	
 	TxNextLine();
 
 	
@@ -550,7 +546,6 @@ void main(void)
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false;
 
-	_NoSignal = true;		// assume no signal present
 	PauseTime = 0;
 
 	InitArrays();
@@ -569,7 +564,7 @@ void main(void)
 	LedBlue_ON;
 	AUX_LEDS_ON;
 
-	INTCONbits.PEIE = true;		// enable peripheral interrupts
+	INTCONbits.PEIE = true;		
 	EnableInterrupts;
 
 	InitGPS();
@@ -600,7 +595,7 @@ void main(void)
 	{
 		// turn red LED on of signal missing or invalid, green if OK
 		// Yellow led to indicate linear sensor functioning.
-		if( _NoSignal || !Armed )
+		if( !( _Signal && Armed ) )
 		{
 			LedRed_ON;
 			LedGreen_OFF;

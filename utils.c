@@ -85,10 +85,10 @@ int16 SRS16(int16 x, uint8 s)
 	return((x<0) ? -((-x)>>s) : (x>>s));
 } // SRS16
 
-int24 xxxSRS24(int24 x, uint8 s)
+int32 SRS32(int32 x, uint8 s)
 {
 	return((x<0) ? -((-x)>>s) : (x>>s));
-} // SRS24
+} // SRS32
 
 void InitPorts(void)
 {
@@ -124,6 +124,8 @@ void InitArrays(void)
 	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
 
+	SumGPSRoll = SumGPSPitch = 0;
+
 	BaroRestarts = 0;
 	RCGlitchCount = 0;
 } // InitArrays
@@ -141,6 +143,16 @@ int8 ReadEE(uint8 addr)
 	return(b);	
 } // ReadEE
 
+int16 ConvertGPSToM(int16 c)
+{	// approximately 0.18553257183 Metres per LSB
+	// only for converting difference in coordinates to 32K
+	return ( ((int32)c * (int32)18553)/((int32)100000) );
+} // ConvertGPSToM
+
+int16 ConvertMToGPS(int16 c)
+{
+	return ( ((int32)c * (int32)100000)/((int32)18553) );
+} // ConvertMToGPS
 
 void ReadParametersEE(void)
 {
@@ -324,6 +336,23 @@ int16 int16atan2(int16 y, int16 x)
 	return(A);
 } // int16atan2
 
+int16 int16sqrt(int16 n)
+// 16 bit numbers 
+{
+  int16 r, b;
+
+  r=0;
+  b=256;
+  while (b>0) 
+    {
+    if (r*r>n)
+      r-=b;
+    b=(b>>1);
+    r+=b;
+    }
+  return(r);
+} // int16sqrt
+
 
 void CheckAlarms(void)
 {
@@ -467,9 +496,10 @@ void SwitchLedsOff(uint8 l)
 	SendLeds();
 } // SwitchLedsOff
 
-#ifdef DEBUG_SENSORS
+
 void DumpTrace(void)
 {
+#ifdef DEBUG_SENSORS
 	int8 t;
 
 	for (t=0; t <= TopTrace; t++)
@@ -478,5 +508,6 @@ void DumpTrace(void)
 		TxChar(';');
 	}
 	TxNextLine();
-} // DumpTrace
 #endif // DEBUG_SENSORS
+} // DumpTrace
+
