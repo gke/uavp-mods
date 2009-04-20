@@ -548,7 +548,7 @@ extern int16 	UDSum;
 // GPS
 extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSAltitude;
 extern int8  SumGPSRoll, SumGPSPitch;
-extern int8 GPSHDilute;
+extern int16 GPSHDilute;
 extern uint8 GPSFix;
 extern uint8 GPSNoOfSats;
 // Failsafes
