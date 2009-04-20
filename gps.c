@@ -37,6 +37,7 @@ void UpdateGPS(void);
 #pragma udata gpsvars
 boolean GPSSentenceReceived;
 uint8 GPSFix;
+int8 GPSHDilute;
 int32 GPSOriginLatitude, GPSOriginLongitude;
 int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
 int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSGroundSpeed;
@@ -173,6 +174,7 @@ void ParseGPSSentence()
     GPSNoOfSats=(uint8)(ConvertInt(lo,hi));
 
     UpdateField();   // HDilute
+	GPSHDilute = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi); 
 
     UpdateField();   // Alt
 	GPSAltitude = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi); // Decimetres
