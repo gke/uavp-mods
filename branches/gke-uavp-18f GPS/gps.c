@@ -35,7 +35,8 @@ void UpdateGPS(void);
 // Variables
 
 #pragma udata gpsvars
-boolean GPSSentenceReceived; 
+boolean GPSSentenceReceived;
+uint8 GPSFix;
 int32 GPSOriginLatitude, GPSOriginLongitude;
 int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
 int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSGroundSpeed;
@@ -142,7 +143,6 @@ void UpdateField()
 void ParseGPSSentence()
 { 	// full position $GPGGA fix 
 	int32 GPSLatitude, GPSLongitude;
-	uint8 GPSFix;
 
     UpdateField();
     
@@ -182,7 +182,7 @@ void ParseGPSSentence()
     //UpdateField();   // GHeight 
     //UpdateField();   // GHeightUnit 
  
-    _GPSValid = (GPSFix >= 2) && ( GPSNoOfSats >= MIN_SATELLITES );
+    _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES );
     
 	if ( _GPSValid )
 	{
@@ -286,6 +286,8 @@ void InitGPS()
 	uint8 c;
 
 	GPSEast = GPSNorth = 0;
+	GPSNoOfSats = 0;
+	GPSFix = 0;
 	GPSSentenceReceived=false;
 	ValidGPSSentences = 0;
 //	FirstGPSSentence = true;
