@@ -362,16 +362,16 @@ void GPSTest(void)
 			if ( _CompassMisRead )
 				TxChar('?');
 
-			TxString("\t Fix=");
+			TxString("\t F=");
 			TxVal32(GPSFix, 0, 0);
 
-			TxString("\t Sats=");
-			TxVal32(GPSNoOfSats, 0, 0);
+			TxString("\t Sat=");
+			TxVal32(GPSNoOfSats, 0, ' ');
 
-			TxString("\t HDilute=");
-			TxVal32(GPSHDilute, 1, 0);
+			TxString("Dil=");
+			TxVal32(GPSHDilute, 2, ' ');
 
-			TxString("\t RelAlt=");
+			TxString("RAlt=");
 			TxVal32(GPSAltitude, 1, 0);
 
 			TxString("\t ");
