@@ -8,7 +8,7 @@
 
 #define INITIAL_GPS_SENTENCES 	30		/* good sentences required to establish origin */
 #define	MIN_SATELLITES			4		/* minimum no of satellites for sentence to be acceptable */
-
+#define MIN_FIX					1		/* must be 1 or 2 */
 // The "Ls" are important
 #define COMPASS_OFFSET_DEG		90L		/* North degrees CW from Front */
 #define MAX_ANGLE 				15L		/* Rx stick units */
@@ -548,6 +548,8 @@ extern int16 	UDSum;
 // GPS
 extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSAltitude;
 extern int8  SumGPSRoll, SumGPSPitch;
+extern uint8 GPSFix;
+extern uint8 GPSNoOfSats;
 // Failsafes
 extern uint8	ThrNeutral;
 			
