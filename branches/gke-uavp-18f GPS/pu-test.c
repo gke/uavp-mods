@@ -358,38 +358,40 @@ void GPSTest(void)
 //CompassHeading +=MILLIPI/32;
 			Navigate(0, 0);
 
-			TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, ' ');
+			TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, 0);
 			if ( _CompassMisRead )
 				TxChar('?');
+			else
+				TxChar(' ');
 
-			TxString("\t F=");
+			TxString(" fx=");
 			TxVal32(GPSFix, 0, 0);
 
-			TxString("\t Sat=");
+			TxString(" s=");
 			TxVal32(GPSNoOfSats, 0, ' ');
 
-			TxString("Dil=");
+			TxString("hd=");
 			TxVal32(GPSHDilute, 2, ' ');
 
-			TxString("RAlt=");
+			TxString("ra=");
 			TxVal32(GPSAltitude, 1, 0);
 
 			TxString("\t ");
 			TxVal32(Abs(ConvertGPSToM(GPSNorth)), 0, 0);
 			if ( GPSNorth >=0 )
-				TxChar('N');
+				TxChar('n');
 			else
-				TxChar('S');
+				TxChar('s');
 			TxString("\t ");
 			TxVal32(Abs(ConvertGPSToM(GPSEast)), 0, 0);
 			if ( GPSEast >=0 )
-				TxChar('E');
+				TxChar('e');
 			else
-				TxChar('W');
+				TxChar('w');
 
-			TxString("\t -> R=");
+			TxString("\t -> r=");
 			TxVal32(DesiredRoll, 0, ' ');
-			TxString("\t P=");		
+			TxString("\t p=");		
 			TxVal32(DesiredPitch, 0, ' ');
 			TxNextLine();
 		}	
