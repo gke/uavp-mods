@@ -368,6 +368,9 @@ void GPSTest(void)
 			TxString("\t Sats=");
 			TxVal32(GPSNoOfSats, 0, 0);
 
+			TxString("\t HDilute=");
+			TxVal32(GPSHDilute, 1, 0);
+
 			TxString("\t RelAlt=");
 			TxVal32(GPSAltitude, 1, 0);
 
