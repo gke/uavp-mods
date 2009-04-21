@@ -508,6 +508,7 @@ void DumpTrace(void)
 		TxChar(';');
 	}
 	TxNextLine();
+
 #endif // DEBUG_SENSORS
 } // DumpTrace
 

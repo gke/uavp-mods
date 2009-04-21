@@ -4,6 +4,12 @@
 // flight code.
 //#define SIMULATION
 
+// Outputs to Hyperterm the compass heading, param channel value, 
+// Pitch, Roll and estimated SIMULATED resulting position. 
+// A "H" is displayed confirming if the quadrocopter would be in baro hold.
+// This NOT flight code.
+//#define FAKE_GPS
+
 // Navigation
 
 #define INITIAL_GPS_SENTENCES 	30		/* good sentences required to establish origin */
@@ -11,7 +17,7 @@
 #define MIN_FIX					1		/* must be 1 or 2 */
 // The "Ls" are important
 #define COMPASS_OFFSET_DEG		90L		/* North degrees CW from Front */
-#define MAX_ANGLE 				15L		/* Rx stick units */
+#define MAX_ANGLE 				20L		/* Rx stick units ~= degrees */
 #define CLOSING_RADIUS			10L		/* closing radius in metres */
 
 #define ENABLE_AUTONOMOUS
@@ -20,7 +26,7 @@
 	#define GPS_NMEA
 #endif
 
-#define GPSIntLimit 0
+#define GPSIntLimit 1					/* integral term for windy conditions */
 
 // Accelerometer
 
@@ -569,6 +575,7 @@ extern int16	Vud;
 extern uint8	Flags[32];
 
 extern int16	IntegralCount, ThrDownCount, GPSCount, DropoutCount, LedCount, BaroCount;
+extern int16	FakeGPSCount;
 extern uint32	BlinkCount;
 extern uint24	RCGlitchCount;
 extern int8		Rw,Pw;	// angles

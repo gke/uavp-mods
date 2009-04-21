@@ -77,22 +77,24 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		Temp = ((int32)RangeApprox * DESIRED_ANGLE)/256;
 
 		RollCorrection = ((int32)int16sin(Angle) * Temp)/256;
-	//	SumGPSRoll = Limit(SumGPSRoll + RollCorrection, -GPSIntLimit, GPSIntLimit);
+		SumGPSRoll = Limit(SumGPSRoll + RollCorrection, -GPSIntLimit, GPSIntLimit);
 		DesiredRoll = Limit(DesiredRoll + RollCorrection + SumGPSRoll, -_Maximum, _Maximum);
 	
 		PitchCorrection = (-(int32)int16cos(Angle) * Temp)/256;
-	//	SumGPSPitch = Limit(SumGPSPitch + PitchCorrection, -GPSIntLimit, GPSIntLimit);
+		SumGPSPitch = Limit(SumGPSPitch + PitchCorrection, -GPSIntLimit, GPSIntLimit);
 		DesiredPitch = Limit(DesiredPitch + PitchCorrection + SumGPSPitch, -_Maximum, _Maximum);
 	}
-	else
-	{
-		Angle = 0;
-	}
-
 } // Navigate
 
 void CheckAutonomous(void)
 {
+	#ifdef FAKE_GPS
+	int16 CosH, SinH, NorthD, EastD, A;
+
+	_GPSValid = true;
+
+	#endif // FAKE_GPS
+
 	DesiredThrottle = IGas;
 	DesiredRoll = IRoll;
 	DesiredPitch = IPitch;
@@ -109,24 +111,69 @@ void CheckAutonomous(void)
 	}
 	else
 		if ( _GPSValid ) // && _UseCompass )
-			if ( _Hovering )
-			{
-				if ( !_HoldingStation )
-				{
-					// acquire hold coordinates
-					GPSNorthHold = GPSNorth;
-					GPSEastHold = GPSEast;
-					_HoldingStation = true;
-				}		
-				Navigate(GPSNorthHold, GPSEastHold);
-			}
-			else
+			if ( IK5 > _Neutral )
 			{
 				_HoldingStation = false;
-				if ( IK5 > _Neutral )
-					Navigate(0, 0);
+				Navigate(0, 0);
 			}
+			else
+				if (_Hovering )
+				{
+					if ( !_HoldingStation )
+					{
+						// acquire hold coordinates
+						GPSNorthHold = GPSNorth;
+						GPSEastHold = GPSEast;
+						_HoldingStation = true;
+					}		
+					Navigate(GPSNorthHold, GPSEastHold);
+				}
+				else
+					_HoldingStation = false;
+
 	#endif // ENABLE_AUTONOMOUS
+
+	#ifdef FAKE_GPS
+
+	if(  BlinkCount >= FakeGPSCount )
+	{
+		FakeGPSCount = BlinkCount + 50;
+		CosH = int16cos(CompassHeading);
+		SinH = int16sin(CompassHeading);
+		GPSEast += ((int32)(-DesiredPitch) * SinH + 128)/256;
+		GPSNorth += ((int32)(-DesiredPitch) * CosH + 128)/256;
+	
+		A = Make2Pi(CompassHeading + HALFMILLIPI);
+		CosH = int16cos(A);
+		SinH = int16sin(A);
+		GPSEast += ((int32)DesiredRoll * SinH + 128)/256L;
+		GPSNorth += ((int32)DesiredRoll * CosH + 128)/256L;
+	
+		GPSAltitude = 1000; // 100M
+	
+		GPSFix = 2;
+		GPSHDilute = 0.0;
+		GPSNoOfSats = 99;
+
+		TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, 0);
+		TxVal32(IK5,0,' ');
+		TxVal32(DesiredRoll,0,'R');
+		TxChar(' ');
+		TxVal32(DesiredPitch,0,'P');
+		TxChar(' ');
+		TxVal32(GPSNorth,0,'N');
+		TxChar(' ');
+		TxVal32(GPSEast,0,'E');
+		if ( _Hovering )
+			TxString(" H");
+		if( _HoldingStation )
+			TxChar('!');
+		TxNextLine();
+
+	}
+
+	#endif // FAKE_GPS
+
 
 } // CheckAutonomous
 
