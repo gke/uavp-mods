@@ -81,6 +81,7 @@ int16	Trace[LastTrace];
 uint16	PauseTime;
 
 int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BaroCount;
+int16	FakeGPSCount;
 uint32 	BlinkCount;
 uint24	RCGlitchCount;
 int8	BatteryVolts;

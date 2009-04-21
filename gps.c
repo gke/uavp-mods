@@ -145,6 +145,12 @@ void ParseGPSSentence()
 { 	// full position $GPGGA fix 
 	int32 GPSLatitude, GPSLongitude;
 
+	#ifdef FAKE_GPS
+
+	_GPSValid = true;
+
+	#else
+
     UpdateField();
     
     UpdateField();   //UTime
@@ -207,6 +213,8 @@ void ParseGPSSentence()
 		GPSEast = GPSLongitude - GPSOriginLongitude; 
 		GPSAltitude -= GPSOriginAltitude;
 	}
+	#endif //  FAKE_GPS
+
 } // ParseGPSSentence
 
 void PollGPS(void)
@@ -280,7 +288,8 @@ void PollGPS(void)
 	        }
 	      break;
 	      }
-    }  
+    } 
+ 
 } // PollGPS
 
 void InitGPS()
@@ -295,6 +304,7 @@ void InitGPS()
 //	FirstGPSSentence = true;
 	_GPSValid = false; 
 	GPSCount = 0;
+	FakeGPSCount = 100;
   	GPSRxState=WaitGPSSentinel; 
   	ll=0;
   	cc=ll;
@@ -303,6 +313,10 @@ void InitGPS()
 
 void UpdateGPS(void)
 {
+	#ifdef FAKE_GPS
+	GPSSentenceReceived = true;
+	#endif // FAKE_GPS
+
 	if ( GPSSentenceReceived )
 	{
 		LedBlue_ON;
