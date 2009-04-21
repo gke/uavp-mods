@@ -4,10 +4,11 @@
 // flight code.
 //#define SIMULATION
 
-// Outputs to Hyperterm the compass heading, param channel value, 
-// Pitch, Roll and estimated SIMULATED resulting position. 
-// A "H" is displayed confirming if the quadrocopter would be in baro hold.
-// This NOT flight code.
+// Simulates a FAKE GPS estimating position from control inputs and outputs to 
+// Hyperterm lines of the form: 
+// 294      75n     33e    -> r= 33        p= 0 hov rth
+// compass   uav posn	       controls		state - in this case hovering and returning home
+// This permits quadrocopter to be "flown on the bench". Motors WILL run but this is NOT flight code.
 //#define FAKE_GPS
 
 // Navigation

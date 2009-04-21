@@ -155,19 +155,36 @@ void CheckAutonomous(void)
 		GPSHDilute = 0.0;
 		GPSNoOfSats = 99;
 
-		TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, 0);
-		TxVal32(IK5,0,' ');
-		TxVal32(DesiredRoll,0,'R');
-		TxChar(' ');
-		TxVal32(DesiredPitch,0,'P');
-		TxChar(' ');
-		TxVal32(GPSNorth,0,'N');
-		TxChar(' ');
-		TxVal32(GPSEast,0,'E');
+		TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, ' ');
+		if ( _CompassMisRead )
+			TxChar('?');
+		else
+			TxChar(' ');
+
+		TxString("\t ");
+		TxVal32(Abs(ConvertGPSToM(GPSNorth)), 0, 0);
+		if ( GPSNorth >=0 )
+			TxChar('n');
+		else
+			TxChar('s');
+		TxString("\t ");
+		TxVal32(Abs(ConvertGPSToM(GPSEast)), 0, 0);
+		if ( GPSEast >=0 )
+			TxChar('e');
+		else
+			TxChar('w');
+
+		TxString("\t -> r=");
+		TxVal32(DesiredRoll, 0, ' ');
+		TxString("\t p=");		
+		TxVal32(DesiredPitch, 0, ' ');
+
 		if ( _Hovering )
-			TxString(" H");
+			TxString("hov ");
+		if ( IK5 > _Neutral )
+			TxString("rth ");
 		if( _HoldingStation )
-			TxChar('!');
+			TxString("hold");
 		TxNextLine();
 
 	}

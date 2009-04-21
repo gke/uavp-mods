@@ -116,44 +116,6 @@ int8	BaroThrottleDiff	=4;
 
 // Ende Reihenfolgezwang
 
-#ifdef SIMULATION
-
-void Simulate()
-{
-	int16 CosH, SinH, NorthD, EastD, A;
-
-	GPSNorth = 5000;
-	GPSEast = -1000;
-
-	CompassHeading = 0;
-	while( true)
-	{
-		DesiredRoll = DesiredPitch = 0; // controls neutral
-		Navigate(0, 0);
-	
-		CosH = int16cos(CompassHeading);
-		SinH = int16sin(CompassHeading);
-		GPSEast += ((int32)(-DesiredPitch) * SinH + 128)/256;
-		GPSNorth += ((int32)(-DesiredPitch) * CosH + 128)/256;
-
-		A = Make2Pi(CompassHeading + HALFMILLIPI);
-		CosH = int16cos(A);
-		SinH = int16sin(A);
-		GPSEast += ((int32)DesiredRoll * SinH + 128)/256L;
-		GPSNorth += ((int32)DesiredRoll * CosH + 128)/256L;
-
-		TxVal32(((int32)CompassHeading*180L)/MILLIPI, 0, ' ');
-		TxVal32(DesiredRoll, 0, ' ');
-		TxVal32(DesiredPitch, 0, ' ');
-		TxVal32(GPSNorth, 0, ' ');
-		TxVal32(GPSEast, 0, ' ');
-		TxNextLine();
-		CompassHeading = Make2Pi(CompassHeading + 10);
-	}
-
-} // Simulate
-
-#endif // SIMULATION
 
 void WaitThrottleClosed(void)
 {
@@ -240,10 +202,6 @@ void main(void)
 	InitPorts();
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B9600);
-
-#ifdef SIMULATION
-	Simulate();
-#else
 	
 	InitADC();
 	
@@ -427,7 +385,5 @@ DoPID:
 
 		Beeper_OFF;
 	}
-
-#endif // SIMULATION
 } // main
 
