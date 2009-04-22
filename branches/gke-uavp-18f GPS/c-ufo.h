@@ -17,7 +17,7 @@
 #define	MIN_SATELLITES			4		/* minimum no of satellites for sentence to be acceptable */
 #define MIN_FIX					1		/* must be 1 or 2 */
 // The "Ls" are important
-#define COMPASS_OFFSET_DEG		90L		/* North degrees CW from Front */
+#define COMPASS_OFFSET_DEG		270L		/* North degrees CW from Front */
 #define MAX_ANGLE 				20L		/* Rx stick units ~= degrees */
 #define CLOSING_RADIUS			10L		/* closing radius in metres */
 

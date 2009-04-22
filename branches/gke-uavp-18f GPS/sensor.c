@@ -34,7 +34,6 @@ void InitDirection(void)
 	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(0x74) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
-
 	I2CStop();
 
 	I2CStart(); // save operation mode in EEPROM
@@ -42,7 +41,7 @@ void InitDirection(void)
 	if( SendI2CByte('L')  != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(50);
+	Delay1mS(COMPASS_TIME);
 
 	// use default heading mode (1/10th degrees)
 

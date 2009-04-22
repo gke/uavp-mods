@@ -119,7 +119,7 @@ void CheckAutonomous(void)
 			else
 				if (_Hovering )
 				{
-					if ( !_HoldingStation )
+					if ( (Abs(DesiredRoll) > 5) || (Abs(DesiredPitch) > 5) || !_HoldingStation )
 					{
 						// acquire hold coordinates
 						GPSNorthHold = GPSNorth;
