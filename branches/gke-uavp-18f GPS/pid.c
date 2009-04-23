@@ -100,11 +100,11 @@ void CalcGyroValues(void)
 	// calculations presumably because of the range of the 16 bit arithmetic.
 
 	#ifdef OPT_ADXRS150
-	RollRate = (RollRate + 2)>>2; // recreate the 10 bit resolution
-	PitchRate = (PitchRate + 2)>>2;
+	RollRate = (RollRate + 2) >> 2; // recreate the 10 bit resolution
+	PitchRate = (PitchRate + 2) >> 2;
 	#else // IDG300 and ADXRS300
-	RollRate = (RollRate + 1)>>1;	
-	PitchRate = (PitchRate + 1)>>1;
+	RollRate = RollRate >> 1;	
+	PitchRate = PitchRate >> 1;
 	#endif
 	
 	if( IntegralCount > 0 )
@@ -153,26 +153,26 @@ void CalcGyroValues(void)
 	
 		// Roll
 		#ifdef OPT_ADXRS
-		RE = SRS16(RollRate + 2, 2);
+		RE = SRS16(RollRate, 2);
 		#else // OPT_IDG
-		RE = SRS16(RollRate + 1, 1); // use 8 bit res. for PD controller
+		RE = SRS16(RollRate, 1); // use 8 bit res. for PD controller
 		#endif	
 
 		#ifdef OPT_ADXRS
-		RollRate = SRS16(RollRate + 1, 1); // use 9 bit res. for I controller	
+		RollRate = SRS16(RollRate, 1); // use 9 bit res. for I controller	
 		#endif
 
 		LimitRollSum();		// for roll integration
 
 		// Pitch
 		#ifdef OPT_ADXRS
-		PE = SRS16(PitchRate + 2, 2);
+		PE = SRS16(PitchRate, 2);
 		#else // OPT_IDG
-		PE = SRS16(PitchRate + 1, 1);
+		PE = SRS16(PitchRate, 1);
 		#endif
 
 		#ifdef OPT_ADXRS
-		PitchRate = SRS16(PitchRate + 1, 1); // use 9 bit res. for I controller	
+		PitchRate = SRS16(PitchRate, 1); // use 9 bit res. for I controller	
 		#endif
 
 		LimitPitchSum();		// for pitch integration
@@ -215,22 +215,21 @@ void PID(void)
 	// Roll
 
 	// Differential and Proportional for Roll axis
-	Rl  = SRS16(RE *(int16)RollPropFactor + (REp-RE) * RollDiffFactor + 8, 4);
+	Rl  = SRS16(RE *(int16)RollPropFactor + (REp-RE) * RollDiffFactor, 4);
 
 	// Integral part for Roll
 	if( IntegralCount == 0 )
-		Rl += SRS16(RollSum * (int16)RollIntFactor + 128, 8); // thanks Jim
-
+		Rl += SRS16(RollSum * (int16)RollIntFactor, 8); // thanks Jim aka Jesolins
 	Rl -= DesiredRoll;								// subtract stick signal
 
 	// Pitch
 
 	// Differential and Proportional for Pitch
-	Pl  = SRS16(PE *(int16)PitchPropFactor + (PEp-PE) * PitchDiffFactor + 8, 4);
+	Pl  = SRS16(PE *(int16)PitchPropFactor + (PEp-PE) * PitchDiffFactor, 4);
 
 	// Integral part for Pitch
 	if( IntegralCount == 0 )
-		Pl += SRS16(PitchSum * (int16)PitchIntFactor +128, 8);
+		Pl += SRS16(PitchSum * (int16)PitchIntFactor, 8);
 
 	Pl -= DesiredPitch;								// subtract stick signal
 
@@ -240,8 +239,8 @@ void PID(void)
 	//	YE += IYaw;
 
 	// Differential and Proportional for Yaw
-	Yl  = SRS16(YE *(int16)YawPropFactor + (YEp-YE) * YawDiffFactor + 8, 4);
-	Yl += SRS16(YawSum * (int16)YawIntFactor + 128, 8);
+	Yl  = SRS16(YE *(int16)YawPropFactor + (YEp-YE) * YawDiffFactor, 4);
+	Yl += SRS16(YawSum * (int16)YawIntFactor, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);		// effective slew limit
 
 	DoPIDDisplays();

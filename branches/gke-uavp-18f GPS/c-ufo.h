@@ -1,9 +1,5 @@
 // EXPERIMENTAL
 
-// This is temporary and for testing GPS only. It does not activate
-// flight code.
-//#define SIMULATION
-
 // Simulates a FAKE GPS estimating position from control inputs and outputs to 
 // Hyperterm lines of the form: 
 // 294      75n     33e    -> r= 33        p= 0 hov rth
@@ -13,21 +9,19 @@
 
 // Navigation
 
-#define INITIAL_GPS_SENTENCES 	30		/* good sentences required to establish origin */
-#define	MIN_SATELLITES			4		/* minimum no of satellites for sentence to be acceptable */
-#define MIN_FIX					1		/* must be 1 or 2 */
-// The "Ls" are important
-#define COMPASS_OFFSET_DEG		90L		/* North degrees CW from Front */
-#define MAX_ANGLE 				20L		/* Rx stick units ~= degrees */
-#define CLOSING_RADIUS			20L		/* closing radius in metres */
-
 #define ENABLE_AUTONOMOUS
-#ifdef ENABLE_AUTONOMOUS
-	#define USE_GPS
-	#define GPS_NMEA
-#endif
 
-#define GPSIntLimit 1					/* integral term for windy conditions */
+// The "Ls" are important
+#define COMPASS_OFFSET_DEG		90L		// North degrees CW from Front
+#define MAX_ANGLE 				20L		// Rx stick units ~= degrees
+#define CLOSING_RADIUS			20L		// closing radius in metres 
+
+// CAUTION GPS will always exert corrective control 
+#define OVERRIDE_HOVER_CONDITION
+#define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
+
+// JIM reduce or make this zero if you get overshoots
+#define NavIntLimit 			4		// integral term for windy conditions! 	
 
 // Accelerometer
 
@@ -143,6 +137,20 @@
 #define ENABLE_DYNAMIC_MASS_COMP_ROLL
 #define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
+// Navigation
+
+// Number of good GPS sentences required to establish origin 
+#define INITIAL_GPS_SENTENCES 	30	
+// minimum no of satellites for sentence to be acceptable	
+#define	MIN_SATELLITES			4		// preferably 5 for 3D fix
+#define MIN_FIX					1		//must be 1 or 2 
+
+// DO NOT CHANGE
+#ifdef ENABLE_AUTONOMOUS
+	#define USE_GPS
+	#define GPS_NMEA
+#endif
+	
 // Misc
 
 // Loads a "representative" parameter set into EEPROM
@@ -237,7 +245,8 @@ typedef float real32;
 #define IsClear(S,b) 	((uint8)(!(S>>b)&1))
 #define Invert(S,b) 	((uint8)(S^=(1<<b)))
 
-#define Abs(i)			((i<0) ? -i : i)	
+#define Abs(i)			((i<0) ? -i : i)
+#define Sign(i)			((i<0) ? -1 : 1)
 
 #define Max(i,j) 		((i<j) ? j : i)
 #define Min(i,j) 		((i<j) ? i : j )
@@ -253,10 +262,10 @@ typedef float real32;
   #define MediumFilter(O,N) 			(N)
   #define AccelerometerFilter(O,N) 	(N)
 #else
-  #define VerySoftFilter(O,N) 		(SRS16(O+N*3+2, 2))
-  #define SoftFilter(O,N) 			(SRS16(O+N+1, 1))
-  #define MediumFilter(O,N) 		(SRS16(O*3+N+2, 2))
-  #define HardFilter(O,N) 			(SRS16(O*7+N+4, 3))
+  #define VerySoftFilter(O,N) 		(SRS16(O+N*3, 2))
+  #define SoftFilter(O,N) 			(SRS16(O+N, 1))
+  #define MediumFilter(O,N) 		(SRS16(O*3+N, 2))
+  #define HardFilter(O,N) 			(SRS16(O*7+N, 3))
 #endif
 #define NoFilter(O,N)				(N)
 
@@ -386,6 +395,7 @@ extern void InitADC(void);
 // autonomous.c
 extern void AcquireSatellites(void);
 extern void Navigate(int16, int16);
+extern void InitNavigation(void);
 extern void Descend(void);
 
 // compass_altimeter.c
@@ -554,7 +564,6 @@ extern int16 	UDSum;
 
 // GPS
 extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSAltitude;
-extern int8  SumGPSRoll, SumGPSPitch;
 extern int16 GPSHDilute;
 extern uint8 GPSFix;
 extern uint8 GPSNoOfSats;

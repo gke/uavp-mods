@@ -294,7 +294,7 @@ void ComputeBaroComp(void)
 						// while holding altitude
 						BaroVal -= BaroBasePressure;
 						// BaroVal has -400..+400 approx
-						BaroVal += SRS16((int16)BaroRelTempCorr * (int16)BaroTempCoeff + 16, 5);
+						BaroVal += SRS16((int16)BaroRelTempCorr * (int16)BaroTempCoeff, 5);
 
 						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
 	
