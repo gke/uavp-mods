@@ -31,8 +31,8 @@ const rom uint8 SerHello[] = "\r\nUAVP " Version " Copyright (c) 2007-9"
 
 const rom uint8 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 
-#ifdef USE_GPS
-	"GPS enabled\r\n"
+#ifdef ENABLE_AUTONOMOUS
+	"GPS: enabled\r\n"
 #endif
 
 #ifdef DEBUG_SENSORS

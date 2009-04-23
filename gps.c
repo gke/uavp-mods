@@ -96,7 +96,7 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi)
 	// positions are stored at maximum transmitted GPS resolution which
 	// is approximately 0.18553257183 Metres per LSB
 
-	uint32 dd, mm, ss;	
+	int32 dd, mm, ss;	
 	int32 ival;
 	
 	ival=0;
@@ -324,7 +324,10 @@ void UpdateGPS(void)
 		GPSSentenceReceived=false;  
 		ParseGPSSentence(); // 7.5mS 18f2520 @ 16MHz
 		if ( _GPSValid )
+		{
+			_NavComputed = false;
 			GPSCount = 0;
+		}
 	}
 	else
 		if( (BlinkCount & 0x000f) == 0 )

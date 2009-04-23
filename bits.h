@@ -167,7 +167,7 @@
 #define _LostModel		Flags[18]
 #define _Hovering		Flags[19]
 #define _HoldingStation Flags[20]
-//#define _ReturningHome  Flags[21]
+#define _NavComputed 	Flags[21]
 
 
 // Mask Bits of ConfigParam

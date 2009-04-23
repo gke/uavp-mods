@@ -226,6 +226,7 @@ void main(void)
 	InitDirection();
 	InitBarometer();
 	InitGPS();
+	InitNavigation();
 
 	ShowSetup(1);
 

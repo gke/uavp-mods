@@ -124,8 +124,6 @@ void InitArrays(void)
 	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
 
-	SumGPSRoll = SumGPSPitch = 0;
-
 	BaroRestarts = 0;
 	RCGlitchCount = 0;
 } // InitArrays

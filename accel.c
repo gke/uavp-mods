@@ -47,9 +47,9 @@ void GetNeutralAccelerations(void)
 		Pp += Az;
 		Yp += Ay;
 	}
-	Rp = SRS16(Rp + 8, 4);
-	Pp = SRS16(Pp + 8, 4);
-	Yp = SRS16(Yp + 8, 4);
+	Rp = SRS16(Rp, 4);
+	Pp = SRS16(Pp, 4);
+	Yp = SRS16(Yp, 4);
 
 	NeutralLR = Limit(Rp, -99, 99);
 	NeutralFB = Limit(Pp, -99, 99);
@@ -92,7 +92,7 @@ void AccelerationCompensation(void)
 		UDSum = Limit(UDSum , -16384, 16384); 
 		UDSum = DecayBand(UDSum, -10, 10, 10);
 	
-		Temp = SRS16(SRS16(UDSum + 8, 4) * (int16) LinUDIntFactor + 128, 8);
+		Temp = SRS16(SRS16(UDSum, 4) * (int16) LinUDIntFactor, 8);
 		if( (BlinkCount & 0x0003) == 0 )	
 			if( Temp > Vud ) 
 				Vud++;
@@ -120,9 +120,9 @@ void AccelerationCompensation(void)
 
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
-		Rp -= SRS16(RollSum * 11 + 16, 5);
+		Rp -= SRS16(RollSum * 11, 5);
 		#else // OPT_IDG
-		Rp -= SRS16(RollSum * (-15) + 16, 5); 
+		Rp -= SRS16(RollSum * (-15), 5); 
 		#endif
 	
 		#ifndef ENABLE_DYNAMIC_MASS_COMP_ROLL
@@ -154,9 +154,9 @@ void AccelerationCompensation(void)
 
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
-		Pp -= SRS16(PitchSum * 11 + 16, 5);	
+		Pp -= SRS16(PitchSum * 11, 5);	
 		#else // OPT_IDG
-		Pp -= SRS16(PitchSum * (-15) + 16, 5);
+		Pp -= SRS16(PitchSum * (-15), 5);
 		#endif
 		
 		#ifndef ENABLE_DYNAMIC_MASS_COMP_PITCH
