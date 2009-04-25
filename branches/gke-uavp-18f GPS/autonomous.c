@@ -55,7 +55,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// BEWARE magic numbers for integer artihmetic
 
 	int32 Temp;
-	int16 Angle, Range, EastDiff, NorthDiff;
+	int16 Angle, Range, EastDiff, NorthDiff, Heading;
 
 	if ( _NavComputed ) // use previous corrections
 	{
@@ -66,6 +66,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	{
 		EastDiff = GPSEastWay - GPSEast;
 		NorthDiff = GPSNorthWay - GPSNorth;
+		Heading = CompassHeading - GPSMagVariation;
 	
 		if ( (Abs(EastDiff) !=0 ) || (Abs(NorthDiff) != 0 ))
 		{ 
@@ -75,7 +76,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			else
 				Range = NAV_CLOSING_RADIUS;
 			
-			Angle = Make2Pi(int16atan2(EastDiff, NorthDiff) - CompassHeading);
+			Angle = Make2Pi(int16atan2(EastDiff, NorthDiff) - Heading);
 		
 			Temp = ((int32)Range * NavKp )>>8; // always +ve so can use >>
 	
@@ -103,7 +104,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 void CheckAutonomous(void)
 {
 	#ifdef FAKE_GPS
-	int16 CosH, SinH, NorthD, EastD, A;
+	int16 CosH, SinH, NorthD, EastD, A, Heading;
 
 	_GPSValid = true;
 
@@ -175,29 +176,38 @@ void CheckAutonomous(void)
 
 	if(  BlinkCount >= FakeGPSCount )
 	{
+
+		Heading = CompassHeading - GPSMagVariation;
+
 		FakeGPSCount = BlinkCount + 50;
-		CosH = int16cos(CompassHeading);
-		SinH = int16sin(CompassHeading);
+		CosH = int16cos(Heading);
+		SinH = int16sin(Heading);
 		GPSEast += ((int32)(-DesiredPitch) * SinH + 128)/256;
 		GPSNorth += ((int32)(-DesiredPitch) * CosH + 128)/256;
 	
-		A = Make2Pi(CompassHeading + HALFMILLIPI);
+		A = Make2Pi(Heading + HALFMILLIPI);
 		CosH = int16cos(A);
 		SinH = int16sin(A);
 		GPSEast += ((int32)DesiredRoll * SinH + 128) / 256L;
 		GPSEast += FAKE_EAST_WIND; // wind	
 		GPSNorth += ((int32)DesiredRoll * CosH + 128) / 256L;
 		GPSNorth += FAKE_NORTH_WIND; // wind	
-		GPSAltitude = 1000; // 100M
-	
+
+		#ifdef GPS_USE_RMC
+		GPSMagVariation = 0;
+		GPSGroundSpeed = 99;
+		GPSHeading = 99;
+		#else
 		GPSFix = 2;
 		GPSHDilute = 0.0;
 		GPSNoOfSats = 99;
+		GPSAltitude = 1000; // 100M
+		#endif
 
 		_GPSValid = true;
 		_NavComputed = false;
 
-		TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, ' ');
+		TxVal32((int32)((int32)Heading*180L)/(int32)MILLIPI, 0, ' ');
 		if ( _CompassMisRead )
 			TxChar('?');
 		else

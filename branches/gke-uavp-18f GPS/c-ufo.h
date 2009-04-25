@@ -148,6 +148,7 @@
 // DO NOT CHANGE
 #ifdef ENABLE_AUTONOMOUS
 	#define USE_GPS
+	#define GPS_USE_RMC
 	#define GPS_NMEA
 #endif
 	
@@ -563,10 +564,16 @@ extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDSum;
 
 // GPS
-extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSAltitude;
-extern int16 GPSHDilute;
-extern uint8 GPSFix;
+#ifdef GPS_USE_RMC
+extern uint8 GPSMode;
+extern int16 GPSGroundSpeed, GPSMagVariation, GPSHeading;
+#else
 extern uint8 GPSNoOfSats;
+extern uint8 GPSFix;
+extern int16 GPSHDilute;
+#endif // GPS_USE_RMC
+extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+
 // Failsafes
 extern uint8	ThrNeutral;
 			

@@ -36,11 +36,19 @@ void UpdateGPS(void);
 
 #pragma udata gpsvars
 boolean GPSSentenceReceived;
+
+#ifdef GPS_USE_RMC
+uint8 GPSMode;
+int16 GPSGroundSpeed, GPSMagVariation, GPSHeading;
+#else
+uint8 GPSNoOfSats;
 uint8 GPSFix;
 int16 GPSHDilute;
+#endif // GPS_USE_RMC
+
 int32 GPSOriginLatitude, GPSOriginLongitude;
 int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
-int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSGroundSpeed;
+int16 GPSAltitude, GPSOriginAltitude;
 #pragma udata
 
 #ifdef USE_GPS
@@ -49,7 +57,6 @@ int16 GPSHeading, GPSAltitude, GPSOriginAltitude, GPSGroundSpeed;
 #pragma udata gpsvars2
 int8 ValidGPSSentences;
 //int32 GPSStartTime, GPSMissionTime;
-uint8 GPSNoOfSats;
 #pragma udata
 
 // Include decoding of time etc.
@@ -69,7 +76,11 @@ uint8 ch, GPSRxBuffer[GPSRXBUFFLENGTH];
 uint8 cc, ll, tt, lo, hi;
 
 #define MAXTAGINDEX 4
-const uint8 GPGGATag[6]= {"GPGGA"}; 				// full positioning fix
+#ifdef GPS_USE_RMC
+const uint8 GPSTag[6]= {"GPRMC"}; 				// min GNSS data
+#else
+const uint8 GPSTag[6]= {"GPGGA"}; 				// full positioning fix
+#endif
 
 boolean EmptyField;
 uint8 GPSTxCheckSum, GPSRxCheckSum, GPSCheckSumChar;
@@ -141,6 +152,91 @@ void UpdateField()
 	EmptyField=(hi<lo);
 } // UpdateField
 
+
+#ifdef GPS_USE_RMC
+
+void ParseGPSSentence()
+{ 	// $GPRMC Recommended minimum specific GNSS data 
+	int32 GPSLatitude, GPSLongitude;
+
+	#ifdef FAKE_GPS
+
+	_GPSValid = true;
+
+	#else
+
+    UpdateField();
+    
+    UpdateField();   //UTime
+	#ifdef NMEA_ALL
+	GPSMissionTime=ConvertUTime(lo,hi);
+	#else
+//	GPSMissionTime = 0;
+	#endif // NMEA_ALL  
+
+	UpdateField();	// Status
+	_GPSValid = (GPSRxBuffer[lo]=='A');    
+
+	UpdateField();   //Lat
+    GPSLatitude = ConvertLatLonM(lo,hi);
+    UpdateField();   //LatH
+    if (GPSRxBuffer[lo]=='S')
+      	GPSLatitude = -GPSLatitude;
+
+    UpdateField();   //Lon
+    // no latitude compensation on longitude - yet!   
+    GPSLongitude = ConvertLatLonM(lo,hi);
+    UpdateField();   //LonH
+	if (GPSRxBuffer[lo]=='W')
+      	GPSLongitude = -GPSLongitude;
+         
+    UpdateField();   //Speed over Ground in Knots
+	GPSGroundSpeed = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi);
+	GPSGroundSpeed = GPSGroundSpeed * 515 / 1000L; // Decimetres/Sec
+
+    UpdateField();   //Course over ground
+    GPSHeading = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi);
+	GPSHeading = ((int32)GPSHeading * MILLIPI)/1800L;
+
+    UpdateField();   // Date
+
+	UpdateField();
+	GPSMagVariation = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi);
+	GPSMagVariation = ((int32)GPSMagVariation * MILLIPI)/1800L; 
+
+    UpdateField();   // Mag Var Units
+	if (GPSRxBuffer[lo]=='W')
+		GPSMagVariation = -GPSMagVariation;
+
+	UpdateField();   // Mode (A,D,E)
+	GPSMode = GPSRxBuffer[lo];
+    
+	if ( _GPSValid )
+	{
+	    if ( ValidGPSSentences < INITIAL_GPS_SENTENCES )
+		{
+			_GPSValid = false;
+			ValidGPSSentences++;
+	
+	//		GPSStartTime=GPSMissionTime;
+	      	GPSOriginLatitude = GPSLatitude;
+	      	GPSOriginLongitude = GPSLongitude;
+	
+			// No Longitude correction i.e. Cos(Latitude)
+	
+		}
+
+		// all cordinates in 0.0001 Minutes relative to Origin
+		GPSNorth = GPSLatitude - GPSOriginLatitude;
+		GPSEast = GPSLongitude - GPSOriginLongitude;
+		GPSAltitude = 0; 
+	}
+	#endif //  FAKE_GPS
+
+} // ParseGPSSentence
+
+#else
+
 void ParseGPSSentence()
 { 	// full position $GPGGA fix 
 	int32 GPSLatitude, GPSLongitude;
@@ -167,7 +263,7 @@ void ParseGPSSentence()
       	GPSLatitude = -GPSLatitude;
 
     UpdateField();   //Lon
-    // no latitude compensation on longitude    
+    // no latitude compensation on longitude - yet!    
     GPSLongitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LonH
 	if (GPSRxBuffer[lo]=='W')
@@ -216,6 +312,8 @@ void ParseGPSSentence()
 	#endif //  FAKE_GPS
 
 } // ParseGPSSentence
+
+#endif // GPS_USE_RMC
 
 void PollGPS(void)
 {
@@ -266,7 +364,7 @@ void PollGPS(void)
 	    case WaitGPSTag:
 	      {
 	      ch=RxChar(); RxCheckSum^=ch;
-	      if (ch==GPGGATag[tt])
+	      if (ch==GPSTag[tt])
 	        if (tt==MAXTAGINDEX)
 	          GPSRxState=WaitGPSBody;
 	        else
@@ -296,19 +394,27 @@ void InitGPS()
 { 
 	uint8 c;
 
-	GPSEast = GPSNorth = 0;
-	GPSNoOfSats = 0;
-	GPSFix = 0;
-	GPSSentenceReceived=false;
-	ValidGPSSentences = 0;
-//	FirstGPSSentence = true;
-	_GPSValid = false; 
-	GPSCount = 0;
-	FakeGPSCount = 100;
-  	GPSRxState=WaitGPSSentinel; 
-  	ll=0;
+	ll=0;
   	cc=ll;
   	ch=' ';
+
+	#ifdef GPS_USE_RMC
+	GPSMode = 'X';
+	GPSHeading = GPSMagVariation = GPSGroundSpeed = 0;
+	#else
+	GPSFix = GPSNoOfSats = GPSHDilute = 0;
+	#endif // GPS_USE_RMC
+
+	GPSEast = GPSNorth = 0;
+
+	ValidGPSSentences = 0;
+	GPSCount = 0;
+	FakeGPSCount = 100;
+
+	_GPSValid = false; 
+	GPSSentenceReceived=false;
+  	GPSRxState=WaitGPSSentinel; 
+  	
 } // InitGPS
 
 void UpdateGPS(void)

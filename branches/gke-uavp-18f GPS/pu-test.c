@@ -308,8 +308,9 @@ void DoCompassTest()
 	v = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
 	I2CStop();
 
+	TxString("Not corrected for orientation on airframe\r\n");
 	TxVal32((int32)v, 1, 0);
-	TxString(" deg (not corrected for orientation on airframe)\r\n");
+	TxString(" deg\r\n");
 
 		
 	return;
@@ -433,7 +434,7 @@ void GPSTest(void)
 				DesiredRoll = DesiredPitch = 0;
 
 			GetDirection();
-//CompassHeading +=MILLIPI/32;
+//Heading +=MILLIPI/32;
 			Navigate(0, 0);
 
 			TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, 0);
@@ -441,7 +442,18 @@ void GPSTest(void)
 				TxChar('?');
 			else
 				TxChar(' ');
+			
+			#ifdef GPS_USE_RMC
+	
+			TxString(" h=");
+			TxVal32((int32)((int32)GPSHeading*180L)/(int32)MILLIPI, 0, 0);
+			TxString(" mv=");
+			TxVal32((int32)((int32)GPSMagVariation*180L)/(int32)MILLIPI, 0, 0);	
 
+			TxString(" mode=");
+			TxChar(GPSMode);
+					
+			#else
 			TxString(" fx=");
 			TxVal32(GPSFix, 0, 0);
 
@@ -453,6 +465,7 @@ void GPSTest(void)
 
 			TxString("ra=");
 			TxVal32(GPSAltitude, 1, 0);
+			#endif // GPS_USE_RMC
 
 			TxString("\t ");
 			TxVal32(Abs(ConvertGPSToM(GPSNorth)), 0, 0);
