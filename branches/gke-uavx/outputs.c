@@ -1,11 +1,10 @@
 // =======================================================================
-// =                                 UAVX                                =
-// =                         Quadrocopter Control                        =
+// =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                             =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -20,64 +19,26 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-// Motor control routine
-// WARNING THESE ROUTINES USE CLOCK AND PIC SPECIFIC DEAD TIMING
+// Utilities and subroutines
 
-#include "UAVX.h"
+#define MAGICNUMBER 84
 
-// Prototypes
-void OutSignals(void);
-void EscI2CDelay(void);
-void EscI2CStart(void);
-void EscI2CStop(void);
-void EscWaitClkHi(void);
-void SendEscI2CByte(uint8);
-void DoPWMFrame(void);
-void CheckFrameOverrun(void);
-void MixAndLimitCam(void);
-void MixAndLimitMotors(void);
+#include "uavx.h"
 
-// Defines
+uint8 SaturInt(int16 l)
+{
+	int16 r;
 
-#define	PulseFront		0
-#define	PulseLeft		1
-#define	PulseRight		2
-#define	PulseBack		3
+	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
+	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
+	#endif
 
-#define	PulseCamRoll	4
-#define	PulseCamPitch	5
-
-#ifdef ESC_PWM 	// bits 0 to 5 of PORTB
-	#define PWM_MASK 0x0f
-	#define PWM_MASK_CAM 0x3f
-#else			// bits 4 to 5 of PORTB
-	#define PWM_MASK 0x00
-	#define PWM_MASK_CAM 0x30
-#endif // ESC_PWM
-
-#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
-// Wolfgang's SW I2C ESC
-#define	 ESC_SDA		PORTBbits.RB1
-#define	 ESC_SCL		PORTBbits.RB2
-#define	 ESC_DIO		TRISBbits.TRISB1
-#define	 ESC_CIO		TRISBbits.TRISB2
-#endif
-
-enum MotorTags {Front, Left, Right, Back};
-#define NoOfMotors 4
-
-#pragma udata assembly_language=0x080 
-uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-#pragma udata
-
-#pragma udata outputvars
-// PWM output
-uint8 PWMPostPulse;  				// Set if performing the initial 1mS of a PWM pulse
-uint8 volatile EmitPWMFrame;		// Enable the output of a single PWM frame
-int16	DesiredCamRoll, DesiredCamPitch;
-int16	Motor[NoOfMotors];
-uint8	MCamPitch, MCamRoll;
-#pragma udata
+	#ifdef ESC_X3D
+	l -= _Minimum;
+	r = Limit(l, 1, 200);
+	#endif
+	return((uint8) r);
+} // SaturInt
 
 void DoMix(int16 CurrThrottle)
 {
@@ -94,21 +55,14 @@ void DoMix(int16 CurrThrottle)
 		Motor[Left] +=   Pl - Rl - Yl;
 		Motor[Right] += -Pl + Rl - Yl;
 		Motor[Front] += -Pl - Rl + Yl;
-		Motor[Back] +=   Pl + Rl + Yl; //*
+		Motor[Back] +=   Pl + Rl + Yl; 
 	}
 	else
-	{	// "Plus" Mode
-		#ifdef MOUNT_45
-		Motor[Left]  += -Rl - Pl - Yl; //*	
-		Motor[Right] +=  Rl + Pl - Yl;
-		Motor[Front] +=  Rl - Pl + Yl;
-		Motor[Back]  += -Rl + Pl + Yl;	
-		#else
+	{	// Normal "Plus" Mode
 		Motor[Left]  += -Rl - Yl;	
 		Motor[Right] +=  Rl - Yl;
 		Motor[Front] += -Pl + Yl;
 		Motor[Back]  +=  Pl + Yl;
-		#endif
 	}
 
 	#else	// TRICOPTER
@@ -136,23 +90,29 @@ void CheckDemand(int16 CurrThrottle)
 
 	DemandSwing = MaxMotor - CurrThrottle;
 
-	if ( DemandSwing > 0 )
-	{		
-		ScaleHigh = (( OUT_MAXIMUM - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
-		ScaleLow = (( (int24)CurrThrottle - MotorLowRun) * 256 )/ DemandSwing;
-		Scale = Min(ScaleHigh, ScaleLow);
-		if ( Scale < 256 )
-		{
-			MotorDemandRescale = true;
-			Rl = (Rl * Scale + 128)/256;  
-			Pl = (Pl * Scale + 128)/256; 
-			Yl = (Yl * Scale + 128)/256; 
-		}
-		else
-			 MotorDemandRescale = false;	
+	if ( CurrThrottle < MotorLowRun )
+	{
+		Scale = 0;
+		MotorDemandRescale = true;
 	}
 	else
-		MotorDemandRescale = false;	
+		if ( DemandSwing > 0 )
+		{		
+			ScaleHigh = (( _Maximum - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
+			ScaleLow = (( (int24)CurrThrottle - MotorLowRun) * 256 )/ DemandSwing;
+			Scale = Min(ScaleHigh, ScaleLow);
+			if ( Scale < 256 )
+			{
+				MotorDemandRescale = true;
+				Rl = (Rl * Scale + 128)/256;  
+				Pl = (Pl * Scale + 128)/256; 
+				Yl = (Yl * Scale + 128)/256; 
+			}
+			else
+				 MotorDemandRescale = false;	
+		}
+		else
+			MotorDemandRescale = false;	
 
 } // CheckDemand
 
@@ -161,8 +121,8 @@ void MixAndLimitMotors(void)
     int16 Temp, CurrThrottle;
 
 	// Altitude stabilization factor
-	CurrThrottle = DesiredThrottle; //+ (Vud + VBaroSum); // vertical compensation not optional
-	CurrThrottle = Limit(CurrThrottle, 0, (int16)(OUT_MAXIMUM * 90 + 50) / 100); // 10% headroom for control
+	CurrThrottle = DesiredThrottle + (Vud + VBaroComp); // vertical compensation not optional
+	CurrThrottle = Limit(CurrThrottle, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
 
 	DoMix(CurrThrottle);
 
@@ -171,148 +131,172 @@ void MixAndLimitMotors(void)
 	if ( MotorDemandRescale )
 		DoMix(CurrThrottle);
 
-} // MixAndLimit
+	Motor[Front] = SaturInt(Motor[Front]);
+	Motor[Back] = SaturInt(Motor[Back]);
+	Motor[Left] = SaturInt(Motor[Left]);
+	Motor[Right] = SaturInt(Motor[Right]);
+
+} // MixAndLimitMotors
 
 void MixAndLimitCam(void)
 {
-	int24 Rp, Pp;
+	int16 Cr, Cp;
 
-	if ((CamKi != 0) & _MotorsEnabled )
+	// use only roll/pitch angle estimates
+	if( (IntegralCount == 0) && ((CamRollFactor != 0) || (CamPitchFactor != 0)) )
 	{
-		Rp = RollAngle/CamKi;
-		Pp = PitchAngle/CamKi;
+		Cr = RollSum / (int16)CamRollFactor;
+		Cp = PitchSum / (int16)CamPitchFactor;
 	}
 	else
-		Rp = Pp = 0;
+		Cr = Cp = _Minimum;
 
 	if( _UseCh7Trigger )
-		Rp += RC_NEUTRAL;
+		Cr += _Neutral;
 	else
-		Rp += DesiredCamRoll;
+		Cr += IK7;
 		
-	Pp += DesiredCamPitch;
+	Cp += IK6;		// only Pitch servo is controlled by channel 6
 
-	MCamRoll = Limit(Rp, OUT_MINIMUM , OUT_MAXIMUM);
-	MCamPitch = Limit(Pp, OUT_MINIMUM , OUT_MAXIMUM);
+	MCamRoll = Limit(Cr, _Minimum, _Maximum);
+	MCamPitch = Limit(Cp, _Minimum, _Maximum);
 
 } // MixAndLimitCam
 
-void DoPWMFrame(void)
-{
-	if ( EmitPWMFrame )
-		// embedding camera control every cycle and keeping total PWM
-		// interval less than 2mS reduces precision of output PWM to
-		// RC_MAXIMUM-OUT_MAXIMUM
-		if ( PWMPostPulse ) 
-		{	// must be less than minimum RC pulse capture inter-arrival
-			// locks out all other interrupts for < 1mS including GPS
-			_asm
-			MOVLB	0						// select Bank0
-OS005:					
-			MOVF	SHADOWB,0,1				// edges lock step
-			MOVWF	PORTB,0
-			ANDLW	PWM_MASK
-			BZ		OS006
-			
-			DECFSZ	MF,1,1					
-			GOTO	OS007
-			
-			BCF		SHADOWB,PulseFront,1
-OS007:
-			DECFSZ	ML,1,1				
-			GOTO	OS008
-			
-			BCF		SHADOWB,PulseLeft,1	
-OS008:
-			DECFSZ	MR,1,1	
-			GOTO	OS009
-			
-			BCF		SHADOWB,PulseRight,1
-OS009:
-			DECFSZ	MB,1,1				
-			GOTO	OS010
-				
-			BCF		SHADOWB,PulseBack,1				
-OS010:
-			DECFSZ	MT,1,1				
-			GOTO	OS011
-			
-			BCF		SHADOWB,PulseCamRoll,1	
-OS011:
-			DECFSZ	ME,1,1			
-			GOTO	OS005
-			
-			BCF		SHADOWB,PulseCamPitch,1
-			GOTO	OS005			
-OS006:				
-			_endasm
-
-			EmitPWMFrame = PWMPostPulse = false;
-		}
-		else
-		{
-			PWMPostPulse = true; 
-			if ( 1 ) // camera servo update
-				SHADOWB = PWM_MASK_CAM;
-			else		
-				SHADOWB = PWM_MASK;
-			PORTB |= SHADOWB;
-			// still possible for edge interrupts to squeeze in but 
-			// not if running synchronously with RC packets arriving!
-			// Only other interrupt is from GPS.
-		}
-} // DoPWMFrame
-
-void CheckFrameOverrun(void)
-{
-	if ( EmitPWMFrame )
-	{
-		// CATASTROPHE - Impulse Period or RC_FRAME_TIMEOUT too short for 
-		// whatever reason causing overrun of PWM output frames.
-
-		_MotorsEnabled = false;
-		MF = ML = MR = MB = OUT_MINIMUM;
-		MT = ME = OUT_NEUTRAL;
-		ALL_LEDS_ON;
-		mS[UpdateTimeout] = mS[Clock];
-
-		while ( 1 )
-			if ( mS[Clock] >= mS[UpdateTimeout] )
-			{
-				mS[UpdateTimeout] += RC_FRAME_TIMEOUT;
-				Beeper_TOG;
-				OutSignals();
-			}	
-	}
-} // CheckFrameOverrun
+#pragma udata assembly_language=0x080 
+uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+#pragma udata
 
 void OutSignals(void)
 {
-	// for positive PID coeffs MF/MB anticlockwise, ML/MR clockwise
+	#ifdef DEBUG_SENSORS
+	Trace[TIGas] = DesiredThrottle;
 
-	MixAndLimitMotors();
+	Trace[TIRoll] = DesiredRoll;
+	Trace[TIPitch] = DesiredPitch;
+	Trace[TIYaw] = DesiredYaw;
+
+	Trace[TMFront] = Motor[Front];
+	Trace[TMBack] = Motor[Back];
+	Trace[TMLeft] = Motor[Left];
+	Trace[TMRight] = Motor[Right];
+
+	Trace[TMCamRoll] = MCamRoll;
+	Trace[TMCamPitch] = MCamPitch;
+	#else // !DEBUG_SENSORS
+
+	WriteTimer0(0);
+	INTCONbits.TMR0IF = false;
+
+	#ifdef ESC_PPM
+	_asm
+	MOVLB	0						// select Bank0
+	MOVLW	0x0f					// turn on motors
+	MOVWF	SHADOWB,1
+	_endasm	
+	PORTB |= 0x0f;
+	#endif
 
 	MF = Motor[Front];
+	MB = Motor[Back];
 	ML = Motor[Left];
 	MR = Motor[Right];
-	MB = Motor[Back];
-
-	MixAndLimitCam();
 
 	MT = MCamRoll;
 	ME = MCamPitch;
-		
-#ifndef DEBUG
 
-	EmitPWMFrame = true;
+	#ifdef ESC_PPM
+
+	// simply wait for nearly 1 ms
+	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
+	while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; // 16
+
+	// now stop CCP1 interrupt
+	// capture can survive 1ms without service!
+
+	// Strictly only if the masked interrupt region below is
+	// less than the minimum valid Rx pulse/gap width which
+	// is 1027uS less capture time overheads
+
+	DisableInterrupts;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
+	while( !INTCONbits.TMR0IF ) ;	// wait for first overflow
+	INTCONbits.TMR0IF=0;		// quit TMR0 interrupt
+
+	if( _OutToggle )	// driver cam servos only every 2nd pulse
+	{
+		_asm
+		MOVLB	0					// select Bank0
+		MOVLW	0x3f				// turn on motors
+		MOVWF	SHADOWB,1
+		_endasm	
+		PORTB |= 0x3f;
+	}
+	_OutToggle ^= 1;
+
+// This loop is exactly 16 cycles int16
+// under no circumstances should the loop cycle time be changed
+_asm
+	MOVLB	0						// select Bank0
+OS005:
+	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
+	MOVWF	PORTB,0
+	ANDLW	0x0f
+	BZ		OS006
+			
+	DECFSZ	MF,1,1					// front motor
+	GOTO	OS007
+			
+	BCF		SHADOWB,PulseFront,1	// stop Front pulse
+OS007:
+	DECFSZ	ML,1,1					// left motor
+	GOTO	OS008
+			
+	BCF		SHADOWB,PulseLeft,1		// stop Left pulse
+OS008:
+	DECFSZ	MR,1,1					// right motor
+	GOTO	OS009
+			
+	BCF		SHADOWB,PulseRight,1	// stop Right pulse
+OS009:
+	DECFSZ	MB,1,1					// rear motor
+	GOTO	OS005
+				
+	BCF		SHADOWB,PulseBack,1		// stop Back pulse			
+
+	GOTO	OS005
+OS006:
+_endasm
+	// This will be the corresponding C code:
+	//	while( ALL_OUTPUTS != 0 )
+	//	{	// remain in loop as int16 as any output is still high
+	//		if( TMR2 = MFront  ) PulseFront  = 0;
+	//		if( TMR2 = MBack ) PulseBack = 0;
+	//		if( TMR2 = MLeft  ) PulseLeft  = 0;
+	//		if( TMR2 = MRight ) PulseRight = 0;
+	//	}
+
+	EnableInterrupts;	// Re-enable interrupt
+
+	#endif	// ESC_PPM
 
 	#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
-	
+
+	if( _OutToggle )	// driver cam servos only every 2nd pulse
+	{
+		_asm
+		MOVLB	0					// select Bank0
+		MOVLW	0x3f				// turn on motors
+		MOVWF	SHADOWB,1
+		_endasm	
+		PORTB |= 0x3f;
+	}
+	_OutToggle ^= 1;
+
 	// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
 	#ifdef ESC_X3D
 	EscI2CStart();
-	SendEscI2CByte(0x10);					// one command, 4 data bytes
-	SendEscI2CByte(MF); 					// for all motors
+	SendEscI2CByte(0x10);	// one command, 4 data bytes
+	SendEscI2CByte(MF); // for all motors
 	SendEscI2CByte(MB);
 	SendEscI2CByte(ML);
 	SendEscI2CByte(MR);
@@ -321,8 +305,8 @@ void OutSignals(void)
 
 	#ifdef ESC_HOLGER
 	EscI2CStart();
-	SendEscI2CByte(0x52);					// one cmd, one data byte per motor
-	SendEscI2CByte(MF); 					// for all motors
+	SendEscI2CByte(0x52);	// one cmd, one data byte per motor
+	SendEscI2CByte(MF); // for all motors
 	EscI2CStop();
 
 	EscI2CStart();
@@ -343,8 +327,8 @@ void OutSignals(void)
 
 	#ifdef ESC_YGEI2C
 	EscI2CStart();
-	SendEscI2CByte(0x62);					// one cmd, one data byte per motor
-	SendEscI2CByte(MF>>1); 					// for all motors
+	SendEscI2CByte(0x62);	// one cmd, one data byte per motor
+	SendEscI2CByte(MF>>1); // for all motors
 	EscI2CStop();
 
 	EscI2CStart();
@@ -365,21 +349,44 @@ void OutSignals(void)
 
 	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
 
-#endif	// !DEBUG
+	while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; 	// wait for 2nd TMR0 near overflow
 
+	INTCONbits.GIE = false;					// Int wieder sperren, wegen Jitter
+	while( !INTCONbits.TMR0IF ) ;		// wait for 2nd overflow (2 ms)
+
+	// This loop is exactly 16 cycles int16
+	// under no circumstances should the loop cycle time be changed
+_asm
+	MOVLB	0
+OS001:
+	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
+	MOVWF	PORTB,0
+	ANDLW	0x30		// output ports 4 and 5
+	BZ		OS002		// stop if all 2 outputs are 0
+
+	DECFSZ	MT,1,1
+	GOTO	OS003
+
+	BCF		SHADOWB,PulseCamRoll,1
+OS003:
+	DECFSZ	ME,1,1
+	GOTO	OS004
+
+	BCF		SHADOWB,PulseCamPitch,1
+OS004:
+_endasm
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+	Delay1TCY();
+_asm
+	GOTO	OS001
+OS002:
+_endasm
+
+	EnableInterrupts;	// re-enable interrupt
+
+#endif  // DEBUG_SENSORS
 } // OutSignals
 
-void InitOutputs(void)
-{
-	int8 i;
-
-	_MotorsEnabled = false;
-	for ( i = 0; i<NoOfMotors; i++ )
-		Motor[i] = OUT_MINIMUM;
-	MCamPitch = MCamRoll = OUT_NEUTRAL;
-
-	EmitPWMFrame = false;
-	PWMPostPulse = false;
-
-} // InitOutputs
 

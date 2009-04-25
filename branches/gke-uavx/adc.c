@@ -1,11 +1,10 @@
 // =======================================================================
-// =                                 UAVX                                =
-// =                         Quadrocopter Control                        =
+// =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                             =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -20,8 +19,7 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include "UAVX.h"
-#include <adc.h>
+#include "uavx.h"
 
 // Prototypes
 int16 ADC(uint8, uint8);
@@ -40,7 +38,6 @@ int16 ADC(uint8 Channel, uint8 VRef)
 	Result=ReadADC();
 
 	return (Result); 
-
 } // ADC
 
 void InitADC()

@@ -180,11 +180,52 @@ UAVX ********************************************************************
   with UAVPSet and gyro compensation the latter to be 
   reformulated later. 
 
-  Control flow schemes rewritten for loss of signal and GPS.
-  Adoption of pose angle control rather than hover with 
-  direct control throttle offset.   
+29.03.2009 UAVX Greg Egan
+- Replaced old motor mixing scheme. Added battery alarm to
+  TestSoftware. Improved vertical velocity damping scheme.
 
-  Redesignated UAVX to avoid confusion with original UAVP.
+01.04.2009 UAVX Greg Egan
+- Added single trace file under DEBUG_Sensors version.
+  These are all 16 bit signed and may be displayed using the 
+  hidden (bottom blank) option in the UAVPSet tools pulldown menu. 
+  The trace values in order are:
+
+   1  Heading Error
+   2  Baro Comp
+   3  Baro Rel Pressure
+   4  Roll Rate
+   5  Pitch Rate
+   6  Yaw Error
+   7  Roll Angle
+   8  Pitch Angle
+   9  Yaw Angle
+  10  Acceleration Left
+  11  Accleration Back
+  12  Accleration Up
+  13  Vertical Velocity
+  14  Vert Comp
+  15  Stick Gas
+  16  Stick Roll
+  17  Stick Pitch
+  18  Stick Yaw
+  19  Motor Front
+  20  Motor Back
+  21  Motor Left
+  22  Motor Right
+  23  TMCamRoll 
+  24  TMCamPitch
+  25  LastTrace
+
+  DEBUG_Motors removed.
+
+03.04.2009 UAVX Greg Egan
+- Added NMEA GPS test to test and flight software.
+  Reduced baud rates to 9600b to make inter-character 
+  delay greater than 1mS to avoid Rx capture clash.
+
+25.04.2009 UAVX Greg Egan
+- Cutover to UAVX from final version of UAVPm3.
+- GPS based navigation included with station holding and return to home.
   
 =========================================================================
  SAFETY FIRST!                              

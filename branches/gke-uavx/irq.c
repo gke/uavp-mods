@@ -1,11 +1,10 @@
 // =======================================================================
-// =                                 UAVX                                =
-// =                         Quadrocopter Control                        =
+// =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                             =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -20,100 +19,61 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include "UAVX.h"
 
-// Prototypes
-void InitTimersAndInterrupts(void);
-//uint24 mSClock(void);
-void MapRC(void);
-void low_isr_handler(void);
-void high_isr_handler(void);
+// Interrupt routine
+// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
+// use at your own risk - see GPL.
 
-// Defines
+// The 64uS assumed for the maximum interrupt latency in the generation of the 
+// output pulse preamble in utils.c  most likely applies to the Timer0 interrupt. 
+// The original version of irq.c had a much longer path through the receiving of bit5 
+// exacerbated by the stick filter code. This caused the edge of the 1mS preamble to 
+// be peridocally missed and for the OutSignals routine to emit preambles greater 
+// than 1mS. GKE
 
-#define MIN_PPM_SYNC_PAUSE 2500  	/* 2500 *2us = 5ms */
+#include "uavx.h"
 
-#define OUT_CHANNELS 6				/* hardware LIMIT  do not change */
-#define PPM_CHANNELS 9
+// Interrupt Routine
 
-// Variables
-
-// Timers
-#pragma udata clocks
-uint24 	mS[CompassUpdate+1];
+#pragma udata isrvars
+int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
+int8	RCState;
+int24	PrevEdge, CurrEdge;
+int16 	Width;
 #pragma udata
 
-// Received PPM
-uint8 PPM[PPM_CHANNELS];
-uint8 PPM_Index;					// Index into PPM[]
-uint8 volatile RC_Channels;			// The number of bits in the RC frame 
-int24 volatile RCGlitches;			// The number of under/over sizes pulses received.
-int24 PrevEdge;						// The time at which the previous RC pulse edge occured.
-uint8 RCFrameOK;	
-
-// Remapped PPM
-int16	RC[CONTROLS];				// Remapped PPM[] depending on actual receiver channel ordering
-
-// Serial Input
+#pragma udata rxfifo
 uint8 RxCheckSum, RxHead, RxTail;
 uint8 RxBuff[RXBUFFMASK+1];
+#pragma udata 
 
-void InitTimersAndInterrupts()
+
+void ReceivingGPSOnly(uint8 r)
 {
-	uint8 c;
+	if ( r != _ReceivingGPS )
+	{
+		_ReceivingGPS = r;
+   		PIE1bits.RCIE = r;
+		Delay1mS(10);				// switch bounce
+	}
+} // ReceivingGPSOnly
 
+void InitTimersAndInterrupts(void)
+{
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
-	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge		
+
+	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 	CCP1CONbits.CCP1M0 = NegativePPM;
 
-	for (c = 0; c < PPM_CHANNELS; c++) PPM[c]  = 0;
+	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
+	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
-	for (c = 0; c < CONTROLS; c++) RC[c] = 0;
-	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;
-
-	RC_Channels = 0;
-	RCGlitches = 0;
-
-	PPM_Index =0;
-	PrevEdge = 0;
-
-	_Signal = _NewValues = false;
-
-	
 	RxCheckSum = RxHead = RxTail = 0;
-   	PIE1bits.RCIE = false;
-
-	INTCONbits.TMR0IE = true;
-	INTCONbits.PEIE = true;
-
-	for (c = Clock; c<=CompassUpdate; c++ )
-		mS[c] = 0;
-
-	EnableInterrupts;	
+   	ReceivingGPSOnly(false);
 
 } // InitTimersAndInterrupts
 
-void MapRC(void)
-{  // re-maps captured PPM to Rx channel sequence
-	uint8 c;
-
-	for (c = 0 ; c < CONTROLS ; c++)
-		RC[c] = RCFilter(RC[c], PPM[Map[FutabaMode][c]]);
-
-} // MapRC
-
-/*
-uint24 mSClock(void)
-{ // make clock access atomic - assumes interrupts are always ON
-	uint24 c;
-
-	//DisableInterrupts;
-	c = mS[Clock];
-	//EnableInterrupts;
-	return(c);
-}  // mSClock
-*/
 
 #pragma interrupt low_isr_handler
 void low_isr_handler(void)
@@ -123,80 +83,158 @@ void low_isr_handler(void)
 
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
-{	
-	uint16 	Width, CurrCCPR1;
+{
 	uint8 ch;
 		
-	if( INTCONbits.T0IF )
-	{ 
-		DoPWMFrame();	
-#ifdef DUMMY_GPS
-PollGPS();
-#endif
-		mS[Clock]++;
-		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal )
-		{
-			RC_Channels = 0;
-			_Signal = false;
-		}	
-		INTCONbits.T0IF = 0;
-	}
-		 
-	if( PIR1bits.CCP1IF && PIE1bits.CCP1IE ) // A captured RC edge has been detected
+	// For 2.4GHz systems see README_DSM2_ETC.
+	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
-		CurrCCPR1 = CCPR1;
-		if ( CurrCCPR1 < PrevEdge )
-			PrevEdge -= 0xffff;	// Deal with wraparound
-
-		Width = CurrCCPR1 - PrevEdge;
-		PrevEdge = CurrCCPR1;		
-
-		if ( Width > MIN_PPM_SYNC_PAUSE ) 		// A pause in 2us ticks > 5ms 
+		PIR1bits.TMR2IF = false;	// quit int
+		#ifndef RX_PPM				// single PPM pulse train from receiver
+		if( _FirstTimeout )			// 5 ms have been gone by...
 		{
-			RC_Channels = PPM_Index;
-			PPM_Index = 0;						// Sync pulse detected - next CH is CH1
-			RCFrameOK = true; 
+			PR2 = TMR2_5MS;			// set compare reg to 5ms
+			goto ErrorRestart;
 		}
-		else // An actual channel -- Record the variable part of the PWM time 
-			if (PPM_Index < PPM_CHANNELS)
-			{	
-				Width >>= 1; 					// Width in 4us ticks.				
+		_FirstTimeout = true;
+		PR2 = TMR2_14MS;			// set compare reg to 14ms
+		#endif
+		RCState = 0;
+	}
 
-				if ( Upper8(Width) == 1 ) 		// Check pulse is 1.024 to 2.048mS
+	if( PIR1bits.CCP1IF )
+	{
+		TMR2 = 0;					// re-set timer and postscaler
+		PIR1bits.TMR2IF = false;	// quit int
+		_FirstTimeout = false;
+
+		CurrEdge = CCPR1;
+		if ( CurrEdge < PrevEdge )
+			PrevEdge -= 0xffff;		// Deal with Timer1 wraparound
+		Width = (CurrEdge - PrevEdge) >> 1;
+		PrevEdge = CurrEdge;
+		
+		switch ( RCState )
+		{
+			case 0: break;
+			case 1: NewK1 = Width; break;
+			case 2: NewK2 = Width; break;
+			case 3: NewK3 = Width; break;
+			case 4: NewK4 = Width; break;
+			case 5:
+			{
+				NewK5 = Width;
+				// sanity check - NewKx has values in 4us units now. 
+				// content must be 256..511 (1024-2047us)
+				if( ((NewK1 >>8 ) == 1) &&
+				    ((NewK2 >>8 ) == 1) &&
+				    ((NewK3 >>8 ) == 1) &&
+				    ((NewK4 >>8 ) == 1) &&
+				    ((NewK5 >>8 ) == 1) )
 				{
-					Width = Lower8(Width); 		// Limit to 0 to 1.024mS  
-					if (Width > RC_MAXIMUM)
-						Width = RC_MAXIMUM;  	// limit maximum for symmetry around RC_NEUTRAL 0.5mS
-					PPM[PPM_Index] = Width;	
+					#ifndef RX_DSM2									
+					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
+					{
+						IGas = NewK3 & 0xff;
+						IRoll = (NewK1 & 0xff) - (int16)_Neutral;
+						IPitch = (NewK2 & 0xff) - (int16)_Neutral;
+					}
+					else
+					{
+						IGas  = NewK1  & 0xff;
+						IRoll = (NewK2 & 0xff) - (int16)_Neutral;
+						IPitch = (NewK3 & 0xff) - (int16)_Neutral;
+					}
+					IYaw = (NewK4 & 0xff) - (int16)_Neutral;					
+					IK5 = NewK5 & 0xff;
+
+					_Signal = _NewValues = true; // potentially IK6 & IK7 are still about to change ???
+					#endif // !RX_DSM2
+					break;
 				}
-				else
-				{
-					// preserve old value i.e. default hold
-					RCGlitches++;
-					RCFrameOK = false;
-				}
-				PPM_Index++;
-				// must demand rock solid RC frames for autonomous functions not
-				// to be cancelled by noise-generated partially correct frames
-				if ((PPM_Index == RC_MIN_CHANNELS) && RCFrameOK )
-				{
-#ifndef DUMMY_GPS
-					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
-					_Signal = true;	  
-					_NewValues = true;
-#endif
-				}	
+				else	// values are unsafe
+					goto ErrorRestart;
 			}
+			case 6:
+			{
+				NewK6 = Width;		
+				#ifdef RX_DSM2
+				if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
+					goto ErrorRestart;
+				#else
+				IK6 = NewK6 & 0xff;
+				#endif // RX_DSM2
+				break;	
+			}
+			case 7:
+			{
+				NewK7 = Width;	
+				#ifdef RX_DSM2
+				if ( (NewK7>>8) !=1)	
+					goto ErrorRestart;
 
-		#ifndef RX_PPM							
-		CCP1CONbits.CCP1M0 ^= 1;				// For Composite PPM signal not using wired OR
-		#endif // RX_PPM
-		PIR1bits.CCP1IF = false;				// Clear this interrupt flag for next time around 
-	}	
+				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
+				{
+			//EDIT FROM HERE ->
+			// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
+					IGas = NewK5 & 0xff;
+
+					IRoll = (NewK3 & 0xff) - (int16)_Neutral; 
+					IPitch = (NewK2 & 0xff) - (int16)_Neutral;
+					IYaw = (NewK1 & 0xff) - (int16)_Neutral;
+
+					IK5 = NewK6 & 0xff; // do not filter
+					IK6 = NewK4 & 0xff;
+					IK7 = NewK7 & 0xff;
+			// TO HERE
+				}
+				else // Reference 2.4GHz configuration DX7 Tx and AR7000 Rx
+				{
+					IGas = NewK6 & 0xff;
+
+					IRoll = (int16)(NewK1 & 0xff) - (int16)_Neutral; 
+					IPitch = (int16)(NewK4 & 0xff) - (int16)_Neutral;
+					IYaw = (int16)(NewK7 & 0xff) - (int16)_Neutral;
+
+					IK5 = NewK3 & 0xff; // do not filter
+					IK6 = NewK5 & 0xff;
+					IK7 = NewK2 & 0xff;
+				}	
+
+				_Signal = _NewValues = true;
+				#else				
+				IK7 = NewK7 & 0xff;
+				#endif // RX_DSM2 
+				RCState = -1;
+				break;
+			}
+			default: 
+			ErrorRestart:
+			{	
+				_Signal = _NewValues = false;	
+				RCGlitchCount++;
+				RCState = -1;
+				#ifndef RX_PPM
+				CCP1CONbits.CCP1M0 = NegativePPM;
+				#endif
+				break;
+			}
+		} // switch
+	
+		#ifndef RX_PPM				
+		CCP1CONbits.CCP1M0 ^= 1;
+		PR2 = TMR2_5MS;	
+		#endif
+
+		PIR1bits.CCP1IF = false;				// quit int
+		RCState++;
+	}
 
 	if (PIR1bits.RCIF && PIE1bits.RCIE)	// GPS and commands
 	{
-		if (RCSTAbits.OERR)
+		PIR1bits.RCIF = false;
+
+		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
 			ch = RCREG; // flush
 			RCSTAbits.CREN = false;
@@ -204,16 +242,21 @@ PollGPS();
 		}
 		else
 		{
+			ch = RCREG;
 			RxTail = (RxTail+1) & RXBUFFMASK;	// no check for overflow yet
-			RxBuff[RxTail] = RCREG;
+			RxBuff[RxTail] = ch;
 		}
-		PIR1bits.RCIF = false;
-		
-		#ifdef USE_GPS		
-		if ( Switch )
+			
+		if ( _ReceivingGPS )
 			PollGPS();
-		#endif // USE_GPS
 	} 	
+
+	if( INTCONbits.TMR0IE && INTCONbits.TMR0IF )
+	{
+		INTCONbits.TMR0IF = false;				// quit int
+		TimeSlot--;
+	}
+	
 } // high_isr_handler
 	
 #pragma code high_isr = 0x08
@@ -229,5 +272,4 @@ void low_isr (void)
   _asm goto low_isr_handler _endasm
 } // low_isr
 #pragma code
-
 

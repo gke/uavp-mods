@@ -20,129 +20,242 @@
 
 // Autonomous flight routines
 
-#include "UAVX.h"
+#include "uavx.h"
 
 // Prototypes
 void Descend(void);
-void DoAutonomous(void);
-void ParseGPSSentence(void);
-void ResetTimeOuts(void);
-uint8 RCLinkRestored(int24);
 void Navigate(int16, int16);
-void HoldStation(void);
+void CheckAutonomous(void);
 
 // Defines
 
-#define PROXIMITY	20
+#define NAV_CLOSING_RADIUS ( (int32)CLOSING_RADIUS * 5L )
+#define SQR_NAV_CLOSING_RADIUS ( NAV_CLOSING_RADIUS * NAV_CLOSING_RADIUS )
+#define NavKp (((int32)MAX_ANGLE * 256L ) / NAV_CLOSING_RADIUS )
+#define NavKi 1
 
 // Variables
-#ifdef DUMMY_GPS
-uint16 DummyGPSTimeout;
-#endif
+extern int8 ValidGPSSentences;
+extern boolean GPSSentenceReceived;
 
-void ResetTimeOuts(void)
+int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr;
+
+void GPSAltitudeHold(int16 DesiredAltitude)
 {
-	mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT;
-	mS[AutonomousTimeout] = mS[Clock] + AUTONOMOUS_TIMEOUT;
-	mS[ThrottleClosed] = mS[Clock] + THROTTLE_TIMEOUT;
-} // ResetTimeOuts
 
-uint8 RCLinkRestored(int24 d)
-{
-	uint24 TimerMilliSec;
 
-	// checks for good RC frames for a period d mS
-	if ( !_Signal )
-		TimerMilliSec = mS[Clock] + d;
-	return(mS[Clock] > TimerMilliSec );
-} // RCLinkRestored
+} // GPSAltitudeHold
 
 void Descend(void)
-{
-	if ( _UseBaro )
-	{
-        // if desired close to current then go lower
-		DesiredAltitude = Limit(CurrAltitude - 1, 0, 32000);
-		AltitudeHold(DesiredAltitude);
-	}
-	else
-		DesiredThrottle = 0; // safest	
+{	
+	if( (BlinkCount & 0x000f) == 0 )
+		DesiredThrottle = Limit(DesiredThrottle--, 0, _Maximum); // safest	
 } // Descend
-
-void AcquireSatellites(void)
-{
-	InitGPS();
-	LedBlue_ON;
-	#ifdef USE_GPS
-	while ( !_GPSValid )
-	{
-		if ( GPSSentenceReceived )
-		{
-			GPSSentenceReceived=false; 
-			ParseGPSSentence();
-		}
-	}
-	LedBlue_OFF;
-	#endif // USE_GPS
-
-	#ifdef DUMMY_GPS
-	RxHead = RxTail = 0;
-	DummyGPSTimeout = mS[Clock] + 1000;
-	#endif
-} // AcquireSatellites
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
 	// This routine does not point the quadrocopter at the destination
 	// waypoint. It simply rolls/pitches towards the destination
-	// To avoid cos/sin/arctan calls a simple look up process is used.
+	// cos/sin/arctan lookup tables are used for speed.
+	// BEWARE magic numbers for integer artihmetic
 
-	int16 Angle;
-	int16 RangeApprox;
-	int16 EastDiff, NorthDiff;
+	int32 Temp;
+	int16 Angle, Range, EastDiff, NorthDiff, Heading;
 
-	EastDiff = GPSEastWay - GPSEast;
-	NorthDiff = GPSNorthWay - GPSNorth;
-
-	RangeApprox = Limit(NorthDiff*NorthDiff + EastDiff*EastDiff, 0, PROXIMITY);
-		
-	Angle = int16atan2(EastDiff, NorthDiff) - CompassHeading;
-
-	DesiredRoll = -int16sin(Angle) * (MAX_ROLL * RangeApprox)/PROXIMITY;
-	DesiredPitch = -int16cos(Angle) * (MAX_PITCH * RangeApprox)/PROXIMITY;
-} // Navigate
-
-void HoldStation()
-{
-	if ( _GPSValid )
-	{ 
-		if ( !_HoldingStation )
-		{
-			GPSNorthHold = GPSNorth;
-			GPSEastHold = GPSEast;
-			_HoldingStation = true;
-		}		
-		Navigate(GPSNorthHold, GPSEastHold);
-	}
-
-	AltitudeHold(CurrAltitude);
-
-} // HoldStation
-
-void DoAutonomous(void)
-{
-#ifdef DUMMY_GPS
-	if ( _GPSValid )
-#else
-	if ( _GPSValid && _UseCompass )
-#endif
+	if ( _NavComputed ) // use previous corrections
 	{
-		Navigate(0, 0);
-		AltitudeHold(RETURN_ALT);
+		DesiredRoll = Limit(DesiredRoll + NavRCorr, -_Maximum, _Maximum);
+		DesiredPitch = Limit(DesiredPitch + NavPCorr, -_Maximum, _Maximum);
 	}
 	else
 	{
-		DesiredRoll = DesiredPitch = DesiredYawRate = 0;
-		Descend();
+		EastDiff = GPSEastWay - GPSEast;
+		NorthDiff = GPSNorthWay - GPSNorth;
+		Heading = CompassHeading - GPSMagVariation;
+	
+		if ( (Abs(EastDiff) !=0 ) || (Abs(NorthDiff) != 0 ))
+		{ 
+			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
+			if ( Range < NAV_CLOSING_RADIUS )
+				Range = int16sqrt( NorthDiff*NorthDiff + EastDiff*EastDiff); 
+			else
+				Range = NAV_CLOSING_RADIUS;
+			
+			Angle = Make2Pi(int16atan2(EastDiff, NorthDiff) - Heading);
+		
+			Temp = ((int32)Range * NavKp )>>8; // always +ve so can use >>
+	
+			NavRCorr = SRS32((int32)int16sin(Angle) * Temp, 8);			
+			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
+				SumNavRCorr = Limit (SumNavRCorr + Range, -(NavIntLimit)*256, NavIntLimit*256);
+			else
+				SumNavRCorr = 0;
+			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256;
+			DesiredRoll = Limit(DesiredRoll , -_Maximum, _Maximum);
+		
+			NavPCorr = SRS32(-(int32)int16cos(Angle) * Temp, 8);
+			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
+				SumNavPCorr = Limit (SumNavPCorr + Range, -(NavIntLimit*256), NavIntLimit*256);
+			else
+				SumNavPCorr = 0;
+			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256;
+			DesiredPitch = Limit(DesiredPitch , -_Maximum, _Maximum);
+
+			_NavComputed = true;
+		}
 	}
-} // DoAutonomous
+} // Navigate
+
+void CheckAutonomous(void)
+{
+	#ifdef FAKE_GPS
+	int16 CosH, SinH, NorthD, EastD, A, Heading;
+
+	_GPSValid = true;
+
+	#endif // FAKE_GPS
+
+	DesiredThrottle = IGas;
+	DesiredRoll = IRoll;
+	DesiredPitch = IPitch;
+	DesiredYaw = IYaw;
+
+	UpdateGPS();
+
+	if ( _Flying && !_Signal )
+	{ 
+		// NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
+	  	// do nothing - use Wolfgang's failsafe
+	}
+	else
+		if ( _GPSValid ) // && _UseCompass )
+			if ( IK5 > _Neutral )
+			{
+				_HoldingStation = false;
+				Navigate(0, 0);
+			}
+			else
+			#ifdef OVERRIDE_HOVER_CONDITION
+			{
+				if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
+					{
+						// acquire hold coordinates
+						GPSNorthHold = GPSNorth;
+						GPSEastHold = GPSEast;
+						SumNavRCorr= SumNavPCorr = 0;
+						_HoldingStation = true;
+						_NavComputed = false;
+					}		
+					Navigate(GPSNorthHold, GPSEastHold);
+			}
+			#else
+				if (_Hovering )
+				{
+					if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) || !_HoldingStation )
+
+					{
+						// acquire hold coordinates
+						GPSNorthHold = GPSNorth;
+						GPSEastHold = GPSEast;
+						SumNavRCorr= SumNavPCorr = 0;
+						_HoldingStation = true;
+						_NavComputed = false;
+					}		
+					Navigate(GPSNorthHold, GPSEastHold);
+				}
+				else
+				{
+					SumNavRCorr= SumNavPCorr = 0;
+					_HoldingStation = false;
+				}
+			#endif // OVERRIDE_HOVER_CONDITION
+
+	#ifdef FAKE_GPS
+
+	#define FAKE_NORTH_WIND 	0
+	#define FAKE_EAST_WIND 		0
+
+	if(  BlinkCount >= FakeGPSCount )
+	{
+
+		Heading = CompassHeading - GPSMagVariation;
+
+		FakeGPSCount = BlinkCount + 50;
+		CosH = int16cos(Heading);
+		SinH = int16sin(Heading);
+		GPSEast += ((int32)(-DesiredPitch) * SinH + 128)/256;
+		GPSNorth += ((int32)(-DesiredPitch) * CosH + 128)/256;
+	
+		A = Make2Pi(Heading + HALFMILLIPI);
+		CosH = int16cos(A);
+		SinH = int16sin(A);
+		GPSEast += ((int32)DesiredRoll * SinH + 128) / 256L;
+		GPSEast += FAKE_EAST_WIND; // wind	
+		GPSNorth += ((int32)DesiredRoll * CosH + 128) / 256L;
+		GPSNorth += FAKE_NORTH_WIND; // wind	
+
+		#ifdef GPS_USE_RMC
+		GPSMagVariation = 0;
+		GPSGroundSpeed = 99;
+		GPSHeading = 99;
+		#else
+		GPSFix = 2;
+		GPSHDilute = 0.0;
+		GPSNoOfSats = 99;
+		GPSAltitude = 1000; // 100M
+		#endif
+
+		_GPSValid = true;
+		_NavComputed = false;
+
+		TxVal32((int32)((int32)Heading*180L)/(int32)MILLIPI, 0, ' ');
+		if ( _CompassMisRead )
+			TxChar('?');
+		else
+			TxChar(' ');
+
+		TxString("\t ");
+		TxVal32(Abs(ConvertGPSToM(GPSNorth)), 0, 0);
+		if ( GPSNorth >=0 )
+			TxChar('n');
+		else
+			TxChar('s');
+		TxString("\t ");
+		TxVal32(Abs(ConvertGPSToM(GPSEast)), 0, 0);
+		if ( GPSEast >=0 )
+			TxChar('e');
+		else
+			TxChar('w');
+
+		TxString("\t -> r=");
+		TxVal32(DesiredRoll, 0, ' ');
+		TxChar('{');
+		TxVal32(NavRCorr, 0, ',');
+		TxVal32((SumNavRCorr * NavKi) / 256, 0, '}');
+
+		TxString("\t p=");		
+		TxVal32(DesiredPitch, 0, ' ');
+		TxChar('{');
+		TxVal32(NavPCorr, 0, ',');
+		TxVal32((SumNavPCorr * NavKi) / 256, 0, '}');
+
+		if ( _Hovering )
+			TxString(" hov");
+		if ( IK5 > _Neutral )
+			TxString(" rth");
+		if( _HoldingStation )
+			TxString(" hold");
+		TxNextLine();
+	}
+
+	#endif // FAKE_GPS
+
+
+} // CheckAutonomous
+
+void InitNavigation(void)
+{
+	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = 0;
+	_NavComputed = false;
+} // InitNavigation
+

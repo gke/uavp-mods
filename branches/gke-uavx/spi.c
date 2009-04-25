@@ -63,6 +63,7 @@
 #define LISL_INCR_ADDR	(0x40)
 #define LISL_READ		(0x80)
 
+void WaitLISLReady(void);
 void SendCommand(int8);
 void IsLISLactive(void);
 void WriteLISLByte(uint8);
@@ -75,6 +76,12 @@ void ReadAccelerations(void);
 
 #define SPI_HI_DELAY Delay10TCY()
 #define SPI_LO_DELAY Delay10TCY()
+
+
+void WaitLISLReady(void)
+{
+	while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == 0 );
+} // WaitLISLReady
 
 void SendCommand(int8 c)
 {
@@ -152,12 +159,13 @@ void WriteLISL(uint8 d, uint8 c)
 
 void IsLISLactive(void)
 {
+	uint8 s;
 
 	SPI_CS = DSEL_LISL;
 	WriteLISL(0b01001010, LISL_CTRLREG_2); // enable 3-wire, BDU=1, +/-2g
 
-	W = ReadLISL(LISL_WHOAMI + LISL_READ);
-	if( W == 0x3A )	// a LIS03L sensor is there!
+	s = ReadLISL(LISL_WHOAMI + LISL_READ);
+	if( s == 0x3A )	// a LIS03L sensor is there!
 	{
 		WriteLISL(0b11000111, LISL_CTRLREG_1); // startup, enable all axis
 		WriteLISL(0b00000000, LISL_CTRLREG_3);

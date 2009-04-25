@@ -1,12 +1,11 @@
         title   "BootLoader.asm"
 ;// =======================================================================
-;// =                                 UAVX                                =
-;// =                         Quadrocopter Control                        =
+;// =                     UAVX Quadrocopter Controller                    =
 ;// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-;// =         Original Copyright (c) 2007 Ing. Wolfgang Mahringer         =
-;// =                          http://www.uavp.org                        =
+;// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+;// =                          http://uavp.ch                             =
 ;// =======================================================================
-;//
+
 ;//  This program is free software; you can redistribute it and/or modify
 ;//  it under the terms of the GNU General Public License as published by
 ;//  the Free Software Foundation; either version 2 of the License, or
@@ -22,26 +21,31 @@
 ;//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ; Version
-; 1.0 .... Erste Version
+; 1.0 .... W. Mahringer?
 ; 2.0 .... G.K. Egan 2008
 
 ; Assumptions:
-;	loader records do not cross 32 byte boundaries
-;	16 bit addressing of program memory
-
-#define __18F2520
+; -loader records do not cross 32 byte boundaries
+; -16 bit addressing of program memory
 
         LIST C=200,R=dec
 
-; config is already defined in main routine!
-;        config=3F72h
-        
-        include "p18f2520.inc"
+		include "p18cxxx.inc"     
         include "general.asm"
 
-		_B38400			equ		25
+		; need to include clock for baud calculation
+	;	#ifdef CLOCK_16MHZ
+		_ClkOut			equ		(160/4)
+	;	#else // CLOCK_40MHZ
+	;	_ClkOut			equ		(400/4)
+	;	#endif
+
+		; use 38400 Baud throughout for now.
+	;	_BAUDRATE			equ		26 ;16000000/(16*(38400+1))
+		_BAUDRATE			equ		104 ;16000000/(16*(9600+1))
+
 		_RestoreVec		equ		0
-		_MaxRxBuffer	equ		80	;normal max 64 hex chars + tags
+		_MaxRxBuffer		equ		80	;normal max 64 hex chars + tags
 
 		; RAM variables all in Bank 0
 		cblock 16
@@ -64,12 +68,18 @@
 		endc
 	
 		code
-		org		07d00h				
+	;	#ifdef __18F2620
+	;	org		0fd00h
+	;	#else
+		org		07d00h
+	;	#endif
+				
 		global	BootStart
 
 BootStart
 		; absolutely no C registers or variables are preserved
 	;	movf	PCL,f					;for message table address
+		DII							;disable all interrupts
 		movlw	high Messages
 		movwf	PCLATH
 
@@ -93,14 +103,13 @@ Messages
 
 Init		
 		movlb	0
-		DII							;disable interrupts
 		clrf	EECON1				;disable all program memory writes
 
 		clrf	T0CON
 		movlw	10100100b			;set RC6 as output (TxD), LEDs
 		movwf	TRISC
 		clrf	TRISB				;all output
-		movlw	_B38400
+		movlw	_BAUDRATE
 		movwf	SPBRG
 		movlw	00100100b			;async mode, BRGH = 1
 		movwf	TXSTA

@@ -1,11 +1,10 @@
 // =======================================================================
-// =                                 UAVX                                =
-// =                         Quadrocopter Control                        =
+// =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                             =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -22,7 +21,7 @@
 
 // i2c subroutines
 
-#include "UAVX.h"
+#include "uavx.h"
 
 void I2CStart(void);
 void I2CStop(void);

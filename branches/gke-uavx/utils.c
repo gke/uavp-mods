@@ -1,11 +1,10 @@
 // =======================================================================
-// =                                 UAVX                                =
-// =                         Quadrocopter Control                        =
+// =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
+// =                          http://uavp.ch                             =
 // =======================================================================
-//
+
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation; either version 2 of the License, or
@@ -20,122 +19,224 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-// Misc
+#include "uavx.h"
 
-#include "UAVX.h"
+void Delay1mS(int16 d)
+{ 	// Timer0 interrupt at 1mS must be running
+	int16 i;
+	uint8 T0IntEn;
 
-// Prototypes
-int24 SRS24(int24, uint8);
-int16 SRS16(int16, uint8);
-void GetBatteryVolts(void);
-void WriteADCVolts(void);
-void CheckAlarms(void);
-void ReadParametersEE(void);
-void WriteParametersEE(uint8);
-void WriteEE(uint8, int8);
-int8 ReadEE(uint8);
-void SendLeds(void);
-void SwitchLedsOn(uint8);
-void SwitchLedsOff(uint8);
-void LEDGame(void);
-void DoDebugTraces(void);
-void Delay100mSec(uint8);
-void InitPorts(void);
-int16 int16sin(int16);
-int16 int16cos(int16);
+	T0IntEn = INTCONbits.TMR0IE;	// not protected?
+	INTCONbits.TMR0IE = false;
 
-#pragma udata utilvars
-uint8	LedShadow;								// shadow register
-int16	BatteryVolts;
-#pragma udata 	
+	// if d is 1 then delay can be less than 1mS due to 	
+	for (i=d; i; i--)
+	{						// compromises ClockMilliSec;
+		while ( !INTCONbits.TMR0IF ) {};
+		INTCONbits.TMR0IF = 0;
+	}
 
-// SRS16/24 are used for divisions by powers of 2. A simple shift 
-// does not (with C18 at least) preserve the sign on negative 
-// arguments even if declared signed hence the conditionals.
-// It is defined as a function as a simple macro would result in 
-// possibly quite complicated expressions for "x" being expanded
-// inline and not recognised as common sub expressions by the
-// compiler.
-// Typically divisions take 200uS vs SRS 20uS on a 18F2520 @ 16MHz.
-int24 SRS24(int24 x, uint8 s)
-{
-	return((x<0) ? -((-x)>>s) : (x>>s));
-} // SRS24
+	INTCONbits.TMR0IE = T0IntEn;
+
+} // Delay1mS
+
+// wait blocking for "dur" * 0.1 seconds
+// Motor and servo pulses are still output every 10ms
+void Delay100mSWithOutput(int16 dur)
+{ // Timer0 Interrupts must be off 
+	int16 i, j;
+	uint8 T0IntEn;
+
+	T0IntEn = INTCONbits.TMR0IE;	// not protected?
+	INTCONbits.TMR0IE = false;
+
+	for(i = 0; i < dur*10; i++)
+		{
+			for (j = 8; j ; j--)
+			{
+				while ( !INTCONbits.TMR0IF ) {};
+				INTCONbits.TMR0IF = 0;
+			}
+			OutSignals(); // 1-2 ms Duration
+			if ( PIE1bits.RCIE )
+			{
+				if ( RxTail != RxHead )
+				{
+					INTCONbits.TMR0IE = T0IntEn;
+					return;
+				}
+			}
+			else
+				if( PIR1bits.RCIF )
+				{
+					INTCONbits.TMR0IE = T0IntEn;
+					return;
+				}
+		}
+	INTCONbits.TMR0IE = T0IntEn;
+} // Delay100mSWithOutput
 
 int16 SRS16(int16 x, uint8 s)
 {
 	return((x<0) ? -((-x)>>s) : (x>>s));
 } // SRS16
 
-#ifndef USE_MACROS
-
-int16 Limit(int16 i, int16 l, int16 u)
+int32 SRS32(int32 x, uint8 s)
 {
-	return((i<l) ? l : ((i>u) ? u : i));
-} // Limit
+	return((x<0) ? -((-x)>>s) : (x>>s));
+} // SRS32
 
-int16 Max(int16 i,int16 j)
+void InitPorts(void)
 {
- 		return((i<j) ? j : ((i>j) ? j : i));
-} // Max
+	// general ports setup
+	TRISA = 0b00111111;								// all inputs
+	ADCON1 = 0b00000010;							// uses 5V as Vref
 
-int16 DecayBand(int16 i, int16 l, int16 u, int16 d)
+	PORTB = 0b11000000;								// all outputs to low, except RB6 & 7 (I2C)!
+	TRISB = 0b01000000;								// all servo and LED outputs
+	PORTC = 0b01100000;								// all outputs to low, except TxD and CS
+	TRISC = 0b10000100;								// RC7, RC2 are inputs
+
+	SSPSTATbits.CKE = true;							// low logic threshold for LISL
+	INTCON2bits.NOT_RBPU = false;	// WEAK PULLUPS MUST BE ENABLED OTHERWISE I2C VERSIONS 
+									// WITHOUT ESCS INSTALLED WILL PREVENT ANY FURTHER BOOTLOADS
+} // InitPorts
+
+// resets all important variables - Do NOT call that while in flight!
+void InitArrays(void)
 {
-	return ((i<l) ? i+d : ((i>u) ? i-d : i));
-} // DecayBand
+	int8 i;
 
-int16 Decay(int16 i)
+	for (i = 0; i < NoOfMotors; i++)
+		Motor[i] = _Minimum;
+	MCamPitch = MCamRoll = _Neutral;
+
+	_Flying = false;
+	REp = PEp = YEp = 0;
+	
+	Vud = VBaroComp = 0;
+	
+	UDSum = 0;
+	LRIntKorr = FBIntKorr = 0;
+	YawSum = RollSum = PitchSum = 0;
+
+	BaroRestarts = 0;
+	RCGlitchCount = 0;
+} // InitArrays
+
+
+int8 ReadEE(uint8 addr)
 {
-	return((i<0) ? i+1 : ((i>0) ? i-1 : 0));
-} // Decay
+	int8 b;
 
-#endif
+	EEADR = addr;
+	EECON1bits.EEPGD = false;
+	EECON1bits.RD = true;
+	b=EEDATA;
+	EECON1 = 0;
+	return(b);	
+} // ReadEE
 
-/*
-int16 int16sqrt(int16 n)
-{ // 16 bit numbers 
-	int16 r, b;
+int16 ConvertGPSToM(int16 c)
+{	// approximately 0.18553257183 Metres per LSB
+	// only for converting difference in coordinates to 32K
+	return ( ((int32)c * (int32)18553)/((int32)100000) );
+} // ConvertGPSToM
 
-	r=0;
-	b=256;
-	while (b>0) 
+int16 ConvertMToGPS(int16 c)
+{
+	return ( ((int32)c * (int32)100000)/((int32)18553) );
+} // ConvertMToGPS
+
+void ReadParametersEE(void)
+{
+	int8 *p, c; 
+	uint16 addr;
+
+	if( IK5 > _Neutral )
+		addr = _EESet2;	
+	else
+		addr = _EESet1;
+	
+	for(p = &FirstProgReg; p <= &LastProgReg; p++)
+		*p = ReadEE(addr++);
+
+	BatteryVolts = LowVoltThres;
+	
+	TimeSlot = Limit(TimeSlot, 2, 20);
+
+} // ReadParametersEE
+
+void WriteEE(uint8 addr, int8 d)
+{
+	int8 rd;
+	uint8 IntsWereEnabled;
+	
+	rd = ReadEE(addr);
+	if ( rd != d )						// avoid redundant writes
 	{
-		if (r*r>n)
-			r-=b;
-		b=(b>>1);
-		r+=b;
-	}
-	return(r);
-}
+		EEDATA = d;				
+		EEADR = addr;
+		EECON1bits.EEPGD = false;
+		EECON1bits.WREN = true;
+		
+		IntsWereEnabled = InterruptsEnabled;
+		DisableInterrupts;
+		EECON2 = 0x55;
+		EECON2 = 0xaa;
+		EECON1bits.WR = true;
+		while(EECON1bits.WR);
+		if ( IntsWereEnabled )
+			EnableInterrupts;
 
-int16 int32sqrt(int32 n)
-// 32 bit numbers 
+		EECON1bits.WREN = false;
+	}
+} // WriteEE
+
+void WriteParametersEE(uint8 s)
 {
-	int32 b;
-	int16 r;
+	int8 *p;
+	uint8 b;
+	uint16 addr;
+	
+	if( s == 1 )
+		addr = _EESet1;	
+	else
+		addr = _EESet2;
 
-	b=65536;
-	r=0;
-	while (b>0) 
-	{
-		if (((int32)(r)*(int32)(r))>n)
-			r-=b;
-		b=(b>>1);
-		r+=b;
-	}
-	return(r);
-} // int32sqrt
+	p = &FirstProgReg; 
+	while ( p <= &LastProgReg)
+		WriteEE(addr++, *p++);
+} // WriteParametersEE
 
-*/
+void InitParams(void)
+{
+	int16 i;
+
+	#ifdef INIT_PARAMS
+	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
+		WriteEE(i, -1);
+	WriteParametersEE(1);						// copy RAM initial values to EE
+	WriteParametersEE(2);
+	#endif // INIT_PARAMS
+	ReadParametersEE();
+}  // InitParams
+
+int16 Make2Pi(int16 A)
+{
+	while ( A < 0 ) A += TWOMILLIPI;
+	while ( A >= TWOMILLIPI ) A -= TWOMILLIPI;
+	return( A );
+} // Make2Pi
 
 #pragma idata sintable
-const uint8 SineTable[17]={ 
+const int16 SineTable[17]={ 
 	0, 50, 98, 142, 180, 212, 236, 250, 255,
 	250, 236, 212, 180, 142, 98, 50, 0
    };
 #pragma idata
 
-int16 Table16(int16 Val, uint8 *T)
+int16 Table16(int16 Val, const int16 *T)
 {
 	uint8 Index,Offset;
 	int16 Temp, Low, High, Result;
@@ -151,7 +252,7 @@ int16 Table16(int16 Val, uint8 *T)
 } // Table16
 
 int16 int16sin(int16 A)
-{	// A is in milliradian 0 to 2000Pi, result is -128 to 127
+{	// A is in milliradian 0 to 2000Pi, result is -255 to 255
 	int16 	v;
 	uint8	Negate;
 
@@ -162,7 +263,7 @@ int16 int16sin(int16 A)
 	if ( Negate )
 		A -= MILLIPI;
 
-	v = Table16((((int24)A * 256 + HALFMILLIPI)/MILLIPI)-1, &SineTable);
+	v = Table16(((int24)A * 256 + HALFMILLIPI)/MILLIPI, SineTable);
 
 	if ( Negate )
 		v= -v;
@@ -171,21 +272,24 @@ int16 int16sin(int16 A)
 } // int16sin
 
 int16 int16cos(int16 A)
-{	// A is in milliradian 0 to 2000Pi, result is -128 to 127
+{	// A is in milliradian 0 to 2000Pi, result is -255 to 255
 	return(int16sin(A + HALFMILLIPI));
 } // int16cos
 
 #pragma idata arctan
 const int16 ArctanTable[17]={
-    0,  62, 124, 185, 245, 303, 359, 412,
-  464, 512, 559, 602, 644, 682, 719, 753,785
+	0, 464, 785, 983, 1107, 1190, 1249, 1292, 1326,
+	1352, 1373, 1391, 1406, 1418, 1429, 1438, 1446
    };
 #pragma idata
 
 int16 int16atan2(int16 y, int16 x)
 {	// Result is in milliradian
+	// Caution - this routine is intended to be acceptably accurate for 
+	// angles less Pi/4 within a quadrant. Larger angles are directly interpolated
+	// to Pi/2. 
  
-	int16 Absx, Absy;
+	int32 Absx, Absy, TL;
 	int16 A;
 
 	Absy = Abs(y);
@@ -204,10 +308,15 @@ int16 int16atan2(int16 y, int16 x)
 				A = 0;
 		else
 		{
-			if ( Absy <= Absx )
-				A = Table16((Absy * 256 )/Absx, &ArctanTable);
+			TL = (Absy * 32)/Absx;
+			if ( TL < 256 )
+				A = Table16(TL, ArctanTable);
 			else
-				A = HALFMILLIPI - Table16(( Absx << 8 )/Absy, &ArctanTable); 
+			{  // extrapolate outside table
+				TL -= 256;
+				A =  ArctanTable[16] + (TL >> 2);
+				A = Limit(A, 0, HALFMILLIPI);
+			}
 
 			if ( x < 0 )
 				if ( y > 0 ) // 2nd Quadrant 
@@ -221,145 +330,179 @@ int16 int16atan2(int16 y, int16 x)
 	return(A);
 } // int16atan2
 
-void InitPorts(void)
+int16 int16sqrt(int16 n)
+// 16 bit numbers 
 {
-	// general ports setup
-	TRISA = 0b00111111;						// all inputs
-	ADCON1 = 0b00000010;					// uses 5V as Vref
+  int16 r, b;
 
-	PORTB = 0b11000000;						// all outputs to low, except RB6 & 7 (I2C)!
-	TRISB = 0b01000000;						// all servo and LED outputs
-	PORTC = 0b01100000;						// all outputs to low, except TxD and CS
-	TRISC = 0b10000100;						// RC7, RC2 are inputs
-	SSPSTATbits.CKE = true;					// low logic threshold for LISL
-	INTCON2bits.NOT_RBPU = true;
-} // InitPorts
+  r=0;
+  b=256;
+  while (b>0) 
+    {
+    if (r*r>n)
+      r-=b;
+    b=(b>>1);
+    r+=b;
+    }
+  return(r);
+} // int16sqrt
 
-void GetBatteryVolts(void)
+
+void CheckAlarms(void)
 {
 	int16 NewBatteryVolts;
 
 	NewBatteryVolts = ADC(ADCBattVoltsChan, ADCVREF5V) >> 3; 
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
 	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
-} // GetBatteryVolts
 
-void SwitchLedsOn(uint8 LEDs)
-{
-	LedShadow |= LEDs;
-	SendLeds();
-} // SwitchLedsOn
+// zzz fix later
 
-void SwitchLedsOff(uint8 LEDs)
-{
-	LedShadow &= ~LEDs;
-	SendLeds();
-} // SwitchLedsOff
-
-void CheckAlarms(void)
-{
-	uint8 AlarmOn;
-
-	GetBatteryVolts();
-	AlarmOn = _LowBatt || (!_Signal) || (State == Failsafe);
-
-	if ( AlarmOn )
+	if( _LowBatt ) // repeating beep
 	{
-		if ( ( mS[Clock] > mS[AlarmUpdate]) == 0)
+		if( ( BlinkCount & 0x0040) == 0 )
 		{
 			Beeper_ON;
 			LedRed_ON;
-			mS[AlarmUpdate] = mS[Clock] + 500;
- 		}
+		}
 		else
 		{
-			LedRed_OFF;
 			Beeper_OFF;
-			mS[AlarmUpdate] = mS[Clock] + 100;
-		}
-	}		
+			LedRed_OFF;
+		}	
+	}
 	else
+	if ( _LostModel ) // 2 beeps with interval
+		if( (BlinkCount & 0x0080) == 0 )
 		{
-			LedRed_OFF;
-			Beeper_OFF;
+			Beeper_ON;
+			LedRed_ON;
 		}
-	
-} // CheckAlarms
-
-int8 ReadEE(uint8 addr)
-{
-	int8 b;
-
-	EEADR = addr;
-	EECON1bits.EEPGD = false;
-	EECON1bits.RD = true;
-	b=EEDATA;
-	EECON1 = 0;
-	return(b);	
-} // ReadEE
-
-void WriteEE(uint8 addr, int8 d)
-{
-	int8 rd;
-	
-	rd = ReadEE(addr);
-	if ( rd != d )						// avoid redundant writes
+		else
+		{
+			Beeper_OFF;
+			LedRed_OFF;
+		}	
+	else
 	{
-		EEDATA = d;				
-		EEADR = addr;
-		EECON1bits.EEPGD = false;
-		EECON1bits.WREN = true;
-
-		DisableInterrupts;
-		EECON2 = 0x55;
-		EECON2 = 0xaa;
-		EECON1bits.WR = true;
-		while(EECON1bits.WR);
-		EnableInterrupts;
-
-		EECON1bits.WREN = false;
+		Beeper_OFF;				
+		LedRed_OFF;
 	}
 
-} // WriteEE
+} // CheckAlarms
 
-void ReadParametersEE(void)
+void LedGame(void)
 {
-	int8 *p, c; 
-	uint16 addr;
+	if( --LedCount == 0 )
+	{
+		LedCount = ((255-DesiredThrottle)>>3) +5;	// new setup
+		if( _Hovering )
+		{
+			AUX_LEDS_ON;	// baro locked, all aux-leds on
+		}
+		else
+		if( LedShadow & LedAUX1 )
+		{
+			AUX_LEDS_OFF;
+			LedAUX2_ON;
+		}
+		else
+		if( LedShadow & LedAUX2 )
+		{
+			AUX_LEDS_OFF;
+			LedAUX3_ON;
+		}
+		else
+		{
+			AUX_LEDS_OFF;
+			LedAUX1_ON;
+		}
+	}
+} // LedGame
 
-	if( RC[ParamC] > RC_NEUTRAL )
-		addr = _EESet2;	
-	else
-		addr = _EESet1;
-	
-	for(p = &FirstProgReg; p <= &LastProgReg; p++)
-		*p = ReadEE(addr++);
-
-} // ReadParametersEE
-
-void WriteParametersEE(uint8 s)
+void DoPIDDisplays()
 {
-	int8 *p;
-	uint8 b;
-	uint16 addr;
-	
-	if( s == 1 )
-		addr = _EESet1;	
+	if ( IntegralTest )
+	{
+		ALL_LEDS_OFF;
+		if( (int8)(RollSum>>8) > 0 )
+			LedRed_ON;
+		else
+			if( (int8)(RollSum>>8) < -1 )
+				LedGreen_ON;
+
+		if( (int8)(PitchSum>>8) >  0 )
+			LedYellow_ON;
+		else
+			if( (int8)(PitchSum>>8) < -1 )
+				LedBlue_ON;
+	}
 	else
-		addr = _EESet2;
+		if( CompassTest )
+		{
+			ALL_LEDS_OFF;
+			if( CurDeviation > 0 )
+				LedGreen_ON;
+			else
+				if( CurDeviation < 0 )
+					LedRed_ON;
+			if( AbsDirection > COMPASS_MAX )
+				LedYellow_ON;
+		}
+} // DoPIDDisplays
 
-	p = &FirstProgReg; 
-	while ( p <= &LastProgReg)
-		WriteEE(addr++, *p++);
-} // WriteParametersEE
+void SendLeds(void)
+{
+	int8	i, s;
+	i = LedShadow;
+	SPI_CS = DSEL_LISL;	
+	SPI_IO = WR_SPI;	// SDA is output
+	SPI_SCL = 0;		// because shift is on positive edge
+	
+	for(s=8; s!=0; s--)
+	{
+		if( i & 0x80 )
+			SPI_SDA = 1;
+		else
+			SPI_SDA = 0;
+		i<<=1;
+		Delay10TCY();
+		SPI_SCL = 1;
+		Delay10TCY();
+		SPI_SCL = 0;
+	}
 
-void DoDebugTraces()
+	PORTCbits.RC1 = 1;
+	PORTCbits.RC1 = 0;	// latch into drivers
+	SPI_SCL = 1;		// rest state for LISL
+	SPI_IO = RD_SPI;
+}
+
+void SwitchLedsOn(uint8 l)
+{
+	LedShadow |= l;
+	SendLeds();
+} // SwitchLedsOn
+
+void SwitchLedsOff(uint8 l)
+{
+	LedShadow &= ~l;
+	SendLeds();
+} // SwitchLedsOff
+
+
+void DumpTrace(void)
 {
 #ifdef DEBUG_SENSORS
+	int8 t;
 
-		TxNextLine();
-#endif
-} // DoDebugTraces
+	for (t=0; t <= TopTrace; t++)
+	{
+		TxValH16(Trace[t]);
+		TxChar(';');
+	}
+	TxNextLine();
 
-
+#endif // DEBUG_SENSORS
+} // DumpTrace
 
