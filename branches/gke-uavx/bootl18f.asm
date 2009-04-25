@@ -41,10 +41,10 @@
 	;	#endif
 
 		; use 38400 Baud throughout for now.
-	;	_BAUDRATE			equ		26 ;16000000/(16*(38400+1))
-		_BAUDRATE			equ		104 ;16000000/(16*(9600+1))
+		_BAUDRATE			equ		26 ;16000000/(16*(38400+1))
+	;	_BAUDRATE			equ		104 ;16000000/(16*(9600+1))
 
-		_RestoreVec		equ		0
+		_RestoreVec			equ		0
 		_MaxRxBuffer		equ		80	;normal max 64 hex chars + tags
 
 		; RAM variables all in Bank 0

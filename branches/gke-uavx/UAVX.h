@@ -520,7 +520,7 @@ typedef float real32;
 #define _B9600		104 
 #define _B19200		(_ClkOut*100000/(4*19200) - 1)
 #define _B38400		26 
-#define _B115200	(_ClkOut*104000/(4*115200) - 1)
+#define _B115200	9 //(_ClkOut*104000/(4*115200) - 1)
 #define _B230400	(_ClkOut*100000/(4*115200) - 1)
 
 // EEPROM parameter set addresses
