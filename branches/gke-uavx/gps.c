@@ -194,7 +194,8 @@ void ParseGPSSentence()
 	GPSGroundSpeed = ((int32)GPSGroundSpeed * 527L)>>10;
 
     UpdateField();   //Course over ground
-    GPSHeading = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi);
+	// drop one decimal place
+    GPSHeading = ConvertInt(lo, hi-3) * 10 + ConvertInt(hi-1, hi-1);
 	//GPSHeading = ((int32)GPSHeading * MILLIPI)/1800L;
 	GPSHeading = ConvertDDegToMPi(GPSHeading);
 
@@ -205,7 +206,9 @@ void ParseGPSSentence()
 	GPSMagVariation = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi);
 	//GPSMagVariation = ((int32)GPSMagVariation * MILLIPI)/1800L;
 	GPSMagVariation = ConvertDDegToMPi(GPSMagVariation);
+	*/
     UpdateField();   // Mag Var Units
+	/*
 	if (GPSRxBuffer[lo]=='W')
 		GPSMagVariation = -GPSMagVariation;
 	*/

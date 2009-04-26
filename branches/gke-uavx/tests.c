@@ -314,7 +314,7 @@ void GPSTest(void)
 	uint8 ch; 
 
 	TxString("\r\nGPS test\r\n");
-	TxString("monitors GPS input power is dosconnected and reconnected\r\n");
+	TxString("monitors GPS input until power is disconnected and reconnected\r\n");
 	TxString("units Metres and Degrees\r\n");
 
 	DoCompassTest();
@@ -343,7 +343,10 @@ void GPSTest(void)
 
 			Navigate(0, 0);
 
-			TxVal32((int32)ConvertMPiToDDeg(CompassHeading), 1, 0);
+			if ( _UseCompass)
+				TxVal32((int32)ConvertMPiToDDeg(CompassHeading), 1, 0);
+			else
+				TxString("___");
 			if ( _CompassMisRead )
 				TxChar('?');
 			else
