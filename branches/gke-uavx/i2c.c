@@ -30,7 +30,12 @@ void I2CDelay(void);
 uint8 SendI2CByte(uint8);
 uint8 RecvI2CByte(uint8);
 
-// the sensor bus lines
+// -----------------------------------------------------------
+#ifdef MICROCHIP_SWI2C
+
+#include <sw_i2c.h>
+
+// Constants
 
 #define	I2C_DLAT		LATBbits.LATB6
 #define	I2C_SLAT		LATBbits.LATB7	
@@ -38,11 +43,6 @@ uint8 RecvI2CByte(uint8);
 #define I2C_DIO			TRISBbits.TRISB6
 #define I2C_SCL			PORTBbits.RB7
 #define	I2C_CIO			TRISBbits.TRISB7
-
-// -----------------------------------------------------------
-#ifdef MICROCHIP_SWI2C
-
-#include <sw_i2c.h>
 
 int8 Clock_test( void )
 {
@@ -197,6 +197,21 @@ int8 SWWriteI2C( unint8 data_out )
 
 // Wolfgang's I2C Routines
 
+// Prototypes
+
+void I2CDelay(void);
+extern void I2CStart(void);
+extern void I2CStop(void);
+extern uint8 SendI2CByte(uint8);
+extern uint8 RecvI2CByte(uint8);
+
+// Constants
+
+#define I2C_SDA			PORTBbits.RB6
+#define I2C_DIO			TRISBbits.TRISB6
+#define I2C_SCL			PORTBbits.RB7
+#define I2C_CIO			TRISBbits.TRISB7
+
 void I2CDelay(void) 
 {
 	Delay10TCY();
@@ -330,6 +345,21 @@ uint8 RecvI2CByte(uint8 r)
 // Wolfgang's SW I2C Routines for ESCs
 
 #if (defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C) && !defined DEBUG_SENSORS
+
+// Prototypes
+
+void EscI2CDelay(void);
+void EscWaitClkHi(void);
+void EscI2CStart(void);
+void EscI2CStop(void);
+void SendEscI2CByte(uint8);
+
+// Constants
+
+#define	 ESC_SDA		PORTBbits.RB1
+#define	 ESC_SCL		PORTBbits.RB2
+#define	 ESC_DIO		TRISBbits.TRISB1
+#define	 ESC_CIO		TRISBbits.TRISB2
 
 void EscI2CDelay(void)
 {

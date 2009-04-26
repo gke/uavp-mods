@@ -21,6 +21,12 @@
 
 #include "uavx.h"
 
+// Prototypes
+
+void ShowPrompt(void);
+void ShowSetup(uint8);
+void ProcessComCommand(void);
+
 #pragma idata menu1
 const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright (c) 2007-9"
 							  " G.K. Egan & W. Mahringer\r\n"
@@ -170,7 +176,7 @@ void ProcessComCommand(void)
 			case 'M'  : // modify parameters
 				if ( !Armed )
 				{ // no reprogramming in flight!!!!!!!!!!!!!!!
-					LedBlue_ON;
+					LEDBlue_ON;
 					TxString("\r\nRegister ");
 					addr = RxNumU()-1;
 					TxString(" = ");
@@ -207,7 +213,7 @@ void ProcessComCommand(void)
 						WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
 					}
 		
-					LedBlue_OFF;
+					LEDBlue_OFF;
 				}
 				ShowPrompt();
 				break;

@@ -19,11 +19,32 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-// Utilities and subroutines
+#include "uavx.h"
+
+extern uint8 SaturInt(int16);
+extern void DoMix(int16 CurrThrottle);
+extern void CheckDemand(int16 CurrThrottle);
+extern void MixAndLimitMotors(void);
+extern void MixAndLimitCam(void);
+extern void OutSignals(void);
+
+// Constants
 
 #define MAGICNUMBER 84
 
-#include "uavx.h"
+#ifdef ESC_PPM
+#define	PulseFront		0
+#define	PulseLeft		1
+#define	PulseRight		2
+#define	PulseBack		3
+#endif
+
+#define	PulseCamRoll	4
+#define	PulseCamPitch	5
+
+#define ALL_PULSE_ON	(PORTB |= 0b00001111)
+#define ALL_OUTPUTS_OFF	(PORTB &= 0b11110000)
+#define ALL_OUTPUTS		(PORTB & 0b00001111)
 
 uint8 SaturInt(int16 l)
 {

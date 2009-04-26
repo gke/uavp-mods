@@ -38,8 +38,6 @@ file_010=.
 file_011=.
 file_012=.
 file_013=.
-file_014=.
-file_015=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -55,8 +53,6 @@ file_010=no
 file_011=no
 file_012=no
 file_013=no
-file_014=no
-file_015=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -72,8 +68,6 @@ file_010=no
 file_011=no
 file_012=no
 file_013=no
-file_014=no
-file_015=no
 [FILE_INFO]
 file_000=utils.c
 file_001=accel.c
@@ -84,13 +78,11 @@ file_005=compass_altimeter.c
 file_006=gps.c
 file_007=i2c.c
 file_008=irq.c
-file_009=lisl.c
-file_010=menu-test.c
-file_011=serial.c
-file_012=uavx-test.c
-file_013=tests.c
-file_014=UAVX.h
-file_015=bits.h
+file_009=menu-test.c
+file_010=serial.c
+file_011=uavx-test.c
+file_012=tests.c
+file_013=UAVX.h
 [SUITE_INFO]
 suite_guid={5B7D72DD-9861-47BD-9F60-2BE967BF8416}
 suite_state=

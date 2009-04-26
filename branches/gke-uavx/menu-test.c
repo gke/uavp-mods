@@ -22,21 +22,24 @@
 // Menu for Test Software
 
 #include "uavx.h"
-#include "bits.h"
+
+// Prototypes
+
+void ShowPrompt(void);
+void ShowSetup(uint8);
+void ProcessComCommand(void);
 
 #pragma idata menuhello
-const rom uint8  SerHello[] = "\r\nUAVP TEST V" Version "\r\nCopyright (c) 2007-9"
+const rom uint8  SerHello[] = "\r\nUAVX TEST V" Version "\r\nCopyright (c) 2007-9"
 							  " G.K. Egan & W. Mahringer\r\n"
 							  "Comes with ABSOLUTELY NO WARRANTY\r\n"
 							  "This is FREE SOFTWARE, see GPL license!\r\n";
 #pragma idata
 #pragma idata menusetup
 // THE FOLLOWING LINE MUST REMAIN IN THIS FORM, it is important for UAVPset!
-const rom uint8  SerSetup[] = "\r\nUAVP TEST V" Version " ready.\r\n"
+const rom uint8  SerSetup[] = "\r\nUAVX TEST V" Version " ready.\r\n"
 
-#ifdef USE_GPS
 	"GPS enabled\r\n"
-#endif
 
 #ifdef DEBUG_SENSORS
 	"Debug: Sensors\r\n"
@@ -169,7 +172,7 @@ void ProcessComCommand(void)
 				ShowPrompt();
 				break;
 			case 'M'  : // modify parameters
-				LedBlue_ON;
+				LEDBlue_ON;
 				TxString("\r\nRegister ");
 				addr = RxNumU()-1;
 				TxString(" = ");
@@ -206,7 +209,7 @@ void ProcessComCommand(void)
 					WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
 				}
 	
-				LedBlue_OFF;
+				LEDBlue_OFF;
 				ShowPrompt();
 				break;
 			case 'N' :	// neutral values
@@ -238,16 +241,10 @@ void ProcessComCommand(void)
 				AnalogTest();
 				ShowPrompt();
 				break;
-			#ifdef USE_GPS
-			case '$' : // GPS NMEA sentences
-				_ReceivingGPS = true;
-   				PIE1bits.RCIE = true; // turn on Rx interrupts
-				break;
 			case 'G' : // GPS test
 				GPSTest();
 				ShowPrompt();
-				break;
-			#endif // USE_GPS			
+				break;			
 			case 'A' :	// linear sensor
 				LinearTest();
 				ShowPrompt();

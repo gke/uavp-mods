@@ -21,6 +21,41 @@
 
 #include "uavx.h"
 
+// Prototypes
+
+extern void Delay1mS(int16);
+extern void Delay100mSWithOutput(int16);
+extern int16 SRS16(int16, uint8);
+extern int32 SRS32(int32, uint8);
+extern void InitPorts(void);
+extern void InitArrays(void);
+
+extern int16 ConvertGPSToM(int16);
+extern int16 ConvertMToGPS(int16);
+
+extern 	int8 ReadEE(uint8);
+extern void ReadParametersEE(void);
+extern 	void WriteEE(uint8, int8);
+extern void WriteParametersEE(uint8);
+extern void InitParams(void);
+
+extern int16 Make2Pi(int16);
+extern int16 Table16(int16, const int16 *);
+extern int16 int16sin(int16);
+extern int16 int16cos(int16);
+extern int16 int16atan2(int16, int16);
+extern int16 int16sqrt(int16);
+
+extern void SendLEDs(void);
+extern void SwitchLEDsOn(uint8);
+extern void SwitchLEDsOff(uint8);
+extern void LEDGame(void);
+void DoPIDDisplays(void);
+extern void CheckAlarms(void);
+
+extern void DumpTrace(void);
+
+
 void Delay1mS(int16 d)
 { 	// Timer0 interrupt at 1mS must be running
 	int16 i;
@@ -124,6 +159,17 @@ void InitArrays(void)
 	RCGlitchCount = 0;
 } // InitArrays
 
+int16 ConvertGPSToM(int16 c)
+{	// approximately 0.18553257183 Metres per LSB
+	// only for converting difference in coordinates to 32K
+	return ( ((int32)c * (int32)18553)/((int32)100000) );
+} // ConvertGPSToM
+
+int16 ConvertMToGPS(int16 c)
+{
+	return ( ((int32)c * (int32)100000)/((int32)18553) );
+} // ConvertMToGPS
+
 
 int8 ReadEE(uint8 addr)
 {
@@ -137,16 +183,6 @@ int8 ReadEE(uint8 addr)
 	return(b);	
 } // ReadEE
 
-int16 ConvertGPSToM(int16 c)
-{	// approximately 0.18553257183 Metres per LSB
-	// only for converting difference in coordinates to 32K
-	return ( ((int32)c * (int32)18553)/((int32)100000) );
-} // ConvertGPSToM
-
-int16 ConvertMToGPS(int16 c)
-{
-	return ( ((int32)c * (int32)100000)/((int32)18553) );
-} // ConvertMToGPS
 
 void ReadParametersEE(void)
 {
@@ -347,114 +383,10 @@ int16 int16sqrt(int16 n)
   return(r);
 } // int16sqrt
 
-
-void CheckAlarms(void)
-{
-	int16 NewBatteryVolts;
-
-	NewBatteryVolts = ADC(ADCBattVoltsChan, ADCVREF5V) >> 3; 
-	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
-	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
-
-// zzz fix later
-
-	if( _LowBatt ) // repeating beep
-	{
-		if( ( BlinkCount & 0x0040) == 0 )
-		{
-			Beeper_ON;
-			LedRed_ON;
-		}
-		else
-		{
-			Beeper_OFF;
-			LedRed_OFF;
-		}	
-	}
-	else
-	if ( _LostModel ) // 2 beeps with interval
-		if( (BlinkCount & 0x0080) == 0 )
-		{
-			Beeper_ON;
-			LedRed_ON;
-		}
-		else
-		{
-			Beeper_OFF;
-			LedRed_OFF;
-		}	
-	else
-	{
-		Beeper_OFF;				
-		LedRed_OFF;
-	}
-
-} // CheckAlarms
-
-void LedGame(void)
-{
-	if( --LedCount == 0 )
-	{
-		LedCount = ((255-DesiredThrottle)>>3) +5;	// new setup
-		if( _Hovering )
-		{
-			AUX_LEDS_ON;	// baro locked, all aux-leds on
-		}
-		else
-		if( LedShadow & LedAUX1 )
-		{
-			AUX_LEDS_OFF;
-			LedAUX2_ON;
-		}
-		else
-		if( LedShadow & LedAUX2 )
-		{
-			AUX_LEDS_OFF;
-			LedAUX3_ON;
-		}
-		else
-		{
-			AUX_LEDS_OFF;
-			LedAUX1_ON;
-		}
-	}
-} // LedGame
-
-void DoPIDDisplays()
-{
-	if ( IntegralTest )
-	{
-		ALL_LEDS_OFF;
-		if( (int8)(RollSum>>8) > 0 )
-			LedRed_ON;
-		else
-			if( (int8)(RollSum>>8) < -1 )
-				LedGreen_ON;
-
-		if( (int8)(PitchSum>>8) >  0 )
-			LedYellow_ON;
-		else
-			if( (int8)(PitchSum>>8) < -1 )
-				LedBlue_ON;
-	}
-	else
-		if( CompassTest )
-		{
-			ALL_LEDS_OFF;
-			if( CurDeviation > 0 )
-				LedGreen_ON;
-			else
-				if( CurDeviation < 0 )
-					LedRed_ON;
-			if( AbsDirection > COMPASS_MAX )
-				LedYellow_ON;
-		}
-} // DoPIDDisplays
-
-void SendLeds(void)
+void SendLEDs(void)
 {
 	int8	i, s;
-	i = LedShadow;
+	i = LEDShadow;
 	SPI_CS = DSEL_LISL;	
 	SPI_IO = WR_SPI;	// SDA is output
 	SPI_SCL = 0;		// because shift is on positive edge
@@ -478,18 +410,120 @@ void SendLeds(void)
 	SPI_IO = RD_SPI;
 }
 
-void SwitchLedsOn(uint8 l)
+void SwitchLEDsOn(uint8 l)
 {
-	LedShadow |= l;
-	SendLeds();
-} // SwitchLedsOn
+	LEDShadow |= l;
+	SendLEDs();
+} // SwitchLEDsOn
 
-void SwitchLedsOff(uint8 l)
+void SwitchLEDsOff(uint8 l)
 {
-	LedShadow &= ~l;
-	SendLeds();
-} // SwitchLedsOff
+	LEDShadow &= ~l;
+	SendLEDs();
+} // SwitchLEDsOff
 
+void LEDGame(void)
+{
+	if( --LEDCount == 0 )
+	{
+		LEDCount = ((255-DesiredThrottle)>>3) +5;	// new setup
+		if( _Hovering )
+		{
+			AUX_LEDS_ON;	// baro locked, all aux-leds on
+		}
+		else
+		if( LEDShadow & LEDAUX1 )
+		{
+			AUX_LEDS_OFF;
+			LEDAUX2_ON;
+		}
+		else
+		if( LEDShadow & LEDAUX2 )
+		{
+			AUX_LEDS_OFF;
+			LEDAUX3_ON;
+		}
+		else
+		{
+			AUX_LEDS_OFF;
+			LEDAUX1_ON;
+		}
+	}
+} // LEDGame
+
+void DoPIDDisplays(void)
+{
+	if ( IntegralTest )
+	{
+		ALL_LEDS_OFF;
+		if( (int8)(RollSum>>8) > 0 )
+			LEDRed_ON;
+		else
+			if( (int8)(RollSum>>8) < -1 )
+				LEDGreen_ON;
+
+		if( (int8)(PitchSum>>8) >  0 )
+			LEDYellow_ON;
+		else
+			if( (int8)(PitchSum>>8) < -1 )
+				LEDBlue_ON;
+	}
+	else
+		if( CompassTest )
+		{
+			ALL_LEDS_OFF;
+			if( CurDeviation > 0 )
+				LEDGreen_ON;
+			else
+				if( CurDeviation < 0 )
+					LEDRed_ON;
+			if( AbsDirection > COMPASS_MAX )
+				LEDYellow_ON;
+		}
+} // DoPIDDisplays
+
+void CheckAlarms(void)
+{
+	int16 NewBatteryVolts;
+
+	NewBatteryVolts = ADC(ADCBattVoltsChan, ADCVREF5V) >> 3; 
+	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
+	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
+
+// zzz fix later
+
+	if( _LowBatt ) // repeating beep
+	{
+		if( ( BlinkCount & 0x0040) == 0 )
+		{
+			Beeper_ON;
+			LEDRed_ON;
+		}
+		else
+		{
+			Beeper_OFF;
+			LEDRed_OFF;
+		}	
+	}
+	else
+	if ( _LostModel ) // 2 beeps with interval
+		if( (BlinkCount & 0x0080) == 0 )
+		{
+			Beeper_ON;
+			LEDRed_ON;
+		}
+		else
+		{
+			Beeper_OFF;
+			LEDRed_OFF;
+		}	
+	else
+	{
+		Beeper_OFF;				
+		LEDRed_OFF;
+	}
+
+} // CheckAlarms
 
 void DumpTrace(void)
 {

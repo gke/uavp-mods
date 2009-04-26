@@ -26,9 +26,8 @@
 #endif
 
 #include "uavx.h"
-#include "bits.h"
 
-// The globals
+// Global Variables
 
 #pragma udata mainvars
 uint8	IGas;	
@@ -55,7 +54,7 @@ int16	VBaroComp;
 uint16	BaroVal;
 uint8	BaroType, BaroTemp, BaroRestarts;
 
-uint8	LedShadow;		// shadow register
+uint8	LEDShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
@@ -79,7 +78,7 @@ int16	Trace[LastTrace];
 
 uint16	PauseTime;
 
-int16	IntegralCount, ThrDownCount, DropoutCount, LedCount, BaroCount;
+int16	IntegralCount, ThrDownCount, DropoutCount, LEDCount, BaroCount;
 int16	FakeGPSCount;
 uint32 	BlinkCount;
 uint24	RCGlitchCount;
@@ -120,8 +119,6 @@ int8	BaroThrottleDiff	=4;
 #pragma idata
 // End Parameters
 
-
-
 void main(void)
 {
 	int8	i;
@@ -132,7 +129,7 @@ void main(void)
 	InitADC();
  
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
-			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, 104 );//_B9600);
+			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400 );
 
 	InitTimersAndInterrupts();
 
@@ -157,7 +154,7 @@ void main(void)
 
     ALL_LEDS_OFF;
 	Beeper_OFF;
-	LedBlue_ON;
+	LEDBlue_ON;
 	AUX_LEDS_ON;
 
 	INTCONbits.PEIE = true;		
@@ -172,9 +169,9 @@ void main(void)
 	NeutralUD = 0;
 	if ( _UseLISL )
 	{
-		LedYellow_ON;
+		LEDYellow_ON;
 		GetNeutralAccelerations();
-		LedYellow_OFF;
+		LEDYellow_OFF;
 	}
 
 	InitBarometer();
@@ -193,16 +190,16 @@ void main(void)
 		// Yellow led to indicate linear sensor functioning.
 		if( !( _Signal && Armed ) )
 		{
-			LedRed_ON;
-			LedGreen_OFF;
+			LEDRed_ON;
+			LEDGreen_OFF;
 			if ( _UseLISL  )
-				LedYellow_ON;
+				LEDYellow_ON;
 		}
 		else
 		{
-			LedGreen_ON;
-			LedRed_OFF;
-			LedYellow_OFF;
+			LEDGreen_ON;
+			LEDRed_OFF;
+			LEDYellow_OFF;
 		}
 
 		ReadParametersEE();

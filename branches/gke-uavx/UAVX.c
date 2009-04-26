@@ -27,10 +27,10 @@
 
 #include "uavx.h"
 
-// The globals
+// Global Variables
 
-uint8	IGas;			// actual input channel, can only be positive!
-int8 	IRoll,IPitch,IYaw;	// actual input channels, 0 = neutral
+uint8	IGas;						// actual input channel, can only be positive!
+int8 	IRoll,IPitch,IYaw;			// actual input channels, 0 = neutral
 uint8	IK5;						// actual channel 5 input
 uint8	IK6;						// actual channel 6 input
 uint8	IK7;						// actual channel 7 input
@@ -57,7 +57,7 @@ uint16	BaroVal;
 int16	VBaroComp;
 uint8	BaroType, BaroTemp, BaroRestarts;
 
-uint8	LedShadow;		// shadow register
+uint8	LEDShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
@@ -71,7 +71,7 @@ int16	Trace[LastTrace];
 
 uint8	Flags[32];
 
-int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LedCount, BlinkCycle, BaroCount;
+int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LEDCount, BlinkCycle, BaroCount;
 int16	FakeGPSCount;
 uint32	BlinkCount;
 uint24	RCGlitchCount;
@@ -111,85 +111,6 @@ int8	CompassFactor		=5;
 int8	BaroThrottleDiff	=4;
 #pragma idata
 
-
-// Ende Reihenfolgezwang
-
-
-void WaitThrottleClosed(void)
-{
-	DropoutCount = 1;
-	while( (IGas >= _ThresStop) )
-	{
-		if ( !_Signal)
-			break;
-		if( _NewValues )
-		{
-			OutSignals();
-			_NewValues = false;
-			if( --DropoutCount <= 0 )
-			{
-				LedRed_TOG;	// toggle red Led 
-				DropoutCount = 10;		// to signal: THROTTLE OPEN
-			}
-		}
-		ProcessComCommand();
-	}
-	LedRed_OFF;
-} // WaitThrottleClosed
-
-void CheckThrottleMoved(void)
-{
-	int16 Temp;
-
-	if( _NewValues )
-	{
-		if( ThrDownCount > 0 )
-		{
-			if( (LedCount & 1) == 0 )
-				ThrDownCount--;
-			if( ThrDownCount == 0 )
-				ThrNeutral = DesiredThrottle;	// remember current Throttle level
-		}
-		else
-		{
-			if( ThrNeutral < THR_MIDDLE )
-				Temp = 0;
-			else
-				Temp = ThrNeutral - THR_MIDDLE;
-
-			if( DesiredThrottle < THR_HOVER ) // no hovering below this throttle setting
-				ThrDownCount = THR_DOWNCOUNT;	// left dead area
-
-			if( DesiredThrottle < Temp )
-				ThrDownCount = THR_DOWNCOUNT;	// left dead area
-			if( DesiredThrottle > ThrNeutral + THR_MIDDLE )
-				ThrDownCount = THR_DOWNCOUNT;	// left dead area
-		}
-	}
-} // CheckThrottleMoved
-
-void WaitForRxSignal(void)
-{
-	DropoutCount = MODELLOSTTIMER;
-	do
-	{
-		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
-		ProcessComCommand();
-		if( !_Signal )
-			if( Armed )
-			{
-				if( --DropoutCount == 0 )
-				{
-					_LostModel = true;
-					DropoutCount = MODELLOSTTIMERINT;
-				}
-			}
-			else
-				_LostModel = false;
-	}
-	while( !( _Signal && Armed ) );	// no signal or switch is off
-} // WaitForRXSignal
-
 void main(void)
 {
 	uint8	i;
@@ -208,9 +129,9 @@ void main(void)
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
 	
-	LedShadow = 0;
+	LEDShadow = 0;
     ALL_LEDS_OFF;
-	LedRed_ON;
+	LEDRed_ON;
 
 	InitArrays();`
 	InitParams();
@@ -248,9 +169,9 @@ Restart:
 		ReceivingGPSOnly(false);
 
 		ALL_LEDS_OFF;
-		LedRed_ON;	
+		LEDRed_ON;	
 		if( _UseLISL )
-			LedYellow_ON;
+			LEDYellow_ON;
 
 		InitArrays();
 		ThrNeutral = 0xFF;
@@ -340,22 +261,22 @@ Restart:
 
 				ALL_LEDS_OFF;				
 				AUX_LEDS_OFF;
-				LedGreen_ON;
+				LEDGreen_ON;
 			}
 			else
 			{	// UFO is flying!
 				if( !_Flying )	// about to start
 				{	
 					AbsDirection = COMPASS_INVAL;						
-					LedCount = 1;
+					LEDCount = 1;
 				}
 
 				_Flying = true;
 				_LostModel = false;
 				DropoutCount = 0;
 				LowGasCount = 100;		
-				LedGreen_ON;
-				LedGame();
+				LEDGreen_ON;
+				LEDGame();
 DoPID:
 				CheckThrottleMoved();
 

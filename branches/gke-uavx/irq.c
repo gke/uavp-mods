@@ -35,6 +35,15 @@
 
 // Interrupt Routine
 
+// Prototypes
+
+void ReceivingGPSOnly(uint8);
+void InitTimersAndInterrupts(void);
+void low_isr_handler(void);
+void high_isr_handler(void);
+
+// Variables
+
 #pragma udata isrvars
 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 int8	RCState;
@@ -47,11 +56,11 @@ uint8 RxCheckSum, RxHead, RxTail;
 uint8 RxBuff[RXBUFFMASK+1];
 #pragma udata 
 
-
 void ReceivingGPSOnly(uint8 r)
 {
 	if ( r != _ReceivingGPS )
 	{
+		PIE1bits.RCIE = false;
 		_ReceivingGPS = r;
 		if ( _ReceivingGPS )
 			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&

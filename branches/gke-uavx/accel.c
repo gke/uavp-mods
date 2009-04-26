@@ -23,8 +23,50 @@
 
 #include "uavx.h"
 
+// Prototypes
+
+void SendCommand(int8);
+uint8 ReadLISL(uint8);
+uint8 ReadLISLNext(void);
+void WriteLISL(uint8, uint8);
+void IsLISLactive(void);
+void InitLISL(void);
+void ReadAccelerations(void);
+void GetNeutralAccelerations(void);
+
+// Constants
+
 #define SPI_HI_DELAY Delay10TCY()
 #define SPI_LO_DELAY Delay10TCY()
+
+// LISL-Register mapping
+
+#define	LISL_WHOAMI		(0x0f)
+#define	LISL_OFFSET_X	(0x16)
+#define	LISL_OFFSET_Y	(0x17)
+#define	LISL_OFFSET_Z	(0x18)
+#define	LISL_GAIN_X		(0x19)
+#define	LISL_GAIN_Y		(0x1A)
+#define	LISL_GAIN_Z		(0x1B)
+#define	LISL_CTRLREG_1	(0x20)
+#define	LISL_CTRLREG_2	(0x21)
+#define	LISL_CTRLREG_3	(0x22)
+#define	LISL_STATUS		(0x27)
+#define LISL_OUTX_L		(0x28)
+#define LISL_OUTX_H		(0x29)
+#define LISL_OUTY_L		(0x2A)
+#define LISL_OUTY_H		(0x2B)
+#define LISL_OUTZ_L		(0x2C)
+#define LISL_OUTZ_H		(0x2D)
+#define LISL_FF_CFG		(0x30)
+#define LISL_FF_SRC		(0x31)
+#define LISL_FF_ACK		(0x32)
+#define LISL_FF_THS_L	(0x34)
+#define LISL_FF_THS_H	(0x35)
+#define LISL_FF_DUR		(0x36)
+#define LISL_DD_CFG		(0x38)
+#define LISL_INCR_ADDR	(0x40)
+#define LISL_READ		(0x80)
 
 void SendCommand(int8 c)
 {
@@ -179,145 +221,4 @@ void GetNeutralAccelerations(void)
 	NeutralFB = Limit(Pp, -99, 99);
 	NeutralUD = Limit(Yp-1024, -99, 99); // -1g
 } // GetNeutralAccelerations
-
-void AccelerationCompensation(void)
-{
-	int16 AbsRollSum, AbsPitchSum, Temp;
-	int16 Rp, Pp, Yp;
-
-	if( _UseLISL )
-	{
-		ReadAccelerations();
-
-		Rp = Ax;
-		Yp = Ay;
-		Pp = Az;;
-		
-		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
-		// and come back as MiddleLR etc.
-	
-		// 1 unit is 1/4096 of 2g = 1/2048g
-		Rp -= MiddleLR;
-		Pp -= MiddleFB;
-		Yp -= MiddleUD;
-	
-		Yp -= 1024;	// subtract 1g
-	
-		#ifdef ENABLE_VERTICAL_VELOCITY_DAMPING
-		// UDSum rises if ufo climbs
-		// Empirical - vertical acceleration decreases at ~approx Angle/8
-
-		AbsRollSum = Abs(RollSum);
-		AbsPitchSum = Abs(PitchSum);
-
-		if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
-			UDSum += Yp + SRS16( AbsRollSum + AbsPitchSum, 3);
-
-		UDSum = Limit(UDSum , -16384, 16384); 
-		UDSum = DecayBand(UDSum, -10, 10, 10);
-	
-		Temp = SRS16(SRS16(UDSum, 4) * (int16) LinUDIntFactor, 8);
-		if( (BlinkCount & 0x0003) == 0 )	
-			if( Temp > Vud ) 
-				Vud++;
-			else
-				if( Temp < Vud )
-					Vud--;
-	
-		Vud = Limit(Vud, -20, 20);
-	
-		#endif // ENABLE_VERTICAL_VELOCITY_DAMPING
-
-		#ifdef DEBUG_SENSORS
-		if( IntegralCount == 0 )
-		{
-			Trace[TAx]= Rp;
-			Trace[TAz] = Pp;
-			Trace[TAy] = Yp;
-
-			Trace[TUDSum] = UDSum;
-			Trace[TVud] = Vud;
-		}
-		#endif
-	
-		// Roll
-
-		// Static compensation due to Gravity
-		#ifdef OPT_ADXRS
-		Rp -= SRS16(RollSum * 11, 5);
-		#else // OPT_IDG
-		Rp -= SRS16(RollSum * (-15), 5); 
-		#endif
-	
-		#ifndef ENABLE_DYNAMIC_MASS_COMP_ROLL
-		// dynamic correction of moved mass
-		#ifdef OPT_ADXRS
-		Rp += (int16)RollRate << 1;
-		#else // OPT_IDG
-		Rp -= (int16)RollRate;
-		#endif	
-		#else
-		// no dynamic correction of moved mass
-		#endif
-
-		// correct DC level of the integral
-		LRIntKorr = 0;
-		#ifdef OPT_ADXRS
-		if( Rp > 10 ) LRIntKorr =  1;
-		else
-			if( Rp < 10 ) LRIntKorr = -1;
-		#else // OPT_IDG
-		if( Rp > 10 ) LRIntKorr = -1;
-		else
-			if( Rp < 10 ) LRIntKorr =  1;
-		#endif
-	
-		// Pitch
-
-		Pp = -Pp;				// long standing BUG!
-
-		// Static compensation due to Gravity
-		#ifdef OPT_ADXRS
-		Pp -= SRS16(PitchSum * 11, 5);	
-		#else // OPT_IDG
-		Pp -= SRS16(PitchSum * (-15), 5);
-		#endif
-		
-		#ifndef ENABLE_DYNAMIC_MASS_COMP_PITCH
-		// dynamic correction of moved mass
-		#ifdef OPT_ADXRS
-		Pp += (int16)PitchRate << 1;
-		#else // OPT_IDG
-		Pp -= (int16)PitchRate;
-		#endif	
-		#else
-		// no dynamic correction of moved mass
-		#endif
-	
-		// correct DC level of the integral
-		FBIntKorr = 0;
-		#ifdef OPT_ADXRS
-		if( Pp > 10 ) FBIntKorr =  1; 
-		else 
-			if( Pp < 10 ) FBIntKorr = -1;
-		#endif
-		#ifdef OPT_IDG
-		if( Pp > 10 ) FBIntKorr = -1;
-		else
-			if( Pp < 10 ) FBIntKorr =  1;
-		#endif		
-	}	
-	else
-	{
-		Vud = 0;
-		#ifdef DEBUG_SENSORS
-		Trace[TAx] = 0;
-		Trace[TAz] = 0;
-		Trace[TAy] = 0;
-
-		Trace[TUDSum] = 0;
-		Trace[TVud] = 0;
-		#endif
-	}
-} // AccelerationCompensation
 

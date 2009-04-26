@@ -21,6 +21,15 @@
 
 #include "uavx.h"
 
+// Prototypes
+
+void InitDirection(void);
+void GetDirection(void);
+uint8 ReadValueFromBaro(void);
+uint8 StartBaroADC(uint8);
+void InitBarometer(void);
+void ComputeBaroComp(void);
+
 void InitDirection(void)
 {
 	// 20Hz continuous read with periodic reset.

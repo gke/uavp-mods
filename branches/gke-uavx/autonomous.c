@@ -23,6 +23,7 @@
 #include "uavx.h"
 
 // Prototypes
+
 void Descend(void);
 void Navigate(int16, int16);
 void CheckAutonomous(void);
@@ -71,7 +72,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	{
 		EastDiff = GPSEastWay - GPSEast;
 		NorthDiff = GPSNorthWay - GPSNorth;
-		Heading = CompassHeading - GPSMagVariation;
+		Heading = CompassHeading - ConvertDDegToMPi(MAGNETIC_VARIATION*10L);
 	
 		if ( (Abs(EastDiff) !=0 ) || (Abs(NorthDiff) != 0 ))
 		{ 
@@ -178,7 +179,7 @@ void CheckAutonomous(void)
 	if(  BlinkCount >= FakeGPSCount )
 	{
 
-		Heading = CompassHeading - GPSMagVariation;
+		Heading = CompassHeading - ConvertDDegToMPi(MAGNETIC_VARIATION*10L);
 
 		FakeGPSCount = BlinkCount + 50;
 		CosH = int16cos(Heading);
@@ -195,7 +196,6 @@ void CheckAutonomous(void)
 		GPSNorth += FAKE_NORTH_WIND; // wind	
 
 		#ifdef GPS_USE_RMC
-		GPSMagVariation = 0;
 		GPSGroundSpeed = 99;
 		GPSHeading = 99;
 		#else
@@ -208,7 +208,7 @@ void CheckAutonomous(void)
 		_GPSValid = true;
 		_NavComputed = false;
 
-		TxVal32((int32)((int32)Heading*180L)/(int32)MILLIPI, 0, ' ');
+		TxVal32((int32)ConvertMPiToDDeg(Heading), 1, ' ');
 		if ( _CompassMisRead )
 			TxChar('?');
 		else

@@ -23,6 +23,22 @@
 
 #include "uavx.h"
 
+// Prototypes
+
+void TxString(const rom uint8 *);
+void TxChar(uint8);
+void TxValU(uint8);
+void TxValS(int8);
+void TxNextLine(void);
+void TxNibble(uint8);
+void TxValH(uint8);
+void TxValH16(uint16);
+uint8 RxChar(void);
+uint8 PollRxChar(void);
+uint8 RxNumU(void);
+int8 RxNumS(void);
+void TxVal32(int32, int8, uint8);
+
 void TxString(const rom uint8 *pch)
 {
 	while( *pch != '\0' )

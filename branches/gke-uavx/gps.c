@@ -23,6 +23,7 @@
 #include "uavx.h"
 
 // Prototypes
+
 void ParseGPSSentence(void);
 void PollGPS(void);
 void InitGPS(void);
@@ -38,13 +39,14 @@ boolean GPSSentenceReceived;
 
 #ifdef GPS_USE_RMC
 uint8 GPSMode;
-int16 GPSGroundSpeed, GPSMagVariation, GPSHeading;
+int16 GPSGroundSpeed, GPSHeading;
 #else
 uint8 GPSNoOfSats;
 uint8 GPSFix;
 int16 GPSHDilute;
 #endif // GPS_USE_RMC
 
+int32 GPSMissionTime;
 int32 GPSOriginLatitude, GPSOriginLongitude;
 int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
 int16 GPSAltitude, GPSOriginAltitude;
@@ -167,7 +169,7 @@ void ParseGPSSentence()
 	#ifdef NMEA_ALL
 	GPSMissionTime=ConvertUTime(lo,hi);
 	#else
-//	GPSMissionTime = 0;
+	GPSMissionTime = 0;
 	#endif // NMEA_ALL  
 
 	UpdateField();	// Status
@@ -199,13 +201,14 @@ void ParseGPSSentence()
     UpdateField();   // Date
 
 	UpdateField();
+	/* Not produced by most GPS units
 	GPSMagVariation = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi);
 	//GPSMagVariation = ((int32)GPSMagVariation * MILLIPI)/1800L;
 	GPSMagVariation = ConvertDDegToMPi(GPSMagVariation);
     UpdateField();   // Mag Var Units
 	if (GPSRxBuffer[lo]=='W')
 		GPSMagVariation = -GPSMagVariation;
-
+	*/
 	UpdateField();   // Mode (A,D,E)
 	GPSMode = GPSRxBuffer[lo];
     
@@ -402,7 +405,7 @@ void InitGPS()
 
 	#ifdef GPS_USE_RMC
 	GPSMode = 'X';
-	GPSHeading = GPSMagVariation = GPSGroundSpeed = 0;
+	GPSHeading = GPSGroundSpeed = 0;
 	#else
 	GPSFix = GPSNoOfSats = GPSHDilute = 0;
 	#endif // GPS_USE_RMC
@@ -427,8 +430,8 @@ void UpdateGPS(void)
 
 	if ( GPSSentenceReceived )
 	{
-		LedBlue_ON;
-		LedRed_OFF;
+		LEDBlue_ON;
+		LEDRed_OFF;
 		GPSSentenceReceived=false;  
 		ParseGPSSentence(); // 7.5mS 18f2520 @ 16MHz
 		if ( _GPSValid )
@@ -444,11 +447,11 @@ void UpdateGPS(void)
 			else
 				GPSCount++;
 
-	LedBlue_OFF;
+	LEDBlue_OFF;
 	if ( _GPSValid )
-		LedRed_OFF;
+		LEDRed_OFF;
 	else
-		LedRed_ON;	
+		LEDRed_ON;	
 
 } // UpdateGPS
 

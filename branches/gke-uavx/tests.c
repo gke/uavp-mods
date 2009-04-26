@@ -20,7 +20,6 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include "bits.h"
 #include "uavx.h"
 
 // Prototypes
@@ -304,8 +303,8 @@ void PowerOutput(int8 d)
 	m = 1 << d;
 	for( s=0; s < 10; s++ )	// 10 flashes (count MUST be even!)
 	{
-		LedShadow ^= m;
-		SendLeds();
+		LEDShadow ^= m;
+		SendLEDs();
 		Delay1mS(200);
 	}		
 } // PowerOutput
@@ -341,10 +340,10 @@ void GPSTest(void)
 				DesiredRoll = DesiredPitch = 0;
 
 			GetDirection();
-//Heading +=MILLIPI/32;
+
 			Navigate(0, 0);
 
-			TxVal32((int32)((int32)CompassHeading*180L)/(int32)MILLIPI, 0, 0);
+			TxVal32((int32)ConvertMPiToDDeg(CompassHeading), 1, 0);
 			if ( _CompassMisRead )
 				TxChar('?');
 			else
@@ -353,9 +352,9 @@ void GPSTest(void)
 			#ifdef GPS_USE_RMC
 	
 			TxString(" h=");
-			TxVal32((int32)((int32)GPSHeading*180L)/(int32)MILLIPI, 0, 0);
+			TxVal32((int32)ConvertMPiToDDeg(GPSHeading),1, 0);
 			TxString(" mv=");
-			TxVal32((int32)((int32)GPSMagVariation*180L)/(int32)MILLIPI, 0, 0);	
+			TxVal32((int32)MAGNETIC_VARIATION, 0, 0);	
 
 			TxString(" mode=");
 			TxChar(GPSMode);
@@ -458,9 +457,7 @@ void AnalogTest(void)
 	TxVal32(v, 3, 'V');
 	if ( ( v < 3000 ) || ( v > 4000 ) )
 		TxString(" fault?");	
-	TxNextLine();
-
-	
+	TxNextLine();	
 } // AnalogTest
 
 #ifdef ESC_YGEI2C

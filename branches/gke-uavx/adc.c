@@ -22,6 +22,7 @@
 #include "uavx.h"
 
 // Prototypes
+
 int16 ADC(uint8, uint8);
 void InitADC(void);
 

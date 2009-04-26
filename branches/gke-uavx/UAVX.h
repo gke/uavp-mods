@@ -10,6 +10,7 @@
 // Navigation
 
 // The "Ls" are important
+#define MAGNETIC_VARIATION		6L		// Positive East degrees
 #define COMPASS_OFFSET_DEG		90L		// North degrees CW from Front
 #define MAX_ANGLE 				20L		// Rx stick units ~= degrees
 #define CLOSING_RADIUS			20L		// closing radius in metres 
@@ -18,12 +19,12 @@
 #define OVERRIDE_HOVER_CONDITION
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
 
-// JIM reduce or make this zero if you get overshoots
-#define NavIntLimit 			4		// integral term for windy conditions! 	
+// JIM increase this if you wish to a maximum of say 4
+#define NavIntLimit 			0		// integral term for windy conditions! 	
 
 // Accelerometer
 
-// Enable vertical acclerometer compensation of vertical velocity 
+// Enable vertical accelerometer compensation of vertical velocity 
 //#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
@@ -104,7 +105,7 @@
 
 #endif // !BATCHMODE
 
-// Adopted extensions or major modifications to original version
+// UAVX Extensions
 
 // Baro
 
@@ -153,31 +154,10 @@
 
 // Bit definitions
 
-// when changing, see OutSignal() in outputs.c
-#ifdef ESC_PPM
-#define	PulseFront		0
-#define	PulseLeft		1
-#define	PulseRight		2
-#define	PulseBack		3
-#endif
-
-#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
-// Wolfgang's SW I2C ESC
-#define	 ESC_SDA		PORTBbits.RB1
-#define	 ESC_SCL		PORTBbits.RB2
-#define	 ESC_DIO		TRISBbits.TRISB1
-#define	 ESC_CIO		TRISBbits.TRISB2
-#endif
-
-#define	PulseCamRoll	4
-#define	PulseCamPitch	5
-
-#define ALL_PULSE_ON	PORTB |= 0b00001111
-#define ALL_OUTPUTS_OFF	PORTB &= 0b11110000
-#define ALL_OUTPUTS		(PORTB & 0b00001111)
-#define CAM_PULSE_ON	PORTB |= 0b00110000;
-
 #define Armed		(PORTAbits.RA4)
+
+#define	I2C_ACK		((uint8)(0))
+#define	I2C_NACK	((uint8)(1))
 
 #define SPI_CS		PORTCbits.RC5
 #define SPI_SDA		PORTCbits.RC4
@@ -186,18 +166,8 @@
 
 #define	RD_SPI	1
 #define WR_SPI	0
-
 #define DSEL_LISL  1
 #define SEL_LISL  0
-
-// the sensor bus lines
-#define I2C_SDA			PORTBbits.RB6
-#define I2C_DIO			TRISBbits.TRISB6
-#define I2C_SCL			PORTBbits.RB7
-#define I2C_CIO			TRISBbits.TRISB7
-
-#define	I2C_ACK		((uint8)(0))
-#define	I2C_NACK	((uint8)(1))
 
 // The LEDs and the beeper
 #define ON	1
@@ -207,13 +177,17 @@
 								after lost xmit signal */
 #define MODELLOSTTIMERINT	2 	/* in 0,2 sec units
 								interval beep when active */
-#define LedYellow	LED6
-#define LedGreen	LED4
-#define	LedBlue		LED2
-#define LedRed		LED3
-#define LedAUX1		LED5
-#define LedAUX2		LED1
-#define LedAUX3		LED7
+
+
+// LEDs
+
+#define LEDYellow	LED6
+#define LEDGreen	LED4
+#define	LEDBlue		LED2
+#define LEDRed		LED3
+#define LEDAUX1		LED5
+#define LEDAUX2		LED1
+#define LEDAUX3		LED7
 
 #define LED1	0x01	/* Aux2 */
 #define LED2	0x02	/* blue */
@@ -224,31 +198,31 @@
 #define LED7	0x40	/* Aux3 */
 #define Beeper	0x80
 
-#define ALL_LEDS_ON		SwitchLedsOn(LedBlue|LedRed|LedGreen|LedYellow)
-#define AUX_LEDS_ON		SwitchLedsOn(LedAUX1|LedAUX2|LedAUX3)
+#define ALL_LEDS_ON		SwitchLEDsOn(LEDBlue|LEDRed|LEDGreen|LEDYellow)
+#define AUX_LEDS_ON		SwitchLEDsOn(LEDAUX1|LEDAUX2|LEDAUX3)
 
-#define ALL_LEDS_OFF	SwitchLedsOff(LedBlue|LedRed|LedGreen|LedYellow)
-#define AUX_LEDS_OFF	SwitchLedsOff(LedAUX1|LedAUX2|LedAUX3)
+#define ALL_LEDS_OFF	SwitchLEDsOff(LEDBlue|LEDRed|LEDGreen|LEDYellow)
+#define AUX_LEDS_OFF	SwitchLEDsOff(LEDAUX1|LEDAUX2|LEDAUX3)
 
-#define ARE_ALL_LEDS_OFF if((LedShadow&(LedBlue|LedRed|LedGreen|LedYellow))==0)
+#define ARE_ALL_LEDS_OFF if((LEDShadow&(LEDBlue|LEDRed|LEDGreen|LEDYellow))==0)
 
-#define LedRed_ON		SwitchLedsOn(LedRed)
-#define LedBlue_ON		SwitchLedsOn(LedBlue)
-#define LedGreen_ON		SwitchLedsOn(LedGreen)
-#define LedYellow_ON	SwitchLedsOn(LedYellow)
-#define LedAUX1_ON		SwitchLedsOn(LedAUX1)
-#define LedAUX2_ON		SwitchLedsOn(LedAUX2)
-#define LedAUX3_ON		SwitchLedsOn(LedAUX3)
-#define LedRed_OFF		SwitchLedsOff(LedRed)
-#define LedBlue_OFF		SwitchLedsOff(LedBlue)
-#define LedGreen_OFF	SwitchLedsOff(LedGreen)
-#define LedYellow_OFF	SwitchLedsOff(LedYellow)
-#define LedRed_TOG		if( (LedShadow&LedRed) == 0 ) SwitchLedsOn(LedRed); else SwitchLedsOff(LedRed)
-#define LedBlue_TOG		if( (LedShadow&LedBlue) == 0 ) SwitchLedsOn(LedBlue); else SwitchLedsOff(LedBlue)
-#define LedGreen_TOG	if( (LedShadow&LedGreen) == 0 ) SwitchLedsOn(LedGreen); else SwitchLedsOff(LedGreen)
-#define Beeper_OFF		SwitchLedsOff(Beeper)
-#define Beeper_ON		SwitchLedsOn(Beeper)
-#define Beeper_TOG		if( (LedShadow&Beeper) == 0 ) SwitchLedsOn(Beeper); else SwitchLedsOff(Beeper);
+#define LEDRed_ON		SwitchLEDsOn(LEDRed)
+#define LEDBlue_ON		SwitchLEDsOn(LEDBlue)
+#define LEDGreen_ON		SwitchLEDsOn(LEDGreen)
+#define LEDYellow_ON	SwitchLEDsOn(LEDYellow)
+#define LEDAUX1_ON		SwitchLEDsOn(LEDAUX1)
+#define LEDAUX2_ON		SwitchLEDsOn(LEDAUX2)
+#define LEDAUX3_ON		SwitchLEDsOn(LEDAUX3)
+#define LEDRed_OFF		SwitchLEDsOff(LEDRed)
+#define LEDBlue_OFF		SwitchLEDsOff(LEDBlue)
+#define LEDGreen_OFF	SwitchLEDsOff(LEDGreen)
+#define LEDYellow_OFF	SwitchLEDsOff(LEDYellow)
+#define LEDRed_TOG		if( (LEDShadow&LEDRed) == 0 ) SwitchLEDsOn(LEDRed); else SwitchLEDsOff(LEDRed)
+#define LEDBlue_TOG		if( (LEDShadow&LEDBlue) == 0 ) SwitchLEDsOn(LEDBlue); else SwitchLEDsOff(LEDBlue)
+#define LEDGreen_TOG	if( (LEDShadow&LEDGreen) == 0 ) SwitchLEDsOn(LEDGreen); else SwitchLEDsOff(LEDGreen)
+#define Beeper_OFF		SwitchLEDsOff(Beeper)
+#define Beeper_ON		SwitchLEDsOn(Beeper)
+#define Beeper_TOG		if( (LEDShadow&Beeper) == 0 ) SwitchLEDsOn(Beeper); else SwitchLEDsOff(Beeper);
 
 // compass sensor
 #define COMPASS_I2C_ID	0x42	/* I2C slave address */
@@ -277,6 +251,8 @@
 #define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
 #define THR_HOVER		75		/* min throttle stick for alti lock */
+
+// Status 
 
 #define	_Signal		Flags[0]	/* if no valid signal is received */
 #define	_Flying			Flags[1]	/* UFO is flying */
@@ -309,43 +285,10 @@
 #define NegativePPM		IsSet(ConfigParam,4)
 #define CompassTest		IsSet(ConfigParam,5)
 
-// LISL-Register mapping
-#define	LISL_WHOAMI		(0x0f)
-#define	LISL_OFFSET_X	(0x16)
-#define	LISL_OFFSET_Y	(0x17)
-#define	LISL_OFFSET_Z	(0x18)
-#define	LISL_GAIN_X		(0x19)
-#define	LISL_GAIN_Y		(0x1A)
-#define	LISL_GAIN_Z		(0x1B)
-#define	LISL_CTRLREG_1	(0x20)
-#define	LISL_CTRLREG_2	(0x21)
-#define	LISL_CTRLREG_3	(0x22)
-#define	LISL_STATUS		(0x27)
-#define LISL_OUTX_L		(0x28)
-#define LISL_OUTX_H		(0x29)
-#define LISL_OUTY_L		(0x2A)
-#define LISL_OUTY_H		(0x2B)
-#define LISL_OUTZ_L		(0x2C)
-#define LISL_OUTZ_H		(0x2D)
-#define LISL_FF_CFG		(0x30)
-#define LISL_FF_SRC		(0x31)
-#define LISL_FF_ACK		(0x32)
-#define LISL_FF_THS_L	(0x34)
-#define LISL_FF_THS_H	(0x35)
-#define LISL_FF_DUR		(0x36)
-#define LISL_DD_CFG		(0x38)
-#define LISL_INCR_ADDR	(0x40)
-#define LISL_READ		(0x80)
-
 // this enables common code for all ADXRS gyros
 // leave this untouched!
 #if defined OPT_ADXRS300 || defined OPT_ADXRS150
 #define OPT_ADXRS
-#endif
-
-// this enables common code for debugging purposes
-#if defined DEBUGOUT || defined DEBUGOUTG || defined DEBUGSSP
-#define DEBUG
 #endif
 
 #define Version	"1.0m3"
@@ -434,6 +377,7 @@ typedef float real32;
 // To speed up NMEA sentence porocessing 
 // must have a positive argument
 #define ConvertDDegToMPi(d) (((int32)d * 3574L)>>11)
+#define ConvertMPiToDDeg(d) (((int32)d * 2048L)/3574L)
 
 // Simple filters using weighted averaging
 #ifdef SUPPRESSFILTERS
@@ -508,19 +452,16 @@ typedef float real32;
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
 #define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
 
-
-
 #define MAXDROPOUT	400L	// 400 x 16 x 7ms = 40sec. dropout allowable
 #define GPSDROPOUT	20L		// 2sec.
 
 // Parameters for UART port
-
 // ClockHz/(16*(BaudRate+1))
 
 #define _B9600		104 
 #define _B19200		(_ClkOut*100000/(4*19200) - 1)
 #define _B38400		26 
-#define _B115200	9 //(_ClkOut*104000/(4*115200) - 1)
+#define _B115200	9 
 #define _B230400	(_ClkOut*100000/(4*115200) - 1)
 
 // EEPROM parameter set addresses
@@ -561,157 +502,158 @@ typedef float real32;
 // Prototypes
 
 // accel.c
-extern void AccelerationCompensation(void);
-extern void IsLISLactive(void);
-extern void InitLISL(void);
+extern void SendCommand(int8);
 extern uint8 ReadLISL(uint8);
 extern uint8 ReadLISLNext(void);
+extern void WriteLISL(uint8, uint8);
+extern void IsLISLactive(void);
+extern void InitLISL(void);
 extern void ReadAccelerations(void);
+extern void GetNeutralAccelerations(void);
 
 // adc.c
 extern int16 ADC(uint8, uint8);
 extern void InitADC(void);
 
 // autonomous.c
-extern void AcquireSatellites(void);
-extern void Navigate(int16, int16);
-extern void InitNavigation(void);
 extern void Descend(void);
+extern void Navigate(int16, int16);
+extern void CheckAutonomous(void);
 
 // compass_altimeter.c
 extern void InitDirection(void);
 extern void GetDirection(void);
+extern uint8 ReadValueFromBaro(void);
+extern uint8 StartBaroADC(uint8);
 extern void InitBarometer(void);
-extern void StartBaroAcq(uint8);
-extern uint16 ReadBaro(void);
-extern void GetBaroAltitude(void);
+extern void ComputeBaroComp(void);
+
+// control.c
+extern void AccelerationCompensation(void);
+extern void LimitRollSum(void);
+extern void LimitPitchSum(void);
+extern void LimitYawSum(void);
+extern void GetGyroValues(void);
+extern void CalcGyroValues(void);
+extern void PID(void);
+
+extern void WaitThrottleClosed(void);
+extern void CheckThrottleMoved(void);
+extern void WaitForRxSignal(void);
 
 // irq.c
 extern void InitTimersAndInterrupts(void);
 extern void ReceivingGPSOnly(uint8);
 
-// pid.c
-extern void GetNeutralAccelerations(void);
-extern void GetGyroValues(void);
-extern void CalcGyroValues(void);
-extern void PID(void);
-extern void LimitRollSum(void);
-extern void LimitPitchSum(void);
-extern void LimitYawSum(void);
-
 // gps.c
-extern void InitGPS(void);
-extern void PollGPS(void);
 extern void ParseGPSSentence(void);
+extern void PollGPS(void);
+extern void InitGPS(void);
 extern void UpdateGPS(void);
 
 // i2c.c
+void I2CDelay(void);
 extern void I2CStart(void);
 extern void I2CStop(void);
 extern uint8 SendI2CByte(uint8);
 extern uint8 RecvI2CByte(uint8);
 
+extern void EscI2CDelay(void);
+extern void EscWaitClkHi(void);
+extern void EscI2CStart(void);
+extern void EscI2CStop(void);
+extern void SendEscI2CByte(uint8);
+
+// menu.c
+extern void ShowPrompt(void);
+extern void ShowSetup(uint8);
+extern void ProcessComCommand(void);
+
 // outputs.c
+extern uint8 SaturInt(int16);
+extern void DoMix(int16 CurrThrottle);
+extern void CheckDemand(int16 CurrThrottle);
 extern void MixAndLimitMotors(void);
 extern void MixAndLimitCam(void);
 extern void OutSignals(void);
 
-// sensors.c
-extern void InitDirection(void);
-extern void GetDirection(void);
-extern void InitBarometer(void);
-extern void ComputeBaroComp(void);
-extern uint8 ReadValueFromBaro(void);
-extern uint8 StartBaroADC(uint8);
-
 // serial.c
-extern void ProcessCommand(void);
-extern void ShowSetup(uint8);
-extern uint8 RxChar(void);
-extern uint8 PollRxChar(void);
-extern int8 RxNumS(void);
-extern uint8 RxNumU(void);
-extern void TxValH16(uint16);
-extern void TxValH(uint8);
-extern void TxVal32(int32, int8, uint8);
+extern void TxString(const rom uint8 *);
 extern void TxChar(uint8);
-extern void TxNextLine(void);
 extern void TxValU(uint8);
 extern void TxValS(int8);
-extern void TxString(const rom uint8 *);
-
-// spi.c
-extern void IsLISLactive(void);
-extern void WaitLISLReady(void);
-extern void ReadAccelerations(void);
+extern void TxNextLine(void);
+extern void TxNibble(uint8);
+extern void TxValH(uint8);
+extern void TxValH16(uint16);
+extern uint8 RxChar(void);
+extern uint8 PollRxChar(void);
+extern uint8 RxNumU(void);
+extern int8 RxNumS(void);
+extern void TxVal32(int32, int8, uint8);
 
 // utils.c
-extern int32 SRS32(int32, uint8);
-extern int16 SRS16(int16, uint8);
-extern void CheckAlarms(void);
-extern void ReadParametersEE(void);
-extern void WriteParametersEE(uint8);
-extern void InitParams(void);
-extern 	void WriteEE(uint8, int8);
-extern 	int8 ReadEE(uint8);
-
-extern void SendLeds(void);
-extern void SwitchLedsOn(uint8);
-extern void SwitchLedsOff(uint8);
-extern void LEDGame(void);
-
-extern void DoDebugTraces(void);
-extern void Delay100mSWithOutput(int16);
 extern void Delay1mS(int16);
+extern void Delay100mSWithOutput(int16);
+extern int16 SRS16(int16, uint8);
+extern int32 SRS32(int32, uint8);
 extern void InitPorts(void);
-extern int16 Table16(int16, const int16 *);
-extern int16 Make2Pi(int16);
-extern int16 int16atan2(int16, int16);
-extern int16 int16sin(int16);
-extern int16 int16cos(int16);
-
-extern int16 ConvertMToGPS(int16);
-extern int16 ConvertGPSToM(int16);
-
 extern void InitArrays(void);
 
-#ifdef DEBUG_SENSORS
+extern int16 ConvertGPSToM(int16);
+extern int16 ConvertMToGPS(int16);
+
+extern 	int8 ReadEE(uint8);
+extern void ReadParametersEE(void);
+extern 	void WriteEE(uint8, int8);
+extern void WriteParametersEE(uint8);
+extern void InitParams(void);
+
+extern int16 Make2Pi(int16);
+extern int16 Table16(int16, const int16 *);
+extern int16 int16sin(int16);
+extern int16 int16cos(int16);
+extern int16 int16atan2(int16, int16);
+extern int16 int16sqrt(int16);
+
+extern void SendLEDs(void);
+extern void SwitchLEDsOn(uint8);
+extern void SwitchLEDsOff(uint8);
+extern void LEDGame(void);
+void DoPIDDisplays(void);
+extern void CheckAlarms(void);
+
 extern void DumpTrace(void);
-#endif
 
 // bootl18f.asm
 extern void BootStart(void);
 
 #ifdef TEST_SOFTWARE
 
+// tests.c
+extern void LinearTest(void);
+extern uint8 ScanI2CBus(void);
+extern void ReceiverTest(void);
+extern void DoCompassTest(void);
+extern void CalibrateCompass(void);
+extern void BaroTest(void);
+extern void PowerOutput(int8);
+extern void GPSTest(void);
+
+extern void AnalogTest(void);extern void Program_SLA(uint8);
+
 extern int16	TestTimeSlot;
 extern uint16	PauseTime;
 extern int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 
 // Menu strings
-
 extern const rom uint8  SerHello[];
 extern const rom uint8  SerSetup[];
 extern const rom uint8 SerPrompt[];
 
-extern void AnalogTest(void);extern void DoCompassTest(void);
-extern void GPSTest(void);
-extern void CalibrateCompass(void);
-extern void PowerOutput(int8);
-extern void ReceiverTest(void);
-extern void TogglePPMPolarity(void);
-extern void BaroTest(void);
-extern void LinearTest(void);
-extern uint8 ScanI2CBus(void);
-extern int16 int16sqrt(int16);
-
 #endif // TEST_SOFTWARE
 
-
-// ==============================================
-// == External variables
-// ==============================================
-
+// External Variables
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
@@ -745,7 +687,7 @@ extern int16 	UDSum;
 // GPS
 #ifdef GPS_USE_RMC
 extern uint8 GPSMode;
-extern int16 GPSGroundSpeed, GPSMagVariation, GPSHeading;
+extern int16 GPSGroundSpeed, GPSHeading;
 #else
 extern uint8 GPSNoOfSats;
 extern uint8 GPSFix;
@@ -770,14 +712,13 @@ extern int16	Vud;
 
 extern uint8	Flags[32];
 
-extern int16	IntegralCount, ThrDownCount, GPSCount, DropoutCount, LedCount, BaroCount;
+extern int16	IntegralCount, ThrDownCount, GPSCount, DropoutCount, LEDCount, BaroCount;
 extern int16	FakeGPSCount;
 extern uint32	BlinkCount;
 extern uint24	RCGlitchCount;
-extern int8		Rw,Pw;	// angles
 extern int8		BatteryVolts; 
 
-extern uint8	LedShadow;	// shadow register
+extern uint8	LEDShadow;	// shadow register
 extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern int16	CurDeviation;	// deviation from correct heading
 
@@ -820,14 +761,8 @@ extern int8	CamPitchFactor;		// 26
 extern int8	CompassFactor;		// 27
 extern int8	BaroThrottleDiff;	// 28
 
-// these 2 dummy registers (they do not occupy any RAM location)
-// are here for defining the first and the last programmable 
-// register in a set
-
 #define FirstProgReg RollPropFactor
 #define	LastProgReg BaroThrottleDiff
-
-// end of "order-block"
 
 // End of c-ufo.h
 
