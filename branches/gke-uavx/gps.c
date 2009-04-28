@@ -54,6 +54,7 @@ int32 GPSMissionTime, GPSStartTime;
 int32 GPSLatitude, GPSLongitude;
 int32 GPSOriginLatitude, GPSOriginLongitude;
 int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+int16 GPSLongitudeCorrection;
 int16 GPSAltitude, GPSRelAltitude, GPSOriginAltitude;
 #pragma udata
 
@@ -102,8 +103,8 @@ int16 ConvertInt(uint8 lo, uint8 hi)
 
 int32 ConvertLatLonM(uint8 lo, uint8 hi)
 { 	// metres
-	// positions are stored at maximum transmitted GPS resolution which
-	// is approximately 0.18553257183 Metres per LSB
+	// positions are stored at maximum transmitted GPS resolution which is
+	// approximately 0.18553257183 Metres per LSB (without Longitude compensation)
 
 	int32 dd, mm, ss;	
 	int32 ival;
@@ -114,7 +115,7 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi)
 	    dd=ConvertInt(lo, hi-7);
 	    mm=ConvertInt(hi-6, hi-5);
 		ss=ConvertInt(hi-3, hi);
-	    ival = dd *600000 + mm*100000 + ss;
+	    ival = dd *600000 + mm*10000 + ss;
 	}
 	
 	return(ival);
@@ -249,6 +250,8 @@ void ParseGPGGASentence()
 
 void ParseGPSSentence()
 {
+	int32 Temp;
+
 	#ifndef  FAKE_GPS
 
 	switch (GPSSentenceType) {
@@ -267,15 +270,20 @@ void ParseGPSSentence()
 	      	GPSOriginLatitude = GPSLatitude;
 	      	GPSOriginLongitude = GPSLongitude;
 	
-			// No Longitude correction i.e. Cos(Latitude)
-	
+			Temp = GPSLatitude/60000L;
+			Temp = Abs(Temp);
+			Temp = ConvertDDegToMPi(Temp);
+			GPSLongitudeCorrection = int16cos(Temp);
+
 	      	if ( GPSSentenceType = GPGGA )
 				GPSOriginAltitude=GPSAltitude;
 		}
 
 		// all cordinates in 0.0001 Minutes relative to Origin
 		GPSNorth = GPSLatitude - GPSOriginLatitude;
-		GPSEast = GPSLongitude - GPSOriginLongitude; 
+		GPSEast = GPSLongitude - GPSOriginLongitude;
+		GPSEast = SRS32((int32)GPSEast * GPSLongitudeCorrection, 8); 
+
 		if ( GPSSentenceType = GPGGA )
 			GPSRelAltitude = GPSAltitude - GPSOriginAltitude;
 	}

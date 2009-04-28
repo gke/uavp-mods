@@ -694,7 +694,7 @@ extern int16 	UDSum;
 
 // GPS
 extern uint8 GPSMode;
-extern int16 GPSGroundSpeed, GPSHeading;
+extern int16 GPSGroundSpeed, GPSHeading, GPSLongitudeCorrection;
 extern uint8 GPSNoOfSats;
 extern uint8 GPSFix;
 extern int16 GPSHDilute;
