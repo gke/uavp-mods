@@ -21,12 +21,13 @@
 #define MAX_ANGLE 				20L		// Rx stick units ~= degrees
 #define CLOSING_RADIUS			20L		// closing radius in metres 
 
-// CAUTION GPS will always exert corrective control 
-#define OVERRIDE_HOVER_CONDITION
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
 
+// Using IK7 as GPS gain for corrective action 
+#define GPS_IK7_GAIN
+
 // JIM increase this if you wish to a maximum of say 4
-#define NavIntLimit 			0		// integral term for windy conditions! 	
+#define NavIntLimit 			2		// integral term for windy conditions! 	
 
 // Accelerometer
 

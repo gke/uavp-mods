@@ -172,10 +172,14 @@ void MixAndLimitCam(void)
 	else
 		Cr = Cp = _Minimum;
 
+	#ifdef GPS_IK7_GAIN
+	Cr += _Neutral;
+	#else
 	if( _UseCh7Trigger )
 		Cr += _Neutral;
 	else
 		Cr += IK7;
+	#endif // GPS_IK7_GAIN
 		
 	Cp += IK6;		// only Pitch servo is controlled by channel 6
 

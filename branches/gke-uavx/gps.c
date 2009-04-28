@@ -90,20 +90,19 @@ int16 ConvertInt(uint8 lo, uint8 hi)
 	uint8 i;
 	int16 ival;
 
-	ival=0;
+	ival = 0;
 	if (!EmptyField)
-		for (i=lo;i<=hi;i++)
+		for (i = lo; i <= hi ; i++)
 		{
-			ival*=10;
-			ival+=(GPSRxBuffer[i]-'0');
+			ival *= 10;
+			ival += (GPSRxBuffer[i] - '0');
 		}
 
 	return (ival);
 } // ConvertInt
 
 int32 ConvertLatLonM(uint8 lo, uint8 hi)
-{ 	// metres
-	// positions are stored at maximum transmitted GPS resolution which is
+{ 	// positions are stored at maximum transmitted GPS resolution which is
 	// approximately 0.18553257183 Metres per LSB (without Longitude compensation)
 
 	int32 dd, mm, ss;	
@@ -112,10 +111,10 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi)
 	ival=0;
 	if ( !EmptyField )
 	{
-	    dd=ConvertInt(lo, hi-7);
-	    mm=ConvertInt(hi-6, hi-5);
-		ss=ConvertInt(hi-3, hi);
-	    ival = dd *600000 + mm*10000 + ss;
+	    dd = ConvertInt(lo, hi-7);
+	    mm = ConvertInt(hi-6, hi-5);
+		ss = ConvertInt(hi-3, hi);
+	    ival = dd * 600000 + mm * 10000 + ss;
 	}
 	
 	return(ival);
@@ -139,16 +138,16 @@ int32 ConvertUTime(uint8 lo, uint8 hi)
 
 void UpdateField()
 {
-	lo=cc;
-	hi=lo-1;
+	lo = cc;
+	hi = lo - 1;
 	if ((GPSRxBuffer[cc] != ',')&&(GPSRxBuffer[cc]!='*'))
     {
 		while ((cc<ll)&&(GPSRxBuffer[cc]!=',')&&(GPSRxBuffer[cc]!='*'))
 		cc++;
-		hi=cc-1;
+		hi = cc - 1;
 	}
 	cc++;
-	EmptyField=(hi<lo);
+	EmptyField = hi < lo;
 } // UpdateField
 
 void ParseGPRMCSentence()
@@ -165,14 +164,14 @@ void ParseGPRMCSentence()
 	UpdateField();   //Lat
     GPSLatitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LatH
-    if (GPSRxBuffer[lo]=='S')
+    if (GPSRxBuffer[lo] == 'S')
       	GPSLatitude = -GPSLatitude;
 
     UpdateField();   //Lon
     // no latitude compensation on longitude - yet!   
     GPSLongitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LonH
-	if (GPSRxBuffer[lo]=='W')
+	if (GPSRxBuffer[lo] == 'W')
       	GPSLongitude = -GPSLongitude;
          
     UpdateField();   //Speed over Ground in Knots
@@ -196,7 +195,7 @@ void ParseGPRMCSentence()
 	*/
     UpdateField();   // Mag Var Units
 	/*
-	if (GPSRxBuffer[lo]=='W')
+	if (GPSRxBuffer[lo] == 'W')
 		GPSMagVariation = -GPSMagVariation;
 	*/
 	UpdateField();   // Mode (A,D,E)
@@ -215,21 +214,21 @@ void ParseGPGGASentence()
 	UpdateField();   //Lat
     GPSLatitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LatH
-    if (GPSRxBuffer[lo]=='S')
+    if (GPSRxBuffer[lo] == 'S')
       	GPSLatitude = -GPSLatitude;
 
     UpdateField();   //Lon
     // no latitude compensation on longitude - yet!    
     GPSLongitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LonH
-	if (GPSRxBuffer[lo]=='W')
+	if (GPSRxBuffer[lo] == 'W')
       	GPSLongitude = -GPSLongitude;
          
     UpdateField();   //Fix 
-    GPSFix=(uint8)(ConvertInt(lo,hi));
+    GPSFix = (uint8)(ConvertInt(lo,hi));
 
     UpdateField();   //Sats
-    GPSNoOfSats=(uint8)(ConvertInt(lo,hi));
+    GPSNoOfSats = (uint8)(ConvertInt(lo,hi));
 
     UpdateField();   // HDilute
 	GPSHDilute = ConvertInt(lo, hi-3) * 100 + ConvertInt(hi-1, hi); 
@@ -266,7 +265,7 @@ void ParseGPSSentence()
 			_GPSValid = false;
 			ValidGPSSentences++;
 	
-            GPSStartTime=GPSMissionTime;
+            GPSStartTime = GPSMissionTime;
 	      	GPSOriginLatitude = GPSLatitude;
 	      	GPSOriginLongitude = GPSLongitude;
 	
@@ -301,31 +300,31 @@ void PollGPS(uint8 ch)
 		if (( ch == '*' )||( ll == GPSRXBUFFLENGTH ))      
 		{
 			GPSCheckSumChar = GPSTxCheckSum = 0;
-			GPSRxState=WaitGPSCheckSum;
+			GPSRxState = WaitGPSCheckSum;
 		}
 		else 
-			if (ch=='$') // abort partial Sentence 
+			if (ch == '$') // abort partial Sentence 
 			{
 				ll = cc = tt = RxCheckSum = 0;
 				GPSSentenceType = FirstGPSType;
 				GPSRxState = WaitGPSTag;
 			}
 			else
-				GPSRxCheckSum=RxCheckSum;
+				GPSRxCheckSum = RxCheckSum;
 		break;
 	case WaitGPSCheckSum:
-		if (GPSCheckSumChar<2)
+		if (GPSCheckSumChar < 2)
 		{
 			if (ch>='A')
-				GPSTxCheckSum=GPSTxCheckSum*16+((int16)(ch)+10-(int16)('A'));
+				GPSTxCheckSum = GPSTxCheckSum * 16 + ((int16)(ch) + 10 - (int16)('A'));
 			else
-				GPSTxCheckSum=GPSTxCheckSum*16+((int16)(ch)-(int16)('0'));
+				GPSTxCheckSum=GPSTxCheckSum * 16 + ((int16)(ch) - (int16)('0'));
 			GPSCheckSumChar++;
 		}
 		else
 		{
-			GPSSentenceReceived=GPSRxCheckSum==GPSTxCheckSum;
-			GPSRxState=WaitGPSSentinel;
+			GPSSentenceReceived = GPSRxCheckSum == GPSTxCheckSum;
+			GPSRxState = WaitGPSSentinel;
 		}
 		break;
 	case WaitGPSTag:
@@ -334,18 +333,18 @@ void PollGPS(uint8 ch)
 			GPSSentenceType++;
 		if ( ch == GPSTag[GPSSentenceType][tt] ) 
 			if ( tt == MAXTAGINDEX )
-				GPSRxState=WaitGPSBody;
+				GPSRxState = WaitGPSBody;
 	        else
 				tt++;
 		else
-	        GPSRxState=WaitGPSSentinel;
+	        GPSRxState = WaitGPSSentinel;
 		break;
 	case WaitGPSSentinel:
 		if (ch=='$')
 		{
 			ll = cc = tt = RxCheckSum = 0;
 			GPSSentenceType = FirstGPSType;
-			GPSRxState=WaitGPSTag;
+			GPSRxState = WaitGPSTag;
 		}
 		break;
     } 
@@ -357,7 +356,7 @@ void InitGPS()
 	uint8 c;
 
 	cc = ll = 0;
-  	ch=' ';
+  	ch = ' ';
 
 	GPSMode = '_';
 	GPSRelAltitude = GPSHeading = GPSGroundSpeed = GPSFix = GPSNoOfSats = GPSHDilute = 0;
@@ -383,7 +382,7 @@ void UpdateGPS(void)
 	{
 		LEDBlue_ON;
 		LEDRed_OFF;
-		GPSSentenceReceived=false;  
+		GPSSentenceReceived = false;  
 		ParseGPSSentence(); // 7.5mS 18f2520 @ 16MHz
 		if ( _GPSValid )
 		{

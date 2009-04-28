@@ -32,7 +32,7 @@ void CheckAutonomous(void);
 
 #define NAV_CLOSING_RADIUS ( (int32)CLOSING_RADIUS * 5L )
 #define SQR_NAV_CLOSING_RADIUS ( NAV_CLOSING_RADIUS * NAV_CLOSING_RADIUS )
-#define NavKp (((int32)MAX_ANGLE * 256L ) / NAV_CLOSING_RADIUS )
+//#define NavKp (((int32)MAX_ANGLE * 256L ) / NAV_CLOSING_RADIUS )
 #define NavKi 1
 
 // Variables
@@ -61,6 +61,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// BEWARE magic numbers for integer artihmetic
 
 	int32 Temp;
+	int16 NavKp;
 	int16 Angle, Range, EastDiff, NorthDiff, Heading;
 
 	if ( _NavComputed ) // use previous corrections
@@ -70,6 +71,12 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	}
 	else
 	{
+		#ifdef GPS_IK7_GAIN
+		NavKp = ((int32)IK7 * MAX_ANGLE) / NAV_CLOSING_RADIUS; // /_Maximum) * 256L
+		#else
+		#define NavKp (((int32)MAX_ANGLE * 256L ) / NAV_CLOSING_RADIUS )
+		#endif // GPS_IK7_GAIN
+
 		EastDiff = GPSEastWay - GPSEast;
 		NorthDiff = GPSNorthWay - GPSNorth;
 		Heading = CompassHeading - ConvertDDegToMPi(MAGNETIC_VARIATION*10L);
@@ -136,20 +143,6 @@ void CheckAutonomous(void)
 				Navigate(0, 0);
 			}
 			else
-			#ifdef OVERRIDE_HOVER_CONDITION
-			{
-				if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
-					{
-						// acquire hold coordinates
-						GPSNorthHold = GPSNorth;
-						GPSEastHold = GPSEast;
-						SumNavRCorr= SumNavPCorr = 0;
-						_HoldingStation = true;
-						_NavComputed = false;
-					}		
-					Navigate(GPSNorthHold, GPSEastHold);
-			}
-			#else
 				if (_Hovering )
 				{
 					if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) || !_HoldingStation )
@@ -169,7 +162,6 @@ void CheckAutonomous(void)
 					SumNavRCorr= SumNavPCorr = 0;
 					_HoldingStation = false;
 				}
-			#endif // OVERRIDE_HOVER_CONDITION
 
 	#ifdef FAKE_GPS
 
