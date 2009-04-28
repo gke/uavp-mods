@@ -319,7 +319,7 @@ void GPSTest(void)
 
 	DoCompassTest();
 //CompassHeading = 0; // zzz
-	TxString("CONNECT GPS\r\n");
+	TxString("CONNECT GPS AND SET TO 9600b\r\n");
 	TxString("\r\nPress any key to cont.\r\n");
 
 	while( !PollRxChar() );
@@ -351,47 +351,40 @@ void GPSTest(void)
 				TxChar('?');
 			else
 				TxChar(' ');
-			
-			#ifdef GPS_USE_RMC
-	
-			TxString(" h=");
-			TxVal32((int32)ConvertMPiToDDeg(GPSHeading),1, 0);
-			TxString(" mv=");
-			TxVal32((int32)MAGNETIC_VARIATION, 0, 0);	
+				
+			TxString(" c=");
+			TxVal32((int32)ConvertMPiToDDeg(GPSHeading), 1 , ' ');
 
-			TxString(" mode=");
+			TxString("md=");
 			TxChar(GPSMode);
 					
-			#else
 			TxString(" fx=");
-			TxVal32(GPSFix, 0, 0);
+			TxVal32(GPSFix, 0, ' ');
 
-			TxString(" s=");
+			TxString("s=");
 			TxVal32(GPSNoOfSats, 0, ' ');
 
 			TxString("hd=");
 			TxVal32(GPSHDilute, 2, ' ');
 
 			TxString("ra=");
-			TxVal32(GPSAltitude, 1, 0);
-			#endif // GPS_USE_RMC
+			TxVal32(GPSRelAltitude, 1, ' ');
 
-			TxString("\t ");
 			TxVal32(Abs(ConvertGPSToM(GPSNorth)), 0, 0);
 			if ( GPSNorth >=0 )
 				TxChar('n');
 			else
 				TxChar('s');
-			TxString("\t ");
+			TxChar(' ');
 			TxVal32(Abs(ConvertGPSToM(GPSEast)), 0, 0);
 			if ( GPSEast >=0 )
 				TxChar('e');
 			else
 				TxChar('w');
 
-			TxString("\t -> r=");
+			TxString(" -> r=");
 			TxVal32(DesiredRoll, 0, ' ');
-			TxString("\t p=");		
+			TxString(" p=");		
 			TxVal32(DesiredPitch, 0, ' ');
 			TxNextLine();
 		}	

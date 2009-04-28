@@ -195,15 +195,15 @@ void CheckAutonomous(void)
 		GPSNorth += ((int32)DesiredRoll * CosH + 128) / 256L;
 		GPSNorth += FAKE_NORTH_WIND; // wind	
 
-		#ifdef GPS_USE_RMC
+		// $GPRMC
 		GPSGroundSpeed = 99;
 		GPSHeading = 99;
-		#else
+
+		// $GPGGA
 		GPSFix = 2;
-		GPSHDilute = 0.0;
+		GPSHDilute = 0;
 		GPSNoOfSats = 99;
-		GPSAltitude = 1000; // 100M
-		#endif
+		GPSRelAltitude = 100; // 100M
 
 		_GPSValid = true;
 		_NavComputed = false;

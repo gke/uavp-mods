@@ -9,6 +9,12 @@
 
 // Navigation
 
+// Number of good GPS sentences required to establish origin 
+#define INITIAL_GPS_SENTENCES 	90
+// minimum no of satellites for sentence to be acceptable	
+#define	MIN_SATELLITES			5		// preferably >5 for 3D fix
+#define MIN_FIX					1		//must be 1 or 2 	
+
 // The "Ls" are important
 #define MAGNETIC_VARIATION		6L		// Positive East degrees
 #define COMPASS_OFFSET_DEG		90L		// North degrees CW from Front
@@ -136,10 +142,7 @@
 
 // Navigation
 
-#define GPS_USE_RMC
-
-// Number of good GPS sentences required to establish origin 
-#define INITIAL_GPS_SENTENCES 	30	
+// reads $GPGGA and $GPRMC sentences - all others discarded
 	
 // Misc
 
@@ -546,8 +549,14 @@ extern void InitTimersAndInterrupts(void);
 extern void ReceivingGPSOnly(uint8);
 
 // gps.c
+extern void UpdateField(void);
+extern int16 ConvertInt(uint8, uint8);
+extern int32 ConvertLatLonM(uint8, uint8);
+extern int32 ConvertUTime(uint8, uint8);
+extern void ParseGPRMCSentence(void);
+extern void ParseGPGGASentence(void);
 extern void ParseGPSSentence(void);
-extern void PollGPS(void);
+extern void PollGPS(uint8);
 extern void InitGPS(void);
 extern void UpdateGPS(void);
 
@@ -586,7 +595,6 @@ extern void TxNextLine(void);
 extern void TxNibble(uint8);
 extern void TxValH(uint8);
 extern void TxValH16(uint16);
-extern uint8 RxChar(void);
 extern uint8 PollRxChar(void);
 extern uint8 RxNumU(void);
 extern int8 RxNumS(void);
@@ -685,15 +693,13 @@ extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDSum;
 
 // GPS
-#ifdef GPS_USE_RMC
 extern uint8 GPSMode;
 extern int16 GPSGroundSpeed, GPSHeading;
-#else
 extern uint8 GPSNoOfSats;
 extern uint8 GPSFix;
 extern int16 GPSHDilute;
-#endif // GPS_USE_RMC
-extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+extern int16 GPSRelAltitude;
 
 // Failsafes
 extern uint8	ThrNeutral;
@@ -722,9 +728,7 @@ extern uint8	LEDShadow;	// shadow register
 extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern int16	CurDeviation;	// deviation from correct heading
 
-#define RXBUFFMASK	63L
-extern uint8 RxCheckSum, RxHead, RxTail;
-extern uint8 RxBuff[RXBUFFMASK+1];
+extern uint8 	RxCheckSum;
 
 #ifdef DEBUG_SENSORS
 extern int16	Trace[LastTrace];

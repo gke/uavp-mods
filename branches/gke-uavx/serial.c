@@ -101,55 +101,26 @@ void TxValH16(uint16 v)
 	TxValH(v);
 } // TxValH16
 
-uint8 RxChar(void)
-{
-	uint8	ch;
-
-	ch = RxBuff[RxHead];
-	//	DisableInterrupts;
-	RxHead = (RxHead + 1) & RXBUFFMASK;
-	//	EnableInterrupts;
-
-	return(ch);	
-} // RxChar
-
 uint8 PollRxChar(void)
 {
 	uint8	ch;	
 
-	if ( PIE1bits.RCIE )
+	if( PIR1bits.RCIF )	// a character is waiting in the buffer
 	{
-		if ( RxTail != RxHead )
+		if( RCSTAbits.OERR || RCSTAbits.FERR )	// overrun or framing error?
 		{
-			ch = RxBuff[RxHead];
-		//	DisableInterrupts;
-			RxHead = (RxHead + 1) & RXBUFFMASK;
-		//	EnableInterrupts;	
+			RCSTAbits.CREN = false;	// disable, then re-enable port to
+			RCSTAbits.CREN = true;	// reset OERR and FERR bit
+			ch = RCREG;	// dummy read
 		}
 		else
-			ch = NUL;
-	
-		return(ch);
-	}
-	else
-	{
-		if( PIR1bits.RCIF )	// a character is waiting in the buffer
 		{
-			if( RCSTAbits.OERR || RCSTAbits.FERR )	// overrun or framing error?
-			{
-				RCSTAbits.CREN = false;	// disable, then re-enable port to
-				RCSTAbits.CREN = true;	// reset OERR and FERR bit
-				ch = RCREG;	// dummy read
-			}
-			else
-			{
-				ch = RCREG;	// get the character
-				TxChar(ch);	// echo it for UAVPSet
-				return(ch);		// and return it
-			}
+			ch = RCREG;	// get the character
+			TxChar(ch);	// echo it for UAVPSet
+			return(ch);		// and return it
 		}
-		return( NUL );	// nothing in buffer
 	}
+	return( NUL );	// nothing in buffer
 
 } // PollRxChar
 

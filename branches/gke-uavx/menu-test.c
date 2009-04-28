@@ -84,9 +84,7 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"B..Boot\r\n"
 	"C..Compass test\r\n"
 	"K..Calib. Compass\r\n"
-	#ifdef USE_GPS
 	"G..GPS test (Use HyperTerm)\r\n"
-	#endif
 	"H..Baro. test\r\n"
 	"I..I2C bus scan\r\n"
 	"A..Linear test\r\n"

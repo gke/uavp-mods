@@ -51,9 +51,8 @@ int24	PrevEdge, CurrEdge;
 int16 	Width;
 #pragma udata
 
-#pragma udata rxfifo
-uint8 RxCheckSum, RxHead, RxTail;
-uint8 RxBuff[RXBUFFMASK+1];
+#pragma udata rxvars
+uint8 RxCheckSum;
 #pragma udata 
 
 void ReceivingGPSOnly(uint8 r)
@@ -85,7 +84,7 @@ void InitTimersAndInterrupts(void)
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
-	RxCheckSum = RxHead = RxTail = 0;
+	RxCheckSum = 0;
    	ReceivingGPSOnly(false);
 
 } // InitTimersAndInterrupts
@@ -257,14 +256,7 @@ void high_isr_handler(void)
 			RCSTAbits.CREN = true;
 		}
 		else
-		{
-			ch = RCREG;
-			RxTail = (RxTail+1) & RXBUFFMASK;	// no check for overflow yet
-			RxBuff[RxTail] = ch;
-		}
-			
-		if ( _ReceivingGPS )
-			PollGPS();
+			PollGPS(RCREG);
 	} 	
 
 	if( INTCONbits.TMR0IE && INTCONbits.TMR0IF )
