@@ -10,7 +10,7 @@
 // Navigation
 
 // Number of good GPS sentences required to establish origin 
-#define INITIAL_GPS_SENTENCES 	90
+#define INITIAL_GPS_SENTENCES 	30
 // minimum no of satellites for sentence to be acceptable	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
 #define MIN_FIX					1		//must be 1 or 2 	
@@ -18,12 +18,13 @@
 // The "Ls" are important
 #define MAGNETIC_VARIATION		6L		// Positive East degrees
 #define COMPASS_OFFSET_DEG		90L		// North degrees CW from Front
-#define MAX_ANGLE 				20L		// Rx stick units ~= degrees
+#define MAX_ANGLE 				25L		// Rx stick units ~= degrees
 #define CLOSING_RADIUS			20L		// closing radius in metres 
 
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
-
-// Using IK7 as GPS gain for corrective action 
+// When defined GPS correction  is active all of the time.
+#define OVERRIDE_HOVER_CONDITION
+// Using IK7 as GPS gain for corrective action full CCW is no correction. 
 #define GPS_IK7_GAIN
 
 // JIM increase this if you wish to a maximum of say 4

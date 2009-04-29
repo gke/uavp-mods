@@ -61,18 +61,19 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// BEWARE magic numbers for integer artihmetic
 
 	int32 Temp;
-	int16 NavKp;
+	int16 NavKp, GPSGain;
 	int16 Angle, Range, EastDiff, NorthDiff, Heading;
 
 	if ( _NavComputed ) // use previous corrections
 	{
-		DesiredRoll = Limit(DesiredRoll + NavRCorr, -_Maximum, _Maximum);
-		DesiredPitch = Limit(DesiredPitch + NavPCorr, -_Maximum, _Maximum);
+		DesiredRoll = Limit(DesiredRoll + NavRCorr, -_Neutral, _Neutral);
+		DesiredPitch = Limit(DesiredPitch + NavPCorr, -_Neutral, _Neutral);
 	}
 	else
 	{
 		#ifdef GPS_IK7_GAIN
-		NavKp = ((int32)IK7 * MAX_ANGLE) / NAV_CLOSING_RADIUS; // /_Maximum) * 256L
+		GPSGain = Limit(IK7-20, 0, 256); // compensate for EPA offset of up to 20
+		NavKp = ((int32)GPSGain * MAX_ANGLE) / NAV_CLOSING_RADIUS; // /_Maximum) * 256L
 		#else
 		#define NavKp (((int32)MAX_ANGLE * 256L ) / NAV_CLOSING_RADIUS )
 		#endif // GPS_IK7_GAIN
@@ -99,7 +100,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			else
 				SumNavRCorr = 0;
 			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256;
-			DesiredRoll = Limit(DesiredRoll , -_Maximum, _Maximum);
+			DesiredRoll = Limit(DesiredRoll , -_Neutral, _Neutral);
 		
 			NavPCorr = SRS32(-(int32)int16cos(Angle) * Temp, 8);
 			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
@@ -107,7 +108,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			else
 				SumNavPCorr = 0;
 			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256;
-			DesiredPitch = Limit(DesiredPitch , -_Maximum, _Maximum);
+			DesiredPitch = Limit(DesiredPitch , -_Neutral, _Neutral);
 
 			_NavComputed = true;
 		}
@@ -143,6 +144,20 @@ void CheckAutonomous(void)
 				Navigate(0, 0);
 			}
 			else
+			#ifdef OVERRIDE_HOVER_CONDITION
+			{
+				if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
+					{
+						// acquire hold coordinates
+						GPSNorthHold = GPSNorth;
+						GPSEastHold = GPSEast;
+						SumNavRCorr= SumNavPCorr = 0;
+						_HoldingStation = true;
+						_NavComputed = false;
+					}		
+					Navigate(GPSNorthHold, GPSEastHold);
+			}
+			#else
 				if (_Hovering )
 				{
 					if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) || !_HoldingStation )
@@ -162,6 +177,7 @@ void CheckAutonomous(void)
 					SumNavRCorr= SumNavPCorr = 0;
 					_HoldingStation = false;
 				}
+			#endif // OVERRIDE_HOVER_CONDITION
 
 	#ifdef FAKE_GPS
 
