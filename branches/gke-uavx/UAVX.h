@@ -18,7 +18,7 @@
 // The "Ls" are important
 #define MAGNETIC_VARIATION		6L		// Positive East degrees
 #define COMPASS_OFFSET_DEG		90L		// North degrees CW from Front
-#define MAX_ANGLE 				25L		// Rx stick units ~= degrees
+#define MAX_ANGLE 				30L		// Rx stick units ~= degrees
 #define CLOSING_RADIUS			20L		// closing radius in metres 
 
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more

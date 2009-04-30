@@ -72,8 +72,8 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	else
 	{
 		#ifdef GPS_IK7_GAIN
-		GPSGain = Limit(IK7-20, 0, 256); // compensate for EPA offset of up to 20
-		NavKp = ((int32)GPSGain * MAX_ANGLE) / NAV_CLOSING_RADIUS; // /_Maximum) * 256L
+		GPSGain = Limit(IK7 - 20, 0, 256); // compensate for EPA offset of up to 20
+		NavKp = ( GPSGain * MAX_ANGLE ) / NAV_CLOSING_RADIUS; // /_Maximum) * 256L
 		#else
 		#define NavKp (((int32)MAX_ANGLE * 256L ) / NAV_CLOSING_RADIUS )
 		#endif // GPS_IK7_GAIN
@@ -137,47 +137,55 @@ void CheckAutonomous(void)
 	  	// do nothing - use Wolfgang's failsafe
 	}
 	else
-		if ( _GPSValid ) // && _UseCompass )
-			if ( IK5 > _Neutral )
+		if ( _GPSValid )
+			if  ( _UseCompass )
 			{
-				_HoldingStation = false;
-				Navigate(0, 0);
-			}
-			else
-			#ifdef OVERRIDE_HOVER_CONDITION
-			{
-				if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
-					{
-						// acquire hold coordinates
-						GPSNorthHold = GPSNorth;
-						GPSEastHold = GPSEast;
-						SumNavRCorr= SumNavPCorr = 0;
-						_HoldingStation = true;
-						_NavComputed = false;
-					}		
-					Navigate(GPSNorthHold, GPSEastHold);
-			}
-			#else
-				if (_Hovering )
+				if ( IK5 > _Neutral )
 				{
-					if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) || !_HoldingStation )
-
-					{
-						// acquire hold coordinates
-						GPSNorthHold = GPSNorth;
-						GPSEastHold = GPSEast;
-						SumNavRCorr= SumNavPCorr = 0;
-						_HoldingStation = true;
-						_NavComputed = false;
-					}		
-					Navigate(GPSNorthHold, GPSEastHold);
+					_HoldingStation = false;
+					Navigate(0, 0);
 				}
 				else
+				#ifdef OVERRIDE_HOVER_CONDITION
 				{
-					SumNavRCorr= SumNavPCorr = 0;
-					_HoldingStation = false;
+					if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
+						{
+							// acquire hold coordinates
+							GPSNorthHold = GPSNorth;
+							GPSEastHold = GPSEast;
+							SumNavRCorr= SumNavPCorr = 0;
+							_HoldingStation = true;
+							_NavComputed = false;
+						}		
+						Navigate(GPSNorthHold, GPSEastHold);
 				}
-			#endif // OVERRIDE_HOVER_CONDITION
+				#else
+					if (_Hovering )
+					{
+						if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) || !_HoldingStation )
+	
+						{
+							// acquire hold coordinates
+							GPSNorthHold = GPSNorth;
+							GPSEastHold = GPSEast;
+							SumNavRCorr= SumNavPCorr = 0;
+							_HoldingStation = true;
+							_NavComputed = false;
+						}		
+						Navigate(GPSNorthHold, GPSEastHold);
+					}
+					else
+					{
+						SumNavRCorr= SumNavPCorr = 0;
+						_HoldingStation = false;
+					}
+				#endif // OVERRIDE_HOVER_CONDITION
+			}
+			else
+			{
+				LEDRed_TOG;
+				TxString("BadC\r\n");
+			}		
 
 	#ifdef FAKE_GPS
 
