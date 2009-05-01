@@ -139,14 +139,13 @@ void main(void)
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	EnableInterrupts;
 
-	Delay100mSWithOutput(1);	// wait 1/10 sec until LISL is ready to talk
+	Delay100mSWithOutput(5);	// wait 0.5 sec until LISL is ready to talk
 	InitLISL();
 
 	InitDirection();
 	InitBarometer();
 	InitGPS();
 	InitNavigation();
-
 
 	ShowSetup(1);
 

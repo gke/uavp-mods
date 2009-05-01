@@ -131,7 +131,7 @@ void ReceiverTest(void)
 void DoCompassTest()
 {
 	uint16 v, prev;
-	uint8 r;
+	int8 r;
 
 	TxString("\r\nCompass test\r\n");
 
@@ -153,8 +153,9 @@ void DoCompassTest()
 		if ( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 		if ( SendI2CByte('r')  != I2C_ACK ) goto CTerror;
 		if ( SendI2CByte(r)  != I2C_ACK ) goto CTerror;
+		I2CStop();
 
-		Delay1mS(1);
+		Delay1mS(10);
 
 		I2CStart();
 		if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;

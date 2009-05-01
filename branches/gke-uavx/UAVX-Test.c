@@ -163,17 +163,8 @@ void main(void)
 	INTCONbits.PEIE = true;		
 	EnableInterrupts;
 
-	Delay1mS(100);
-	IsLISLactive();
-	NeutralLR = 0;
-	NeutralFB = 0;
-	NeutralUD = 0;
-	if ( _UseLISL )
-	{
-		LEDYellow_ON;
-		GetNeutralAccelerations();
-		LEDYellow_OFF;
-	}
+	Delay1mS(1000);
+	InitLISL();
 
 	InitBarometer();
 	Delay1mS(BARO_PRESS_TIME);

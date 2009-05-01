@@ -41,15 +41,17 @@ void UpdateGPS(void);
 // Variables
 
 #pragma udata gpsvars
+int16 GPSGroundSpeed, GPSHeading;
 boolean GPSSentenceReceived;
-
 uint8 GPSSentenceType;
 uint8 GPSMode;
-int16 GPSGroundSpeed, GPSHeading;
+
 uint8 GPSNoOfSats;
 uint8 GPSFix;
 int16 GPSHDilute;
+#pragma udata
 
+#pragma udata gpsvars2
 int32 GPSMissionTime, GPSStartTime;
 int32 GPSLatitude, GPSLongitude;
 int32 GPSOriginLatitude, GPSOriginLongitude;
@@ -58,32 +60,36 @@ int16 GPSLongitudeCorrection;
 int16 GPSAltitude, GPSRelAltitude, GPSOriginAltitude;
 #pragma udata
 
-// Global Variables
-#pragma udata gpsvars2
-int8 ValidGPSSentences;
-//int32 GPSStartTime, GPSMissionTime;
-#pragma udata
-
-#pragma udata gpsvars
-enum WaitGPSStates {WaitGPSSentinel, WaitGPSTag, WaitGPSBody, WaitGPSCheckSum};
-uint8 GPSRxState;
-
+#pragma udata gpsbuff
 // Max NMEA sentence length is 80 char
 #define GPSRXBUFFLENGTH 80
-uint8 GPSRxBuffer[2][GPSRXBUFFLENGTH];
-uint8 cc, InBuffChars, OutBuffChars, tt, lo, hi;
-uint8 OutBuff, InBuff;
-uint8 OutBuffProcessed;
+struct {
+	uint8 length;
+	uint8 s[GPSRXBUFFLENGTH];
+	} NMEA[2];
+#pragma udata
 
+// Global Variables
+#pragma udata gpsbuff2
+uint8 NHead, NTail, NEntries;
+#pragma udata
+
+#pragma udata gpsvars3
+enum WaitGPSStates {WaitGPSSentinel, WaitGPSTag, WaitGPSBody, WaitGPSCheckSum};
+int8 ValidGPSSentences;
+uint8 GPSRxState;
+uint8 ll, cc, tt, lo, hi;
+boolean EmptyField;
+uint8 GPSTxCheckSum, GPSRxCheckSum, GPSCheckSumChar;
+#pragma udata
+
+#pragma udata gpsvars4
 #define MAXTAGINDEX 4
 enum GPSSentences {GPGGA, GPRMC};
 #define FirstGPSType GPGGA
 #define LastGPSType GPRMC
 // must be in sorted alpha order
-const uint8 GPSTag[LastGPSType+1][6]= {{"GPGGA"},{"GPRMC"}};
-
-boolean EmptyField;
-uint8 GPSTxCheckSum, GPSRxCheckSum, GPSCheckSumChar;
+const uint8 GPSTag[LastGPSType+1][6] = {{"GPGGA"},{"GPRMC"}};
 #pragma udata
 
 #ifndef FAKE_GPS
@@ -98,7 +104,7 @@ int16 ConvertInt(uint8 lo, uint8 hi)
 		for (i = lo; i <= hi ; i++)
 		{
 			ival *= 10;
-			ival += (GPSRxBuffer[OutBuff][i] - '0');
+			ival += (NMEA[NHead].s[i] - '0');
 		}
 
 	return (ival);
@@ -143,9 +149,9 @@ void UpdateField()
 {
 	lo = cc;
 	hi = lo - 1;
-	if ((GPSRxBuffer[OutBuff][cc] != ',')&&(GPSRxBuffer[OutBuff][cc]!='*'))
+	if ((NMEA[NHead].s[cc] != ',')&&(NMEA[NHead].s[cc]!='*'))
     {
-		while ((cc<OutBuffChars)&&(GPSRxBuffer[OutBuff][cc]!=',')&&(GPSRxBuffer[OutBuff][cc]!='*'))
+		while ((cc<NMEA[NHead].length)&&(NMEA[NHead].s[cc]!=',')&&(NMEA[NHead].s[cc]!='*'))
 		cc++;
 		hi = cc - 1;
 	}
@@ -162,19 +168,19 @@ void ParseGPRMCSentence()
 	//GPSMissionTime=ConvertUTime(lo,hi);
 
 	UpdateField();	// Status
-	_GPSValid = (GPSRxBuffer[OutBuff][lo] == 'A');    
+	_GPSValid = (NMEA[NHead].s[lo] == 'A');    
 
 	UpdateField();   //Lat
     GPSLatitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LatH
-    if (GPSRxBuffer[OutBuff][lo] == 'S')
+    if (NMEA[NHead].s[lo] == 'S')
       	GPSLatitude = -GPSLatitude;
 
     UpdateField();   //Lon
     // no latitude compensation on longitude - yet!   
     GPSLongitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LonH
-	if (GPSRxBuffer[OutBuff][lo] == 'W')
+	if (NMEA[NHead].s[lo] == 'W')
       	GPSLongitude = -GPSLongitude;
          
     UpdateField();   //Speed over Ground in Knots
@@ -198,12 +204,12 @@ void ParseGPRMCSentence()
 	*/
     UpdateField();   // Mag Var Units
 	/*
-	if (GPSRxBuffer[OutBuff][lo] == 'W')
+	if (NMEA[NHead].s[lo] == 'W')
 		GPSMagVariation = -GPSMagVariation;
 	*/
 	UpdateField();   // Mode (A,D,E)
-	GPSMode = GPSRxBuffer[OutBuff][lo];
-//zzz	TxString("RMC\r\n");    
+	GPSMode = NMEA[NHead].s[lo]; 
+TxString("RMC\r\n");  
 } // ParseGPRMCSentence
 
 void ParseGPGGASentence()
@@ -217,14 +223,14 @@ void ParseGPGGASentence()
 	UpdateField();   //Lat
     GPSLatitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LatH
-    if (GPSRxBuffer[OutBuff][lo] == 'S')
+    if (NMEA[NHead].s[lo] == 'S')
       	GPSLatitude = -GPSLatitude;
 
     UpdateField();   //Lon
     // no latitude compensation on longitude - yet!    
     GPSLongitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LonH
-	if (GPSRxBuffer[OutBuff][lo] == 'W')
+	if (NMEA[NHead].s[lo] == 'W')
       	GPSLongitude = -GPSLongitude;
          
     UpdateField();   //Fix 
@@ -244,8 +250,8 @@ void ParseGPGGASentence()
     //UpdateField();   // GHeight 
     //UpdateField();   // GHeightUnit 
  
-    _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES );
-//zzz	TxString("GGA\r\n");    
+    _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES );  
+TxString("GGA\r\n"); 
 } // ParseGPGGASentence
 
 #endif //  !FAKE_GPS
@@ -263,7 +269,8 @@ void ParseGPSSentence()
 	case GPRMC: ParseGPRMCSentence(); break;
 	}
 
-	OutBuffProcessed = true;
+	NHead = ( NHead + 1 ) & 1;
+	NEntries--;
 
 	if ( _GPSValid )
 	{
@@ -302,8 +309,7 @@ void PollGPS(uint8 ch)
 	switch (GPSRxState) {
 	case WaitGPSBody: 
 		RxCheckSum ^= ch;
-		GPSRxBuffer[InBuff][InBuffChars] = ch;
-		InBuffChars++;
+		NMEA[NTail].s[ll++] = ch;
 		if ( ch == '*' )	      
 		{
 			GPSCheckSumChar = GPSTxCheckSum = 0;
@@ -312,12 +318,12 @@ void PollGPS(uint8 ch)
 		else         
 			if (ch == '$') // abort partial Sentence 
 			{
-				InBuffChars = tt = RxCheckSum = 0;
+				ll = tt = RxCheckSum = 0;
 				GPSSentenceType = FirstGPSType;
 				GPSRxState = WaitGPSTag;
 			}
 			else
-				if ( InBuffChars >= (GPSRXBUFFLENGTH-1) )
+				if ( NMEA[NTail].length >= (GPSRXBUFFLENGTH-1) )
 					GPSRxState = WaitGPSSentinel;
 				else
 					GPSRxCheckSum = RxCheckSum;
@@ -325,10 +331,11 @@ void PollGPS(uint8 ch)
 	case WaitGPSCheckSum:
 		if (GPSCheckSumChar < 2)
 		{
+			GPSTxCheckSum = GPSTxCheckSum * 16 + (int16)(ch);
 			if (ch>='A')
-				GPSTxCheckSum = GPSTxCheckSum * 16 + ((int16)(ch) + 10 - (int16)('A'));
+				GPSTxCheckSum += ( -(int16)'A' + 10);
 			else
-				GPSTxCheckSum=GPSTxCheckSum * 16 + ((int16)(ch) - (int16)('0'));
+				GPSTxCheckSum -= (int16)'0';
 			GPSCheckSumChar++;
 		}
 		else
@@ -336,13 +343,8 @@ void PollGPS(uint8 ch)
 			GPSSentenceReceived = GPSRxCheckSum == GPSTxCheckSum;
 			if ( GPSSentenceReceived )
 			{
-				if ( !OutBuffProcessed )  // buffer overrun
-					Beeper_ON;
-
-				OutBuffProcessed = false;
-				OutBuffChars = InBuffChars;
-				OutBuff = InBuff;
-				InBuff = (InBuff++) & 1;
+				NMEA[NTail].length = ll;
+				NEntries++;
 			}	
 			GPSRxState = WaitGPSSentinel;
 		}
@@ -353,16 +355,31 @@ void PollGPS(uint8 ch)
 			GPSSentenceType++;
 		if ( ch == GPSTag[GPSSentenceType][tt] ) 
 			if ( tt == MAXTAGINDEX )
-				GPSRxState = WaitGPSBody;
+			{
+TxChar(GPSSentenceType+'A');
+				if ( NEntries > 1 )
+				{
+					Beeper_ON;
+					GPSRxState = WaitGPSSentinel;
+				}
+				else
+				{
+					NTail = (NTail + 1) & 1;
+					GPSRxState = WaitGPSBody;
+				}
+			}
 	        else
 				tt++;
 		else
+{
+TxChar('x');
 	        GPSRxState = WaitGPSSentinel;
+}
 		break;
 	case WaitGPSSentinel:
 		if (ch=='$')
 		{
-			InBuffChars = tt = RxCheckSum = 0;
+			ll = tt = RxCheckSum = 0;
 			GPSSentenceType = FirstGPSType;
 			GPSRxState = WaitGPSTag;
 		}
@@ -375,10 +392,8 @@ void InitGPS()
 { 
 	uint8 c;
 
-	cc = InBuffChars = 0;
-	OutBuff = 1; 
-	InBuff = 0;
-	OutBuffProcessed = true;
+	cc = 0;
+	NEntries = NHead = NTail = 0;
 
 	GPSMode = '_';
 	GPSMissionTime = GPSRelAltitude = GPSHeading = GPSGroundSpeed = GPSFix = GPSNoOfSats = GPSHDilute = 0;
@@ -400,11 +415,11 @@ void UpdateGPS(void)
 	GPSSentenceReceived = true;
 	#endif // FAKE_GPS
 
-	if ( GPSSentenceReceived )
+	if ( NEntries > 0 )
 	{
 		LEDBlue_ON;
 		LEDRed_OFF;
-		GPSSentenceReceived = false;  
+	//	GPSSentenceReceived = false;  
 		ParseGPSSentence(); // 7.5mS 18f2520 @ 16MHz
 		if ( _GPSValid )
 		{

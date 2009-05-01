@@ -172,7 +172,11 @@ void InitLISL(void)
 	#ifdef USE_ACCELEROMETER
 	IsLISLactive();	
 	if( _UseLISL )
+	{
+		LEDYellow_ON;
 		GetNeutralAccelerations();
+		LEDYellow_OFF;
+	}
 	#endif  // USE_ACCELEROMETER
 } // InitLISL
 
