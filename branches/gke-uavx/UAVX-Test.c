@@ -180,20 +180,7 @@ void main(void)
 	{
 		// turn red LED on of signal missing or invalid, green if OK
 		// Yellow led to indicate linear sensor functioning.
-		if( !( _Signal && Armed ) )
-		{
-			LEDRed_ON;
-			LEDGreen_OFF;
-			if ( _UseLISL  )
-				LEDYellow_ON;
-		}
-		else
-		{
-			LEDGreen_ON;
-			LEDRed_OFF;
-			LEDYellow_OFF;
-		}
-
+		DoLEDs();
 		ReadParametersEE();
 		ProcessComCommand();
 

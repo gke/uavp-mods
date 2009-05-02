@@ -652,6 +652,8 @@ extern void GPSTest(void);
 
 extern void AnalogTest(void);extern void Program_SLA(uint8);
 
+extern void DoLEDs(void);
+
 extern int16	TestTimeSlot;
 extern uint16	PauseTime;
 extern int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;

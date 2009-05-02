@@ -28,6 +28,23 @@
 
 extern uint8 BaroTemp;
 
+void DoLEDs(void)
+{
+	if( !( _Signal && Armed ) )
+	{
+		LEDRed_ON;
+		LEDGreen_OFF;
+		if ( _UseLISL  )
+			LEDYellow_ON;
+	}
+	else
+	{
+		LEDGreen_ON;
+		LEDRed_OFF;
+		LEDYellow_OFF;
+	}
+} // DoLEDs
+
 void LinearTest(void)
 {
 	TxString("\r\nAccelerometer test:\r\n");
@@ -315,13 +332,9 @@ void GPSTest(void)
 	uint8 ch; 
 
 	TxString("\r\nGPS test\r\n");
-	TxString("monitors GPS input until power is disconnected and reconnected\r\n");
-	TxString("units Metres and Degrees\r\n");
-
-	DoCompassTest();
-//CompassHeading = 0; // zzz
-	TxString("CONNECT GPS AND SET TO 9600b\r\n");
-	TxString("\r\nPress any key to cont.\r\n");
+	TxString("Monitors GPS input at 9.6Kb - units metres and degrees\r\n");
+	TxString("DISARM the quadrocopter\r\n");
+	TxString("Press any key to continue, set Baud Rate to 9.6Kb and ARM \r\n");
 
 	while( !PollRxChar() );
 
@@ -329,6 +342,8 @@ void GPSTest(void)
 
 	while ( true )
 	{
+		DoLEDs();
+
 		UpdateGPS();	
 		if ( _GPSValid )
 		{
@@ -391,6 +406,7 @@ void GPSTest(void)
 		}	
 		_GPSValid = false;	
 	}
+	
 } // GPSTest
 
 void AnalogTest(void)
