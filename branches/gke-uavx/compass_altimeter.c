@@ -52,15 +52,15 @@ void InitDirection(void)
 
 	// use default heading mode (1/10th degrees)
 
-	_UseCompass = true;
+	_CompassValid = true;
 	return;
 CTerror:
-	_UseCompass = false;
+	_CompassValid = false;
 
 	I2CStop();
 } // InitDirection
 
-#define COMPASS_OFFSET  ((COMPASS_OFFSET_DEG*MILLIPI)/180L)
+#define COMPASS_OFFSET  (((COMPASS_OFFSET_DEG + MAGNETIC_VARIATION)*MILLIPI)/180L)
 
 void GetDirection(void)
 {
@@ -72,16 +72,16 @@ void GetDirection(void)
 	int32 Temp2;
 	int8 r;
 
-	if( _UseCompass  ) // continuous mode but Compass only updates avery 50mS
+	if( _CompassValid  ) // continuous mode but Compass only updates avery 50mS
 	{
 		I2CStart();
-		_CompassMisRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 
+		_CompassMissRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 
 		Compass = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
 		I2CStop();
 
 		//Temp2 = (int32)((int32)Compass * MILLIPI)/1800L - COMPASS_OFFSET;
 		Temp2 = ConvertDDegToMPi(Compass) - COMPASS_OFFSET;
-		CompassHeading = Make2Pi((int16) Temp2);
+		Heading = Make2Pi((int16) Temp2);
 
 		Compass /= 15;
 		DirVal = Compass;
@@ -127,7 +127,7 @@ void GetDirection(void)
 	#ifdef DEBUG_SENSORS
 	else	// no new value received
 	{
-		CompassHeading = 0;
+		Heading = 0;
 		if( IntegralCount == 0 )
 			Trace[TAbsDirection] = 0;
 	}
@@ -164,7 +164,7 @@ uint8 ReadValueFromBaro(void)
 
 RVerror:
 	I2CStop();
-	_UseBaro = false; // read error, disable baro
+	_BaroAltitudeValid = false; // read error, disable baro
 	#ifdef BARO_RETRY
 	_Hovering = false;	
 	if ( BaroRestarts < 100 )
@@ -240,12 +240,12 @@ void InitBarometer(void)
 	// before first call to ComputeBaroComp
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;	
 
-	_UseBaro = true;
+	_BaroAltitudeValid = true;
 
 	return;
 
 BAerror:
-	_UseBaro = _Hovering = false;
+	_BaroAltitudeValid = _Hovering = false;
 	I2CStop();
 } // InitBarometer
 
@@ -255,7 +255,7 @@ void ComputeBaroComp(void)
 
 	BaroCount++;
 
-	if( _UseBaro )
+	if( _BaroAltitudeValid )
 		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
 #ifdef ENABLE_NEW_ALT_HOLD
 		if (((BaroCount >= 8) && _BaroTempRun) || ((BaroCount >= 32 ) && !_BaroTempRun))
@@ -374,7 +374,7 @@ void ComputeBaroComp(void)
 
 	#ifdef DEBUG_SENSORS	
 	if( IntegralCount == 0 )
-		if ( _UseBaro )
+		if ( _BaroAltitudeValid )
 		{
 			Trace[TVBaroComp] = VBaroComp << 4; // scale for UAVPSet
 			Trace[TBaroRelPressure] = BaroRelPressure << 4;

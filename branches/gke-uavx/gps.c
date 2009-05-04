@@ -91,6 +91,7 @@ enum GPSSentences {GPGGA, GPRMC};
 #define LastNIndex GPRMC
 // must be in sorted alpha order
 const uint8 NMEATag[LastNIndex+1][6] = {{"GPGGA"},{"GPRMC"}};
+uint8 NMEAActive[LastNIndex+1];
 #pragma udata
 
 #ifndef FAKE_GPS
@@ -301,7 +302,15 @@ void ParseGPSSentence()
 			GPSLongitudeCorrection = int16cos(Temp);
 		
 			if ( CurrNType == GPGGA )
+			{
 				GPSOriginAltitude = GPSAltitude;
+				_GPSAltitudeValid = true;
+			}
+			else
+			if ( CurrNType == GPRMC )
+				_GPSHeadingValid = true;
+			
+			NMEAActive[CurrNType] = true;
 		}
 		else
 		{
@@ -403,10 +412,12 @@ void PollGPS(uint8 ch)
 
 void InitGPS()
 { 
-	uint8 c;
+	uint8 n;
 
 	cc = 0;
 	NEntries = NHead = NTail = 0;
+	for (n = FirstNIndex; n <=LastNIndex; n++)
+		NMEAActive[n] = false;
 
 	GPSMode = '_';
 	GPSMissionTime = GPSRelAltitude = GPSHeading = GPSGroundSpeed = GPSFix = GPSNoOfSats = GPSHDilute = 0;
@@ -426,7 +437,10 @@ void UpdateGPS(void)
 {
 	#ifdef FAKE_GPS
 	GPSSentenceReceived = true;
-	#endif // FAKE_GPS
+	_GPSHeadingValid = true;
+	_GPSAltitudeValid = true;
+	_GPSValid = true;
+	#else
 
 	if ( NEntries > 0 )
 	{
@@ -452,7 +466,7 @@ void UpdateGPS(void)
 		LEDRed_OFF;
 	else
 		LEDRed_ON;	
-
+	#endif // FAKE_GPS
 } // UpdateGPS
 
 

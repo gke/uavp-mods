@@ -21,14 +21,18 @@
 #define MAX_ANGLE 				30L		// Rx stick units ~= degrees
 #define CLOSING_RADIUS			20L		// closing radius in metres 
 
+// Turn to heading to home and use pitch control only
+//#define TURN_TO_HOME
+// Reduce value to reduce yaw slew rate for "Turn to Home"
+#define	NAV_YAW_LIMIT			50
+
+// GPS is active if sticks are close to Neutral
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
-// When defined GPS correction  is active all of the time.
-#define OVERRIDE_HOVER_CONDITION
 // Using IK7 as GPS gain for corrective action full CCW is no correction. 
 #define GPS_IK7_GAIN
 
 // JIM increase this if you wish to a maximum of say 4
-#define NavIntLimit 			2		// integral term for windy conditions! 	
+#define NavIntLimit 			1		// integral term for windy conditions! 	
 
 // Accelerometer
 
@@ -259,28 +263,28 @@
 
 // Status 
 
-#define	_Signal		Flags[0]	/* if no valid signal is received */
-#define	_Flying			Flags[1]	/* UFO is flying */
-#define	_NewValues		Flags[2]	/* new RX channel values sampled */
-#define _FirstTimeout	Flags[3]	/* is 1 after first 9ms TO expired */
+#define	_Signal				Flags[0]	/* if no valid signal is received */
+#define	_Flying				Flags[1]	/* UFO is flying */
+#define	_NewValues			Flags[2]	/* new RX channel values sampled */
+#define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
 
-#define _LowBatt		Flags[4]	/* if Batt voltage is low */
-#define _UseLISL		Flags[5]	/* 1 if LISL Sensor is used */
-#define	_UseCompass		Flags[6]	/* 1 if compass sensor is enabled */
-#define _CompassMisRead Flags[7]
-#define _UseBaro		Flags[8]	/* 1 if baro sensor active */
-#define _BaroTempRun	Flags[9]	/* 1 if baro temp a/d conversion is running */
-#define _BaroRestart	Flags[10] 	/* Baro restart required */
-#define _OutToggle		Flags[11]	/* cam servos only evers 2nd output pulse */								
-#define _UseCh7Trigger	Flags[12]	/* 1: don't use Ch7 */
+#define _LowBatt			Flags[4]	/* if Batt voltage is low */
+#define _UseLISL			Flags[5]	/* 1 if LISL Sensor is used */
+#define	_CompassValid		Flags[6]	/* 1 if compass sensor is enabled */
+#define _CompassMissRead 	Flags[7]
+#define _BaroAltitudeValid	Flags[8]	/* 1 if baro sensor active */
+#define _BaroTempRun		Flags[9]	/* 1 if baro temp a/d conversion is running */
+#define _BaroRestart		Flags[10] 	/* Baro restart required */
+#define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
+#define _UseCh7Trigger		Flags[12]	/* 1: don't use Ch7 */
 									/* 0: use Ch7 as Cam Roll trim */
-#define _ReceivingGPS 	Flags[16]
-#define _GPSValid 		Flags[17]
-#define _LostModel		Flags[18]
-#define _Hovering		Flags[19]
-#define _HoldingStation Flags[20]
-#define _NavComputed 	Flags[21]
-
+#define _ReceivingGPS 		Flags[16]
+#define _GPSValid 			Flags[17]
+#define _LostModel			Flags[18]
+#define _Hovering			Flags[19]
+#define _NavComputed 		Flags[20]
+#define _GPSHeadingValid 	Flags[21]
+#define _GPSAltitudeValid	Flags[22]
 
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)
@@ -620,6 +624,7 @@ extern void WriteParametersEE(uint8);
 extern void InitParams(void);
 
 extern int16 Make2Pi(int16);
+extern int16 MakePi(int16);
 extern int16 Table16(int16, const int16 *);
 extern int16 int16sin(int16);
 extern int16 int16cos(int16);
@@ -690,7 +695,7 @@ extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern	int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, CompassHeading;
+extern	int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern int16	Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;

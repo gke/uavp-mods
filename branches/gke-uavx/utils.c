@@ -256,6 +256,14 @@ int16 Make2Pi(int16 A)
 	return( A );
 } // Make2Pi
 
+int16 MakePi(int16 A)
+{
+	while ( A < -MILLIPI ) A += TWOMILLIPI;
+	while ( A >= MILLIPI ) A -= TWOMILLIPI;
+	return( A );
+} // MakePi
+
+
 #pragma idata sintable
 const int16 SineTable[17]={ 
 	0, 50, 98, 142, 180, 212, 236, 250, 255,

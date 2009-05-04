@@ -115,14 +115,14 @@ void ShowSetup(uint8 h)
 
 	// check for compass device
 	TxString("Compass ");	// send hello message
-	if( _UseCompass ) 
+	if( _CompassValid ) 
 		TxString("ONLINE\r\n");
 	else
 		TxString("not available\r\n");
 
 	// check for altimeter device
 	TxString("Barometer ");	// send hello message
-	if( _UseBaro ) 
+	if( _BaroAltitudeValid ) 
 		TxString("ONLINE\r\n");
 	else
 		TxString("not available\r\n");

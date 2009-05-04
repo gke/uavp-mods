@@ -207,7 +207,7 @@ void LimitYawSum(void)
 
 	YE += DesiredYaw;						// add the yaw stick value
 
-	if ( _UseCompass )
+	if ( _CompassValid )
 	{
 		// CurDeviation is negative if quadrocopter has yawed to the right (go back left)
 		if ( Abs(DesiredYaw) > COMPASS_MIDDLE )

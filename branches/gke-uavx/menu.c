@@ -104,13 +104,13 @@ void ShowSetup(uint8 h)
 		TxString("not available\r\n");
 
 	TxString("Compass ");
-	if( _UseCompass )
+	if( _CompassValid )
 		TxString("ONLINE\r\n");
 	else
 		TxString("not available\r\n");
 
 	TxString("Baro ");
-	if( _UseBaro )
+	if( _BaroAltitudeValid )
 		if ( BaroType == BARO_ID_BMP085 )
 			TxString("BMP085\r\n");
 		else

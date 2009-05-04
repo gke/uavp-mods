@@ -59,7 +59,7 @@ int16	AbsDirection;	// wanted heading (240 = 360 deg)
 int16	CurDeviation;	// deviation from correct heading
 
 //int8	RCRollNeutral, RCPitchNeutral, RCYawNeutral;
-int16 	CompassHeading;
+int16 	Heading;
 
 int16	GPSCount;
 

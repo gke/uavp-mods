@@ -41,7 +41,7 @@ int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollRate, PitchRate, YawRate;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, CompassHeading;
+int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 int16	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
