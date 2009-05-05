@@ -104,18 +104,27 @@ void AccelerationCompensation(void)
 		Rp -= SRS16(RollSum * (-15), 5); 
 		#endif
 	
-		#ifndef ENABLE_DYNAMIC_MASS_COMP_ROLL
+		#ifdef DISABLE_DYNAMIC_MASS_COMP_ROLL
+		// no dynamic correction of moved mass
+		#else
 		// dynamic correction of moved mass
 		#ifdef OPT_ADXRS
 		Rp += (int16)RollRate << 1;
 		#else // OPT_IDG
 		Rp -= (int16)RollRate;
 		#endif	
-		#else
-		// no dynamic correction of moved mass
 		#endif
 
 		// correct DC level of the integral
+		#ifdef NEW_ACC_COMP
+		#ifdef OPT_ADXRS
+		LRIntKorr = Limit(Rp/10, -5, 5); 
+		#else
+		LRIntKorr = Limit(Rp/10, -5, 5);
+		#endif
+
+		#else
+
 		LRIntKorr = 0;
 		#ifdef OPT_ADXRS
 		if( Rp > 10 ) LRIntKorr =  1;
@@ -126,6 +135,8 @@ void AccelerationCompensation(void)
 		else
 			if( Rp < 10 ) LRIntKorr =  1;
 		#endif
+
+		#endif // NEW_ACC_COMP
 	
 		// Pitch
 
@@ -138,29 +149,38 @@ void AccelerationCompensation(void)
 		Pp -= SRS16(PitchSum * (-15), 5);
 		#endif
 		
-		#ifndef ENABLE_DYNAMIC_MASS_COMP_PITCH
-		// dynamic correction of moved mass
+		#ifdef DISABLE_DYNAMIC_MASS_COMP_PITCH
+		// no dynamic correction of moved mass
+		#else
 		#ifdef OPT_ADXRS
 		Pp += (int16)PitchRate << 1;
 		#else // OPT_IDG
 		Pp -= (int16)PitchRate;
 		#endif	
-		#else
-		// no dynamic correction of moved mass
 		#endif
 	
 		// correct DC level of the integral
+		#ifdef NEW_ACC_COMP
+		#ifdef OPT_ADXRS
+		FBIntKorr = Limit(Pp/10, -5, 5); 
+		#else
+		FBIntKorr = Limit(-Pp/10, -5, 5);
+		#endif
+
+		#else
+
 		FBIntKorr = 0;
 		#ifdef OPT_ADXRS
 		if( Pp > 10 ) FBIntKorr =  1; 
 		else 
 			if( Pp < 10 ) FBIntKorr = -1;
-		#endif
-		#ifdef OPT_IDG
+		#else // OPT_IDG
 		if( Pp > 10 ) FBIntKorr = -1;
 		else
 			if( Pp < 10 ) FBIntKorr =  1;
-		#endif		
+		#endif
+
+		#endif // NEW_ACC_COMP		
 	}	
 	else
 	{

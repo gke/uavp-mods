@@ -1,5 +1,8 @@
 // EXPERIMENTAL
 
+// Possible long standing error in accelerometer compensation
+//#define NEW_ACC_COMP
+
 // Simulates a FAKE GPS estimating position from control inputs and outputs to 
 // Hyperterm lines of the form: 
 // 294      75n     33e    -> r= 33        p= 0 hov rth
@@ -24,7 +27,7 @@
 // Turn to heading to home and use pitch control only
 //#define TURN_TO_HOME
 // Reduce value to reduce yaw slew rate for "Turn to Home"
-#define	NAV_YAW_LIMIT			50
+#define	NAV_YAW_LIMIT			50L
 
 // GPS is active if sticks are close to Neutral
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
@@ -143,8 +146,8 @@
 
 // Enable "Dynamic mass" compensation Roll and/or Pitch
 // Normally enabled for Roll only 
-#define ENABLE_DYNAMIC_MASS_COMP_ROLL
-#define ENABLE_DYNAMIC_MASS_COMP_PITCH
+//#define DISABLE_DYNAMIC_MASS_COMP_ROLL
+//#define DISABLE_DYNAMIC_MASS_COMP_PITCH
 
 // Navigation
 
