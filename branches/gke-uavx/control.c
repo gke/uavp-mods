@@ -129,11 +129,11 @@ void AccelerationCompensation(void)
 		#ifdef OPT_ADXRS
 		if( Rp > 10 ) LRIntKorr =  1;
 		else
-			if( Rp < 10 ) LRIntKorr = -1;
+			if( Rp < -10 ) LRIntKorr = -1;
 		#else // OPT_IDG
 		if( Rp > 10 ) LRIntKorr = -1;
 		else
-			if( Rp < 10 ) LRIntKorr =  1;
+			if( Rp < -10 ) LRIntKorr =  1;
 		#endif
 
 		#endif // NEW_ACC_COMP
@@ -173,11 +173,11 @@ void AccelerationCompensation(void)
 		#ifdef OPT_ADXRS
 		if( Pp > 10 ) FBIntKorr =  1; 
 		else 
-			if( Pp < 10 ) FBIntKorr = -1;
+			if( Pp < -10 ) FBIntKorr = -1;
 		#else // OPT_IDG
 		if( Pp > 10 ) FBIntKorr = -1;
 		else
-			if( Pp < 10 ) FBIntKorr =  1;
+			if( Pp < -10 ) FBIntKorr =  1;
 		#endif
 
 		#endif // NEW_ACC_COMP		
