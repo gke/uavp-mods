@@ -23,7 +23,7 @@
 
 // Prototypes
 
-extern void AccelerationCompensation(void);
+extern void GyroCompensation(void);
 extern void LimitRollSum(void);
 extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
@@ -35,12 +35,12 @@ extern void WaitThrottleClosed(void);
 extern void CheckThrottleMoved(void);
 extern void WaitForRxSignal(void);
 
-void AccelerationCompensation(void)
+void GyroCompensation(void)
 {
 	int16 AbsRollSum, AbsPitchSum, Temp;
 	int16 Rp, Pp, Yp;
 
-	if( _UseLISL )
+	if( _AccelerationsValid )
 	{
 		ReadAccelerations();
 
@@ -104,10 +104,8 @@ void AccelerationCompensation(void)
 		Rp -= SRS16(RollSum * (-15), 5); 
 		#endif
 	
-		#ifdef DISABLE_DYNAMIC_MASS_COMP_ROLL
-		// no dynamic correction of moved mass
-		#else
 		// dynamic correction of moved mass
+		#ifndef DISABLE_DYNAMIC_MASS_COMP_ROLL
 		#ifdef OPT_ADXRS
 		Rp += (int16)RollRate << 1;
 		#else // OPT_IDG
@@ -116,27 +114,11 @@ void AccelerationCompensation(void)
 		#endif
 
 		// correct DC level of the integral
-		#ifdef NEW_ACC_COMP
 		#ifdef OPT_ADXRS
-		LRIntKorr = Limit(Rp/10, -5, 5); 
+		LRIntKorr = Limit(Rp/10, -1, 1); 
 		#else
-		LRIntKorr = Limit(Rp/10, -5, 5);
+		LRIntKorr = Limit(-Rp/10, -1, 1);
 		#endif
-
-		#else
-
-		LRIntKorr = 0;
-		#ifdef OPT_ADXRS
-		if( Rp > 10 ) LRIntKorr =  1;
-		else
-			if( Rp < -10 ) LRIntKorr = -1;
-		#else // OPT_IDG
-		if( Rp > 10 ) LRIntKorr = -1;
-		else
-			if( Rp < -10 ) LRIntKorr =  1;
-		#endif
-
-		#endif // NEW_ACC_COMP
 	
 		// Pitch
 
@@ -148,10 +130,9 @@ void AccelerationCompensation(void)
 		#else // OPT_IDG
 		Pp -= SRS16(PitchSum * (-15), 5);
 		#endif
-		
-		#ifdef DISABLE_DYNAMIC_MASS_COMP_PITCH
-		// no dynamic correction of moved mass
-		#else
+
+		// dynamic correction of moved mass		
+		#ifndef DISABLE_DYNAMIC_MASS_COMP_PITCH
 		#ifdef OPT_ADXRS
 		Pp += (int16)PitchRate << 1;
 		#else // OPT_IDG
@@ -160,27 +141,16 @@ void AccelerationCompensation(void)
 		#endif
 	
 		// correct DC level of the integral
-		#ifdef NEW_ACC_COMP
 		#ifdef OPT_ADXRS
-		FBIntKorr = Limit(Pp/10, -5, 5); 
+		FBIntKorr = Limit(Pp/10, -1, 1); 
 		#else
-		FBIntKorr = Limit(-Pp/10, -5, 5);
+		FBIntKorr = Limit(-Pp/10, -1, 1);
 		#endif
 
-		#else
-
-		FBIntKorr = 0;
-		#ifdef OPT_ADXRS
-		if( Pp > 10 ) FBIntKorr =  1; 
-		else 
-			if( Pp < -10 ) FBIntKorr = -1;
-		#else // OPT_IDG
-		if( Pp > 10 ) FBIntKorr = -1;
-		else
-			if( Pp < -10 ) FBIntKorr =  1;
-		#endif
-
-		#endif // NEW_ACC_COMP		
+		#ifdef DEBUG_SENSORS
+		Trace[TLRIntKorr] = LRIntKorr;
+		Trace[TFBIntKorr] = FBIntKorr;	
+		#endif // DEBUG_SENSORS	
 	}	
 	else
 	{
@@ -194,7 +164,7 @@ void AccelerationCompensation(void)
 		Trace[TVud] = 0;
 		#endif
 	}
-} // AccelerationCompensation
+} // GyroCompensation
 
 void LimitRollSum(void)
 {
@@ -202,8 +172,8 @@ void LimitRollSum(void)
 
 	if( IntegralCount == 0 )
 	{
-		RollSum = Limit(RollSum, -RollIntLimit*256, RollIntLimit*256);
 		RollSum += LRIntKorr;
+		RollSum = Limit(RollSum, -RollIntLimit*256, RollIntLimit*256);
 		RollSum = Decay(RollSum);		// damps to zero even if still rolled
 	}
 
@@ -215,8 +185,8 @@ void LimitPitchSum(void)
 
 	if( IntegralCount == 0 )
 	{
-		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);
-		PitchSum += FBIntKorr;		
+		PitchSum += FBIntKorr;
+		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);		
 		PitchSum = Decay(PitchSum);	// damps to zero even if still pitched
 	}
 } // LimitPitchSum
@@ -288,7 +258,7 @@ void CalcGyroValues(void)
 		{
 			RollSum += 8;
 			PitchSum += 8;
-			if( !_UseLISL )
+			if( !_AccelerationsValid )
 			{
 				RollSum = RollSum + MiddleLR;
 				PitchSum = PitchSum + MiddleFB;
@@ -369,7 +339,7 @@ void CalcGyroValues(void)
 void PID(void)
 {
 
-	AccelerationCompensation();	
+	GyroCompensation();	
 	
 	// PID controller
 	// E0 = current gyro error

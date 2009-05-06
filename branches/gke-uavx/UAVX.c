@@ -169,7 +169,7 @@ Restart:
 
 		ALL_LEDS_OFF;
 		LEDRed_ON;	
-		if( _UseLISL )
+		if( _AccelerationsValid )
 			LEDYellow_ON;
 
 		InitArrays();

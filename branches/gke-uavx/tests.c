@@ -41,7 +41,7 @@ void DoLEDs(void)
 	{
 		LEDRed_ON;
 		LEDGreen_OFF;
-		if ( _UseLISL  )
+		if ( _AccelerationsValid  )
 			LEDYellow_ON;
 	}
 	else
@@ -56,7 +56,7 @@ void LinearTest(void)
 {
 	TxString("\r\nAccelerometer test:\r\n");
 
-	if( _UseLISL )
+	if( _AccelerationsValid )
 	{
 		ReadAccelerations();
 	

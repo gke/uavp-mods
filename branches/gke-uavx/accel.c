@@ -29,7 +29,7 @@ void SendCommand(int8);
 uint8 ReadLISL(uint8);
 uint8 ReadLISLNext(void);
 void WriteLISL(uint8, uint8);
-void IsLISLactive(void);
+void IsLISLActive(void);
 void InitLISL(void);
 void ReadAccelerations(void);
 void GetNeutralAccelerations(void);
@@ -142,11 +142,11 @@ void WriteLISL(uint8 d, uint8 c)
 	SPI_IO = RD_SPI;	// IO is input (to allow RS232 reception)
 } // WriteLISL
 
-void IsLISLactive(void)
+void IsLISLActive(void)
 {
 	int8 r;
 
-	_UseLISL = false;
+	_AccelerationsValid = false;
 	SPI_CS = DSEL_LISL;
 	WriteLISL(0b01001010, LISL_CTRLREG_2); // enable 3-wire, BDU=1, +/-2g
 
@@ -160,9 +160,9 @@ void IsLISLactive(void)
 		WriteLISL(0b11111100, LISL_FF_THS_H); // -0,5g threshold
 		WriteLISL(255, LISL_FF_DUR);
 		WriteLISL(0b00000000, LISL_DD_CFG);
-		_UseLISL = true;
+		_AccelerationsValid = true;
 	}
-} // IsLISLactive
+} // IsLISLActive
 
 void InitLISL(void)
 {
@@ -170,8 +170,8 @@ void InitLISL(void)
 	NeutralFB = 0;
 	NeutralUD = 0;
 	#ifdef USE_ACCELEROMETER
-	IsLISLactive();	
-	if( _UseLISL )
+	IsLISLActive();	
+	if( _AccelerationsValid )
 	{
 		LEDYellow_ON;
 		GetNeutralAccelerations();

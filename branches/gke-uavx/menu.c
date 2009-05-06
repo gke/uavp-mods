@@ -98,7 +98,7 @@ void ShowSetup(uint8 h)
 	}
 
 	TxString(SerSetup);	// send hello message
-	if( _UseLISL )
+	if( _AccelerationsValid )
 		TxString("ONLINE\r\n");
 	else
 		TxString("not available\r\n");

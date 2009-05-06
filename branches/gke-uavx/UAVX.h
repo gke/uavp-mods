@@ -1,8 +1,5 @@
 // EXPERIMENTAL
 
-// Possible long standing error in accelerometer compensation
-//#define NEW_ACC_COMP
-
 // Simulates a FAKE GPS estimating position from control inputs and outputs to 
 // Hyperterm lines of the form: 
 // 294      75n     33e    -> r= 33        p= 0 hov rth
@@ -145,7 +142,7 @@
 // Gyros
 
 // Enable "Dynamic mass" compensation Roll and/or Pitch
-// Normally enabled for Roll only 
+// Normally disabled for pitch only 
 //#define DISABLE_DYNAMIC_MASS_COMP_ROLL
 //#define DISABLE_DYNAMIC_MASS_COMP_PITCH
 
@@ -272,7 +269,7 @@
 #define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
 
 #define _LowBatt			Flags[4]	/* if Batt voltage is low */
-#define _UseLISL			Flags[5]	/* 1 if LISL Sensor is used */
+#define _AccelerationsValid Flags[5]	/* 1 if LISL Sensor is used */
 #define	_CompassValid		Flags[6]	/* 1 if compass sensor is enabled */
 #define _CompassMissRead 	Flags[7]
 #define _BaroAltitudeValid	Flags[8]	/* 1 if baro sensor active */
@@ -518,7 +515,7 @@ extern void SendCommand(int8);
 extern uint8 ReadLISL(uint8);
 extern uint8 ReadLISLNext(void);
 extern void WriteLISL(uint8, uint8);
-extern void IsLISLactive(void);
+extern void IsLISLActive(void);
 extern void InitLISL(void);
 extern void ReadAccelerations(void);
 extern void GetNeutralAccelerations(void);
@@ -541,7 +538,7 @@ extern void InitBarometer(void);
 extern void ComputeBaroComp(void);
 
 // control.c
-extern void AccelerationCompensation(void);
+extern void GyroCompensation(void);
 extern void LimitRollSum(void);
 extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
@@ -682,9 +679,10 @@ enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchR
 				TIRoll, TIPitch, TIYaw,
 				TMFront, TMBack, TMLeft, TMRight,
 				TMCamRoll, TMCamPitch,
+				TLRIntKorr, TFBIntKorr,
 				LastTrace
 				};
-#define TopTrace TMCamPitch
+#define TopTrace TFBIntKorr
 
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
