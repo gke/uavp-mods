@@ -147,46 +147,22 @@ void CheckLISL(void)
 		#ifdef OPT_ADXRS
 		Rp += (int16)RollSamples;
 		Rp += (int16)RollSamples;
-		#endif
-	
-		#ifdef OPT_IDG
+		#else  // OPT_IDG
 		Rp -= (int16)RollSamples;
 		#endif
 	
 		// correct DC level of the integral
-		LRIntKorr = 0;
 		#ifdef OPT_ADXRS
-		if( Rp > 10 ) LRIntKorr =  1;
-		else
-			if( Rp < -10 ) LRIntKorr = -1;
+		LRIntKorr =  Rp/10;
+		#else // OPT_IDG
+		LRIntKorr =  -Rp/10;
 		#endif
-		#ifdef OPT_IDG
-		if( Rp > 10 ) LRIntKorr = -1;
+		//LRIntKorr = Limit(LRIntKorr, -1, 1);
+		if ( LRIntKorr > 5 )
+			LRIntKorr = 5;
 		else
-			if( Rp < -10 ) LRIntKorr =  1;
-		#endif
-	
-		#ifdef NADA
-		// Integral addieren, Abkling-Funktion
-		Yl = LRSum >> 4;
-		Yl >>= 1;
-		LRSum -= Yl;	// LRSum * 0.96875
-		LRSum += Rp;
-		Rp = LRSum + 128;
-		LRSumPosi += (int8)Rp.high8;
-		if( LRSumPosi >  2 ) LRSumPosi -= 2;
-		else
-			if( LRSumPosi < -2 ) LRSumPosi += 2;
-	
-		// Korrekturanteil fuer den PID Regler
-		Rp = LRSumPosi * LinLRIntFactor;
-		Rp += 128;
-		Rp = (int8)Rp.high8;
-		// limit output
-		if( Rp >  2 ) Rp = 2;
-		else
-			if( Rp < -2 ) Rp = -2;
-		#endif // NADA
+			if  ( LRIntKorr < -5 )
+				LRIntKorr = -5;
 	
 		// =====================================
 		// Pitch-Axis
@@ -197,8 +173,7 @@ void CheckLISL(void)
 	
 		#ifdef OPT_ADXRS
 		Yl = PitchSum * 11;	// Pp um RollSum* 11/32 korrigieren
-		#endif
-		#ifdef OPT_IDG
+		#else // OPT_IDG
 		Yl = PitchSum * -15;	// Pp um RollSum* -14/32 korrigieren
 		#endif
 		Yl += 16;
@@ -208,42 +183,17 @@ void CheckLISL(void)
 		// no dynamic correction of moved mass necessary
 	
 		// correct DC level of the integral
-		FBIntKorr = 0;
 		#ifdef OPT_ADXRS
-		if( Pp > 10 ) FBIntKorr =  1; 
-		else 
-			if( Pp < -10 ) FBIntKorr = -1;
+		FBIntKorr =  Pp/10; 
+		#else // OPT_IDG
+		FBIntKorr = -Pp/10;
 		#endif
-		#ifdef OPT_IDG
-		if( Pp > 10 ) FBIntKorr = -1;
+		//FBIntKorr = Limit(FBIntKorr, -1, 1);
+		if ( FBIntKorr > 5 )
+			FBIntKorr = 5;
 		else
-			if( Pp < -10 ) FBIntKorr =  1;
-		#endif
-	
-		#ifdef NADA
-		// Integral addieren
-		// Integral addieren, Abkling-Funktion
-		Yl = FBSum >> 4;
-		Yl >>= 1;
-		FBSum -= Yl;	// LRSum * 0.96875
-		FBSum += Pp;
-		Pp = FBSum + 128;
-		FBSumPosi += (int8)Pp.high8;
-		if( FBSumPosi >  2 ) FBSumPosi -= 2;
-		else
-			if( FBSumPosi < -2 ) FBSumPosi += 2;
-	
-		// Korrekturanteil fuer den PID Regler
-		Pp = FBSumPosi * LinFBIntFactor;
-		Pp += 128;
-		Pp = (int8)Pp.high8;
-		// limit output
-		if( Pp >  2 ) 
-			Pp = 2;
-		else
-			if( Pp < -2 ) 
-				Pp = -2;
-		#endif // NADA
+			if  ( FBIntKorr < -5 )
+				FBIntKorr = -5;
 	}
 	else
 	{
