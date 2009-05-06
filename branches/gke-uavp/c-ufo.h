@@ -254,7 +254,7 @@ extern	shrBank	int8		CurDeviation;	// deviation from correct heading
 #define _PreScale2	16
 #define _PostScale2	16
 
-// wegen dem dummen Compiler muss man händisch rechnen :-(
+//#define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
 
 #define DELAY_MS(ms)	for( W=ms; W!=0; W--){T0IF=0;while(T0IF == 0);}
 
