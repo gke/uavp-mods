@@ -158,11 +158,11 @@ void CheckLISL(void)
 		LRIntKorr =  -Rp/10;
 		#endif
 		//LRIntKorr = Limit(LRIntKorr, -1, 1);
-		if ( LRIntKorr > 5 )
-			LRIntKorr = 5;
+		if ( LRIntKorr > 1 )
+			LRIntKorr = 1;
 		else
-			if  ( LRIntKorr < -5 )
-				LRIntKorr = -5;
+			if  ( LRIntKorr < -1 )
+				LRIntKorr = -1;
 	
 		// =====================================
 		// Pitch-Axis
@@ -189,11 +189,11 @@ void CheckLISL(void)
 		FBIntKorr = -Pp/10;
 		#endif
 		//FBIntKorr = Limit(FBIntKorr, -1, 1);
-		if ( FBIntKorr > 5 )
-			FBIntKorr = 5;
+		if ( FBIntKorr > 1 )
+			FBIntKorr = 1;
 		else
-			if  ( FBIntKorr < -5 )
-				FBIntKorr = -5;
+			if  ( FBIntKorr < -1 )
+				FBIntKorr = -1;
 	}
 	else
 	{
