@@ -158,12 +158,12 @@ void CheckLISL(void)
 		#ifdef OPT_ADXRS
 		if( Rp > 10 ) LRIntKorr =  1;
 		else
-			if( Rp < 10 ) LRIntKorr = -1;
+			if( Rp < -10 ) LRIntKorr = -1;
 		#endif
 		#ifdef OPT_IDG
 		if( Rp > 10 ) LRIntKorr = -1;
 		else
-			if( Rp < 10 ) LRIntKorr =  1;
+			if( Rp < -10 ) LRIntKorr =  1;
 		#endif
 	
 		#ifdef NADA
@@ -212,12 +212,12 @@ void CheckLISL(void)
 		#ifdef OPT_ADXRS
 		if( Pp > 10 ) FBIntKorr =  1; 
 		else 
-			if( Pp < 10 ) FBIntKorr = -1;
+			if( Pp < -10 ) FBIntKorr = -1;
 		#endif
 		#ifdef OPT_IDG
 		if( Pp > 10 ) FBIntKorr = -1;
 		else
-			if( Pp < 10 ) FBIntKorr =  1;
+			if( Pp < -10 ) FBIntKorr =  1;
 		#endif
 	
 		#ifdef NADA
