@@ -37,8 +37,11 @@ extern void WaitForRxSignal(void);
 
 void GyroCompensation(void)
 {
+	#define COMP_LIMIT 1
+
 	int16 AbsRollSum, AbsPitchSum, Temp;
 	int16 Rp, Pp, Yp;
+	int16 LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
 
 	if( _AccelerationsValid )
 	{
@@ -97,12 +100,16 @@ void GyroCompensation(void)
 	
 		// Roll
 
+		LRAcc = Rp;
+
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
 		Rp -= SRS16(RollSum * 11, 5);
 		#else // OPT_IDG
-		Rp -= SRS16(RollSum * (-15), 5); 
+		Rp += SRS16(RollSum * 15, 5); 
 		#endif
+
+		LRGrav = SRS16(RollSum * 15, 5); 
 	
 		// dynamic correction of moved mass
 		#ifndef DISABLE_DYNAMIC_MASS_COMP_ROLL
@@ -113,6 +120,8 @@ void GyroCompensation(void)
 		#endif	
 		#endif
 
+		LRDyn = (int16)RollRate;
+
 		// correct DC level of the integral
 		#ifdef OPT_ADXRS
 		LRIntKorr = Limit(Rp/10, -1, 1); 
@@ -122,14 +131,18 @@ void GyroCompensation(void)
 	
 		// Pitch
 
-		Pp = -Pp;				// long standing BUG!
+		Pp = -Pp;				
+
+		FBAcc = Pp;
 
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
-		Pp -= SRS16(PitchSum * 11, 5);	
+		Pp -= SRS16(PitchSum * 11, 5);
 		#else // OPT_IDG
-		Pp -= SRS16(PitchSum * (-15), 5);
+		Pp += SRS16(PitchSum * 15, 5);
 		#endif
+
+		FBGrav = SRS16(PitchSum * 15, 5);
 
 		// dynamic correction of moved mass		
 		#ifndef DISABLE_DYNAMIC_MASS_COMP_PITCH
@@ -140,6 +153,8 @@ void GyroCompensation(void)
 		#endif	
 		#endif
 	
+		FBDyn = (int16)PitchRate;
+
 		// correct DC level of the integral
 		#ifdef OPT_ADXRS
 		FBIntKorr = Limit(Pp/10, -1, 1); 
@@ -148,7 +163,14 @@ void GyroCompensation(void)
 		#endif
 
 		#ifdef DEBUG_SENSORS
+		Trace[TLRAcc] = LRAcc;
+		Trace[TLRGrav] = LRGrav;
+		Trace[TLRDyn] = LRDyn;
 		Trace[TLRIntKorr] = LRIntKorr;
+
+		Trace[TFBAcc] = FBAcc;
+		Trace[TFBGrav] = FBGrav;
+		Trace[TFBDyn] = FBDyn;
 		Trace[TFBIntKorr] = FBIntKorr;	
 		#endif // DEBUG_SENSORS	
 	}	
@@ -231,6 +253,8 @@ void GetGyroValues(void)
 	#endif // OPT_IDG
 } // GetGyroValues
 
+//int16 DummyPitch = 0;//zz
+
 // Calc the gyro values from added RollRate and PitchRate
 void CalcGyroValues(void)
 {
@@ -256,15 +280,13 @@ void CalcGyroValues(void)
 
 		if( IntegralCount == 1 )
 		{
-			RollSum += 8;
-			PitchSum += 8;
 			if( !_AccelerationsValid )
 			{
-				RollSum = RollSum + MiddleLR;
-				PitchSum = PitchSum + MiddleFB;
+				RollSum += MiddleLR;
+				PitchSum += MiddleFB;
 			}
-			GyroMidRoll = RollSum >> 4;	
-			GyroMidPitch = PitchSum >> 4;
+			GyroMidRoll = (RollSum + 8) >> 4;	
+			GyroMidPitch = (PitchSum + 8) >> 4;
 			GyroMidYaw = 0;
 			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
 		}
@@ -274,6 +296,9 @@ void CalcGyroValues(void)
 		// standard flight mode
 		RollRate -= GyroMidRoll;
 		PitchRate -= GyroMidPitch;
+
+//PitchRate = (DummyPitch++)/20; // zzz
+//if (DummyPitch > 1000) DummyPitch = 0;
 
 		// calc Cross flying mode
 		if( FlyCrossMode )
@@ -360,7 +385,7 @@ void PID(void)
 
 	// Integral part for Roll
 	if( IntegralCount == 0 )
-		Rl += SRS16(RollSum * (int16)RollIntFactor, 8); // thanks Jim aka Jesolins
+		Rl += SRS16(RollSum * (int16)RollIntFactor, 8); 
 	Rl -= DesiredRoll;								// subtract stick signal
 
 	// Pitch

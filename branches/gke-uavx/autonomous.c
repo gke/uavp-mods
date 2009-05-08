@@ -188,6 +188,8 @@ void CheckAutonomous(void)
 				TxString("BadC\r\n");
 			}		
 
+	#ifndef DEBUG_SENSORS
+
 	#ifdef FAKE_GPS
 
 	#define FAKE_NORTH_WIND 	0
@@ -267,6 +269,7 @@ void CheckAutonomous(void)
 
 	#endif // FAKE_GPS
 
+	#endif // DEBUG_SENSORS
 
 } // CheckAutonomous
 

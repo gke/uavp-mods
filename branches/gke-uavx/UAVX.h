@@ -679,7 +679,7 @@ enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchR
 				TIRoll, TIPitch, TIYaw,
 				TMFront, TMBack, TMLeft, TMRight,
 				TMCamRoll, TMCamPitch,
-				TLRIntKorr, TFBIntKorr,
+				TLRAcc, TLRGrav, TLRDyn, TLRIntKorr, TFBAcc, TFBGrav, TFBDyn, TFBIntKorr,
 				LastTrace
 				};
 #define TopTrace TFBIntKorr

@@ -68,11 +68,11 @@
 		endc
 	
 		code
-	;	#ifdef __18F2620
-	;	org		0fd00h
-	;	#else
+		#ifdef __18F2620
+		org		0fd00h
+		#else
 		org		07d00h
-	;	#endif
+		#endif
 				
 		global	BootStart
 
