@@ -643,8 +643,6 @@ extern void DumpTrace(void);
 // bootl18f.asm
 extern void BootStart(void);
 
-#ifdef TEST_SOFTWARE
-
 // tests.c
 extern void LinearTest(void);
 extern uint8 ScanI2CBus(void);
@@ -667,8 +665,6 @@ extern int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 extern const rom uint8  SerHello[];
 extern const rom uint8  SerSetup[];
 extern const rom uint8 SerPrompt[];
-
-#endif // TEST_SOFTWARE
 
 // External Variables
 

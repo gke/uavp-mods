@@ -226,6 +226,9 @@ UAVX ********************************************************************
 25.04.2009 UAVX Greg Egan
 - Cutover to UAVX from final version of UAVPm3.
 - GPS based navigation included with station holding and return to home.
+
+8.05.2009 UAVX Greg Egan
+- Merged flight and test software for 18F2620 PIC.
   
 =========================================================================
  SAFETY FIRST!                              

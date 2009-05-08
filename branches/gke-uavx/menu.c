@@ -73,14 +73,23 @@ const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\n"
 	"Accelerometers ";
 #pragma idata
 
-#pragma idata menu2
-const rom uint8  SerHelp[]  = "\r\nCommands:\r\n"
-	"L...List param\r\n"
-	"M...Modify param\r\n"
-	"S...Show setup\r\n"
-	"N...Neutral values\r\n"
-	"R...Show receiver channels\r\n"
-	"B...start Boot-Loader\r\n";
+#pragma idata menuhelp
+const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
+	"V..Analog ch.\r\n"
+	"B..Boot\r\n"
+	"C..Compass test\r\n"
+	"K..Calib. Compass\r\n"
+	"G..GPS test (Use HyperTerm)\r\n"
+	"H..Baro. test\r\n"
+	"I..I2C bus scan\r\n"
+	"A..Linear test\r\n"
+// use normal param change	"P..Negate Rx-PPM\r\n"
+	"X..RX test\r\n"
+	"S..Setup\r\n"
+	#ifdef ESC_YGEI2C
+	"Y..Prog. YGE\r\n"
+	#endif
+	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
 
 void ShowPrompt(void)
@@ -155,6 +164,74 @@ void ProcessComCommand(void)
 			
 			switch( ch )
 			{
+			case 'X'  :	// Receiver test			
+				ReceiverTest();
+				ShowPrompt();
+				break;
+			case 'V' :	// analog test
+				AnalogTest();
+				ShowPrompt();
+				break;
+			case 'G' : // GPS test
+				GPSTest();
+				ShowPrompt();
+				break;			
+			case 'A' :	// linear sensor
+				LinearTest();
+				ShowPrompt();
+				break;
+			case 'I':
+				TxString("\r\nI2C devices ...\r\n");
+				TxVal32(ScanI2CBus(),0,0);
+				TxString(" device(s) found\r\n");
+				ShowPrompt();
+				break;
+			case 'C':
+				DoCompassTest();
+				ShowPrompt();
+				break;
+			case 'K':
+				CalibrateCompass();
+				ShowPrompt();
+				break;
+			case 'H':	// barometer
+				BaroTest();
+				ShowPrompt();
+				break;	
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+				TxString("\r\nOutput test\r\n");
+				TxChar(ch);
+				TxChar(':');
+				switch( ch )
+				{
+					case '1': TxString("Aux2");  break;
+					case '2': TxString("Blue");  break;
+					case '3': TxString("Red");   break;
+					case '4': TxString("Green"); break;
+					case '5': TxString("Aux1");  break;
+					case '6': TxString("Yellow");break;
+					case '7': TxString("Aux3");  break;
+					case '8': TxString("Beeper");  break;
+				}
+				TxNextLine();
+				PowerOutput(ch-'1');
+				ShowPrompt();
+				break;
+	
+			#ifdef ESC_YGEI2C
+			case 'Y':	// configure YGE30i EScs
+				ConfigureESCs();
+				ShowPrompt();
+				break;
+			#endif // ESC_YGEI2C
+
 			case 'L'  :	// List parameters
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				if( IK5 > _Neutral )
@@ -241,7 +318,6 @@ void ProcessComCommand(void)
 				TxString(",7:");TxValU(IK7);
 				ShowPrompt();
 				break;
-		
 			case 'B':	// call bootloader
 				if ( !Armed )
 				{ // arming switch must be OFF to call bootloader!!!

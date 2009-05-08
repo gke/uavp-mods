@@ -194,9 +194,9 @@ void LimitRollSum(void)
 
 	if( IntegralCount == 0 )
 	{
-		RollSum += LRIntKorr;
 		RollSum = Limit(RollSum, -RollIntLimit*256, RollIntLimit*256);
 		RollSum = Decay(RollSum);		// damps to zero even if still rolled
+		RollSum += LRIntKorr;			// last for accelerometer compensation
 	}
 
 } // LimitRollSum
@@ -207,9 +207,9 @@ void LimitPitchSum(void)
 
 	if( IntegralCount == 0 )
 	{
-		PitchSum += FBIntKorr;
 		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);		
-		PitchSum = Decay(PitchSum);	// damps to zero even if still pitched
+		PitchSum = Decay(PitchSum);		// damps to zero even if still pitched
+		PitchSum += FBIntKorr;			// last for accelerometer compensation
 	}
 } // LimitPitchSum
 

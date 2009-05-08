@@ -24,7 +24,7 @@
 
 // Prototypes
 
-#ifdef TEST_SOFTWARE
+uint16 PauseTime;
 
 extern uint8 BaroTemp;
 
@@ -551,12 +551,3 @@ void ConfigureESCs(void)
 
 #endif // ESC_YGEI2C
 
-void OutSignals(void)
-{
-
-	// no motor output
-
-} // OutSignals
-
-
-#endif // TEST_SOFTWARE

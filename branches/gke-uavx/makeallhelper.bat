@@ -15,7 +15,7 @@ set 	DBG=%6
 set 	RX=%7
 set 	CFG=%8
 
-set CSRC=accel adc uavx irq menu control compass_altimeter serial utils gps autonomous i2c outputs
+set CSRC=accel adc uavx irq menu control compass_altimeter tests serial utils gps autonomous i2c outputs
 set ASRC=bootl18f
 
 set CC="C:\MCC18\bin\mcc18"
