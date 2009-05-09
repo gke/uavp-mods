@@ -107,9 +107,9 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 				RelHeading = MakePi(WayHeading - GPSHeading); // make +/- MilliPi
 				RelHeading = Limit(RelHeading, -HALFMILLIPI, HALFMILLIPI);
 				NavRCorr = 0;	// Desired roll has no correction - maybe for wind later.
-				NavPCorr = -(5 + ((Temp - 5) * (MILLIPI-Abs(RelHeading)))/MILLIPI);
+				NavPCorr = -(5 + ((Temp - 5) * (HALFMILLIPI - Abs(RelHeading)))/HALFMILLIPI);
 				
-				if ( GPSGroundSpeed > 20 )
+				if ( GPSGroundSpeed > (MIN_GROUNDSPEED_TO_ARM*10L) )
 					NavYCorr = Limit(-RelHeading, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!		
 			}
 			else

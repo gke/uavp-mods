@@ -29,6 +29,8 @@
 
 // Turn to heading to home and use pitch control only
 #define TURN_TO_HOME
+// Turn to heading is not enabled until this grounspeed is reached
+#define MIN_GROUNDSPEED_TO_ARM	1		// metres per second
 // Reduce value to reduce yaw slew rate for "Turn to Home"
 #define	NAV_YAW_LIMIT			75L		// was 50
 
