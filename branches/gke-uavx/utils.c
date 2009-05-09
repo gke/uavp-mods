@@ -164,7 +164,7 @@ int16 ConvertMToGPS(int16 c)
 
 int8 ReadEE(uint8 addr)
 {
-	int8 b;
+	static int8 b;
 
 	EEADR = addr;
 	EECON1bits.EEPGD = false;
@@ -177,8 +177,8 @@ int8 ReadEE(uint8 addr)
 
 void ReadParametersEE(void)
 {
-	int8 *p, c; 
-	uint16 addr;
+	static int8 *p, c; 
+	static uint16 addr;
 
 	if( IK5 > _Neutral )
 		addr = _EESet2;	
@@ -273,8 +273,8 @@ const int16 SineTable[17]={
 
 int16 Table16(int16 Val, const int16 *T)
 {
-	uint8 Index,Offset;
-	int16 Temp, Low, High, Result;
+	static uint8 Index,Offset;
+	static int16 Temp, Low, High, Result;
 
 	Index = (uint8) (Val >> 4);
 	Offset = (uint8) (Val & 0x0f);
@@ -288,8 +288,8 @@ int16 Table16(int16 Val, const int16 *T)
 
 int16 int16sin(int16 A)
 {	// A is in milliradian 0 to 2000Pi, result is -255 to 255
-	int16 	v;
-	uint8	Negate;
+	static int16 	v;
+	static uint8	Negate;
 
 	while ( A < 0 ) A += TWOMILLIPI;
 	while ( A >= TWOMILLIPI ) A -= TWOMILLIPI;
@@ -324,8 +324,8 @@ int16 int16atan2(int16 y, int16 x)
 	// angles less Pi/4 within a quadrant. Larger angles are directly interpolated
 	// to Pi/2. 
  
-	int32 Absx, Absy, TL;
-	int16 A;
+	static int32 Absx, Absy, TL;
+	static int16 A;
 
 	Absy = Abs(y);
 	Absx = Abs(x);
@@ -368,7 +368,7 @@ int16 int16atan2(int16 y, int16 x)
 int16 int16sqrt(int16 n)
 // 16 bit numbers 
 {
-  int16 r, b;
+  static int16 r, b;
 
   r=0;
   b=256;
@@ -384,7 +384,8 @@ int16 int16sqrt(int16 n)
 
 void SendLEDs(void)
 {
-	int8	i, s;
+	static int8	i, s;
+
 	i = LEDShadow;
 	SPI_CS = DSEL_LISL;	
 	SPI_IO = WR_SPI;	// SDA is output
@@ -483,7 +484,7 @@ void DoPIDDisplays(void)
 
 void CheckAlarms(void)
 {
-	int16 NewBatteryVolts;
+	static int16 NewBatteryVolts;
 
 	NewBatteryVolts = ADC(ADCBattVoltsChan, ADCVREF5V) >> 3; 
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);

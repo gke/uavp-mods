@@ -99,7 +99,7 @@ void low_isr_handler(void)
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
 {
-	uint8 ch;
+	static uint8 ch;
 		
 	// For 2.4GHz systems see README_DSM2_ETC.
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge

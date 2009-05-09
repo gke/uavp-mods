@@ -67,24 +67,25 @@ void GetDirection(void)
 	// Read direction, convert it to 2 degrees unit
 	// and store result in variable AbsDirection.
 	// The current heading correction is stored in CurDeviation
-	int16 DirVal,  temp;
-	int16 Compass;
-	int32 Temp2;
-	int8 r;
+	static int16 DirVal,  temp;
+	static i16u Compass;
+	static int32 Temp2;
+	static int8 r;
 
 	if( _CompassValid  ) // continuous mode but Compass only updates avery 50mS
 	{
 		I2CStart();
 		_CompassMissRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 
-		Compass = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
+		Compass.high8 = RecvI2CByte(I2C_ACK);
+		Compass.low8 = RecvI2CByte(I2C_NACK);
 		I2CStop();
 
 		//Temp2 = (int32)((int32)Compass * MILLIPI)/1800L - COMPASS_OFFSET;
-		Temp2 = ConvertDDegToMPi(Compass) - COMPASS_OFFSET;
+		Temp2 = ConvertDDegToMPi(Compass.i16) - COMPASS_OFFSET;
 		Heading = Make2Pi((int16) Temp2);
 
-		Compass /= 15;
-		DirVal = Compass;
+		Compass.u16 /= 15;
+		DirVal = Compass.u16;
 	
 		// must use pre-decrement, because of dumb compiler
 		if( AbsDirection > COMPASS_MAX )
@@ -149,7 +150,7 @@ uint8 ReadValueFromBaro(void)
 	if( SendI2CByte(BARO_ADC_MSB) != I2C_ACK ) goto RVerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
-	BaroVal = (uint16)RecvI2CByte(I2C_NACK) * 256;
+	BaroVal.high8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 		
 	I2CStart();
@@ -157,7 +158,7 @@ uint8 ReadValueFromBaro(void)
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto RVerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
-	BaroVal |= RecvI2CByte(I2C_NACK);
+	BaroVal.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
 	return(I2C_NACK);
@@ -204,7 +205,7 @@ void InitBarometer(void)
 	// SMD500 9.5mS (T) 34mS (P)  
 	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
 	// Baro is assumed offline unless it responds - no retries!
-	uint8 r;
+	static uint8 r;
 
 	VBaroComp = BaroCount = 0;
 
@@ -228,13 +229,13 @@ void InitBarometer(void)
 
 	Delay1mS(10);
 	r = ReadValueFromBaro();
-	BaroBaseTemp = BaroVal;	// save start value
+	BaroBaseTemp = BaroVal.u16;	// save start value
 		
 	// read pressure once to get base value
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	Delay1mS(30);
 	r = ReadValueFromBaro();	
-	BaroBasePressure = BaroVal;
+	BaroBasePressure = BaroVal.u16;
 	
 	// set baro device to start temperature conversion
 	// before first call to ComputeBaroComp
@@ -251,7 +252,7 @@ BAerror:
 
 void ComputeBaroComp(void)
 {
-	int16 OldBaroRelPressure, Temp, Delta;
+	static int16 OldBaroRelPressure, Temp, Delta;
 
 	BaroCount++;
 
@@ -269,9 +270,9 @@ void ComputeBaroComp(void)
 				{
 					StartBaroADC(BARO_PRESS); // next is pressure - overlap
 					if( ThrDownCount )
-						BaroBaseTemp = BaroVal; // current read value
+						BaroBaseTemp = BaroVal.u16; // current read value
 					else 
-						BaroRelTempCorr = BaroVal - BaroBaseTemp;
+						BaroRelTempCorr = BaroVal.u16 - BaroBaseTemp;
 				}
 				else
 				{	// current measurement was "pressure"
@@ -279,7 +280,7 @@ void ComputeBaroComp(void)
 
 					if( ThrDownCount )	// while moving throttle stick
 					{
-						BaroBasePressure = BaroVal;
+						BaroBasePressure = BaroVal.u16;
 						_Hovering = false;
 						VBaroComp = 0;	
 					}
@@ -298,14 +299,14 @@ void ComputeBaroComp(void)
 #ifdef ENABLE_NEW_ALT_HOLD
 // EXPERIMENTAL ALTITUDE HOLD
 						// while holding altitude
-						BaroVal -= BaroBasePressure;
+						BaroVal.u16 -= BaroBasePressure;
 						// BaroVal has -400..+400 approx
-						BaroVal += SRS16((int16)BaroRelTempCorr * (int16)BaroTempCoeff, 5);
+						BaroVal.u16 += SRS16((int16)BaroRelTempCorr * (int16)BaroTempCoeff, 5);
 
 						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
 	
 
-						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal);
+						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal.u16);
 	
 						Delta = BaroRelPressure - OldBaroRelPressure;
 

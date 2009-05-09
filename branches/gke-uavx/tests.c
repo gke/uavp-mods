@@ -61,21 +61,21 @@ void LinearTest(void)
 		ReadAccelerations();
 	
 		TxString("Left->Right: \t");
-		TxVal32(((int32)Ax*1000+512)/1024, 3, 'G');	
-		if ( Abs(Ax) > 128 )
+		TxVal32(((int32)Ax.i16*1000+512)/1024, 3, 'G');	
+		if ( Abs((Ax.i16)) > 128 )
 			TxString(" fault?");
 		TxNextLine();
 
 		TxString("Front->Back: \t");	
-		TxVal32(((int32)Az*1000+512)/1024, 3, 'G');
-		if ( Abs(Az) > 128 )
+		TxVal32(((int32)Az.i16*1000+512)/1024, 3, 'G');
+		if ( Abs((Az.i16)) > 128 )
 			TxString(" fault?");	
 		TxNextLine();
 
 		TxString("Down->Up:    \t");
 	
-		TxVal32(((int32)Ay*1000+512)/1024, 3, 'G');
-		if ( ( Ay < 896 ) || ( Ay > 1152 ) )
+		TxVal32(((int32)Ay.i16*1000+512)/1024, 3, 'G');
+		if ( ( Ay.i16 < 896 ) || ( Ay.i16 > 1152 ) )
 			TxString(" fault?");	
 		TxNextLine();
 	}
@@ -155,6 +155,7 @@ void ReceiverTest(void)
 void DoCompassTest()
 {
 	uint16 v, prev;
+	i16u Compass;
 	int8 r;
 
 	TxString("\r\nCompass test\r\n");
@@ -236,11 +237,12 @@ void DoCompassTest()
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
-	v = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
+	Compass.high8 = RecvI2CByte(I2C_ACK);
+	Compass.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
 	TxString("Not corrected for orientation on airframe\r\n");
-	TxVal32((int32)v, 1, 0);
+	TxVal32((int32)Compass.u16, 1, 0);
 	TxString(" deg\r\n");
 
 		
@@ -295,14 +297,14 @@ void BaroTest(void)
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	Delay1mS(BARO_PRESS_TIME);
 	r = ReadValueFromBaro();
-	P = BaroVal;
+	P = BaroVal.u16;
 	TxString("Press: \t");	
 	TxVal32((int32)P, 0, 0);
 		
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	Delay1mS(BARO_TEMP_TIME);
 	r = ReadValueFromBaro();
-	T = BaroVal;
+	T = BaroVal.u16;
 	TxString("\tTemp: ");
 	TxVal32((int32)T, 0, 0);	
 

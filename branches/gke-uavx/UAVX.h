@@ -7,13 +7,19 @@
 // This permits quadrocopter to be "flown on the bench". Motors WILL run but this is NOT flight code.
 //#define FAKE_GPS
 
-// Navigation
+#define DisablePpEqualsMinusPp
+//#define ChangeSignOfPitchOffset
 
-// Number of good GPS sentences required to establish origin 
-#define INITIAL_GPS_SENTENCES 	30
+// Navigation
+ 
+#define GPS_HZ					5
+// Number of good GPS sentences required to establish origin
+#define INITIAL_GPS_SENTENCES 	60*GPS_HZ
+
 // minimum no of satellites for sentence to be acceptable	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
-#define MIN_FIX					1		//must be 1 or 2 	
+#define MIN_FIX					1		// must be 1 or 2 	
+#define MIN_HDILUTE				150L	// HDilute * 100
 
 // The "Ls" are important
 #define MAGNETIC_VARIATION		6L		// Positive East degrees
@@ -22,9 +28,9 @@
 #define CLOSING_RADIUS			20L		// closing radius in metres 
 
 // Turn to heading to home and use pitch control only
-//#define TURN_TO_HOME
+#define TURN_TO_HOME
 // Reduce value to reduce yaw slew rate for "Turn to Home"
-#define	NAV_YAW_LIMIT			50L
+#define	NAV_YAW_LIMIT			75L		// was 50
 
 // GPS is active if sticks are close to Neutral
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
@@ -324,6 +330,15 @@ typedef long int32;
 typedef unsigned long uint32;
 typedef uint8 boolean;
 typedef float real32;
+
+typedef union {
+	int16 i16;
+	uint16 u16;
+	struct {
+		unsigned char low8;
+		unsigned char high8;
+	};
+} i16u;
 
 // Useful Constants
 
@@ -692,8 +707,8 @@ extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern	int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
-extern int16	Ax, Ay, Az;
+extern int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDSum;
@@ -713,7 +728,7 @@ extern uint8	ThrNeutral;
 // Variables for barometric sensor PD-controller
 extern int24	BaroBasePressure, BaroBaseTemp;
 extern int16	BaroRelPressure, BaroRelTempCorr;
-extern uint16	BaroVal;
+extern i16u		BaroVal;
 extern int16	VBaroComp;
 extern uint8	BaroType, BaroTemp, BaroRestarts;
 

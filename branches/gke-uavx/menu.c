@@ -83,7 +83,6 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"H..Baro. test\r\n"
 	"I..I2C bus scan\r\n"
 	"A..Linear test\r\n"
-// use normal param change	"P..Negate Rx-PPM\r\n"
 	"X..RX test\r\n"
 	"S..Setup\r\n"
 	#ifdef ESC_YGEI2C
@@ -121,9 +120,9 @@ void ShowSetup(uint8 h)
 	TxString("Baro ");
 	if( _BaroAltitudeValid )
 		if ( BaroType == BARO_ID_BMP085 )
-			TxString("BMP085\r\n");
+			TxString("BMP085 ONLINE\r\n");
 		else
-			TxString("SMD500\r\n");
+			TxString("SMD500 ONLINE\r\n");
 	else
 		TxString("not available\r\n");
 

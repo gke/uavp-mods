@@ -370,7 +370,7 @@ void EscI2CDelay(void)
 
 void EscWaitClkHi(void)
 {
-	uint8 s;
+	static uint8 s;
 
 	s = 1;
 
@@ -411,7 +411,7 @@ void EscI2CStop(void)
 // 1 = NACK
 void SendEscI2CByte(uint8 d)
 {
-	uint8 s;
+	static uint8 s;
 
 	for(s=8; s; s--)
 	{

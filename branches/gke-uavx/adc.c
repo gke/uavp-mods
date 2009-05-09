@@ -28,8 +28,8 @@ void InitADC(void);
 
 int16 ADC(uint8 Channel, uint8 VRef)
 {
-	int16 Result;
-	uint8 d;
+	static int16 Result;
+	static uint8 d;
 
 	ADCON1bits.VCFG0 = VRef;
 	SetChanADC(Channel<<3);		// using automatic acq

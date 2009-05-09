@@ -78,6 +78,7 @@ uint8 NHead, NTail, NEntries;
 #pragma udata gpsvars3
 enum WaitGPSStates {WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
 int8 ValidGPSSentences;
+int8 NActiveTypes;
 uint8 GPSRxState;
 uint8 ll, nll, cc, tt, lo, hi;
 boolean EmptyField;
@@ -208,10 +209,7 @@ void ParseGPRMCSentence()
 		GPSMagVariation = -GPSMagVariation;
 	*/
 	UpdateField();   // Mode (A,D,E)
-	GPSMode = NMEA[NHead].s[lo];
-	#ifdef TEST_SOFTWARE
-	TxString("$GPRMC ");
-	#endif // TEST_SOFTWARE    
+	GPSMode = NMEA[NHead].s[lo];   
 } // ParseGPRMCSentence
 
 void ParseGPGGASentence()
@@ -252,18 +250,15 @@ void ParseGPGGASentence()
     //UpdateField();   // GHeight 
     //UpdateField();   // GHeightUnit 
  
-    _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES );  
-	#ifdef TEST_SOFTWARE
-	TxString("$GPGGA ");
-	#endif // TEST_SOFTWARE 
+    _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES ) && (GPSHDilute <= MIN_HDILUTE);  
 } // ParseGPGGASentence
 
 #endif //  !FAKE_GPS
 
 void ParseGPSSentence()
 {
-	int32 Temp;
-	uint8 CurrNType;
+	static int32 Temp;
+	static uint8 CurrNType;
 
 	cc = 0;
 
@@ -282,12 +277,15 @@ void ParseGPSSentence()
 	NEntries--; // possibility of being clobbering by PollGPS in interrupt
 
 	if ( _GPSValid )
-	    if ( ValidGPSSentences < INITIAL_GPS_SENTENCES )
+	{
+		if ( !NMEAActive[CurrNType] )
+		{
+			NMEAActive[CurrNType] = true;
+			NActiveTypes++;
+		}
+
+	    if ( ValidGPSSentences < INITIAL_GPS_SENTENCES * NActiveTypes )
 		{   // repetition to ensure GPGGA altitude is captured
-			#ifdef TEST_SOFTWARE 
-			TxVal32( INITIAL_GPS_SENTENCES - ValidGPSSentences, 0, 0);
-			TxNextLine();
-			#endif // TEST_SOFTWARE
 
 			_GPSValid = false;
 			ValidGPSSentences++;
@@ -308,9 +306,7 @@ void ParseGPSSentence()
 			}
 			else
 			if ( CurrNType == GPRMC )
-				_GPSHeadingValid = true;
-			
-			NMEAActive[CurrNType] = true;
+				_GPSHeadingValid = true;	
 		}
 		else
 		{
@@ -322,11 +318,8 @@ void ParseGPSSentence()
 			if ( CurrNType == GPGGA )
 				GPSRelAltitude = GPSAltitude - GPSOriginAltitude;
 		}
-	#ifdef TEST_SOFTWARE 
-	else
-		TxString("invalid\r\n");
-	#endif // TEST_SOFTWARE
-
+	}
+	
 	#endif //  !FAKE_GPS
 } // ParseGPSSentence
 
@@ -418,6 +411,7 @@ void InitGPS()
 	NEntries = NHead = NTail = 0;
 	for (n = FirstNIndex; n <=LastNIndex; n++)
 		NMEAActive[n] = false;
+	NActiveTypes = 0;
 
 	GPSMode = '_';
 	GPSMissionTime = GPSRelAltitude = GPSHeading = GPSGroundSpeed = GPSFix = GPSNoOfSats = GPSHDilute = 0;

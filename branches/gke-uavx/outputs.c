@@ -48,7 +48,7 @@ extern void OutSignals(void);
 
 uint8 SaturInt(int16 l)
 {
-	int16 r;
+	static int16 r;
 
 	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
 	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
@@ -63,7 +63,7 @@ uint8 SaturInt(int16 l)
 
 void DoMix(int16 CurrThrottle)
 {
-	int16 Temp;
+	static int16 Temp;
 
 	Motor[Front] = Motor[Left] = Motor[Right] = CurrThrottle;
 	#ifndef TRICOPTER
@@ -100,8 +100,8 @@ uint8 	MotorDemandRescale;
 
 void CheckDemand(int16 CurrThrottle)
 {
-	int8 s;
-	int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
+	static int8 s;
+	static int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
 
 	MaxMotor = Max(Motor[Front], Motor[Left]);
 	MaxMotor = Max(MaxMotor, Motor[Right]);
@@ -125,9 +125,9 @@ void CheckDemand(int16 CurrThrottle)
 			if ( Scale < 256 )
 			{
 				MotorDemandRescale = true;
-				Rl = (Rl * Scale + 128)/256;  
-				Pl = (Pl * Scale + 128)/256; 
-				Yl = (Yl * Scale + 128)/256; 
+				Rl = (Rl * Scale)/256;  
+				Pl = (Pl * Scale)/256; 
+				Yl = (Yl * Scale)/256; 
 			}
 			else
 				 MotorDemandRescale = false;	
@@ -139,7 +139,7 @@ void CheckDemand(int16 CurrThrottle)
 
 void MixAndLimitMotors(void)
 { 	// expensive ~400uSec @16MHz
-    int16 Temp, CurrThrottle;
+    static int16 Temp, CurrThrottle;
 
 	// Altitude stabilization factor
 	CurrThrottle = DesiredThrottle + (Vud + VBaroComp); // vertical compensation not optional
@@ -161,7 +161,7 @@ void MixAndLimitMotors(void)
 
 void MixAndLimitCam(void)
 {
-	int16 Cr, Cp;
+	static int16 Cr, Cp;
 
 	// use only roll/pitch angle estimates
 	if( (IntegralCount == 0) && ((CamRollFactor != 0) || (CamPitchFactor != 0)) )

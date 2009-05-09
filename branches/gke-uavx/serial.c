@@ -174,9 +174,6 @@ int8 RxNumS(void)
 	return(n);
 } // RxNumS
 
-
-//#ifdef TEST_SOFTWARE
-
 void TxVal32(int32 V, int8 dp, uint8 Separator)
 {
 	uint8 S[12];
@@ -225,5 +222,5 @@ void TxVal32(int32 V, int8 dp, uint8 Separator)
 		TxChar(Separator);
 } // TxVal32
 
-//#endif // TEST_SOFTWARE
+
 

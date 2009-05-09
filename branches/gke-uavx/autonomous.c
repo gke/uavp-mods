@@ -55,7 +55,7 @@ void Descend(void)
 		DesiredThrottle = Limit(DesiredThrottle--, 0, _Maximum); // safest	
 } // Descend
 
-
+int16 RelHeading;
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
@@ -64,9 +64,9 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// cos/sin/arctan lookup tables are used for speed.
 	// BEWARE magic numbers for integer artihmetic
 
-	int32 Temp;
-	int16 NavKp, GPSGain;
-	int16 Range, EastDiff, NorthDiff, RelHeading, WayHeading;
+	static int32 Temp;
+	static int16 NavKp, GPSGain;
+	static int16 Range, EastDiff, NorthDiff, WayHeading;
 
 	if ( _NavComputed ) // use previous corrections
 	{
@@ -78,6 +78,10 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	{
 		EastDiff = GPSEastWay - GPSEast;
 		NorthDiff = GPSNorthWay - GPSNorth;
+
+		#ifdef FAKE_GPS
+		Heading = GPSHeading;
+		#endif // FAKE_GPS
 
 		if ( (Abs(EastDiff) >= 1 ) || (Abs(NorthDiff) >=1 ))
 		{ 
@@ -101,10 +105,12 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			if ( ( Range >= NAV_CLOSING_RADIUS ) && _GPSHeadingValid )
 			{
 				RelHeading = MakePi(WayHeading - GPSHeading); // make +/- MilliPi
+				RelHeading = Limit(RelHeading, -HALFMILLIPI, HALFMILLIPI);
 				NavRCorr = 0;	// Desired roll has no correction - maybe for wind later.
-				NavPCorr = -Temp;
-
-				NavYCorr = Limit(-RelHeading, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!		
+				NavPCorr = -(5 + ((Temp - 5) * (MILLIPI-Abs(RelHeading)))/MILLIPI);
+				
+				if ( GPSGroundSpeed > 20 )
+					NavYCorr = Limit(-RelHeading, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!		
 			}
 			else
 			#endif // TURN_TO_HOME
@@ -141,7 +147,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 void CheckAutonomous(void)
 {
 	#ifdef FAKE_GPS
-	int16 CosH, SinH, NorthD, EastD, A;
+	static int16 CosH, SinH, NorthD, EastD, A;
 
 	_GPSValid = true;
 
@@ -199,8 +205,9 @@ void CheckAutonomous(void)
 	{
 
 		// $GPRMC
-		GPSGroundSpeed = Abs(DesiredPitch)+Abs(DesiredRoll);
+		GPSGroundSpeed = (Abs(DesiredPitch)+Abs(DesiredRoll))*10; // decimetres/sec
 		GPSHeading = Make2Pi(GPSHeading - DesiredYaw*10);
+		Heading = GPSHeading;
 
 		// $GPGGA
 		GPSFix = 2;
@@ -211,15 +218,15 @@ void CheckAutonomous(void)
 		FakeGPSCount = BlinkCount + 50;
 		CosH = int16cos(Heading);
 		SinH = int16sin(Heading);
-		GPSEast += ((int32)(-DesiredPitch) * SinH + 128)/256;
-		GPSNorth += ((int32)(-DesiredPitch) * CosH + 128)/256;
+		GPSEast += ((int32)(-DesiredPitch) * SinH)/256;
+		GPSNorth += ((int32)(-DesiredPitch) * CosH)/256;
 	
 		A = Make2Pi(Heading + HALFMILLIPI);
 		CosH = int16cos(A);
 		SinH = int16sin(A);
-		GPSEast += ((int32)DesiredRoll * SinH + 128) / 256L;
+		GPSEast += ((int32)DesiredRoll * SinH) / 256L;
 		GPSEast += FAKE_EAST_WIND; // wind	
-		GPSNorth += ((int32)DesiredRoll * CosH + 128) / 256L;
+		GPSNorth += ((int32)DesiredRoll * CosH) / 256L;
 		GPSNorth += FAKE_NORTH_WIND; // wind	
 
 		_NavComputed = false;

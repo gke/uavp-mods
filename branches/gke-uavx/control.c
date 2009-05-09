@@ -37,26 +37,30 @@ extern void WaitForRxSignal(void);
 
 void GyroCompensation(void)
 {
-	#define COMP_LIMIT 1
+	#define GYRO_COMP_STEP 1
 
-	int16 AbsRollSum, AbsPitchSum, Temp;
-	int16 Rp, Pp, Yp;
-	int16 LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
+	static int16 AbsRollSum, AbsPitchSum, Temp;
+	static int16 Rp, Pp, Yp;
+	static int16 LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
 
 	if( _AccelerationsValid )
 	{
 		ReadAccelerations();
 
-		Rp = Ax;
-		Yp = Ay;
-		Pp = Az;;
+		Rp = Ax.i16;
+		Yp = Ay.i16;
+		Pp = Az.i16;
 		
 		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
 		// and come back as MiddleLR etc.
 	
 		// 1 unit is 1/4096 of 2g = 1/2048g
 		Rp -= MiddleLR;
+#ifdef ChangeSignOfPitchOffset
+		Pp += MiddleFB;
+#else
 		Pp -= MiddleFB;
+#endif
 		Yp -= MiddleUD;
 	
 		Yp -= 1024;	// subtract 1g
@@ -124,22 +128,23 @@ void GyroCompensation(void)
 
 		// correct DC level of the integral
 		#ifdef OPT_ADXRS
-		LRIntKorr = Limit(Rp/10, -1, 1); 
+		LRIntKorr = Limit(Rp/10, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 		#else
-		LRIntKorr = Limit(-Rp/10, -1, 1);
+		LRIntKorr = Limit(-Rp/10, -GYRO_COMP_STEP, GYRO_COMP_STEP);
 		#endif
 	
 		// Pitch
-
+#ifndef DisablePpEqualsMinusPp
 		Pp = -Pp;				
+#endif
 
 		FBAcc = Pp;
 
 		// Static compensation due to Gravity
 		#ifdef OPT_ADXRS
-		Pp -= SRS16(PitchSum * 11, 5);
+		Pp -= SRS16(PitchSum * 11, 5); 
 		#else // OPT_IDG
-		Pp += SRS16(PitchSum * 15, 5);
+		Pp += SRS16(PitchSum * 15, 5); 
 		#endif
 
 		FBGrav = SRS16(PitchSum * 15, 5);
@@ -157,9 +162,9 @@ void GyroCompensation(void)
 
 		// correct DC level of the integral
 		#ifdef OPT_ADXRS
-		FBIntKorr = Limit(Pp/10, -1, 1); 
+		FBIntKorr = Limit(Pp/10, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 		#else
-		FBIntKorr = Limit(-Pp/10, -1, 1);
+		FBIntKorr = Limit(-Pp/10, -GYRO_COMP_STEP, GYRO_COMP_STEP);
 		#endif
 
 		#ifdef DEBUG_SENSORS
@@ -194,9 +199,10 @@ void LimitRollSum(void)
 
 	if( IntegralCount == 0 )
 	{
-		RollSum = Limit(RollSum, -RollIntLimit*256, RollIntLimit*256);
-		RollSum = Decay(RollSum);		// damps to zero even if still rolled
 		RollSum += LRIntKorr;			// last for accelerometer compensation
+		RollSum = Limit(RollSum, -RollIntLimit*256, RollIntLimit*256);
+		if ( true )
+			RollSum = Decay(RollSum);	// damps to zero even if still rolled
 	}
 
 } // LimitRollSum
@@ -207,15 +213,16 @@ void LimitPitchSum(void)
 
 	if( IntegralCount == 0 )
 	{
-		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);		
-		PitchSum = Decay(PitchSum);		// damps to zero even if still pitched
 		PitchSum += FBIntKorr;			// last for accelerometer compensation
+		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);
+		if ( true )
+			PitchSum = Decay(PitchSum);	// damps to zero even if still pitched
 	}
 } // LimitPitchSum
 
 void LimitYawSum(void)
 {
-	int16 Temp;
+	static int16 Temp;
 
 	YE += DesiredYaw;						// add the yaw stick value
 
@@ -258,7 +265,7 @@ void GetGyroValues(void)
 // Calc the gyro values from added RollRate and PitchRate
 void CalcGyroValues(void)
 {
-	int16 Temp;
+	static int16 Temp;
 
 	// RollRate & Pitchsamples hold the sum of 2 consecutive conversions
 	// Approximately 4 bits of precision are discarded in this and related 
@@ -437,7 +444,7 @@ void WaitThrottleClosed(void)
 
 void CheckThrottleMoved(void)
 {
-	int16 Temp;
+	static int16 Temp;
 
 	if( _NewValues )
 	{

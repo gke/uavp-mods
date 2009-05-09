@@ -70,7 +70,7 @@ void GetNeutralAccelerations(void);
 
 void SendCommand(int8 c)
 {
-	int8 s;
+	static int8 s;
 
 	SPI_IO = WR_SPI;	
 	SPI_CS = SEL_LISL;	
@@ -90,7 +90,7 @@ void SendCommand(int8 c)
 
 uint8 ReadLISL(uint8 c)
 {
-	uint8 d;
+	static uint8 d;
 
 //	SPI_SDA = 1;	// very important!! really!! LIS3L likes it
 	SendCommand(c);
@@ -104,8 +104,8 @@ uint8 ReadLISL(uint8 c)
 
 uint8 ReadLISLNext(void)
 {
-	int8 s;
-	uint8 d;
+	static int8 s;
+	static uint8 d;
 
 	for( s = 8; s; s-- )
 	{
@@ -122,7 +122,7 @@ uint8 ReadLISLNext(void)
 
 void WriteLISL(uint8 d, uint8 c)
 {
-	int8 s;
+	static int8 s;
 
 	SendCommand(c);
 
@@ -180,17 +180,18 @@ void InitLISL(void)
 	#endif  // USE_ACCELEROMETER
 } // InitLISL
 
+
 void ReadAccelerations()
 {
-	uint8 r;
+	static uint8 r;
 
 	r = ReadLISL(LISL_STATUS + LISL_READ); // no check for 0x3a
-	Ax  = (int16)ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
-	Ax |= (int16)ReadLISLNext()*256;
-	Ay  = (int16)ReadLISLNext();
-	Ay |= (int16)ReadLISLNext()*256;
-	Az  = (int16)ReadLISLNext();
-	Az |= (int16)ReadLISLNext()*256;
+	Ax.low8  = ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
+	Ax.high8 = ReadLISLNext();
+	Ay.low8  = ReadLISLNext();
+	Ay.high8 = ReadLISLNext();
+	Az.low8  = ReadLISLNext();
+	Az.high8 = ReadLISLNext();
 	SPI_CS = DSEL_LISL;	// end transmission
 
 } // ReadAccelerations
@@ -200,8 +201,8 @@ void GetNeutralAccelerations(void)
 	// this routine is called ONLY ONCE while booting
 	// read 16 time all 3 axis of linear sensor.
 	// Puts values in Neutralxxx registers.
-	uint8 i;
-	int16 Rp, Pp, Yp;
+	static uint8 i;
+	static int16 Rp, Pp, Yp;
 
 	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
@@ -213,9 +214,9 @@ void GetNeutralAccelerations(void)
 		while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == 0 );
 		ReadAccelerations();
 		
-		Rp += Ax;
-		Pp += Az;
-		Yp += Ay;
+		Rp += Ax.i16;
+		Pp += Az.i16;
+		Yp += Ay.i16;
 	}
 	Rp = SRS16(Rp, 4);
 	Pp = SRS16(Pp, 4);
