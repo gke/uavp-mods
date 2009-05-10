@@ -348,6 +348,7 @@ void GPSTest(void)
 	while( !PollRxChar() );
 
 	ReceivingGPSOnly(true);
+	_GPSTestActive = true;
 
 	while ( true )
 	{

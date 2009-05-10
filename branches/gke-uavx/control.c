@@ -41,7 +41,7 @@ void GyroCompensation(void)
 
 	static int16 AbsRollSum, AbsPitchSum, Temp;
 	static int16 Rp, Pp, Yp;
-	static int16 LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
+	static int16 LRAcc, FBAcc;
 
 	if( _AccelerationsValid )
 	{
@@ -111,9 +111,7 @@ void GyroCompensation(void)
 		Rp -= SRS16(RollSum * 11, 5);
 		#else // OPT_IDG
 		Rp += SRS16(RollSum * 15, 5); 
-		#endif
-
-		LRGrav = SRS16(RollSum * 15, 5); 
+		#endif 
 	
 		// dynamic correction of moved mass
 		#ifndef DISABLE_DYNAMIC_MASS_COMP_ROLL
@@ -123,8 +121,6 @@ void GyroCompensation(void)
 		Rp -= (int16)RollRate;
 		#endif	
 		#endif
-
-		LRDyn = (int16)RollRate;
 
 		// correct DC level of the integral
 		#ifdef OPT_ADXRS
@@ -146,9 +142,7 @@ void GyroCompensation(void)
 		#else // OPT_IDG
 		Pp += SRS16(PitchSum * 15, 5); 
 		#endif
-
-		FBGrav = SRS16(PitchSum * 15, 5);
-
+	
 		// dynamic correction of moved mass		
 		#ifndef DISABLE_DYNAMIC_MASS_COMP_PITCH
 		#ifdef OPT_ADXRS
@@ -157,8 +151,6 @@ void GyroCompensation(void)
 		Pp -= (int16)PitchRate;
 		#endif	
 		#endif
-	
-		FBDyn = (int16)PitchRate;
 
 		// correct DC level of the integral
 		#ifdef OPT_ADXRS
@@ -169,13 +161,13 @@ void GyroCompensation(void)
 
 		#ifdef DEBUG_SENSORS
 		Trace[TLRAcc] = LRAcc;
-		Trace[TLRGrav] = LRGrav;
-		Trace[TLRDyn] = LRDyn;
+		Trace[TLRGrav] = SRS16(RollSum * 15, 5);
+		Trace[TLRDyn] = (int16)RollRate;
 		Trace[TLRIntKorr] = LRIntKorr;
 
 		Trace[TFBAcc] = FBAcc;
-		Trace[TFBGrav] = FBGrav;
-		Trace[TFBDyn] = FBDyn;
+		Trace[TFBGrav] = SRS16(PitchSum * 15, 5);
+		Trace[TFBDyn] = (int16)PitchRate;
 		Trace[TFBIntKorr] = FBIntKorr;	
 		#endif // DEBUG_SENSORS	
 	}	

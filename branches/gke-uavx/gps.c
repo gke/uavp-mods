@@ -209,7 +209,10 @@ void ParseGPRMCSentence()
 		GPSMagVariation = -GPSMagVariation;
 	*/
 	UpdateField();   // Mode (A,D,E)
-	GPSMode = NMEA[NHead].s[lo];   
+	GPSMode = NMEA[NHead].s[lo];
+
+	if ( _GPSTestActive )
+		TxString("$GPRMC ");   
 } // ParseGPRMCSentence
 
 void ParseGPGGASentence()
@@ -251,6 +254,9 @@ void ParseGPGGASentence()
     //UpdateField();   // GHeightUnit 
  
     _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES ) && (GPSHDilute <= MIN_HDILUTE);  
+
+	if ( _GPSTestActive )
+		TxString("$GPGGA ");
 } // ParseGPGGASentence
 
 #endif //  !FAKE_GPS
@@ -287,6 +293,12 @@ void ParseGPSSentence()
 	    if ( ValidGPSSentences < INITIAL_GPS_SENTENCES * NActiveTypes )
 		{   // repetition to ensure GPGGA altitude is captured
 
+			if ( _GPSTestActive )
+			{
+				TxVal32( INITIAL_GPS_SENTENCES - ValidGPSSentences, 0, 0);
+				TxNextLine();
+			}
+
 			_GPSValid = false;
 			ValidGPSSentences++;
 			
@@ -319,7 +331,10 @@ void ParseGPSSentence()
 				GPSRelAltitude = GPSAltitude - GPSOriginAltitude;
 		}
 	}
-	
+	else
+		if ( _GPSTestActive )
+			TxString("invalid\r\n");
+
 	#endif //  !FAKE_GPS
 } // ParseGPSSentence
 

@@ -7,8 +7,8 @@
 // This permits quadrocopter to be "flown on the bench". Motors WILL run but this is NOT flight code.
 //#define FAKE_GPS
 
-#define DisablePpEqualsMinusPp
-//#define ChangeSignOfPitchOffset
+//#define DisablePpEqualsMinusPp
+#define ChangeSignOfPitchOffset
 
 // Navigation
  
@@ -293,6 +293,8 @@
 #define _NavComputed 		Flags[20]
 #define _GPSHeadingValid 	Flags[21]
 #define _GPSAltitudeValid	Flags[22]
+
+#define _GPSTestActive		Flags[31]
 
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)
