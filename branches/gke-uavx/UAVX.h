@@ -7,9 +7,6 @@
 // This permits quadrocopter to be "flown on the bench". Motors WILL run but this is NOT flight code.
 //#define FAKE_GPS
 
-//#define DisablePpEqualsMinusPp
-#define ChangeSignOfPitchOffset
-
 // Navigation
  
 #define GPS_HZ					5
@@ -167,149 +164,6 @@
 // end of user-configurable section!
 // =====================================
 
-// Bit Definitions
-
-// Bit definitions
-
-#define Armed		(PORTAbits.RA4)
-
-#define	I2C_ACK		((uint8)(0))
-#define	I2C_NACK	((uint8)(1))
-
-#define SPI_CS		PORTCbits.RC5
-#define SPI_SDA		PORTCbits.RC4
-#define SPI_SCL		PORTCbits.RC3
-#define SPI_IO		TRISCbits.TRISC4
-
-#define	RD_SPI	1
-#define WR_SPI	0
-#define DSEL_LISL  1
-#define SEL_LISL  0
-
-// The LEDs and the beeper
-#define ON	1
-#define OFF	0
-
-#define MODELLOSTTIMER		20 	/*in 0,2sec until first beep 
-								after lost xmit signal */
-#define MODELLOSTTIMERINT	2 	/* in 0,2 sec units
-								interval beep when active */
-
-
-// LEDs
-
-#define LEDYellow	LED6
-#define LEDGreen	LED4
-#define	LEDBlue		LED2
-#define LEDRed		LED3
-#define LEDAUX1		LED5
-#define LEDAUX2		LED1
-#define LEDAUX3		LED7
-
-#define LED1	0x01	/* Aux2 */
-#define LED2	0x02	/* blue */
-#define LED3	0x04	/* red */ 
-#define LED4	0x08	/* green */
-#define LED5	0x10	/* Aux1 */
-#define LED6	0x20	/* yellow */
-#define LED7	0x40	/* Aux3 */
-#define Beeper	0x80
-
-#define ALL_LEDS_ON		SwitchLEDsOn(LEDBlue|LEDRed|LEDGreen|LEDYellow)
-#define AUX_LEDS_ON		SwitchLEDsOn(LEDAUX1|LEDAUX2|LEDAUX3)
-
-#define ALL_LEDS_OFF	SwitchLEDsOff(LEDBlue|LEDRed|LEDGreen|LEDYellow)
-#define AUX_LEDS_OFF	SwitchLEDsOff(LEDAUX1|LEDAUX2|LEDAUX3)
-
-#define ARE_ALL_LEDS_OFF if((LEDShadow&(LEDBlue|LEDRed|LEDGreen|LEDYellow))==0)
-
-#define LEDRed_ON		SwitchLEDsOn(LEDRed)
-#define LEDBlue_ON		SwitchLEDsOn(LEDBlue)
-#define LEDGreen_ON		SwitchLEDsOn(LEDGreen)
-#define LEDYellow_ON	SwitchLEDsOn(LEDYellow)
-#define LEDAUX1_ON		SwitchLEDsOn(LEDAUX1)
-#define LEDAUX2_ON		SwitchLEDsOn(LEDAUX2)
-#define LEDAUX3_ON		SwitchLEDsOn(LEDAUX3)
-#define LEDRed_OFF		SwitchLEDsOff(LEDRed)
-#define LEDBlue_OFF		SwitchLEDsOff(LEDBlue)
-#define LEDGreen_OFF	SwitchLEDsOff(LEDGreen)
-#define LEDYellow_OFF	SwitchLEDsOff(LEDYellow)
-#define LEDRed_TOG		if( (LEDShadow&LEDRed) == 0 ) SwitchLEDsOn(LEDRed); else SwitchLEDsOff(LEDRed)
-#define LEDBlue_TOG		if( (LEDShadow&LEDBlue) == 0 ) SwitchLEDsOn(LEDBlue); else SwitchLEDsOff(LEDBlue)
-#define LEDGreen_TOG	if( (LEDShadow&LEDGreen) == 0 ) SwitchLEDsOn(LEDGreen); else SwitchLEDsOff(LEDGreen)
-#define Beeper_OFF		SwitchLEDsOff(Beeper)
-#define Beeper_ON		SwitchLEDsOn(Beeper)
-#define Beeper_TOG		if( (LEDShadow&Beeper) == 0 ) SwitchLEDsOn(Beeper); else SwitchLEDsOff(Beeper);
-
-// compass sensor
-#define COMPASS_I2C_ID	0x42	/* I2C slave address */
-#define COMPASS_MAXDEV	30		/* maximum yaw compensation of compass heading */
-#define COMPASS_MAX		240		/* means 360 degrees */
-#define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
-#define COMPASS_MIDDLE	10		/* yaw stick neutral dead zone */
-
-#define COMPASS_TIME	50	/* 20Hz */
-
-// baro (altimeter) sensor
-#define BARO_I2C_ID			0xee
-#define BARO_TEMP_BMP085	0x2e
-#define BARO_TEMP_SMD500	0x6e
-#define BARO_PRESS			0xf4
-#define BARO_CTL			0xf4
-#define BARO_ADC_MSB		0xf6
-#define BARO_ADC_LSB		0xf7
-#define BARO_TYPE			0xd0
-//#define BARO_ID_SMD500		??
-#define BARO_ID_BMP085		((uint8)(0x55))
-
-#define BARO_TEMP_TIME	10
-#define BARO_PRESS_TIME 35
-
-#define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
-#define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
-#define THR_HOVER		75		/* min throttle stick for alti lock */
-
-// Status 
-
-#define	_Signal				Flags[0]	/* if no valid signal is received */
-#define	_Flying				Flags[1]	/* UFO is flying */
-#define	_NewValues			Flags[2]	/* new RX channel values sampled */
-#define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
-
-#define _LowBatt			Flags[4]	/* if Batt voltage is low */
-#define _AccelerationsValid Flags[5]	/* 1 if LISL Sensor is used */
-#define	_CompassValid		Flags[6]	/* 1 if compass sensor is enabled */
-#define _CompassMissRead 	Flags[7]
-#define _BaroAltitudeValid	Flags[8]	/* 1 if baro sensor active */
-#define _BaroTempRun		Flags[9]	/* 1 if baro temp a/d conversion is running */
-#define _BaroRestart		Flags[10] 	/* Baro restart required */
-#define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
-#define _UseCh7Trigger		Flags[12]	/* 1: don't use Ch7 */
-									/* 0: use Ch7 as Cam Roll trim */
-#define _ReceivingGPS 		Flags[16]
-#define _GPSValid 			Flags[17]
-#define _LostModel			Flags[18]
-#define _Hovering			Flags[19]
-#define _NavComputed 		Flags[20]
-#define _GPSHeadingValid 	Flags[21]
-#define _GPSAltitudeValid	Flags[22]
-
-#define _GPSTestActive		Flags[31]
-
-// Mask Bits of ConfigParam
-#define FlyCrossMode 	IsSet(ConfigParam,0)
-#define FutabaMode		IsSet(ConfigParam,1)
-#define IntegralTest	IsSet(ConfigParam,2)
-#define DoubleRate		IsSet(ConfigParam,3)
-#define NegativePPM		IsSet(ConfigParam,4)
-#define CompassTest		IsSet(ConfigParam,5)
-
-// this enables common code for all ADXRS gyros
-// leave this untouched!
-#if defined OPT_ADXRS300 || defined OPT_ADXRS150
-#define OPT_ADXRS
-#endif
-
 #define Version	"1.0m3"
 
 // 18Fxxx C18 includes
@@ -425,6 +279,146 @@ typedef union {
 #define EnableInterrupts (INTCONbits.GIEH=1)
 #define InterruptsEnabled (INTCONbits.GIEH)
 
+// Bit definitions
+
+#define Armed		(PORTAbits.RA4)
+
+#define	I2C_ACK		((uint8)(0))
+#define	I2C_NACK	((uint8)(1))
+
+#define SPI_CS		PORTCbits.RC5
+#define SPI_SDA		PORTCbits.RC4
+#define SPI_SCL		PORTCbits.RC3
+#define SPI_IO		TRISCbits.TRISC4
+
+#define	RD_SPI	1
+#define WR_SPI	0
+#define DSEL_LISL  1
+#define SEL_LISL  0
+
+// The LEDs and the beeper
+#define ON	1
+#define OFF	0
+
+#define MODELLOSTTIMER		20 	/*in 0,2sec until first beep 
+								after lost xmit signal */
+#define MODELLOSTTIMERINT	2 	/* in 0,2 sec units
+								interval beep when active */
+
+// LEDs
+
+#define LEDYellow	LED6
+#define LEDGreen	LED4
+#define	LEDBlue		LED2
+#define LEDRed		LED3
+#define LEDAUX1		LED5
+#define LEDAUX2		LED1
+#define LEDAUX3		LED7
+
+#define LED1	0x01	/* Aux2 */
+#define LED2	0x02	/* blue */
+#define LED3	0x04	/* red */ 
+#define LED4	0x08	/* green */
+#define LED5	0x10	/* Aux1 */
+#define LED6	0x20	/* yellow */
+#define LED7	0x40	/* Aux3 */
+#define Beeper	0x80
+
+#define ALL_LEDS_ON		SwitchLEDsOn(LEDBlue|LEDRed|LEDGreen|LEDYellow)
+#define AUX_LEDS_ON		SwitchLEDsOn(LEDAUX1|LEDAUX2|LEDAUX3)
+
+#define ALL_LEDS_OFF	SwitchLEDsOff(LEDBlue|LEDRed|LEDGreen|LEDYellow)
+#define AUX_LEDS_OFF	SwitchLEDsOff(LEDAUX1|LEDAUX2|LEDAUX3)
+
+#define ARE_ALL_LEDS_OFF if((LEDShadow&(LEDBlue|LEDRed|LEDGreen|LEDYellow))==0)
+
+#define LEDRed_ON		SwitchLEDsOn(LEDRed)
+#define LEDBlue_ON		SwitchLEDsOn(LEDBlue)
+#define LEDGreen_ON		SwitchLEDsOn(LEDGreen)
+#define LEDYellow_ON	SwitchLEDsOn(LEDYellow)
+#define LEDAUX1_ON		SwitchLEDsOn(LEDAUX1)
+#define LEDAUX2_ON		SwitchLEDsOn(LEDAUX2)
+#define LEDAUX3_ON		SwitchLEDsOn(LEDAUX3)
+#define LEDRed_OFF		SwitchLEDsOff(LEDRed)
+#define LEDBlue_OFF		SwitchLEDsOff(LEDBlue)
+#define LEDGreen_OFF	SwitchLEDsOff(LEDGreen)
+#define LEDYellow_OFF	SwitchLEDsOff(LEDYellow)
+#define LEDRed_TOG		if( (LEDShadow&LEDRed) == 0 ) SwitchLEDsOn(LEDRed); else SwitchLEDsOff(LEDRed)
+#define LEDBlue_TOG		if( (LEDShadow&LEDBlue) == 0 ) SwitchLEDsOn(LEDBlue); else SwitchLEDsOff(LEDBlue)
+#define LEDGreen_TOG	if( (LEDShadow&LEDGreen) == 0 ) SwitchLEDsOn(LEDGreen); else SwitchLEDsOff(LEDGreen)
+#define Beeper_OFF		SwitchLEDsOff(Beeper)
+#define Beeper_ON		SwitchLEDsOn(Beeper)
+#define Beeper_TOG		if( (LEDShadow&Beeper) == 0 ) SwitchLEDsOn(Beeper); else SwitchLEDsOff(Beeper);
+
+// compass sensor
+#define COMPASS_I2C_ID	0x42	/* I2C slave address */
+#define COMPASS_MAXDEV	30		/* maximum yaw compensation of compass heading */
+#define COMPASS_MAX		240		/* means 360 degrees */
+#define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
+#define COMPASS_MIDDLE	10		/* yaw stick neutral dead zone */
+
+#define COMPASS_TIME	50	/* 20Hz */
+
+// baro (altimeter) sensor
+#define BARO_I2C_ID			0xee
+#define BARO_TEMP_BMP085	0x2e
+#define BARO_TEMP_SMD500	0x6e
+#define BARO_PRESS			0xf4
+#define BARO_CTL			0xf4
+#define BARO_ADC_MSB		0xf6
+#define BARO_ADC_LSB		0xf7
+#define BARO_TYPE			0xd0
+//#define BARO_ID_SMD500		??
+#define BARO_ID_BMP085		((uint8)(0x55))
+
+#define BARO_TEMP_TIME	10
+#define BARO_PRESS_TIME 35
+
+#define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
+#define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
+#define THR_HOVER		75		/* min throttle stick for alti lock */
+
+// Status 
+
+#define	_Signal				Flags[0]	/* if no valid signal is received */
+#define	_Flying				Flags[1]	/* UFO is flying */
+#define	_NewValues			Flags[2]	/* new RX channel values sampled */
+#define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
+
+#define _LowBatt			Flags[4]	/* if Batt voltage is low */
+#define _AccelerationsValid Flags[5]	/* 1 if LISL Sensor is used */
+#define	_CompassValid		Flags[6]	/* 1 if compass sensor is enabled */
+#define _CompassMissRead 	Flags[7]
+#define _BaroAltitudeValid	Flags[8]	/* 1 if baro sensor active */
+#define _BaroTempRun		Flags[9]	/* 1 if baro temp a/d conversion is running */
+#define _BaroRestart		Flags[10] 	/* Baro restart required */
+#define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
+#define _UseCh7Trigger		Flags[12]	/* 1: don't use Ch7 */
+									/* 0: use Ch7 as Cam Roll trim */
+#define _ReceivingGPS 		Flags[16]
+#define _GPSValid 			Flags[17]
+#define _LostModel			Flags[18]
+#define _Hovering			Flags[19]
+#define _NavComputed 		Flags[20]
+#define _GPSHeadingValid 	Flags[21]
+#define _GPSAltitudeValid	Flags[22]
+
+#define _GPSTestActive		Flags[31]
+
+// Mask Bits of ConfigParam
+#define FlyCrossMode 	IsSet(ConfigParam,0)
+#define FutabaMode		IsSet(ConfigParam,1)
+#define IntegralTest	IsSet(ConfigParam,2)
+#define DoubleRate		IsSet(ConfigParam,3)
+#define NegativePPM		IsSet(ConfigParam,4)
+#define CompassTest		IsSet(ConfigParam,5)
+
+// this enables common code for all ADXRS gyros
+// leave this untouched!
+#if defined OPT_ADXRS300 || defined OPT_ADXRS150
+#define OPT_ADXRS
+#endif
+
 // Constants 
 
 // ADC Channels
@@ -444,6 +438,75 @@ typedef union {
 
 #define ADCVREF5V 			0
 #define ADCVREF 			1
+
+// ------------------------------------------------------------------------------------
+
+// Accelerometers
+// LIS3LV02DQ Inertial Sensor (Accelerometer)
+//  Ax=> Y + right
+//	Ay=> Z + up
+//	Az=> X + back
+
+#define ACCSIGN_X	(1)
+#define ACCSIGN_Y	(-1)
+#define ACCSIGN_Z	(-1)
+
+// Gyros
+
+// Coordinates are NOT right hand cartesian for LEGACY reasons
+// and the desire to keep the current parameters sets!!
+
+//	+P roll right
+//	+Q pitch up
+//	+R yaw clockwise
+
+// Controls 
+//  Aileron + roll right
+//	Elevator + pitch up
+//	Rudder + yaw anti-clockwise
+
+
+// IDG300
+// 3.3V Reference +-500 Deg/Sec
+// 0.4882815 Deg/Sec/LSB 
+//	+ roll right
+//	+ pitch up
+//	+ yaw clockwise
+
+// ADRSX300 Yaw
+// 5V Reference +-300 Deg/Sec
+// 0.2926875 Deg/Sec/LSB 
+//	+ roll left
+//	+ pitch down
+//	+ yaw clockwise
+
+// ADXRS150
+// 5V Reference +-150 Deg/Sec
+// 0.146484375 Deg/Sec/LSB
+
+// Gyro 
+
+#define ADCPORTCONFIG 0b00001010 // AAAAA
+#ifdef OPT_IDG
+	#define MAXDEGSEC_PITCHROLL 	500
+	#define ADCEXTVREF_PITCHROLL 	1
+	#define	GYROSIGN_ROLL 			(-1)
+	#define	GYROSIGN_PITCH 			(-1)
+#else
+#ifdef OPT_ADXRS150
+	#define MAXDEGSEC_PITCHROLL 	150
+	#define ADCEXTVREF_PITCHROLL 	0
+	#define	GYROSIGN_ROLL 			(1)
+	#define	GYROSIGN_PITCH 			(1)
+#else // OPT_ADXRS300
+	#define MAXDEGSEC_PITCHROLL 	300
+	#define ADCEXTVREF_PITCHROLL 	0
+	#define	GYROSIGN_ROLL 			(1)
+	#define	GYROSIGN_PITCH 			(1)
+#endif
+#endif
+
+#define	GYROSIGN_YAW 		(1)
 
 //#ifdef CLOCK_16MHZ
 #define _ClkOut		(160/4)	/* 16.0 MHz Xtal */
