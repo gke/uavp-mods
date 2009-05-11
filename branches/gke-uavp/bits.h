@@ -133,6 +133,25 @@ bit	I2C_CIO			@TRISB.7;
 //#define BARO_ID_SMD500		??
 #define BARO_ID_BMP085		0x55
 
+#ifdef OPT_IDG
+	#define MAXDEGSEC_PITCHROLL 	300
+	#define ADCEXTVREF_PITCHROLL 	1
+	#define	GYROSIGN_ROLL 			(-1)
+	#define	GYROSIGN_PITCH 			(-1)
+#else
+#ifdef OPT_ADXRS150
+	#define MAXDEGSEC_PITCHROLL 	150
+	#define ADCEXTVREF_PITCHROLL 	0
+	#define	GYROSIGN_ROLL 			(1)
+	#define	GYROSIGN_PITCH 			(1)
+#else // OPT_ADXRS300
+	#define MAXDEGSEC_PITCHROLL 	300
+	#define ADCEXTVREF_PITCHROLL 	0
+	#define	GYROSIGN_ROLL 			(1)
+	#define	GYROSIGN_PITCH 			(1)
+#endif
+#endif
+
 #define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
 #define THR_HOVER		75		/* min throttle stick for alti lock */

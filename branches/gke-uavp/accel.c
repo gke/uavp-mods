@@ -54,29 +54,6 @@ void CheckLISL(void)
 		Rp -= MiddleLR;
 		Pp -= MiddleFB;
 		Yp -= MiddleUD;
-	
-		#if 0
-		// calc the angles for roll matrices
-		// rw = arctan( x*16/z/4 )
-		niltemp = Yp * 16;
-		niltemp1 = niltemp / Rp;
-		niltemp1 >>= 2;
-		nila1 = niltemp1;
-		Rw = Arctan();
-		
-		SendComValS(Rw);
-		SendComChar(';');
-		
-		niltemp1 = niltemp / Pp;
-		niltemp1 >>= 2;
-		nila1 = niltemp1;
-		Pw = Arctan();
-		
-		SendComValS(Pw);
-		SendComChar(0x13);
-		SendComChar(0x10);
-	
-		#endif
 		
 		Yp -= 1024;	// subtract 1g
 
@@ -169,7 +146,9 @@ void CheckLISL(void)
 		// =====================================
 		// Static compensation due to Gravity
 
-		Pp =-Pp; // long standing error???
+		#ifdef OPT_IDG
+		Pp =-Pp; 
+		#endif // OPT_IDG
 	
 		#ifdef OPT_ADXRS
 		Yl = PitchSum * 11;	// Pp um RollSum* 11/32 korrigieren
