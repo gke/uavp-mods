@@ -49,13 +49,12 @@ void LimitRollSum(void)
 			RollSum.high8 = NegFact;
 			RollSum.low8 = 0;
 		}
-		RollSum += LRIntKorr;
 		if( RollSum > 0 ) 
 			RollSum--;
 		else
 			if( RollSum < 0 ) 
 				RollSum++;
-
+		RollSum += LRIntKorr;
 	}
 
 } // LimitRollSum
@@ -80,23 +79,12 @@ void LimitPitchSum(void)
 				PitchSum.high8 = NegFact;
 				PitchSum.low8 = 0;
 			}
-		PitchSum += FBIntKorr;
 		if( PitchSum > 0 ) 
 			PitchSum--;
 		else
 			if( PitchSum < 0 ) 
 				PitchSum++;
-
-		#ifdef NADA
-		SendComValH(PitchSamples.high8);
-		SendComValH(PitchSamples.low8);
-		SendComValH(PitchSum.high8);
-		SendComValH(PitchSum.low8);
-		SendComValH(MidPitch.high8);
-		SendComValH(MidPitch.low8);
-		SendComChar(0x0d);SendComChar(0x0a);
-		#endif
-
+		PitchSum += FBIntKorr;
 	}
 } // LimitPitchSum
 
