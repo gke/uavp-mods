@@ -108,7 +108,9 @@ void GyroCompensation(void)
 		LRGrav = -SRS16(RollSum * GRAV_COMP, 5); 
 	
 		// dynamic correction of moved mass
-		#ifndef DISABLE_DYNAMIC_MASS_COMP_ROLL
+		#ifdef DISABLE_DYNAMIC_MASS_COMP_ROLL
+		LRDyn = 0;
+		#else
 		LRDyn = RollRate * 2;	
 		#endif
 
@@ -122,8 +124,10 @@ void GyroCompensation(void)
 		FBGrav = -SRS16(PitchSum * GRAV_COMP, 5); 
 	
 		// dynamic correction of moved mass		
-		#ifndef DISABLE_DYNAMIC_MASS_COMP_PITCH
-		FBDyn = PitchRate * 2;	
+		#ifdef DISABLE_DYNAMIC_MASS_COMP_PITCH
+		FBDyn = 0;
+		#else
+		FBDyn = PitchRate * 2;
 		#endif
 
 		// correct DC level of the integral	

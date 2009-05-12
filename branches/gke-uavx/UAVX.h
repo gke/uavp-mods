@@ -11,7 +11,7 @@
  
 #define GPS_HZ					5
 // Number of good GPS sentences required to establish origin
-#define INITIAL_GPS_SENTENCES 	60*GPS_HZ
+#define INITIAL_GPS_SENTENCES 	60L*GPS_HZ
 
 // minimum no of satellites for sentence to be acceptable	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix

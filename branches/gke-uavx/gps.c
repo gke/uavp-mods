@@ -77,7 +77,7 @@ uint8 NHead, NTail, NEntries;
 
 #pragma udata gpsvars3
 enum WaitGPSStates {WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
-int8 ValidGPSSentences;
+int16 ValidGPSSentences;
 int8 NActiveTypes;
 uint8 GPSRxState;
 uint8 ll, nll, cc, tt, lo, hi;
@@ -290,12 +290,12 @@ void ParseGPSSentence()
 			NActiveTypes++;
 		}
 
-	    if ( ValidGPSSentences < INITIAL_GPS_SENTENCES * NActiveTypes )
+	    if ( ValidGPSSentences < ((int16)NActiveTypes * INITIAL_GPS_SENTENCES) )
 		{   // repetition to ensure GPGGA altitude is captured
 
 			if ( _GPSTestActive )
 			{
-				TxVal32( INITIAL_GPS_SENTENCES - ValidGPSSentences, 0, 0);
+				TxVal32( ((int16)NActiveTypes * INITIAL_GPS_SENTENCES) - ValidGPSSentences, 0, 0);
 				TxNextLine();
 			}
 

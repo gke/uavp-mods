@@ -36,7 +36,7 @@ void CheckAutonomous(void);
 #define NavKi 1
 
 // Variables
-extern int8 ValidGPSSentences;
+extern int16 ValidGPSSentences;
 extern boolean GPSSentenceReceived;
 
 int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr, NavYCorr, SumNavYCorr;
@@ -92,7 +92,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 				Range = NAV_CLOSING_RADIUS;
 
 			#ifdef GPS_IK7_GAIN
-			GPSGain = Limit(IK7 - 20, 0, 256); // compensate for EPA offset of up to 20
+			GPSGain = Limit(IK7, 0, 256); // compensate for EPA offset of up to 20
 			NavKp = ( GPSGain * MAX_ANGLE ) / NAV_CLOSING_RADIUS; // /_Maximum) * 256L
 			#else
 			#define NavKp (((int32)MAX_ANGLE * 256L ) / NAV_CLOSING_RADIUS )
@@ -166,7 +166,7 @@ void CheckAutonomous(void)
 	  	// do nothing - use Wolfgang's failsafe
 	}
 	else
-		if ( _GPSValid )
+		if ( _GPSValid && ( IK7 > 20 ))
 			if  ( _CompassValid )
 				if ( ( IK5 > _Neutral ) ) //zzz && (Abs(DesiredRoll) <= MAX_CONTROL_CHANGE) && (Abs(DesiredPitch) <= MAX_CONTROL_CHANGE) )
 				{
@@ -191,7 +191,7 @@ void CheckAutonomous(void)
 			else
 			{
 				LEDRed_TOG;
-				TxString("BadC\r\n");
+				//TxString("BadC\r\n");
 			}		
 
 	#ifndef DEBUG_SENSORS
