@@ -173,15 +173,19 @@ First public released version.
 12.02.2009 v3.15m3 Greg Egan
 - Reinstated vertical accelerometer compensation of throttle
 
-27.02.2006 v3.15m3 Greg Egan
+27.02.2009 v3.15m3 Greg Egan
 - Tricopter version reinstated in makefiles (makeall.bat)
 
-08.03.2006 v3.15m3 Greg Egan
+08.03.2009 v3.15m3 Greg Egan
 - Abandoned further development on cc5x based version in 
   favour of the C18 compiler and 18Fxxxx PICs.
 
-20.03.2006 v3.15m3 Greg Egan
+20.03.2009 v3.15m3 Greg Egan
 - Updated compass initialisation and corrected Pitch compensation.
+
+12.5.2006 v3.15m3 Greg Egan
+- Rationalised gyro sense handling. This requires the PID coefficients 
+  to be reversed for IDG300 gyros.
 
 ==============================================
 = Transferring firmware to the PIC           =

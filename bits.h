@@ -134,10 +134,10 @@ bit	I2C_CIO			@TRISB.7;
 #define BARO_ID_BMP085		0x55
 
 #ifdef OPT_IDG
-	#define MAXDEGSEC_PITCHROLL 	300
+	#define MAXDEGSEC_PITCHROLL 	500
 	#define ADCEXTVREF_PITCHROLL 	1
 	#define	GYROSIGN_ROLL 			(-1)
-	#define	GYROSIGN_PITCH 			(-1)
+	#define	GYROSIGN_PITCH 			(1)
 #else
 #ifdef OPT_ADXRS150
 	#define MAXDEGSEC_PITCHROLL 	150

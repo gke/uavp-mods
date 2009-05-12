@@ -31,6 +31,13 @@
 
 // read all acceleration values from LISL sensor
 // and compute correction adders (Rp, Pp, Vud)
+
+#ifdef OPT_ADXRS
+	#define GRAV_COMP 11
+#else
+	#define GRAV_COMP 15
+#endif
+
 void CheckLISL(void)
 {
 	int16 nila1@nilarg1;
@@ -108,71 +115,44 @@ void CheckLISL(void)
 		// Roll-Axis
 		// =====================================
 		// Static compensation due to Gravity
-	
-		#ifdef OPT_ADXRS
-		Yl = RollSum * 11;	// Rp um RollSum*11/32 korrigieren
-		#endif
-	
-		#ifdef OPT_IDG
-		Yl = RollSum * -15; // Rp um RollSum* -15/32 korrigieren
-		#endif
+		Yl = RollSum * GRAV_COMP;	
 		Yl += 16;
 		Yl >>= 5;
 		Rp -= Yl;
 	
 		// dynamic correction of moved mass
-		#ifdef OPT_ADXRS
 		Rp += (int16)RollSamples;
 		Rp += (int16)RollSamples;
-		#else  // OPT_IDG
-		Rp -= (int16)RollSamples;
-		#endif
 	
 		// correct DC level of the integral
-		#ifdef OPT_ADXRS
-		LRIntKorr =  Rp/10;
-		#else // OPT_IDG
-		LRIntKorr =  -Rp/10;
-		#endif
-		//LRIntKorr = Limit(LRIntKorr, -1, 1);
-		if ( LRIntKorr > 1 )
-			LRIntKorr = 1;
+		LRIntKorr = 0;
+		if ( Rp > 10 )
+			LRIntKorr++;
 		else
-			if  ( LRIntKorr < -1 )
-				LRIntKorr = -1;
+			if ( Rp < -10 )
+				LRIntKorr--;
 	
 		// =====================================
 		// Pitch-Axis
 		// =====================================
 		// Static compensation due to Gravity
-
-		#ifdef OPT_IDG
-		Pp =-Pp; 
-		#endif // OPT_IDG
-	
-		#ifdef OPT_ADXRS
-		Yl = PitchSum * 11;	// Pp um RollSum* 11/32 korrigieren
-		#else // OPT_IDG
-		Yl = PitchSum * -15;	// Pp um RollSum* -14/32 korrigieren
-		#endif
+		Yl = PitchSum * GRAV_COMP;
 		Yl += 16;
 		Yl >>= 5;
-	
 		Pp -= Yl;
-		// no dynamic correction of moved mass necessary
-	
+
+		// dynamic correction of moved mass
+		Pp += (int16)PitchSamples;
+		Pp += (int16)PitchSamples;
+
 		// correct DC level of the integral
-		#ifdef OPT_ADXRS
-		FBIntKorr =  Pp/10; 
-		#else // OPT_IDG
-		FBIntKorr = -Pp/10;
-		#endif
-		//FBIntKorr = Limit(FBIntKorr, -1, 1);
-		if ( FBIntKorr > 1 )
-			FBIntKorr = 1;
+		FBIntKorr = 0;
+		if ( Pp > 10 )
+			FBIntKorr++;
 		else
-			if  ( FBIntKorr < -1 )
-				FBIntKorr = -1;
+			if ( Pp < -10 )
+				FBIntKorr--;
+
 	}
 	else
 	{
