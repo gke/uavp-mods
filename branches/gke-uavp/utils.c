@@ -437,7 +437,7 @@ void GetGyroValues(void)
 // and PitchSamples (global variable "nisampcnt")
 void CalcGyroValues(void)
 {
-	int16 Temp;
+	static int16 Temp;
 
 	// RollSamples & Pitchsamples hold the sum of 2 consecutive conversions
 	// Approximately 4 bits of precision are discarded in this and related 
@@ -463,8 +463,6 @@ void CalcGyroValues(void)
 
 		if( IntegralCount == 1 )
 		{
-			RollSum += 8;
-			PitchSum += 8;
 			if( !_UseLISL )
 			{
 				niltemp = RollSum + MiddleLR;
@@ -472,8 +470,10 @@ void CalcGyroValues(void)
 				niltemp = PitchSum + MiddleFB;
 				PitchSum = niltemp;
 			}
-			MidRoll = (uns16)RollSum / (uns16)16;	
-			MidPitch = (uns16)PitchSum / (uns16)16;
+			RollSum += 8;
+			PitchSum += 8;
+			MidRoll = (uns16)RollSum >> 4;	
+			MidPitch = (uns16)PitchSum >> 4;
 			RollSum = 0;
 			PitchSum = 0;
 			LRIntKorr = 0;
@@ -484,7 +484,10 @@ void CalcGyroValues(void)
 	{
 		// standard flight mode
 		RollSamples -= MidRoll;
+		RollSamples *= GYROSIGN_ROLL;
+
 		PitchSamples -= MidPitch;
+		PitchSamples *= GYROSIGN_PITCH;
 
 		// calc Cross flying mode
 		if( FlyCrossMode )
@@ -513,46 +516,21 @@ void CalcGyroValues(void)
 		// Roll
 		niltemp = RollSamples;
 
-		#ifdef OPT_ADXRS
-		RollSamples += 2;
 		(int16)RollSamples >>= 2;
-		#endif
-		#ifdef OPT_IDG
-		RollSamples += 1;
-		(int16)RollSamples >>= 1;
-		#endif
 		RE = RollSamples.low8;	// use 8 bit res. for PD controller
 
-		#ifdef OPT_ADXRS
-		RollSamples = niltemp + 1;
-		(int16)RollSamples >>= 1;	// use 9 bit res. for I controller
-		#endif
-		#ifdef OPT_IDG
 		RollSamples = niltemp;
-		#endif
-
+		(int16)RollSamples >>= 1;	// use 9 bit res. for I controller
 		LimitRollSum();		// for roll integration
 
 		// Pitch
 		niltemp = PitchSamples;
 
-		#ifdef OPT_ADXRS
-		PitchSamples += 2;
 		(int16)PitchSamples >>= 2;
-		#endif
-		#ifdef OPT_IDG
-		PitchSamples += 1;
-		(int16)PitchSamples >>= 1;
-		#endif
 		PE = PitchSamples.low8;
 
-		#ifdef OPT_ADXRS
-		PitchSamples = niltemp + 1;
-		(int16)PitchSamples >>= 1;
-		#endif
-		#ifdef OPT_IDG
 		PitchSamples = niltemp;
-		#endif
+		(int16)PitchSamples >>= 1;
 		LimitPitchSum();		// for pitch integration
 
 		// Yaw is sampled only once every frame, 8 bit A/D resolution
