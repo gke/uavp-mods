@@ -133,6 +133,11 @@ void InitArrays(void)
 {
 	int8 i;
 
+	#ifdef DEBUG_SENSORS
+	for (i=0; i <= TopTrace; i++)
+		Trace[i] = 0;
+	#endif
+
 	for (i = 0; i < NoOfMotors; i++)
 		Motor[i] = _Minimum;
 	MCamPitch = MCamRoll = _Neutral;

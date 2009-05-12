@@ -63,7 +63,7 @@ void GyroCompensation(void)
 		FBAcc -= MiddleFB;
 		UDAcc -= MiddleUD;
 	
-		UDAcc -= 1024;	// subtract 1g
+		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
 	
 		#ifdef ENABLE_VERTICAL_VELOCITY_DAMPING
 		// UDSum rises if ufo climbs
@@ -109,16 +109,12 @@ void GyroCompensation(void)
 	
 		// dynamic correction of moved mass
 		#ifndef DISABLE_DYNAMIC_MASS_COMP_ROLL
-		#ifdef OPT_ADXRS
-		LRDyn = RollRate << 1;
-		#else // OPT_IDG
-		LRDyn = RollRate;
-		#endif	
+		LRDyn = RollRate * 2;	
 		#endif
 
 		// correct DC level of the integral
 		LRIntKorr = (LRAcc + LRGrav + LRDyn) / 10;
-		Limit(FBIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
+		LRIntKorr = Limit(LRIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 	
 		// Pitch
 
@@ -127,16 +123,12 @@ void GyroCompensation(void)
 	
 		// dynamic correction of moved mass		
 		#ifndef DISABLE_DYNAMIC_MASS_COMP_PITCH
-		#ifdef OPT_ADXRS
-		FBDyn = PitchRate << 1;
-		#else // OPT_IDG
-		FBDyn = PitchRate;
-		#endif	
+		FBDyn = PitchRate * 2;	
 		#endif
 
 		// correct DC level of the integral	
 		FBIntKorr = (FBAcc + FBGrav + FBDyn) / 10;
-		Limit(FBIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
+		FBIntKorr = Limit(FBIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 
 		#ifdef DEBUG_SENSORS
 		Trace[TLRAcc] = LRAcc;
@@ -220,8 +212,8 @@ void LimitYawSum(void)
 
 void GetGyroValues(void)
 {
-	RollRate += GYROSIGN_ROLL * ADC(ADCRollChan, ADCEXTVREF_PITCHROLL);
-	PitchRate += GYROSIGN_PITCH * ADC(ADCPitchChan, ADCEXTVREF_PITCHROLL);
+	RollRate += (int16)ADC(ADCRollChan, ADCEXTVREF_PITCHROLL);
+	PitchRate += (int16)ADC(ADCPitchChan, ADCEXTVREF_PITCHROLL);
 } // GetGyroValues
 
 //int16 DummyPitch = 0;//zz
@@ -265,8 +257,8 @@ void CalcGyroValues(void)
 	else
 	{
 		// standard flight mode
-		RollRate -= GyroMidRoll;
-		PitchRate -= GyroMidPitch;
+		RollRate = GYROSIGN_ROLL * ( RollRate - GyroMidRoll );
+		PitchRate = GYROSIGN_PITCH * ( PitchRate - GyroMidPitch );
 
 		// calc Cross flying mode
 		if( FlyCrossMode )
@@ -277,7 +269,7 @@ void CalcGyroValues(void)
 			Temp = RollRate + PitchRate;	
 			PitchRate -= RollRate;	
 			RollRate = (Temp * 2)/3;
-			PitchRate = (PitchRate * 2)/3; // 7/10 with int24
+			PitchRate = (PitchRate * 2)/3; 	// 7/10 with int24
 		}
 
 		#ifdef DEBUG_SENSORS
@@ -286,30 +278,16 @@ void CalcGyroValues(void)
 		#endif
 	
 		// Roll
-		#ifdef OPT_ADXRS
-		RE = SRS16(RollRate, 2);
-		#else // OPT_IDG
-		RE = SRS16(RollRate, 1); 		// use 8 bit res. for PD controller
-		#endif	
+		RE = SRS16(RollRate, 2); 			// use 8 bit res. for PD controller
 
-		#ifdef OPT_ADXRS
-		RollRate = SRS16(RollRate, 1);	// use 9 bit res. for I controller	
-		#endif
-
-		LimitRollSum();					// for roll integration
+		RollRate = SRS16(RollRate, 1);		// use 9 bit res. for I controller	
+		LimitRollSum();
 
 		// Pitch
-		#ifdef OPT_ADXRS
 		PE = SRS16(PitchRate, 2);
-		#else // OPT_IDG
-		PE = SRS16(PitchRate, 1);
-		#endif
 
-		#ifdef OPT_ADXRS
-		PitchRate = SRS16(PitchRate, 1); // use 9 bit res. for I controller	
-		#endif
-
-		LimitPitchSum();				// for pitch integration
+		PitchRate = SRS16(PitchRate, 1); 	// use 9 bit res. for I controller	
+		LimitPitchSum();					// for pitch integration
 
 		// Yaw is sampled only once every frame, 8 bit A/D resolution
 		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;	
