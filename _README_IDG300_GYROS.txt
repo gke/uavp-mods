@@ -33,7 +33,9 @@
 
 For the revision associated with this README:
 
-The IDG300 roll gyro has the opposite sense to the ADXRS gyros. Recheck your PID coefficient signs.
+The IDG300 roll gyre has the opposite sign to the ADXRS gyros. 
+
+CHECK YOUR PID COEFFICIENT SIGNS.
 
 
 Greg Egan May 2009

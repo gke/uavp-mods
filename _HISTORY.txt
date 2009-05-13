@@ -187,6 +187,12 @@ First public released version.
 - Rationalised gyro sense handling. This requires the PID coefficients 
   to be reversed for IDG300 gyros.
 
+12.5.2006 v3.15m3 Greg Egan
+- Make batch files require access to Tortoise SVN system.
+  If this is not available then it must be commented out in
+  makeallhelper.bat and c-ufo-revision created manually from
+  c-ufo-revision-SVN.h
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

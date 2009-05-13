@@ -14,6 +14,19 @@ set 	DBG=%4
 set 	RX=%5
 set 	CFG=%6
 
+rem Update the revision number
+call makerev.bat
+
+for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set year=%%c
+for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set month=%%a
+for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set day=%%b
+set TODAY=%year%%month%%day%
+
+for /f "tokens=1 delims=: " %%h in ('time /T') do set hour=%%h
+for /f "tokens=2 delims=: " %%m in ('time /T') do set minutes=%%m
+for /f "tokens=3 delims=: " %%a in ('time /T') do set ampm=%%a
+set NOW=%hour%%minutes%%ampm%
+
 set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
 set ASRC=bootloader
 
@@ -62,19 +75,19 @@ rem recompiling sensor.c with -r01 to avoid the use of a separate batch file wit
 
 for %%i in ( %ASRC% ) do %AEXE%  %%i.asm %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /o Profi-Ufo-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /o Profi-Ufo-B3_1-V%VERSION%_%D%%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - Profi-Ufo-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex
-echo compiled - Profi-Ufo-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - Profi-Ufo-B3_1-V%VERSION%_%D%%T%%G%%R%%E%.hex
+echo compiled - Profi-Ufo-B3_1-V%VERSION%_%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - Profi-Ufo-B3_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex
-echo failed - Profi-Ufo-B2_1-V%VERSION%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo failed - Profi-Ufo-B3_1-V%VERSION%_%D%%T%%G%%R%%E%.hex
+echo failed - Profi-Ufo-B2_1-V%VERSION%_%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH

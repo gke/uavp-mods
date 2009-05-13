@@ -4,7 +4,6 @@
 ; mit PIC16F876
 ;*************************************************************************
 
-; BOARD_3_0 or BOARD_3_1 must be defined by commadn line!
         LIST C=200,R=dec
 
         errorlevel -302         ;avoid "ensure page bits are set" warning
