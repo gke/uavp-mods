@@ -8,14 +8,14 @@
 //#define FAKE_GPS
 
 // Navigation
- 
-#define GPS_HZ					5
-// Number of good GPS sentences required to establish origin
-#define INITIAL_GPS_SENTENCES 	60L*GPS_HZ
+
 
 // minimum no of satellites for sentence to be acceptable	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
-#define MIN_FIX					1		// must be 1 or 2 	
+#define MIN_FIX					1		// must be 1 or 2 
+
+// Number of sentences needed with set HDilute
+#define INITIAL_GPS_SENTENCES 	30	
 #define MIN_HDILUTE				150L	// HDilute * 100
 
 // The "Ls" are important
@@ -164,7 +164,7 @@
 // end of user-configurable section!
 // =====================================
 
-#define Version	"1.0m3"
+#include "UAVXRevision.h"
 
 // 18Fxxx C18 includes
 

@@ -253,7 +253,7 @@ void ParseGPGGASentence()
     //UpdateField();   // GHeight 
     //UpdateField();   // GHeightUnit 
  
-    _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES ) && (GPSHDilute <= MIN_HDILUTE);  
+    _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES );  
 
 	if ( _GPSTestActive )
 		TxString("$GPGGA ");
@@ -290,18 +290,17 @@ void ParseGPSSentence()
 			NActiveTypes++;
 		}
 
-	    if ( ValidGPSSentences < ((int16)NActiveTypes * INITIAL_GPS_SENTENCES) )
+	    if ( ValidGPSSentences <  INITIAL_GPS_SENTENCES )
 		{   // repetition to ensure GPGGA altitude is captured
 
 			if ( _GPSTestActive )
 			{
-				TxVal32( ((int16)NActiveTypes * INITIAL_GPS_SENTENCES) - ValidGPSSentences, 0, 0);
+				TxVal32( INITIAL_GPS_SENTENCES - ValidGPSSentences, 0, 0);
 				TxNextLine();
 			}
 
 			_GPSValid = false;
-			ValidGPSSentences++;
-			
+
 			GPSStartTime = GPSMissionTime;
 			GPSOriginLatitude = GPSLatitude;
 			GPSOriginLongitude = GPSLongitude;
@@ -315,10 +314,13 @@ void ParseGPSSentence()
 			{
 				GPSOriginAltitude = GPSAltitude;
 				_GPSAltitudeValid = true;
+				if (GPSHDilute <= MIN_HDILUTE )
+					ValidGPSSentences++;
 			}
 			else
-			if ( CurrNType == GPRMC )
-				_GPSHeadingValid = true;	
+				if ( CurrNType == GPRMC )
+					_GPSHeadingValid = true;
+				
 		}
 		else
 		{

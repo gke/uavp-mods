@@ -15,6 +15,16 @@ set 	DBG=%6
 set 	RX=%7
 set 	CFG=%8
 
+for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set year=%%c
+for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set month=%%a
+for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set day=%%b
+set TODAY=%year%%month%%day%
+
+for /f "tokens=1 delims=: " %%h in ('time /T') do set hour=%%h
+for /f "tokens=2 delims=: " %%m in ('time /T') do set minutes=%%m
+for /f "tokens=3 delims=: " %%a in ('time /T') do set ampm=%%a
+set NOW=%hour%%minutes%%ampm%
+
 set CSRC=accel adc uavx irq menu control compass_altimeter tests serial utils gps autonomous i2c outputs
 set ASRC=bootl18f
 
@@ -48,9 +58,12 @@ if "%DBG%"   == "DEBUG_SENSORS"     set D=Debug_SENSORS-
 if "%RX%"    == "RX_PPM"            set R=RXCOM-
 if "%RX%"    == "RX_DSM2"           set R=DSM2-
 if "%CFG%"    == "TRICOPTER"           set C=TRI-
-if "%CLOCK%"    == "CLOCK_16MHZ"           set X=_16
-if "%CLOCK%"    == "CLOCK_40MHZ"           set X=_40
+if "%CLOCK%"    == "CLOCK_16MHZ"           set X=-16
+if "%CLOCK%"    == "CLOCK_40MHZ"           set X=-40
 
+rem Requires Tortoise SVN
+if exist UAVXRevision.h del UAVXRevision.h
+SubWCRev . UAVXRevisionSVN.h UAVXRevision.h
 
 rem Build the list of expected object files
 set F=
@@ -62,19 +75,19 @@ for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -
 
 for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVX-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - UAVX-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex
-echo compiled - UAVX-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex
+echo compiled - UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - UAVX-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex
-echo failed - UAVX-V%VERSION%%PROC%%X%-%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo failed - UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex
+echo failed - UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH
