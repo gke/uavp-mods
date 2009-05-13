@@ -15,6 +15,9 @@ set 	DBG=%6
 set 	RX=%7
 set 	CFG=%8
 
+rem Requires Tortoise SVN otherwise rem out and create UAVXRevision.h from UAVXRevisionSVN.h
+call makerev.bat
+
 for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set year=%%c
 for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set month=%%a
 for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set day=%%b
@@ -61,9 +64,7 @@ if "%CFG%"    == "TRICOPTER"           set C=TRI-
 if "%CLOCK%"    == "CLOCK_16MHZ"           set X=-16
 if "%CLOCK%"    == "CLOCK_40MHZ"           set X=-40
 
-rem Requires Tortoise SVN
-if exist UAVXRevision.h del UAVXRevision.h
-SubWCRev . UAVXRevisionSVN.h UAVXRevision.h
+
 
 rem Build the list of expected object files
 set F=
