@@ -135,7 +135,7 @@
 #define DEBUG
 #endif
 
-#define Version	"3.15m3"
+#include "c-ufo-revision.h"
 
 // ==============================================
 // == External variables
