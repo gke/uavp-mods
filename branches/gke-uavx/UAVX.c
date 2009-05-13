@@ -36,10 +36,10 @@ uint8	IK6;						// actual channel 6 input
 uint8	IK7;						// actual channel 7 input
 
 // PID Regler Variablen
-int16	RE, PE, YE;					// gyro rate error	
-int16	REp, PEp, YEp;				// previous error for derivative
-int16	RollSum, PitchSum, YawSum;	// integral 	
+ 	
 int16	RollRate, PitchRate, YawRate;
+int16	PrevRollRate, PrevPitchRate, PrevYawRate;
+int16	RollSum, PitchSum, YawSum;	
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 i16u	Ax, Ay, Az;
@@ -221,7 +221,7 @@ Restart:
 			ComputeBaroComp();
 			GetGyroValues();
 			ReadParametersEE();	// re-sets TimeSlot
-			CalcGyroValues();
+
 
 			// check for signal dropout while in flight
 			if( _Flying && !_Signal )
@@ -288,9 +288,9 @@ DoPID:
 				}
 
 				// remember old gyro values
-				REp = RE;
-				PEp = PE;
-				YEp = YE;
+				PrevRollRate = RollRate;
+				PrevPitchRate = PitchRate;
+				PrevYawRate = YawRate;
 			}
 		
 			MixAndLimitCam();

@@ -143,7 +143,7 @@ void InitArrays(void)
 	MCamPitch = MCamRoll = _Neutral;
 
 	_Flying = false;
-	REp = PEp = YEp = 0;
+	PrevRollRate = PrevPitchRate = PrevYawRate = 0;
 	
 	Vud = VBaroComp = 0;
 	

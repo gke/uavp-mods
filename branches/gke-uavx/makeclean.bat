@@ -26,6 +26,7 @@ if exist general.err del general.err
 
 rem linker working files...
 if exist *.cod del *.cod
+if exist *.i del *.i
 rem if exist *.lst del *.lst
 if exist *.map del *.map
 

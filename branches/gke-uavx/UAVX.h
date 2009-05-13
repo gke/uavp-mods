@@ -750,7 +750,7 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
-enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
+enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYawRate,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
 				TUDSum, TVud,
 				TIGas,
@@ -769,10 +769,10 @@ extern uint8	IGas;
 extern int8 	IRoll,IPitch,IYaw;
 extern uint8	IK5,IK6,IK7;
 
-extern int16	RE, PE, YE;
-extern int16	REp,PEp,YEp;
-extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
+extern int16	PrevRollRate, PrevPitchRate, PrevYawRate;
+extern int16	RollSum, PitchSum, YawSum;
+extern int16	PitchSum, RollSum, YawSum;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;
