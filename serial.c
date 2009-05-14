@@ -1,24 +1,23 @@
 // =======================================================================
 // =                   U.A.V.P Brushless UFO Controller                  =
 // =                         Professional Version                        =
-// =             Copyright (c) 2007 Ing. Wolfgang Mahringer              =
-// =           Extensively modified 2008-9 by Prof. Greg Egan            =
-// =                          http://www.uavp.org                        =
+// =           Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer          =
+// =              Copyright 2008, 2009 by Prof. Greg Egan                =
+// =                            http://uavp.ch                           =
 // =======================================================================
 //
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    UAVP is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVP is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Serial support (RS232 option)
 
@@ -36,11 +35,11 @@ typedef char CHAR;
 
 // data strings
 
-const char page2 SerHello[] = "\r\nU.A.V.P. V" Version " (c) 2007"
-							  " Ing. Wolfgang Mahringer\r\n"
-							  "This is FREE SOFTWARE, see GPL license!\r\n";
+const char page2 SerHello[] = "\r\nUAVP " Version " Copyright G.K. Egan 2008,2009 & W. Mahringer 2007\r\n"
+							  "This is FREE SOFTWARE and comes with ABSOLUTELY NO WARRANTY\r\n"
+							  "see http://www.gnu.org/licenses/!\r\n";;
 
-const char page2 SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
+const char page2 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 							  "Gyro: "
 #ifdef OPT_ADXRS300
 							  "3x ADXRS300\r\n"
