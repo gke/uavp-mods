@@ -45,6 +45,10 @@ set CFG=QUAD
 
 rem Delete working files
 call makeclean.bat
+
+rem Requires Tortoise SVN 
+call makerev.bat
+
 echo Starting makeall uavx > gen.lst
 echo Starting makeall uavx > log.lst
 

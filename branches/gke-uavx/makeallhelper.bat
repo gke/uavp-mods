@@ -15,9 +15,6 @@ set 	DBG=%6
 set 	RX=%7
 set 	CFG=%8
 
-rem Requires Tortoise SVN otherwise rem out and create UAVXRevision.h from UAVXRevisionSVN.h
-call makerev.bat
-
 for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set year=%%c
 for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set month=%%a
 for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set day=%%b
@@ -76,19 +73,19 @@ for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -
 
 for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVX-V1.110gke-%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex
-echo compiled - UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - UAVX-V1.110gke-%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex
+echo compiled - UAVX-V1.110gke-%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex
-echo failed - UAVX-V%VERSION%%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> gen.lst
+echo failed - UAVX-V1.110gke-%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex
+echo failed - UAVX-V1.110gke-%PROC%%X%_%C%%D%%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH
