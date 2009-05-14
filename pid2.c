@@ -257,6 +257,7 @@ void MixAndLimit(void)
 void MixAndLimit(void)
 {
 	uns8 CurrGas;
+	int16 bank2 Temp;
 
 	CurrGas = IGas;	// to protect against IGas being changed in interrupt
  

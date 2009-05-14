@@ -21,8 +21,9 @@ for %%i in ( %ASRC% ) do if exist %%i.lst del %%i.lst
 for %%i in ( %ASRC% ) do if exist %%i.o   del %%i.o
 
 rem linker working files...
-if exist profi-ufo*.cod del profi-ufo*.cod
-if exist profi-ufo*.lst del profi-ufo*.lst
-if exist profi-ufo*.map del profi-ufo*.map
+if exist *.cod del *.cod
+rem if exist *.lst del *.lst
+if exist *.i del *.i
+if exist *.map del *.map
 
 
