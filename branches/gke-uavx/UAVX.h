@@ -1,30 +1,14 @@
-// =======================================================================
-// =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
-// =======================================================================
-
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 // EXPERIMENTAL
 
 // Simulates a FAKE GPS estimating position from control inputs and outputs to 
+// Hyperterm lines of the form: 
+// 294      75n     33e    -> r= 33        p= 0 hov rth
+// compass   uav posn	       controls		state - in this case hovering and returning home
 // This permits quadrocopter to be "flown on the bench". Motors WILL run but this is NOT flight code.
 //#define FAKE_GPS
 
 // Navigation
+
 
 // minimum no of satellites for sentence to be acceptable	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
@@ -71,6 +55,26 @@
 // Modifications which have been adopted are included BELOW.
 
 #ifndef BATCHMODE
+// =======================================================================
+// =                     UAVX Quadrocopter Controller                    =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =                          http://uavp.ch                             =
+// =======================================================================
+
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
+
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 // ==============================================
 // == Global compiler switches
@@ -746,7 +750,7 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
-enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYawRate,				TRollSum,TPitchSum,TYawSum,
+enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
 				TUDSum, TVud,
 				TIGas,
@@ -765,10 +769,10 @@ extern uint8	IGas;
 extern int8 	IRoll,IPitch,IYaw;
 extern uint8	IK5,IK6,IK7;
 
-extern int16	RollRate, PitchRate, YawRate;
-extern int16	PrevRollRate, PrevPitchRate, PrevYawRate;
-extern int16	RollSum, PitchSum, YawSum;
+extern int16	RE, PE, YE;
+extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
+extern int16	RollRate, PitchRate, YawRate;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;

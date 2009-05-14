@@ -1,22 +1,23 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
 
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "uavx.h"
 
@@ -188,7 +189,7 @@ void LimitYawSum(void)
 {
 	static int16 Temp;
 
-	YawRate += DesiredYaw;						// add the yaw stick value
+	YE += DesiredYaw;						// add the yaw stick value
 
 	if ( _CompassValid )
 	{
@@ -197,15 +198,15 @@ void LimitYawSum(void)
 			AbsDirection = COMPASS_INVAL; // acquire new heading
 		else		
 			if( CurDeviation > COMPASS_MAXDEV )
-				YawRate -= COMPASS_MAXDEV;
+				YE -= COMPASS_MAXDEV;
 			else
 				if( CurDeviation < -COMPASS_MAXDEV )
-					YawRate += COMPASS_MAXDEV;
+					YE += COMPASS_MAXDEV;
 				else
-					YawRate -= CurDeviation;
+					YE -= CurDeviation;
 	}
 
-	YawSum += (int16)YawRate;
+	YawSum += (int16)YE;
 	YawSum = Limit(YawSum, -YawIntLimit*256, YawIntLimit*256);
 
 	YawSum = Decay(YawSum); // GKE added to kill gyro drift
@@ -240,7 +241,7 @@ void CalcGyroValues(void)
 	
 	if( IntegralCount > 0 )
 	{
-		// pre-flight auto-zero gyro rates
+		// pre-flight auto-zero mode
 		RollSum += RollRate;
 		PitchSum += PitchRate;
 
@@ -253,12 +254,13 @@ void CalcGyroValues(void)
 			}
 			GyroMidRoll = (RollSum + 8) >> 4;	
 			GyroMidPitch = (PitchSum + 8) >> 4;
-			GyroMidYaw = RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
+			GyroMidYaw = 0;
+			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
 		}
 	}
 	else
 	{
-		// flight mode
+		// standard flight mode
 		RollRate = GYROSIGN_ROLL * ( RollRate - GyroMidRoll );
 		PitchRate = GYROSIGN_PITCH * ( PitchRate - GyroMidPitch );
 
@@ -273,22 +275,35 @@ void CalcGyroValues(void)
 			RollRate = (Temp * 2)/3;
 			PitchRate = (PitchRate * 2)/3; 	// 7/10 with int24
 		}
-	
-		LimitRollSum();
-		LimitPitchSum();
-
-		// Yaw is sampled only once every frame
-		YawRate = ADC(ADCYawChan, ADCVREF5V);	
-		if( GyroMidYaw == 0 )
-			GyroMidYaw = YawRate;
-		YawRate -= GyroMidYaw;
-		YawRate = YawRate;
-		LimitYawSum();
 
 		#ifdef DEBUG_SENSORS
 		Trace[TRollRate] = RollRate;
 		Trace[TPitchRate] = PitchRate;
-		Trace[TYawRate] = YawRate;
+		#endif
+	
+		// Roll
+		RE = SRS16(RollRate, 2); 			// use 8 bit res. for PD controller
+
+		RollRate = SRS16(RollRate, 1);		// use 9 bit res. for I controller	
+		LimitRollSum();
+
+		// Pitch
+		PE = SRS16(PitchRate, 2);
+
+		PitchRate = SRS16(PitchRate, 1); 	// use 9 bit res. for I controller	
+		LimitPitchSum();					// for pitch integration
+
+		// Yaw is sampled only once every frame, 8 bit A/D resolution
+		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;	
+		if( GyroMidYaw == 0 )
+			GyroMidYaw = YE;
+		YE -= GyroMidYaw;
+		YawRate = YE;
+
+		LimitYawSum();
+
+		#ifdef DEBUG_SENSORS
+		Trace[TYE] = YE;
 		Trace[TRollSum] = RollSum;
 		Trace[TPitchSum] = PitchSum;
 		Trace[TYawSum] = YawSum;
@@ -298,7 +313,7 @@ void CalcGyroValues(void)
 
 void PID(void)
 {
-	CalcGyroValues();
+
 	GyroCompensation();	
 	
 	// PID controller
@@ -309,24 +324,24 @@ void PID(void)
 	// fx = programmable controller factors
 	//
 	// for Roll and Pitch:
-	//       E0*Kp + E1*Kd     Sum(Ex)*Ki
+	//       E0*fP + E1*fD     Sum(Ex)*fI
 	// A0 = --------------- + ------------
 	//            16               256
 
 	// Roll
 
 	// Differential and Proportional for Roll axis
-	Rl  = SRS16(RollRate *RollPropFactor + (PrevRollRate-RollRate) * RollDiffFactor, 4);
+	Rl  = SRS16(RE *(int16)RollPropFactor + (REp-RE) * RollDiffFactor, 4);
 
 	// Integral part for Roll
 	if( IntegralCount == 0 )
-		Rl += SRS16(RollSum * RollIntFactor, 8); 
+		Rl += SRS16(RollSum * (int16)RollIntFactor, 8); 
 	Rl -= DesiredRoll;						// subtract stick signal
 
 	// Pitch
 
 	// Differential and Proportional for Pitch
-	Pl  = SRS16(PitchRate * PitchPropFactor + (PrevPitchRate-PitchRate) * PitchDiffFactor, 4);
+	Pl  = SRS16(PE *(int16)PitchPropFactor + (PEp-PE) * PitchDiffFactor, 4);
 
 	// Integral part for Pitch
 	if( IntegralCount == 0 )
@@ -340,7 +355,7 @@ void PID(void)
 	//	YE += IYaw;
 
 	// Differential and Proportional for Yaw
-	Yl  = SRS16(YawRate *(int16)YawPropFactor + (PrevYawRate-YawRate) * YawDiffFactor, 4);
+	Yl  = SRS16(YE *(int16)YawPropFactor + (YEp-YE) * YawDiffFactor, 4);
 	Yl += SRS16(YawSum * (int16)YawIntFactor, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);	// effective slew limit
 

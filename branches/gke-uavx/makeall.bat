@@ -49,6 +49,8 @@ call makeclean.bat
 rem Requires Tortoise SVN 
 call makerev.bat
 
+del *.HEX
+
 echo Starting makeall uavp > gen.lst
 echo Starting makeall uavp > log.lst
 
