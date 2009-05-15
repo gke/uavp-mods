@@ -35,9 +35,8 @@ typedef char CHAR;
 
 // data strings
 
-const char page2 SerHello[] = "\r\nUAVP " Version " Copyright G.K. Egan 2008,2009 & W. Mahringer 2007\r\n"
-							  "This is FREE SOFTWARE and comes with ABSOLUTELY NO WARRANTY\r\n"
-							  "see http://www.gnu.org/licenses/!\r\n";;
+const char page2 SerHello[] = "\r\nUAVP " Version " Copyright G.K. Egan 2008-9 & W. Mahringer 2007-8\r\n"
+							  "This software comes with ABSOLUTELY NO WARRANTY!\r\n";
 
 const char page2 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 							  "Gyro: "
