@@ -3,7 +3,7 @@ rem ---------------------------------------------
 rem Delete all working files but not hex files
 rem ---------------------------------------------
 
-set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial utils utils2
+set CSRC=accel c-ufo irq lisl mathlib matrix pid pid2 prog sensor serial trig utils utils2
 set ASRC=bootloader
 
 rem compiler working files...
@@ -21,8 +21,9 @@ for %%i in ( %ASRC% ) do if exist %%i.lst del %%i.lst
 for %%i in ( %ASRC% ) do if exist %%i.o   del %%i.o
 
 rem linker working files...
-if exist profi-ufo*.cod del profi-ufo*.cod
-if exist profi-ufo*.lst del profi-ufo*.lst
-if exist profi-ufo*.map del profi-ufo*.map
+if exist *.cod del *.cod
+rem if exist *.lst del *.lst
+if exist *.i del *.i
+if exist *.map del *.map
 
 

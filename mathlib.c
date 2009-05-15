@@ -1,28 +1,22 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =           Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer          =
+// =                            http://uavp.ch                           =
+// =======================================================================
 //
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
+//    UAVP is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
+//    UAVP is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // to define the bank for the variables, set MATHBANK_VARS
 // to shrBank, bank0, bank1, bank2, or bank3
 // before including mymath16.h file!
@@ -192,7 +186,7 @@ void MathDivS16_8(void)
 #pragma updateBank 0
     counter = 16+1;
     sign = nilgarg1.high8 ^ nilgarg2.low8;
-    if ((long)nilgarg1 < 0)  {
+    if ((int16)nilgarg1 < 0)  {
        INVERT:
         nilgarg1 = -nilgarg1;
         if (!counter)
@@ -226,7 +220,7 @@ void MathDivS16_16(void)
 #pragma updateBank 0
     counter = 16+1;
     sign = nilgarg1.high8 ^ nilgarg2.high8;
-    if ((long)nilgarg1 < 0)  {
+    if ((int16)nilgarg1 < 0)  {
        INVERT:
         nilgarg1 = -nilgarg1;
         if (!counter)
@@ -235,7 +229,7 @@ void MathDivS16_16(void)
 			return;
 		}
     }
-    if ((long)nilgarg2 < 0)
+    if ((int16)nilgarg2 < 0)
         nilgarg2 = -nilgarg2;
     goto ENTRY;
     do  {

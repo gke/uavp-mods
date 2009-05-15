@@ -1,10 +1,25 @@
         title   "BootLoader.asm"
-;*************************************************************************
-; BootLoader
-; mit PIC16F876
-;*************************************************************************
+;// =======================================================================
+;// =                   U.A.V.P Brushless UFO Controller                  =
+;// =                         Professional Version                        =
+;// =           Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer          =
+;// =              Copyright 2008, 2009 by Prof. Greg Egan                =
+;// =                            http://uavp.ch                           =
+;// =======================================================================
+;//
+;//    UAVP is free software: you can redistribute it and/or modify
+;//    it under the terms of the GNU General Public License as published by
+;//    the Free Software Foundation, either version 3 of the License, or
+;//    (at your option) any later version.
 
-; BOARD_3_0 or BOARD_3_1 must be defined by commadn line!
+;//    UAVP is distributed in the hope that it will be useful,
+;//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;//    GNU General Public License for more details.
+
+;//    You should have received a copy of the GNU General Public License
+;//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
         LIST C=200,R=dec
 
         errorlevel -302         ;avoid "ensure page bits are set" warning

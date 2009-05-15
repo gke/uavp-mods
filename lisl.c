@@ -1,28 +1,23 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =           Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer          =
+// =              Copyright 2008, 2009 by Prof. Greg Egan                =
+// =                            http://uavp.ch                           =
+// =======================================================================
 //
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
+//    UAVP is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
+//    UAVP is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // The LISL controller routines
 
 //#pragma codepage=0
@@ -57,7 +52,7 @@ void OutSSP(bank2 uns8 nidata)
 		nidata <<= 1;
 		SSP_CLK = 0;
 	}
-}
+} // OutSSP
 #endif
 
 // send a command byte to linear sensor, address = niaddr
@@ -76,7 +71,7 @@ void SendCommand(void)
 		niaddr <<= 1;
 		LISL_SCL = 1;
 	}
-}
+} // SendCommand
 
 // send an address byte (niaddr) to linear sensor
 // read the answer and return it
@@ -92,7 +87,7 @@ uns8 ReadLISL(uns8 W)
 	if( (nii & LISL_INCR_ADDR) == 0 )
 		LISL_CS = 1;	// end transmission
 	return(W);
-}
+} // ReadLISL
 
 // read a data byte from linear sensor and return it
 uns8 ReadLISLNext(void)
@@ -107,7 +102,7 @@ uns8 ReadLISLNext(void)
 		LISL_SCL = 1;
 	}
 	return(niaddr);
-}
+} // ReadLISLNext
 
 // send an address byte (niaddr) to linear sensor
 // and write data byte (nidata)
@@ -128,7 +123,7 @@ void WriteLISL(uns8 nidata, uns8 W)
 	}
 	LISL_CS = 1;
 	LISL_IO = 1;	// IO is input (to allow RS232 reception)
-}
+} // WriteLISL
 
 // put the base setup to linear sensor
 // enable all axes, setup resolution
@@ -153,9 +148,7 @@ void IsLISLactive(void)
 		WriteLISL(0b.00000000, LISL_DD_CFG);
 		_UseLISL = 1;
 	}
-#ifdef BOARD_3_0
-	else
-		LISL_CS = 0;		// can be used as a LED output now
-#endif
-}
+} // IsLISLactive
+
+
 

@@ -11,6 +11,9 @@
 =      U.A.V.P Brushless UFO Controller      =
 =           Professional Version             =
 = Copyright (c) 2007 Ing. Wolfgang Mahringer =
+=                                            =
+=      Modified by others (see below)        =
+=                                            =
 ==============================================
 
   This program is free software; you can redistribute it and/or modify
@@ -27,27 +30,13 @@
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-==============================================
-=  please visit http://www.uavp.org          =
-=               http://www.mahringer.co.at   =
-==============================================
 
-==============================================
-=  THE VERSIONS                              =
-==============================================
+For the revision associated with this README:
 
-Only one HEX file is suitable for your quadrocopter or tricopter.
-The names are composed of the following tokens:
+The IDG300 roll gyre has the opposite sign to the ADXRS gyros. 
 
-Bxxx......xxx is the board version number
-Vxxx......xxx is the software version number
-ADX150....version for boards with 3x ADXRS150 gyros
-ADX300....version for boards with 3x ADXRS300 gyros
-IDG.......version for boards with 1x IDG300 and 1x ADXRS300 gyros
-PPM.......version for standard PPM speed controllers (Arkai, YGE etc)
-HOL.......version for boards with Holger's Speed Controllers
-DSENS.....sensor debugging version, allows for value monitoring via UAVPset
+CHECK YOUR PID COEFFICIENT SIGNS.
 
-If you flash the wrong one, no problem. 
-You can still update by flashing it again.
+
+Greg Egan May 2009
 

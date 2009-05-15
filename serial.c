@@ -1,27 +1,23 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
+// =======================================================================
+// =                   U.A.V.P Brushless UFO Controller                  =
+// =                         Professional Version                        =
+// =           Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer          =
+// =              Copyright 2008, 2009 by Prof. Greg Egan                =
+// =                            http://uavp.ch                           =
+// =======================================================================
 //
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
+//    UAVP is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+
+//    UAVP is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Serial support (RS232 option)
 
@@ -39,11 +35,10 @@ typedef char CHAR;
 
 // data strings
 
-const char page2 SerHello[] = "\r\nU.A.V.P. V" Version " (c) 2007"
-							  " Ing. Wolfgang Mahringer\r\n"
-							  "This is FREE SOFTWARE, see GPL license!\r\n";
+const char page2 SerHello[] = "\r\nUAVP " Version " Copyright G.K. Egan 2008-9 & W. Mahringer 2007-8\r\n"
+							  "This software comes with ABSOLUTELY NO WARRANTY!\r\n";
 
-const char page2 SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
+const char page2 SerSetup[] = "\r\nUAVP V" Version " ready.\r\n"
 							  "Gyro: "
 #ifdef OPT_ADXRS300
 							  "3x ADXRS300\r\n"
@@ -57,15 +52,13 @@ const char page2 SerSetup[] = "\r\nProfi-Ufo V" Version " ready.\r\n"
 							  "Linear sensors ";
 const char page2 SerLSavail[]="ONLINE\r\n";
 const char page2 SerLSnone[]= "not available\r\n";
-const char page2 SerBaro[]=   "Baro sensor ";
-const char page2 SerChannel[]="Channel mode: Throttle Ch";
+const char page2 SerBaro[]=   "Baro ";
+const char page2 SerBaroBMP085[]=   "BMP085\r\n";
+const char page2 SerBaroSMD500[]=   "SMD500\r\n";
+const char page2 SerChannel[]="Throttle Ch";
 const char page2 SerFM_Fut[]= "3";
 const char page2 SerFM_Grp[]= "1";
-
-#ifdef BOARD_3_1
-const char page2 SerCompass[]="Compass sensor ";
-#endif
-
+const char page2 SerCompass[]="Compass ";
 const char page2 SerHelp[]  = "\r\nCommands:\r\n"
 					 		  "L...List param\r\n"
 							  "M...Modify param\r\n"
@@ -81,7 +74,7 @@ const char page2 SerList[]  = "\r\nParameter list for set #";
 const char page2 SerSelSet[]= "\r\nSelected parameter set: ";
 
 const char page2 SerNeutralR[]="\r\nNeutral Roll:";
-const char page2 SerNeutralN[]=" Nick:";
+const char page2 SerNeutralN[]=" Ptch:";
 const char page2 SerNeutralY[]=" Yaw:";
 
 const char page2 SerRecvCh[]=  "\r\nT:";
@@ -152,10 +145,10 @@ void SendComValH(uns8 W)
 void SendComValS(uns8 W)
 {
 	nival = W;
-	if( (int)nival < 0 )
+	if( (int8)nival < 0 )
 	{
 		SendComChar('-');	// send sign
-		nival = -(int)nival;
+		nival = -(int8)nival;
 	}
 	else
 		SendComChar('+');	// send sign
@@ -210,7 +203,7 @@ uns8 RecvComNumU(void)
 
 
 // enter a signed number -99 to 99 (always 2 digits)!
-int RecvComNumS(void)
+int8 RecvComNumS(void)
 {
 	nival = 0;
 
@@ -259,7 +252,6 @@ void ShowSetup(uns8 W)
 	else
 		SendComText(SerLSnone);
 
-#ifdef BOARD_3_1
 	SendComText(SerCompass);
 	if( _UseCompass )
 		SendComText(SerLSavail);
@@ -268,10 +260,12 @@ void ShowSetup(uns8 W)
 
 	SendComText(SerBaro);
 	if( _UseBaro )
-		SendComText(SerLSavail);
+		if ( BaroType == BARO_ID_BMP085 )
+			SendComText(SerBaroBMP085);
+		else
+			SendComText(SerBaroSMD500);
 	else
 		SendComText(SerLSnone);
-#endif
 
 	ReadEEdata();
 	SendComText(SerChannel);
@@ -302,13 +296,13 @@ void ProgRegister(void)
 	WREN = 0;	// disable EEPROM write
 }
 
-long nila1@nilarg1;
+int16 nila1@nilarg1;
 
 // if a command is waiting, read and process it.
 // Do NOT call this routine while in flight!
 void ProcessComCommand(void)
 {
-    int size1 *p;
+    int8 size1 *p;
 	uns8 nireg;
 	
 	nireg = RecvComChar();
@@ -378,7 +372,7 @@ void ProcessComCommand(void)
 			SendComValS(NeutralFB);
 
 			SendComText(SerNeutralY);
-			Tp -= 1024;		// subtract 1g (vertical sensor)
+			Yp -= 1024;		// subtract 1g (vertical sensor)
 			SendComValS(NeutralUD);
 			ShowPrompt();
 			break;
@@ -392,11 +386,11 @@ void ProcessComCommand(void)
 			SendComChar(',');
 			SendComChar('N');
 			SendComChar(':');
-			SendComValS(INick);
+			SendComValS(IPitch);
 			SendComChar(',');
 			SendComChar('Y');
 			SendComChar(':');
-			SendComValS(ITurn);
+			SendComValS(IYaw);
 			SendComChar(',');
 			SendComChar('5');
 			SendComChar(':');
@@ -418,14 +412,14 @@ void ProcessComCommand(void)
 			movwf	PCLATH
 			dw	0x2F00
 #endasm
-//			BootStart();	// never comes back!
+			BootStart();	// never comes back!
 		
 #ifndef TESTOUT	
 		case 'T':
 			RE = 10;
-			NE = 20;
+			PE = 20;
 			Rw = 30;
-			Nw = 40;
+			Pw = 40;
 			MatrixCompensate();
 			ShowPrompt();
 			break;
