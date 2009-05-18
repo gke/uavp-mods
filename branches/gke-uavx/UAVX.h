@@ -372,7 +372,7 @@ typedef union {
 #define BARO_TEMP_TIME	10
 #define BARO_PRESS_TIME 35
 
-#define THR_DOWNCOUNT	4096L	/* 128 PID-cycles (=3 sec) until current throttle is fixed */
+#define THR_DOWNCOUNT	200L	/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
 #define THR_HOVER		75		/* min throttle stick for alti lock */
 

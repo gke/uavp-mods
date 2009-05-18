@@ -350,22 +350,23 @@ void WaitThrottleClosed(void)
 
 void CheckThrottleMoved(void)
 {
+	static int16 ThrLow, ThrHigh;
+
 	if( _NewValues )
 		if( ThrCycles > 0 )
-		{
-			_ThrottleMoving = --ThrCycles <= 0;
-			if( _ThrottleMoving )
-				ThrNeutral = DesiredThrottle;	// remember current Throttle level
+		{ // sample every ~sec
+			if( (--ThrCycles) == 0 )
+				ThrNeutral = DesiredThrottle;	// remember current Throttle
 		}
 		else
 		{
-			if ((DesiredThrottle < THR_HOVER) || 
-				(DesiredThrottle < Limit(ThrNeutral - THR_MIDDLE, 0, _Maximum)) || 
-				(DesiredThrottle > ThrNeutral + THR_MIDDLE))
-			{
+			ThrLow = ThrNeutral - THR_MIDDLE;
+			ThrLow = Max(THR_HOVER, ThrLow);
+			ThrHigh = ThrNeutral + THR_MIDDLE;
+
+			_ThrottleMoving = (DesiredThrottle < ThrLow) || (DesiredThrottle > ThrHigh);
+			if ( _ThrottleMoving )
 				ThrCycles = THR_DOWNCOUNT;	// left dead area
-				_ThrottleMoving = true;
-			}
 		}
 
 } // CheckThrottleMoved

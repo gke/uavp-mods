@@ -169,7 +169,7 @@ void main(void)
 
 		InitArrays();
 		EnableInterrupts;	
-		WaitForRxSignal(); 
+//zzz		WaitForRxSignal(); 
 		ReadParametersEE();
 		WaitThrottleClosed();
 		ThrCycles = THR_DOWNCOUNT;
@@ -182,7 +182,7 @@ void main(void)
 		DropoutCycles = MAXDROPOUT; // zzz
 		Cycles = 0;
 
-		while ( Armed )
+		while ( 1)//zzzArmed )
 		{	
 			ReceivingGPSOnly(true); // no command processing while the Quadrocopter is armed
 
@@ -203,7 +203,8 @@ void main(void)
 
 			ReadParametersEE();	// re-sets TimeSlot
 			GetGyroValues();
-
+DesiredThrottle = 120;//zzz
+_Flying = true;//zzz
 			if ( _Signal )
 			{
 				if( (_Flying && (DesiredThrottle <= _ThresStop)) ||
@@ -245,7 +246,8 @@ void main(void)
 				DesiredRoll = DesiredPitch = DesiredYaw = 0;
 				if( (Cycles >= DropoutCycles) )
 					DesiredThrottle = _Minimum;
-						
+				else
+					DesiredThrottle = _Minimum;		
 				DoControl();
 			}		
 		
