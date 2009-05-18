@@ -1,23 +1,22 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uavx.h"
 
@@ -142,17 +141,14 @@ void InitArrays(void)
 		Motor[i] = _Minimum;
 	MCamPitch = MCamRoll = _Neutral;
 
-	_Flying = false;
-	REp = PEp = YEp = 0;
+	PrevRollRate = PrevPitchRate = PrevYawRate = 0;
 	
-	Vud = VBaroComp = 0;
-	
-	UDSum = 0;
+	VUDComp = VBaroComp = UDSum = 0;
+
 	LRIntKorr = FBIntKorr = 0;
-	YawSum = RollSum = PitchSum = 0;
 
 	BaroRestarts = 0;
-	RCGlitchCount = 0;
+	RCGlitches = 0;
 } // InitArrays
 
 int16 ConvertGPSToM(int16 c)
@@ -194,6 +190,11 @@ void ReadParametersEE(void)
 		*p = ReadEE(addr++);
 
 	BatteryVolts = LowVoltThres;
+
+	// scale angle limits
+	RollIntLimit256 = (int16)RollIntLimit * 256L;
+	PitchIntLimit256 = (int16)RollIntLimit * 256L;
+	YawIntLimit256 = (int16)RollIntLimit * 256L;
 	
 	TimeSlot = Limit(TimeSlot, 2, 20);
 
@@ -499,7 +500,7 @@ void CheckAlarms(void)
 
 	if( _LowBatt ) // repeating beep
 	{
-		if( ( BlinkCount & 0x0040) == 0 )
+		if( ( Cycles & 0x0040) == 0 )
 		{
 			Beeper_ON;
 			LEDRed_ON;
@@ -512,7 +513,7 @@ void CheckAlarms(void)
 	}
 	else
 	if ( _LostModel ) // 2 beeps with interval
-		if( (BlinkCount & 0x0080) == 0 )
+		if( (Cycles & 0x0080) == 0 )
 		{
 			Beeper_ON;
 			LEDRed_ON;

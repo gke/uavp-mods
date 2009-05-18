@@ -1,22 +1,21 @@
 // =======================================================================
-// =                                 UAVX                                =
-// =                        Quadrocopter Controller                      =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =                     UAVX Quadrocopter Controller                    =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =                          http://uavp.ch                             =
 // =======================================================================
-//
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVXP is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Autonomous flight routines
 
@@ -51,7 +50,7 @@ void GPSAltitudeHold(int16 DesiredAltitude)
 
 void Descend(void)
 {	
-	if( (BlinkCount & 0x000f) == 0 )
+	if( (Cycles & 0x000f) == 0 )
 		DesiredThrottle = Limit(DesiredThrottle--, 0, _Maximum); // safest	
 } // Descend
 
@@ -122,14 +121,14 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			}
 			
 			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
-				SumNavRCorr = Limit (SumNavRCorr + Range, -(NavIntLimit)*256, NavIntLimit*256);
+				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
 			else
 				SumNavRCorr = 0;
 			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256;
 			DesiredRoll = Limit(DesiredRoll , -_Neutral, _Neutral);
 	
 			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
-				SumNavPCorr = Limit (SumNavPCorr + Range, -(NavIntLimit*256), NavIntLimit*256);
+				SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit256, NavIntLimit256);
 			else
 				SumNavPCorr = 0;
 			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256;
@@ -160,39 +159,33 @@ void CheckAutonomous(void)
 
 	UpdateGPS();
 
-	if ( _Flying && !_Signal )
-	{ 
-		// NO AUTONOMY ON LOST SIGNAL IN THIS VERSION
-	  	// do nothing - use Wolfgang's failsafe
-	}
-	else
-		if ( _GPSValid && ( IK7 > 20 ))
-			if  ( _CompassValid )
-				if ( ( IK5 > _Neutral ) ) //zzz && (Abs(DesiredRoll) <= MAX_CONTROL_CHANGE) && (Abs(DesiredPitch) <= MAX_CONTROL_CHANGE) )
+	if ( _Signal && _GPSValid && ( IK7 > 20 ))
+		if  ( _CompassValid )
+			if ( ( IK5 > _Neutral ) ) //zzz && (Abs(DesiredRoll) <= MAX_CONTROL_CHANGE) && (Abs(DesiredPitch) <= MAX_CONTROL_CHANGE) )
+			{
+				NavState = ReturningHome;
+				Navigate(0, 0);
+			}
+			else
+				if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
 				{
-					NavState = ReturningHome;
-					Navigate(0, 0);
+					// acquire hold coordinates
+					GPSNorthHold = GPSNorth;
+					GPSEastHold = GPSEast;
+					SumNavRCorr= SumNavPCorr = SumNavYCorr = 0;
+					NavState = PIC;
+					_NavComputed = false;
 				}
 				else
-					if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
-					{
-						// acquire hold coordinates
-						GPSNorthHold = GPSNorth;
-						GPSEastHold = GPSEast;
-						SumNavRCorr= SumNavPCorr = SumNavYCorr = 0;
-						NavState = PIC;
-						_NavComputed = false;
-					}
-					else
-					{	
-						NavState = HoldingStation;
-						Navigate(GPSNorthHold, GPSEastHold);
-					}			
-			else
-			{
-				LEDRed_TOG;
-				//TxString("BadC\r\n");
-			}		
+				{	
+					NavState = HoldingStation;
+					Navigate(GPSNorthHold, GPSEastHold);
+				}			
+		else
+		{
+			LEDRed_TOG;
+			//TxString("BadC\r\n");
+		}		
 
 	#ifndef DEBUG_SENSORS
 
@@ -201,12 +194,13 @@ void CheckAutonomous(void)
 	#define FAKE_NORTH_WIND 	0
 	#define FAKE_EAST_WIND 		0
 
-	if(  BlinkCount >= FakeGPSCount )
+	if(  Cycles >= FakeGPSCount )
 	{
 
 		// $GPRMC
 		GPSGroundSpeed = (Abs(DesiredPitch)+Abs(DesiredRoll))*10; // decimetres/sec
 		GPSHeading = Make2Pi(GPSHeading - DesiredYaw*10);
+		_CompassValid = true;
 		Heading = GPSHeading;
 
 		// $GPGGA
@@ -284,6 +278,7 @@ void InitNavigation(void)
 {
 	GPSNorthHold = GPSEastHold = 0;
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
+	NavIntLimit256 = (int16)NavIntLimit * 256L;
 	NavState = PIC;
 	_NavComputed = false;
 } // InitNavigation

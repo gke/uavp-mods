@@ -1,23 +1,22 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uavx.h"
 
@@ -28,9 +27,9 @@ void ShowSetup(uint8);
 void ProcessComCommand(void);
 
 #pragma idata menu1
-const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright (c) 2007-9"
-							  " G.K. Egan & W. Mahringer\r\n"
-							  "This is FREE SOFTWARE, see GPL license!\r\n";
+const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright 2008,2009 G.K. Egan & 2007-2008 W. Mahringer\r\n"
+							  "This is FREE SOFTWARE and comes with ABSOLUTELY NO WARRANTY\r\n"
+							  "see http://www.gnu.org/licenses/!\r\n";
 
 const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\n"
 
@@ -78,7 +77,9 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"V..Analog ch.\r\n"
 	"B..Boot\r\n"
 	"C..Compass test\r\n"
+#ifndef DISABLE_COMPASS_CALIBRATION
 	"K..Calib. Compass\r\n"
+#endif // !DISABLE_COMPASS_CALIBRATION
 	"G..GPS test (Use HyperTerm)\r\n"
 	"H..Baro. test\r\n"
 	"I..I2C bus scan\r\n"

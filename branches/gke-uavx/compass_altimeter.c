@@ -1,23 +1,22 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uavx.h"
 
@@ -121,16 +120,14 @@ void GetDirection(void)
 								* (int16)CompassFactor, 8);
 		}
 		#ifdef DEBUG_SENSORS
-		if( IntegralCount == 0 )
-			Trace[TAbsDirection] = DirVal * 4; //AbsDirection; // scale for UAVPSet
+		Trace[TAbsDirection] = DirVal * 4; //AbsDirection; // scale for UAVPSet
 		#endif					
 	}
 	#ifdef DEBUG_SENSORS
 	else	// no new value received
 	{
 		Heading = 0;
-		if( IntegralCount == 0 )
-			Trace[TAbsDirection] = 0;
+		Trace[TAbsDirection] = 0;
 	}
 	#endif
 
@@ -207,7 +204,8 @@ void InitBarometer(void)
 	// Baro is assumed offline unless it responds - no retries!
 	static uint8 r;
 
-	VBaroComp = BaroCount = 0;
+	VBaroComp = 0;
+	BaroCycles = Cycles + 10;
 
 	// Determine baro type
 	I2CStart();
@@ -254,22 +252,18 @@ void ComputeBaroComp(void)
 {
 	static int16 OldBaroRelPressure, Temp, Delta;
 
-	BaroCount++;
+	BaroCycles++;
 
 	if( _BaroAltitudeValid )
 		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
-#ifdef ENABLE_NEW_ALT_HOLD
-		if (((BaroCount >= 8) && _BaroTempRun) || ((BaroCount >= 32 ) && !_BaroTempRun))
-#else
-		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))
-#endif // ENABLE_NEW_ALT_HOLD	
+		if ( Cycles > BaroCycles )	
 		{
-			BaroCount = 0;
+			BaroCycles = Cycles + 10; // zzz needs to be related to "impulse"
 			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value		
 				if( _BaroTempRun )
 				{
 					StartBaroADC(BARO_PRESS); // next is pressure - overlap
-					if( ThrDownCount )
+					if( _ThrottleMoving )
 						BaroBaseTemp = BaroVal.u16; // current read value
 					else 
 						BaroRelTempCorr = BaroVal.u16 - BaroBaseTemp;
@@ -278,7 +272,7 @@ void ComputeBaroComp(void)
 				{	// current measurement was "pressure"
 					StartBaroADC(BaroTemp);	// next is temp - overlap
 
-					if( ThrDownCount )	// while moving throttle stick
+					if( _ThrottleMoving )	// while moving throttle stick
 					{
 						BaroBasePressure = BaroVal.u16;
 						_Hovering = false;
@@ -296,8 +290,6 @@ void ComputeBaroComp(void)
 							_Hovering = true;
 						}
 	
-#ifdef ENABLE_NEW_ALT_HOLD
-// EXPERIMENTAL ALTITUDE HOLD
 						// while holding altitude
 						BaroVal.u16 -= BaroBasePressure;
 						// BaroVal has -400..+400 approx
@@ -305,7 +297,6 @@ void ComputeBaroComp(void)
 
 						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
 	
-
 						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal.u16);
 	
 						Delta = BaroRelPressure - OldBaroRelPressure;
@@ -328,43 +319,6 @@ void ComputeBaroComp(void)
 						VBaroComp += Limit(Delta, -5, 8) * (int16)BaroThrottleDiff;
 	
 						VBaroComp = Limit(VBaroComp, -5, 15);
-
-#else
-
-						// while holding altitude
-						BaroVal -= BaroBasePressure;
-						// BaroVal has -400..+400 approx
-						BaroVal += SRS16((int16)BaroRelTempCorr * (int16)BaroTempCoeff + 16, 5);
-
-						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
-	
-						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal);
-	
-						Delta = BaroRelPressure - OldBaroRelPressure;	// subtract new height to get delta
-
-						BaroRelPressure = Limit(BaroRelPressure, -2, 8); // was: +10 and -5
-		
-						// strictly this is acting more like an integrator 
-						// bumping VBaroComp up and down proportional to the error?
-		
-						Temp = BaroRelPressure * (int16)BaroThrottleProp;
-						if( VBaroComp > Temp )
-							VBaroComp--;
-						else
-							if( VBaroComp < Temp )
-								VBaroComp++; // climb
-
-						if( VBaroComp > Temp )
-							VBaroComp--;
-						else
-							if( VBaroComp < Temp )
-								VBaroComp++; // climb
-		
-						// Differentialanteil		
-						VBaroComp += Limit(Delta, -8, 8) * (int16)BaroThrottleDiff;
-	
-						VBaroComp = Limit(VBaroComp, -5, 15);
-#endif // ENABLE_NEW_ALT_HOLD
 	
 						#ifdef BARO_SCRATCHY_BEEPER
 						Beeper_TOG;
@@ -374,17 +328,11 @@ void ComputeBaroComp(void)
 		}
 
 	#ifdef DEBUG_SENSORS	
-	if( IntegralCount == 0 )
-		if ( _BaroAltitudeValid )
-		{
-			Trace[TVBaroComp] = VBaroComp << 4; // scale for UAVPSet
-			Trace[TBaroRelPressure] = BaroRelPressure << 4;
-		}
-		else	// baro sensor not active
-		{
-			Trace[TVBaroComp] = 0;
-			Trace[TBaroRelPressure] = 0;
-		}
+	if ( _BaroAltitudeValid )
+	{
+		Trace[TVBaroComp] = VBaroComp << 4; // scale for UAVPSet
+		Trace[TBaroRelPressure] = BaroRelPressure << 4;
+	}
 	#endif
 } // ComputeBaroComp	
 
