@@ -45,9 +45,9 @@
 // Turn to heading to home and use pitch control only
 #define TURN_TO_HOME
 // Turn to heading is not enabled until this grounspeed is reached
-#define MIN_GROUNDSPEED_TO_ARM	1		// metres per second
+#define MIN_GROUNDSPEED_TO_ARM	2		// metres per second
 // Reduce value to reduce yaw slew rate for "Turn to Home"
-#define	NAV_YAW_LIMIT			75L		// was 50
+#define	NAV_YAW_LIMIT			30L		
 
 // GPS is active if sticks are close to Neutral
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more

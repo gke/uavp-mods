@@ -54,8 +54,6 @@ void Descend(void)
 		DesiredThrottle = Limit(DesiredThrottle--, 0, _Maximum); // safest	
 } // Descend
 
-int16 RelHeading;
-
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
 	// This routine does not point the quadrocopter at the destination
@@ -65,7 +63,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 	static int32 Temp;
 	static int16 NavKp, GPSGain;
-	static int16 Range, EastDiff, NorthDiff, WayHeading;
+	static int16 Range, EastDiff, NorthDiff, WayHeading, RelHeading;
 
 	if ( _NavComputed ) // use previous corrections
 	{
@@ -100,26 +98,20 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			Temp = ((int32)Range * NavKp )>>8; // allways +ve so can use >>
 			WayHeading = int16atan2(EastDiff, NorthDiff);
 
+			RelHeading = Make2Pi(WayHeading - Heading);
+			NavRCorr = SRS32((int32)int16sin(RelHeading) * Temp, 8);			
+			NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Temp, 8);
+			NavYCorr = 0;
+
 			#ifdef TURN_TO_HOME
-			if ( ( Range >= NAV_CLOSING_RADIUS ) && _GPSHeadingValid )
+			if ( _GPSHeadingValid && (GPSGroundSpeed > (MIN_GROUNDSPEED_TO_ARM*10L)) )
 			{
 				RelHeading = MakePi(WayHeading - GPSHeading); // make +/- MilliPi
-				RelHeading = Limit(RelHeading, -HALFMILLIPI, HALFMILLIPI);
-				NavRCorr = 0;	// Desired roll has no correction - maybe for wind later.
-				NavPCorr = -(5 + ((Temp - 5) * (HALFMILLIPI - Abs(RelHeading)))/HALFMILLIPI);
-				
-				if ( GPSGroundSpeed > (MIN_GROUNDSPEED_TO_ARM*10L) )
-					NavYCorr = Limit(-RelHeading, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!		
-			}
-			else
+				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
+				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
+			}		
 			#endif // TURN_TO_HOME
-			{	
-				RelHeading = Make2Pi(WayHeading - Heading);				
-				NavRCorr = SRS32((int32)int16sin(RelHeading) * Temp, 8);			
-				NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Temp, 8);
-				NavYCorr = 0;
-			}
-			
+	
 			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
 				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
 			else
