@@ -299,14 +299,16 @@ void DoControl(void)
 	// reduced divisors for Yaw
 
 	// Roll
-	Rl  = SRS16(RollRate * RollPropFactor + (PrevRollRate-RollRate) * RollDiffFactor, 6) +
-			SRS16(RollSum * RollIntFactor, 9) - DesiredRoll; 
+	Rl  = SRS16(RollRate * RollPropFactor, 6 )
+		+ SRS16(RollSum * (int16)RollIntFactor, 9) 
+		+ (int16)SRS32((int32)(PrevRollRate-RollRate) * RollDiffFactor, 6)
+		- DesiredRoll; 
 
 	// Pitch
-
-	// Differential and Proportional for Pitch
-	Pl  = SRS16(PitchRate * PitchPropFactor + (PrevPitchRate-PitchRate) * PitchDiffFactor, 6)+
-			SRS16(PitchSum * (int16)PitchIntFactor, 9) - DesiredPitch;
+	Pl  = SRS16(PitchRate * PitchPropFactor, 6)
+		 + SRS16(PitchSum * (int16)PitchIntFactor, 9)
+		 + (int16)SRS32((int32)(PrevPitchRate-PitchRate) * PitchDiffFactor, 6)
+		 - DesiredPitch;
 
 	// Yaw
 	Yl  = SRS16(YawRate *(int16)YawPropFactor + (PrevYawRate-YawRate) * YawDiffFactor, 4) +
