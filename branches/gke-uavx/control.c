@@ -167,14 +167,6 @@ void ErectGyros(void)
     for (i=0; i<16; i++)
 	{
 		GetGyroValues();
-	
-		#ifdef OPT_ADXRS150
-		RollRate = (RollRate + 2) >> 2; // recreate the 10 bit resolution
-		PitchRate = (PitchRate + 2) >> 2;
-		#else // IDG300 and ADXRS300
-		RollRate = RollRate >> 1;	
-		PitchRate = PitchRate >> 1;
-		#endif
 
 		// pre-flight auto-zero gyro rates
 		RollSum += RollRate;
@@ -186,6 +178,7 @@ void ErectGyros(void)
 		RollSum += MiddleLR;
 		PitchSum += MiddleFB;
 	}
+
 	GyroMidRoll = (RollSum + 8) >> 4;	
 	GyroMidPitch = (PitchSum + 8) >> 4;
 	GyroMidYaw = 0;
@@ -199,16 +192,16 @@ void CalcGyroValues(void)
 	static int16 Temp;
 
 	// average of two readings always positive so can use >>
-	#ifdef OPT_ADXRS150
-	RollRate = (RollRate + 2) >> 2;
-	PitchRate = (PitchRate + 2) >> 2;
-	#else
 	RollRate = (RollRate + 1) >> 1;
 	PitchRate = (PitchRate + 1) >> 1;
-	#endif
 
 	RollRate = GYROSIGN_ROLL * ( RollRate - GyroMidRoll );
 	PitchRate = GYROSIGN_PITCH * ( PitchRate - GyroMidPitch );
+
+	#ifdef OPT_ADXRS150
+	RollRate = RollRate / 2;
+	PitchRate = PitchRate / 2;
+	#endif // OPT_ADXRS150
 
 	// calc Cross flying mode
 	if( FlyCrossMode )

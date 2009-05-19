@@ -153,7 +153,7 @@ void ProcessComCommand(void)
 	uint16 addrbase, curraddr;
 	int8 d;
 
-	if ( !_ReceivingGPS )
+	if ( !Armed )
 	{
 		ch = PollRxChar();
 	
