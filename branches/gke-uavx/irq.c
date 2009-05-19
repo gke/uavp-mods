@@ -32,7 +32,7 @@ void high_isr_handler(void);
 // Variables
 
 #pragma udata isrvars
-int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
+int16 NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 int8	RCState;
 int24	PrevEdge, CurrEdge;
 int16 	Width;
