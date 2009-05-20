@@ -1,32 +1,16 @@
-// =======================================================================
-// =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
-// =======================================================================
-
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 // EXPERIMENTAL
 
 // Simulates a FAKE GPS estimating position from control inputs and outputs to 
+// Hyperterm lines of the form: 
+// 294      75n     33e    -> r= 33        p= 0 hov rth
+// compass   uav posn	       controls		state - in this case hovering and returning home
 // This permits quadrocopter to be "flown on the bench". Motors WILL run but this is NOT flight code.
 //#define FAKE_GPS
 
 #define DISABLE_COMPASS_CALIBRATION
 
 // Navigation
+
 
 // minimum no of satellites for sentence to be acceptable	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
@@ -45,9 +29,9 @@
 // Turn to heading to home and use pitch control only
 #define TURN_TO_HOME
 // Turn to heading is not enabled until this grounspeed is reached
-#define MIN_GROUNDSPEED_TO_ARM	2		// metres per second
+#define MIN_GROUNDSPEED_TO_ARM	1		// metres per second
 // Reduce value to reduce yaw slew rate for "Turn to Home"
-#define	NAV_YAW_LIMIT			30L		
+#define	NAV_YAW_LIMIT			75L		// was 50
 
 // GPS is active if sticks are close to Neutral
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
@@ -73,6 +57,26 @@
 // Modifications which have been adopted are included BELOW.
 
 #ifndef BATCHMODE
+// =======================================================================
+// =                     UAVX Quadrocopter Controller                    =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =                          http://uavp.ch                             =
+// =======================================================================
+
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
+
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 // ==============================================
 // == Global compiler switches
@@ -372,7 +376,7 @@ typedef union {
 #define BARO_TEMP_TIME	10
 #define BARO_PRESS_TIME 35
 
-#define THR_DOWNCOUNT	200L	/* 128 PID-cycles (=3 sec) until current throttle is fixed */
+#define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
 #define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
 #define THR_HOVER		75		/* min throttle stick for alti lock */
 
@@ -380,19 +384,18 @@ typedef union {
 
 #define	_Signal				Flags[0]	/* if no valid signal is received */
 #define	_Flying				Flags[1]	/* UFO is flying */
-#define _ThrottleMoving		Flags[2]
-#define	_NewValues			Flags[3]	/* new RX channel values sampled */
-#define _FirstTimeout		Flags[4]	/* is 1 after first 9ms TO expired */
+#define	_NewValues			Flags[2]	/* new RX channel values sampled */
+#define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
 
-#define _LowBatt			Flags[5]	/* if Batt voltage is low */
-#define _AccelerationsValid Flags[6]	/* 1 if LISL Sensor is used */
-#define	_CompassValid		Flags[7]	/* 1 if compass sensor is enabled */
-#define _CompassMissRead 	Flags[8]
-#define _BaroAltitudeValid	Flags[9]	/* 1 if baro sensor active */
-#define _BaroTempRun		Flags[10]	/* 1 if baro temp a/d conversion is running */
-#define _BaroRestart		Flags[11] 	/* Baro restart required */
-#define _OutToggle			Flags[12]	/* cam servos only evers 2nd output pulse */								
-#define _UseCh7Trigger		Flags[13]	/* 1: don't use Ch7 */
+#define _LowBatt			Flags[4]	/* if Batt voltage is low */
+#define _AccelerationsValid Flags[5]	/* 1 if LISL Sensor is used */
+#define	_CompassValid		Flags[6]	/* 1 if compass sensor is enabled */
+#define _CompassMissRead 	Flags[7]
+#define _BaroAltitudeValid	Flags[8]	/* 1 if baro sensor active */
+#define _BaroTempRun		Flags[9]	/* 1 if baro temp a/d conversion is running */
+#define _BaroRestart		Flags[10] 	/* Baro restart required */
+#define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
+#define _UseCh7Trigger		Flags[12]	/* 1: don't use Ch7 */
 									/* 0: use Ch7 as Cam Roll trim */
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
@@ -542,8 +545,8 @@ typedef union {
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
 #define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
 
-#define MAXDROPOUT	4000L		// @ 5mS = 20sec. dropout allowable
-#define GPSDROPOUT	400L		// @ 5mS = 2sec.
+#define MAXDROPOUT	400L	// 400 x 16 x 7ms = 40sec. dropout allowable
+#define GPSDROPOUT	20L		// 2sec.
 
 // Parameters for UART port
 // ClockHz/(16*(BaudRate+1))
@@ -624,10 +627,8 @@ extern void LimitRollSum(void);
 extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
-extern void ErectGyros(void);
 extern void CalcGyroValues(void);
-extern void AltitudeDamping(void);
-extern void DoControl(void);
+extern void PID(void);
 
 extern void WaitThrottleClosed(void);
 extern void CheckThrottleMoved(void);
@@ -751,16 +752,17 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
-enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYawRate,				TRollSum,TPitchSum,TYawSum,
+enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
+				TAx,TAz,TAy,
+				TUDSum, TVud,
 				TIGas,
 				TIRoll, TIPitch, TIYaw,
 				TMFront, TMBack, TMLeft, TMRight,
-				TUDAcc, TUDSum, TUDVel,
-				TLRAcc, TLRGrav, TLRDyn, TLRIntKorr, TFBAcc, TFBGrav, TFBDyn, TFBIntKorr,
 				TMCamRoll, TMCamPitch,
+				TLRAcc, TLRGrav, TLRDyn, TLRIntKorr, TFBAcc, TFBGrav, TFBDyn, TFBIntKorr,
 				LastTrace
 				};
-#define TopTrace TMCamPitch
+#define TopTrace TFBIntKorr
 
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
@@ -769,18 +771,16 @@ extern uint8	IGas;
 extern int8 	IRoll,IPitch,IYaw;
 extern uint8	IK5,IK6,IK7;
 
-extern int16	RollRate, PitchRate, YawRate;
-extern int16	REp, PEp, YEp, RE, PE, YE;
-extern int16	RollSum, PitchSum, YawSum;
+extern int16	RE, PE, YE;
+extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
+extern int16	RollRate, PitchRate, YawRate;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256;
 extern int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
-extern int16 	NavIntLimit256;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
-extern int16 	UDSum, UDAcc;
+extern int16 	UDSum;
 
 // GPS
 extern uint8 GPSMode;
@@ -804,14 +804,14 @@ extern uint8	BaroType, BaroTemp, BaroRestarts;
 extern uint8	MCamRoll,MCamPitch;
 extern int16	Motor[NoOfMotors];
 extern int16	Rl,Pl,Yl;	// PID output values
-extern int16	VUDComp;
+extern int16	Vud;
 
 extern uint8	Flags[32];
 
-extern uint24	Cycles, ThrCycles, GPSCycles, DropoutCycles, BaroCycles;
+extern int16	ThrDownCycles, GPSCycles, DropoutCycles, LEDCycles, BaroCycles;
 extern int16	FakeGPSCycles;
+extern uint32	Cycles;
 extern int8		IntegralCount;
-extern int16	LEDCount;
 extern uint24	RCGlitches;
 extern int8		BatteryVolts; 
 

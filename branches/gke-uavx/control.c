@@ -23,17 +23,18 @@
 
 // Prototypes
 
-extern void GyroCompensation(void);
-extern void LimitRollSum(void);
-extern void LimitPitchSum(void);
-extern void LimitYawSum(void);
-extern void GetGyroValues(void);
-extern void CalcGyroValues(void);
-extern void PID(void);
+void GyroCompensation(void);
+void AltitudeDamping(void);
+void LimitRollSum(void);
+void LimitPitchSum(void);
+void LimitYawSum(void);
+void GetGyroValues(void);
+void CalcGyroValues(void);
+void PID(void);
 
-extern void WaitThrottleClosed(void);
-extern void CheckThrottleMoved(void);
-extern void WaitForRxSignal(void);
+void WaitThrottleClosed(void);
+void CheckThrottleMoved(void);
+void WaitForRxSignal(void);
 
 void GyroCompensation(void)
 {
@@ -45,20 +46,40 @@ void GyroCompensation(void)
 	#endif
 
 	static int16 AbsRollSum, AbsPitchSum, Temp;
-	static int16 LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
+	static int16 UDAcc, LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
 
 	if( _AccelerationsValid )
 	{
 		ReadAccelerations();
 
+		LRAcc = Ax.i16;
+		UDAcc = Ay.i16;
+		FBAcc = Az.i16;
+		
 		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
 		// and come back as MiddleLR etc.
+	
+		// 1 unit is 1/4096 of 2g = 1/2048g
+		LRAcc -= MiddleLR;
+		FBAcc -= MiddleFB;
+		UDAcc -= MiddleUD;
+	
+		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
+	
+		#ifdef DEBUG_SENSORS
+		if( IntegralCount == 0 )
+		{
+			Trace[TAx]= LRAcc;
+			Trace[TAz] = FBAcc;
+			Trace[TAy] = UDAcc;
 
-		LRAcc = Ax.i16 - MiddleLR;
-		UDAcc = Ay.i16 - MiddleUD - 1024; // 1g - not corrrect for other than level
-		FBAcc = Az.i16 - MiddleFB;
-		
+			Trace[TUDSum] = UDSum;
+			Trace[TVud] = Vud;
+		}
+		#endif
+	
 		// Roll
+
 		// static compensation due to Gravity
 		LRGrav = -SRS16(RollSum * GRAV_COMP, 5); 
 	
@@ -74,6 +95,7 @@ void GyroCompensation(void)
 		LRIntKorr = Limit(LRIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 	
 		// Pitch
+
 		// static compensation due to Gravity
 		FBGrav = -SRS16(PitchSum * GRAV_COMP, 5); 
 	
@@ -89,7 +111,6 @@ void GyroCompensation(void)
 		FBIntKorr = Limit(FBIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 
 		#ifdef DEBUG_SENSORS
-
 		Trace[TLRAcc] = LRAcc;
 		Trace[TLRGrav] = LRGrav;
 		Trace[TLRDyn] = LRDyn;
@@ -101,9 +122,53 @@ void GyroCompensation(void)
 		Trace[TFBIntKorr] = FBIntKorr;	
 		#endif // DEBUG_SENSORS	
 	}	
-	
+	else
+	{
+		Vud = 0;
+		#ifdef DEBUG_SENSORS
+		Trace[TAx] = 0;
+		Trace[TAz] = 0;
+		Trace[TAy] = 0;
+
+		Trace[TUDSum] = 0;
+		Trace[TVud] = 0;
+		#endif
+	}
 } // GyroCompensation
 
+void AltitudeDamping(void)
+{
+	#ifdef ENABLE_VERTICAL_VELOCITY_DAMPING
+	// UDSum rises if ufo climbs
+	// Empirical - vertical acceleration decreases at ~approx Angle/8
+
+	AbsRollSum = Abs(RollSum);
+	AbsPitchSum = Abs(PitchSum);
+
+	if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
+		UDSum += UDAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
+
+	UDSum = Limit(UDSum , -16384, 16384); 
+	UDSum = DecayBand(UDSum, -10, 10, 10);
+	
+	Temp = SRS16(SRS16(UDSum, 4) * (int16) LinUDIntFactor, 8);
+	if( (BlinkTick & 0x0003) == 0 )	
+		if( Temp > VUDComp ) 
+			VUDComp++;
+		else
+			if( Temp < VUDComp )
+				VUDComp--;
+	
+	VUDComp = Limit(VUDComp, -20, 20);
+
+	#ifdef DEBUG_SENSORS
+	Trace[TUDAcc] = UDAcc;
+	Trace[TUDSum] = UDSum;
+	Trace[TVUDComp] = VUDComp;
+	#endif
+
+	#endif // ENABLE_VERTICAL_VELOCITY_DAMPING
+} // AltitudeDamping
 
 void LimitRollSum(void)
 {
@@ -255,49 +320,13 @@ void CalcGyroValues(void)
 		#endif
 	}
 } // CalcGyroValues
-	
-void AltitudeDamping(void)
-{
-	#ifdef ENABLE_VERTICAL_VELOCITY_DAMPING
-	// UDSum rises if ufo climbs
-	// Empirical - vertical acceleration decreases at ~approx Angle/8
 
-	AbsRollSum = Abs(RollSum);
-	AbsPitchSum = Abs(PitchSum);
-
-	if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
-		UDSum += UDAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
-
-	UDSum = Limit(UDSum , -16384, 16384); 
-	UDSum = DecayBand(UDSum, -10, 10, 10);
-	
-	Temp = SRS16(SRS16(UDSum, 4) * (int16) LinUDIntFactor, 8);
-	if( (BlinkTick & 0x0003) == 0 )	
-		if( Temp > VUDComp ) 
-			VUDComp++;
-		else
-			if( Temp < VUDComp )
-				VUDComp--;
-	
-	VUDComp = Limit(VUDComp, -20, 20);
-
-	#ifdef DEBUG_SENSORS
-	Trace[TUDAcc] = UDAcc;
-	Trace[TUDSum] = UDSum;
-	Trace[TVUDComp] = VUDComp;
-	#endif
-
-	#endif // ENABLE_VERTICAL_VELOCITY_DAMPING
-} // AltitudeDamping
-
-void DoControl(void)
+void PID(void)
 {
 
-	CheckThrottleMoved();				
-	CalcGyroValues();
 	GyroCompensation();	
 	AltitudeDamping();
-	
+
 	// PID controller
 	// E0 = current gyro error
 	// E1 = previous gyro error
@@ -341,71 +370,66 @@ void DoControl(void)
 	Yl += SRS16(YawSum * (int16)YawIntFactor, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);	// effective slew limit
 
-	if(	IntegralCount > 0 )
-		IntegralCount--;
-
 	DoPIDDisplays();
 
-	MixAndLimitMotors();
-
-	REp = RE;
-	PEp = PE;
-	YEp = YE;
-} // DoControl
+} // PID
 
 void WaitThrottleClosed(void)
 {
-	static int8 d;
-
-	d = 10;
-	while( _Signal && (IGas >= _ThresStop) )
+	DropoutCycles = 1;
+	while( (IGas >= _ThresStop) )
 	{
+		if ( !_Signal)
+			break;
 		if( _NewValues )
 		{
 			OutSignals();
 			_NewValues = false;
-			if( d-- <= 0 )
+			if( --DropoutCycles <= 0 )
 			{
-				LEDRed_TOG;			// toggle red LED 
-				d = 10;				// to signal: THROTTLE OPEN
+				LEDRed_TOG;	// toggle red LED 
+				DropoutCycles = 10;				// to signal: THROTTLE OPEN
 			}
 		}
 		ProcessComCommand();
 	}
-
-	ThrNeutral = 0xFF;
 	LEDRed_OFF;
-
 } // WaitThrottleClosed
 
 void CheckThrottleMoved(void)
 {
-	static int16 ThrLow, ThrHigh;
+	static int16 Temp;
 
 	if( _NewValues )
-		if( ThrCycles > 0 )
-		{ // sample every ~sec
-			if( (--ThrCycles) == 0 )
-				ThrNeutral = DesiredThrottle;	// remember current Throttle
+	{
+		if( ThrDownCycles > 0 )
+		{
+			if( (LEDCycles & 1) == 0 )
+				ThrDownCycles--;
+			if( ThrDownCycles == 0 )
+				ThrNeutral = DesiredThrottle;	// remember current Throttle level
 		}
 		else
 		{
-			ThrLow = ThrNeutral - THR_MIDDLE;
-			ThrLow = Max(THR_HOVER, ThrLow);
-			ThrHigh = ThrNeutral + THR_MIDDLE;
+			if( ThrNeutral < THR_MIDDLE )
+				Temp = 0;
+			else
+				Temp = ThrNeutral - THR_MIDDLE;
 
-			_ThrottleMoving = (DesiredThrottle < ThrLow) || (DesiredThrottle > ThrHigh);
-			if ( _ThrottleMoving )
-				ThrCycles = THR_DOWNCOUNT;	// left dead area
+			if( DesiredThrottle < THR_HOVER ) 	// no hovering below this throttle setting
+				ThrDownCycles = THR_DOWNCOUNT;	// left dead area
+
+			if( DesiredThrottle < Temp )
+				ThrDownCycles = THR_DOWNCOUNT;	// left dead area
+			if( DesiredThrottle > ThrNeutral + THR_MIDDLE )
+				ThrDownCycles = THR_DOWNCOUNT;	// left dead area
 		}
-
+	}
 } // CheckThrottleMoved
 
 void WaitForRxSignal(void)
 {
-	static int16 d;
-	
-	d = MODELLOSTTIMER;
+	DropoutCycles = MODELLOSTTIMER;
 	do
 	{
 		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
@@ -413,10 +437,10 @@ void WaitForRxSignal(void)
 		if( !_Signal )
 			if( Armed )
 			{
-				if( --d <= 0 )
+				if( --DropoutCycles == 0 )
 				{
 					_LostModel = true;
-					d = MODELLOSTTIMERINT;
+					DropoutCycles = MODELLOSTTIMERINT;
 				}
 			}
 			else

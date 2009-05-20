@@ -50,8 +50,6 @@ void GPSAltitudeHold(int16 DesiredAltitude)
 
 void Descend(void)
 {	
-	if( (Cycles & 0x000f) == 0 )
-		DesiredThrottle = Limit(DesiredThrottle--, 0, _Maximum); // safest	
 } // Descend
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
@@ -113,14 +111,14 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			#endif // TURN_TO_HOME
 	
 			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
-				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
+				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit*256, NavIntLimit*256);
 			else
 				SumNavRCorr = 0;
 			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256;
 			DesiredRoll = Limit(DesiredRoll , -_Neutral, _Neutral);
 	
 			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
-				SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit256, NavIntLimit256);
+				SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit*256, NavIntLimit*256);
 			else
 				SumNavPCorr = 0;
 			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256;
@@ -270,7 +268,6 @@ void InitNavigation(void)
 {
 	GPSNorthHold = GPSEastHold = 0;
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
-	NavIntLimit256 = (int16)NavIntLimit * 256L;
 	NavState = PIC;
 	_NavComputed = false;
 } // InitNavigation

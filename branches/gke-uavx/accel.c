@@ -1,22 +1,23 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
 
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 // Accelerator sensor routine
 
@@ -201,31 +202,28 @@ void GetNeutralAccelerations(void)
 	// read 16 time all 3 axis of linear sensor.
 	// Puts values in Neutralxxx registers.
 	static uint8 i;
-	static int32 LR, FB, UD;
+	static int16 Rp, Pp, Yp;
 
 	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
-	LR = 0;
-	FB = 0;
-	UD = 0;
+	Rp = 0;
+	Pp = 0;
+	Yp = 0;
 	for( i=0; i < 16; i++)
 	{
 		while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == 0 );
 		ReadAccelerations();
 		
-		LR += Ax.i16;
-		UD += Ay.i16;
-		FB += Az.i16;
+		Rp += Ax.i16;
+		Pp += Az.i16;
+		Yp += Ay.i16;
 	}
-	LR /= 16;
-	FB /= 16;
-	UD /= 16;
+	Rp = SRS16(Rp, 4);
+	Pp = SRS16(Pp, 4);
+	Yp = SRS16(Yp, 4);
 
-	// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
-	// and come back as MiddleLR etc.
-
-	NeutralLR = Limit(LR, -99, 99);
-	NeutralFB = Limit(FB, -99, 99);
-	NeutralUD = Limit(UD-1024, -99, 99); // -1g
+	NeutralLR = Limit(Rp, -99, 99);
+	NeutralFB = Limit(Pp, -99, 99);
+	NeutralUD = Limit(Yp-1024, -99, 99); // -1g
 } // GetNeutralAccelerations
 
