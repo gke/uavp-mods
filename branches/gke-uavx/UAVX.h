@@ -770,7 +770,7 @@ extern int8 	IRoll,IPitch,IYaw;
 extern uint8	IK5,IK6,IK7;
 
 extern int16	RollRate, PitchRate, YawRate;
-extern int16	PrevRollRate, PrevPitchRate, PrevYawRate;
+extern int16	REp, PEp, YEp, RE, PE, YE;
 extern int16	RollSum, PitchSum, YawSum;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
@@ -810,6 +810,7 @@ extern uint8	Flags[32];
 
 extern uint24	Cycles, ThrCycles, GPSCycles, DropoutCycles, BaroCycles;
 extern int16	FakeGPSCycles;
+extern int8		IntegralCount;
 extern int16	LEDCount;
 extern uint24	RCGlitches;
 extern int8		BatteryVolts; 

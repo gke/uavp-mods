@@ -141,7 +141,7 @@ void InitArrays(void)
 		Motor[i] = _Minimum;
 	MCamPitch = MCamRoll = _Neutral;
 
-	PrevRollRate = PrevPitchRate = PrevYawRate = 0;
+	REp = PEp = YEp = 0;
 	
 	VUDComp = VBaroComp = UDSum = 0;
 

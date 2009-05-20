@@ -37,7 +37,7 @@ uint8	IK7;						// actual channel 7 input
 // PID Regler Variablen
  	
 int16	RollRate, PitchRate, YawRate;
-int16	PrevRollRate, PrevPitchRate, PrevYawRate;
+int16	REp, PEp, YEp, RE, PE, YE;
 int16	RollSum, PitchSum, YawSum;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256;	
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
@@ -72,6 +72,7 @@ uint8	Flags[32];
 
 uint24	Cycles, ThrCycles, DropoutCycles, GPSCycles, BaroCycles;
 int16	FakeGPSCycles;
+int8	IntegralCount;
 int16	LEDCount;
 uint24	RCGlitches;
 int8	BatteryVolts;
@@ -214,7 +215,8 @@ void main(void)
 					ThrCycles = THR_DOWNCOUNT;
 					InitArrays();
 
-					ErectGyros();	// DON'T MOVE THE UFO! ES KANN LOSGEHEN!
+					IntegralCount = 16;
+				//	ErectGyros();	// DON'T MOVE THE UFO! ES KANN LOSGEHEN!
 
 					ALL_LEDS_OFF;				
 					AUX_LEDS_OFF;

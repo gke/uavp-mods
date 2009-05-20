@@ -32,7 +32,7 @@ void high_isr_handler(void);
 // Variables
 
 #pragma udata isrvars
-int16 NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
+int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 int8	RCState;
 int24	PrevEdge, CurrEdge;
 int16 	Width;
@@ -56,7 +56,7 @@ void ReceivingGPSOnly(uint8 r)
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 
    		PIE1bits.RCIE = r;
-		Delay1mS(10);				// switch bounce
+		Delay100mSWithOutput(2);// switch bounce
 	}
 } // ReceivingGPSOnly
 
