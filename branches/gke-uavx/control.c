@@ -58,12 +58,18 @@ void GyroCompensation(void)
 		
 		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
 		// and come back as MiddleLR etc.
-	
+
 		// 1 unit is 1/4096 of 2g = 1/2048g
+		#ifdef REVERSE_OFFSET_SIGNS	
+		// Jim's solution
+		LRAcc += MiddleLR;
+		FBAcc += MiddleFB;
+		#else
 		LRAcc -= MiddleLR;
 		FBAcc -= MiddleFB;
+		#endif
 		UDAcc -= MiddleUD;
-	
+
 		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
 	
 		#ifdef DEBUG_SENSORS

@@ -8,9 +8,9 @@
 //#define FAKE_GPS
 
 #define DISABLE_COMPASS_CALIBRATION
+#define REVERSE_OFFSET_SIGNS
 
 // Navigation
-
 
 // minimum no of satellites for sentence to be acceptable	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
@@ -22,16 +22,16 @@
 
 // The "Ls" are important
 #define MAGNETIC_VARIATION		6L		// Positive East degrees
-#define COMPASS_OFFSET_DEG		90L		// North degrees CW from Front
+#define COMPASS_OFFSET_DEG		90L		// Jim - North degrees CW from Front
 #define MAX_ANGLE 				30L		// Rx stick units ~= degrees
 #define CLOSING_RADIUS			20L		// closing radius in metres 
 
 // Turn to heading to home and use pitch control only
 #define TURN_TO_HOME
 // Turn to heading is not enabled until this grounspeed is reached
-#define MIN_GROUNDSPEED_TO_ARM	1		// metres per second
+#define MIN_GROUNDSPEED_TO_ARM	2		// metres per second
 // Reduce value to reduce yaw slew rate for "Turn to Home"
-#define	NAV_YAW_LIMIT			75L		// was 50
+#define	NAV_YAW_LIMIT			50L	
 
 // GPS is active if sticks are close to Neutral
 #define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more

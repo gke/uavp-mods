@@ -305,7 +305,6 @@ void ComputeBaroComp(void)
 
 						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
 	
-
 						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal.u16);
 	
 						Delta = BaroRelPressure - OldBaroRelPressure;

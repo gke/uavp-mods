@@ -157,7 +157,7 @@ void DoCompassTest()
 	int8 r;
 
 	TxString("\r\nCompass test\r\n");
-
+/*
 	#define COMP_OPMODE 0b01110000	// standby mode to reliably read EEPROM
 
 	I2CStart();
@@ -229,9 +229,11 @@ void DoCompassTest()
 		Delay1mS(COMPASS_TIME);
 	}
 
-	InitDirection(); 
-
+//	InitDirection();
 	Delay1mS(COMPASS_TIME);
+ 
+*/
+
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
@@ -248,15 +250,15 @@ void DoCompassTest()
 CTerror:
 	I2CStop();
 	TxString("FAIL\r\n");
+
 } // DoCompassTest
 
 void CalibrateCompass(void)
 {	// calibrate the compass by rotating the ufo through 720 deg smoothly
-
 	#ifndef DISABLE_COMPASS_CALIBRATION
 
-	TxString("\r\nCalib. compass \r\nRotate horizontally 720 deg in ~30 sec.! \r\nPress any key to START.\r\n");
-	while( PollRxChar() == NUL );
+	TxString("\r\nCalib. compass - Press any key (x) to continue\r\n");	
+	while( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
 
 	// set Compass device to Calibration mode 
 	I2CStart();
@@ -264,8 +266,8 @@ void CalibrateCompass(void)
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	TxString("\r\nPress any key to FINISH\r\n");
-	while( PollRxChar() == NUL );
+	TxString("\r\nRotate horizontally 720 deg in ~30 sec. - Press any key (x) to FINISH\r\n");
+	while( PollRxChar() != 'x' );
 
 	// set Compass device to End-Calibration mode 
 	I2CStart();
@@ -273,13 +275,11 @@ void CalibrateCompass(void)
 	if( SendI2CByte('E')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	Delay1mS(COMPASS_TIME);
-
-	TxString("OK\r\n");
+	TxString("\r\nCalibration complete\r\n");
 	return;
 CCerror:
 	I2CStop();
-	TxString("FAIL\r\n");
+	TxString("Calibration FAILED\r\n");
 
 	#endif // !DISABLE_COMPASS_CALIBRATION
 } // CalibrateCompass

@@ -84,9 +84,9 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"K..Calib. Compass\r\n"
 #endif // !DISABLE_COMPASS_CALIBRATION
 //	"M..Modify paramters\r\n"
+	"P..RX test\r\n"
 	"S..Setup\r\n"
 	"V..Analog ch.\r\n"
-	"X..RX test\r\n"
 	#ifdef ESC_YGEI2C
 	"Y..Prog. YGE\r\n"
 	#endif
@@ -270,6 +270,10 @@ void ProcessComCommand(void)
 				TxValS(NeutralUD);
 				ShowPrompt();
 				break;
+			case 'P'  :	// Receiver test			
+				ReceiverTest();
+				ShowPrompt();
+				break;
 			case 'R':	// receiver values
 				TxString("\r\nT:");TxValU(IGas);
 				TxString(",R:");TxValS(IRoll);
@@ -287,10 +291,7 @@ void ProcessComCommand(void)
 				AnalogTest();
 				ShowPrompt();
 				break;
-			case 'X'  :	// Receiver test			
-				ReceiverTest();
-				ShowPrompt();
-				break;
+
 			#ifdef ESC_YGEI2C
 			case 'Y':	// configure YGE30i EScs
 				ConfigureESCs();
@@ -323,10 +324,11 @@ void ProcessComCommand(void)
 				PowerOutput(ch-'1');
 				ShowPrompt();
 				break;
-			case '?'  : // help
+			case '?'  :  // help
 				TxString(SerHelp);
 				ShowPrompt();
 				break;
+			default: break;
 			}
 		}
 	}
