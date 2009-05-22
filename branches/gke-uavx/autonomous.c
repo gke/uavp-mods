@@ -102,26 +102,31 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			NavYCorr = 0;
 
 			#ifdef TURN_TO_HOME
-			if ( _GPSHeadingValid && (GPSGroundSpeed > (MIN_GROUNDSPEED_TO_ARM*10L)) )
+		//	if ( (Range == NAV_CLOSING_RADIUS) && _GPSHeadingValid && (GPSGroundSpeed > (MIN_GROUNDSPEED_TO_ARM*10L)) )
+			if ( Range >= NAV_CLOSING_RADIUS )
 			{
-				RelHeading = MakePi(WayHeading - GPSHeading); // make +/- MilliPi
+		//		RelHeading = MakePi(WayHeading - GPSHeading); // make +/- MilliPi
+				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
 				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
 				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
-			}		
+			}
+			else
+				NavYCorr = 0;
+		
 			#endif // TURN_TO_HOME
 	
 			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
-				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit*256, NavIntLimit*256);
+				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit*256L, NavIntLimit*256L);
 			else
 				SumNavRCorr = 0;
-			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256;
+			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256L;
 			DesiredRoll = Limit(DesiredRoll , -_Neutral, _Neutral);
 	
 			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
 				SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit*256, NavIntLimit*256);
 			else
 				SumNavPCorr = 0;
-			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256;
+			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256L;
 			DesiredPitch = Limit(DesiredPitch , -_Neutral, _Neutral);
 
 			DesiredYaw += NavYCorr;

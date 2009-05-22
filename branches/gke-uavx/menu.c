@@ -76,7 +76,9 @@ const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\n"
 const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"A..Linear test\r\n"
 	"B..Boot\r\n"
+#ifndef DISABLE_COMPASS_CALIBRATION
 	"C..Compass test\r\n"
+#endif // !DISABLE_COMPASS_CALIBRATION
 	"G..GPS test (Use HyperTerm)\r\n"
 	"H..Baro. test\r\n"
 	"I..I2C bus scan\r\n"
@@ -120,7 +122,7 @@ void ShowSetup(uint8 h)
 		TxString("not available\r\n");
 
 	TxString("Baro ");
-	if( _BaroAltitudeValid )
+	if ( _BaroAltitudeValid )
 		if ( BaroType == BARO_ID_BMP085 )
 			TxString("BMP085 ONLINE\r\n");
 		else
@@ -170,7 +172,6 @@ void ProcessComCommand(void)
 				ShowPrompt();
 				break;
 			case 'B':	// call bootloader
-				if ( !Armed )
 				{ // arming switch must be OFF to call bootloader!!!
 					DisableInterrupts;
 					BootStart();		// never comes back!
@@ -216,8 +217,7 @@ void ProcessComCommand(void)
 				ShowPrompt();
 				break;
 			case 'M'  : // modify parameters
-				if ( !Armed )
-				{ // no reprogramming in flight!!!!!!!!!!!!!!!
+					// no reprogramming in flight!!!!!!!!!!!!!!!
 					LEDBlue_ON;
 					TxString("\r\nRegister ");
 					addr = RxNumU()-1;
@@ -256,7 +256,6 @@ void ProcessComCommand(void)
 					}
 		
 					LEDBlue_OFF;
-				}
 				ShowPrompt();
 				break;
 			case 'N' :	// neutral values

@@ -156,6 +156,8 @@ void DoCompassTest()
 	i16u Compass;
 	int8 r;
 
+	#ifndef DISABLE_COMPASS_CALIBRATION
+
 	TxString("\r\nCompass test\r\n");
 /*
 	#define COMP_OPMODE 0b01110000	// standby mode to reliably read EEPROM
@@ -250,6 +252,8 @@ void DoCompassTest()
 CTerror:
 	I2CStop();
 	TxString("FAIL\r\n");
+
+	#endif // !DISABLE_COMPASS_CALIBRATION
 
 } // DoCompassTest
 
