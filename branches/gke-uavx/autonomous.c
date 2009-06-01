@@ -107,7 +107,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			{
 		//		RelHeading = MakePi(WayHeading - GPSHeading); // make +/- MilliPi
 				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
-				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
+				NavYCorr = YAW_CORR_SENSE*(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
 				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
 			}
 			else

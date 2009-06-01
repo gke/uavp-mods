@@ -20,9 +20,12 @@
 #define INITIAL_GPS_SENTENCES 	30	
 #define MIN_HDILUTE				150L	// HDilute * 100
 
+// The sense of the turn to heading Yaw correction
+#define YAW_CORR_SENSE			1L		// or -1L
+
 // The "Ls" are important
 #define MAGNETIC_VARIATION		6L		// Positive East degrees
-#define COMPASS_OFFSET_DEG		90L		// Jim - North degrees CW from Front
+#define COMPASS_OFFSET_DEG		270L		// Jim - North degrees CW from Front
 #define MAX_ANGLE 				30L		// Rx stick units ~= degrees
 #define CLOSING_RADIUS			20L		// closing radius in metres 
 
