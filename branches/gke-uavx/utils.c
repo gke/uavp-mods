@@ -145,7 +145,7 @@ void InitArrays(void)
 	_Flying = false;
 	REp = PEp = YEp = 0;
 	
-	Vud = VBaroComp = 0;
+	VUDComp = VBaroComp = 0;
 	
 	UDSum = 0;
 	LRIntKorr = FBIntKorr = 0;

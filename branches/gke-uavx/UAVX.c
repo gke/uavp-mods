@@ -45,7 +45,7 @@ int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
-int16 	UDSum;
+int16 	UDAcc, UDSum, VUDComp;
 
 // Failsafes
 uint8	ThrNeutral;

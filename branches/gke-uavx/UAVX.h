@@ -7,37 +7,29 @@
 // This permits quadrocopter to be "flown on the bench". Motors WILL run but this is NOT flight code.
 //#define FAKE_GPS
 
-#define DISABLE_COMPASS_CALIBRATION
-#define REVERSE_OFFSET_SIGNS
+//#define DISABLE_COMPASS_CALIBRATION
 
 // Navigation
 
 // minimum no of satellites for sentence to be acceptable	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
 #define MIN_FIX					1		// must be 1 or 2 
-
-// Number of sentences needed with set HDilute
-#define INITIAL_GPS_SENTENCES 	30	
+#define INITIAL_GPS_SENTENCES 	30		// Number of sentences needed with set HDilute
 #define MIN_HDILUTE				150L	// HDilute * 100
-
-// The sense of the turn to heading Yaw correction
-#define YAW_CORR_SENSE			1L		// or -1L
 
 // The "Ls" are important
 #define MAGNETIC_VARIATION		6L		// Positive East degrees
-#define COMPASS_OFFSET_DEG		270L		// Jim - North degrees CW from Front
+#define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 #define MAX_ANGLE 				30L		// Rx stick units ~= degrees
 #define CLOSING_RADIUS			20L		// closing radius in metres 
 
 // Turn to heading to home and use pitch control only
 #define TURN_TO_HOME
-// Turn to heading is not enabled until this grounspeed is reached
-#define MIN_GROUNDSPEED_TO_ARM	2		// metres per second
 // Reduce value to reduce yaw slew rate for "Turn to Home"
-#define	NAV_YAW_LIMIT			50L	
+#define	NAV_YAW_LIMIT			10L	
 
 // GPS is active if sticks are close to Neutral
-#define MAX_CONTROL_CHANGE 		10		// new hold point if the roll/pitch stick change more
+#define MAX_CONTROL_CHANGE 		5L		// new hold point if the roll/pitch stick change more
 // Using IK7 as GPS gain for corrective action full CCW is no correction. 
 #define GPS_IK7_GAIN
 
@@ -47,10 +39,12 @@
 // Accelerometer
 
 // Enable vertical accelerometer compensation of vertical velocity 
-//#define ENABLE_VERTICAL_VELOCITY_DAMPING
+#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
 
+// Outstanding issue with gyro compensation offset sense yet to be resolved
+#define REVERSE_OFFSET_SIGNS
 
 // Barometer
 
@@ -757,7 +751,7 @@ extern const rom uint8 SerPrompt[];
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
-				TUDSum, TVud,
+				TUDSum, TVUDComp,
 				TIGas,
 				TIRoll, TIPitch, TIYaw,
 				TMFront, TMBack, TMLeft, TMRight,
@@ -783,7 +777,7 @@ extern int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
-extern int16 	UDSum;
+extern int16 	UDAcc, UDSum, VUDComp;
 
 // GPS
 extern uint8 GPSMode;
@@ -807,7 +801,6 @@ extern uint8	BaroType, BaroTemp, BaroRestarts;
 extern uint8	MCamRoll,MCamPitch;
 extern int16	Motor[NoOfMotors];
 extern int16	Rl,Pl,Yl;	// PID output values
-extern int16	Vud;
 
 extern uint8	Flags[32];
 

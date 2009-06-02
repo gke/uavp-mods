@@ -99,22 +99,18 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			RelHeading = Make2Pi(WayHeading - Heading);
 			NavRCorr = SRS32((int32)int16sin(RelHeading) * Temp, 8);			
 			NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Temp, 8);
-			NavYCorr = 0;
 
 			#ifdef TURN_TO_HOME
-		//	if ( (Range == NAV_CLOSING_RADIUS) && _GPSHeadingValid && (GPSGroundSpeed > (MIN_GROUNDSPEED_TO_ARM*10L)) )
 			if ( Range >= NAV_CLOSING_RADIUS )
 			{
-		//		RelHeading = MakePi(WayHeading - GPSHeading); // make +/- MilliPi
 				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
-				NavYCorr = YAW_CORR_SENSE*(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
+				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
 				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
 			}
 			else
+			#endif // TURN_TO_HOME
 				NavYCorr = 0;
 		
-			#endif // TURN_TO_HOME
-	
 			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
 				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit*256L, NavIntLimit*256L);
 			else
@@ -158,6 +154,8 @@ void CheckAutonomous(void)
 		if  ( _CompassValid )
 			if ( ( IK5 > _Neutral ) ) //zzz && (Abs(DesiredRoll) <= MAX_CONTROL_CHANGE) && (Abs(DesiredPitch) <= MAX_CONTROL_CHANGE) )
 			{
+				GPSNorthHold = GPSNorth;
+				GPSEastHold = GPSEast;
 				NavState = ReturningHome;
 				Navigate(0, 0);
 			}

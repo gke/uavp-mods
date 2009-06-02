@@ -46,7 +46,7 @@ void GyroCompensation(void)
 	#endif
 
 	static int16 AbsRollSum, AbsPitchSum, Temp;
-	static int16 UDAcc, LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
+	static int16 LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
 
 	if( _AccelerationsValid )
 	{
@@ -80,7 +80,7 @@ void GyroCompensation(void)
 			Trace[TAy] = UDAcc;
 
 			Trace[TUDSum] = UDSum;
-			Trace[TVud] = Vud;
+			Trace[TVUDComp] = VUDComp;
 		}
 		#endif
 	
@@ -130,20 +130,22 @@ void GyroCompensation(void)
 	}	
 	else
 	{
-		Vud = 0;
+		VUDComp = 0;
 		#ifdef DEBUG_SENSORS
 		Trace[TAx] = 0;
 		Trace[TAz] = 0;
 		Trace[TAy] = 0;
 
 		Trace[TUDSum] = 0;
-		Trace[TVud] = 0;
+		Trace[TVUDComp] = 0;
 		#endif
 	}
 } // GyroCompensation
 
 void AltitudeDamping(void)
 {
+	int16 Temp, AbsRollSum, AbsPitchSum;
+
 	#ifdef ENABLE_VERTICAL_VELOCITY_DAMPING
 	// UDSum rises if ufo climbs
 	// Empirical - vertical acceleration decreases at ~approx Angle/8
@@ -158,7 +160,7 @@ void AltitudeDamping(void)
 	UDSum = DecayBand(UDSum, -10, 10, 10);
 	
 	Temp = SRS16(SRS16(UDSum, 4) * (int16) LinUDIntFactor, 8);
-	if( (BlinkTick & 0x0003) == 0 )	
+	if( (Cycles & 0x0003) == 0 )	
 		if( Temp > VUDComp ) 
 			VUDComp++;
 		else
@@ -168,7 +170,6 @@ void AltitudeDamping(void)
 	VUDComp = Limit(VUDComp, -20, 20);
 
 	#ifdef DEBUG_SENSORS
-	Trace[TUDAcc] = UDAcc;
 	Trace[TUDSum] = UDSum;
 	Trace[TVUDComp] = VUDComp;
 	#endif
