@@ -111,17 +111,17 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			#endif // TURN_TO_HOME
 				NavYCorr = 0;
 		
-			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
+		//	if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
 				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit*256L, NavIntLimit*256L);
-			else
-				SumNavRCorr = 0;
+		//	else
+		//		SumNavRCorr = 0;
 			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256L;
 			DesiredRoll = Limit(DesiredRoll , -_Neutral, _Neutral);
 	
-			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
+		//	if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
 				SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit*256, NavIntLimit*256);
-			else
-				SumNavPCorr = 0;
+		//	else
+		//		SumNavPCorr = 0;
 			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256L;
 			DesiredPitch = Limit(DesiredPitch , -_Neutral, _Neutral);
 
