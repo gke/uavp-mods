@@ -147,7 +147,7 @@ void InitArrays(void)
 	
 	VUDComp = VBaroComp = UDSum = 0;
 
-	HoverThrottle = AutonomousThrottle = THR_HOVER;
+	HoverThrottle = THR_HOVER;
 	AE = AltSum = 0;
 
 	LRIntKorr = FBIntKorr = 0;

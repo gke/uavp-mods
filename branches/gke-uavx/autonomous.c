@@ -48,15 +48,15 @@ uint8 NavState;
 void GPSAltitudeHold(int16 DesiredAltitude)
 {
 	#ifdef ENABLE_GPS_ALT_HOLD
+	int16 Temp;
 
-	AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50);
+	AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
 	AltSum += AE;
 	AltSum = Limit(AltSum, -10, 10);	
-	AutonomousThrottle = HoverThrottle + SRS16(AE*P[NavAltKp] + AltSum*P[NavAltKi], 4);
+	Temp = SRS16(AE*P[NavAltKp] + AltSum*P[NavAltKi], 4);
 
-	DesiredThrottle = HoverThrottle + Limit(AutonomousThrottle, -20, 50);
-
-	DesiredThrottle = Limit(AutonomousThrottle, 0, _Maximum);
+	DesiredThrottle = HoverThrottle + Limit(Temp, -20, 50);
+	DesiredThrottle = Limit(DesiredThrottle, 0, _Maximum);
 
 	#endif // ENABLE_GPS_ALT_HOLD
 } // GPSAltitudeHold
@@ -176,13 +176,12 @@ void DoNavigation(void)
 				
 				if ( IK5 > _Neutral )
 				{
-					AutonomousThrottle = DesiredThrottle; 
 					AltSum = 0; 
 					NavState = ReturningHome;
 				}
 				break;
 			case ReturningHome:
-				GPSAltitudeHold(300);
+				GPSAltitudeHold(GPS_RTH_ALTITUDE * 10L);
 				Navigate(0, 0);
 				if ( IK5 <= _Neutral )
 				{

@@ -43,7 +43,7 @@ int16	REp, PEp, YEp, RE, PE, YE;
 int16	RollSum, PitchSum, YawSum;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;	
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-int16	DesiredThrottle, HoverThrottle, AutonomousThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+int16	DesiredThrottle, HoverThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;

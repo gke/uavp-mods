@@ -13,6 +13,7 @@
 
 // use GPS altitude hold on RTH and waypoint navigation
 #define ENABLE_GPS_ALT_HOLD
+#define GPS_RTH_ALTITUDE	30L		// RTH altitude in metres
 
 #define DEF_MAG_VAR			6L		// Positive East degrees (San Antonio)
 #define DEF_NAV_KP			30L		// Equivalent stick position
@@ -777,7 +778,7 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern int16	DesiredThrottle, HoverThrottle, AutonomousThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+extern int16	DesiredThrottle, HoverThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
