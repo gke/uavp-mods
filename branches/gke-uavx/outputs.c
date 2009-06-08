@@ -51,7 +51,8 @@ uint8 SaturInt(int16 l)
 	static int16 r;
 
 	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
-	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
+//	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
+	r = Limit(l, _Minimum, _Maximum );
 	#endif
 
 	#ifdef ESC_X3D
@@ -114,7 +115,7 @@ void CheckDemand(int16 CurrThrottle)
 	if ( CurrThrottle < MotorLowRun )
 	{
 		Scale = 0;
-		MotorDemandRescale = true;
+		MotorDemandRescale = false;
 	}
 	else
 		if ( DemandSwing > 0 )
