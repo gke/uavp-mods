@@ -5,6 +5,8 @@
 // =                          http://uavp.ch                             =
 // =======================================================================
 
+//    This is part of UAVX.
+//
 //    UAVX is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -150,7 +152,7 @@ void ShowSetup(uint8 h)
 // Do NOT call this routine while in flight!
 void ProcessComCommand(void)
 {
-	int8  *p;
+	int8  p;
 	uint8 ch;
 	uint8 addr;
 	uint16 addrbase, curraddr;
@@ -206,13 +208,12 @@ void ProcessComCommand(void)
 					TxChar('1');
 				ReadParametersEE();
 				addr = 1;
-				for(p = &FirstProgReg; p <= &LastProgReg; p++)
+				for(p = FirstProgReg; p <= LastProgReg; p++)
 				{
 					TxString("\r\nRegister ");
 					TxValU(addr++);
 					TxString(" = ");
-					d = *p;
-					TxValS(d);
+					TxValS(P[p]);
 				}
 				ShowPrompt();
 				break;
@@ -228,13 +229,13 @@ void ProcessComCommand(void)
 					else
 						addrbase = _EESet1;
 			
-					if( addr ==  (&ConfigParam - &FirstProgReg) )
+					if( addr ==  ConfigParam )
 						d &=0xf7; // no Double Rates
 			
 					WriteEE(addrbase + (uint16)addr, d);
 			
 					// update transmitter config bits in the other parameter set
-					if( addr ==  (&ConfigParam - &FirstProgReg) )
+					if( addr == ConfigParam )
 					{									
 						if( IK5 > _Neutral )
 							addrbase = _EESet1;				
@@ -249,10 +250,10 @@ void ProcessComCommand(void)
 					// This is not strictly necessary as UAVPSet enforces it.
 					// Hovever direct edits of parameter files can easily exceed
 					// intermediate arithmetic limits.
-					if ( ((int16)Abs(YawIntFactor) * (int16)YawIntLimit) > 127 )
+					if ( ((int16)Abs(P[YawKi]) * (int16)P[YawIntLimit]) > 127 )
 					{
-						d = 127 / YawIntFactor;
-						WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
+						d = 127 / P[YawKi];
+						WriteEE(addrbase + (uint16)YawIntLimit, d);
 					}
 		
 					LEDBlue_OFF;

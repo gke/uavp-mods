@@ -1,15 +1,18 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
+//    This is part of UAVX.
+//
 //    UAVX is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 
-//    UAVXP is distributed in the hope that it will be useful,
+//    UAVX is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //    GNU General Public License for more details.
@@ -25,7 +28,7 @@
 
 void Descend(void);
 void Navigate(int16, int16);
-void CheckAutonomous(void);
+void DoNavigation(void);
 
 // Defines
 
@@ -44,12 +47,25 @@ uint8 NavState;
 
 void GPSAltitudeHold(int16 DesiredAltitude)
 {
+	#ifdef ENABLE_GPS_ALT_HOLD
 
+	AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50);
+	AltSum += AE;
+	AltSum = Limit(AltSum, -10, 10);	
+	AutonomousThrottle = HoverThrottle + SRS16(AE*P[NavAltKp] + AltSum*P[NavAltKi], 4);
 
+	DesiredThrottle = HoverThrottle + Limit(AutonomousThrottle, -20, 50);
+
+	DesiredThrottle = Limit(AutonomousThrottle, 0, _Maximum);
+
+	#endif // ENABLE_GPS_ALT_HOLD
 } // GPSAltitudeHold
 
 void Descend(void)
-{	
+{
+
+
+	
 } // Descend
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
@@ -61,7 +77,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 	static int32 Temp;
 	static int16 NavKp, GPSGain;
-	static int16 Range, EastDiff, NorthDiff, WayHeading, RelHeading;
+	static int16 Range, EastDiff, NorthDiff, WayHeading, RelHeading, ScaledNavKp;
 
 	if ( _NavComputed ) // use previous corrections
 	{
@@ -81,19 +97,19 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		if ( (Abs(EastDiff) >= 1 ) || (Abs(NorthDiff) >=1 ))
 		{ 
 			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
-			if ( Range < NAV_CLOSING_RADIUS )
+			if ( Range < NavClosingRadius )
 				Range = int16sqrt( NorthDiff*NorthDiff + EastDiff*EastDiff); 
 			else
-				Range = NAV_CLOSING_RADIUS;
+				Range = NavClosingRadius;
 
 			#ifdef GPS_IK7_GAIN
 			GPSGain = Limit(IK7, 0, 256); // compensate for EPA offset of up to 20
-			NavKp = ( GPSGain * MAX_ANGLE ) / NAV_CLOSING_RADIUS; // /_Maximum) * 256L
+			ScaledNavKp = ( GPSGain * P[NavKp] ) / NavClosingRadius; // /_Maximum) * 256L
 			#else
-			#define NavKp (((int32)MAX_ANGLE * 256L ) / NAV_CLOSING_RADIUS )
+			ScaledNavKp = (((int32)P[NavKp] * 256L ) / NavClosingRadius );
 			#endif // GPS_IK7_GAIN
 	
-			Temp = ((int32)Range * NavKp )>>8; // allways +ve so can use >>
+			Temp = ((int32)Range * ScaledNavKp )>>8; // always +ve so can use >>
 			WayHeading = int16atan2(EastDiff, NorthDiff);
 
 			RelHeading = Make2Pi(WayHeading - Heading);
@@ -101,28 +117,22 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Temp, 8);
 
 			#ifdef TURN_TO_HOME
-			if ( Range >= NAV_CLOSING_RADIUS )
+			if ( Range >= NavClosingRadius )
 			{
 				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
-				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
-				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
+				NavYCorr = -(RelHeading * P[NavYawLimit]) / HALFMILLIPI;
+				NavYCorr = Limit(NavYCorr, -P[NavYawLimit], P[NavYawLimit]); // gently!
 			}
 			else
 			#endif // TURN_TO_HOME
 				NavYCorr = 0;
 		
-		//	if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
-				SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit*256L, NavIntLimit*256L);
-		//	else
-		//		SumNavRCorr = 0;
-			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256L;
+			SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
+			DesiredRoll += NavRCorr + (SumNavRCorr * P[NavKi]) / 256L;
 			DesiredRoll = Limit(DesiredRoll , -_Neutral, _Neutral);
 	
-		//	if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
-				SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit*256, NavIntLimit*256);
-		//	else
-		//		SumNavPCorr = 0;
-			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256L;
+			SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit256, NavIntLimit256);
+			DesiredPitch += NavPCorr + (SumNavPCorr * P[NavKi]) / 256L;
 			DesiredPitch = Limit(DesiredPitch , -_Neutral, _Neutral);
 
 			DesiredYaw += NavYCorr;
@@ -134,7 +144,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	}
 } // Navigate
 
-void CheckAutonomous(void)
+void DoNavigation(void)
 {
 	#ifdef FAKE_GPS
 	static int16 CosH, SinH, NorthD, EastD, A;
@@ -143,42 +153,53 @@ void CheckAutonomous(void)
 
 	#endif // FAKE_GPS
 
-	DesiredThrottle = IGas;
-	DesiredRoll = IRoll;
-	DesiredPitch = IPitch;
-	DesiredYaw = IYaw;
-
 	UpdateGPS();
-
-	if ( _Signal && _GPSValid && ( IK7 > 20 ))
-		if  ( _CompassValid )
-			if ( ( IK5 > _Neutral ) ) //zzz && (Abs(DesiredRoll) <= MAX_CONTROL_CHANGE) && (Abs(DesiredPitch) <= MAX_CONTROL_CHANGE) )
-			{
-				GPSNorthHold = GPSNorth;
-				GPSEastHold = GPSEast;
-				NavState = ReturningHome;
-				Navigate(0, 0);
-			}
-			else
+	
+	if ( _GPSValid && ( IK7 > 20 ))
+		if ( _CompassValid )
+			switch ( NavState ) {
+			case PIC:
+			case HoldingStation:
 				if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) || (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
 				{
-					// acquire hold coordinates
+					NavState = PIC;
 					GPSNorthHold = GPSNorth;
 					GPSEastHold = GPSEast;
-					SumNavRCorr= SumNavPCorr = SumNavYCorr = 0;
-					NavState = PIC;
+					SumNavRCorr = SumNavPCorr = SumNavYCorr = 0;
 					_NavComputed = false;
 				}
 				else
 				{	
 					NavState = HoldingStation;
 					Navigate(GPSNorthHold, GPSEastHold);
-				}			
+				}
+				
+				if ( IK5 > _Neutral )
+				{
+					AutonomousThrottle = DesiredThrottle; 
+					AltSum = 0; 
+					NavState = ReturningHome;
+				}
+				break;
+			case ReturningHome:
+				GPSAltitudeHold(300);
+				Navigate(0, 0);
+				if ( IK5 <= _Neutral )
+				{
+					GPSNorthHold = GPSNorth;
+					GPSEastHold = GPSEast;
+					NavState = PIC;
+				} 
+				break;
+			case Navigating:
+				// not implemented yet
+				break;
+			} // switch NavState
 		else
 		{
-			LEDRed_TOG;
-			//TxString("BadC\r\n");
-		}		
+			DesiredRoll = DesiredPitch = DesiredYaw = 0;
+			GPSAltitudeHold(-50);
+		}
 
 	#ifndef DEBUG_SENSORS
 
@@ -265,11 +286,12 @@ void CheckAutonomous(void)
 
 	#endif // DEBUG_SENSORS
 
-} // CheckAutonomous
+} // DoNavigation
 
 void InitNavigation(void)
 {
 	GPSNorthHold = GPSEastHold = 0;
+
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
 	NavState = PIC;
 	_NavComputed = false;

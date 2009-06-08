@@ -1,23 +1,24 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    This is part of UAVX.
+//
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uavx.h"
 
@@ -51,8 +52,8 @@ uint8 SaturInt(int16 l)
 	static int16 r;
 
 	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
-//	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
-	r = Limit(l, _Minimum, _Maximum );
+//	r = Limit(l,  Max(_Minimum, P[MotorLowRun]), _Maximum );
+	r = Limit(l,  _Minimum, _Maximum );
 	#endif
 
 	#ifdef ESC_X3D
@@ -112,7 +113,7 @@ void CheckDemand(int16 CurrThrottle)
 
 	DemandSwing = MaxMotor - CurrThrottle;
 
-	if ( CurrThrottle < MotorLowRun )
+	if ( CurrThrottle <= P[MotorLowRun] )
 	{
 		Scale = 0;
 		MotorDemandRescale = false;
@@ -120,15 +121,15 @@ void CheckDemand(int16 CurrThrottle)
 	else
 		if ( DemandSwing > 0 )
 		{		
-			ScaleHigh = (( _Maximum - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
-			ScaleLow = (( (int24)CurrThrottle - MotorLowRun) * 256 )/ DemandSwing;
+			ScaleHigh = (( _Maximum - (int24)CurrThrottle) * 256L )/ DemandSwing;	 
+			ScaleLow = (( (int24)CurrThrottle - P[MotorLowRun]) * 256L )/ DemandSwing;
 			Scale = Min(ScaleHigh, ScaleLow);
 			if ( Scale < 256 )
 			{
 				MotorDemandRescale = true;
-				Rl = (Rl * Scale)/256;  
-				Pl = (Pl * Scale)/256; 
-				Yl = (Yl * Scale)/256; 
+				Rl = (Rl * Scale)/256L;  
+				Pl = (Pl * Scale)/256L; 
+				Yl = (Yl * Scale)/256L; 
 			}
 			else
 				 MotorDemandRescale = false;	
@@ -165,10 +166,10 @@ void MixAndLimitCam(void)
 	static int16 Cr, Cp;
 
 	// use only roll/pitch angle estimates
-	if( (IntegralCount == 0) && ((CamRollFactor != 0) || (CamPitchFactor != 0)) )
+	if ((P[CamRollKp] != 0) || (P[CamPitchKp] != 0))
 	{
-		Cr = RollSum / (int16)CamRollFactor;
-		Cp = PitchSum / (int16)CamPitchFactor;
+		Cr = RollSum / (int16)P[CamRollKp];
+		Cp = PitchSum / (int16)P[CamPitchKp];
 	}
 	else
 		Cr = Cp = _Minimum;

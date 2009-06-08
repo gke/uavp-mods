@@ -5,6 +5,8 @@
 // =                          http://uavp.ch                             =
 // =======================================================================
 
+//    This is part of UAVX.
+//
 //    UAVX is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -172,7 +174,7 @@ void DoCompassTest()
 	Delay1mS(COMPASS_TIME);
 
 	TxString("Registers\r\n");
-	for (r = 0; r <= 8; r++)
+	for ( r = 8; r ; r-- )
 	{
 		I2CStart();
 		if ( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
@@ -291,7 +293,7 @@ CCerror:
 void BaroTest(void)
 {
 	uint8 r;
-	uint16 P, T, C;
+	uint16 B, T, C;
 
 	TxString("\r\nBarometer test\r\n");
 	if ( !_BaroAltitudeValid ) goto BAerror;
@@ -304,9 +306,9 @@ void BaroTest(void)
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	Delay1mS(BARO_PRESS_TIME);
 	r = ReadValueFromBaro();
-	P = BaroVal.u16;
+	B = BaroVal.u16;
 	TxString("Press: \t");	
-	TxVal32((int32)P, 0, 0);
+	TxVal32((int32)B, 0, 0);
 		
 	if( !StartBaroADC(BaroTemp) ) goto BAerror;
 	Delay1mS(BARO_TEMP_TIME);
@@ -316,7 +318,7 @@ void BaroTest(void)
 	TxVal32((int32)T, 0, 0);	
 
 	TxString("\tComp: ");
-	C = P + SRS16((int16)T * (int16)BaroTempCoeff + 16, 5);
+	C = B + SRS16((int16)T * (int16)P[BaroTempCoeff] + 16, 5);
 	TxVal32((int32)C, 0, 0);
 	TxNextLine();
 

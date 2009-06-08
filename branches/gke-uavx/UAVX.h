@@ -11,35 +11,21 @@
 
 // Navigation
 
-// minimum no of satellites for sentence to be acceptable	
-#define	MIN_SATELLITES			5		// preferably >5 for 3D fix
-#define MIN_FIX					1		// must be 1 or 2 
-#define INITIAL_GPS_SENTENCES 	30		// Number of sentences needed with set HDilute
-#define MIN_HDILUTE				150L	// HDilute * 100
+// use GPS altitude hold on RTH and waypoint navigation
+#define ENABLE_GPS_ALT_HOLD
 
-// The "Ls" are important
-#define MAGNETIC_VARIATION		6L		// Positive East degrees
-#define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
-#define MAX_ANGLE 				30L		// Rx stick units ~= degrees
-#define CLOSING_RADIUS			20L		// closing radius in metres 
+#define DEF_MAG_VAR			6L		// Positive East degrees (San Antonio)
+#define DEF_NAV_KP			30L		// Equivalent stick position
+#define DEF_NAV_KI			1L		// Leave
+#define DEF_NAV_INT_LIMIT	2L		// 1-4 for windy conditions
 
-// Turn to heading to home and use pitch control only
-#define TURN_TO_HOME
-// Reduce value to reduce yaw slew rate for "Turn to Home"
-#define	NAV_YAW_LIMIT			10L	
-
-// GPS is active if sticks are close to Neutral
-#define MAX_CONTROL_CHANGE 		5L		// new hold point if the roll/pitch stick change more
-// Using IK7 as GPS gain for corrective action full CCW is no correction. 
-#define GPS_IK7_GAIN
-
-// JIM increase this if you wish to a maximum of say 4
-#define NavIntLimit 			1		// integral term for windy conditions! 	
+#define DEF_NAV_YAW_LIMIT	10L		// Equivalent max yaw stick input 
+#define DEF_CLOSING_RADIUS	20L		// closing radius in metres
+ 
+#define DEF_ALT_KP			8L
+#define DEF_ALT_KI			12L
 
 // Accelerometer
-
-// Enable vertical accelerometer compensation of vertical velocity 
-#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
 
@@ -56,24 +42,25 @@
 #ifndef BATCHMODE
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    This is part of UAVX.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // ==============================================
 // == Global compiler switches
@@ -143,6 +130,9 @@
 // Normally ENABLED
 #define USE_ACCELEROMETER
 
+// Enable vertical accelerometer compensation of vertical velocity 
+#define ENABLE_VERTICAL_VELOCITY_DAMPING
+
 // Gyros
 
 // Enable "Dynamic mass" compensation Roll and/or Pitch
@@ -153,11 +143,24 @@
 // Navigation
 
 // reads $GPGGA and $GPRMC sentences - all others discarded
+
+// minimum no of satellites for sentence to be acceptable	
+#define	MIN_SATELLITES			5		// preferably >5 for 3D fix
+#define MIN_FIX					1		// must be 1 or 2 
+#define INITIAL_GPS_SENTENCES 	30		// Number of sentences needed with set HDilute
+#define MIN_HDILUTE				150L	// HDilute * 100
+
+#define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
+
+// Turn to heading to home and use pitch control only when further away than CLOSING_RADIUS
+#define TURN_TO_HOME
+
+// GPS is active if sticks are close to Neutral
+#define MAX_CONTROL_CHANGE 		5L		// new hold point if the roll/pitch stick change more
+// Using IK7 as GPS gain for corrective action full CCW is no correction. 
+#define GPS_IK7_GAIN
 	
 // Misc
-
-// Loads a "representative" parameter set into EEPROM
-//#define INIT_PARAMS
 
 // =====================================
 // end of user-configurable section!
@@ -380,7 +383,6 @@ typedef union {
 // Status 
 
 #define	_Signal				Flags[0]	/* if no valid signal is received */
-#define	_Flying				Flags[1]	/* UFO is flying */
 #define	_NewValues			Flags[2]	/* new RX channel values sampled */
 #define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
 
@@ -401,16 +403,17 @@ typedef union {
 #define _NavComputed 		Flags[20]
 #define _GPSHeadingValid 	Flags[21]
 #define _GPSAltitudeValid	Flags[22]
+#define _ThrottleMoving		Flags[23]
 
 #define _GPSTestActive		Flags[31]
 
 // Mask Bits of ConfigParam
-#define FlyCrossMode 	IsSet(ConfigParam,0)
-#define FutabaMode		IsSet(ConfigParam,1)
-#define IntegralTest	IsSet(ConfigParam,2)
-#define DoubleRate		IsSet(ConfigParam,3)
-#define NegativePPM		IsSet(ConfigParam,4)
-#define CompassTest		IsSet(ConfigParam,5)
+#define FlyCrossMode 	IsSet(P[ConfigParam],0)
+#define FutabaMode		IsSet(P[ConfigParam],1)
+#define IntegralTest	IsSet(P[ConfigParam],2)
+#define DoubleRate		IsSet(P[ConfigParam],3)
+#define NegativePPM		IsSet(P[ConfigParam],4)
+#define CompassTest		IsSet(P[ConfigParam],5)
 
 // this enables common code for all ADXRS gyros
 // leave this untouched!
@@ -544,6 +547,7 @@ typedef union {
 
 #define MAXDROPOUT	400L	// 400 x 16 x 7ms = 40sec. dropout allowable
 #define GPSDROPOUT	20L		// 2sec.
+#define LOWGASDELAY	300L		
 
 // Parameters for UART port
 // ClockHz/(16*(BaudRate+1))
@@ -553,11 +557,6 @@ typedef union {
 #define _B38400		26 
 #define _B115200	9 
 #define _B230400	(_ClkOut*100000/(4*115200) - 1)
-
-// EEPROM parameter set addresses
-
-#define _EESet1	0		// first set starts at address 0x00
-#define _EESet2	0x20	// second set starts at address 0x20
 
 // Sanity checks
 
@@ -608,7 +607,7 @@ extern void InitADC(void);
 // autonomous.c
 extern void Descend(void);
 extern void Navigate(int16, int16);
-extern void CheckAutonomous(void);
+extern void DoNavigation(void);
 
 // compass_altimeter.c
 extern void InitDirection(void);
@@ -623,9 +622,10 @@ extern void GyroCompensation(void);
 extern void LimitRollSum(void);
 extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
+extern void ErectGyros(void);
 extern void GetGyroValues(void);
 extern void CalcGyroValues(void);
-extern void PID(void);
+extern void DoControl(void);
 
 extern void WaitThrottleClosed(void);
 extern void CheckThrottleMoved(void);
@@ -749,6 +749,8 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
+enum FlightStates { Starting, Landed, Flying, Landing };
+
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
 				TUDSum, TVUDComp,
@@ -764,6 +766,7 @@ enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchR
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
 
+extern uint8	State;
 extern uint8	IGas;
 extern int8 	IRoll,IPitch,IYaw;
 extern uint8	IK5,IK6,IK7;
@@ -772,21 +775,25 @@ extern int16	RE, PE, YE;
 extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
+extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+extern int16	DesiredThrottle, HoverThrottle, AutonomousThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDAcc, UDSum, VUDComp;
+extern int16	AE, AltSum;
 
 // GPS
-extern uint8 GPSMode;
-extern int16 GPSGroundSpeed, GPSHeading, GPSLongitudeCorrection;
-extern uint8 GPSNoOfSats;
-extern uint8 GPSFix;
-extern int16 GPSHDilute;
-extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
-extern int16 GPSRelAltitude;
+extern uint8 	GPSMode;
+extern int16 	GPSGroundSpeed, GPSHeading, GPSLongitudeCorrection;
+extern uint8 	GPSNoOfSats;
+extern uint8 	GPSFix;
+extern int16 	GPSHDilute;
+extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+extern int16 	GPSRelAltitude;
+
+extern int16	NavClosingRadius, SqrNavClosingRadius, CompassOffset;
 
 // Failsafes
 extern uint8	ThrNeutral;
@@ -804,10 +811,10 @@ extern int16	Rl,Pl,Yl;	// PID output values
 
 extern uint8	Flags[32];
 
-extern int16	ThrDownCycles, GPSCycles, DropoutCycles, LEDCycles, BaroCycles;
+extern uint8	ThrDownCycles, GPSCycles, DropoutCycles, BaroCycles;
 extern int16	FakeGPSCycles;
-extern uint32	Cycles;
-extern int8		IntegralCount;
+extern uint24	Cycles;
+extern uint8	LEDCycles;
 extern uint24	RCGlitches;
 extern int8		BatteryVolts; 
 
@@ -823,37 +830,70 @@ extern int16	Trace[LastTrace];
 
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
-extern int8	RollPropFactor; 	// 01
-extern int8	RollIntFactor;		// 02
-extern int8	RollDiffFactor;		// 03
-extern int8 BaroTempCoeff;		// 04
-extern int8	RollIntLimit;		// 05
-extern int8	PitchPropFactor;	// 06
-extern int8	PitchIntFactor;		// 07
-extern int8	PitchDiffFactor;	// 08
-extern int8 BaroThrottleProp;	// 09
-extern int8	PitchIntLimit;		// 10
-extern int8	YawPropFactor; 		// 11
-extern int8	YawIntFactor;		// 12
-extern int8	YawDiffFactor;		// 13
-extern int8	YawLimit;			// 14
-extern int8 YawIntLimit;		// 15
-extern int8	ConfigParam;		// 16
-extern int8 TimeSlot;			// 17
-extern int8	LowVoltThres;		// 18
-extern int8	CamRollFactor;		// 19
-extern int8	LinFBIntFactor;		// 20 free
-extern int8	LinUDIntFactor;		// 21
-extern int8 MiddleUD;			// 22
-extern int8	MotorLowRun;		// 23
-extern int8	MiddleLR;			// 24
-extern int8	MiddleFB;			// 25
-extern int8	CamPitchFactor;		// 26
-extern int8	CompassFactor;		// 27
-extern int8	BaroThrottleDiff;	// 28
+enum Params {
+			RollKp,
+			RollKi,
+			RollKd,
+			BaroTempCoeff,
+			RollIntLimit,
+			PitchKp,
+			PitchKi,
+			PitchKd,	 
+			BaroThrottleKp,
+			PitchIntLimit,
 
-#define FirstProgReg RollPropFactor
-#define	LastProgReg BaroThrottleDiff
+			YawKp,
+			YawKi,
+			YawKd,
+			YawLimit,
+			YawIntLimit,
+			ConfigParam,
+			TimeSlot,
+			LowVoltThres,
+			CamRollKp,
+			LinFBKi, // not used
+
+			LinUDKi,
+			MiddleUD,
+			MotorLowRun,
+			MiddleLR,
+			MiddleFB,
+			CamPitchKp,
+			CompassKp,
+			BaroThrottleKd,
+			// extra parameters fopr GPS Nav
+			MagVar,
+			NavKp,
+			NavKi,
+			NavIntLimit,
+			NavYawLimit,	 
+			ClosingRadius,
+			NavAltKp,
+			NavAltKi
+		};
+
+// use GPS altitude hold on RTH and waypoint navigation
+//#define ENABLE_GPS_ALT_HOLD
+
+// The "Ls" are important
+#define MAGNETIC_VARIATION		6L		// Positive East degrees (San Antonio)
+
+#define MAX_ANGLE 				30L		// Rx stick units ~= degrees
+#define CLOSING_RADIUS			20L		// closing radius in metres 
+
+	
+
+// JIM increase this if you wish to a maximum of say 4
+#define NavIntLimit 			1		// integral term for windy conditions! 
+
+
+#define FirstProgReg RollKp
+#define	LastProgReg BaroThrottleKd
+
+#define _EESet1	0			
+#define _EESet2	64	
+
+extern int8 P[_EESet2];
 
 // End of c-ufo.h
 
