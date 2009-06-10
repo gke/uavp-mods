@@ -1,24 +1,35 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//    This is part of UAVX.
-//
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
 
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+// Interrupt routine
+// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
+// use at your own risk - see GPL.
+
+// The 64uS assumed for the maximum interrupt latency in the generation of the 
+// output pulse preamble in utils.c  most likely applies to the Timer0 interrupt. 
+// The original version of irq.c had a much longer path through the receiving of bit5 
+// exacerbated by the stick filter code. This caused the edge of the 1mS preamble to 
+// be peridocally missed and for the OutSignals routine to emit preambles greater 
+// than 1mS. GKE
 
 #include "uavx.h"
 
@@ -251,7 +262,7 @@ void high_isr_handler(void)
 	if( INTCONbits.TMR0IE && INTCONbits.TMR0IF )
 	{
 		INTCONbits.TMR0IF = false;				// quit int
-		P[TimeSlot]--;
+		TimeSlot--;
 	}
 	
 } // high_isr_handler

@@ -1,24 +1,23 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//    This is part of UAVX.
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
 
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "uavx.h"
 
@@ -139,19 +138,20 @@ void InitArrays(void)
 		Trace[i] = 0;
 	#endif
 
-	for (i = NoOfMotors; i ; i--)
+	for (i = 0; i < NoOfMotors; i++)
 		Motor[i] = _Minimum;
 	MCamPitch = MCamRoll = _Neutral;
 
+	_Flying = false;
 	REp = PEp = YEp = 0;
 	
-	VUDComp = VBaroComp = UDSum = 0;
-
-	HoverThrottle = THR_HOVER;
-	AE = AltSum = 0;
-
+	VUDComp = VBaroComp = 0;
+	
+	UDSum = 0;
 	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
+
+	HoverThrottle = THR_HOVER;
 
 	BaroRestarts = 0;
 	RCGlitches = 0;
@@ -184,7 +184,7 @@ int8 ReadEE(uint8 addr)
 
 void ReadParametersEE(void)
 {
-	static int8 p, c; 
+	static int8 *p, c; 
 	static uint16 addr;
 
 	if( IK5 > _Neutral )
@@ -192,32 +192,12 @@ void ReadParametersEE(void)
 	else
 		addr = _EESet1;
 	
-	for(p = FirstProgReg; p <= LastProgReg; p++)
-		P[p] = ReadEE(addr++);
+	for(p = &FirstProgReg; p <= &LastProgReg; p++)
+		*p = ReadEE(addr++);
 
-	BatteryVolts = P[LowVoltThres];
-
-	// scale angle limits
-	RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
-	PitchIntLimit256 = (int16)P[RollIntLimit] * 256L;
-	YawIntLimit256 = (int16)P[RollIntLimit] * 256L;
-
-	P[MagVar] = DEF_MAG_VAR;
-	P[NavKp] = DEF_NAV_KP;
-	P[NavKi] = DEF_NAV_KI;
-	P[NavIntLimit] = DEF_NAV_INT_LIMIT;
-	P[NavYawLimit] = DEF_NAV_YAW_LIMIT;	 
-	P[ClosingRadius] = DEF_CLOSING_RADIUS;
-	P[NavAltKp] = DEF_ALT_KP;
-	P[NavAltKi] = DEF_ALT_KI;
-
-	NavIntLimit256 = P[NavIntLimit] * 256L;
-
-	NavClosingRadius = ( (int32)P[ClosingRadius] * 5L );
-	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
-	CompassOffset = (((COMPASS_OFFSET_DEG + P[MagVar])*MILLIPI)/180L);
-
-	P[TimeSlot] = Limit(P[TimeSlot], 4, 20);
+	BatteryVolts = LowVoltThres;
+	
+	TimeSlot = Limit(TimeSlot, 2, 20);
 
 } // ReadParametersEE
 
@@ -249,7 +229,7 @@ void WriteEE(uint8 addr, int8 d)
 
 void WriteParametersEE(uint8 s)
 {
-	int8 p;
+	int8 *p;
 	uint8 b;
 	uint16 addr;
 	
@@ -258,14 +238,21 @@ void WriteParametersEE(uint8 s)
 	else
 		addr = _EESet2;
 
-	for(p = FirstProgReg; p <= LastProgReg; p++)
-		WriteEE(addr++, P[p]);
+	p = &FirstProgReg; 
+	while ( p <= &LastProgReg)
+		WriteEE(addr++, *p++);
 } // WriteParametersEE
 
 void InitParams(void)
 {
 	int16 i;
 
+	#ifdef INIT_PARAMS
+	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
+		WriteEE(i, -1);
+	WriteParametersEE(1);						// copy RAM initial values to EE
+	WriteParametersEE(2);
+	#endif // INIT_PARAMS
 	ReadParametersEE();
 }  // InitParams
 
@@ -508,7 +495,7 @@ void CheckAlarms(void)
 
 	NewBatteryVolts = ADC(ADCBattVoltsChan, ADCVREF5V) >> 3; 
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
-	_LowBatt =  (BatteryVolts < (int16)P[LowVoltThres]) & 1;
+	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
 
 // zzz fix later
 
