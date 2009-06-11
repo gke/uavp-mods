@@ -559,7 +559,7 @@ typedef union {
 // EEPROM parameter set addresses
 
 #define _EESet1	0		// first set starts at address 0x00
-#define _EESet2	0x40	// second set starts at address 0x40
+#define _EESet2	0x20	// second set starts at address 0x20
 
 // Sanity checks
 
@@ -859,7 +859,7 @@ extern int8	d1,d2,d3,d4,d5,d6,d7,d8,d9,d10, LastParm; // reserved for Nav etc.
 
 
 #define FirstProgReg RollPropFactor
-#define	LastProgReg LastParm
+#define	LastProgReg BaroThrottleDiff
 
 // End of c-ufo.h
 
