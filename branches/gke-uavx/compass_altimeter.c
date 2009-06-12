@@ -33,7 +33,11 @@ void ComputeBaroComp(void);
 void InitDirection(void)
 {
 	// 20Hz continuous read with periodic reset.
-	#define COMP_OPMODE 0b01110010
+	#ifdef SUPPRESS_COMPASS_SR
+		#define COMP_OPMODE 0b01100010
+	#else
+		#define COMP_OPMODE 0b01110010
+	#endif // SUPPRESS_COMPASS_SR
 
 	// Set device to Compass mode 
 	I2CStart();
@@ -60,8 +64,6 @@ CTerror:
 	I2CStop();
 } // InitDirection
 
-#define COMPASS_OFFSET  (((COMPASS_OFFSET_DEG + MAGNETIC_VARIATION)*MILLIPI)/180L)
-
 void GetDirection(void)
 {
 	// Read direction, convert it to 2 degrees unit
@@ -81,7 +83,7 @@ void GetDirection(void)
 		I2CStop();
 
 		//Temp2 = (int32)((int32)Compass * MILLIPI)/1800L - COMPASS_OFFSET;
-		Temp2 = ConvertDDegToMPi(Compass.i16) - COMPASS_OFFSET;
+		Temp2 = ConvertDDegToMPi(Compass.i16) - CompassOffset;
 		Heading = Make2Pi((int16) Temp2);
 
 		Compass.u16 /= 15;

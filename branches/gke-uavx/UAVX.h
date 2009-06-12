@@ -1,30 +1,22 @@
 // EXPERIMENTAL
 
-// Simulates a FAKE GPS estimating position from control inputs and outputs to 
-// Hyperterm lines of the form: 
-// 294      75n     33e    -> r= 33        p= 0 hov rth
-// compass   uav posn	       controls		state - in this case hovering and returning home
-// This permits quadrocopter to be "flown on the bench". Motors WILL run but this is NOT flight code.
-//#define FAKE_GPS
-
 // Navigation
+
+#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
 
 // Turn to heading to home and use pitch control only
 #define ENABLE_GPS_ALT_HOLD				// no throttle control on RTH!
-#define NAV_ALT_KP				8L		// reduce if throttle up is too rapid		
-#define	NAV_ALT_KI				12L
-#define	RTH_GPS_ALT				30L		// metres
 
-#define MAGNETIC_VARIATION		6L		// Positive East degrees
-#define CLOSING_RADIUS			20L		// closing radius in metres 
+#define USE_DEFAULTS					// override parameter file/UAVPSet settings and use settings below
+#define DEF_CLOSING_RADIUS		20L		// closing radius in metres 
+#define DEF_NAV_INT_LIMIT		2L		// wind compensation
+#define DEF_ALT_KP				8L		// reduce if throttle up is too rapid		
+#define	DEF_ALT_KI				12L
+#define	DEF_RTH_GPS_ALT			30L		// metres
+#define DEF_MAG_VAR				6L		// Positive East degrees
 
-// GPS is active if sticks are close to Neutral
-#define MAX_CONTROL_CHANGE 		5L		// new hold point if the roll/pitch stick change more
-#define NavIntLimit 			1		// integral term for windy conditions! 	
 
-#define TURN_TO_HOME
-#define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH	
-
+	
 // Accelerometer
 
 // Enable vertical accelerometer compensation of vertical velocity 
@@ -145,21 +137,20 @@
 
 // Using IK7 as GPS gain for corrective action full CCW is no correction. 
 #define GPS_IK7_GAIN
-
-// minimum no of satellites for sentence to be acceptable	
-#define	MIN_SATELLITES			5		// preferably >5 for 3D fix
-#define MIN_FIX					1		// must be 1 or 2 
-#define INITIAL_GPS_SENTENCES 	30		// Number of sentences needed with set HDilute
-#define MIN_HDILUTE				150L	// HDilute * 100
 	
+#define	MIN_SATELLITES			5		// preferably >5 for 3D fix
+#define MIN_FIX					2		// must be 1 or 2 
+#define INITIAL_GPS_SENTENCES 	60		// Number of sentences needed with set HDilute
+#define MIN_HDILUTE				150L	// HDilute * 100	
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
-
 #define MAX_ANGLE 				30L		// Rx stick units ~= degrees
 
-// Misc
+#define MAX_CONTROL_CHANGE 		3L		// new hold point if the roll/pitch stick change more
+#define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 
-// Loads a "representative" parameter set into EEPROM
-//#define INIT_PARAMS
+#define TURN_TO_HOME
+
+// Misc
 
 // =====================================
 // end of user-configurable section!
@@ -412,7 +403,7 @@ typedef union {
 #define IntegralTest	IsSet(ConfigParam,2)
 #define DoubleRate		IsSet(ConfigParam,3)
 #define NegativePPM		IsSet(ConfigParam,4)
-#define CompassTest		IsSet(ConfigParam,5)
+#define DSM2			IsSet(ConfigParam,5)
 
 // this enables common code for all ADXRS gyros
 // leave this untouched!
@@ -559,7 +550,7 @@ typedef union {
 // EEPROM parameter set addresses
 
 #define _EESet1	0		// first set starts at address 0x00
-#define _EESet2	0x20	// second set starts at address 0x20
+#define _EESet2	0x40	// second set starts at address 0x40
 
 // Sanity checks
 
@@ -704,7 +695,6 @@ extern 	int8 ReadEE(uint8);
 extern void ReadParametersEE(void);
 extern 	void WriteEE(uint8, int8);
 extern void WriteParametersEE(uint8);
-extern void InitParams(void);
 
 extern int16 Make2Pi(int16);
 extern int16 MakePi(int16);
@@ -774,6 +764,7 @@ extern int16	RE, PE, YE;
 extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
+extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;
@@ -789,6 +780,8 @@ extern uint8 GPSFix;
 extern int16 GPSHDilute;
 extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
 extern int16 GPSRelAltitude;
+
+extern int16 SqrNavClosingRadius, NavClosingRadius, CompassOffset;
 
 extern int16 AltSum, AE;
 
@@ -855,11 +848,19 @@ extern int8	MiddleFB;			// 25
 extern int8	CamPitchFactor;		// 26
 extern int8	CompassFactor;		// 27
 extern int8	BaroThrottleDiff;	// 28
-extern int8	d1,d2,d3,d4,d5,d6,d7,d8,d9,d10, LastParm; // reserved for Nav etc.
-
+extern int8	NavRadius;			// 29
+extern int8	NavIntLimit;		// 30
+extern int8	NavAltKp;			// 31
+extern int8	NavAltKi;			// 32
+extern int8	NavRTHAlt;			// 33
+extern int8	NavMagVar;			// 34
 
 #define FirstProgReg RollPropFactor
+#ifdef USE_DEFAULTS
 #define	LastProgReg BaroThrottleDiff
+#else
+#define	LastProgReg NavMagVar
+#endif // USE_DEFAULTS
 
 // End of c-ufo.h
 

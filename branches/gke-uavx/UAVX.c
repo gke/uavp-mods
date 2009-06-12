@@ -40,12 +40,15 @@ int16	RE, PE, YE;					// gyro rate error
 int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollRate, PitchRate, YawRate;
+int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
 int16 	UDAcc, UDSum, VUDComp;
+
+int16 	SqrNavClosingRadius, NavClosingRadius, CompassOffset;
 
 int16	AltSum, AE;
 
@@ -81,39 +84,44 @@ uint24	RCGlitches;
 int8	BatteryVolts;
 int8	Rw,Pw;
 
-#pragma idata params
+#pragma udata params
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
-int8	RollPropFactor		=18;
-int8	RollIntFactor		=4;
-int8	RollDiffFactor		=-40;
-int8	BaroTempCoeff		=13;
-int8	RollIntLimit		=16;
-int8	PitchPropFactor		=18;
-int8	PitchIntFactor		=4;	
-int8	PitchDiffFactor		=-40;	 
-int8	BaroThrottleProp	=2;
-int8	PitchIntLimit		=16;
-int8	YawPropFactor		=20;
-int8	YawIntFactor		=45;
-int8	YawDiffFactor		=6;
-int8	YawLimit			=50;
-int8	YawIntLimit			=3;
-int8	ConfigParam			=0b00000000;
-int8	TimeSlot			=2;	// control update interval + LEGACY_OFFSET
-int8	LowVoltThres		=43;
-int8	CamRollFactor		=4;	
-int8	LinFBIntFactor		=0;	// unused
-int8	LinUDIntFactor		=8; // unused
-int8	MiddleUD			=0;
-int8	MotorLowRun			=20;
-int8	MiddleLR			=0;
-int8	MiddleFB			=0;
-int8	CamPitchFactor		=4;
-int8	CompassFactor		=5;
-int8	BaroThrottleDiff	=4;
-int8	d1,d2,d3,d4,d5,d6,d7,d8,d9,d10, LastParm; // reserved for Nav etc.
-#pragma idata
+int8	RollPropFactor;
+int8	RollIntFactor;
+int8	RollDiffFactor;
+int8	BaroTempCoeff;
+int8	RollIntLimit;
+int8	PitchPropFactor;
+int8	PitchIntFactor;	
+int8	PitchDiffFactor;	 
+int8	BaroThrottleProp;
+int8	PitchIntLimit;
+int8	YawPropFactor;
+int8	YawIntFactor;
+int8	YawDiffFactor;
+int8	YawLimit;
+int8	YawIntLimit;
+int8	ConfigParam;
+int8	TimeSlot;	// control update interval + LEGACY_OFFSET
+int8	LowVoltThres;
+int8	CamRollFactor;	
+int8	LinFBIntFactor;	// unused
+int8	LinUDIntFactor; // unused
+int8	MiddleUD;
+int8	MotorLowRun;
+int8	MiddleLR;
+int8	MiddleFB;
+int8	CamPitchFactor;
+int8	CompassFactor;
+int8	BaroThrottleDiff;
+int8	NavRadius;
+int8	NavIntLimit;
+int8	NavAltKp;
+int8	NavAltKi;
+int8	NavRTHAlt;
+int8	NavMagVar;
+#pragma udata
 
 void main(void)
 {
@@ -137,8 +145,8 @@ void main(void)
     ALL_LEDS_OFF;
 	LEDRed_ON;
 
-	InitArrays();`
-	InitParams();
+	InitArrays();
+	ReadParametersEE();
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	EnableInterrupts;

@@ -37,7 +37,6 @@ extern 	int8 ReadEE(uint8);
 extern void ReadParametersEE(void);
 extern 	void WriteEE(uint8, int8);
 extern void WriteParametersEE(uint8);
-extern void InitParams(void);
 
 extern int16 Make2Pi(int16);
 extern int16 Table16(int16, const int16 *);
@@ -195,6 +194,24 @@ void ReadParametersEE(void)
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
 
+	RollIntLimit256 = (int16)RollIntLimit * 256L;
+	PitchIntLimit256 = (int16)RollIntLimit * 256L;
+	YawIntLimit256 = (int16)RollIntLimit * 256L;
+
+	#ifdef USE_DEFAULTS
+	NavRadius = DEF_CLOSING_RADIUS;
+	NavIntLimit = DEF_NAV_INT_LIMIT;	 
+	NavAltKp = DEF_ALT_KP;
+	NavAltKi = DEF_ALT_KI;
+	NavRTHAlt = DEF_RTH_GPS_ALT;
+	NavMagVar = DEF_MAG_VAR;
+	#endif // USE_DEFAULTS
+
+	NavIntLimit256 = NavIntLimit * 256L;
+	NavClosingRadius = ( (int32)NavRadius * 5L );
+	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
+	CompassOffset = (((COMPASS_OFFSET_DEG + NavMagVar)*MILLIPI)/180L);
+
 	BatteryVolts = LowVoltThres;
 	
 	TimeSlot = Limit(TimeSlot, 2, 20);
@@ -242,19 +259,6 @@ void WriteParametersEE(uint8 s)
 	while ( p <= &LastProgReg)
 		WriteEE(addr++, *p++);
 } // WriteParametersEE
-
-void InitParams(void)
-{
-	int16 i;
-
-	#ifdef INIT_PARAMS
-	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
-		WriteEE(i, -1);
-	WriteParametersEE(1);						// copy RAM initial values to EE
-	WriteParametersEE(2);
-	#endif // INIT_PARAMS
-	ReadParametersEE();
-}  // InitParams
 
 int16 Make2Pi(int16 A)
 {
@@ -475,6 +479,7 @@ void DoPIDDisplays(void)
 			if( (int8)(PitchSum>>8) < -1 )
 				LEDBlue_ON;
 	}
+/*
 	else
 		if( CompassTest )
 		{
@@ -487,6 +492,7 @@ void DoPIDDisplays(void)
 			if( AbsDirection > COMPASS_MAX )
 				LEDYellow_ON;
 		}
+*/
 } // DoPIDDisplays
 
 void CheckAlarms(void)

@@ -183,7 +183,7 @@ void LimitRollSum(void)
 
 	if( IntegralCount == 0 )
 	{
-		RollSum = Limit(RollSum, -RollIntLimit*256, RollIntLimit*256);
+		RollSum = Limit(RollSum, -RollIntLimit256, RollIntLimit256);
 		RollSum = Decay(RollSum);	// damps to zero even if still rolled
 		RollSum += LRIntKorr;		// last for accelerometer compensation
 	}
@@ -196,7 +196,7 @@ void LimitPitchSum(void)
 
 	if( IntegralCount == 0 )
 	{
-		PitchSum = Limit(PitchSum, -PitchIntLimit*256, PitchIntLimit*256);
+		PitchSum = Limit(PitchSum, -PitchIntLimit256, PitchIntLimit256);
 		PitchSum = Decay(PitchSum);	// damps to zero even if still pitched
 		PitchSum += FBIntKorr;		// last for accelerometer compensation
 	}
@@ -224,7 +224,7 @@ void LimitYawSum(void)
 	}
 
 	YawSum += (int16)YE;
-	YawSum = Limit(YawSum, -YawIntLimit*256, YawIntLimit*256);
+	YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
 
 	YawSum = Decay(YawSum); // GKE added to kill gyro drift
 	YawSum = Decay(YawSum); 

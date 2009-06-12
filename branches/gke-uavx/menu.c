@@ -150,16 +150,15 @@ void ShowSetup(uint8 h)
 // Do NOT call this routine while in flight!
 void ProcessComCommand(void)
 {
-	int8  *p;
-	uint8 ch;
-	uint8 addr;
-	uint16 addrbase, curraddr;
-	int8 d;
+	static int8  *p;
+	static uint8 ch;
+	static uint8 addr;
+	static uint16 addrbase, curraddr;
+	static int8 d;
 
 	if ( !Armed )
 	{
 		ch = PollRxChar();
-	
 		if ( ch != NUL   )
 		{
 			if( islower(ch))							// check lower case
