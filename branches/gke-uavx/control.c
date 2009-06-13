@@ -438,7 +438,7 @@ void WaitForRxSignal(void)
 	do
 	{
 		UpdateParamSetChoice();
-	//zzz	Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
+		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
 		ProcessComCommand();
 		if( !_Signal )
 			if( Armed )

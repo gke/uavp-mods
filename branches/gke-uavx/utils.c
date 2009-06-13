@@ -267,17 +267,17 @@ void UpdateParamSetChoice(void)
 	NewRTHGPSAlt = _UseRTHGPSAlt;
 
 	if ( _Signal )
-		while ( (Abs(IPitch) > 20) && (Abs(IYaw) > 20) )
+		while ( (Abs(IPitch) > 20) && ((Abs(IYaw) > 20)|| (Abs(IRoll) > 20)) )
 		{
 			if ( IPitch  > 20 ) // bottom
 			{
-				if ( IYaw > 20 ) // left
+				if ( (IYaw > 20) || ( IRoll < -20) ) // left
 				{ // bottom left
 					NewParamSet = 1;
 					NewRTHGPSAlt = true;
 				}
 				else
-					if ( IYaw < -20 ) // right
+					if ( (IYaw < -20) || (IRoll > 20) ) // right
 					{ // bottom right
 						NewParamSet = 2;
 						NewRTHGPSAlt = true;
@@ -285,13 +285,13 @@ void UpdateParamSetChoice(void)
 			}	
 			else
 				if ( IPitch < -20 ) // top
-					if ( IYaw > 20 ) // left
+					if ( (IYaw > 20) || ( IRoll < -20) ) // left
 					{
 						NewParamSet = 1;
 						NewRTHGPSAlt = false;
 					}
 					else
-						if ( IYaw < -20 ) // right
+						if ( (IYaw < -20) || (IRoll > 20) ) // right
 						{
 							NewParamSet = 2;
 							NewRTHGPSAlt = false;

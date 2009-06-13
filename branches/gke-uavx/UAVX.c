@@ -193,7 +193,6 @@ Restart:
 		EnableInterrupts;	
 		WaitForRxSignal(); // Wait until a valid RX signal is received
 
-	
 		ReadParametersEE();
 		WaitThrottleClosed();
 
