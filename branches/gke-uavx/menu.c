@@ -106,7 +106,7 @@ void ShowSetup(uint8 h)
 	if( h )
 	{
 		TxString(SerHello);
-		IK5 = _Minimum;	
+		CurrentParamSet = 1;	
 	}
 
 	TxString(SerSetup);	// send hello message
@@ -138,10 +138,7 @@ void ShowSetup(uint8 h)
 		TxChar('1');
 
 	TxString("\r\nSelected parameter set: ");
-	if( IK5 > _Neutral )
-		TxChar('2');
-	else
-		TxChar('1');
+	TxChar('0' + CurrentParamSet);
 	
 	ShowPrompt();
 } // ShowSetup
@@ -199,10 +196,7 @@ void ProcessComCommand(void)
 				break;
 			case 'L'  :	// List parameters
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
-				if( IK5 > _Neutral )
-					TxChar('2');
-				else
-					TxChar('1');
+				TxChar('0' + CurrentParamSet);
 				ReadParametersEE();
 				addr = 1;
 				for(p = &FirstProgReg; p <= &LastProgReg; p++)
@@ -222,7 +216,7 @@ void ProcessComCommand(void)
 					addr = RxNumU()-1;
 					TxString(" = ");
 					d = RxNumS();
-					if( IK5 > _Neutral )
+					if( CurrentParamSet == 2 )
 						addrbase = _EESet2;
 					else
 						addrbase = _EESet1;
@@ -235,7 +229,7 @@ void ProcessComCommand(void)
 					// update transmitter config bits in the other parameter set
 					if( addr ==  (&ConfigParam - &FirstProgReg) )
 					{									
-						if( IK5 > _Neutral )
+						if( CurrentParamSet == 2 )
 							addrbase = _EESet1;				
 						else
 							addrbase = _EESet2;	

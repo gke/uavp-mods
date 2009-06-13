@@ -29,6 +29,8 @@
 
 // Global Variables
 
+uint8	CurrentParamSet;
+
 uint8	IGas;						// actual input channel, can only be positive!
 int8 	IRoll,IPitch,IYaw;			// actual input channels, 0 = neutral
 uint8	IK5;						// actual channel 5 input
@@ -146,6 +148,7 @@ void main(void)
 	LEDRed_ON;
 
 	InitArrays();
+	CurrentParamSet = 1;
 	ReadParametersEE();
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
@@ -166,7 +169,7 @@ void main(void)
 	Cycles = 0;
 
 Restart:
-	IGas = DesiredThrottle = IK5 = _Minimum;	// Assume parameter set #1
+	IGas = DesiredThrottle = IK5 = _Minimum;
 	Beeper_OFF;
 
 	// DON'T MOVE THE UFO!
@@ -189,6 +192,8 @@ Restart:
 
 		EnableInterrupts;	
 		WaitForRxSignal(); // Wait until a valid RX signal is received
+
+	
 		ReadParametersEE();
 		WaitThrottleClosed();
 
@@ -202,10 +207,6 @@ Restart:
 		DropoutCycles = 0;
 		IntegralCount = 16;	// do 16 cycles to find integral zero point
 		ThrDownCycles = THR_DOWNCOUNT;
-
-		// if Ch7 below +20 (near minimum) assume use for camera trigger
-		// else assume use for camera roll trim	
-		_UseCh7Trigger = IK7 < 30;
 	
 		while ( Armed )
 		{
@@ -232,7 +233,7 @@ Restart:
 			
 			ComputeBaroComp();
 			GetGyroValues();
-			ReadParametersEE();	// re-sets TimeSlot
+		// 	ReadParametersEE();	// re-sets TimeSlot
 			CalcGyroValues();
 
 			// check for signal dropout while in flight

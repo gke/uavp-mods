@@ -377,8 +377,6 @@ void PID(void)
 	Yl += SRS16(YawSum * (int16)YawIntFactor, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);	// effective slew limit
 
-	DoPIDDisplays();
-
 } // PID
 
 void WaitThrottleClosed(void)
@@ -439,7 +437,8 @@ void WaitForRxSignal(void)
 	DropoutCycles = MODELLOSTTIMER;
 	do
 	{
-		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
+		UpdateParamSetChoice();
+	//zzz	Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
 		ProcessComCommand();
 		if( !_Signal )
 			if( Armed )

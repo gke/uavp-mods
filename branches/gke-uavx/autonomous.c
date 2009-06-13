@@ -37,10 +37,9 @@ uint8 NavState;
 
 void GPSAltitudeHold(int16 DesiredAltitude)
 {
-	#ifdef ENABLE_GPS_ALT_HOLD
 	int16 Temp;
 
-	if ( _GPSAltitudeValid )
+	if ( _GPSAltitudeValid && _UseRTHGPSAlt )
 	{
 		AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
 		AltSum += AE;
@@ -54,8 +53,6 @@ void GPSAltitudeHold(int16 DesiredAltitude)
 	{
 		// use baro
 	}
-
-	#endif // ENABLE_GPS_ALT_HOLD
 } // GPSAltitudeHold
 
 void Descend(void)

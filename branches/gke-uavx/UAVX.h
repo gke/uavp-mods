@@ -4,9 +4,6 @@
 
 #define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
 
-// Turn to heading to home and use pitch control only
-#define ENABLE_GPS_ALT_HOLD				// no throttle control on RTH!
-
 #define USE_DEFAULTS					// override parameter file/UAVPSet settings and use settings below
 #define DEF_CLOSING_RADIUS		20L		// closing radius in metres 
 #define DEF_NAV_INT_LIMIT		2L		// wind compensation
@@ -14,8 +11,6 @@
 #define	DEF_ALT_KI				12L
 #define	DEF_RTH_GPS_ALT			30L		// metres
 #define DEF_MAG_VAR				6L		// Positive East degrees
-
-
 	
 // Accelerometer
 
@@ -139,8 +134,8 @@
 #define GPS_IK7_GAIN
 	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
-#define MIN_FIX					2		// must be 1 or 2 
-#define INITIAL_GPS_SENTENCES 	60		// Number of sentences needed with set HDilute
+#define MIN_FIX					1		// must be 1 or 2 
+#define INITIAL_GPS_SENTENCES 	30		// Number of sentences needed with set HDilute
 #define MIN_HDILUTE				150L	// HDilute * 100	
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 #define MAX_ANGLE 				30L		// Rx stick units ~= degrees
@@ -394,6 +389,7 @@ typedef union {
 #define _NavComputed 		Flags[20]
 #define _GPSHeadingValid 	Flags[21]
 #define _GPSAltitudeValid	Flags[22]
+#define _UseRTHGPSAlt		Flags[23]
 
 #define _GPSTestActive		Flags[31]
 
@@ -547,10 +543,7 @@ typedef union {
 #define _B115200	9 
 #define _B230400	(_ClkOut*100000/(4*115200) - 1)
 
-// EEPROM parameter set addresses
 
-#define _EESet1	0		// first set starts at address 0x00
-#define _EESet2	0x40	// second set starts at address 0x40
 
 // Sanity checks
 
@@ -693,8 +686,9 @@ extern int16 ConvertMToGPS(int16);
 
 extern 	int8 ReadEE(uint8);
 extern void ReadParametersEE(void);
-extern 	void WriteEE(uint8, int8);
+extern void WriteEE(uint8, int8);
 extern void WriteParametersEE(uint8);
+extern void UpdateParamSetChoice(void);
 
 extern int16 Make2Pi(int16);
 extern int16 MakePi(int16);
@@ -708,7 +702,6 @@ extern void SendLEDs(void);
 extern void SwitchLEDsOn(uint8);
 extern void SwitchLEDsOff(uint8);
 extern void LEDGame(void);
-void DoPIDDisplays(void);
 extern void CheckAlarms(void);
 
 extern void DumpTrace(void);
@@ -755,6 +748,8 @@ enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchR
 
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
+
+extern uint8	CurrentParamSet;
 
 extern uint8	IGas;
 extern int8 	IRoll,IPitch,IYaw;
@@ -854,6 +849,9 @@ extern int8	NavAltKp;			// 31
 extern int8	NavAltKi;			// 32
 extern int8	NavRTHAlt;			// 33
 extern int8	NavMagVar;			// 34
+
+#define _EESet1		0		// first set starts at address 0x00
+#define _EESet2		0x40	// second set starts at address 0x40
 
 #define FirstProgReg RollPropFactor
 #ifdef USE_DEFAULTS

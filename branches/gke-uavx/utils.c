@@ -23,37 +23,36 @@
 
 // Prototypes
 
-extern void Delay1mS(int16);
-extern void Delay100mSWithOutput(int16);
-extern int16 SRS16(int16, uint8);
-extern int32 SRS32(int32, uint8);
-extern void InitPorts(void);
-extern void InitArrays(void);
+void Delay1mS(int16);
+void Delay100mSWithOutput(int16);
+int16 SRS16(int16, uint8);
+int32 SRS32(int32, uint8);
+void InitPorts(void);
+void InitArrays(void);
 
-extern int16 ConvertGPSToM(int16);
-extern int16 ConvertMToGPS(int16);
+int16 ConvertGPSToM(int16);
+int16 ConvertMToGPS(int16);
 
-extern 	int8 ReadEE(uint8);
-extern void ReadParametersEE(void);
-extern 	void WriteEE(uint8, int8);
-extern void WriteParametersEE(uint8);
+int8 ReadEE(uint8);
+void ReadParametersEE(void);
+void WriteEE(uint8, int8);
+void WriteParametersEE(uint8);
+void UpdateWhichParamSet(void);
 
-extern int16 Make2Pi(int16);
-extern int16 Table16(int16, const int16 *);
-extern int16 int16sin(int16);
-extern int16 int16cos(int16);
-extern int16 int16atan2(int16, int16);
-extern int16 int16sqrt(int16);
+int16 Make2Pi(int16);
+int16 Table16(int16, const int16 *);
+int16 int16sin(int16);
+int16 int16cos(int16);
+int16 int16atan2(int16, int16);
+int16 int16sqrt(int16);
 
-extern void SendLEDs(void);
-extern void SwitchLEDsOn(uint8);
-extern void SwitchLEDsOff(uint8);
-extern void LEDGame(void);
-void DoPIDDisplays(void);
-extern void CheckAlarms(void);
+void SendLEDs(void);
+void SwitchLEDsOn(uint8);
+void SwitchLEDsOff(uint8);
+void LEDGame(void);
+void CheckAlarms(void);
 
-extern void DumpTrace(void);
-
+void DumpTrace(void);
 
 void Delay1mS(int16 d)
 { 	// Timer0 interrupt at 1mS must be running
@@ -186,7 +185,7 @@ void ReadParametersEE(void)
 	static int8 *p, c; 
 	static uint16 addr;
 
-	if( IK5 > _Neutral )
+	if( CurrentParamSet == 2 )
 		addr = _EESet2;	
 	else
 		addr = _EESet1;
@@ -259,6 +258,63 @@ void WriteParametersEE(uint8 s)
 	while ( p <= &LastProgReg)
 		WriteEE(addr++, *p++);
 } // WriteParametersEE
+
+void UpdateParamSetChoice(void)
+{
+	int8 NewParamSet, NewRTHGPSAlt;
+
+	NewParamSet = CurrentParamSet;
+	NewRTHGPSAlt = _UseRTHGPSAlt;
+
+	if ( _Signal )
+		while ( (Abs(IPitch) > 20) && (Abs(IYaw) > 20) )
+		{
+			if ( IPitch  > 20 ) // bottom
+			{
+				if ( IYaw > 20 ) // left
+				{ // bottom left
+					NewParamSet = 1;
+					NewRTHGPSAlt = true;
+				}
+				else
+					if ( IYaw < -20 ) // right
+					{ // bottom right
+						NewParamSet = 2;
+						NewRTHGPSAlt = true;
+					}
+			}	
+			else
+				if ( IPitch < -20 ) // top
+					if ( IYaw > 20 ) // left
+					{
+						NewParamSet = 1;
+						NewRTHGPSAlt = false;
+					}
+					else
+						if ( IYaw < -20 ) // right
+						{
+							NewParamSet = 2;
+							NewRTHGPSAlt = false;
+						}
+			if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHGPSAlt != _UseRTHGPSAlt) )
+			{
+				LEDBlue_ON;
+				CurrentParamSet = NewParamSet;
+				_UseRTHGPSAlt = NewRTHGPSAlt;
+				Beeper_ON;
+				Delay100mSWithOutput(2);
+				Beeper_OFF;
+				if ( CurrentParamSet == 2 )
+				{
+					Delay100mSWithOutput(2);
+					Beeper_ON;
+					Delay100mSWithOutput(2);
+					Beeper_OFF;
+				}
+				LEDBlue_OFF;
+		 	}
+		}
+} // UpdateParamSetChoice
 
 int16 Make2Pi(int16 A)
 {
@@ -461,39 +517,6 @@ void LEDGame(void)
 		}
 	}
 } // LEDGame
-
-void DoPIDDisplays(void)
-{
-	if ( IntegralTest )
-	{
-		ALL_LEDS_OFF;
-		if( (int8)(RollSum>>8) > 0 )
-			LEDRed_ON;
-		else
-			if( (int8)(RollSum>>8) < -1 )
-				LEDGreen_ON;
-
-		if( (int8)(PitchSum>>8) >  0 )
-			LEDYellow_ON;
-		else
-			if( (int8)(PitchSum>>8) < -1 )
-				LEDBlue_ON;
-	}
-/*
-	else
-		if( CompassTest )
-		{
-			ALL_LEDS_OFF;
-			if( CurDeviation > 0 )
-				LEDGreen_ON;
-			else
-				if( CurDeviation < 0 )
-					LEDRed_ON;
-			if( AbsDirection > COMPASS_MAX )
-				LEDYellow_ON;
-		}
-*/
-} // DoPIDDisplays
 
 void CheckAlarms(void)
 {
