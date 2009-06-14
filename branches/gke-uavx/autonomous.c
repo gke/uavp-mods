@@ -148,7 +148,7 @@ void CheckAutonomous(void)
 				GPSNorthHold = GPSNorth;
 				GPSEastHold = GPSEast;
 				NavState = ReturningHome;
-				GPSAltitudeHold(NavRTHAlt * 5L);
+				GPSAltitudeHold(NavRTHAlt * 10L);
 				Navigate(0, 0);
 			}
 			else
