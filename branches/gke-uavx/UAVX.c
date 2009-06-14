@@ -44,7 +44,8 @@ int16	RollSum, PitchSum, YawSum;	// integral
 int16	RollRate, PitchRate, YawRate;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-int16	HoverThrottle, DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+int16	AutonomousThrottle, HoverThrottle, DesiredThrottle;
+int16	DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
@@ -52,6 +53,8 @@ int16 	UDAcc, UDSum, VUDComp;
 
 int16 	SqrNavClosingRadius, NavClosingRadius, CompassOffset;
 
+uint8 	NavState;
+uint8 	NavSensitivity;
 int16	AltSum, AE;
 
 // Failsafes
@@ -76,7 +79,7 @@ int16	Vud;
 
 int16	Trace[LastTrace];
 
-uint8	Flags[32];
+boolean	Flags[32];
 
 int16	ThrDownCycles, DropoutCycles, GPSCycles, LEDCycles, BlinkCycle, BaroCycles;
 int16	FakeGPSCycles;
@@ -189,6 +192,7 @@ Restart:
 
 		InitArrays();
 		ThrNeutral = 0xFF;
+		NavState = PIC;
 
 		EnableInterrupts;	
 		WaitForRxSignal(); // Wait until a valid RX signal is received

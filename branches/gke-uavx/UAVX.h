@@ -380,8 +380,6 @@ typedef union {
 #define _BaroTempRun		Flags[9]	/* 1 if baro temp a/d conversion is running */
 #define _BaroRestart		Flags[10] 	/* Baro restart required */
 #define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
-#define _UseCh7Trigger		Flags[12]	/* 1: don't use Ch7 */
-									/* 0: use Ch7 as Cam Roll trim */
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
 #define _LostModel			Flags[18]
@@ -390,14 +388,16 @@ typedef union {
 #define _GPSHeadingValid 	Flags[21]
 #define _GPSAltitudeValid	Flags[22]
 #define _UseRTHGPSAlt		Flags[23]
+#define _ReturnHome			Flags[24]
+#define _Proximity			Flags[25]
 
 #define _GPSTestActive		Flags[31]
 
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)
 #define FutabaMode		IsSet(ConfigParam,1)
-#define IntegralTest	IsSet(ConfigParam,2)
-#define DoubleRate		IsSet(ConfigParam,3)
+
+
 #define NegativePPM		IsSet(ConfigParam,4)
 #define DSM2			IsSet(ConfigParam,5)
 
@@ -761,7 +761,8 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern int16	HoverThrottle, DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+extern int16	AutonomousThrottle, HoverThrottle, DesiredThrottle;
+extern int16	DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
@@ -778,6 +779,9 @@ extern int16 GPSRelAltitude;
 
 extern int16 SqrNavClosingRadius, NavClosingRadius, CompassOffset;
 
+enum NavStates { PIC, HoldingStation, ReturningHome, Navigating, Terminating };
+extern uint8 NavState;
+extern uint8 NavSensitivity;
 extern int16 AltSum, AE;
 
 // Failsafes
@@ -794,7 +798,7 @@ extern uint8	MCamRoll,MCamPitch;
 extern int16	Motor[NoOfMotors];
 extern int16	Rl,Pl,Yl;	// PID output values
 
-extern uint8	Flags[32];
+extern boolean	Flags[32];
 
 extern int16	ThrDownCycles, GPSCycles, DropoutCycles, LEDCycles, BaroCycles;
 extern int16	FakeGPSCycles;
