@@ -232,7 +232,7 @@ Restart:
 			
 			ComputeBaroComp();
 			GetGyroValues();
-		// 	ReadParametersEE();	// re-sets TimeSlot
+
 			CalcGyroValues();
 
 			// check for signal dropout while in flight

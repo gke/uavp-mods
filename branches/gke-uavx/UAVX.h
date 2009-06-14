@@ -135,8 +135,8 @@
 	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
 #define MIN_FIX					1		// must be 1 or 2 
-#define INITIAL_GPS_SENTENCES 	30		// Number of sentences needed with set HDilute
-#define MIN_HDILUTE				150L	// HDilute * 100	
+#define INITIAL_GPS_SENTENCES 	90		// Number of sentences needed with set HDilute
+#define MIN_HDILUTE				130L	// HDilute * 100	
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 #define MAX_ANGLE 				30L		// Rx stick units ~= degrees
 

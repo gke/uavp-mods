@@ -298,9 +298,10 @@ void UpdateParamSetChoice(void)
 						}
 			if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHGPSAlt != _UseRTHGPSAlt) )
 			{
-				LEDBlue_ON;
+				
 				CurrentParamSet = NewParamSet;
 				_UseRTHGPSAlt = NewRTHGPSAlt;
+				LEDBlue_ON;
 				Beeper_ON;
 				Delay100mSWithOutput(2);
 				Beeper_OFF;
@@ -309,6 +310,13 @@ void UpdateParamSetChoice(void)
 					Delay100mSWithOutput(2);
 					Beeper_ON;
 					Delay100mSWithOutput(2);
+					Beeper_OFF;
+				}
+				if ( _UseRTHGPSAlt )
+				{
+					Delay100mSWithOutput(4);
+					Beeper_ON;
+					Delay100mSWithOutput(4);
 					Beeper_OFF;
 				}
 				LEDBlue_OFF;
