@@ -112,7 +112,7 @@ int8	TimeSlot;	// control update interval + LEGACY_OFFSET
 int8	LowVoltThres;
 int8	CamRollFactor;	
 int8	LinFBIntFactor;	// unused
-int8	LinUDIntFactor; // unused
+int8	LinUDIntFactor; 
 int8	MiddleUD;
 int8	MotorLowRun;
 int8	MiddleLR;

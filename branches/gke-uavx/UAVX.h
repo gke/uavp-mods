@@ -1,10 +1,12 @@
 // EXPERIMENTAL
 
+#define UAVX2
+
 // Navigation
 
 #define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
 
-#define USE_DEFAULTS					// override parameter file/UAVPSet settings and use settings below
+//#define USE_DEFAULTS					// override parameter file/UAVPSet settings and use settings below
 #define DEF_CLOSING_RADIUS		20L		// closing radius in metres 
 #define DEF_NAV_INT_LIMIT		2L		// wind compensation
 #define DEF_ALT_KP				8L		// reduce if throttle up is too rapid		
@@ -77,9 +79,6 @@
 
 // defined: serial PPM pulse train from receiver
 //#define RX_PPM
-
-// defined: Spektrum DSM2 various channel shuffles
-//#define RX_DSM2
 
 // defined: Interleaved odd channel PPM pulse train from receiver
 #define RX_DEFAULT
@@ -396,8 +395,8 @@ typedef union {
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)
 #define FutabaMode		IsSet(ConfigParam,1)
-
-
+#define DSM2Mode		IsSet(ConfigParam,2)
+// 3 not used
 #define NegativePPM		IsSet(ConfigParam,4)
 #define DSM2			IsSet(ConfigParam,5)
 
@@ -569,8 +568,8 @@ typedef union {
 #endif
 
 // check RX model
-#if defined RX_DEFAULT + defined RX_PPM + defined RX_DSM2 != 1
-#error Define only ONE out of RX_DEFAULT RX_PPM RX_DSM2
+#if defined RX_DEFAULT + defined RX_PPM  != 1
+#error Define only ONE out of RX_DEFAULT RX_PPM 
 #endif
 
 // end of sanity checks
@@ -858,11 +857,11 @@ extern int8	NavMagVar;			// 34
 #define _EESet2		0x40	// second set starts at address 0x40
 
 #define FirstProgReg RollPropFactor
-#ifdef USE_DEFAULTS
-#define	LastProgReg BaroThrottleDiff
-#else
+//#ifdef USE_DEFAULTS
+//#define	LastProgReg BaroThrottleDiff
+//#else
 #define	LastProgReg NavMagVar
-#endif // USE_DEFAULTS
+//#endif // USE_DEFAULTS
 
 // End of c-ufo.h
 

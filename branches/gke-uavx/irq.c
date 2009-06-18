@@ -105,15 +105,28 @@ void high_isr_handler(void)
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
 		PIR1bits.TMR2IF = false;	// quit int
-		#ifndef RX_PPM				// single PPM pulse train from receiver
-		if( _FirstTimeout )			// 5 ms have been gone by...
+		if ( DSM2Mode )
 		{
-			PR2 = TMR2_5MS;			// set compare reg to 5ms
-			goto ErrorRestart;
+			if( _FirstTimeout )			// 5 ms have been gone by...
+			{
+				PR2 = TMR2_5MS;			// set compare reg to 5ms
+				goto ErrorRestart;
+			}
+			_FirstTimeout = true;
+			PR2 = TMR2_14MS;			// set compare reg to 14ms
 		}
-		_FirstTimeout = true;
-		PR2 = TMR2_14MS;			// set compare reg to 14ms
-		#endif
+		else
+		{ // Messy!
+			#ifndef RX_PPM				// single PPM pulse train from receiver
+			if( _FirstTimeout )			// 5 ms have been gone by...
+			{
+				PR2 = TMR2_5MS;			// set compare reg to 5ms
+				goto ErrorRestart;
+			}
+			_FirstTimeout = true;
+			PR2 = TMR2_14MS;			// set compare reg to 14ms
+			#endif
+		}
 		RCState = 0;
 	}
 
@@ -147,24 +160,26 @@ void high_isr_handler(void)
 				    ((NewK4 >>8 ) == 1) &&
 				    ((NewK5 >>8 ) == 1) )
 				{
-					#ifndef RX_DSM2									
-					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
-					{
-						IGas = NewK3 & 0xff;
-						IRoll = (NewK1 & 0xff) - (int16)_Neutral;
-						IPitch = (NewK2 & 0xff) - (int16)_Neutral;
+					if ( !DSM2Mode)
+					{									
+						if( FutabaMode ) // Ch3 set for Throttle on UAPSet
+						{
+							IGas = NewK3 & 0xff;
+							IRoll = (NewK1 & 0xff) - (int16)_Neutral;
+							IPitch = (NewK2 & 0xff) - (int16)_Neutral;
+						}
+						else
+						{
+							IGas  = NewK1  & 0xff;
+							IRoll = (NewK2 & 0xff) - (int16)_Neutral;
+							IPitch = (NewK3 & 0xff) - (int16)_Neutral;
+						}
+						IYaw = (NewK4 & 0xff) - (int16)_Neutral;						
+						IK5 = NewK5 & 0xff;
+	
+						_Signal = _NewValues = true; // potentially IK6 & IK7 are still about to change ???
 					}
-					else
-					{
-						IGas  = NewK1  & 0xff;
-						IRoll = (NewK2 & 0xff) - (int16)_Neutral;
-						IPitch = (NewK3 & 0xff) - (int16)_Neutral;
-					}
-					IYaw = (NewK4 & 0xff) - (int16)_Neutral;					
-					IK5 = NewK5 & 0xff;
 
-					_Signal = _NewValues = true; // potentially IK6 & IK7 are still about to change ???
-					#endif // !RX_DSM2
 					break;
 				}
 				else	// values are unsafe
@@ -173,53 +188,56 @@ void high_isr_handler(void)
 			case 6:
 			{
 				NewK6 = Width;		
-				#ifdef RX_DSM2
-				if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
-					goto ErrorRestart;
-				#else
-				IK6 = NewK6 & 0xff;
-				#endif // RX_DSM2
+				if ( DSM2Mode )
+				{
+					if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
+						goto ErrorRestart;
+				}
+				else
+					IK6 = NewK6 & 0xff;
 				break;	
 			}
 			case 7:
 			{
 				NewK7 = Width;	
-				#ifdef RX_DSM2
-				if ( (NewK7>>8) !=1)	
-					goto ErrorRestart;
-
-				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
+				if ( DSM2Mode )
 				{
-			//EDIT FROM HERE ->
-			// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
-					IGas = NewK5 & 0xff;
-
-					IRoll = (NewK3 & 0xff) - (int16)_Neutral; 
-					IPitch = (NewK2 & 0xff) - (int16)_Neutral;
-					IYaw = (NewK1 & 0xff) - (int16)_Neutral;
-
-					IK5 = NewK6 & 0xff; // do not filter
-					IK6 = NewK4 & 0xff;
-					IK7 = NewK7 & 0xff;
-			// TO HERE
+					if ( (NewK7>>8) !=1)	
+						goto ErrorRestart;
+	
+					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
+					{
+				//EDIT FROM HERE ->
+				// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
+						IGas = NewK5 & 0xff;
+	
+						IRoll = (NewK3 & 0xff) - (int16)_Neutral; 
+						IPitch = (NewK2 & 0xff) - (int16)_Neutral;
+						IYaw = (NewK1 & 0xff) - (int16)_Neutral;
+	
+						IK5 = NewK6 & 0xff; // do not filter
+						IK6 = NewK4 & 0xff;
+						IK7 = NewK7 & 0xff;
+				// TO HERE
+					}
+					else // Reference 2.4GHz configuration DX7 Tx and AR7000 Rx
+					{
+						IGas = NewK6 & 0xff;
+	
+						IRoll = (int16)(NewK1 & 0xff) - (int16)_Neutral; 
+						IPitch = (int16)(NewK4 & 0xff) - (int16)_Neutral;
+						IYaw = (int16)(NewK7 & 0xff) - (int16)_Neutral;
+	
+						IK5 = NewK3 & 0xff; // do not filter
+						IK6 = NewK5 & 0xff;
+						IK7 = NewK2 & 0xff;
+					}	
+	
+					_Signal = _NewValues = true;
 				}
-				else // Reference 2.4GHz configuration DX7 Tx and AR7000 Rx
-				{
-					IGas = NewK6 & 0xff;
+				else				
+					IK7 = NewK7 & 0xff;
 
-					IRoll = (int16)(NewK1 & 0xff) - (int16)_Neutral; 
-					IPitch = (int16)(NewK4 & 0xff) - (int16)_Neutral;
-					IYaw = (int16)(NewK7 & 0xff) - (int16)_Neutral;
-
-					IK5 = NewK3 & 0xff; // do not filter
-					IK6 = NewK5 & 0xff;
-					IK7 = NewK2 & 0xff;
-				}	
-
-				_Signal = _NewValues = true;
-				#else				
-				IK7 = NewK7 & 0xff;
-				#endif // RX_DSM2 
 				RCState = -1;
 				break;
 			}
@@ -229,17 +247,33 @@ void high_isr_handler(void)
 				_Signal = _NewValues = false;	
 				RCGlitches++;
 				RCState = -1;
+
+				if (DSM2Mode)
+				{
+					CCP1CONbits.CCP1M0 = NegativePPM;
+				}
+				else
+				{
 				#ifndef RX_PPM
 				CCP1CONbits.CCP1M0 = NegativePPM;
 				#endif
+				}
 				break;
 			}
 		} // switch
 	
+		if (DSM2Mode)
+		{
+			CCP1CONbits.CCP1M0 ^= 1;
+			PR2 = TMR2_5MS;	
+		}
+		else
+		{
 		#ifndef RX_PPM				
 		CCP1CONbits.CCP1M0 ^= 1;
 		PR2 = TMR2_5MS;	
 		#endif
+		}
 
 		PIR1bits.CCP1IF = false;				// quit int
 		RCState++;

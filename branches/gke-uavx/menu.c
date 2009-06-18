@@ -45,9 +45,6 @@ const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\n"
 #ifdef RX_PPM
 	"Rx: PPM Composite\r\n"
 #endif
-#ifdef RX_DSM2
-	"Rx: PPM DSM2\r\n"
-#endif
 
 #ifdef ESC_PPM
 	"ESC: PPM\r\n"
@@ -216,38 +213,27 @@ void ProcessComCommand(void)
 					addr = RxNumU()-1;
 					TxString(" = ");
 					d = RxNumS();
-					if( CurrentParamSet == 2 )
-						addrbase = _EESet2;
-					else
-						addrbase = _EESet1;
-			
-					if( addr ==  (&ConfigParam - &FirstProgReg) )
-						d &=0xf7; // no Double Rates
-			
-					WriteEE(addrbase + (uint16)addr, d);
-			
-					// update transmitter config bits in the other parameter set
-					if( addr ==  (&ConfigParam - &FirstProgReg) )
-					{									
-						if( CurrentParamSet == 2 )
-							addrbase = _EESet1;				
-						else
-							addrbase = _EESet2;	
-						// mask only bits _FutabaMode and _NegativePPM
-						d &= 0x12;		
-						d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
-						WriteEE(addrbase + (uint16)addr, d);
-					}
-		
-					// This is not strictly necessary as UAVPSet enforces it.
-					// Hovever direct edits of parameter files can easily exceed
-					// intermediate arithmetic limits.
-					if ( ((int16)Abs(YawIntFactor) * (int16)YawIntLimit) > 127 )
+					if( CurrentParamSet == 1 )
 					{
-						d = 127 / YawIntFactor;
-						WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
+						WriteEE(_EESet1 + (uint16)addr, d);
+						#ifdef UAVX2
+						if ( (((uint16)addr >= ( &ConfigParam - &FirstProgReg )) 
+							&& ((uint16)addr < ( &NavRadius - &FirstProgReg ))) 
+							|| ((uint16)addr == ( &BaroTempCoeff - &FirstProgReg ))
+							|| ((uint16)addr == ( &BaroThrottleProp - &FirstProgReg )))
+							WriteEE(_EESet2 + (uint16)addr, d);
+						#endif // UAVX2
 					}
-		
+					else
+					{
+						#ifdef UAVX2
+						if ( (((uint16)addr < ( &ConfigParam - &FirstProgReg ))
+							|| ((uint16)addr  >= ( &NavRadius - &FirstProgReg ))) 
+							&& ((uint16)addr != ( &BaroTempCoeff - &FirstProgReg ))
+							&& ((uint16)addr != ( &BaroThrottleProp - &FirstProgReg )))
+						#endif // UAVX2
+							WriteEE(_EESet2 + (uint16)addr, d);
+					}
 					LEDBlue_OFF;
 				ShowPrompt();
 				break;
