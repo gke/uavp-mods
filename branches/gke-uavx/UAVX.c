@@ -128,6 +128,15 @@ int8	NavRTHAlt;
 int8	NavMagVar;
 #pragma udata
 
+#pragma idata commonparms
+int8	ComParms[]={
+	0,0,0,1,0,0,0,0,0,0,
+	0,0,0,0,0,1,0,1,0,0,
+	0,1,1,1,1,0,0,0,0,0,
+	0,0,1,1
+};
+#pragma idata
+
 void main(void)
 {
 	uint8	i;

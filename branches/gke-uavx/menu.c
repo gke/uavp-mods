@@ -146,7 +146,7 @@ void ProcessComCommand(void)
 {
 	static int8  *p;
 	static uint8 ch;
-	static uint8 addr;
+	static uint16 param;
 	static uint16 addrbase, curraddr;
 	static int8 d;
 
@@ -195,11 +195,11 @@ void ProcessComCommand(void)
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				TxChar('0' + CurrentParamSet);
 				ReadParametersEE();
-				addr = 1;
+				param = 1;
 				for(p = &FirstProgReg; p <= &LastProgReg; p++)
 				{
 					TxString("\r\nRegister ");
-					TxValU(addr++);
+					TxValU((uint8)param++);
 					TxString(" = ");
 					d = *p;
 					TxValS(d);
@@ -210,29 +210,23 @@ void ProcessComCommand(void)
 					// no reprogramming in flight!!!!!!!!!!!!!!!
 					LEDBlue_ON;
 					TxString("\r\nRegister ");
-					addr = RxNumU()-1;
+					param = (uint16)(RxNumU()-1);
 					TxString(" = ");
 					d = RxNumS();
 					if( CurrentParamSet == 1 )
 					{
-						WriteEE(_EESet1 + (uint16)addr, d);
+						WriteEE(_EESet1 + (uint16)param, d);
 						#ifdef UAVX2
-						if ( (((uint16)addr >= ( &ConfigParam - &FirstProgReg )) 
-							&& ((uint16)addr < ( &NavRadius - &FirstProgReg ))) 
-							|| ((uint16)addr == ( &BaroTempCoeff - &FirstProgReg ))
-							|| ((uint16)addr == ( &BaroThrottleProp - &FirstProgReg )))
-							WriteEE(_EESet2 + (uint16)addr, d);
+						if ( ComParms[param] )
+							WriteEE(_EESet2 + param, d);
 						#endif // UAVX2
 					}
 					else
 					{
 						#ifdef UAVX2
-						if ( (((uint16)addr < ( &ConfigParam - &FirstProgReg ))
-							|| ((uint16)addr  >= ( &NavRadius - &FirstProgReg ))) 
-							&& ((uint16)addr != ( &BaroTempCoeff - &FirstProgReg ))
-							&& ((uint16)addr != ( &BaroThrottleProp - &FirstProgReg )))
+						if ( !ComParms[param] )
 						#endif // UAVX2
-							WriteEE(_EESet2 + (uint16)addr, d);
+							WriteEE(_EESet2 + param, d);
 					}
 					LEDBlue_OFF;
 				ShowPrompt();

@@ -853,6 +853,8 @@ extern int8	NavAltKi;			// 32
 extern int8	NavRTHAlt;			// 33
 extern int8	NavMagVar;			// 34
 
+extern int8 ComParms[];
+
 #define _EESet1		0		// first set starts at address 0x00
 #define _EESet2		0x40	// second set starts at address 0x40
 
