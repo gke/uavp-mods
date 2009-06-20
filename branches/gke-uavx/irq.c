@@ -105,7 +105,8 @@ void high_isr_handler(void)
 	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
 	{
 		PIR1bits.TMR2IF = false;	// quit int
-		if ( DSM2Mode )
+
+		if ( !RxPPM )				// single PPM pulse train from receiver
 		{
 			if( _FirstTimeout )			// 5 ms have been gone by...
 			{
@@ -115,18 +116,7 @@ void high_isr_handler(void)
 			_FirstTimeout = true;
 			PR2 = TMR2_14MS;			// set compare reg to 14ms
 		}
-		else
-		{ // Messy!
-			#ifndef RX_PPM				// single PPM pulse train from receiver
-			if( _FirstTimeout )			// 5 ms have been gone by...
-			{
-				PR2 = TMR2_5MS;			// set compare reg to 5ms
-				goto ErrorRestart;
-			}
-			_FirstTimeout = true;
-			PR2 = TMR2_14MS;			// set compare reg to 14ms
-			#endif
-		}
+
 		RCState = 0;
 	}
 
@@ -248,31 +238,17 @@ void high_isr_handler(void)
 				RCGlitches++;
 				RCState = -1;
 
-				if (DSM2Mode)
-				{
+				if ( !RxPPM )
 					CCP1CONbits.CCP1M0 = NegativePPM;
-				}
-				else
-				{
-				#ifndef RX_PPM
-				CCP1CONbits.CCP1M0 = NegativePPM;
-				#endif
-				}
+
 				break;
 			}
 		} // switch
 	
-		if (DSM2Mode)
-		{
+		if ( !RxPPM )
+		{				
 			CCP1CONbits.CCP1M0 ^= 1;
-			PR2 = TMR2_5MS;	
-		}
-		else
-		{
-		#ifndef RX_PPM				
-		CCP1CONbits.CCP1M0 ^= 1;
-		PR2 = TMR2_5MS;	
-		#endif
+			PR2 = TMR2_5MS;
 		}
 
 		PIR1bits.CCP1IF = false;				// quit int

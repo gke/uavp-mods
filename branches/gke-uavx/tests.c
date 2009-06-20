@@ -439,29 +439,43 @@ void AnalogTest(void)
 	TxString("\r\nAnalog ch. test\r\n");
 
 	// Roll
-	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
+	if ( GyroType == IDG300 )
+		v = ((int24)ADC(IDGADCRollChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
+	else
+		v = ((int24)ADC(NonIDGADCRollChan, ADCVREF5V) * 50 + 5)/10; 
 	//TxVal32(ADCRollChan, 0, ' ');
 	TxString("Roll: \t"); 
 	TxVal32(v, 3, 'V');
-	#ifdef OPT_IDG
-	if ( ( v < 750 ) || ( v > 1750 ) )
-	#else
-	if ( ( v < 2000 ) || ( v > 3000 ) )
-	#endif
-		TxString(" gyro NC or fault?"); 
+	if ( GyroType == IDG300 )
+	{
+		if ( ( v < 750 ) || ( v > 1750 ) ) 
+			TxString(" gyro NC or fault?");
+	}
+	else
+	{
+		if ( ( v < 2000 ) || ( v > 3000 ) )
+			TxString(" gyro NC or fault?");
+	}
 	TxNextLine();
 
 	// Pitch
-	v = ((int24)ADC(ADCPitchChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
+	if ( GyroType == IDG300 )
+		v = ((int24)ADC(IDGADCPitchChan, ADCVREF5V) * 50 + 5)/10; 
+	else
+		v = ((int24)ADC(NonIDGADCPitchChan, ADCVREF5V) * 50 + 5)/10; 
 	//TxVal32(ADCPitchChan, 0, ' ');
 	TxString("Pitch:\t");		
 	TxVal32(v, 3, 'V');
-	#ifdef OPT_IDG
-	if ( ( v < 750 ) || ( v > 1750 ) )
-	#else
-	if ( ( v < 2000 ) || ( v > 3000 ) )
-	#endif
-		TxString(" gyro NC or fault?");	
+if ( GyroType == IDG300 )
+	{
+		if ( ( v < 750 ) || ( v > 1750 ) ) 
+			TxString(" gyro NC or fault?");
+	}
+	else
+	{
+		if ( ( v < 2000 ) || ( v > 3000 ) )
+			TxString(" gyro NC or fault?");
+	}	
 	TxNextLine();
 
 	// Yaw
@@ -496,68 +510,75 @@ void AnalogTest(void)
 	TxNextLine();	
 } // AnalogTest
 
-#ifdef ESC_YGEI2C
-
 void Program_SLA(uint8 niaddr)
 {
 	uint8 nii;
 
-	for(nii = 0x10; nii<0xF0; nii+=2)
+	if ( ESCType == ESCYGEI2C )
 	{
-		EscI2CStart();
-		if( SendEscI2CByte(nii) == 0 )
+/* broken
+		for(nii = 0x10; nii<0xF0; nii+=2)
 		{
-			if( nii == niaddr )
-			{	// controller is already programmed OK
-				EscI2CStop();
-				TxString("controller at SLA 0x");
-				TxValH(nii);
-				TxString(" is already programmed OK\r\n");
-				return;
-			}
-			else
+			EscI2CStart();
+			if( SendEscI2CByte(nii) == 0 )
 			{
-				if( SendEscI2CByte(0x87) == 0 ) // select register 0x07
+				if( nii == niaddr )
+				{	// controller is already programmed OK
+					EscI2CStop();
+					TxString("controller at SLA 0x");
+					TxValH(nii);
+					TxString(" is already programmed OK\r\n");
+					return;
+				}
+				else
 				{
-					if( SendEscI2CByte(niaddr) == 0 ) // new slave address
+					if( SendEscI2CByte(0x87) == 0 ) // select register 0x07
 					{
-						EscI2CStop();
-						TxString("controller at SLA 0x");
-						TxValH(nii);
-						TxString(" reprogrammed to SLA 0x");
-						TxValH(niaddr);
-						TxNextLine();
-						return;
+						if( SendEscI2CByte(niaddr) == 0 ) // new slave address
+						{
+							EscI2CStop();
+							TxString("controller at SLA 0x");
+							TxValH(nii);
+							TxString(" reprogrammed to SLA 0x");
+							TxValH(niaddr);
+							TxNextLine();
+							return;
+						}
 					}
 				}
 			}
+			EscI2CStop();
 		}
-		EscI2CStop();
+*/
+TxString("Not implemented yet\r\n");
 	}
 	TxString("no controller found or reprogram failed\r\n");
+
 } // Program_SLA
 
 void ConfigureESCs(void)
 {
 	uint8 nic;
 
-	for( nic=0; nic<4; nic++)
+	if ( ESCType == ESCYGEI2C )
 	{
-		TxString("\r\nConnect ONLY ");
-		switch(nic)
+		for( nic=0; nic<4; nic++)
 		{
-			case 0 : TxString("front"); break;
-			case 1 : TxString("back");  break;
-			case 2 : TxString("right"); break;
-			case 3 : TxString("left");  break;
+			TxString("\r\nConnect ONLY ");
+			switch(nic)
+			{
+				case 0 : TxString("front"); break;
+				case 1 : TxString("back");  break;
+				case 2 : TxString("right"); break;
+				case 3 : TxString("left");  break;
+			}
+			TxString(" controller, then press any key\r\n");
+			while( PollRxChar() == '\0' );
+			TxString("\r\nprogramming the controller...\r\n");
+	
+			Program_SLA(0x62+nic+nic);
 		}
-		TxString(" controller, then press any key\r\n");
-		while( PollRxChar() == '\0' );
-		TxString("\r\nprogramming the controller...\r\n");
-
-		Program_SLA(0x62+nic+nic);
 	}
 } // ConfigureESCs
 
-#endif // ESC_YGEI2C
 

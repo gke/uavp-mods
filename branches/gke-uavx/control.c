@@ -38,15 +38,15 @@ void WaitForRxSignal(void);
 
 void GyroCompensation(void)
 {
-	#define GYRO_COMP_STEP 1
-	#ifdef OPT_ADXRS
-		#define GRAV_COMP 11
-	#else
-		#define GRAV_COMP 15
-	#endif
-
-	static int16 AbsRollSum, AbsPitchSum, Temp;
+	static int16 GravComp, AbsRollSum, AbsPitchSum, Temp;
 	static int16 LRAcc, LRGrav, LRDyn, FBAcc, FBGrav, FBDyn;
+
+	#define GYRO_COMP_STEP 1
+
+	if ( GyroType == IDG300 )
+		GravComp = 15;
+	else
+		GravComp = 11;
 
 	if( _AccelerationsValid )
 	{
@@ -87,7 +87,7 @@ void GyroCompensation(void)
 		// Roll
 
 		// static compensation due to Gravity
-		LRGrav = -SRS16(RollSum * GRAV_COMP, 5); 
+		LRGrav = -SRS16(RollSum * GravComp, 5); 
 	
 		// dynamic correction of moved mass
 		#ifdef DISABLE_DYNAMIC_MASS_COMP_ROLL
@@ -103,7 +103,7 @@ void GyroCompensation(void)
 		// Pitch
 
 		// static compensation due to Gravity
-		FBGrav = -SRS16(PitchSum * GRAV_COMP, 5); 
+		FBGrav = -SRS16(PitchSum * GravComp, 5); 
 	
 		// dynamic correction of moved mass		
 		#ifdef DISABLE_DYNAMIC_MASS_COMP_PITCH
@@ -233,8 +233,16 @@ void LimitYawSum(void)
 
 void GetGyroValues(void)
 {
-	RollRate += (int16)ADC(ADCRollChan, ADCEXTVREF_PITCHROLL);
-	PitchRate += (int16)ADC(ADCPitchChan, ADCEXTVREF_PITCHROLL);
+	if ( GyroType == IDG300 )
+	{
+		RollRate += (int16)ADC(IDGADCRollChan, ADCVREF3V3);
+		PitchRate += (int16)ADC(IDGADCPitchChan, ADCVREF3V3);
+	}
+	else
+	{
+		RollRate += (int16)ADC(NonIDGADCRollChan, ADCVREF5V);
+		PitchRate += (int16)ADC(NonIDGADCPitchChan, ADCVREF5V);
+	}
 } // GetGyroValues
 
 //int16 DummyPitch = 0;//zz
@@ -248,13 +256,16 @@ void CalcGyroValues(void)
 	// Approximately 4 bits of precision are discarded in this and related 
 	// calculations presumably because of the range of the 16 bit arithmetic.
 
-	#ifdef OPT_ADXRS150
-	RollRate = (RollRate + 2) >> 2; // recreate the 10 bit resolution
-	PitchRate = (PitchRate + 2) >> 2;
-	#else // IDG300 and ADXRS300
-	RollRate = RollRate >> 1;	
-	PitchRate = PitchRate >> 1;
-	#endif
+	if ( GyroType == ADXRS150 )
+	{
+		RollRate = (RollRate + 2) >> 2; // recreate the 10 bit resolution
+		PitchRate = (PitchRate + 2) >> 2;
+	}
+	else
+	{
+		RollRate = RollRate >> 1;	
+		PitchRate = PitchRate >> 1;
+	}
 	
 	if( IntegralCount > 0 )
 	{
@@ -278,8 +289,16 @@ void CalcGyroValues(void)
 	else
 	{
 		// standard flight mode
-		RollRate = GYROSIGN_ROLL * ( RollRate - GyroMidRoll );
-		PitchRate = GYROSIGN_PITCH * ( PitchRate - GyroMidPitch );
+		if ( GyroType == IDG300 )
+		{
+			RollRate = -RollRate + GyroMidRoll ;
+			PitchRate = PitchRate - GyroMidPitch;
+		}
+		else
+		{
+			RollRate =  RollRate - GyroMidRoll;
+			PitchRate =  PitchRate - GyroMidPitch;
+		}
 
 		// calc Cross flying mode
 		if( FlyCrossMode )

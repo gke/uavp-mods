@@ -126,16 +126,17 @@ int8	NavAltKp;
 int8	NavAltKi;
 int8	NavRTHAlt;
 int8	NavMagVar;
+int8 	GyroType;			
+int8 	ESCType;		
 #pragma udata
 
-#pragma idata commonparms
-int8	ComParms[]={
+// mask giving common variables across parameter sets
+const rom int8	ComParms[]={
 	0,0,0,1,0,0,0,0,0,0,
 	0,0,0,0,0,1,0,1,0,0,
 	0,1,1,1,1,0,0,0,0,0,
-	0,0,1,1
-};
-#pragma idata
+	0,0,1,1,1,1
+	};
 
 void main(void)
 {
@@ -155,6 +156,9 @@ void main(void)
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
 	
+	ESCType = ESCPPM;
+	GyroType = IDG300;
+
 	LEDShadow = 0;
     ALL_LEDS_OFF;
 	LEDRed_ON;

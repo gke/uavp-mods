@@ -1,18 +1,8 @@
 // EXPERIMENTAL
 
-#define UAVX2
-
 // Navigation
 
 #define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
-
-//#define USE_DEFAULTS					// override parameter file/UAVPSet settings and use settings below
-#define DEF_CLOSING_RADIUS		20L		// closing radius in metres 
-#define DEF_NAV_INT_LIMIT		2L		// wind compensation
-#define DEF_ALT_KP				8L		// reduce if throttle up is too rapid		
-#define	DEF_ALT_KI				12L
-#define	DEF_RTH_GPS_ALT			30L		// metres
-#define DEF_MAG_VAR				6L		// Positive East degrees
 	
 // Accelerometer
 
@@ -56,32 +46,6 @@
 // ==============================================
 // == Global compiler switches
 // ==============================================
-
-// Only one of the following 3 defines must be activated:
-// When using 3 ADXRS300 gyros
-//#define OPT_ADXRS300
-
-// When using 3 ADXRS150 gyros
-//#define OPT_ADXRS150
-
-// When using 1 ADXRS300 and 1 IDG300 gyro
-#define OPT_IDG
-
-// Select what speeed controllers to use:
-// to use standard PPM pulse
-#define ESC_PPM
-// to use X3D BL controllers (not yet tested. Info courtesy to Jast :-)
-//#define ESC_X3D
-// to use Holgers ESCs (tested and confirmed by ufo-hans)
-// #define ESC_HOLGER
-// to use YGE I2C controllers (for standard YGEs use ESC_PPM)
-//#define ESC_YGEI2C
-
-// defined: serial PPM pulse train from receiver
-//#define RX_PPM
-
-// defined: Interleaved odd channel PPM pulse train from receiver
-#define RX_DEFAULT
 
 // uncomment this to enable Tri-Copter Mixing.
 // connector K1 = front motor
@@ -396,35 +360,25 @@ typedef union {
 #define FlyCrossMode 	IsSet(ConfigParam,0)
 #define FutabaMode		IsSet(ConfigParam,1)
 #define DSM2Mode		IsSet(ConfigParam,2)
-// 3 not used
+#define RxPPM			IsSet(ConfigParam,3)
 #define NegativePPM		IsSet(ConfigParam,4)
 #define DSM2			IsSet(ConfigParam,5)
 
-// this enables common code for all ADXRS gyros
-// leave this untouched!
-#if defined OPT_ADXRS300 || defined OPT_ADXRS150
-#define OPT_ADXRS
-#endif
-
 // Constants 
+
 
 // ADC Channels
 #define ADCPORTCONFIG 0b00001010 // AAAAA
 #define ADCBattVoltsChan 	0 
-
-#ifdef OPT_ADXRS
-	#define ADCRollChan 	1
-	#define ADCPitchChan 	2
-#else // OPT_IDG
-	#define ADCRollChan 	2
-	#define ADCPitchChan 	1
-#endif // OPT_ADXRS
-
+#define NonIDGADCRollChan 	1
+#define NonIDGADCPitchChan 	2
+#define IDGADCRollChan 		2
+#define IDGADCPitchChan 	1
 #define ADCVRefChan 		3 
 #define ADCYawChan			4
-
 #define ADCVREF5V 			0
-#define ADCVREF 			1
+#define ADCVREF3V3 			1
+
 
 // ------------------------------------------------------------------------------------
 
@@ -474,6 +428,8 @@ typedef union {
 // Gyro 
 
 #define ADCPORTCONFIG 0b00001010 // AAAAA
+
+/*
 #ifdef OPT_IDG
 	#define MAXDEGSEC_PITCHROLL 	500
 	#define ADCEXTVREF_PITCHROLL 	1
@@ -494,6 +450,7 @@ typedef union {
 #endif
 
 #define	GYROSIGN_YAW 		(1)
+*/
 
 //#ifdef CLOCK_16MHZ
 #define _ClkOut		(160/4)	/* 16.0 MHz Xtal */
@@ -509,22 +466,27 @@ typedef union {
 #define TMR2_5MS	78	/* 1x 5ms +  */
 #define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
 
-#ifdef ESC_PPM
-#define	_Minimum	1 /*((105* _ClkOut/(2*_PreScale1))&0xFF)*/
-#define _Maximum	240					/* reduced from 255 */
-#endif
-#ifdef ESC_X3D
-#define _Minimum	0
-#define _Maximum	255
-#endif
-#ifdef ESC_HOLGER
-#define _Minimum	0
-#define _Maximum	225	/* ESC demanded */
-#endif
-#ifdef ESC_YGEI2C
-#define _Minimum	0
-#define _Maximum	240	/* ESC demanded */
-#endif
+
+//#ifdef ESC_PPM
+//#define	_Minimum	1 /*((105* _ClkOut/(2*_PreScale1))&0xFF)*/
+//#define _Maximum	240					/* reduced from 255 */
+//#endif
+//#ifdef ESC_X3D
+//#define _Minimum	0
+//#define _Maximum	255
+//#endif
+//#ifdef ESC_Holger
+//#define _Minimum	0
+//#define _Maximum	225	/* ESC demanded */
+//#endif
+//#ifdef ESC_YGEI2C
+//#define _Minimum	0
+//#define _Maximum	240	/* ESC demanded */
+//#endif
+
+
+#define _Minimum	1
+#define _Maximum	240
 
 #define _Neutral	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
@@ -555,21 +517,6 @@ typedef union {
 #endif
 #if (_Maximum < _Neutral)
 #error Maximum < _Neutral !
-#endif
-
-// check gyro model
-#if defined OPT_ADXRS150 + defined OPT_ADXRS300 + defined OPT_IDG != 1
-#error Define only ONE out of OPT_ADXRS150 OPT_ADXRS300 OPT_IDG
-#endif
-
-// check ESC model
-#if defined ESC_PPM + defined ESC_X3D + defined ESC_HOLGER + defined ESC_YGEI2C != 1
-#error Define only ONE out of ESC_PPM ESC_X3D ESC_HOLGER ESC_YGEI2C
-#endif
-
-// check RX model
-#if defined RX_DEFAULT + defined RX_PPM  != 1
-#error Define only ONE out of RX_DEFAULT RX_PPM 
 #endif
 
 // end of sanity checks
@@ -733,6 +680,9 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
+enum ESCTypes {	ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
+enum GyroTypes { ADXRS300, IDG300, ADXRS150, Melexis};
+
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
 				TUDSum, TVUDComp,
@@ -852,18 +802,16 @@ extern int8	NavAltKp;			// 31
 extern int8	NavAltKi;			// 32
 extern int8	NavRTHAlt;			// 33
 extern int8	NavMagVar;			// 34
+extern int8 GyroType;			// 35
+extern int8 ESCType;			// 36
 
-extern int8 ComParms[];
+extern const rom int8 ComParms[];
 
 #define _EESet1		0		// first set starts at address 0x00
 #define _EESet2		0x40	// second set starts at address 0x40
 
 #define FirstProgReg RollPropFactor
-//#ifdef USE_DEFAULTS
-//#define	LastProgReg BaroThrottleDiff
-//#else
-#define	LastProgReg NavMagVar
-//#endif // USE_DEFAULTS
+#define	LastProgReg ESCType
 
 // End of c-ufo.h
 

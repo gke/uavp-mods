@@ -197,17 +197,8 @@ void ReadParametersEE(void)
 	PitchIntLimit256 = (int16)RollIntLimit * 256L;
 	YawIntLimit256 = (int16)RollIntLimit * 256L;
 
-	#ifdef USE_DEFAULTS
-	NavRadius = DEF_CLOSING_RADIUS;
-	NavIntLimit = DEF_NAV_INT_LIMIT;	 
-	NavAltKp = DEF_ALT_KP;
-	NavAltKi = DEF_ALT_KI;
-	NavRTHAlt = DEF_RTH_GPS_ALT;
-	NavMagVar = DEF_MAG_VAR;
-	#endif // USE_DEFAULTS
-
 	NavIntLimit256 = NavIntLimit * 256L;
-	NavClosingRadius = ( (int32)NavRadius * 5L );
+	NavClosingRadius = (int32)NavRadius * 5L;
 	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
 	CompassOffset = (((COMPASS_OFFSET_DEG + NavMagVar)*MILLIPI)/180L);
 

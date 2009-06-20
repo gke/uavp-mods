@@ -31,42 +31,7 @@ const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright 2008,2009 G.K. Egan
 							  "This is FREE SOFTWARE and comes with ABSOLUTELY NO WARRANTY\r\n"
 							  "see http://www.gnu.org/licenses/!\r\n";
 
-const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\n"
-
-	"GPS enabled\r\n"
-
-#ifdef DEBUG_SENSORS
-	"Debug: Sensors\r\n"
-#endif
-
-#ifdef RX_DEFAULT
-	"Rx: PPM Odd Channel\r\n"
-#endif
-#ifdef RX_PPM
-	"Rx: PPM Composite\r\n"
-#endif
-
-#ifdef ESC_PPM
-	"ESC: PPM\r\n"
-#endif
-#ifdef ESC_YGEI2C
-	"ESC: YGE I2C\r\n"
-#endif
-#ifdef ESC_HOLGER
-	"ESC: Holger I2C\r\n"
-#endif
-	
-	"Gyros: "
-#ifdef OPT_ADXRS300
-	"ADXRS300 (Roll/Pitch/Yaw)\r\n"
-#endif
-#ifdef OPT_ADXRS150
-	"ADXRS150 (Roll/Pitch/Yaw)\r\n"
-#endif
-#ifdef OPT_IDG
-	"ADXRS300 (Yaw), IDG300 (Roll/Pitch)\r\n"
-#endif
-	"Accelerometers ";
+const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\n";
 #pragma idata
 
 #pragma idata menuhelp
@@ -82,13 +47,11 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 #ifndef DISABLE_COMPASS_CALIBRATION
 	"K..Calib. Compass\r\n"
 #endif // !DISABLE_COMPASS_CALIBRATION
-//	"M..Modify paramters\r\n"
+//	"M..Modify parameters\r\n"
 	"P..RX test\r\n"
 	"S..Setup\r\n"
 	"V..Analog ch.\r\n"
-	#ifdef ESC_YGEI2C
 	"Y..Prog. YGE\r\n"
-	#endif
 	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
 
@@ -216,16 +179,12 @@ void ProcessComCommand(void)
 					if( CurrentParamSet == 1 )
 					{
 						WriteEE(_EESet1 + (uint16)param, d);
-						#ifdef UAVX2
 						if ( ComParms[param] )
 							WriteEE(_EESet2 + param, d);
-						#endif // UAVX2
 					}
 					else
 					{
-						#ifdef UAVX2
 						if ( !ComParms[param] )
-						#endif // UAVX2
 							WriteEE(_EESet2 + param, d);
 					}
 					LEDBlue_OFF;
@@ -263,13 +222,11 @@ void ProcessComCommand(void)
 				AnalogTest();
 				ShowPrompt();
 				break;
-
-			#ifdef ESC_YGEI2C
 			case 'Y':	// configure YGE30i EScs
 				ConfigureESCs();
 				ShowPrompt();
 				break;
-			#endif // ESC_YGEI2C
+
 			case '1':
 			case '2':
 			case '3':
