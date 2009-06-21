@@ -133,7 +133,7 @@ int8 	ESCType;
 // mask giving common variables across parameter sets
 const rom int8	ComParms[]={
 	0,0,0,1,0,0,0,0,0,0,
-	0,0,0,0,0,1,0,1,0,0,
+	0,0,0,0,0,1,1,1,0,0,
 	0,1,1,1,1,0,0,0,0,0,
 	0,0,1,1,1,1
 	};

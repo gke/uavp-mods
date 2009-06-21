@@ -2,7 +2,7 @@
 
 // Navigation
 
-#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
+//#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
 	
 // Accelerometer
 
@@ -151,15 +151,9 @@ typedef union {
 // Useful Constants
 
 #define NUL 0
-#define SOH 1
-#define ETX 3
-#define EOT 4
-#define ENQ 5
-#define ACK 6
 #define HT 9
 #define LF 10
 #define CR 13
-#define DLE 16
 #define NAK 21
 #define ESC 27
 #define true 1
@@ -388,9 +382,9 @@ typedef union {
 //	Ay=> Z + up
 //	Az=> X + back
 
-#define ACCSIGN_X	(1)
-#define ACCSIGN_Y	(-1)
-#define ACCSIGN_Z	(-1)
+#define ACCSIGN_X	+	
+#define ACCSIGN_Y	-
+#define ACCSIGN_Z	+	
 
 // Gyros
 
@@ -425,33 +419,6 @@ typedef union {
 // 5V Reference +-150 Deg/Sec
 // 0.146484375 Deg/Sec/LSB
 
-// Gyro 
-
-#define ADCPORTCONFIG 0b00001010 // AAAAA
-
-/*
-#ifdef OPT_IDG
-	#define MAXDEGSEC_PITCHROLL 	500
-	#define ADCEXTVREF_PITCHROLL 	1
-	#define	GYROSIGN_ROLL 			(-1)
-	#define	GYROSIGN_PITCH 			(1)
-#else
-#ifdef OPT_ADXRS150
-	#define MAXDEGSEC_PITCHROLL 	150
-	#define ADCEXTVREF_PITCHROLL 	0
-	#define	GYROSIGN_ROLL 			(1)
-	#define	GYROSIGN_PITCH 			(1)
-#else // OPT_ADXRS300
-	#define MAXDEGSEC_PITCHROLL 	300
-	#define ADCEXTVREF_PITCHROLL 	0
-	#define	GYROSIGN_ROLL 			(1)
-	#define	GYROSIGN_PITCH 			(1)
-#endif
-#endif
-
-#define	GYROSIGN_YAW 		(1)
-*/
-
 //#ifdef CLOCK_16MHZ
 #define _ClkOut		(160/4)	/* 16.0 MHz Xtal */
 //#else // CLOCK_40MHZ
@@ -466,27 +433,9 @@ typedef union {
 #define TMR2_5MS	78	/* 1x 5ms +  */
 #define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
 
-
-//#ifdef ESC_PPM
-//#define	_Minimum	1 /*((105* _ClkOut/(2*_PreScale1))&0xFF)*/
-//#define _Maximum	240					/* reduced from 255 */
-//#endif
-//#ifdef ESC_X3D
-//#define _Minimum	0
-//#define _Maximum	255
-//#endif
-//#ifdef ESC_Holger
-//#define _Minimum	0
-//#define _Maximum	225	/* ESC demanded */
-//#endif
-//#ifdef ESC_YGEI2C
-//#define _Minimum	0
-//#define _Maximum	240	/* ESC demanded */
-//#endif
-
-
 #define _Minimum	1
 #define _Maximum	240
+#define _HolgerMaximum	225 
 
 #define _Neutral	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
@@ -503,8 +452,6 @@ typedef union {
 #define _B38400		26 
 #define _B115200	9 
 #define _B230400	(_ClkOut*100000/(4*115200) - 1)
-
-
 
 // Sanity checks
 
@@ -681,7 +628,7 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum ESCTypes {	ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
-enum GyroTypes { ADXRS300, IDG300, ADXRS150, Melexis};
+enum GyroTypes { ADXRS300, ADXRS150, IDG300, MLX300, MLX150};
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,

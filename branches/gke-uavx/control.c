@@ -256,7 +256,7 @@ void CalcGyroValues(void)
 	// Approximately 4 bits of precision are discarded in this and related 
 	// calculations presumably because of the range of the 16 bit arithmetic.
 
-	if ( GyroType == ADXRS150 )
+	if (( GyroType == ADXRS150 ) || ( GyroType == MLX150 ))
 	{
 		RollRate = (RollRate + 2) >> 2; // recreate the 10 bit resolution
 		PitchRate = (PitchRate + 2) >> 2;
