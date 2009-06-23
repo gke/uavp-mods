@@ -1,4 +1,4 @@
-Navigation has been implemented. Navigation uses the 18F2620 PIC which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to implement navigation for the 16F876 version of equipped quadrocopter. 
+Navigation has been implemented using the 18F2620 PIC which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to implement navigation for the 16F876 version of equipped quadrocopter. 
 
 For maximum flexibility we have chosen to implement the GPS interface using NMEA sentences. A reference to NMEA is at:
 
