@@ -8,7 +8,7 @@ For maximum flexibility we have chosen to implement the GPS interface using NMEA
 
 We use the $GPGGA sentence and optionally $RMC and $GSV.
 
-Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. 
+Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. ETEK and LocoSys GPS units have been used with success.
 
 You require the compass and barometer. The Bosch SMD085 is the recommended barometer. 
 
