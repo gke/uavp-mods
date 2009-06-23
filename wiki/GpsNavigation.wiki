@@ -1,4 +1,3 @@
-#summary GPS Based Navigation
 
 GPS Navigation has been implemented. Navigation uses the 18F2620 which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to navigation to the PIC 16F876 version of equipped quadrocopter. 
 
