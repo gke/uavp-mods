@@ -1,5 +1,4 @@
-
-GPS Navigation has been implemented. Navigation uses the 18F2620 which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to navigation to the PIC 16F876 version of equipped quadrocopter. 
+Navigation has been implemented. Navigation uses the 18F2620 PIC which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to implement navigation for the 16F876 version of equipped quadrocopter. 
 
 For maximum flexibility we have chosen to implement the GPS interface using NMEA sentences. A reference to NMEA is at:
 
@@ -7,7 +6,7 @@ For maximum flexibility we have chosen to implement the GPS interface using NMEA
 
 We use the $GPGGA sentence and optionally $RMC and $GSV.
 
-Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. ETEK and LocoSys GPS units have been used with success.
+Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. The ETEK and LocoSys GPS units have been used with success.
 
 You require the compass and barometer. The Bosch SMD085 is the recommended barometer. 
 
@@ -19,11 +18,11 @@ Navigation uses the Gear (Ch5) and Ch7 inputs. This means that parameters can no
 
 The implementation provides two principal functions:
 
-* Position Hold: The current position is maintained while neither the pitch nor the roll stick are moved. Ch7 should be on a potentiometer input on the Tx. This controls the overall sensitivity of position acquisition and hold. The Navigation system may be disabled by turning to minimum sensitivity. 
+* Position Hold: The current position is maintained while neither the pitch nor the roll stick are moved. When either is moved away from the neutral position a new potential hold point is recorded from the GPS.   Ch7 controls the overall sensitivity of position acquisition and hold. Navigation system may be disabled by turning the Ch7 Tx potentiometer to minimum sensitivity. The GPS derived altitude is not used for position hold.  
 
-* Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will return to the launch point, or more specifically, the position at which a reliable GPS signal was acquired prior to launch. 
+* Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will attempt to return to the launch point, or more specifically, the position at which a reliable GPS signal was first acquired prior to launch.
 
-Normally the altitude is controlled directly by the pilot with the assistance of the barometer.  RTH can optionally use the GPS altitude to return at some desired relative altitude. 
+Normally the altitude is controlled directly by the pilot with the assistance of the barometer.  RTH can optionally use the GPS altitude to return at some desired relative altitude.  
 
 GPS acquisition is signalled by a solid Blue LED. This may take a few minutes to occur depending on the update rate of your GPS as UAVX requires around 100 valid GPS sentences with a small position error bound.
 
