@@ -248,6 +248,7 @@ typedef union {
 								after lost xmit signal */
 #define MODELLOSTTIMERINT	2 	/* in 0,2 sec units
 								interval beep when active */
+#define LOWGASDELAY	300L
 
 // LEDs
 
@@ -337,6 +338,7 @@ typedef union {
 #define _BaroTempRun		Flags[9]	/* 1 if baro temp a/d conversion is running */
 #define _BaroRestart		Flags[10] 	/* Baro restart required */
 #define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
+#define _Failsafe			Flags[12]
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
 #define _LostModel			Flags[18]
@@ -487,7 +489,8 @@ extern void InitADC(void);
 // autonomous.c
 extern void Descend(void);
 extern void Navigate(int16, int16);
-extern void CheckAutonomous(void);
+extern void DoNavigation(void);
+extern void DoFailsafe(void);
 
 // compass_altimeter.c
 extern void InitDirection(void);
@@ -504,11 +507,12 @@ extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
 extern void CalcGyroValues(void);
-extern void PID(void);
+extern void DoControl(void);
 
 extern void WaitThrottleClosed(void);
 extern void CheckThrottleMoved(void);
 extern void WaitForRxSignal(void);
+extern void UpdateControls(void);
 
 // irq.c
 extern void InitTimersAndInterrupts(void);
@@ -627,8 +631,10 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
+enum FlightStates { Starting, Landed, Flying, Landing };
+
 enum ESCTypes {	ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
-enum GyroTypes { ADXRS300, ADXRS150, IDG300, MLX300, MLX150};
+enum GyroTypes { ADXRS300, ADXRS150, IDG300};
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
@@ -644,6 +650,8 @@ enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchR
 
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
+
+extern int8		TimeSlot;
 
 extern uint8	CurrentParamSet;
 
@@ -709,9 +717,7 @@ extern int16	CurDeviation;	// deviation from correct heading
 
 extern uint8 	RxCheckSum;
 
-#ifdef DEBUG_SENSORS
 extern int16	Trace[LastTrace];
-#endif // DEBUG_SENSORS
 
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
@@ -731,7 +737,7 @@ extern int8	YawDiffFactor;		// 13
 extern int8	YawLimit;			// 14
 extern int8 YawIntLimit;		// 15
 extern int8	ConfigParam;		// 16
-extern int8 TimeSlot;			// 17
+extern int8 TimeSlots;			// 17
 extern int8	LowVoltThres;		// 18
 extern int8	CamRollFactor;		// 19
 extern int8	LinFBIntFactor;		// 20 free

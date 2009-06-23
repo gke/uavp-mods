@@ -29,7 +29,9 @@
 
 // Global Variables
 
+uint8	State;
 uint8	CurrentParamSet;
+int8	TimeSlot;
 
 uint8	IGas;						// actual input channel, can only be positive!
 int8 	IRoll,IPitch,IYaw;			// actual input channels, 0 = neutral
@@ -108,7 +110,7 @@ int8	YawDiffFactor;
 int8	YawLimit;
 int8	YawIntLimit;
 int8	ConfigParam;
-int8	TimeSlot;	// control update interval + LEGACY_OFFSET
+int8	TimeSlots;	// control update interval + LEGACY_OFFSET
 int8	LowVoltThres;
 int8	CamRollFactor;	
 int8	LinFBIntFactor;	// unused
@@ -153,19 +155,20 @@ void main(void)
 	
 	InitTimersAndInterrupts();
 
+	CurrentParamSet = 1;
+	ReadParametersEE();
+
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
 	
-	ESCType = ESCPPM;
-	GyroType = IDG300;
-
 	LEDShadow = 0;
     ALL_LEDS_OFF;
 	LEDRed_ON;
+	Beeper_OFF;
 
 	InitArrays();
-	CurrentParamSet = 1;
-	ReadParametersEE();
+	ThrNeutral = 255;	
+	IGas = DesiredThrottle = IK5 = IK6 = IK7 = _Minimum;
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	EnableInterrupts;
@@ -179,159 +182,120 @@ void main(void)
 	InitNavigation();
 
 	ShowSetup(1);
-
-	ThrNeutral = 0xFF;
-	IK6 = IK7 = _Minimum;
-	Cycles = 0;
-
-Restart:
-	IGas = DesiredThrottle = IK5 = _Minimum;
-	Beeper_OFF;
-
-	// DON'T MOVE THE UFO!
-	// ES KANN LOSGEHEN!
-
+	
 	while( true )
 	{
-		INTCONbits.TMR0IE = false;		// Disable TMR0 interrupt
-
-		// no command processing while the Quadrocopter is armed
 		ReceivingGPSOnly(false);
 
-		ALL_LEDS_OFF;
+		if ( !_Signal )
+		{
+			IGas = DesiredThrottle = IK5 = _Minimum;	// Assume parameter set #1
+			Beeper_OFF;
+		}
+
+		INTCONbits.TMR0IE = false;
+		ALL_LEDS_OFF; 
 		LEDRed_ON;	
 		if( _AccelerationsValid )
 			LEDYellow_ON;
 
 		InitArrays();
-		ThrNeutral = 0xFF;
-		NavState = PIC;
-
 		EnableInterrupts;	
-		WaitForRxSignal(); // Wait until a valid RX signal is received
-
+		WaitForRxSignal();
+		UpdateControls();
+ 
 		ReadParametersEE();
 		WaitThrottleClosed();
+			
+		DropoutCycles = MAXDROPOUT;
+		TimeSlot = Limit(TimeSlots, 2, 20);
+		Cycles = 0;
+		State = Starting;
 
-		if ( !_Signal )
-			goto Restart;
+		while ( Armed  )
+		{	
+			ReceivingGPSOnly(true); // no Command processing while the Quadrocopter is armed
 
-		// ######## MAIN LOOP ########
-
-		// loop length is controlled by a programmable variable "TimeSlot"
-
-		DropoutCycles = 0;
-		IntegralCount = 16;	// do 16 cycles to find integral zero point
-		ThrDownCycles = THR_DOWNCOUNT;
-	
-		while ( Armed )
-		{
 			Cycles++;
 
-			ReceivingGPSOnly(true);
+			if ( _Signal && !_Failsafe )
+			{
+				UpdateControls();
 
-			// wait pulse pause delay time (TMR0 has 1024us for one loop)
+				switch ( State ) {
+				case Starting:
+					ThrDownCycles = THR_DOWNCOUNT;
+					InitArrays();
+					IntegralCount = 16; // erect gyros - old style
+
+					ALL_LEDS_OFF;				
+					AUX_LEDS_OFF;
+
+					LEDGreen_ON;
+					State = Landed;
+					break;
+				case Landed:
+					if ( (DesiredThrottle >= MotorLowRun) && (IntegralCount == 0) )
+					{
+						AbsDirection = COMPASS_INVAL;						
+						LEDCycles = 1;
+						State = Flying;
+					}
+					break;
+				case Flying:
+
+					DoNavigation();
+
+					LEDGame();
+					LowGasCycles = LOWGASDELAY;
+					if ( DesiredThrottle < MotorLowRun )
+					{
+						DesiredThrottle = MotorLowRun;
+						State = Landing;
+					}
+					break;
+				case Landing:
+					if ( DesiredThrottle >= MotorLowRun )
+						State = Flying;
+					else
+						if ( --LowGasCycles > 0 )
+							DesiredThrottle = MotorLowRun;
+						else
+							State = Starting;
+					break;
+				} // Switch State
+				_LostModel = _Failsafe = false;
+				DropoutCycles = MAXDROPOUT;
+			}
+			else
+				DoFailsafe();
+
 			WriteTimer0(0);
 			INTCONbits.TMR0IF = false;
 			INTCONbits.TMR0IE = true;
 
-			RollRate = PitchRate = 0;	// zero gyros sum-up memory
-			// sample gyro data and add everything up while waiting for timing delay
-
-			GetGyroValues();
-
-			GetDirection();
-			CheckAutonomous(); // before timeslot delay to give maximum time
-
-			while( TimeSlot > 0 ) {}
-
+				RollRate = PitchRate = 0;
+				GetGyroValues();
+				GetDirection();
+				ComputeBaroComp();
+	
+				while( TimeSlot > 0 ) {}
 			INTCONbits.TMR0IE = false;	// disable timer
-			
-			ComputeBaroComp();
+
+			TimeSlot = Limit(TimeSlots, 2, 20);
+
 			GetGyroValues();
 
-			CalcGyroValues();
-
-			// check for signal dropout while in flight
-			if( _Flying && !_Signal )
-			{
-				if( ( Cycles & 0x000f ) == 0 )
-					DropoutCycles++;
-				if( DropoutCycles < MAXDROPOUT )
-				{	// FAILSAFE	- hold last throttle
-					_LostModel = true;
-					ALL_LEDS_OFF;
-					DesiredRoll = DesiredPitch = DesiredYaw = 0;
-					goto DoPID;
-				}
-				break;	// timeout, stop everything
-			}
-
-			// allow motors to run on low throttle 
-			// even if stick is at minimum for a short time
-			if( _Flying && ( DesiredThrottle <= _ThresStop ) )
-				if( --LowGasCycles > 0 )
-					goto DoPID;
-
-			if( ( !_Signal ) || 
-			    ( (_Flying && (DesiredThrottle <= _ThresStop)) ||
-			      (!_Flying && (DesiredThrottle <= _ThresStart)) ) )
-			{	// UFO is landed, stop all motors
-
-				TimeSlot += 2; // to compensate PID() calc time!
-				IntegralCount = 16;	// do 16 cycles to find integral zero point
-				ThrDownCycles = THR_DOWNCOUNT;
-				
-				InitArrays();	// resets _Flying flag!
-				GyroMidRoll = GyroMidPitch = GyroMidYaw = 0;
-				if( Armed && !_Signal )	
-					break;	// then RX signal was lost
-
-				ALL_LEDS_OFF;				
-				AUX_LEDS_OFF;
-				LEDGreen_ON;
-			}
-			else
-			{	// UFO is flying!
-				if( !_Flying )	// about to start
-				{	
-					AbsDirection = COMPASS_INVAL;						
-					LEDCycles = 1;
-				}
-
-				_Flying = true;
-				_LostModel = false;
-				DropoutCycles = 0;
-				LowGasCycles = 100;		
-				LEDGreen_ON;
-				LEDGame();
-DoPID:
-				CheckThrottleMoved();
-
-				if(	IntegralCount > 0 )
-					IntegralCount--;
-				else
-				{
-					PID();
-					MixAndLimitMotors();
-				}
-
-				// remember old gyro values
-				REp = RE;
-				PEp = PE;
-				YEp = YE;
-			}
-		
+			DoControl();
+			MixAndLimitMotors();
 			MixAndLimitCam();
 			OutSignals();
 
 			CheckAlarms();
-
-			if( IntegralCount == 0 )
-				DumpTrace();		
-
+			DumpTrace();
+		
 		} // flight while armed
-
+	
 		Beeper_OFF;
 	}
 } // main

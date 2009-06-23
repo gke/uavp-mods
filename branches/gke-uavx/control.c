@@ -30,11 +30,12 @@ void LimitPitchSum(void);
 void LimitYawSum(void);
 void GetGyroValues(void);
 void CalcGyroValues(void);
-void PID(void);
+void DoControl(void);
 
 void WaitThrottleClosed(void);
 void CheckThrottleMoved(void);
 void WaitForRxSignal(void);
+void UpdateControls(void);
 
 void GyroCompensation(void)
 {
@@ -256,7 +257,7 @@ void CalcGyroValues(void)
 	// Approximately 4 bits of precision are discarded in this and related 
 	// calculations presumably because of the range of the 16 bit arithmetic.
 
-	if (( GyroType == ADXRS150 ) || ( GyroType == MLX150 ))
+	if ( GyroType == ADXRS150 )
 	{
 		RollRate = (RollRate + 2) >> 2; // recreate the 10 bit resolution
 		PitchRate = (PitchRate + 2) >> 2;
@@ -285,6 +286,7 @@ void CalcGyroValues(void)
 			GyroMidYaw = 0;
 			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
 		}
+		IntegralCount--;
 	}
 	else
 	{
@@ -347,7 +349,7 @@ void CalcGyroValues(void)
 	}
 } // CalcGyroValues
 
-void PID(void)
+void DoControl(void)
 {
 
 	GyroCompensation();	
@@ -396,7 +398,7 @@ void PID(void)
 	Yl += SRS16(YawSum * (int16)YawIntFactor, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);	// effective slew limit
 
-} // PID
+} // DoControl
 
 void WaitThrottleClosed(void)
 {
@@ -474,3 +476,15 @@ void WaitForRxSignal(void)
 	while( !( _Signal && Armed ) );				// no signal or switch is off
 } // WaitForRXSignal
 
+void UpdateControls(void)
+{
+	if ( _Signal )
+	{
+		DesiredThrottle = IGas;
+		DesiredRoll = IRoll;
+		DesiredPitch = IPitch;
+		DesiredYaw = IYaw;
+		NavSensitivity = IK7;
+		_ReturnHome = IK5 > _Neutral;
+	}
+} // UpdateControls

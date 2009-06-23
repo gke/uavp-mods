@@ -84,6 +84,7 @@ void InitTimersAndInterrupts(void)
 	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
 	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
+	RCGlitches = 0;
 	RxCheckSum = 0;
    	ReceivingGPSOnly(false);
 

@@ -209,7 +209,7 @@ void InitBarometer(void)
 	// Baro is assumed offline unless it responds - no retries!
 	static uint8 r;
 
-	VBaroComp = BaroCycles = 0;
+	VBaroComp = BaroCycles = BaroRestarts = 0;
 
 	// Determine baro type
 	I2CStart();

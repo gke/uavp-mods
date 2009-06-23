@@ -131,10 +131,8 @@ void InitArrays(void)
 {
 	int8 i;
 
-	#ifdef DEBUG_SENSORS
 	for (i=0; i <= TopTrace; i++)
 		Trace[i] = 0;
-	#endif
 
 	for (i = 0; i < NoOfMotors; i++)
 		Motor[i] = _Minimum;
@@ -150,9 +148,11 @@ void InitArrays(void)
 	YawSum = RollSum = PitchSum = 0;
 
 	HoverThrottle = THR_HOVER;
+	AE = AltSum = 0;
 
 	BaroRestarts = 0;
-	RCGlitches = 0;
+
+
 } // InitArrays
 
 int16 ConvertGPSToM(int16 c)
@@ -185,10 +185,10 @@ void ReadParametersEE(void)
 	static int8 *p, c; 
 	static uint16 addr;
 
-	if( CurrentParamSet == 2 )
-		addr = _EESet2;	
+	if( CurrentParamSet == 1 )
+		addr = _EESet1;	
 	else
-		addr = _EESet1;
+		addr = _EESet2;
 	
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
@@ -204,8 +204,6 @@ void ReadParametersEE(void)
 
 	BatteryVolts = LowVoltThres;
 	
-	TimeSlot = Limit(TimeSlot, 2, 20);
-
 } // ReadParametersEE
 
 void WriteEE(uint8 addr, int8 d)

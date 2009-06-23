@@ -31,7 +31,7 @@ const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright 2008,2009 G.K. Egan
 							  "This is FREE SOFTWARE and comes with ABSOLUTELY NO WARRANTY\r\n"
 							  "see http://www.gnu.org/licenses/!\r\n";
 
-const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\n";
+const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\nAccelerometers ";
 #pragma idata
 
 #pragma idata menuhelp
@@ -91,6 +91,20 @@ void ShowSetup(uint8 h)
 		TxString("not available\r\n");
 
 	ReadParametersEE();
+
+	switch ( GyroType ) {
+	case ADXRS300:TxString("Pitch/Roll Gyros: ADXRS610/300 or MLX90609\r\n"); break;
+	case ADXRS150:TxString("Pitch/Roll Gyros: ADXRS613/150\r\n"); break;
+	case IDG300:TxString("Pitch/Roll Gyros: IDG300\r\n"); break;
+	}
+	
+	switch ( ESCType ) {
+	case ESCPPM:TxString("ESC: PPM\r\n"); break;
+	case ESCHolger:TxString("ESC: Holger I2Ce\r\n"); break;
+	case ESCX3D:TxString("ESC: X-3D I2C\r\n"); break;
+	case ESCYGEI2C:TxString("ESC: YGE I2C\r\n"); break;
+	}	
+
 	TxString("Throttle Ch");
 	if( FutabaMode )
 		TxChar('3');
@@ -194,10 +208,10 @@ void ProcessComCommand(void)
 				TxString("\r\nNeutral Roll:");
 				TxValS(NeutralLR);
 		
-				TxString(" Ptch:");
+				TxString(" Pitch:");
 				TxValS(NeutralFB);
 		
-				TxString(" Yaw:");	
+				TxString(" Vert:");	
 				TxValS(NeutralUD);
 				ShowPrompt();
 				break;

@@ -25,7 +25,8 @@
 
 void Descend(void);
 void Navigate(int16, int16);
-void CheckAutonomous(void);
+void DoNavigation(void);
+void DoFailsafe(void);
 
 // Variables
 extern int16 ValidGPSSentences;
@@ -131,14 +132,8 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	}
 } // Navigate
 
-void CheckAutonomous(void)
+void DoNavigation(void)
 {
-	DesiredThrottle = IGas;
-	DesiredRoll = IRoll;
-	DesiredPitch = IPitch;
-	DesiredYaw = IYaw;
-	NavSensitivity = IK7;
-	_ReturnHome = IK5 > _Neutral;
 
 	UpdateGPS();
 
@@ -192,7 +187,38 @@ void CheckAutonomous(void)
 		}
 
 
-} // CheckAutonomous
+} // DoNavigation
+
+void DoFailsafe(void)
+{ // only relevant to PPM Rx
+
+	_LostModel = true;
+	ALL_LEDS_OFF;
+	DesiredRoll = DesiredPitch = DesiredYaw = 0;
+	if ( _Failsafe )
+		if ( _GPSValid && _CompassValid )
+		{
+			GPSAltitudeHold(NavRTHAlt * 10L);
+			Navigate(0, 0);
+			if ( _Proximity && _Signal )
+				_Failsafe = false;		
+		}
+		else
+		{
+
+
+		}
+	else
+		if( --DropoutCycles == 0 )
+		{
+			_Failsafe = true;
+			DesiredThrottle = HoverThrottle;
+		}
+		else
+			DesiredThrottle = HoverThrottle;				
+		
+} // DoFailsafe
+
 
 void InitNavigation(void)
 {
