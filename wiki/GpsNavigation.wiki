@@ -1,34 +1,63 @@
-#summary GPS Navigation Status
+#summary GPS Based Navigation
 
-== Introduction ==
+GPS Navigation has been implemented. Navigation uses the 18F2620 which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to navigation to the PIC 16F876 version of equipped quadrocopter. 
 
-First off, the official UAVP project is also working on adding GPS support. This project is just starting out and GPS navigation is not a trivial matter so Wolferl may just beat us to a working implementation as most of us are just beginners at this.
+For maximum flexibility we have chosen to implement the GPS interface using NMEA sentences. A reference to NMEA is at:
 
+  http://home.mira.net/~gnb/gps/nmea.html
 
-== What is involved? ==
-   * (Done) Choose a GPS unit
-      * Etek EB-85A (aka FV-M8) is the recommended GPS unit.
-      * Since we plan on supporting NMEA, other GPS units will be supported as well.
-      * Available here for about $82: http://www.dpcav.com/xcart/product.php?productid=16161
-      * Sometimes available for $55: http://www.ohararp.com/products.html
-      * Available here for $99: http://www.sparkfun.com/commerce/product_info.php?products_id=8266
-   * Ways forward:
-      * Use the 18F2520 PIC instead of the current 876 (See AlternateFirmware): This is the approach that is the farthest along.
-      * Use the existing PIC: This is challenging due to compiler and space restrictions and is currently not being pursued.
-      * Use another processor: Other options include an ARM processor, an Atmel processor, etc.
-      * Create a daughterboard: This is the approach chosen by the Mikrokopter.
-   * Parse NMEA sentences
-      * In order to know where we are, we need to be able to read the information given to us by the GPS.
-      * NMEA is a textual format that most GPS receivers can output.
-         * TODO: Add links to NMEA format here...
-      * We need to write some code for the PIC to read the information from the GPS.
-   * Add a switch to enable or disable GPS navigation. This will allow us to selectively enable the GPS parsing and navigation routes which will prove very helpful during testing.
-   * Add GPS navigation routines.
-      * A GPS hold routine will probably be the first step. This will allow us to test navigating in a small area before moving onto larger areas. An added benefit is there is less of a chance of the UAVP running away!
-      * More to come later...
+We use the $GPGGA sentence and optionally $RMC and $GSV.
 
-== Status ==
+Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. The ETEK and LocoSys products are currently being used.  
 
-Researching format of GPS data.
+You require the compass and barometer. The Bosch SMD085 is the recommended barometer. See the hardware specific pages for details.
+
+== Functionality ==
+
+Navigation uses the Gear (Ch5) and Ch7 inputs. This means that parameters can no longer be changed in flight using Ch5, and roll trim for any servo driven camera is no longer available. Signals for roll and trim stabilisation are still generated. Ch6 is still available for camera pitch trim.
+
+The implementation provides two principal functions:
+
+* Position Hold: The current position is maintained while neither the pitch nor the roll stick are moved. Ch7 should be on a potentiometer input on the Tx. This controls the overall sensitivity of position acquisition and hold. The Navigation system may be disabled by turning to minimum sensitivity. 
+
+* Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will return to the launch point, or more specifically, the position at which a reliable GPS signal was acquired prior to launch. 
+
+Normally the altitude is controlled directly by the pilot with the assistance of the barometer.  RTH can optionally use the GPS altitude to return at some desired relative altitude. 
+
+== UAVPset Parameters == 
+
+Several of the navigation parameters are available through the UAVX version of UAVPset.  
+
+The parameters are:
+
+* Radius: The closing radius in Metres around the desired GPS position. Outside this radius maximum corrective control is applied. Inside the radius proportionately less control is exerted.
+
+* Magnetic Variation: The number of degrees Magnetic North is East of True North for your location.
+
+* Wind Compensation: Increases the amount of compensation if the desired position is not being maintained.
+
+* RTH GPS Altitiude: If selected, the GPS altitude in Metres relative to the launch point to be maintained. There is no pilot throttle control with this function.  
+
+* RTH Altitude Proportional & Integral: PID constants for altitude hold.
+
+There are of course many other tuning parameters within the code which have not been brought through the UAVPSet interface!
+
+The UAVX version of UAVPSet can read older parameter files and write them to the UAVX software on the quadrocopter. Parameters read from UAVX are not compatible with UAVP the old flight software.
+
+== Stick Based Configuration ==
+
+Parameter switching and enabling RTH GPS altitude hold is achieved using the pitch stick while the quadrocopter is disarmed. The corners are used with left being parameter set 1 and right 2. If the bottom corners are used RTH GPS altitude is enabled.  You should hear short beeps for the paramter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.  
+
+== PC/GPS Switching ==
+
+The arming switch needs to be replaced by a double switch which when arming switches the PC Tx signal to the quadrocopter OFF and the GPS Tx ON. When armed the UAVX software expects only valid GPS NMEA sentences. Specific details will appear under hardware related pages.
+
+== Way Points == 
+
+Way point navigation has not been implemented.
+
+== GNU Conditions ==
+
+The GNU conditions apply to this software which may be used entirely at your own risk.
 
 Leave a comment if you have suggestions or can help out.
