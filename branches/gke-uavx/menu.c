@@ -205,13 +205,13 @@ void ProcessComCommand(void)
 				ShowPrompt();
 				break;
 			case 'N' :	// neutral values
-				TxString("\r\nNeutral Roll:");
+				TxString("\r\nNeutral    R:");
 				TxValS(NeutralLR);
 		
-				TxString(" Pitch:");
+				TxString("    P:");
 				TxValS(NeutralFB);
 		
-				TxString(" Vert:");	
+				TxString("   V:");	
 				TxValS(NeutralUD);
 				ShowPrompt();
 				break;

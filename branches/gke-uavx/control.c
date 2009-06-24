@@ -351,7 +351,8 @@ void CalcGyroValues(void)
 
 void DoControl(void)
 {
-
+	CheckThrottleMoved();				
+	CalcGyroValues();
 	GyroCompensation();	
 	AltitudeDamping();
 

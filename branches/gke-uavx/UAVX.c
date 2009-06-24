@@ -218,10 +218,10 @@ void main(void)
 
 			Cycles++;
 
+			UpdateControls();
+
 			if ( _Signal && !_Failsafe )
 			{
-				UpdateControls();
-
 				switch ( State ) {
 				case Starting:
 					ThrDownCycles = THR_DOWNCOUNT;
@@ -243,7 +243,7 @@ void main(void)
 					}
 					break;
 				case Flying:
-
+LEDBlue_ON;
 					DoNavigation();
 
 					LEDGame();
