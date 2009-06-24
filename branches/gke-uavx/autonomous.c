@@ -192,31 +192,18 @@ void DoNavigation(void)
 void DoFailsafe(void)
 { // only relevant to PPM Rx
 
-	_LostModel = true;
 	ALL_LEDS_OFF;
 	DesiredRoll = DesiredPitch = DesiredYaw = 0;
 	if ( _Failsafe )
-		if ( _GPSValid && _CompassValid )
-		{
-			GPSAltitudeHold(NavRTHAlt * 10L);
-			Navigate(0, 0);
-			if ( _Proximity && _Signal )
-				_Failsafe = false;		
-		}
-		else
-		{
-
-
-		}
+	{
+		_LostModel = true;		
+		DesiredThrottle = 0;
+	}
 	else
-		if( --DropoutCycles == 0 )
-		{
+		if( --DropoutCycles == 0 )// timeout - immediate landing
 			_Failsafe = true;
-			DesiredThrottle = HoverThrottle;
-		}
 		else
-			DesiredThrottle = HoverThrottle;				
-		
+			DesiredThrottle = Limit(DesiredThrottle, DesiredThrottle, THR_HOVER);					
 } // DoFailsafe
 
 

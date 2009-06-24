@@ -443,7 +443,7 @@ typedef union {
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
 #define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
 
-#define MAXDROPOUT	400L	// 400 x 16 x 7ms = 40sec. dropout allowable
+#define MAXDROPOUT	4000L	// x 7ms = 30 sec. dropout allowable
 #define GPSDROPOUT	20L		// 2sec.
 
 // Parameters for UART port
