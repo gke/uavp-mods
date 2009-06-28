@@ -226,7 +226,13 @@ void main(void)
 				case Starting:
 					ThrDownCycles = THR_DOWNCOUNT;
 					InitArrays();
+
+					#ifdef NEW_ERECT_GYROS
+
+					IntegralCount = 0;
+					#else
 					IntegralCount = 16; // erect gyros - old style
+					#endif
 
 					ALL_LEDS_OFF;				
 					AUX_LEDS_OFF;

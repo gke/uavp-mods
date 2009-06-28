@@ -2,12 +2,7 @@
 
 // Navigation
 
-//#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
-	
 // Accelerometer
-
-// Enable vertical accelerometer compensation of vertical velocity 
-#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
 
@@ -81,6 +76,8 @@
 // Enable this to use the Accelerometer sensor 
 // Normally ENABLED
 #define USE_ACCELEROMETER
+// Enable vertical accelerometer compensation of vertical velocity 
+#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
 
@@ -110,6 +107,8 @@
 
 // Misc
 
+//#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
+	
 // =====================================
 // end of user-configurable section!
 // =====================================
@@ -506,6 +505,7 @@ extern void LimitRollSum(void);
 extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
+extern void ErectGyros(void);
 extern void CalcGyroValues(void);
 extern void DoControl(void);
 

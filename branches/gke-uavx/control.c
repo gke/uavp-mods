@@ -29,6 +29,7 @@ void LimitRollSum(void);
 void LimitPitchSum(void);
 void LimitYawSum(void);
 void GetGyroValues(void);
+void ErectGyros(void);
 void CalcGyroValues(void);
 void DoControl(void);
 
@@ -246,7 +247,50 @@ void GetGyroValues(void)
 	}
 } // GetGyroValues
 
-//int16 DummyPitch = 0;//zz
+#ifdef NEW_ERECT_GYROS
+
+void ErectGyros(void)
+{
+	static int8 i;
+
+	RollSum = PitchSum = YawSum = 0;
+
+    for ( i=16; i; i-- )
+	{
+		if ( GyroType == IDG300 )
+		{
+			RollSum += (int16)ADC(IDGADCRollChan, ADCVREF3V3);
+			PitchSum += (int16)ADC(IDGADCPitchChan, ADCVREF3V3);	
+		}
+		else
+		{
+			RollSum += (int16)ADC(NonIDGADCRollChan, ADCVREF5V);
+			PitchSum += (int16)ADC(NonIDGADCPitchChan, ADCVREF5V);
+		}
+		YawSum += ADC(ADCYawChan, ADCVREF5V);
+	}
+		
+	if ( GyroType == ADXRS150 )
+	{
+		RollSum = (RollSum + 1) >> 1; 
+		PitchSum = (PitchSum + 1) >> 1;
+	}
+
+	if( !_AccelerationsValid )
+	{
+		RollSum += MiddleLR;
+		PitchSum += MiddleFB;
+	}
+
+	GyroMidRoll = (RollSum + 8) >> 4;	
+	GyroMidPitch = (PitchSum + 8) >> 4;
+	GyroMidYaw = (YawSum + 32) >> 6;
+
+	RollSum = PitchSum = YawSum = 0;
+
+} // ErectGyros
+
+#endif // NEW_ERECT_GYROS
 
 // Calc the gyro values from added RollRate and PitchRate
 void CalcGyroValues(void)
@@ -332,9 +376,13 @@ void CalcGyroValues(void)
 		LimitPitchSum();					// for pitch integration
 
 		// Yaw is sampled only once every frame, 8 bit A/D resolution
-		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;	
+		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;
+
+		#ifndef NEW_ERECT_GYROS
 		if( GyroMidYaw == 0 )
 			GyroMidYaw = YE;
+		#endif // !NEW_ERECT_GYROS
+
 		YE -= GyroMidYaw;
 		YawRate = YE;
 
