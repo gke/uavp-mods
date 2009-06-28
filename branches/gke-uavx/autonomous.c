@@ -38,8 +38,12 @@ void GPSAltitudeHold(int16 DesiredAltitude)
 {
 	int16 Temp;
 
-	if ( _GPSAltitudeValid && _UseRTHGPSAlt )
+	if ( _UseRTHGPSAlt ) //zzz && _GPSAltitudeValid )
 	{
+		#ifdef	USE_BARO_FOR_RTH	
+		DesiredThrottle = HoverThrottle;
+		DesiredBaroPressure = OriginBaroPressure - DesiredAltitude;
+		#else
 		AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
 		AltSum += AE;
 		AltSum = Limit(AltSum, -10, 10);	
@@ -47,10 +51,11 @@ void GPSAltitudeHold(int16 DesiredAltitude)
 	
 		DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
 		DesiredThrottle = Limit(DesiredThrottle, 0, _Maximum);
+		#endif // USE_BARO_FOR_RTH
 	}
 	else
 	{
-		// use baro
+
 	}
 } // GPSAltitudeHold
 

@@ -63,7 +63,7 @@ int16	AltSum, AE;
 uint8	ThrNeutral;
 
 // Variables for barometric sensor PD-controller
-int24	BaroBasePressure, BaroBaseTemp;
+int24	DesiredBaroPressure, OriginBaroPressure;
 int16   BaroRelPressure, BaroRelTempCorr;
 i16u	BaroVal;
 int16	VBaroComp;

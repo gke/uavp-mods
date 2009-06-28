@@ -314,12 +314,12 @@ void BaroTest(void)
 	T = BaroVal.u16;
 	TxString("\tTemp: ");
 	TxVal32((int32)T, 0, 0);	
-
+/*
 	TxString("\tComp: ");
 	C = P + SRS16((int16)T * (int16)BaroTempCoeff + 16, 5);
 	TxVal32((int32)C, 0, 0);
 	TxNextLine();
-
+*/
 	TxNextLine();
 
 	return;

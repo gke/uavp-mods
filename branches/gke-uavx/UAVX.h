@@ -11,8 +11,8 @@
 
 // Barometer
 
-// Reduces the update rate and the additionally the descent rate 
-#define ENABLE_NEW_ALT_HOLD
+// if defined uses baro instead of GPS for RTH altitude hold.
+#define USE_BARO_FOR_RTH
 
 // Modifications which have been adopted are included BELOW.
 
@@ -673,26 +673,26 @@ extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDAcc, UDSum, VUDComp;
 
 // GPS
-extern uint8 GPSMode;
-extern int16 GPSGroundSpeed, GPSHeading, GPSLongitudeCorrection;
-extern uint8 GPSNoOfSats;
-extern uint8 GPSFix;
-extern int16 GPSHDilute;
-extern int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
-extern int16 GPSRelAltitude;
+extern uint8 	GPSMode;
+extern int16 	GPSGroundSpeed, GPSHeading, GPSLongitudeCorrection;
+extern uint8 	GPSNoOfSats;
+extern uint8 	GPSFix;
+extern int16 	GPSHDilute;
+extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+extern int16 	GPSRelAltitude;
 
-extern int16 SqrNavClosingRadius, NavClosingRadius, CompassOffset;
+extern int16 	SqrNavClosingRadius, NavClosingRadius, CompassOffset;
 
 enum NavStates { PIC, HoldingStation, ReturningHome, Navigating, Terminating };
-extern uint8 NavState;
-extern uint8 NavSensitivity;
-extern int16 AltSum, AE;
+extern uint8 	NavState;
+extern uint8 	NavSensitivity;
+extern int16 	AltSum, AE;
 
 // Failsafes
 extern uint8	ThrNeutral;
 			
 // Variables for barometric sensor PD-controller
-extern int24	BaroBasePressure, BaroBaseTemp;
+extern int24	DesiredBaroPressure, OriginBaroPressure;
 extern int16	BaroRelPressure, BaroRelTempCorr;
 extern i16u		BaroVal;
 extern int16	VBaroComp;
