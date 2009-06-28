@@ -107,7 +107,7 @@
 
 // Misc
 
-//#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
+#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
 	
 // =====================================
 // end of user-configurable section!
