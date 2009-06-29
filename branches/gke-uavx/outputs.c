@@ -109,7 +109,7 @@ void CheckDemand(int16 CurrThrottle)
 
 	DemandSwing = MaxMotor - CurrThrottle;
 
-	if ( CurrThrottle < MotorLowRun )
+	if ( CurrThrottle < IdleThrottle )
 	{
 		Scale = 0;
 		MotorDemandRescale = false;
@@ -118,7 +118,7 @@ void CheckDemand(int16 CurrThrottle)
 		if ( DemandSwing > 0 )
 		{		
 			ScaleHigh = (( _Maximum - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
-			ScaleLow = (( (int24)CurrThrottle - MotorLowRun) * 256 )/ DemandSwing;
+			ScaleLow = (( (int24)CurrThrottle - IdleThrottle) * 256 )/ DemandSwing;
 			Scale = Min(ScaleHigh, ScaleLow);
 			if ( Scale < 256 )
 			{
@@ -162,10 +162,10 @@ void MixAndLimitCam(void)
 	static int16 Cr, Cp;
 
 	// use only roll/pitch angle estimates
-	if( (IntegralCount == 0) && ((CamRollFactor != 0) || (CamPitchFactor != 0)) )
+	if( (IntegralCount == 0) && ((CamRollKp != 0) || (CamPitchKp != 0)) )
 	{
-		Cr = RollSum / (int16)CamRollFactor;
-		Cp = PitchSum / (int16)CamPitchFactor;
+		Cr = RollSum / (int16)CamRollKp;
+		Cp = PitchSum / (int16)CamPitchKp;
 	}
 	else
 		Cr = Cp = _Minimum;

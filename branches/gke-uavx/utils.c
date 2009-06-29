@@ -147,7 +147,6 @@ void InitArrays(void)
 	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
 
-	HoverThrottle = THR_HOVER;
 	AE = AltSum = 0;
 
 	BaroRestarts = 0;
@@ -192,6 +191,9 @@ void ReadParametersEE(void)
 	
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
+
+	IdleThrottle = (PercentIdleThr * _Maximum )/100;
+	HoverThrottle = (PercentHoverThr * _Maximum )/100;
 
 	RollIntLimit256 = (int16)RollIntLimit * 256L;
 	PitchIntLimit256 = (int16)RollIntLimit * 256L;
@@ -251,12 +253,14 @@ void WriteParametersEE(uint8 s)
 
 void UpdateParamSetChoice(void)
 {
-	int8 NewParamSet, NewRTHGPSAlt;
+	int8 NewParamSet, NewRTHAltitudeHold, NewTurnToHome;
 
 	NewParamSet = CurrentParamSet;
-	NewRTHGPSAlt = _UseRTHGPSAlt;
+	NewRTHAltitudeHold = _RTHAltitudeHold;
+	NewTurnToHome = _TurnToHome;
 
 	if ( _Signal )
+	{
 		while ( (Abs(IPitch) > 20) && ((Abs(IYaw) > 20)|| (Abs(IRoll) > 20)) )
 		{
 			if ( IPitch  > 20 ) // bottom
@@ -264,13 +268,13 @@ void UpdateParamSetChoice(void)
 				if ( (IYaw > 20) || ( IRoll < -20) ) // left
 				{ // bottom left
 					NewParamSet = 1;
-					NewRTHGPSAlt = true;
+					NewRTHAltitudeHold = true;
 				}
 				else
 					if ( (IYaw < -20) || (IRoll > 20) ) // right
 					{ // bottom right
 						NewParamSet = 2;
-						NewRTHGPSAlt = true;
+						NewRTHAltitudeHold = true;
 					}
 			}	
 			else
@@ -278,19 +282,19 @@ void UpdateParamSetChoice(void)
 					if ( (IYaw > 20) || ( IRoll < -20) ) // left
 					{
 						NewParamSet = 1;
-						NewRTHGPSAlt = false;
+						NewRTHAltitudeHold = false;
 					}
 					else
 						if ( (IYaw < -20) || (IRoll > 20) ) // right
 						{
 							NewParamSet = 2;
-							NewRTHGPSAlt = false;
+							NewRTHAltitudeHold = false;
 						}
-			if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHGPSAlt != _UseRTHGPSAlt) )
+			if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHAltitudeHold != _RTHAltitudeHold) )
 			{
 				
 				CurrentParamSet = NewParamSet;
-				_UseRTHGPSAlt = NewRTHGPSAlt;
+				_RTHAltitudeHold = NewRTHAltitudeHold;
 				LEDBlue_ON;
 				Beeper_ON;
 				Delay100mSWithOutput(2);
@@ -302,7 +306,7 @@ void UpdateParamSetChoice(void)
 					Delay100mSWithOutput(2);
 					Beeper_OFF;
 				}
-				if ( _UseRTHGPSAlt )
+				if ( _RTHAltitudeHold )
 				{
 					Delay100mSWithOutput(4);
 					Beeper_ON;
@@ -312,6 +316,32 @@ void UpdateParamSetChoice(void)
 				LEDBlue_OFF;
 		 	}
 		}
+
+		while ( (Abs(IGas) < 20) && (Abs(IPitch) < 20 ) && ((Abs(IYaw) > 20)|| (Abs(IRoll) > 20)) )
+		{
+
+			if ( (IYaw > 20) || ( IRoll < -20) ) // left
+				NewTurnToHome = false;
+			else
+				if ( (IYaw < -20) || (IRoll > 20) ) // right
+					NewTurnToHome = true;
+		
+			if ( NewTurnToHome != _TurnToHome )
+			{		
+				_TurnToHome = NewTurnToHome;
+				LEDBlue_ON;
+				if ( _TurnToHome )
+				{
+					Beeper_ON;
+					Delay100mSWithOutput(4);
+					Beeper_OFF;
+				}
+				else
+					Delay100mSWithOutput(2);
+				LEDBlue_OFF;
+		 	}
+		}
+	}
 } // UpdateParamSetChoice
 
 int16 Make2Pi(int16 A)
@@ -523,8 +553,6 @@ void CheckAlarms(void)
 	NewBatteryVolts = ADC(ADCBattVoltsChan, ADCVREF5V) >> 3; 
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
 	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
-
-// zzz fix later
 
 	if( _LowBatt ) // repeating beep
 	{

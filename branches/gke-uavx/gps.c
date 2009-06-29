@@ -94,8 +94,6 @@ const uint8 NMEATag[LastNIndex+1][6] = {{"GPGGA"},{"GPRMC"}};
 uint8 NMEAActive[LastNIndex+1];
 #pragma udata
 
-#ifndef FAKE_GPS
-
 int16 ConvertInt(uint8 lo, uint8 hi)
 {
 	uint8 i;
@@ -258,16 +256,12 @@ void ParseGPGGASentence()
 		TxString("$GPGGA ");
 } // ParseGPGGASentence
 
-#endif //  !FAKE_GPS
-
 void ParseGPSSentence()
 {
 	static int32 Temp;
 	static uint8 CurrNType;
 
 	cc = 0;
-
-	#ifndef  FAKE_GPS
 
 	nll = NMEA[NHead].length;
 	CurrNType = NMEA[NHead].type;
@@ -335,8 +329,6 @@ void ParseGPSSentence()
 	else
 		if ( _GPSTestActive )
 			TxString("invalid\r\n");
-
-	#endif //  !FAKE_GPS
 } // ParseGPSSentence
 
 void PollGPS(uint8 ch)
@@ -435,7 +427,6 @@ void InitGPS()
 
 	ValidGPSSentences = 0;
 	GPSCycles = 0;
-	FakeGPSCycles = 100;
 
 	_GPSValid = false; 
 	GPSSentenceReceived=false;
@@ -445,13 +436,6 @@ void InitGPS()
 
 void UpdateGPS(void)
 {
-	#ifdef FAKE_GPS
-	GPSSentenceReceived = true;
-	_GPSHeadingValid = true;
-	_GPSAltitudeValid = true;
-	_GPSValid = true;
-	#else
-
 	if ( NEntries > 0 )
 	{
 		LEDBlue_ON;
@@ -476,7 +460,6 @@ void UpdateGPS(void)
 		LEDRed_OFF;
 	else
 		LEDRed_ON;	
-	#endif // FAKE_GPS
 } // UpdateGPS
 
 

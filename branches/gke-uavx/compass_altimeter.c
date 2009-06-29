@@ -120,7 +120,7 @@ void GetDirection(void)
 			// Empirical found :-)
 			// New_CurDev = ((3*Old_CurDev) + DirVal) / 4
 			CurDeviation = SRS16((((int16)CurDeviation *3 + DirVal) << 2) 
-								* (int16)CompassFactor, 8);
+								* (int16)CompassKp, 8);
 		}
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
@@ -326,7 +326,7 @@ void ComputeBaroComp(void)
 		
 					// strictly this is acting more like an integrator 
 					// bumping VBaroComp up and down proportional to the error?	
-					Temp = BaroRelPressure * (int16)BaroThrottleProp;
+					Temp = BaroRelPressure * (int16)BaroCompKp;
 					if( VBaroComp > Temp )
 						VBaroComp--;
 					else
@@ -337,7 +337,7 @@ void ComputeBaroComp(void)
 						VBaroComp--;
 				
 					// Differential		
-					VBaroComp += Limit(Delta, -5, 8) * (int16)BaroThrottleDiff;
+					VBaroComp += Limit(Delta, -5, 8) * (int16)BaroCompKd;
 	
 					VBaroComp = Limit(VBaroComp, -5, 15);
 

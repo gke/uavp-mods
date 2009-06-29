@@ -34,30 +34,31 @@ extern boolean GPSSentenceReceived;
 
 int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr, NavYCorr, SumNavYCorr;
 
-void GPSAltitudeHold(int16 DesiredAltitude)
+void AltitudeHold(int16 DesiredAltitude)
 {
 	int16 Temp;
 
-	if ( _UseRTHGPSAlt ) //zzz && _GPSAltitudeValid )
-	{
-		#ifdef	USE_BARO_FOR_RTH	
-		DesiredThrottle = HoverThrottle;
-		DesiredBaroPressure = OriginBaroPressure - DesiredAltitude;
-		#else
-		AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
-		AltSum += AE;
-		AltSum = Limit(AltSum, -10, 10);	
-		Temp = SRS16(AE*NavAltKp + AltSum*NavAltKi, 5);
-	
-		DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
-		DesiredThrottle = Limit(DesiredThrottle, 0, _Maximum);
-		#endif // USE_BARO_FOR_RTH
-	}
+	if ( _RTHAltitudeHold )
+		if ( UseGPSAlt && _GPSAltitudeValid )
+		{
+			AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
+			AltSum += AE;
+			AltSum = Limit(AltSum, -10, 10);	
+			Temp = SRS16(AE*NavAltKp + AltSum*NavAltKi, 5);
+		
+			DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
+			DesiredThrottle = Limit(DesiredThrottle, 0, _Maximum);
+		}
+		else
+		{	
+			DesiredThrottle = HoverThrottle;
+			DesiredBaroPressure = OriginBaroPressure - DesiredAltitude;
+		}	
 	else
 	{
 
 	}
-} // GPSAltitudeHold
+} // AltitudeHold
 
 void Descend(void)
 {	
@@ -109,15 +110,13 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			NavRCorr = SRS32((int32)int16sin(RelHeading) * Temp, 8);			
 			NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Temp, 8);
 
-			#ifdef TURN_TO_HOME
-			if ( Range >= NavClosingRadius )
+			if ( _TurnToHome && (Range >= NavClosingRadius) )
 			{
 				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
 				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
 				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
 			}
 			else
-			#endif // TURN_TO_HOME
 				NavYCorr = 0;
 		
 			SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
@@ -139,9 +138,6 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void DoNavigation(void)
 {
-
-	UpdateGPS();
-
 	if ( _GPSValid && ( NavSensitivity > 20 ))
 		if ( _CompassValid )
 			switch ( NavState ) {
@@ -170,7 +166,7 @@ void DoNavigation(void)
 				}
 				break;
 			case ReturningHome:
-				GPSAltitudeHold(NavRTHAlt * 10L);
+				AltitudeHold(NavRTHAlt * 10L);
 				Navigate(0, 0);
 				if ( !_ReturnHome )
 				{
@@ -188,27 +184,41 @@ void DoNavigation(void)
 		else
 		{
 			DesiredRoll = DesiredPitch = DesiredYaw = 0;
-			GPSAltitudeHold(-50); // Compass not responding - land
+			AltitudeHold(-50); // Compass not responding - land
 		}
 
 
 } // DoNavigation
 
 void DoFailsafe(void)
-{ // only relevant to PPM Rx
+{ // only relevant to PPM Rx or Quad NOT synchronising with Rx
 
 	ALL_LEDS_OFF;
-	DesiredRoll = DesiredPitch = DesiredYaw = 0;
 	if ( _Failsafe )
 	{
-		_LostModel = true;		
-		DesiredThrottle = 0;
+		LEDRed_ON;
+		_LostModel = true;
+		DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = 0;		
 	}
 	else
-		if( --DropoutCycles == 0 )// timeout - immediate landing
+	{
+		if( DropoutCycles <= 0 ) // timeout - immediate shutdown/abort
 			_Failsafe = true;
 		else
-			DesiredThrottle = Limit(DesiredThrottle, DesiredThrottle, THR_HOVER);					
+			if ( DropoutCycles < ((MAXDROPOUT*3)/4) ) 
+			{
+		//		LEDBlue_ON;
+				DesiredRoll = DesiredPitch = DesiredYaw = 0;
+				// use last "good" throttle
+				// DesiredThrottle = Limit(DesiredThrottle, 0, HoverThrottle*3/4); 
+			}
+			else
+			{
+				// continue on last "good" signals
+			}
+		DropoutCycles--;
+	}
+					
 } // DoFailsafe
 
 

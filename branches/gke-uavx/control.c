@@ -161,7 +161,7 @@ void AltitudeDamping(void)
 	UDSum = Limit(UDSum , -16384, 16384); 
 	UDSum = DecayBand(UDSum, -10, 10, 10);
 	
-	Temp = SRS16(SRS16(UDSum, 4) * (int16) LinUDIntFactor, 8);
+	Temp = SRS16(SRS16(UDSum, 4) * (int16) VertDampKp, 8);
 	if( (Cycles & 0x0003) == 0 )	
 		if( Temp > VUDComp ) 
 			VUDComp++;
@@ -404,36 +404,24 @@ void DoControl(void)
 	GyroCompensation();	
 	AltitudeDamping();
 
-	// PID controller
-	// E0 = current gyro error
-	// E1 = previous gyro error
-	// Sum(Ex) = integrated gyro error, sinst start of ufo!
-	// A0 = current correction value
-	// fx = programmable controller factors
-	//
-	// for Roll and Pitch:
-	//       E0*fP + E1*fD     Sum(Ex)*fI
-	// A0 = --------------- + ------------
-	//            16               256
-
 	// Roll
 
 	// Differential and Proportional for Roll axis
-	Rl  = SRS16(RE *(int16)RollPropFactor + (REp-RE) * RollDiffFactor, 4);
+	Rl  = SRS16(RE *(int16)RollKp + (REp-RE) * RollKd, 4);
 
 	// Integral part for Roll
 	if( IntegralCount == 0 )
-		Rl += SRS16(RollSum * (int16)RollIntFactor, 8); 
+		Rl += SRS16(RollSum * (int16)RollKi, 8); 
 	Rl -= DesiredRoll;						// subtract stick signal
 
 	// Pitch
 
 	// Differential and Proportional for Pitch
-	Pl  = SRS16(PE *(int16)PitchPropFactor + (PEp-PE) * PitchDiffFactor, 4);
+	Pl  = SRS16(PE *(int16)PitchKp + (PEp-PE) * PitchKd, 4);
 
 	// Integral part for Pitch
 	if( IntegralCount == 0 )
-		Pl += SRS16(PitchSum * (int16)PitchIntFactor, 8);
+		Pl += SRS16(PitchSum * (int16)PitchKi, 8);
 
 	Pl -= DesiredPitch;						// subtract stick signal
 
@@ -443,8 +431,8 @@ void DoControl(void)
 	//	YE += IYaw;
 
 	// Differential and Proportional for Yaw
-	Yl  = SRS16(YE *(int16)YawPropFactor + (YEp-YE) * YawDiffFactor, 4);
-	Yl += SRS16(YawSum * (int16)YawIntFactor, 8);
+	Yl  = SRS16(YE *(int16)YawKp + (YEp-YE) * YawKd, 4);
+	Yl += SRS16(YawSum * (int16)YawKi, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);	// effective slew limit
 
 } // DoControl

@@ -243,11 +243,16 @@ typedef union {
 #define ON	1
 #define OFF	0
 
-#define MODELLOSTTIMER		20 	/*in 0,2sec until first beep 
-								after lost xmit signal */
-#define MODELLOSTTIMERINT	2 	/* in 0,2 sec units
-								interval beep when active */
+#define MODELLOSTTIMER		20 	// in 0,2sec until first beep after lost xmit signal
+#define MODELLOSTTIMERINT	2 	// in 0,2 sec units interval beep when active 
 #define LOWGASDELAY	300L
+
+#define THR_DOWNCOUNT	255		// 128 PID-cycles (=3 sec) until current throttle is fixed
+#define THR_MIDDLE		10  	// throttle stick dead zone for baro 
+#define THR_HOVER		75		// min throttle stick for alti lock
+
+#define MAXDROPOUT		500L	// x Impulse time dropout allowable
+#define GPSDROPOUT		20L		// 2sec.
 
 // LEDs
 
@@ -318,10 +323,6 @@ typedef union {
 #define BARO_TEMP_TIME	10
 #define BARO_PRESS_TIME 35
 
-#define THR_DOWNCOUNT	255		/* 128 PID-cycles (=3 sec) until current throttle is fixed */
-#define THR_MIDDLE		10  	/* throttle stick dead zone for baro */
-#define THR_HOVER		75		/* min throttle stick for alti lock */
-
 // Status 
 
 #define	_Signal				Flags[0]	/* if no valid signal is received */
@@ -345,9 +346,10 @@ typedef union {
 #define _NavComputed 		Flags[20]
 #define _GPSHeadingValid 	Flags[21]
 #define _GPSAltitudeValid	Flags[22]
-#define _UseRTHGPSAlt		Flags[23]
+#define _RTHAltitudeHold	Flags[23]
 #define _ReturnHome			Flags[24]
-#define _Proximity			Flags[25]
+#define _TurnToHome			Flags[25]
+#define _Proximity			Flags[26]
 
 #define _GPSTestActive		Flags[31]
 
@@ -357,7 +359,7 @@ typedef union {
 #define DSM2Mode		IsSet(ConfigParam,2)
 #define RxPPM			IsSet(ConfigParam,3)
 #define NegativePPM		IsSet(ConfigParam,4)
-#define DSM2			IsSet(ConfigParam,5)
+#define UseGPSAlt		IsSet(ConfigParam,5)
 
 // Constants 
 
@@ -441,9 +443,6 @@ typedef union {
 #define _Neutral	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
 #define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
-
-#define MAXDROPOUT	4000L	// x 7ms = 30 sec. dropout allowable
-#define GPSDROPOUT	20L		// 2sec.
 
 // Parameters for UART port
 // ClockHz/(16*(BaudRate+1))
@@ -656,8 +655,8 @@ extern int8		TimeSlot;
 extern uint8	CurrentParamSet;
 
 extern uint8	IGas;
-extern int8 	IRoll,IPitch,IYaw;
-extern uint8	IK5,IK6,IK7;
+extern int8 	IRoll, IPitch, IYaw;
+extern uint8	IK5, IK6, IK7;
 
 extern int16	RE, PE, YE;
 extern int16	REp,PEp,YEp;
@@ -665,12 +664,13 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern int16	AutonomousThrottle, HoverThrottle, DesiredThrottle;
+extern int16	HoverThrottle, DesiredThrottle;
 extern int16	DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDAcc, UDSum, VUDComp;
+extern uint8	IdleThrottle;
 
 // GPS
 extern uint8 	GPSMode;
@@ -705,7 +705,6 @@ extern int16	Rl,Pl,Yl;	// PID output values
 extern boolean	Flags[32];
 
 extern int16	ThrDownCycles, GPSCycles, DropoutCycles, LEDCycles, BaroCycles;
-extern int16	FakeGPSCycles;
 extern uint32	Cycles;
 extern int8		IntegralCount;
 extern uint24	RCGlitches;
@@ -721,49 +720,53 @@ extern int16	Trace[LastTrace];
 
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
-extern int8	RollPropFactor; 	// 01
-extern int8	RollIntFactor;		// 02
-extern int8	RollDiffFactor;		// 03
-extern int8 BaroTempCoeff;		// 04
+// Really should be a vector - later!
+extern int8	RollKp; 			// 01
+extern int8	RollKi;				// 02
+extern int8	RollKd;				// 03
+extern int8 BaroTempCoeff;		// 04c
 extern int8	RollIntLimit;		// 05
-extern int8	PitchPropFactor;	// 06
-extern int8	PitchIntFactor;		// 07
-extern int8	PitchDiffFactor;	// 08
-extern int8 BaroThrottleProp;	// 09
+extern int8	PitchKp;			// 06
+extern int8	PitchKi;			// 07
+extern int8	PitchKd;			// 08
+extern int8 BaroCompKp;			// 09c
 extern int8	PitchIntLimit;		// 10
-extern int8	YawPropFactor; 		// 11
-extern int8	YawIntFactor;		// 12
-extern int8	YawDiffFactor;		// 13
+
+extern int8	YawKp; 				// 11
+extern int8	YawKi;				// 12
+extern int8	YawKd;				// 13
 extern int8	YawLimit;			// 14
 extern int8 YawIntLimit;		// 15
-extern int8	ConfigParam;		// 16
-extern int8 TimeSlots;			// 17
-extern int8	LowVoltThres;		// 18
-extern int8	CamRollFactor;		// 19
-extern int8	LinFBIntFactor;		// 20 free
-extern int8	LinUDIntFactor;		// 21
-extern int8 MiddleUD;			// 22
-extern int8	MotorLowRun;		// 23
-extern int8	MiddleLR;			// 24
-extern int8	MiddleFB;			// 25
-extern int8	CamPitchFactor;		// 26
-extern int8	CompassFactor;		// 27
-extern int8	BaroThrottleDiff;	// 28
+extern int8	ConfigParam;		// 16c
+extern int8 TimeSlots;			// 17c
+extern int8	LowVoltThres;		// 18c
+extern int8	CamRollKp;			// 19
+extern int8	PercentHoverThr;	// 20c 
+
+extern int8	VertDampKp;			// 21c
+extern int8 MiddleUD;			// 22c
+extern int8	PercentIdleThr;		// 23c
+extern int8	MiddleLR;			// 24c
+extern int8	MiddleFB;			// 25c
+extern int8	CamPitchKp;			// 26
+extern int8	CompassKp;			// 27
+extern int8	BaroCompKd;			// 28c
 extern int8	NavRadius;			// 29
 extern int8	NavIntLimit;		// 30
+
 extern int8	NavAltKp;			// 31
 extern int8	NavAltKi;			// 32
 extern int8	NavRTHAlt;			// 33
-extern int8	NavMagVar;			// 34
-extern int8 GyroType;			// 35
-extern int8 ESCType;			// 36
+extern int8	NavMagVar;			// 34c
+extern int8 GyroType;			// 35c
+extern int8 ESCType;			// 36c
 
 extern const rom int8 ComParms[];
 
 #define _EESet1		0		// first set starts at address 0x00
 #define _EESet2		0x40	// second set starts at address 0x40
 
-#define FirstProgReg RollPropFactor
+#define FirstProgReg RollKp
 #define	LastProgReg ESCType
 
 // End of c-ufo.h

@@ -46,12 +46,13 @@ int16	RollSum, PitchSum, YawSum;	// integral
 int16	RollRate, PitchRate, YawRate;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-int16	AutonomousThrottle, HoverThrottle, DesiredThrottle;
+int16	HoverThrottle, DesiredThrottle;
 int16	DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
 int16 	UDAcc, UDSum, VUDComp;
+uint8	IdleThrottle;
 
 int16 	SqrNavClosingRadius, NavClosingRadius, CompassOffset;
 
@@ -84,7 +85,6 @@ int16	Trace[LastTrace];
 boolean	Flags[32];
 
 int16	ThrDownCycles, DropoutCycles, GPSCycles, LEDCycles, BlinkCycle, BaroCycles;
-int16	FakeGPSCycles;
 uint32	Cycles;
 int8	IntegralCount;
 uint24	RCGlitches;
@@ -94,34 +94,34 @@ int8	Rw,Pw;
 #pragma udata params
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
-int8	RollPropFactor;
-int8	RollIntFactor;
-int8	RollDiffFactor;
+int8	RollKp;
+int8	RollKi;
+int8	RollKd;
 int8	BaroTempCoeff;
 int8	RollIntLimit;
-int8	PitchPropFactor;
-int8	PitchIntFactor;	
-int8	PitchDiffFactor;	 
-int8	BaroThrottleProp;
+int8	PitchKp;
+int8	PitchKi;	
+int8	PitchKd;	 
+int8	BaroCompKp;
 int8	PitchIntLimit;
-int8	YawPropFactor;
-int8	YawIntFactor;
-int8	YawDiffFactor;
+int8	YawKp;
+int8	YawKi;
+int8	YawKd;
 int8	YawLimit;
 int8	YawIntLimit;
 int8	ConfigParam;
 int8	TimeSlots;	// control update interval + LEGACY_OFFSET
 int8	LowVoltThres;
-int8	CamRollFactor;	
-int8	LinFBIntFactor;	// unused
-int8	LinUDIntFactor; 
+int8	CamRollKp;	
+int8	PercentHoverThr;
+int8	VertDampKp; 
 int8	MiddleUD;
-int8	MotorLowRun;
+int8	PercentIdleThr;
 int8	MiddleLR;
 int8	MiddleFB;
-int8	CamPitchFactor;
-int8	CompassFactor;
-int8	BaroThrottleDiff;
+int8	CamPitchKp;
+int8	CompassKp;
+int8	BaroCompKd;
 int8	NavRadius;
 int8	NavIntLimit;
 int8	NavAltKp;
@@ -134,16 +134,17 @@ int8 	ESCType;
 
 // mask giving common variables across parameter sets
 const rom int8	ComParms[]={
-	0,0,0,1,0,0,0,0,0,0,
-	0,0,0,0,0,1,1,1,0,0,
-	0,1,1,1,1,0,0,0,0,0,
-	0,0,1,1,1,1
+	0,0,0,1,0,0,0,0,1,0,
+	0,0,0,0,0,1,1,1,0,1,
+	1,1,1,1,1,0,0,1,0,0,
+	0,0,0,1,1,1
 	};
 
 void main(void)
 {
-	uint8	i;
-	uint8	LowGasCycles;
+	static uint8	i;
+	static uint8	LowGasCycles;
+	static int16	Temp;
 
 	DisableInterrupts;
 
@@ -189,7 +190,7 @@ void main(void)
 
 		if ( !_Signal )
 		{
-			IGas = DesiredThrottle = IK5 = _Minimum;	// Assume parameter set #1
+			IGas = DesiredThrottle = IK5 = _Minimum;
 			Beeper_OFF;
 		}
 
@@ -208,6 +209,7 @@ void main(void)
 		WaitThrottleClosed();
 			
 		DropoutCycles = MAXDROPOUT;
+		_Failsafe = false;
 		TimeSlot = Limit(TimeSlots, 2, 20);
 		Cycles = 0;
 		State = Starting;
@@ -217,12 +219,13 @@ void main(void)
 			ReceivingGPSOnly(true); // no Command processing while the Quadrocopter is armed
 
 			Cycles++;
+			UpdateGPS();
 
 			if ( _Signal && !_Failsafe )
 			{
 				UpdateControls();
 
-				switch ( State ) {
+				switch ( State && !_Failsafe ) {
 				case Starting:
 					ThrDownCycles = THR_DOWNCOUNT;
 					InitArrays();
@@ -241,7 +244,7 @@ void main(void)
 					State = Landed;
 					break;
 				case Landed:
-					if ( (DesiredThrottle >= MotorLowRun) && (IntegralCount == 0) )
+					if ( (DesiredThrottle >= IdleThrottle) && (IntegralCount == 0) )
 					{
 						AbsDirection = COMPASS_INVAL;						
 						LEDCycles = 1;
@@ -253,23 +256,27 @@ void main(void)
 
 					LEDGame();
 					LowGasCycles = LOWGASDELAY;
-					if ( DesiredThrottle < MotorLowRun )
+					if ( DesiredThrottle < IdleThrottle )
 					{
-						DesiredThrottle = MotorLowRun;
+						DesiredThrottle = IdleThrottle;
 						State = Landing;
 					}
 					break;
 				case Landing:
-					if ( DesiredThrottle >= MotorLowRun )
+					if ( DesiredThrottle >= IdleThrottle )
 						State = Flying;
 					else
 						if ( --LowGasCycles > 0 )
-							DesiredThrottle = MotorLowRun;
+							DesiredThrottle = IdleThrottle;
 						else
+						{
 							State = Starting;
+							Temp = (HoverThrottle * 100)/_Maximum;
+							WriteEE(_EESet1 + (&PercentHoverThr - &FirstProgReg), Temp);
+						}
 					break;
 				} // Switch State
-				_LostModel = _Failsafe = false;
+				_LostModel = false;
 				DropoutCycles = MAXDROPOUT;
 			}
 			else
