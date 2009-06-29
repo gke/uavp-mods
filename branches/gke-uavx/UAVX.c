@@ -29,10 +29,6 @@
 
 // Global Variables
 
-uint8	State;
-uint8	CurrentParamSet;
-int8	TimeSlot;
-
 uint8	IGas;						// actual input channel, can only be positive!
 int8 	IRoll,IPitch,IYaw;			// actual input channels, 0 = neutral
 uint8	IK5;						// actual channel 5 input
@@ -44,27 +40,18 @@ int16	RE, PE, YE;					// gyro rate error
 int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollRate, PitchRate, YawRate;
-int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-int16	HoverThrottle, DesiredThrottle;
-int16	DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+int16	DesiredThrottle, DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int8	NeutralLR, NeutralFB, NeutralUD;
-int16 	UDAcc, UDSum, VUDComp;
-uint8	IdleThrottle;
-
-int16 	SqrNavClosingRadius, NavClosingRadius, CompassOffset;
-
-uint8 	NavState;
-uint8 	NavSensitivity;
-int16	AltSum, AE;
+int16 	UDSum;
 
 // Failsafes
 uint8	ThrNeutral;
 
 // Variables for barometric sensor PD-controller
-int24	DesiredBaroPressure, OriginBaroPressure;
+int24	BaroBasePressure, BaroBaseTemp;
 int16   BaroRelPressure, BaroRelTempCorr;
 i16u	BaroVal;
 int16	VBaroComp;
@@ -82,69 +69,61 @@ int16	Vud;
 
 int16	Trace[LastTrace];
 
-boolean	Flags[32];
+uint8	Flags[32];
 
-int16	ThrDownCycles, DropoutCycles, GPSCycles, LEDCycles, BlinkCycle, BaroCycles;
-uint32	Cycles;
-int8	IntegralCount;
-uint24	RCGlitches;
+int16	IntegralCount, ThrDownCount, DropoutCount, GPSCount, LEDCount, BlinkCycle, BaroCount;
+int16	FakeGPSCount;
+uint32	BlinkCount;
+uint24	RCGlitchCount;
 int8	BatteryVolts;
 int8	Rw,Pw;
 
-#pragma udata params
+#pragma idata params
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
-int8	RollKp;
-int8	RollKi;
-int8	RollKd;
-int8	BaroTempCoeff;
-int8	RollIntLimit;
-int8	PitchKp;
-int8	PitchKi;	
-int8	PitchKd;	 
-int8	BaroCompKp;
-int8	PitchIntLimit;
-int8	YawKp;
-int8	YawKi;
-int8	YawKd;
-int8	YawLimit;
-int8	YawIntLimit;
-int8	ConfigParam;
-int8	TimeSlots;	// control update interval + LEGACY_OFFSET
-int8	LowVoltThres;
-int8	CamRollKp;	
-int8	PercentHoverThr;
-int8	VertDampKp; 
-int8	MiddleUD;
-int8	PercentIdleThr;
-int8	MiddleLR;
-int8	MiddleFB;
-int8	CamPitchKp;
-int8	CompassKp;
-int8	BaroCompKd;
-int8	NavRadius;
-int8	NavIntLimit;
-int8	NavAltKp;
-int8	NavAltKi;
-int8	NavRTHAlt;
-int8	NavMagVar;
-int8 	GyroType;			
-int8 	ESCType;		
-#pragma udata
+int8	RollPropFactor		=18;
+int8	RollIntFactor		=4;
+int8	RollDiffFactor		=-40;
+int8	BaroTempCoeff		=13;
+int8	RollIntLimit		=16;
+int8	PitchPropFactor		=18;
+int8	PitchIntFactor		=4;	
+int8	PitchDiffFactor		=-40;	 
+int8	BaroThrottleProp	=2;
+int8	PitchIntLimit		=16;
+int8	YawPropFactor		=20;
+int8	YawIntFactor		=45;
+int8	YawDiffFactor		=6;
+int8	YawLimit			=50;
+int8	YawIntLimit			=3;
+int8	ConfigParam			=0b00000000;
+int8	TimeSlot			=2;	// control update interval + LEGACY_OFFSET
+int8	LowVoltThres		=43;
+int8	CamRollFactor		=4;	
+int8	LinFBIntFactor		=0;	// unused
+int8	LinUDIntFactor		=8; // unused
+int8	MiddleUD			=0;
+int8	MotorLowRun			=20;
+int8	MiddleLR			=0;
+int8	MiddleFB			=0;
+int8	CamPitchFactor		=4;
+int8	CompassFactor		=5;
+int8	BaroThrottleDiff	=4;
 
-// mask giving common variables across parameter sets
-const rom int8	ComParms[]={
-	0,0,0,1,0,0,0,0,1,0,
-	0,0,0,0,0,1,1,1,0,1,
-	1,1,1,1,1,0,0,1,0,0,
-	0,0,0,1,1,1
-	};
+int8	u1 = 20;
+int8	u2 = 0;
+int8	u3 = 4;
+int8	u4 = 12;
+int8	u5 = 30;
+int8	u6 = 12;
+int8 	GyroType = 0;			
+int8 	ESCType = 0;
+#pragma idata
 
 void main(void)
 {
-	static uint8	i;
-	static uint8	LowGasCycles;
-	static int16	Temp;
+	uint8	i;
+	uint8	LowGasCount;
 
 	DisableInterrupts;
 
@@ -156,20 +135,15 @@ void main(void)
 	
 	InitTimersAndInterrupts();
 
-	CurrentParamSet = 1;
-	ReadParametersEE();
-
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
 	
 	LEDShadow = 0;
     ALL_LEDS_OFF;
 	LEDRed_ON;
-	Beeper_OFF;
 
-	InitArrays();
-	ThrNeutral = 255;	
-	IGas = DesiredThrottle = IK5 = IK6 = IK7 = _Minimum;
+	InitArrays();`
+	InitParams();
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	EnableInterrupts;
@@ -183,131 +157,161 @@ void main(void)
 	InitNavigation();
 
 	ShowSetup(1);
-	
+
+	ThrNeutral = 0xFF;
+	IK6 = IK7 = _Minimum;
+	BlinkCount = 0;
+
+Restart:
+	IGas = DesiredThrottle = IK5 = _Minimum;	// Assume parameter set #1
+	Beeper_OFF;
+
+	// DON'T MOVE THE UFO!
+	// ES KANN LOSGEHEN!
+
 	while( true )
 	{
+		INTCONbits.TMR0IE = false;		// Disable TMR0 interrupt
+
+		// no command processing while the Quadrocopter is armed
 		ReceivingGPSOnly(false);
 
-		if ( !_Signal )
-		{
-			IGas = DesiredThrottle = IK5 = _Minimum;
-			Beeper_OFF;
-		}
-
-		INTCONbits.TMR0IE = false;
-		ALL_LEDS_OFF; 
+		ALL_LEDS_OFF;
 		LEDRed_ON;	
 		if( _AccelerationsValid )
 			LEDYellow_ON;
 
 		InitArrays();
+		ThrNeutral = 0xFF;
+
 		EnableInterrupts;	
-		WaitForRxSignal();
-		UpdateControls();
- 
+		WaitForRxSignal(); // Wait until a valid RX signal is received
 		ReadParametersEE();
 		WaitThrottleClosed();
-			
-		DropoutCycles = MAXDROPOUT;
-		_Failsafe = false;
-		TimeSlot = Limit(TimeSlots, 2, 20);
-		Cycles = 0;
-		State = Starting;
 
-		while ( Armed  )
-		{	
-			ReceivingGPSOnly(true); // no Command processing while the Quadrocopter is armed
+		if ( !_Signal )
+			goto Restart;
 
-			Cycles++;
-			UpdateGPS();
+		// ######## MAIN LOOP ########
 
-			if ( _Signal && !_Failsafe )
-			{
-				UpdateControls();
+		// loop length is controlled by a programmable variable "TimeSlot"
 
-				switch ( State && !_Failsafe ) {
-				case Starting:
-					ThrDownCycles = THR_DOWNCOUNT;
-					InitArrays();
+		DropoutCount = 0;
+		IntegralCount = 16;	// do 16 cycles to find integral zero point
+		ThrDownCount = THR_DOWNCOUNT;
 
-					#ifdef NEW_ERECT_GYROS
+		// if Ch7 below +20 (near minimum) assume use for camera trigger
+		// else assume use for camera roll trim	
+		_UseCh7Trigger = IK7 < 30;
+	
+		while ( Armed )
+		{
+			BlinkCount++;
 
-					IntegralCount = 0;
-					#else
-					IntegralCount = 16; // erect gyros - old style
-					#endif
+			ReceivingGPSOnly(true);
 
-					ALL_LEDS_OFF;				
-					AUX_LEDS_OFF;
-
-					LEDGreen_ON;
-					State = Landed;
-					break;
-				case Landed:
-					if ( (DesiredThrottle >= IdleThrottle) && (IntegralCount == 0) )
-					{
-						AbsDirection = COMPASS_INVAL;						
-						LEDCycles = 1;
-						State = Flying;
-					}
-					break;
-				case Flying:
-					DoNavigation();
-
-					LEDGame();
-					LowGasCycles = LOWGASDELAY;
-					if ( DesiredThrottle < IdleThrottle )
-					{
-						DesiredThrottle = IdleThrottle;
-						State = Landing;
-					}
-					break;
-				case Landing:
-					if ( DesiredThrottle >= IdleThrottle )
-						State = Flying;
-					else
-						if ( --LowGasCycles > 0 )
-							DesiredThrottle = IdleThrottle;
-						else
-						{
-							State = Starting;
-							Temp = (HoverThrottle * 100)/_Maximum;
-							WriteEE(_EESet1 + (&PercentHoverThr - &FirstProgReg), Temp);
-						}
-					break;
-				} // Switch State
-				_LostModel = false;
-				DropoutCycles = MAXDROPOUT;
-			}
-			else
-				DoFailsafe();
-
+			// wait pulse pause delay time (TMR0 has 1024us for one loop)
 			WriteTimer0(0);
 			INTCONbits.TMR0IF = false;
 			INTCONbits.TMR0IE = true;
 
-				RollRate = PitchRate = 0;
-				GetGyroValues();
-				GetDirection();
-				ComputeBaroComp();
-	
-				while( TimeSlot > 0 ) {}
-			INTCONbits.TMR0IE = false;	// disable timer
-
-			TimeSlot = Limit(TimeSlots, 2, 20);
+			RollRate = PitchRate = 0;	// zero gyros sum-up memory
+			// sample gyro data and add everything up while waiting for timing delay
 
 			GetGyroValues();
 
-			DoControl();
-			MixAndLimitMotors();
+			GetDirection();
+			CheckAutonomous(); // before timeslot delay to give maximum time
+
+			while( TimeSlot > 0 ) {}
+
+			INTCONbits.TMR0IE = false;	// disable timer
+			
+			ComputeBaroComp();
+			GetGyroValues();
+			ReadParametersEE();	// re-sets TimeSlot
+			CalcGyroValues();
+
+			// check for signal dropout while in flight
+			if( _Flying && !_Signal )
+			{
+				if( ( BlinkCount & 0x000f ) == 0 )
+					DropoutCount++;
+				if( DropoutCount < MAXDROPOUT )
+				{	// FAILSAFE	- hold last throttle
+					_LostModel = true;
+					ALL_LEDS_OFF;
+					DesiredRoll = DesiredPitch = DesiredYaw = 0;
+					goto DoPID;
+				}
+				break;	// timeout, stop everything
+			}
+
+			// allow motors to run on low throttle 
+			// even if stick is at minimum for a short time
+			if( _Flying && ( DesiredThrottle <= _ThresStop ) )
+				if( --LowGasCount > 0 )
+					goto DoPID;
+
+			if( ( !_Signal ) || 
+			    ( (_Flying && (DesiredThrottle <= _ThresStop)) ||
+			      (!_Flying && (DesiredThrottle <= _ThresStart)) ) )
+			{	// UFO is landed, stop all motors
+
+				TimeSlot += 2; // to compensate PID() calc time!
+				IntegralCount = 16;	// do 16 cycles to find integral zero point
+				ThrDownCount = THR_DOWNCOUNT;
+				
+				InitArrays();	// resets _Flying flag!
+				GyroMidRoll = GyroMidPitch = GyroMidYaw = 0;
+				if( Armed && !_Signal )	
+					break;	// then RX signal was lost
+
+				ALL_LEDS_OFF;				
+				AUX_LEDS_OFF;
+				LEDGreen_ON;
+			}
+			else
+			{	// UFO is flying!
+				if( !_Flying )	// about to start
+				{	
+					AbsDirection = COMPASS_INVAL;						
+					LEDCount = 1;
+				}
+
+				_Flying = true;
+				_LostModel = false;
+				DropoutCount = 0;
+				LowGasCount = 100;		
+				LEDGreen_ON;
+				LEDGame();
+DoPID:
+				CheckThrottleMoved();
+
+				if(	IntegralCount > 0 )
+					IntegralCount--;
+				else
+				{
+					PID();
+					MixAndLimitMotors();
+				}
+
+				// remember old gyro values
+				REp = RE;
+				PEp = PE;
+				YEp = YE;
+			}
+		
 			MixAndLimitCam();
 			OutSignals();
 
 			CheckAlarms();
-			DumpTrace();
-		
+
+			if( IntegralCount == 0 )
+				DumpTrace();		
+
 		} // flight while armed
-	
+
 		Beeper_OFF;
 	}
 } // main

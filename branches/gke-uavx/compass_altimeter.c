@@ -33,11 +33,7 @@ void ComputeBaroComp(void);
 void InitDirection(void)
 {
 	// 20Hz continuous read with periodic reset.
-	#ifdef SUPPRESS_COMPASS_SR
-		#define COMP_OPMODE 0b01100010
-	#else
-		#define COMP_OPMODE 0b01110010
-	#endif // SUPPRESS_COMPASS_SR
+	#define COMP_OPMODE 0b01110010
 
 	// Set device to Compass mode 
 	I2CStart();
@@ -64,6 +60,8 @@ CTerror:
 	I2CStop();
 } // InitDirection
 
+#define COMPASS_OFFSET  (((COMPASS_OFFSET_DEG + MAGNETIC_VARIATION)*MILLIPI)/180L)
+
 void GetDirection(void)
 {
 	// Read direction, convert it to 2 degrees unit
@@ -83,7 +81,7 @@ void GetDirection(void)
 		I2CStop();
 
 		//Temp2 = (int32)((int32)Compass * MILLIPI)/1800L - COMPASS_OFFSET;
-		Temp2 = ConvertDDegToMPi(Compass.i16) - CompassOffset;
+		Temp2 = ConvertDDegToMPi(Compass.i16) - COMPASS_OFFSET;
 		Heading = Make2Pi((int16) Temp2);
 
 		Compass.u16 /= 15;
@@ -120,7 +118,7 @@ void GetDirection(void)
 			// Empirical found :-)
 			// New_CurDev = ((3*Old_CurDev) + DirVal) / 4
 			CurDeviation = SRS16((((int16)CurDeviation *3 + DirVal) << 2) 
-								* (int16)CompassKp, 8);
+								* (int16)CompassFactor, 8);
 		}
 		#ifdef DEBUG_SENSORS
 		if( IntegralCount == 0 )
@@ -143,45 +141,6 @@ void GetDirection(void)
 #else
 	#define BaroFilter MediumFilter
 #endif // BARO_HARD_FILTER
-
-
-/*
-
-static  int16 ac1,ac2,ac3,b1,b2,mb,mc,md;
-static	uint16 ac4,ac5,ac6; 
-
-void BaroPressure(uint32 ut, uint32 up)
-{
-const int8 oss=0;
-
-
-    int32 x1, x2, x3, b3, b5, b6, p, t;
-    uint32 b4, b7;
-
-    x1 = (ut - ac6) * ac5 >> 15;
-    x2 = ((int32) mc << 11) / (x1 + md);
-    b5 = x1 + x2;
-    t = (b5 + 8) >> 4;
-    
-    b6 = b5 - 4000;
-    x1 = (b2 * (b6 * b6 >> 12)) >> 11; 
-    x2 = ac2 * b6 >> 11;
-    x3 = x1 + x2;
-    b3 = (((int32) ac1 * 4 + x3)<<oss + 2) >> 2;
-    x1 = ac3 * b6 >> 13;
-    x2 = (b1 * (b6 * b6 >> 12)) >> 16;
-    x3 = ((x1 + x2) + 2) >> 2;
-    b4 = (ac4 * (uint32) (x3 + 32768)) >> 15;
-    b7 = ((uint32) up - b3) * (50000>>oss);
-    p = b7 < 0x80000000 ? (b7 * 2) / b4 : (b7 / b4) * 2;
-    
-    x1 = (p >> 8) * (p >> 8);
-    x1 = (x1 * 3038) >> 16;
-    x2 = (-7357 * p) >> 16;
-    p = p + ((x1 + x2 + 3791) >> 4);
-} // BaroPressure
-
-*/
 
 uint8 ReadValueFromBaro(void)
 {
@@ -219,7 +178,7 @@ RVerror:
 	return(I2C_ACK);
 } // ReadValueFromBaro
 
-uint8 StartBaroADC(uint8 PressOrTemp)
+uint8 StartBaroADC(uint8 TempOrPress)
 {
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto SBerror;
@@ -228,8 +187,11 @@ uint8 StartBaroADC(uint8 PressOrTemp)
 	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto SBerror;
 
 	// select 32kHz input, measure temperature
-	if( SendI2CByte(PressOrTemp) != I2C_ACK ) goto SBerror;
+	if( SendI2CByte(TempOrPress) != I2C_ACK ) goto SBerror;
 	I2CStop();
+
+	// set or clear bit to signal what A/D is currently running
+	_BaroTempRun = (TempOrPress == BaroTemp);
 	
 	return(I2C_NACK);
 SBerror:
@@ -245,7 +207,7 @@ void InitBarometer(void)
 	// Baro is assumed offline unless it responds - no retries!
 	static uint8 r;
 
-	VBaroComp = BaroCycles = BaroRestarts = 0;
+	VBaroComp = BaroCount = 0;
 
 	// Determine baro type
 	I2CStart();
@@ -261,16 +223,23 @@ void InitBarometer(void)
 		BaroTemp = BARO_TEMP_BMP085;
 	else
 		BaroTemp = BARO_TEMP_SMD500;
+
+	// read temperature once to get base value
+	if( !StartBaroADC(BaroTemp) ) goto BAerror;
+
+	Delay1mS(10);
+	r = ReadValueFromBaro();
+	BaroBaseTemp = BaroVal.u16;	// save start value
 		
 	// read pressure once to get base value
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
 	Delay1mS(30);
 	r = ReadValueFromBaro();	
-	DesiredBaroPressure = OriginBaroPressure = BaroVal.u16;
+	BaroBasePressure = BaroVal.u16;
 	
 	// set baro device to start temperature conversion
 	// before first call to ComputeBaroComp
-	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;	
+	if( !StartBaroADC(BaroTemp) ) goto BAerror;	
 
 	_BaroAltitudeValid = true;
 
@@ -285,72 +254,123 @@ void ComputeBaroComp(void)
 {
 	static int16 OldBaroRelPressure, Temp, Delta;
 
-	BaroCycles++;
+	BaroCount++;
 
 	if( _BaroAltitudeValid )
 		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
-		if ( BaroCycles >= 32 )
+#ifdef ENABLE_NEW_ALT_HOLD
+		if (((BaroCount >= 8) && _BaroTempRun) || ((BaroCount >= 32 ) && !_BaroTempRun))
+#else
+		if (((BaroCount >= 2) && _BaroTempRun) || ((BaroCount >= 8 ) && !_BaroTempRun))
+#endif // ENABLE_NEW_ALT_HOLD	
 		{
-			BaroCycles = 0;
+			BaroCount = 0;
 			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value		
-				if( ThrDownCycles )	// while moving throttle stick
+				if( _BaroTempRun )
 				{
-					DesiredBaroPressure = BaroVal.u16;
-					StartBaroADC(BARO_PRESS);
-					_Hovering = false;
-					VBaroComp = 0;	
+					StartBaroADC(BARO_PRESS); // next is pressure - overlap
+					if( ThrDownCount )
+						BaroBaseTemp = BaroVal.u16; // current read value
+					else 
+						BaroRelTempCorr = BaroVal.u16 - BaroBaseTemp;
 				}
 				else
-				{
-					#ifdef BARO_SCRATCHY_BEEPER
-					Beeper_TOG;
-					#endif
+				{	// current measurement was "pressure"
+					StartBaroADC(BaroTemp);	// next is temp - overlap
 
-					if ( !_Hovering )
+					if( ThrDownCount )	// while moving throttle stick
 					{
-						BaroRelPressure = 0;
-						_Hovering = true;
+						BaroBasePressure = BaroVal.u16;
+						_Hovering = false;
+						VBaroComp = 0;	
 					}
-	
-					// while holding altitude
-					BaroVal.u16 -= DesiredBaroPressure;
-					StartBaroADC(BARO_PRESS);
-
-					OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
-	
-					BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal.u16);
-	
-					Delta = BaroRelPressure - OldBaroRelPressure;
-
-					BaroRelPressure = Limit(BaroRelPressure, -2, 8); // was: +10 and -5
-		
-					// strictly this is acting more like an integrator 
-					// bumping VBaroComp up and down proportional to the error?	
-					Temp = BaroRelPressure * (int16)BaroCompKp;
-					if( VBaroComp > Temp )
-						VBaroComp--;
 					else
-						if( VBaroComp < Temp )
+					{
+						#ifdef BARO_SCRATCHY_BEEPER
+						Beeper_TOG;
+						#endif
+
+						if ( !_Hovering )
+						{
+							BaroRelPressure = 0;
+							_Hovering = true;
+						}
+	
+#ifdef ENABLE_NEW_ALT_HOLD
+// EXPERIMENTAL ALTITUDE HOLD
+						// while holding altitude
+						BaroVal.u16 -= BaroBasePressure;
+						// BaroVal has -400..+400 approx
+						BaroVal.u16 += SRS16((int16)BaroRelTempCorr * (int16)BaroTempCoeff, 5);
+
+						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
+	
+
+						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal.u16);
+	
+						Delta = BaroRelPressure - OldBaroRelPressure;
+
+						BaroRelPressure = Limit(BaroRelPressure, -2, 8); // was: +10 and -5
+		
+						// strictly this is acting more like an integrator 
+						// bumping VBaroComp up and down proportional to the error?	
+						Temp = BaroRelPressure * (int16)BaroThrottleProp;
+						if( VBaroComp > Temp )
+							VBaroComp--;
+						else
+							if( VBaroComp < Temp )
 								VBaroComp++; // climb
 
-					if( VBaroComp > Temp )
-						VBaroComp--;
+						if( VBaroComp > Temp )
+							VBaroComp--;
 				
-					// Differential		
-					VBaroComp += Limit(Delta, -5, 8) * (int16)BaroCompKd;
+						// Differential		
+						VBaroComp += Limit(Delta, -5, 8) * (int16)BaroThrottleDiff;
 	
-					VBaroComp = Limit(VBaroComp, -5, 15);
+						VBaroComp = Limit(VBaroComp, -5, 15);
 
-					if ( NavState != ReturningHome )
-					{
-						Temp = DesiredThrottle + VBaroComp;
-						HoverThrottle = HardFilter(HoverThrottle, Temp);
-					}
+#else
+
+						// while holding altitude
+						BaroVal -= BaroBasePressure;
+						// BaroVal has -400..+400 approx
+						BaroVal += SRS16((int16)BaroRelTempCorr * (int16)BaroTempCoeff + 16, 5);
+
+						OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
 	
-					#ifdef BARO_SCRATCHY_BEEPER
-					Beeper_TOG;
-					#endif
-			}
+						BaroRelPressure = BaroFilter(BaroRelPressure, BaroVal);
+	
+						Delta = BaroRelPressure - OldBaroRelPressure;	// subtract new height to get delta
+
+						BaroRelPressure = Limit(BaroRelPressure, -2, 8); // was: +10 and -5
+		
+						// strictly this is acting more like an integrator 
+						// bumping VBaroComp up and down proportional to the error?
+		
+						Temp = BaroRelPressure * (int16)BaroThrottleProp;
+						if( VBaroComp > Temp )
+							VBaroComp--;
+						else
+							if( VBaroComp < Temp )
+								VBaroComp++; // climb
+
+						if( VBaroComp > Temp )
+							VBaroComp--;
+						else
+							if( VBaroComp < Temp )
+								VBaroComp++; // climb
+		
+						// Differentialanteil		
+						VBaroComp += Limit(Delta, -8, 8) * (int16)BaroThrottleDiff;
+	
+						VBaroComp = Limit(VBaroComp, -5, 15);
+#endif // ENABLE_NEW_ALT_HOLD
+	
+						#ifdef BARO_SCRATCHY_BEEPER
+						Beeper_TOG;
+						#endif
+					}
+				}
 		}
 
 	#ifdef DEBUG_SENSORS	

@@ -1,22 +1,23 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
 
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "uavx.h"
 
@@ -27,31 +28,66 @@ void ShowSetup(uint8);
 void ProcessComCommand(void);
 
 #pragma idata menu1
-const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright 2008,2009 G.K. Egan & 2007-2008 W. Mahringer\r\n"
-							  "This is FREE SOFTWARE and comes with ABSOLUTELY NO WARRANTY\r\n"
-							  "see http://www.gnu.org/licenses/!\r\n";
+const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright (c) 2007-9"
+							  " G.K. Egan & W. Mahringer\r\n"
+							  "This is FREE SOFTWARE, see GPL license!\r\n";
 
-const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\nAccelerometers ";
+const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\n"
+
+	"GPS enabled\r\n"
+
+#ifdef DEBUG_SENSORS
+	"Debug: Sensors\r\n"
+#endif
+
+#ifdef RX_DEFAULT
+	"Rx: PPM Odd Channel\r\n"
+#endif
+#ifdef RX_PPM
+	"Rx: PPM Composite\r\n"
+#endif
+#ifdef RX_DSM2
+	"Rx: PPM DSM2\r\n"
+#endif
+
+#ifdef ESC_PPM
+	"ESC: PPM\r\n"
+#endif
+#ifdef ESC_YGEI2C
+	"ESC: YGE I2C\r\n"
+#endif
+#ifdef ESC_HOLGER
+	"ESC: Holger I2C\r\n"
+#endif
+	
+	"Gyros: "
+#ifdef OPT_ADXRS300
+	"ADXRS300 (Roll/Pitch/Yaw)\r\n"
+#endif
+#ifdef OPT_ADXRS150
+	"ADXRS150 (Roll/Pitch/Yaw)\r\n"
+#endif
+#ifdef OPT_IDG
+	"ADXRS300 (Yaw), IDG300 (Roll/Pitch)\r\n"
+#endif
+	"Accelerometers ";
 #pragma idata
 
 #pragma idata menuhelp
 const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
-	"A..Linear test\r\n"
+	"V..Analog ch.\r\n"
 	"B..Boot\r\n"
-#ifndef DISABLE_COMPASS_CALIBRATION
 	"C..Compass test\r\n"
-#endif // !DISABLE_COMPASS_CALIBRATION
+	"K..Calib. Compass\r\n"
 	"G..GPS test (Use HyperTerm)\r\n"
 	"H..Baro. test\r\n"
 	"I..I2C bus scan\r\n"
-#ifndef DISABLE_COMPASS_CALIBRATION
-	"K..Calib. Compass\r\n"
-#endif // !DISABLE_COMPASS_CALIBRATION
-//	"M..Modify parameters\r\n"
-	"P..RX test\r\n"
+	"A..Linear test\r\n"
+	"X..RX test\r\n"
 	"S..Setup\r\n"
-	"V..Analog ch.\r\n"
+	#ifdef ESC_YGEI2C
 	"Y..Prog. YGE\r\n"
+	#endif
 	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
 
@@ -66,7 +102,7 @@ void ShowSetup(uint8 h)
 	if( h )
 	{
 		TxString(SerHello);
-		CurrentParamSet = 1;	
+		IK5 = _Minimum;	
 	}
 
 	TxString(SerSetup);	// send hello message
@@ -82,7 +118,7 @@ void ShowSetup(uint8 h)
 		TxString("not available\r\n");
 
 	TxString("Baro ");
-	if ( _BaroAltitudeValid )
+	if( _BaroAltitudeValid )
 		if ( BaroType == BARO_ID_BMP085 )
 			TxString("BMP085 ONLINE\r\n");
 		else
@@ -91,20 +127,6 @@ void ShowSetup(uint8 h)
 		TxString("not available\r\n");
 
 	ReadParametersEE();
-
-	switch ( GyroType ) {
-	case ADXRS300:TxString("Pitch/Roll Gyros: ADXRS610/300 or MLX90609\r\n"); break;
-	case ADXRS150:TxString("Pitch/Roll Gyros: ADXRS613/150\r\n"); break;
-	case IDG300:TxString("Pitch/Roll Gyros: IDG300\r\n"); break;
-	}
-	
-	switch ( ESCType ) {
-	case ESCPPM:TxString("ESC: PPM\r\n"); break;
-	case ESCHolger:TxString("ESC: Holger I2Ce\r\n"); break;
-	case ESCX3D:TxString("ESC: X-3D I2C\r\n"); break;
-	case ESCYGEI2C:TxString("ESC: YGE I2C\r\n"); break;
-	}	
-
 	TxString("Throttle Ch");
 	if( FutabaMode )
 		TxChar('3');
@@ -112,7 +134,10 @@ void ShowSetup(uint8 h)
 		TxChar('1');
 
 	TxString("\r\nSelected parameter set: ");
-	TxChar('0' + CurrentParamSet);
+	if( IK5 > _Neutral )
+		TxChar('2');
+	else
+		TxChar('1');
 	
 	ShowPrompt();
 } // ShowSetup
@@ -121,15 +146,16 @@ void ShowSetup(uint8 h)
 // Do NOT call this routine while in flight!
 void ProcessComCommand(void)
 {
-	static int8  *p;
-	static uint8 ch;
-	static uint16 param;
-	static uint16 addrbase, curraddr;
-	static int8 d;
+	int8  *p;
+	uint8 ch;
+	uint8 addr;
+	uint16 addrbase, curraddr;
+	int8 d;
 
-	if ( !Armed )
+	if ( !_ReceivingGPS )
 	{
 		ch = PollRxChar();
+	
 		if ( ch != NUL   )
 		{
 			if( islower(ch))							// check lower case
@@ -137,25 +163,20 @@ void ProcessComCommand(void)
 			
 			switch( ch )
 			{
-			case 'A' :	// linear sensor
-				LinearTest();
+			case 'X'  :	// Receiver test			
+				ReceiverTest();
 				ShowPrompt();
 				break;
-			case 'B':	// call bootloader
-				{ // arming switch must be OFF to call bootloader!!!
-					DisableInterrupts;
-					BootStart();		// never comes back!
-				}
-			case 'C':
-				DoCompassTest();
+			case 'V' :	// analog test
+				AnalogTest();
 				ShowPrompt();
 				break;
 			case 'G' : // GPS test
 				GPSTest();
 				ShowPrompt();
 				break;			
-			case 'H':	// barometer
-				BaroTest();
+			case 'A' :	// linear sensor
+				LinearTest();
 				ShowPrompt();
 				break;
 			case 'I':
@@ -163,84 +184,19 @@ void ProcessComCommand(void)
 				TxVal32(ScanI2CBus(),0,0);
 				TxString(" device(s) found\r\n");
 				ShowPrompt();
-				break;	
+				break;
+			case 'C':
+				DoCompassTest();
+				ShowPrompt();
+				break;
 			case 'K':
 				CalibrateCompass();
 				ShowPrompt();
 				break;
-			case 'L'  :	// List parameters
-				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
-				TxChar('0' + CurrentParamSet);
-				ReadParametersEE();
-				param = 1;
-				for(p = &FirstProgReg; p <= &LastProgReg; p++)
-				{
-					TxString("\r\nRegister ");
-					TxValU((uint8)param++);
-					TxString(" = ");
-					d = *p;
-					TxValS(d);
-				}
+			case 'H':	// barometer
+				BaroTest();
 				ShowPrompt();
-				break;
-			case 'M'  : // modify parameters
-					// no reprogramming in flight!!!!!!!!!!!!!!!
-					LEDBlue_ON;
-					TxString("\r\nRegister ");
-					param = (uint16)(RxNumU()-1);
-					TxString(" = ");
-					d = RxNumS();
-					if( CurrentParamSet == 1 )
-					{
-						WriteEE(_EESet1 + (uint16)param, d);
-						if ( ComParms[param] )
-							WriteEE(_EESet2 + param, d);
-					}
-					else
-					{
-						if ( !ComParms[param] )
-							WriteEE(_EESet2 + param, d);
-					}
-					LEDBlue_OFF;
-				ShowPrompt();
-				break;
-			case 'N' :	// neutral values
-				TxString("\r\nNeutral    R:");
-				TxValS(NeutralLR);
-		
-				TxString("    P:");
-				TxValS(NeutralFB);
-		
-				TxString("   V:");	
-				TxValS(NeutralUD);
-				ShowPrompt();
-				break;
-			case 'P'  :	// Receiver test			
-				ReceiverTest();
-				ShowPrompt();
-				break;
-			case 'R':	// receiver values
-				TxString("\r\nT:");TxValU(IGas);
-				TxString(",R:");TxValS(IRoll);
-				TxString(",N:");TxValS(IPitch);
-				TxString(",Y:");TxValS(IYaw);
-				TxString(",5:");TxValU(IK5);
-				TxString(",6:");TxValU(IK6);
-				TxString(",7:");TxValU(IK7);
-				ShowPrompt();
-				break;
-			case 'S' :	// show status
-				ShowSetup(0);
-				break;
-			case 'V' :	// analog test
-				AnalogTest();
-				ShowPrompt();
-				break;
-			case 'Y':	// configure YGE30i EScs
-				ConfigureESCs();
-				ShowPrompt();
-				break;
-
+				break;	
 			case '1':
 			case '2':
 			case '3':
@@ -267,11 +223,110 @@ void ProcessComCommand(void)
 				PowerOutput(ch-'1');
 				ShowPrompt();
 				break;
-			case '?'  :  // help
+	
+			#ifdef ESC_YGEI2C
+			case 'Y':	// configure YGE30i EScs
+				ConfigureESCs();
+				ShowPrompt();
+				break;
+			#endif // ESC_YGEI2C
+
+			case 'L'  :	// List parameters
+				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
+				if( IK5 > _Neutral )
+					TxChar('2');
+				else
+					TxChar('1');
+				ReadParametersEE();
+				addr = 1;
+				for(p = &FirstProgReg; p <= &LastProgReg; p++)
+				{
+					TxString("\r\nRegister ");
+					TxValU(addr++);
+					TxString(" = ");
+					d = *p;
+					TxValS(d);
+				}
+				ShowPrompt();
+				break;
+			case 'M'  : // modify parameters
+				if ( !Armed )
+				{ // no reprogramming in flight!!!!!!!!!!!!!!!
+					LEDBlue_ON;
+					TxString("\r\nRegister ");
+					addr = RxNumU()-1;
+					TxString(" = ");
+					d = RxNumS();
+					if( IK5 > _Neutral )
+						addrbase = _EESet2;
+					else
+						addrbase = _EESet1;
+			
+					if( addr ==  (&ConfigParam - &FirstProgReg) )
+						d &=0xf7; // no Double Rates
+			
+					WriteEE(addrbase + (uint16)addr, d);
+			
+					// update transmitter config bits in the other parameter set
+					if( addr ==  (&ConfigParam - &FirstProgReg) )
+					{									
+						if( IK5 > _Neutral )
+							addrbase = _EESet1;				
+						else
+							addrbase = _EESet2;	
+						// mask only bits _FutabaMode and _NegativePPM
+						d &= 0x12;		
+						d = (ReadEE(addrbase + (uint16)addr) & 0xed) | d;
+						WriteEE(addrbase + (uint16)addr, d);
+					}
+		
+					// This is not strictly necessary as UAVPSet enforces it.
+					// Hovever direct edits of parameter files can easily exceed
+					// intermediate arithmetic limits.
+					if ( ((int16)Abs(YawIntFactor) * (int16)YawIntLimit) > 127 )
+					{
+						d = 127 / YawIntFactor;
+						WriteEE(addrbase + (uint16)(&YawIntLimit - &FirstProgReg), d);
+					}
+		
+					LEDBlue_OFF;
+				}
+				ShowPrompt();
+				break;
+			case 'S' :	// show status
+				ShowSetup(0);
+				break;
+			case 'N' :	// neutral values
+				TxString("\r\nNeutral Roll:");
+				TxValS(NeutralLR);
+		
+				TxString(" Ptch:");
+				TxValS(NeutralFB);
+		
+				TxString(" Yaw:");	
+				TxValS(NeutralUD);
+				ShowPrompt();
+				break;
+			case 'R':	// receiver values
+				TxString("\r\nT:");TxValU(IGas);
+				TxString(",R:");TxValS(IRoll);
+				TxString(",N:");TxValS(IPitch);
+				TxString(",Y:");TxValS(IYaw);
+				TxString(",5:");TxValU(IK5);
+				TxString(",6:");TxValU(IK6);
+				TxString(",7:");TxValU(IK7);
+				ShowPrompt();
+				break;
+			case 'B':	// call bootloader
+				if ( !Armed )
+				{ // arming switch must be OFF to call bootloader!!!
+					DisableInterrupts;
+					BootStart();		// never comes back!
+				}	
+			case '?'  : // help
 				TxString(SerHelp);
 				ShowPrompt();
 				break;
-			default: break;
 			}
 		}
 	}

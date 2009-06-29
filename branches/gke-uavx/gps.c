@@ -1,21 +1,22 @@
 // =======================================================================
-// =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =                          http://uavp.ch                             =
+// =                                 UAVX                                =
+// =                         Quadrocopter Control                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
 // =======================================================================
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
 
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 // 	GPS routines
 
@@ -93,6 +94,8 @@ enum GPSSentences {GPGGA, GPRMC};
 const uint8 NMEATag[LastNIndex+1][6] = {{"GPGGA"},{"GPRMC"}};
 uint8 NMEAActive[LastNIndex+1];
 #pragma udata
+
+#ifndef FAKE_GPS
 
 int16 ConvertInt(uint8 lo, uint8 hi)
 {
@@ -256,12 +259,16 @@ void ParseGPGGASentence()
 		TxString("$GPGGA ");
 } // ParseGPGGASentence
 
+#endif //  !FAKE_GPS
+
 void ParseGPSSentence()
 {
 	static int32 Temp;
 	static uint8 CurrNType;
 
 	cc = 0;
+
+	#ifndef  FAKE_GPS
 
 	nll = NMEA[NHead].length;
 	CurrNType = NMEA[NHead].type;
@@ -329,6 +336,8 @@ void ParseGPSSentence()
 	else
 		if ( _GPSTestActive )
 			TxString("invalid\r\n");
+
+	#endif //  !FAKE_GPS
 } // ParseGPSSentence
 
 void PollGPS(uint8 ch)
@@ -426,7 +435,8 @@ void InitGPS()
 	GPSEast = GPSNorth = 0;
 
 	ValidGPSSentences = 0;
-	GPSCycles = 0;
+	GPSCount = 0;
+	FakeGPSCount = 100;
 
 	_GPSValid = false; 
 	GPSSentenceReceived=false;
@@ -436,6 +446,13 @@ void InitGPS()
 
 void UpdateGPS(void)
 {
+	#ifdef FAKE_GPS
+	GPSSentenceReceived = true;
+	_GPSHeadingValid = true;
+	_GPSAltitudeValid = true;
+	_GPSValid = true;
+	#else
+
 	if ( NEntries > 0 )
 	{
 		LEDBlue_ON;
@@ -445,21 +462,22 @@ void UpdateGPS(void)
 		if ( _GPSValid )
 		{
 			_NavComputed = false;
-			GPSCycles = 0;
+			GPSCount = 0;
 		}
 	}
 	else
-		if( (Cycles & 0x000f) == 0 )
-			if( GPSCycles > GPSDROPOUT )
+		if( (BlinkCount & 0x000f) == 0 )
+			if( GPSCount > GPSDROPOUT )
 				_GPSValid = false;
 			else
-				GPSCycles++;
+				GPSCount++;
 
 	LEDBlue_OFF;
 	if ( _GPSValid )
 		LEDRed_OFF;
 	else
 		LEDRed_ON;	
+	#endif // FAKE_GPS
 } // UpdateGPS
 
 

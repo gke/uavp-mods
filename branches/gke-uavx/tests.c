@@ -1,22 +1,24 @@
 // =======================================================================
-// =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =                                 UAVX                                =
+// =                         Quadrocopter Control                        =
+// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
+// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =                          http://www.uavp.org                        =
 // =======================================================================
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
 
-//    UAVX is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 
-//    UAVX is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, write to the Free Software Foundation, Inc.,
+//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "uavx.h"
 
@@ -143,7 +145,7 @@ void ReceiverTest(void)
 	 	v += (uint16)TMR2_5MS * 64;	// 78 * 16*16/4 us
 		TxVal32( v, 3, 0);		
 		TxString("mS\r\nGlitches:\t");
-		TxVal32(RCGlitches,0,0);
+		TxVal32(RCGlitchCount,0,0);
 		TxNextLine();
 	}
 	else
@@ -156,10 +158,8 @@ void DoCompassTest()
 	i16u Compass;
 	int8 r;
 
-	#ifndef DISABLE_COMPASS_CALIBRATION
-
 	TxString("\r\nCompass test\r\n");
-/*
+
 	#define COMP_OPMODE 0b01110000	// standby mode to reliably read EEPROM
 
 	I2CStart();
@@ -231,11 +231,9 @@ void DoCompassTest()
 		Delay1mS(COMPASS_TIME);
 	}
 
-//	InitDirection();
-	Delay1mS(COMPASS_TIME);
- 
-*/
+	InitDirection(); 
 
+	Delay1mS(COMPASS_TIME);
 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
@@ -252,17 +250,12 @@ void DoCompassTest()
 CTerror:
 	I2CStop();
 	TxString("FAIL\r\n");
-
-	#endif // !DISABLE_COMPASS_CALIBRATION
-
 } // DoCompassTest
 
 void CalibrateCompass(void)
 {	// calibrate the compass by rotating the ufo through 720 deg smoothly
-	#ifndef DISABLE_COMPASS_CALIBRATION
-
-	TxString("\r\nCalib. compass - Press any key (x) to continue\r\n");	
-	while( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
+	TxString("\r\nCalib. compass \r\nRotate horizontally 720 deg in ~30 sec.! \r\nPress any key to START.\r\n");
+	while( PollRxChar() == NUL );
 
 	// set Compass device to Calibration mode 
 	I2CStart();
@@ -270,8 +263,8 @@ void CalibrateCompass(void)
 	if( SendI2CByte('C')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	TxString("\r\nRotate horizontally 720 deg in ~30 sec. - Press any key (x) to FINISH\r\n");
-	while( PollRxChar() != 'x' );
+	TxString("\r\nPress any key to FINISH\r\n");
+	while( PollRxChar() == NUL );
 
 	// set Compass device to End-Calibration mode 
 	I2CStart();
@@ -279,13 +272,13 @@ void CalibrateCompass(void)
 	if( SendI2CByte('E')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
-	TxString("\r\nCalibration complete\r\n");
+	Delay1mS(COMPASS_TIME);
+
+	TxString("OK\r\n");
 	return;
 CCerror:
 	I2CStop();
-	TxString("Calibration FAILED\r\n");
-
-	#endif // !DISABLE_COMPASS_CALIBRATION
+	TxString("FAIL\r\n");
 } // CalibrateCompass
 
 void BaroTest(void)
@@ -314,12 +307,12 @@ void BaroTest(void)
 	T = BaroVal.u16;
 	TxString("\tTemp: ");
 	TxVal32((int32)T, 0, 0);	
-/*
+
 	TxString("\tComp: ");
 	C = P + SRS16((int16)T * (int16)BaroTempCoeff + 16, 5);
 	TxVal32((int32)C, 0, 0);
 	TxNextLine();
-*/
+
 	TxNextLine();
 
 	return;
@@ -439,43 +432,29 @@ void AnalogTest(void)
 	TxString("\r\nAnalog ch. test\r\n");
 
 	// Roll
-	if ( GyroType == IDG300 )
-		v = ((int24)ADC(IDGADCRollChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
-	else
-		v = ((int24)ADC(NonIDGADCRollChan, ADCVREF5V) * 50 + 5)/10; 
+	v = ((int24)ADC(ADCRollChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
 	//TxVal32(ADCRollChan, 0, ' ');
 	TxString("Roll: \t"); 
 	TxVal32(v, 3, 'V');
-	if ( GyroType == IDG300 )
-	{
-		if ( ( v < 750 ) || ( v > 1750 ) ) 
-			TxString(" gyro NC or fault?");
-	}
-	else
-	{
-		if ( ( v < 2000 ) || ( v > 3000 ) )
-			TxString(" gyro NC or fault?");
-	}
+	#ifdef OPT_IDG
+	if ( ( v < 750 ) || ( v > 1750 ) )
+	#else
+	if ( ( v < 2000 ) || ( v > 3000 ) )
+	#endif
+		TxString(" gyro NC or fault?"); 
 	TxNextLine();
 
 	// Pitch
-	if ( GyroType == IDG300 )
-		v = ((int24)ADC(IDGADCPitchChan, ADCVREF5V) * 50 + 5)/10; 
-	else
-		v = ((int24)ADC(NonIDGADCPitchChan, ADCVREF5V) * 50 + 5)/10; 
+	v = ((int24)ADC(ADCPitchChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
 	//TxVal32(ADCPitchChan, 0, ' ');
 	TxString("Pitch:\t");		
 	TxVal32(v, 3, 'V');
-if ( GyroType == IDG300 )
-	{
-		if ( ( v < 750 ) || ( v > 1750 ) ) 
-			TxString(" gyro NC or fault?");
-	}
-	else
-	{
-		if ( ( v < 2000 ) || ( v > 3000 ) )
-			TxString(" gyro NC or fault?");
-	}	
+	#ifdef OPT_IDG
+	if ( ( v < 750 ) || ( v > 1750 ) )
+	#else
+	if ( ( v < 2000 ) || ( v > 3000 ) )
+	#endif
+		TxString(" gyro NC or fault?");	
 	TxNextLine();
 
 	// Yaw
@@ -510,75 +489,68 @@ if ( GyroType == IDG300 )
 	TxNextLine();	
 } // AnalogTest
 
+#ifdef ESC_YGEI2C
+
 void Program_SLA(uint8 niaddr)
 {
 	uint8 nii;
 
-	if ( ESCType == ESCYGEI2C )
+	for(nii = 0x10; nii<0xF0; nii+=2)
 	{
-/* broken
-		for(nii = 0x10; nii<0xF0; nii+=2)
+		EscI2CStart();
+		if( SendEscI2CByte(nii) == 0 )
 		{
-			EscI2CStart();
-			if( SendEscI2CByte(nii) == 0 )
+			if( nii == niaddr )
+			{	// controller is already programmed OK
+				EscI2CStop();
+				TxString("controller at SLA 0x");
+				TxValH(nii);
+				TxString(" is already programmed OK\r\n");
+				return;
+			}
+			else
 			{
-				if( nii == niaddr )
-				{	// controller is already programmed OK
-					EscI2CStop();
-					TxString("controller at SLA 0x");
-					TxValH(nii);
-					TxString(" is already programmed OK\r\n");
-					return;
-				}
-				else
+				if( SendEscI2CByte(0x87) == 0 ) // select register 0x07
 				{
-					if( SendEscI2CByte(0x87) == 0 ) // select register 0x07
+					if( SendEscI2CByte(niaddr) == 0 ) // new slave address
 					{
-						if( SendEscI2CByte(niaddr) == 0 ) // new slave address
-						{
-							EscI2CStop();
-							TxString("controller at SLA 0x");
-							TxValH(nii);
-							TxString(" reprogrammed to SLA 0x");
-							TxValH(niaddr);
-							TxNextLine();
-							return;
-						}
+						EscI2CStop();
+						TxString("controller at SLA 0x");
+						TxValH(nii);
+						TxString(" reprogrammed to SLA 0x");
+						TxValH(niaddr);
+						TxNextLine();
+						return;
 					}
 				}
 			}
-			EscI2CStop();
 		}
-*/
-TxString("Not implemented yet\r\n");
+		EscI2CStop();
 	}
 	TxString("no controller found or reprogram failed\r\n");
-
 } // Program_SLA
 
 void ConfigureESCs(void)
 {
 	uint8 nic;
 
-	if ( ESCType == ESCYGEI2C )
+	for( nic=0; nic<4; nic++)
 	{
-		for( nic=0; nic<4; nic++)
+		TxString("\r\nConnect ONLY ");
+		switch(nic)
 		{
-			TxString("\r\nConnect ONLY ");
-			switch(nic)
-			{
-				case 0 : TxString("front"); break;
-				case 1 : TxString("back");  break;
-				case 2 : TxString("right"); break;
-				case 3 : TxString("left");  break;
-			}
-			TxString(" controller, then press any key\r\n");
-			while( PollRxChar() == '\0' );
-			TxString("\r\nprogramming the controller...\r\n");
-	
-			Program_SLA(0x62+nic+nic);
+			case 0 : TxString("front"); break;
+			case 1 : TxString("back");  break;
+			case 2 : TxString("right"); break;
+			case 3 : TxString("left");  break;
 		}
+		TxString(" controller, then press any key\r\n");
+		while( PollRxChar() == '\0' );
+		TxString("\r\nprogramming the controller...\r\n");
+
+		Program_SLA(0x62+nic+nic);
 	}
 } // ConfigureESCs
 
+#endif // ESC_YGEI2C
 
