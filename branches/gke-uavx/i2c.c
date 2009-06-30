@@ -344,8 +344,6 @@ uint8 RecvI2CByte(uint8 r)
 // -----------------------------------------------------------
 // Wolfgang's SW I2C Routines for ESCs
 
-#if (defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C) && !defined DEBUG_SENSORS
-
 // Prototypes
 
 void EscI2CDelay(void);
@@ -424,7 +422,7 @@ void SendEscI2CByte(uint8 d)
 		}
 	
 		ESC_CIO=1;							// set SCL to input, output a high
-		while( !ESC_SCL ) ;					// wait for line to come hi ??? hang
+		while( !ESC_SCL ) ;					// wait for line to come hi ??? hang YES YES YES
 		EscI2CDelay();
 		ESC_SCL = 0;
 		ESC_CIO = 0;						// set SCL to output, output a low
@@ -443,6 +441,5 @@ void SendEscI2CByte(uint8 d)
 
 } // SendEscI2CByte
 
-#endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
 
 

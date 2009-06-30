@@ -23,38 +23,36 @@
 
 // Prototypes
 
-extern void Delay1mS(int16);
-extern void Delay100mSWithOutput(int16);
-extern int16 SRS16(int16, uint8);
-extern int32 SRS32(int32, uint8);
-extern void InitPorts(void);
-extern void InitArrays(void);
+void Delay1mS(int16);
+void Delay100mSWithOutput(int16);
+int16 SRS16(int16, uint8);
+int32 SRS32(int32, uint8);
+void InitPorts(void);
+void InitArrays(void);
 
-extern int16 ConvertGPSToM(int16);
-extern int16 ConvertMToGPS(int16);
+int16 ConvertGPSToM(int16);
+int16 ConvertMToGPS(int16);
 
-extern 	int8 ReadEE(uint8);
-extern void ReadParametersEE(void);
-extern 	void WriteEE(uint8, int8);
-extern void WriteParametersEE(uint8);
-extern void InitParams(void);
+int8 ReadEE(uint8);
+void ReadParametersEE(void);
+void WriteEE(uint8, int8);
+void WriteParametersEE(uint8);
+void UpdateWhichParamSet(void);
 
-extern int16 Make2Pi(int16);
-extern int16 Table16(int16, const int16 *);
-extern int16 int16sin(int16);
-extern int16 int16cos(int16);
-extern int16 int16atan2(int16, int16);
-extern int16 int16sqrt(int16);
+int16 Make2Pi(int16);
+int16 Table16(int16, const int16 *);
+int16 int16sin(int16);
+int16 int16cos(int16);
+int16 int16atan2(int16, int16);
+int16 int16sqrt(int16);
 
-extern void SendLEDs(void);
-extern void SwitchLEDsOn(uint8);
-extern void SwitchLEDsOff(uint8);
-extern void LEDGame(void);
-void DoPIDDisplays(void);
-extern void CheckAlarms(void);
+void SendLEDs(void);
+void SwitchLEDsOn(uint8);
+void SwitchLEDsOff(uint8);
+void LEDGame(void);
+void CheckAlarms(void);
 
-extern void DumpTrace(void);
-
+void DumpTrace(void);
 
 void Delay1mS(int16 d)
 { 	// Timer0 interrupt at 1mS must be running
@@ -133,10 +131,8 @@ void InitArrays(void)
 {
 	int8 i;
 
-	#ifdef DEBUG_SENSORS
 	for (i=0; i <= TopTrace; i++)
 		Trace[i] = 0;
-	#endif
 
 	for (i = 0; i < NoOfMotors; i++)
 		Motor[i] = _Minimum;
@@ -145,14 +141,17 @@ void InitArrays(void)
 	_Flying = false;
 	REp = PEp = YEp = 0;
 	
-	Vud = VBaroComp = 0;
+	VUDComp = VBaroComp = 0;
 	
 	UDSum = 0;
 	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
 
+	AE = AltSum = 0;
+
 	BaroRestarts = 0;
-	RCGlitchCount = 0;
+
+
 } // InitArrays
 
 int16 ConvertGPSToM(int16 c)
@@ -185,18 +184,29 @@ void ReadParametersEE(void)
 	static int8 *p, c; 
 	static uint16 addr;
 
-	if( IK5 > _Neutral )
-		addr = _EESet2;	
+	if( CurrentParamSet == 1 )
+		addr = _EESet1;	
 	else
-		addr = _EESet1;
+		addr = _EESet2;
 	
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
 
+	IdleThrottle = (PercentIdleThr * _Maximum )/100;
+	HoverThrottle = (PercentHoverThr * _Maximum )/100;
+
+	RollIntLimit256 = (int16)RollIntLimit * 256L;
+	PitchIntLimit256 = (int16)RollIntLimit * 256L;
+	YawIntLimit256 = (int16)RollIntLimit * 256L;
+
+	NavIntLimit256 = NavIntLimit * 256L; 
+	NavClosingRadius = (int32)NavRadius * 5L;
+	NavClosingRadius = Limit(NavClosingRadius, 5, 40); // avoid divide by zero
+	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
+	CompassOffset = (((COMPASS_OFFSET_DEG + NavMagVar)*MILLIPI)/180L);
+
 	BatteryVolts = LowVoltThres;
 	
-	TimeSlot = Limit(TimeSlot, 2, 20);
-
 } // ReadParametersEE
 
 void WriteEE(uint8 addr, int8 d)
@@ -241,18 +251,98 @@ void WriteParametersEE(uint8 s)
 		WriteEE(addr++, *p++);
 } // WriteParametersEE
 
-void InitParams(void)
+void UpdateParamSetChoice(void)
 {
-	int16 i;
+	int8 NewParamSet, NewRTHAltitudeHold, NewTurnToHome;
 
-	#ifdef INIT_PARAMS
-	for (i=_EESet2*2; i ; i--)					// clear EEPROM parameter space
-		WriteEE(i, -1);
-	WriteParametersEE(1);						// copy RAM initial values to EE
-	WriteParametersEE(2);
-	#endif // INIT_PARAMS
-	ReadParametersEE();
-}  // InitParams
+	NewParamSet = CurrentParamSet;
+	NewRTHAltitudeHold = _RTHAltitudeHold;
+	NewTurnToHome = _TurnToHome;
+
+	if ( _Signal )
+	{
+		while ( (Abs(IPitch) > 20) && ((Abs(IYaw) > 20)|| (Abs(IRoll) > 20)) )
+		{
+			if ( IPitch  > 20 ) // bottom
+			{
+				if ( (IYaw > 20) || ( IRoll < -20) ) // left
+				{ // bottom left
+					NewParamSet = 1;
+					NewRTHAltitudeHold = true;
+				}
+				else
+					if ( (IYaw < -20) || (IRoll > 20) ) // right
+					{ // bottom right
+						NewParamSet = 2;
+						NewRTHAltitudeHold = true;
+					}
+			}	
+			else
+				if ( IPitch < -20 ) // top
+					if ( (IYaw > 20) || ( IRoll < -20) ) // left
+					{
+						NewParamSet = 1;
+						NewRTHAltitudeHold = false;
+					}
+					else
+						if ( (IYaw < -20) || (IRoll > 20) ) // right
+						{
+							NewParamSet = 2;
+							NewRTHAltitudeHold = false;
+						}
+			if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHAltitudeHold != _RTHAltitudeHold) )
+			{
+				
+				CurrentParamSet = NewParamSet;
+				_RTHAltitudeHold = NewRTHAltitudeHold;
+				LEDBlue_ON;
+				Beeper_ON;
+				Delay100mSWithOutput(2);
+				Beeper_OFF;
+				if ( CurrentParamSet == 2 )
+				{
+					Delay100mSWithOutput(2);
+					Beeper_ON;
+					Delay100mSWithOutput(2);
+					Beeper_OFF;
+				}
+				if ( _RTHAltitudeHold )
+				{
+					Delay100mSWithOutput(4);
+					Beeper_ON;
+					Delay100mSWithOutput(4);
+					Beeper_OFF;
+				}
+				LEDBlue_OFF;
+		 	}
+		}
+
+		while ( (Abs(IGas) < 20) && (Abs(IPitch) < 20 ) && ((Abs(IYaw) > 20)|| (Abs(IRoll) > 20)) )
+		{
+
+			if ( (IYaw > 20) || ( IRoll < -20) ) // left
+				NewTurnToHome = false;
+			else
+				if ( (IYaw < -20) || (IRoll > 20) ) // right
+					NewTurnToHome = true;
+		
+			if ( NewTurnToHome != _TurnToHome )
+			{		
+				_TurnToHome = NewTurnToHome;
+				LEDBlue_ON;
+				if ( _TurnToHome )
+				{
+					Beeper_ON;
+					Delay100mSWithOutput(4);
+					Beeper_OFF;
+				}
+				else
+					Delay100mSWithOutput(2);
+				LEDBlue_OFF;
+		 	}
+		}
+	}
+} // UpdateParamSetChoice
 
 int16 Make2Pi(int16 A)
 {
@@ -429,9 +519,9 @@ void SwitchLEDsOff(uint8 l)
 
 void LEDGame(void)
 {
-	if( --LEDCount == 0 )
+	if( --LEDCycles == 0 )
 	{
-		LEDCount = ((255-DesiredThrottle)>>3) +5;	// new setup
+		LEDCycles = ((255-DesiredThrottle)>>3) +5;	// new setup
 		if( _Hovering )
 		{
 			AUX_LEDS_ON;	// baro locked, all aux-leds on
@@ -456,37 +546,6 @@ void LEDGame(void)
 	}
 } // LEDGame
 
-void DoPIDDisplays(void)
-{
-	if ( IntegralTest )
-	{
-		ALL_LEDS_OFF;
-		if( (int8)(RollSum>>8) > 0 )
-			LEDRed_ON;
-		else
-			if( (int8)(RollSum>>8) < -1 )
-				LEDGreen_ON;
-
-		if( (int8)(PitchSum>>8) >  0 )
-			LEDYellow_ON;
-		else
-			if( (int8)(PitchSum>>8) < -1 )
-				LEDBlue_ON;
-	}
-	else
-		if( CompassTest )
-		{
-			ALL_LEDS_OFF;
-			if( CurDeviation > 0 )
-				LEDGreen_ON;
-			else
-				if( CurDeviation < 0 )
-					LEDRed_ON;
-			if( AbsDirection > COMPASS_MAX )
-				LEDYellow_ON;
-		}
-} // DoPIDDisplays
-
 void CheckAlarms(void)
 {
 	static int16 NewBatteryVolts;
@@ -495,11 +554,9 @@ void CheckAlarms(void)
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
 	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
 
-// zzz fix later
-
 	if( _LowBatt ) // repeating beep
 	{
-		if( ( BlinkCount & 0x0040) == 0 )
+		if( ( Cycles & 0x0040) == 0 )
 		{
 			Beeper_ON;
 			LEDRed_ON;
@@ -512,7 +569,7 @@ void CheckAlarms(void)
 	}
 	else
 	if ( _LostModel ) // 2 beeps with interval
-		if( (BlinkCount & 0x0080) == 0 )
+		if( (Cycles & 0x0080) == 0 )
 		{
 			Beeper_ON;
 			LEDRed_ON;
