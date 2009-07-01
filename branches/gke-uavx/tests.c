@@ -22,8 +22,6 @@
 
 // Prototypes
 
-uint16 PauseTime;
-
 extern uint8 BaroTemp;
 
 enum GPSSentences {GPGGA, GPRMC};
@@ -138,10 +136,9 @@ void ReceiverTest(void)
 		}
 
 		// show pause time
-	//zzz	TxString("Gap:\t");
-	//	v = 2*PauseTime;
-	// 	v += (uint16)TMR2_5MS * 64;	// 78 * 16*16/4 us
-	//	TxVal32( v, 3, 0);		
+		TxString("Gap:\t");
+		v = TMR2_TICK*PauseTime;
+		TxVal32( v, 3, 0);		
 		TxString("mS\r\nGlitches:\t");
 		TxVal32(RCGlitches,0,0);
 		TxNextLine();

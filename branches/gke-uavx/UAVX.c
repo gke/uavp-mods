@@ -29,15 +29,18 @@
 
 // Global Variables
 
-uint8	State;
-uint8	CurrentParamSet;
-int8	TimeSlot;
-
+#pragma udata rxvars
 uint8	IGas;						// actual input channel, can only be positive!
 int8 	IRoll,IPitch,IYaw;			// actual input channels, 0 = neutral
 uint8	IK5;						// actual channel 5 input
 uint8	IK6;						// actual channel 6 input
 uint8	IK7;						// actual channel 7 input
+uint16	PauseTime; 					// for tests
+#pragma udata
+
+uint8	State;
+uint8	CurrentParamSet;
+int8	TimeSlot;
 
 // PID Regler Variablen
 int16	RE, PE, YE;					// gyro rate error	
@@ -178,13 +181,12 @@ void main(void)
 
 	InitDirection();
 	InitBarometer();
-	InitGPS();
-	InitNavigation();
 
 	ShowSetup(1);
 	
 	while( true )
 	{
+
 		ReceivingGPSOnly(false);
 
 		if ( !_Signal )

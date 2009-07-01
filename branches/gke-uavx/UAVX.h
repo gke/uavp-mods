@@ -432,6 +432,7 @@ typedef union {
 
 #define TMR2_5MS	78	/* 1x 5ms +  */
 #define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
+#define TMR2_TICK	4	// uSec
 
 #define _Minimum	1
 #define _Maximum	240
@@ -654,6 +655,7 @@ extern uint8	CurrentParamSet;
 extern uint8	IGas;
 extern int8 	IRoll, IPitch, IYaw;
 extern uint8	IK5, IK6, IK7;
+extern uint16	PauseTime; // for tests
 
 extern int16	RE, PE, YE;
 extern int16	REp,PEp,YEp;
