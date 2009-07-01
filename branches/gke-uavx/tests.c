@@ -150,6 +150,7 @@ void ReceiverTest(void)
 void DoCompassTest()
 {
 	uint16 v, prev;
+	int16 Temp;
 	i16u Compass;
 	int8 r;
 
@@ -233,17 +234,20 @@ void DoCompassTest()
  
 */
 
-
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
 	Compass.high8 = RecvI2CByte(I2C_ACK);
 	Compass.low8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
-	TxString("Not corrected for orientation on airframe\r\n");
 	TxVal32((int32)Compass.u16, 1, 0);
-	TxString(" deg\r\n");
+	TxString(" deg \tCorrected ");
 
+	Temp = Compass.u16 - (COMPASS_OFFSET_DEG + NavMagVar)*10;
+	while (Temp < 0) Temp +=3600;
+	while (Temp >= 3600) Temp -=3600;
+	TxVal32((int32)Temp, 1, 0);
+	TxString(" deg\r\n");
 		
 	return;
 CTerror:

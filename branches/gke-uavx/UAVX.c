@@ -301,16 +301,11 @@ void main(void)
 			TimeSlot = Limit(TimeSlots, 2, 20);
 
 			GetGyroValues();
-			CalcGyroValues();
 
 			DoControl();
 			MixAndLimitMotors();
 			MixAndLimitCam();
 			OutSignals();
-
-			REp = RE;
-			PEp = PE;
-			YEp = YE;
 
 			CheckAlarms();
 			DumpTrace();

@@ -402,7 +402,7 @@ void CalcGyroValues(void)
 void DoControl(void)
 {
 	CheckThrottleMoved();				
-//	CalcGyroValues();
+	CalcGyroValues();
 	GyroCompensation();	
 	AltitudeDamping();
 
@@ -436,6 +436,10 @@ void DoControl(void)
 	Yl  = SRS16(YE *(int16)YawKp + (YEp-YE) * YawKd, 4);
 	Yl += SRS16(YawSum * (int16)YawKi, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);	// effective slew limit
+
+	REp = RE;
+	PEp = PE;
+	YEp = YE;
 
 } // DoControl
 
