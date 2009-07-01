@@ -56,7 +56,7 @@ void AltitudeHold(int16 DesiredAltitude)
 		}	
 	else
 	{
-
+		// manual control of altitude
 	}
 } // AltitudeHold
 
@@ -69,7 +69,9 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// This routine does not point the quadrocopter at the destination
 	// waypoint. It simply rolls/pitches towards the destination
 	// cos/sin/arctan lookup tables are used for speed.
-	// BEWARE magic numbers for integer artihmetic
+	// BEWARE magic numbers for integer arithmetic
+
+	#define NavKi 1
 
 	static int32 Temp;
 	static int16 NavKp, GPSGain;
@@ -95,14 +97,9 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			else
 				Range = NavClosingRadius;
 
-			#define NavKi 1
-			#ifdef GPS_IK7_GAIN
-			GPSGain = Limit(NavSensitivity, 0, 256); // compensate for EPA offset of up to 20
+			GPSGain = Limit(NavSensitivity, 0, 256);
 			NavKp = ( GPSGain * MAX_ANGLE ) / NavClosingRadius; // /_Maximum) * 256L
-			#else
-			#define NavKp (((int32)MAX_ANGLE * 256L ) / NavClosingRadius )
-			#endif // GPS_IK7_GAIN
-	
+		
 			Temp = ((int32)Range * NavKp )>>8; // allways +ve so can use >>
 			WayHeading = int16atan2(EastDiff, NorthDiff);
 
@@ -147,6 +144,7 @@ void DoNavigation(void)
 						|| (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
 				{
 					NavState = PIC;
+
 					_Proximity = false;
 					GPSNorthHold = GPSNorth;
 					GPSEastHold = GPSEast;
@@ -187,7 +185,6 @@ void DoNavigation(void)
 			AltitudeHold(-50); // Compass not responding - land
 		}
 
-
 } // DoNavigation
 
 void DoFailsafe(void)
@@ -220,7 +217,6 @@ void DoFailsafe(void)
 	}
 					
 } // DoFailsafe
-
 
 void InitNavigation(void)
 {

@@ -288,6 +288,8 @@ void ErectGyros(void)
 
 	RollSum = PitchSum = YawSum = 0;
 
+	_GyrosErected = true;
+
 } // ErectGyros
 
 #endif // NEW_ERECT_GYROS

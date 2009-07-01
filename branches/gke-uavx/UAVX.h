@@ -1,7 +1,5 @@
 // EXPERIMENTAL
 
-//#define NEW_MAIN
-
 // Navigation
 
 // Accelerometer
@@ -91,9 +89,6 @@
 // Navigation
 
 // reads $GPGGA and $GPRMC sentences - all others discarded
-
-// Using IK7 as GPS gain for corrective action full CCW is no correction. 
-#define GPS_IK7_GAIN
 	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
 #define MIN_FIX					1		// must be 1 or 2 
@@ -328,7 +323,6 @@ typedef union {
 // Status 
 
 #define	_Signal				Flags[0]	/* if no valid signal is received */
-#define	_Flying				Flags[1]	/* UFO is flying */
 #define	_NewValues			Flags[2]	/* new RX channel values sampled */
 #define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
 
@@ -341,6 +335,7 @@ typedef union {
 #define _BaroRestart		Flags[10] 	/* Baro restart required */
 #define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
 #define _Failsafe			Flags[12]
+#define _GyrosErected		Flags[13]
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
 #define _LostModel			Flags[18]
@@ -632,7 +627,7 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
-enum FlightStates { Starting, Landed, Flying, Landing };
+enum FlightStates { Starting, Landing, Landed, InFlight};
 
 enum ESCTypes {	ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
@@ -666,13 +661,12 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern int16	HoverThrottle, DesiredThrottle;
+extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 extern int16	DesiredRoll, DesiredPitch, DesiredYaw, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDAcc, UDSum, VUDComp;
-extern uint8	IdleThrottle;
 
 // GPS
 extern uint8 	GPSMode;

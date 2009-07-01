@@ -138,7 +138,6 @@ void InitArrays(void)
 		Motor[i] = _Minimum;
 	MCamPitch = MCamRoll = _Neutral;
 
-	_Flying = false;
 	REp = PEp = YEp = 0;
 	
 	VUDComp = VBaroComp = 0;
@@ -192,8 +191,8 @@ void ReadParametersEE(void)
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
 
-	IdleThrottle = (PercentIdleThr * _Maximum )/100;
-	HoverThrottle = (PercentHoverThr * _Maximum )/100;
+	IdleThrottle = ((int16)PercentIdleThr * _Maximum )/100;
+	HoverThrottle = ((int16)PercentHoverThr * _Maximum )/100;
 
 	RollIntLimit256 = (int16)RollIntLimit * 256L;
 	PitchIntLimit256 = (int16)RollIntLimit * 256L;
