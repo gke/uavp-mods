@@ -109,29 +109,23 @@ void CheckDemand(int16 CurrThrottle)
 
 	DemandSwing = MaxMotor - CurrThrottle;
 
-	if ( CurrThrottle < IdleThrottle )
-	{
-		Scale = 0;
-		MotorDemandRescale = false;
-	}
-	else
-		if ( DemandSwing > 0 )
-		{		
-			ScaleHigh = (( _Maximum - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
-			ScaleLow = (( (int24)CurrThrottle - IdleThrottle) * 256 )/ DemandSwing;
-			Scale = Min(ScaleHigh, ScaleLow);
-			if ( Scale < 256 )
-			{
-				MotorDemandRescale = true;
-				Rl = (Rl * Scale)/256;  
-				Pl = (Pl * Scale)/256; 
-				Yl = (Yl * Scale)/256; 
-			}
-			else
-				 MotorDemandRescale = false;	
+	if ( DemandSwing > 0 )
+	{		
+		ScaleHigh = (( _Maximum - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
+		ScaleLow = (( (int24)CurrThrottle - IdleThrottle) * 256 )/ DemandSwing;
+		Scale = Min(ScaleHigh, ScaleLow);
+		if ( Scale < 256 )
+		{
+			MotorDemandRescale = true;
+			Rl = (Rl * Scale)/256;  
+			Pl = (Pl * Scale)/256; 
+			Yl = (Yl * Scale)/256; 
 		}
 		else
 			MotorDemandRescale = false;	
+	}
+	else
+		MotorDemandRescale = false;	
 
 } // CheckDemand
 
@@ -141,14 +135,21 @@ void MixAndLimitMotors(void)
 
 	// Altitude stabilization factor
 	CurrThrottle = DesiredThrottle + (VUDComp + VBaroComp); // vertical compensation not optional
-	CurrThrottle = Limit(CurrThrottle, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
+	Temp = (int16)(_Maximum * 90 + 50) / 100; // 10% headroom for control
+	CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
 
-	DoMix(CurrThrottle);
-
-	CheckDemand(CurrThrottle);
-
-	if ( MotorDemandRescale )
+	if ( CurrThrottle > IdleThrottle )
+	{
 		DoMix(CurrThrottle);
+
+		CheckDemand(CurrThrottle);
+
+		if ( MotorDemandRescale )
+			DoMix(CurrThrottle);
+	}
+	else
+		Motor[Front] = Motor[Back] = 
+		Motor[Left] = Motor[Right] = CurrThrottle;
 
 	Motor[Front] = SaturInt(Motor[Front]);
 	Motor[Back] = SaturInt(Motor[Back]);
@@ -172,7 +173,7 @@ void MixAndLimitCam(void)
 
 	Cr += _Neutral;	// IK7 now used for GPS sensitivity control
 		
-	Cp += IK6;		// only Pitch servo is controlled by channel 6
+	Cp += RC[CamTiltC];		// only Pitch servo is controlled by channel 6
 
 	MCamRoll = Limit(Cr, _Minimum, _Maximum);
 	MCamPitch = Limit(Cp, _Minimum, _Maximum);

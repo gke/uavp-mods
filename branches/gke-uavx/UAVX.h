@@ -251,6 +251,22 @@ typedef union {
 #define MAXDROPOUT		500L	// x Impulse time dropout allowable
 #define GPSDROPOUT		20L		// 2sec.
 
+// RC
+
+#define PPM_CHANNELS 9
+#define RC_MIN_CHANNELS	7
+
+#define RC_MINIMUM	0
+#define RC_MAXIMUM	238
+#define RC_NEUTRAL	((RC_MAXIMUM-RC_MINIMUM+1)/2)
+
+#define RC_THRES_STOP	((5*RC_MAXIMUM+50)/100)  /* % */
+#define RC_THRES_START	((10*RC_MAXIMUM+50)/100) /* % */
+
+#define RC_FRAME_TIMEOUT 25
+#define RC_SIGNAL_TIMEOUT (5*RC_FRAME_TIMEOUT)
+#define RC_THR_MAX 		RC_MAXIMUM
+
 // LEDs
 
 #define LEDYellow	LED6
@@ -323,6 +339,7 @@ typedef union {
 // Status 
 
 #define	_Signal				Flags[0]	/* if no valid signal is received */
+#define _NegativePPM		Flags[1]	/* Futaba */
 #define	_NewValues			Flags[2]	/* new RX channel values sampled */
 #define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
 
@@ -352,10 +369,10 @@ typedef union {
 
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)
-#define FutabaMode		IsSet(ConfigParam,1)
-#define DSM2Mode		IsSet(ConfigParam,2)
+//#define FutabaMode		IsSet(ConfigParam,1)
+//#define DSM2Mode		IsSet(ConfigParam,2)
 #define RxPPM			IsSet(ConfigParam,3)
-#define NegativePPM		IsSet(ConfigParam,4)
+//#define NegativePPM		IsSet(ConfigParam,4)
 #define UseGPSAlt		IsSet(ConfigParam,5)
 
 // Constants 
@@ -442,6 +459,7 @@ typedef union {
 #define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
 #define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
 
+#define ToPercent(n) (((n)*100)/_Maximum)
 // Parameters for UART port
 // ClockHz/(16*(BaudRate+1))
 
@@ -543,7 +561,7 @@ extern void SendEscI2CByte(uint8);
 // menu.c
 extern void ShowPrompt(void);
 extern void ShowSetup(uint8);
-extern void ProcessComCommand(void);
+extern void ProcessCommand(void);
 
 // outputs.c
 extern uint8 SaturInt(int16);
@@ -619,7 +637,6 @@ extern void DoLEDs(void);
 
 extern int16	TestTimeSlot;
 extern uint16	PauseTime;
-extern int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
 
 // Menu strings
 extern const rom uint8  SerHello[];
@@ -628,10 +645,17 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
+enum {Clock,  UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleClosed, ROCUpdate, FailsafeTimeout, 
+      AutonomousTimeout, GPSTimeout, BaroUpdate, CompassUpdate};
+	
+enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
+#define CONTROLS  (NavGainC+1)
+
 enum FlightStates { Starting, Landing, Landed, InFlight};
 
-enum ESCTypes {	ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
+enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
+enum TxRxTypes { Futaba, FutabaDM8, JR, JRDM9, DX7 };
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
@@ -649,12 +673,17 @@ enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
 
 extern int8		TimeSlot;
+extern uint24	mS[CompassUpdate+1];
 
 extern uint8	CurrentParamSet;
 
-extern uint8	IGas;
-extern int8 	IRoll, IPitch, IYaw;
-extern uint8	IK5, IK6, IK7;
+extern int16	PPM[CONTROLS];
+extern int16	RC[CONTROLS];
+extern boolean	RCFrameOK;
+extern int8		PPM_Index;
+extern int24	PrevEdge, CurrEdge;
+extern uint16 	Width, CurrCCPR1;
+
 extern uint16	PauseTime; // for tests
 
 extern int16	RE, PE, YE;
@@ -758,14 +787,17 @@ extern int8	NavRTHAlt;			// 33
 extern int8	NavMagVar;			// 34c
 extern int8 GyroType;			// 35c
 extern int8 ESCType;			// 36c
+extern int8 TxRxType;			// 37c
 
 extern const rom int8 ComParms[];
+
+extern const rom uint8 Map[DX7+1][CONTROLS];
 
 #define _EESet1		0		// first set starts at address 0x00
 #define _EESet2		0x40	// second set starts at address 0x40
 
 #define FirstProgReg RollKp
-#define	LastProgReg ESCType
+#define	LastProgReg TxRxType
 
 // End of c-ufo.h
 

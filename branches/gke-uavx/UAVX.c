@@ -29,18 +29,26 @@
 
 // Global Variables
 
-#pragma udata rxvars
-uint8	IGas;						// actual input channel, can only be positive!
-int8 	IRoll,IPitch,IYaw;			// actual input channels, 0 = neutral
-uint8	IK5;						// actual channel 5 input
-uint8	IK6;						// actual channel 6 input
-uint8	IK7;						// actual channel 7 input
+
 uint16	PauseTime; 					// for tests
+
+#pragma udata isrvars
+int16	PPM[CONTROLS];
+int16 	RC[CONTROLS];
+boolean	RCFrameOK;
+int8	PPM_Index;
+int24	PrevEdge, CurrEdge;
+uint16 	Width, CurrCCPR1;
 #pragma udata
 
 uint8	State;
 uint8	CurrentParamSet;
+
 int8	TimeSlot;
+
+#pragma udata clocks
+uint24	mS[CompassUpdate+1];
+#pragma udata
 
 // PID Regler Variablen
 int16	RE, PE, YE;					// gyro rate error	
@@ -131,7 +139,8 @@ int8	NavAltKi;
 int8	NavRTHAlt;
 int8	NavMagVar;
 int8 	GyroType;			
-int8 	ESCType;		
+int8 	ESCType;
+int8	TxRxType;		
 #pragma udata
 
 // mask giving common variables across parameter sets
@@ -139,7 +148,17 @@ const rom int8	ComParms[]={
 	0,0,0,1,0,0,0,0,1,0,
 	0,0,0,0,0,1,1,1,0,1,
 	1,1,1,1,1,0,0,1,0,0,
-	0,0,0,1,1,1
+	0,0,0,1,1,1,1
+	};
+
+const rom uint8 Map[DX7+1][CONTROLS]=
+	{
+		{ 3,1,2,4,5,6,7 }, 	// Futaba
+		{ 5,3,2,1,6,4,7 },	// Futaba DM8
+		{ 1,2,3,4,5,6,7 },	// JR
+		{ 5,3,2,1,6,4,7 },	// JR DM9
+		{ 6,1,4,7,3,5,2 },	// Spektrum DX7
+
 	};
 
 void main(void)
@@ -153,7 +172,7 @@ void main(void)
 	InitPorts();
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
-	
+
 	InitADC();
 	
 	InitTimersAndInterrupts();
@@ -171,7 +190,7 @@ void main(void)
 
 	InitArrays();
 	ThrNeutral = 255;	
-	IGas = DesiredThrottle = IK5 = IK6 = IK7 = _Minimum;
+	RC[ThrottleC] = DesiredThrottle = RC[RTHC] = RC[CamTiltC] = RC[NavGainC] = _Minimum;
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	EnableInterrupts;
@@ -191,7 +210,7 @@ void main(void)
 
 		if ( !_Signal )
 		{
-			IGas = DesiredThrottle = IK5 = _Minimum;
+			RC[ThrottleC] = RC[RTHC] = DesiredThrottle = _Minimum;
 			Beeper_OFF;
 		}
 
@@ -204,12 +223,9 @@ void main(void)
 		InitArrays();
 		EnableInterrupts;	
 		WaitForRxSignal();
-		UpdateControls();
- 
-		ReadParametersEE();
-		WaitThrottleClosed();
-		
+		WaitThrottleClosed();		
 		DesiredThrottle = 0;
+
 		DropoutCycles = MAXDROPOUT;
 		_Failsafe = false;
 		TimeSlot = Limit(TimeSlots, 2, 20);

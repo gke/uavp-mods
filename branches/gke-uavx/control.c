@@ -446,12 +446,13 @@ void DoControl(void)
 void WaitThrottleClosed(void)
 {
 	DropoutCycles = 1;
-	while( (IGas >= _ThresStop) )
+	while( (RC[ThrottleC] >= _ThresStop) )
 	{
 		if ( !_Signal)
 			break;
 		if( _NewValues )
 		{
+			UpdateControls();
 			OutSignals();
 			_NewValues = false;
 			if( --DropoutCycles <= 0 )
@@ -460,7 +461,7 @@ void WaitThrottleClosed(void)
 				DropoutCycles = 10;				// to signal: THROTTLE OPEN
 			}
 		}
-		ProcessComCommand();
+		ProcessCommand();
 	}
 	LEDRed_OFF;
 } // WaitThrottleClosed
@@ -500,11 +501,14 @@ void WaitForRxSignal(void)
 {
 	DropoutCycles = MODELLOSTTIMER;
 	do
-	{
-		UpdateParamSetChoice();
-		Delay100mSWithOutput(2);	// wait 2/10 sec until signal is there
-		ProcessComCommand();
-		if( !_Signal )
+	{		
+		ProcessCommand();
+		if( _Signal )
+		{
+			UpdateParamSetChoice();
+			ReadParametersEE();
+		}
+		else
 			if( Armed )
 			{
 				if( --DropoutCycles == 0 )
@@ -514,20 +518,24 @@ void WaitForRxSignal(void)
 				}
 			}
 			else
-				_LostModel = false;
+				_LostModel = false;		
 	}
 	while( !( _Signal && Armed ) );				// no signal or switch is off
 } // WaitForRXSignal
 
 void UpdateControls(void)
 {
-	if ( _Signal )
+	if ( _NewValues )
 	{
-		DesiredThrottle = IGas;
-		DesiredRoll = IRoll;
-		DesiredPitch = IPitch;
-		DesiredYaw = IYaw;
-		NavSensitivity = IK7;
-		_ReturnHome = IK5 > _Neutral;
+		_NewValues = false;
+
+		MapRC();
+
+		DesiredThrottle = RC[ThrottleC];
+		DesiredRoll = RC[RollC];
+		DesiredPitch = RC[PitchC];
+		DesiredYaw = RC[YawC];
+		NavSensitivity = RC[NavGainC];
+		_ReturnHome = RC[RTHC] > _Neutral;
 	}
 } // UpdateControls

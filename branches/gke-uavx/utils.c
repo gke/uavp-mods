@@ -204,6 +204,10 @@ void ReadParametersEE(void)
 	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
 	CompassOffset = (((COMPASS_OFFSET_DEG + NavMagVar)*MILLIPI)/180L);
 
+	_NegativePPM = (( TxRxType == Futaba ) || ( TxRxType == FutabaDM8 ));
+
+	PIE1bits.CCP1IE = true;
+
 	BatteryVolts = LowVoltThres;
 	
 } // ReadParametersEE
@@ -260,38 +264,39 @@ void UpdateParamSetChoice(void)
 
 	if ( _Signal )
 	{
-		while ( (Abs(IPitch) > 20) && ((Abs(IYaw) > 20)|| (Abs(IRoll) > 20)) )
+		while ( (Abs(RC[PitchC]) > 20) && ((Abs(RC[YawC]) > 20)|| (Abs(RC[RollC]) > 20)) )
 		{
-			if ( IPitch  > 20 ) // bottom
+			UpdateControls();
+			if ( RC[PitchC]  > 20 ) // bottom
 			{
-				if ( (IYaw > 20) || ( IRoll < -20) ) // left
+				if ( (RC[YawC] > 20) || ( RC[RollC] < -20) ) // left
 				{ // bottom left
 					NewParamSet = 1;
 					NewRTHAltitudeHold = true;
 				}
 				else
-					if ( (IYaw < -20) || (IRoll > 20) ) // right
+					if ( (RC[YawC] < -20) || (RC[RollC] > 20) ) // right
 					{ // bottom right
 						NewParamSet = 2;
 						NewRTHAltitudeHold = true;
 					}
 			}	
 			else
-				if ( IPitch < -20 ) // top
-					if ( (IYaw > 20) || ( IRoll < -20) ) // left
+				if ( RC[PitchC] < -20 ) // top
+					if ( (RC[YawC] > 20) || ( RC[RollC] < -20) ) // left
 					{
 						NewParamSet = 1;
 						NewRTHAltitudeHold = false;
 					}
 					else
-						if ( (IYaw < -20) || (IRoll > 20) ) // right
+						if ( (RC[YawC] < -20) || (RC[RollC] > 20) ) // right
 						{
 							NewParamSet = 2;
 							NewRTHAltitudeHold = false;
 						}
 			if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHAltitudeHold != _RTHAltitudeHold) )
 			{
-				
+					
 				CurrentParamSet = NewParamSet;
 				_RTHAltitudeHold = NewRTHAltitudeHold;
 				LEDBlue_ON;
@@ -313,18 +318,18 @@ void UpdateParamSetChoice(void)
 					Beeper_OFF;
 				}
 				LEDBlue_OFF;
-		 	}
+			}
 		}
-
-		while ( (Abs(IGas) < 20) && (Abs(IPitch) < 20 ) && ((Abs(IYaw) > 20)|| (Abs(IRoll) > 20)) )
+	
+		while ( (Abs(RC[ThrottleC]) < 20) && (Abs(RC[PitchC]) < 20 ) && ((Abs(RC[YawC]) > 20)|| (Abs(RC[RollC]) > 20)) )
 		{
-
-			if ( (IYaw > 20) || ( IRoll < -20) ) // left
+			UpdateControls();
+			if ( (RC[YawC] > 20) || ( RC[RollC] < -20) ) // left
 				NewTurnToHome = false;
 			else
-				if ( (IYaw < -20) || (IRoll > 20) ) // right
+				if ( (RC[YawC] < -20) || (RC[RollC] > 20) ) // right
 					NewTurnToHome = true;
-		
+			
 			if ( NewTurnToHome != _TurnToHome )
 			{		
 				_TurnToHome = NewTurnToHome;
@@ -338,7 +343,7 @@ void UpdateParamSetChoice(void)
 				else
 					Delay100mSWithOutput(2);
 				LEDBlue_OFF;
-		 	}
+			}
 		}
 	}
 } // UpdateParamSetChoice

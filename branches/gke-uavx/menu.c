@@ -24,7 +24,7 @@
 
 void ShowPrompt(void);
 void ShowSetup(uint8);
-void ProcessComCommand(void);
+void ProcessCommand(void);
 
 #pragma idata menu1
 const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright 2008,2009 G.K. Egan & 2007-2008 W. Mahringer\r\n"
@@ -63,6 +63,8 @@ void ShowPrompt(void)
 // send the current configuration setup to serial port
 void ShowSetup(uint8 h)
 {
+	int8 i;
+
 	if( h )
 	{
 		TxString(SerHello);
@@ -90,8 +92,6 @@ void ShowSetup(uint8 h)
 	else
 		TxString("not available\r\n");
 
-	ReadParametersEE();
-
 	switch ( GyroType ) {
 	case ADXRS300:TxString("Pitch/Roll Gyros: ADXRS610/300 or MLX90609\r\n"); break;
 	case ADXRS150:TxString("Pitch/Roll Gyros: ADXRS613/150\r\n"); break;
@@ -105,11 +105,23 @@ void ShowSetup(uint8 h)
 	case ESCYGEI2C:TxString("ESC: YGE I2C\r\n"); break;
 	}	
 
-	TxString("Throttle Ch");
-	if( FutabaMode )
-		TxChar('3');
-	else
-		TxChar('1');
+	TxString("Tx/Rx: ");
+	switch ( TxRxType ) {
+	case Futaba: TxString("Futaba {"); break;
+	case FutabaDM8:TxString("Futaba DM8 {"); break; 
+	case JR: TxString("JR {"); break; 
+	case JRDM9: TxString("JR DM9 {"); break; 
+	case DX7: TxString("DX7 & R7000 {"); break;
+	}
+	for ( i = 0; i<CONTROLS; i++)
+		TxChar(Map[TxRxType][i]+'0');
+	TxString("}\r\n");
+
+//	TxString("Throttle Ch");
+//	if( FutabaMode ) // zzzz
+//		TxChar('3');
+//	else
+//		TxChar('1');
 
 	TxString("\r\nSelected parameter set: ");
 	TxChar('0' + CurrentParamSet);
@@ -119,7 +131,7 @@ void ShowSetup(uint8 h)
 
 // if a command is waiting, read and process it.
 // Do NOT call this routine while in flight!
-void ProcessComCommand(void)
+void ProcessCommand(void)
 {
 	static int8  *p;
 	static uint8 ch;
@@ -190,17 +202,18 @@ void ProcessComCommand(void)
 					param = (uint16)(RxNumU()-1);
 					TxString(" = ");
 					d = RxNumS();
-					if( CurrentParamSet == 1 )
-					{
-						WriteEE(_EESet1 + (uint16)param, d);
-						if ( ComParms[param] )
-							WriteEE(_EESet2 + param, d);
-					}
-					else
-					{
-						if ( !ComParms[param] )
-							WriteEE(_EESet2 + param, d);
-					}
+					if ( param < _EESet2 )
+						if( CurrentParamSet == 1 )
+						{
+							WriteEE(_EESet1 + (uint16)param, d);
+							if ( ComParms[param] )
+								WriteEE(_EESet2 + param, d);
+						}
+						else
+						{
+							if ( !ComParms[param] )
+								WriteEE(_EESet2 + param, d);
+						}
 					LEDBlue_OFF;
 				ShowPrompt();
 				break;
@@ -220,13 +233,13 @@ void ProcessComCommand(void)
 				ShowPrompt();
 				break;
 			case 'R':	// receiver values
-				TxString("\r\nT:");TxValU(IGas);
-				TxString(",R:");TxValS(IRoll);
-				TxString(",N:");TxValS(IPitch);
-				TxString(",Y:");TxValS(IYaw);
-				TxString(",5:");TxValU(IK5);
-				TxString(",6:");TxValU(IK6);
-				TxString(",7:");TxValU(IK7);
+				TxString("\r\nT:");TxValU(ToPercent(RC[ThrottleC]));
+				TxString(",R:");TxValS(ToPercent(RC[RollC]*2));
+				TxString(",P:");TxValS(ToPercent(RC[PitchC]*2));
+				TxString(",Y:");TxValS(ToPercent(RC[YawC]));
+				TxString(",5:");TxValU(ToPercent(RC[RTHC]));
+				TxString(",6:");TxValU(ToPercent(RC[CamTiltC]));
+				TxString(",7:");TxValU(ToPercent(RC[NavGainC]));
 				ShowPrompt();
 				break;
 			case 'S' :	// show status
@@ -275,5 +288,5 @@ void ProcessComCommand(void)
 			}
 		}
 	}
-} // ProcessComCommand
+} // ProcessCommand
 

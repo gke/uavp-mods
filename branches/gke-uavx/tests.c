@@ -107,7 +107,7 @@ void ReceiverTest(void)
 	int16 *p;
 	uint16 v;
 
-	if( NegativePPM )
+	if( _NegativePPM )
 		TxString("\r\nNeg. Rx PPM\r\n");
 	else
 		TxString("\r\nPos. Rx PPM\r\n");
@@ -121,12 +121,11 @@ void ReceiverTest(void)
 	{
 		_NewValues = false;
 
-		p = &NewK1;
-		for( s=1; s <= 7; s++ )
+		for( s=0; s < CONTROLS; s++ )
 		{
-			TxChar(s+'0');
+			TxChar(s+'1');
 			TxString(":\t 0x");
-			v = *p++;
+//zzz			v = PPM[s];
 			TxValH16(v);
 			TxChar(HT);	
 			TxVal32(((int32)(v & 0x00ff)*100)/_Maximum, 0, '%');
@@ -136,10 +135,11 @@ void ReceiverTest(void)
 		}
 
 		// show pause time
-		TxString("Gap:\t");
-		v = TMR2_TICK*PauseTime;
-		TxVal32( v, 3, 0);		
-		TxString("mS\r\nGlitches:\t");
+//		TxString("Gap:\t");
+//		v = TMR2_TICK*PauseTime;
+//		TxVal32( v, 3, 0);		
+//		TxString("mS\r\n
+		TxString("Glitches:\t");
 		TxVal32(RCGlitches,0,0);
 		TxNextLine();
 	}
@@ -362,8 +362,8 @@ void GPSTest(void)
 		{
 			if ( Armed && _Signal )
 			{
-				DesiredRoll = IRoll;
-				DesiredPitch = IPitch;
+				DesiredRoll = RC[RollC];
+				DesiredPitch = RC[PitchC];
 			}
 			else
 				DesiredRoll = DesiredPitch = 0;

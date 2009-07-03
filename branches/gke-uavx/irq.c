@@ -35,25 +35,20 @@
 
 // Interrupt Routine
 
+#define MIN_PPM_SYNC_PAUSE 2500  	/* 2500 *2us = 5ms */
+
 // Prototypes
 
 void ReceivingGPSOnly(uint8);
 void InitTimersAndInterrupts(void);
+void MapRC(void);
 void low_isr_handler(void);
 void high_isr_handler(void);
 
 // Variables
 
-#pragma udata isrvars
-int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
-int8	RCState;
-int24	PrevEdge, CurrEdge;
-int16 	Width;
-#pragma udata
-
-#pragma udata rxvars
 uint8 RxCheckSum;
-#pragma udata 
+
 
 void ReceivingGPSOnly(uint8 r)
 {
@@ -79,19 +74,47 @@ void ReceivingGPSOnly(uint8 r)
 	}
 } // ReceivingGPSOnly
 
+void MapRC(void)
+{  // re-maps captured PPM to Rx channel sequence
+	uint8 c;
+	#define RCFilter NoFilter
+
+	for (c = 0 ; c < CONTROLS ; c++)
+		RC[c] = RCFilter(RC[c], PPM[Map[TxRxType][c]-1]);
+
+	RC[RollC] -= _Neutral;
+	RC[PitchC] -= _Neutral;
+	RC[YawC] -= _Neutral;
+
+} // MapRC
+
 void InitTimersAndInterrupts(void)
 {
+	int8 i;
+
 	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
-	CCP1CONbits.CCP1M0 = NegativePPM;
+	CCP1CONbits.CCP1M0 = _NegativePPM;
 
-	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
-	PR2 = TMR2_5MS;		// set compare reg to 9ms
+//	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
+//	PR2 = TMR2_5MS;		// set compare reg to 9ms
 
+	for (i = 0; i<= CompassUpdate; i++)
+		mS[i] = 0;
+
+	for (i = 0; i < CONTROLS; i++)
+		PPM[i] = RC[i] = 0;
+
+	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;
+
+	PPM_Index =0;
+	PrevEdge = 0;
 	RCGlitches = 0;
 	RxCheckSum = 0;
+	_Signal = _NewValues = false;
+
    	ReceivingGPSOnly(false);
 
 } // InitTimersAndInterrupts
@@ -105,170 +128,75 @@ void low_isr_handler(void)
 
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
-{
+{	
 	static uint8 ch;
 		
-	// For 2.4GHz systems see README_DSM2_ETC.
-	if( PIR1bits.TMR2IF )	// 5 or 14 ms have elapsed without an active edge
-	{
-		PIR1bits.TMR2IF = false;	// quit int
-
-		if ( !RxPPM )				// single PPM pulse train from receiver
+	if ( INTCONbits.T0IF && INTCONbits.T0IE )
+	{ 
+		TimeSlot--;	
+		mS[Clock]++;
+		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal )
 		{
-			if( _FirstTimeout )			// 5 ms have been gone by...
-			{
-				PR2 = TMR2_5MS;			// set compare reg to 5ms
-				goto ErrorRestart;
-			}
-			_FirstTimeout = true;
-			PR2 = TMR2_14MS;			// set compare reg to 14ms
-		}
-
-		RCState = 0;
+			CCP1CONbits.CCP1M0 = _NegativePPM; // reset in case Tx/Rx combo has changed
+			_Signal = false;
+		}	
+		INTCONbits.TMR0IF = false;				// quit int
 	}
-
-	if( PIR1bits.CCP1IF )
+		 
+	if( PIR1bits.CCP1IF && PIE1bits.CCP1IE ) // A captured RC edge has been detected
 	{
-		TMR2 = 0;					// re-set timer and postscaler
-		PIR1bits.TMR2IF = false;	// quit int
+		CurrCCPR1 = CCPR1;
+		if ( CurrCCPR1 < PrevEdge )
+			PrevEdge -= 0xffff;	// Deal with wraparound
 
-		CurrEdge = CCPR1;
-		if ( CurrEdge < PrevEdge )
-			PrevEdge -= 0xffff;		// Deal with Timer1 wraparound
-		Width = (CurrEdge - PrevEdge) >> 1;
-		PrevEdge = CurrEdge;
+		Width = CurrCCPR1 - PrevEdge;
+		PrevEdge = CurrCCPR1;		
 
-		if ( (RCState == 0) && _FirstTimeout )
-			PauseTime = Width;
-		_FirstTimeout = false;
-		
-		switch ( RCState )
+		if ( Width > MIN_PPM_SYNC_PAUSE ) 		// A pause in 2us ticks > 5ms 
 		{
-			case 0: break;
-			case 1: NewK1 = Width; break;
-			case 2: NewK2 = Width; break;
-			case 3: NewK3 = Width; break;
-			case 4: NewK4 = Width; break;
-			case 5:
-			{
-				NewK5 = Width;
-				// sanity check - NewKx has values in 4us units now. 
-				// content must be 256..511 (1024-2047us)
-				if( ((NewK1 >>8 ) == 1) &&
-				    ((NewK2 >>8 ) == 1) &&
-				    ((NewK3 >>8 ) == 1) &&
-				    ((NewK4 >>8 ) == 1) &&
-				    ((NewK5 >>8 ) == 1) )
-				{
-					if ( !DSM2Mode)
-					{									
-						if( FutabaMode ) // Ch3 set for Throttle on UAPSet
-						{
-							IGas = NewK3 & 0xff;
-							IRoll = (NewK1 & 0xff) - (int16)_Neutral;
-							IPitch = (NewK2 & 0xff) - (int16)_Neutral;
-						}
-						else
-						{
-							IGas  = NewK1  & 0xff;
-							IRoll = (NewK2 & 0xff) - (int16)_Neutral;
-							IPitch = (NewK3 & 0xff) - (int16)_Neutral;
-						}
-						IYaw = (NewK4 & 0xff) - (int16)_Neutral;						
-						IK5 = NewK5 & 0xff;
-	
-						_Signal = _NewValues = true; // potentially IK6 & IK7 are still about to change ???
-					}
+			PPM_Index = 0;						// Sync pulse detected - next CH is CH1
+			RCFrameOK = true; 
+		}
+		else // An actual channel -- Record the variable part of the PWM time 
+			if (PPM_Index < CONTROLS)
+			{	
+				Width >>= 1; 					// Width in 4us ticks.				
 
-					break;
-				}
-				else	// values are unsafe
-					goto ErrorRestart;
-			}
-			case 6:
-			{
-				NewK6 = Width;		
-				if ( DSM2Mode )
+				if ( (Width & 0x0100) != 0 ) 	// Check pulse is 1.024 to 2.048mS
 				{
-					if ( (NewK6>>8) !=1) 	// add glitch detection to 6 & 7
-						goto ErrorRestart;
+					Width = Width & 0xff; 		// Limit to 0 to 1.024mS  
+					if (Width > RC_MAXIMUM)
+						Width = RC_MAXIMUM;  	// limit maximum for symmetry around RC_NEUTRAL 0.5mS
+					PPM[PPM_Index] = Width;	
 				}
 				else
-					IK6 = NewK6 & 0xff;
-				break;	
-			}
-			case 7:
-			{
-				NewK7 = Width;	
-				if ( DSM2Mode )
 				{
-					if ( (NewK7>>8) !=1)	
-						goto ErrorRestart;
-	
-					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
-					{
-				//EDIT FROM HERE ->
-				// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
-						IGas = NewK5 & 0xff;
-	
-						IRoll = (NewK3 & 0xff) - (int16)_Neutral; 
-						IPitch = (NewK2 & 0xff) - (int16)_Neutral;
-						IYaw = (NewK1 & 0xff) - (int16)_Neutral;
-	
-						IK5 = NewK6 & 0xff; // do not filter
-						IK6 = NewK4 & 0xff;
-						IK7 = NewK7 & 0xff;
-				// TO HERE
-					}
-					else // Reference 2.4GHz configuration DX7 Tx and AR7000 Rx
-					{
-						IGas = NewK6 & 0xff;
-	
-						IRoll = (int16)(NewK1 & 0xff) - (int16)_Neutral; 
-						IPitch = (int16)(NewK4 & 0xff) - (int16)_Neutral;
-						IYaw = (int16)(NewK7 & 0xff) - (int16)_Neutral;
-	
-						IK5 = NewK3 & 0xff; // do not filter
-						IK6 = NewK5 & 0xff;
-						IK7 = NewK2 & 0xff;
-					}	
-	
-					_Signal = _NewValues = true;
+					// preserve old value i.e. default hold
+					RCGlitches++;
+					RCFrameOK = false;
 				}
-				else				
-					IK7 = NewK7 & 0xff;
-
-				RCState = -1;
-				break;
+				PPM_Index++;
+				// MUST demand rock solid RC frames for autonomous functions not
+				// to be cancelled by noise-generated partially correct frames
+				if ( PPM_Index == CONTROLS )
+				{	  
+					_NewValues = RCFrameOK;
+					_Signal = true;
+					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
+					CCP1CONbits.CCP1M0 = _NegativePPM; // reset in case Tx/Rx combo has changed
+				}	
 			}
-			default: 
-			ErrorRestart:
-			{	
-				_Signal = _NewValues = false;	
-				RCGlitches++;
-				RCState = -1;
 
-				if ( !RxPPM )
-					CCP1CONbits.CCP1M0 = NegativePPM;
+		if ( !RxPPM )							
+			CCP1CONbits.CCP1M0 ^= 1;				// For composite PPM signal not using wired OR
 
-				break;
-			}
-		} // switch
-	
-		if ( !RxPPM )
-		{				
-			CCP1CONbits.CCP1M0 ^= 1;
-			PR2 = TMR2_5MS;
-		}
-
-		PIR1bits.CCP1IF = false;				// quit int
-		RCState++;
-	}
+		PIR1bits.CCP1IF = false;				// Clear this interrupt flag for next time around 
+	}	
 
 	if (PIR1bits.RCIF && PIE1bits.RCIE)	// GPS and commands
 	{
 		PIR1bits.RCIF = false;
-
+	
 		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
 			ch = RCREG; // flush
@@ -278,12 +206,6 @@ void high_isr_handler(void)
 		else
 			PollGPS(RCREG);
 	} 	
-
-	if( INTCONbits.TMR0IE && INTCONbits.TMR0IF )
-	{
-		INTCONbits.TMR0IF = false;				// quit int
-		TimeSlot--;
-	}
 	
 } // high_isr_handler
 	
