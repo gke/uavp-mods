@@ -447,22 +447,16 @@ void WaitThrottleClosed(void)
 {
 	DropoutCycles = 1;
 	while( (RC[ThrottleC] >= _ThresStop) )
-	{
-		if ( !_Signal)
-			break;
 		if( _NewValues )
 		{
 			UpdateControls();
 			OutSignals();
-			_NewValues = false;
 			if( --DropoutCycles <= 0 )
 			{
-				LEDRed_TOG;	// toggle red LED 
+				LEDRed_TOG;						// toggle red LED 
 				DropoutCycles = 10;				// to signal: THROTTLE OPEN
 			}
 		}
-		ProcessCommand();
-	}
 	LEDRed_OFF;
 } // WaitThrottleClosed
 
@@ -470,7 +464,7 @@ void CheckThrottleMoved(void)
 {
 	static int16 Temp;
 
-	if( _NewValues )
+//	if( _NewValues )
 	{
 		if( ThrDownCycles > 0 )
 		{
@@ -505,8 +499,13 @@ void WaitForRxSignal(void)
 		ProcessCommand();
 		if( _Signal )
 		{
-			UpdateParamSetChoice();
-			ReadParametersEE();
+			if ( _NewValues )
+			{
+				UpdateParamSetChoice();
+				ReadParametersEE();
+				DesiredThrottle = 0;
+				OutSignals();
+			}
 		}
 		else
 			if( Armed )

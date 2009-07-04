@@ -295,7 +295,7 @@ OS006:
 		//		if( TMR2 = MRight ) PulseRight = 0;
 		//	}
 	
-		EnableInterrupts;	// Re-enable interrupt
+		EnableInterrupts;
 	
 	} 
 	else
@@ -373,7 +373,7 @@ OS006:
 
 	while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; 	// wait for 2nd TMR0 near overflow
 
-	INTCONbits.GIE = false;					// Int wieder sperren, wegen Jitter
+	DisableInterrupts;				
 	while( !INTCONbits.TMR0IF ) ;		// wait for 2nd overflow (2 ms)
 
 	// This loop is exactly 16 cycles int16
@@ -406,7 +406,7 @@ _asm
 OS002:
 _endasm
 
-	EnableInterrupts;	// re-enable interrupt
+	EnableInterrupts;	
 
 #endif  // DEBUG_SENSORS
 } // OutSignals

@@ -32,6 +32,10 @@
 
 uint16	PauseTime; 					// for tests
 
+#pragma udata clocks
+uint24	mS[CompassUpdate+1];
+#pragma udata
+
 #pragma udata isrvars
 int16	PPM[CONTROLS];
 int16 	RC[CONTROLS];
@@ -43,12 +47,6 @@ uint16 	Width, CurrCCPR1;
 
 uint8	State;
 uint8	CurrentParamSet;
-
-int8	TimeSlot;
-
-#pragma udata clocks
-uint24	mS[CompassUpdate+1];
-#pragma udata
 
 // PID Regler Variablen
 int16	RE, PE, YE;					// gyro rate error	
@@ -94,7 +92,7 @@ int16	Trace[LastTrace];
 
 boolean	Flags[32];
 
-int16	ThrDownCycles, DropoutCycles, GPSCycles, LEDCycles, BlinkCycle, BaroCycles;
+int16	ThrDownCycles, DropoutCycles, GPSCycles, LEDCycles, BlinkCycle;
 uint32	Cycles;
 int8	IntegralCount;
 uint24	RCGlitches;
@@ -153,7 +151,7 @@ const rom int8	ComParms[]={
 
 const rom uint8 Map[DX7+1][CONTROLS]=
 	{
-		{ 3,1,2,4,5,6,7 }, 	// Futaba
+		{ 3,2,1,4,5,6,7 }, 	// Futaba
 		{ 5,3,2,1,6,4,7 },	// Futaba DM8
 		{ 1,2,3,4,5,6,7 },	// JR
 		{ 5,3,2,1,6,4,7 },	// JR DM9
@@ -193,6 +191,7 @@ void main(void)
 	RC[ThrottleC] = DesiredThrottle = RC[RTHC] = RC[CamTiltC] = RC[NavGainC] = _Minimum;
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
+	INTCONbits.TMR0IE = true; 
 	EnableInterrupts;
 
 	Delay100mSWithOutput(5);	// wait 0.5 sec until LISL is ready to talk
@@ -214,7 +213,6 @@ void main(void)
 			Beeper_OFF;
 		}
 
-		INTCONbits.TMR0IE = false;
 		ALL_LEDS_OFF; 
 		LEDRed_ON;	
 		if( _AccelerationsValid )
@@ -228,7 +226,7 @@ void main(void)
 
 		DropoutCycles = MAXDROPOUT;
 		_Failsafe = false;
-		TimeSlot = Limit(TimeSlots, 2, 20);
+		mS[UpdateTimeout] = mS[Clock] + TimeSlots;
 		Cycles = 0;
 		State = Starting;
 
@@ -249,8 +247,7 @@ void main(void)
 					InitArrays();
 
 					#ifdef NEW_ERECT_GYROS
-				//	if ( !_GyrosErected )
-						ErectGyros();
+					ErectGyros();
 					IntegralCount = 0;
 					#else
 					IntegralCount = 16; // erect gyros - old style
@@ -302,19 +299,14 @@ void main(void)
 			else
 				DoFailsafe();
 
-			WriteTimer0(0);
-			INTCONbits.TMR0IF = false;
-			INTCONbits.TMR0IE = true;
-
 				RollRate = PitchRate = 0;
 				GetGyroValues();
 				GetDirection();
 				ComputeBaroComp();
 	
-				while( TimeSlot > 0 ) {}
-			INTCONbits.TMR0IE = false;	// disable timer
 
-			TimeSlot = Limit(TimeSlots, 2, 20);
+			while ( mS[Clock] < mS[UpdateTimeout] ) {};
+			mS[UpdateTimeout] = mS[Clock] + TimeSlots;
 
 			GetGyroValues();
 

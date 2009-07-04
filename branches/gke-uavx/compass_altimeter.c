@@ -191,7 +191,12 @@ uint8 StartBaroADC(uint8 PressOrTemp)
 	// select 32kHz input, measure temperature
 	if( SendI2CByte(PressOrTemp) != I2C_ACK ) goto SBerror;
 	I2CStop();
-	
+
+	if ( PressOrTemp == BARO_PRESS )
+		mS[BaroUpdate] = mS[Clock] + BARO_PRESS_TIME;
+	else
+		mS[BaroUpdate] = mS[Clock] + BARO_TEMP_TIME;
+
 	return(I2C_NACK);
 SBerror:
 	I2CStop();
@@ -206,7 +211,7 @@ void InitBarometer(void)
 	// Baro is assumed offline unless it responds - no retries!
 	static uint8 r;
 
-	VBaroComp = BaroCycles = BaroRestarts = 0;
+	VBaroComp = BaroRestarts = 0;
 
 	// Determine baro type
 	I2CStart();
@@ -233,6 +238,8 @@ void InitBarometer(void)
 	// before first call to ComputeBaroComp
 	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;	
 
+	mS[BaroUpdate] = mS[Clock] + BARO_PRESS_TIME;
+
 	_BaroAltitudeValid = true;
 
 	return;
@@ -246,14 +253,11 @@ void ComputeBaroComp(void)
 {
 	static int16 OldBaroRelPressure, Temp, Delta;
 
-	BaroCycles++;
-
 	if( _BaroAltitudeValid )
 		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
-		if ( BaroCycles >= 32 )
-		{
-			BaroCycles = 0;
-			if ( ReadValueFromBaro() == I2C_NACK) 	// returns niltemp as value		
+		if ( mS[Clock] > mS[BaroUpdate] )
+		{	
+			if ( ReadValueFromBaro() == I2C_NACK) 	
 				if( ThrDownCycles )	// while moving throttle stick
 				{
 					DesiredBaroPressure = BaroVal.u16;

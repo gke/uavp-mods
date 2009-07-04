@@ -55,6 +55,8 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
 
+const rom uint8 RxChMnem[] = "TAERG67";
+
 void ShowPrompt(void)
 {
 	TxString("\r\n>");
@@ -114,16 +116,16 @@ void ShowSetup(uint8 h)
 	case DX7: TxString("DX7 & R7000 {"); break;
 	}
 	for ( i = 0; i<CONTROLS; i++)
-		TxChar(Map[TxRxType][i]+'0');
+		TxChar(RxChMnem[Map[TxRxType][i]-1]);
+	TxString("} connect {");
+	for ( i = 0; i<CONTROLS; i+=2)
+	{
+		TxChar(RxChMnem[Map[TxRxType][i]-1]);
+		TxChar(' ');
+	}
 	TxString("}\r\n");
 
-//	TxString("Throttle Ch");
-//	if( FutabaMode ) // zzzz
-//		TxChar('3');
-//	else
-//		TxChar('1');
-
-	TxString("\r\nSelected parameter set: ");
+	TxString("Selected parameter set: ");
 	TxChar('0' + CurrentParamSet);
 	
 	ShowPrompt();

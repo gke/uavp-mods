@@ -117,34 +117,33 @@ void ReceiverTest(void)
 	// Be wary as new RC frames are being received as this
 	// is being displayed so data may be from overlapping frames
 
-	if( _NewValues )
+	// don't check for NewValues as this is constantly toggling
+	for( s=0; s < CONTROLS; s++ )
 	{
-		_NewValues = false;
-
-		for( s=0; s < CONTROLS; s++ )
-		{
-			TxChar(s+'1');
-			TxString(":\t 0x");
-//zzz			v = PPM[s];
-			TxValH16(v);
-			TxChar(HT);	
+		TxChar(s+'1');
+		TxString(":\t 0x");
+		v = PPM[s];
+		TxValH16(v);
+		TxChar(HT);
+		if ( ( s > 0 ) && ( s < 4 ))	
+			TxVal32(((int32)(v & 0x00ff)*200)/_Maximum - 100, 0, '%');
+		else
 			TxVal32(((int32)(v & 0x00ff)*100)/_Maximum, 0, '%');
-			if( ( v & 0xff00) != (uint16)0x0100 ) 
-				TxString(" FAIL");
-			TxNextLine();
-		}
 
-		// show pause time
-//		TxString("Gap:\t");
-//		v = TMR2_TICK*PauseTime;
-//		TxVal32( v, 3, 0);		
-//		TxString("mS\r\n
-		TxString("Glitches:\t");
-		TxVal32(RCGlitches,0,0);
+		if( ( v & 0xff00) != (uint16)0x0100 ) 
+			TxString(" FAIL");
 		TxNextLine();
 	}
-	else
-		TxString("(no new vals)\r\n");
+
+	// show pause time
+	TxString("Gap:\t");
+	v = TMR2_TICK*PauseTime;
+	TxVal32( v, 3, 0);		
+	TxString("mS\r\n");
+	TxString("Glitches:\t");
+	TxVal32(RCGlitches,0,0);
+	TxNextLine();
+
 } // ReceiverTest
 
 void DoCompassTest()

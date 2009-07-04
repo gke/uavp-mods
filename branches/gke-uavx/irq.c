@@ -80,7 +80,7 @@ void MapRC(void)
 	#define RCFilter NoFilter
 
 	for (c = 0 ; c < CONTROLS ; c++)
-		RC[c] = RCFilter(RC[c], PPM[Map[TxRxType][c]-1]);
+		RC[c] = PPM[Map[TxRxType][c]-1]& 0xff;
 
 	RC[RollC] -= _Neutral;
 	RC[PitchC] -= _Neutral;
@@ -114,9 +114,7 @@ void InitTimersAndInterrupts(void)
 	RCGlitches = 0;
 	RxCheckSum = 0;
 	_Signal = _NewValues = false;
-
    	ReceivingGPSOnly(false);
-
 } // InitTimersAndInterrupts
 
 
@@ -130,20 +128,8 @@ void low_isr_handler(void)
 void high_isr_handler(void)
 {	
 	static uint8 ch;
-		
-	if ( INTCONbits.T0IF && INTCONbits.T0IE )
-	{ 
-		TimeSlot--;	
-		mS[Clock]++;
-		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal )
-		{
-			CCP1CONbits.CCP1M0 = _NegativePPM; // reset in case Tx/Rx combo has changed
-			_Signal = false;
-		}	
-		INTCONbits.TMR0IF = false;				// quit int
-	}
-		 
-	if( PIR1bits.CCP1IF && PIE1bits.CCP1IE ) // A captured RC edge has been detected
+	
+	if( PIR1bits.CCP1IF && PIE1bits.CCP1IE ) // An Rx PPM pulse edge has been detected
 	{
 		CurrCCPR1 = CCPR1;
 		if ( CurrCCPR1 < PrevEdge )
@@ -155,20 +141,19 @@ void high_isr_handler(void)
 		if ( Width > MIN_PPM_SYNC_PAUSE ) 		// A pause in 2us ticks > 5ms 
 		{
 			PPM_Index = 0;						// Sync pulse detected - next CH is CH1
-			RCFrameOK = true; 
+			RCFrameOK = true;
+			PauseTime = Width;
 		}
 		else // An actual channel -- Record the variable part of the PWM time 
 			if (PPM_Index < CONTROLS)
 			{	
-				Width >>= 1; 					// Width in 4us ticks.				
-
-				if ( (Width & 0x0100) != 0 ) 	// Check pulse is 1.024 to 2.048mS
+				Width >>= 1; 					// Width in 4us ticks.
+	
+				if ( (Width & 0xff00) == 0x0100 ) 	// Check pulse is 1.024 to 2.048mS
 				{
-					Width = Width & 0xff; 		// Limit to 0 to 1.024mS  
-					if (Width > RC_MAXIMUM)
-						Width = RC_MAXIMUM;  	// limit maximum for symmetry around RC_NEUTRAL 0.5mS
-					PPM[PPM_Index] = Width;	
-				}
+					PPM[PPM_Index] = Width;
+					_NewValues = false; 		// Strictly after PPM_Index == 0
+				}	
 				else
 				{
 					// preserve old value i.e. default hold
@@ -190,13 +175,11 @@ void high_isr_handler(void)
 		if ( !RxPPM )							
 			CCP1CONbits.CCP1M0 ^= 1;				// For composite PPM signal not using wired OR
 
-		PIR1bits.CCP1IF = false;				// Clear this interrupt flag for next time around 
+		PIR1bits.CCP1IF = false;
 	}	
 
 	if (PIR1bits.RCIF && PIE1bits.RCIE)	// GPS and commands
 	{
-		PIR1bits.RCIF = false;
-	
 		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
 			ch = RCREG; // flush
@@ -205,8 +188,20 @@ void high_isr_handler(void)
 		}
 		else
 			PollGPS(RCREG);
-	} 	
-	
+		PIR1bits.RCIF = false;
+	}
+
+	if ( INTCONbits.T0IF && INTCONbits.T0IE )
+	{ 
+		mS[Clock]++;
+		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal )
+		{
+			CCP1CONbits.CCP1M0 = _NegativePPM; // Reset in case Tx/Rx combo has changed
+			_Signal = false;
+		}	
+		INTCONbits.TMR0IF = false;	
+	}
+ 	
 } // high_isr_handler
 	
 #pragma code high_isr = 0x08

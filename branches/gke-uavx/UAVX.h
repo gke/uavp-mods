@@ -253,8 +253,8 @@ typedef union {
 
 // RC
 
-#define PPM_CHANNELS 9
-#define RC_MIN_CHANNELS	7
+//#define PPM_CHANNELS 9
+//#define RC_MIN_CHANNELS	7
 
 #define RC_MINIMUM	0
 #define RC_MAXIMUM	238
@@ -333,8 +333,8 @@ typedef union {
 //#define BARO_ID_SMD500		??
 #define BARO_ID_BMP085		((uint8)(0x55))
 
-#define BARO_TEMP_TIME	10
-#define BARO_PRESS_TIME 35
+#define BARO_TEMP_TIME		10
+#define BARO_PRESS_TIME 	(35L*10)		
 
 // Status 
 
@@ -449,7 +449,7 @@ typedef union {
 
 #define TMR2_5MS	78	/* 1x 5ms +  */
 #define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
-#define TMR2_TICK	4	// uSec
+#define TMR2_TICK	2	// uSec
 
 #define _Minimum	1
 #define _Maximum	240
@@ -635,7 +635,6 @@ extern void AnalogTest(void);extern void Program_SLA(uint8);
 
 extern void DoLEDs(void);
 
-extern int16	TestTimeSlot;
 extern uint16	PauseTime;
 
 // Menu strings
@@ -672,7 +671,6 @@ enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchR
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
 
-extern int8		TimeSlot;
 extern uint24	mS[CompassUpdate+1];
 
 extern uint8	CurrentParamSet;
@@ -731,7 +729,7 @@ extern int16	Rl,Pl,Yl;	// PID output values
 
 extern boolean	Flags[32];
 
-extern int16	ThrDownCycles, GPSCycles, DropoutCycles, LEDCycles, BaroCycles;
+extern int16	ThrDownCycles, GPSCycles, DropoutCycles, LEDCycles;
 extern uint32	Cycles;
 extern int8		IntegralCount;
 extern uint24	RCGlitches;

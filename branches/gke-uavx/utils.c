@@ -204,7 +204,7 @@ void ReadParametersEE(void)
 	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
 	CompassOffset = (((COMPASS_OFFSET_DEG + NavMagVar)*MILLIPI)/180L);
 
-	_NegativePPM = (( TxRxType == Futaba ) || ( TxRxType == FutabaDM8 ));
+	_NegativePPM = (( TxRxType == JR ) || ( TxRxType == JRDM9 ) || ( TxRxType == DX7 ));
 
 	PIE1bits.CCP1IE = true;
 
@@ -261,6 +261,8 @@ void UpdateParamSetChoice(void)
 	NewParamSet = CurrentParamSet;
 	NewRTHAltitudeHold = _RTHAltitudeHold;
 	NewTurnToHome = _TurnToHome;
+
+	UpdateControls();
 
 	if ( _Signal )
 	{
