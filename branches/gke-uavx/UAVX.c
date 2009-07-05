@@ -1,23 +1,24 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    This is part of UAVX.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //#ifdef CLOCK_40MHZ
 //#pragma	config OSC=HSPLL, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC
@@ -68,8 +69,7 @@ uint8 	NavState;
 uint8 	NavSensitivity;
 int16	AltSum, AE;
 
-// Failsafes
-uint8	ThrNeutral;
+int16	ThrLow, ThrHigh, ThrNeutral;
 
 // Variables for barometric sensor PD-controller
 int24	DesiredBaroPressure, OriginBaroPressure;
@@ -92,8 +92,7 @@ int16	Trace[LastTrace];
 
 boolean	Flags[32];
 
-int16	ThrDownCycles, DropoutCycles, GPSCycles, LEDCycles, BlinkCycle;
-uint32	Cycles;
+uint8	LEDCycles;	
 int8	IntegralCount;
 uint24	RCGlitches;
 int8	BatteryVolts;
@@ -151,18 +150,16 @@ const rom int8	ComParms[]={
 
 const rom uint8 Map[DX7+1][CONTROLS]=
 	{
-		{ 3,2,1,4,5,6,7 }, 	// Futaba
-		{ 5,3,2,1,6,4,7 },	// Futaba DM8
-		{ 1,2,3,4,5,6,7 },	// JR
-		{ 5,3,2,1,6,4,7 },	// JR DM9
+		{ 3,2,1,4,5,6,7 }, 	// Futaba Traditional
+		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8
+		{ 1,2,3,4,5,6,7 },	// JR Traditional
+		{ 5,3,2,1,6,4,7 },	// JR 9XII Spektrum DM9
 		{ 6,1,4,7,3,5,2 },	// Spektrum DX7
-
 	};
 
 void main(void)
 {
 	static uint8	i;
-	static uint8	LowGasCycles;
 	static int16	Temp;
 
 	DisableInterrupts;
@@ -187,7 +184,7 @@ void main(void)
 	Beeper_OFF;
 
 	InitArrays();
-	ThrNeutral = 255;	
+	ThrNeutral = ThrLow = ThrHigh = MAXINT16;	
 	RC[ThrottleC] = DesiredThrottle = RC[RTHC] = RC[CamTiltC] = RC[NavGainC] = _Minimum;
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
@@ -224,17 +221,17 @@ void main(void)
 		WaitThrottleClosed();		
 		DesiredThrottle = 0;
 
-		DropoutCycles = MAXDROPOUT;
-		_Failsafe = false;
-		mS[UpdateTimeout] = mS[Clock] + TimeSlots;
-		Cycles = 0;
+		_Failsafe = _LostModel = false;
+		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT;
+		mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT;
+
 		State = Starting;
+		mS[UpdateTimeout] = mS[Clock] + TimeSlots;
 
 		while ( Armed  )
 		{	
 			ReceivingGPSOnly(true); // no Command processing while the Quadrocopter is armed
 
-			Cycles++;
 			UpdateGPS();
 
 			if ( _Signal && !_Failsafe )
@@ -243,7 +240,6 @@ void main(void)
 
 				switch ( State  ) {
 				case Starting:
-					ThrDownCycles = THR_DOWNCOUNT;
 					InitArrays();
 
 					#ifdef NEW_ERECT_GYROS
@@ -268,10 +264,10 @@ void main(void)
 					}
 					break;
 				case Landing:
-					if ( DesiredThrottle >= IdleThrottle )
+					if ( DesiredThrottle > IdleThrottle )
 						State = InFlight;
 					else
-						if ( --LowGasCycles > 0 )
+						if ( mS[Clock] < mS[ThrottleIdleTimeout] )
 							DesiredThrottle = IdleThrottle;
 						else
 						{
@@ -284,17 +280,18 @@ void main(void)
 					DoNavigation();
 
 					LEDGame();
-					LowGasCycles = LOWGASDELAY;
+
 					if ( DesiredThrottle < IdleThrottle )
 					{
-						DesiredThrottle = IdleThrottle;
+						mS[ThrottleIdleTimeout] = mS[Clock] + LOW_THROTTLE_DELAY;
 						State = Landing;
 					}
 					break;
 
 				} // Switch State
 				_LostModel = false;
-				DropoutCycles = MAXDROPOUT;
+				mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT;
+				mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT;
 			}
 			else
 				DoFailsafe();

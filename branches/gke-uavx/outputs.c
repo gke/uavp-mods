@@ -1,23 +1,24 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    This is part of UAVX.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uavx.h"
 
@@ -89,7 +90,7 @@ void DoMix(int16 CurrThrottle)
 	Motor[Front] += Pl ;			// front motor
 	Motor[Left]  += Temp;			// rear left
 	Motor[Right] -= Temp; 			// rear right
-	Motor[Back]   = Yl + _Neutral;	// yaw servo
+	Motor[Back]   = Yl + RC_NEUTRAL;	// yaw servo
 	#endif
 
 } // DoMix
@@ -171,7 +172,7 @@ void MixAndLimitCam(void)
 	else
 		Cr = Cp = _Minimum;
 
-	Cr += _Neutral;	// IK7 now used for GPS sensitivity control
+	Cr += RC_NEUTRAL;	// IK7 now used for GPS sensitivity control
 		
 	Cp += RC[CamTiltC];		// only Pitch servo is controlled by channel 6
 
@@ -187,7 +188,7 @@ uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 void OutSignals(void)
 {
 	#ifdef DEBUG_SENSORS
-	Trace[TIGas] = DesiredThrottle;
+	Trace[TIThrottle] = DesiredThrottle;
 
 	Trace[TIRoll] = DesiredRoll;
 	Trace[TIPitch] = DesiredPitch;

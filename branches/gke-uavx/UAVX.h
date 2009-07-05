@@ -11,32 +11,30 @@
 
 // Barometer
 
-// if defined uses baro instead of GPS for RTH altitude hold.
-#define USE_BARO_FOR_RTH
-
 // Modifications which have been adopted are included BELOW.
 
 #ifndef BATCHMODE
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    This is part of UAVX.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // ==============================================
 // == Global compiler switches
@@ -104,7 +102,7 @@
 
 // Misc
 
-#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
+//#define SUPPRESS_COMPASS_SR				// turns off periodic compass set/reset 
 	
 // =====================================
 // end of user-configurable section!
@@ -240,21 +238,18 @@ typedef union {
 #define ON	1
 #define OFF	0
 
-#define MODELLOSTTIMER		20 	// in 0,2sec until first beep after lost xmit signal
-#define MODELLOSTTIMERINT	2 	// in 0,2 sec units interval beep when active 
-#define LOWGASDELAY	300L
+#define FAILSAFE_TIMEOUT	1000L 		// mS hold last settings
+#define ABORT_TIMEOUT		3000L 		// mS full flight abort 
+#define LOW_THROTTLE_DELAY	1000L		// mS
+#define THROTTLE_UPDATE		3000L		// mS constant throttle time for hover
+#define VERT_DAMPING_UPDATE 50L 		// mS vertical velocity damping
 
-#define THR_DOWNCOUNT	255		// 128 PID-cycles (=3 sec) until current throttle is fixed
-#define THR_MIDDLE		10  	// throttle stick dead zone for baro 
-#define THR_HOVER		75		// min throttle stick for alti lock
+#define THR_MIDDLE			10  		// throttle stick dead zone for baro 
+#define THR_HOVER			75			// min throttle stick for alti lock
 
-#define MAXDROPOUT		500L	// x Impulse time dropout allowable
-#define GPSDROPOUT		20L		// 2sec.
+#define GPS_TIMEOUT			2000L		// mS
 
 // RC
-
-//#define PPM_CHANNELS 9
-//#define RC_MIN_CHANNELS	7
 
 #define RC_MINIMUM	0
 #define RC_MAXIMUM	238
@@ -353,17 +348,19 @@ typedef union {
 #define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
 #define _Failsafe			Flags[12]
 #define _GyrosErected		Flags[13]
+
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
 #define _LostModel			Flags[18]
-#define _Hovering			Flags[19]
-#define _NavComputed 		Flags[20]
-#define _GPSHeadingValid 	Flags[21]
-#define _GPSAltitudeValid	Flags[22]
-#define _RTHAltitudeHold	Flags[23]
-#define _ReturnHome			Flags[24]
-#define _TurnToHome			Flags[25]
-#define _Proximity			Flags[26]
+#define _ThrottleMoving		Flags[19]
+#define _Hovering			Flags[20]
+#define _NavComputed 		Flags[21]
+#define _GPSHeadingValid 	Flags[22]
+#define _GPSAltitudeValid	Flags[23]
+#define _RTHAltitudeHold	Flags[24]
+#define _ReturnHome			Flags[25]
+#define _TurnToHome			Flags[26]
+#define _Proximity			Flags[27]
 
 #define _GPSTestActive		Flags[31]
 
@@ -456,8 +453,6 @@ typedef union {
 #define _HolgerMaximum	225 
 
 #define _Neutral	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
-#define _ThresStop	((113* _ClkOut/(2*_PreScale1))&0xFF)	/*-90% ab hier Stopp! */
-#define _ThresStart	((116* _ClkOut/(2*_PreScale1))&0xFF)	/*-85% ab hier Start! */
 
 #define ToPercent(n) (((n)*100)/_Maximum)
 // Parameters for UART port
@@ -474,9 +469,6 @@ typedef union {
 // check the PPM RX and motor values
 #if _Minimum >= _Maximum
 #error _Minimum < _Maximum!
-#endif
-#if _ThresStart <= _ThresStop
-#error _ThresStart <= _ThresStop!
 #endif
 #if (_Maximum < _Neutral)
 #error Maximum < _Neutral !
@@ -644,8 +636,8 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
-enum {Clock,  UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleClosed, ROCUpdate, FailsafeTimeout, 
-      AutonomousTimeout, GPSTimeout, BaroUpdate, CompassUpdate};
+enum {Clock,  UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
+      AbortTimeout, GPSTimeout, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS  (NavGainC+1)
@@ -659,7 +651,7 @@ enum TxRxTypes { Futaba, FutabaDM8, JR, JRDM9, DX7 };
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
 				TUDSum, TVUDComp,
-				TIGas,
+				TIThrottle,
 				TIRoll, TIPitch, TIYaw,
 				TMFront, TMBack, TMLeft, TMRight,
 				TMCamRoll, TMCamPitch,
@@ -714,7 +706,7 @@ extern uint8 	NavSensitivity;
 extern int16 	AltSum, AE;
 
 // Failsafes
-extern uint8	ThrNeutral;
+extern int16	ThrLow, ThrHigh, ThrNeutral;
 			
 // Variables for barometric sensor PD-controller
 extern int24	DesiredBaroPressure, OriginBaroPressure;
@@ -729,13 +721,12 @@ extern int16	Rl,Pl,Yl;	// PID output values
 
 extern boolean	Flags[32];
 
-extern int16	ThrDownCycles, GPSCycles, DropoutCycles, LEDCycles;
-extern uint32	Cycles;
+extern uint8	LEDCycles;		// for light display
 extern int8		IntegralCount;
 extern uint24	RCGlitches;
 extern int8		BatteryVolts; 
 
-extern uint8	LEDShadow;	// shadow register
+extern uint8	LEDShadow;		// shadow register
 extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
 extern int16	CurDeviation;	// deviation from correct heading
 

@@ -4,6 +4,8 @@
 // =                          http://uavp.ch                             =
 // =======================================================================
 
+//    This is part of UAVX.
+
 //    UAVX is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -79,9 +81,9 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 	if ( _NavComputed ) // maintain previous corrections
 	{
-		DesiredRoll = Limit(DesiredRoll + NavRCorr, -_Neutral, _Neutral);
-		DesiredPitch = Limit(DesiredPitch + NavPCorr, -_Neutral, _Neutral);
-		DesiredYaw = Limit(DesiredYaw + NavYCorr, -_Neutral, _Neutral);
+		DesiredRoll = Limit(DesiredRoll + NavRCorr, -RC_NEUTRAL, RC_NEUTRAL);
+		DesiredPitch = Limit(DesiredPitch + NavPCorr, -RC_NEUTRAL, RC_NEUTRAL);
+		DesiredYaw = Limit(DesiredYaw + NavYCorr, -RC_NEUTRAL, RC_NEUTRAL);
 	}
 	else
 	{
@@ -118,11 +120,11 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		
 			SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
 			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256L;
-			DesiredRoll = Limit(DesiredRoll , -_Neutral, _Neutral);
+			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
 	
 			SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit256, NavIntLimit256);
 			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256L;
-			DesiredPitch = Limit(DesiredPitch , -_Neutral, _Neutral);
+			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
 
 			DesiredYaw += NavYCorr;
 		}
@@ -198,13 +200,11 @@ void DoFailsafe(void)
 		DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = 0;		
 	}
 	else
-	{
-		if( DropoutCycles <= 0 ) // timeout - immediate shutdown/abort
+		if( mS[Clock] > mS[AbortTimeout] ) // timeout - immediate shutdown/abort
 			_Failsafe = true;
 		else
-			if ( DropoutCycles < ((MAXDROPOUT*3)/4) ) 
+			if ( mS[Clock] > mS[FailsafeTimeout] ) 
 			{
-		//		LEDBlue_ON;
 				DesiredRoll = DesiredPitch = DesiredYaw = 0;
 				// use last "good" throttle
 				// DesiredThrottle = Limit(DesiredThrottle, 0, HoverThrottle*3/4); 
@@ -213,8 +213,6 @@ void DoFailsafe(void)
 			{
 				// continue on last "good" signals
 			}
-		DropoutCycles--;
-	}
 					
 } // DoFailsafe
 

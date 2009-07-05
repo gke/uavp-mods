@@ -5,6 +5,8 @@
 // =                          http://uavp.ch                             =
 // =======================================================================
 
+//    This is part of UAVX.
+
 //    UAVX is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -280,6 +282,9 @@ void CalibrateCompass(void)
 	I2CStop();
 
 	TxString("\r\nCalibration complete\r\n");
+
+	InitDirection();
+
 	return;
 CCerror:
 	I2CStop();

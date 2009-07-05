@@ -1,23 +1,24 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    This is part of UAVX.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uavx.h"
 
@@ -136,7 +137,7 @@ void InitArrays(void)
 
 	for (i = 0; i < NoOfMotors; i++)
 		Motor[i] = _Minimum;
-	MCamPitch = MCamRoll = _Neutral;
+	MCamPitch = MCamRoll = RC_NEUTRAL;
 
 	REp = PEp = YEp = 0;
 	
@@ -256,6 +257,8 @@ void WriteParametersEE(uint8 s)
 
 void UpdateParamSetChoice(void)
 {
+	#define STICK_WINDOW 30
+
 	int8 NewParamSet, NewRTHAltitudeHold, NewTurnToHome;
 
 	NewParamSet = CurrentParamSet;
@@ -264,34 +267,32 @@ void UpdateParamSetChoice(void)
 
 	UpdateControls();
 
-	if ( _Signal )
-	{
-		while ( (Abs(RC[PitchC]) > 20) && ((Abs(RC[YawC]) > 20)|| (Abs(RC[RollC]) > 20)) )
+		if ( (Abs(RC[PitchC]) > STICK_WINDOW) && ((Abs(RC[YawC]) > STICK_WINDOW)|| (Abs(RC[RollC]) > STICK_WINDOW)) )
 		{
-			UpdateControls();
-			if ( RC[PitchC]  > 20 ) // bottom
+			
+			if ( RC[PitchC]  > STICK_WINDOW ) // bottom
 			{
-				if ( (RC[YawC] > 20) || ( RC[RollC] < -20) ) // left
+				if ( (RC[YawC] > STICK_WINDOW) || ( RC[RollC] < -STICK_WINDOW) ) // left
 				{ // bottom left
 					NewParamSet = 1;
 					NewRTHAltitudeHold = true;
 				}
 				else
-					if ( (RC[YawC] < -20) || (RC[RollC] > 20) ) // right
+					if ( (RC[YawC] < -STICK_WINDOW) || (RC[RollC] > STICK_WINDOW) ) // right
 					{ // bottom right
 						NewParamSet = 2;
 						NewRTHAltitudeHold = true;
 					}
 			}	
 			else
-				if ( RC[PitchC] < -20 ) // top
-					if ( (RC[YawC] > 20) || ( RC[RollC] < -20) ) // left
+				if ( RC[PitchC] < -STICK_WINDOW ) // top
+					if ( (RC[YawC] > STICK_WINDOW) || ( RC[RollC] < -STICK_WINDOW) ) // left
 					{
 						NewParamSet = 1;
 						NewRTHAltitudeHold = false;
 					}
 					else
-						if ( (RC[YawC] < -20) || (RC[RollC] > 20) ) // right
+						if ( (RC[YawC] < -STICK_WINDOW) || (RC[RollC] > STICK_WINDOW) ) // right
 						{
 							NewParamSet = 2;
 							NewRTHAltitudeHold = false;
@@ -323,13 +324,12 @@ void UpdateParamSetChoice(void)
 			}
 		}
 	
-		while ( (Abs(RC[ThrottleC]) < 20) && (Abs(RC[PitchC]) < 20 ) && ((Abs(RC[YawC]) > 20)|| (Abs(RC[RollC]) > 20)) )
+		if ( (Abs(RC[ThrottleC]) < STICK_WINDOW) && (Abs(RC[PitchC]) < STICK_WINDOW ) && ((Abs(RC[YawC]) > STICK_WINDOW)|| (Abs(RC[RollC]) > STICK_WINDOW)) )
 		{
-			UpdateControls();
-			if ( (RC[YawC] > 20) || ( RC[RollC] < -20) ) // left
+			if ( (RC[YawC] > STICK_WINDOW) || ( RC[RollC] < -STICK_WINDOW) ) // left
 				NewTurnToHome = false;
 			else
-				if ( (RC[YawC] < -20) || (RC[RollC] > 20) ) // right
+				if ( (RC[YawC] < -STICK_WINDOW) || (RC[RollC] > STICK_WINDOW) ) // right
 					NewTurnToHome = true;
 			
 			if ( NewTurnToHome != _TurnToHome )
@@ -347,7 +347,6 @@ void UpdateParamSetChoice(void)
 				LEDBlue_OFF;
 			}
 		}
-	}
 } // UpdateParamSetChoice
 
 int16 Make2Pi(int16 A)
@@ -562,7 +561,7 @@ void CheckAlarms(void)
 
 	if( _LowBatt ) // repeating beep
 	{
-		if( ( Cycles & 0x0040) == 0 )
+		if( ((int16)mS[Clock] & 0x0200) == 0 )
 		{
 			Beeper_ON;
 			LEDRed_ON;
@@ -575,7 +574,7 @@ void CheckAlarms(void)
 	}
 	else
 	if ( _LostModel ) // 2 beeps with interval
-		if( (Cycles & 0x0080) == 0 )
+		if( ((int16)mS[Clock] & 0x0400) == 0 )
 		{
 			Beeper_ON;
 			LEDRed_ON;

@@ -4,6 +4,8 @@
 // =                          http://uavp.ch                             =
 // =======================================================================
 
+//    This is part of UAVX.
+
 //    UAVX is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -426,7 +428,6 @@ void InitGPS()
 	GPSEast = GPSNorth = 0;
 
 	ValidGPSSentences = 0;
-	GPSCycles = 0;
 
 	_GPSValid = false; 
 	GPSSentenceReceived=false;
@@ -445,15 +446,12 @@ void UpdateGPS(void)
 		if ( _GPSValid )
 		{
 			_NavComputed = false;
-			GPSCycles = 0;
+			mS[GPSTimeout] = mS[Clock] + GPS_TIMEOUT;
 		}
 	}
 	else
-		if( (Cycles & 0x000f) == 0 )
-			if( GPSCycles > GPSDROPOUT )
-				_GPSValid = false;
-			else
-				GPSCycles++;
+		if( mS[Clock] > mS[GPSTimeout] )
+			_GPSValid = false;
 
 	LEDBlue_OFF;
 	if ( _GPSValid )

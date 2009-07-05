@@ -1,23 +1,24 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
 // =                          http://uavp.ch                             =
 // =======================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    This is part of UAVX.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uavx.h"
 
@@ -152,24 +153,29 @@ void AltitudeDamping(void)
 	// UDSum rises if ufo climbs
 	// Empirical - vertical acceleration decreases at ~approx Angle/8
 
-	AbsRollSum = Abs(RollSum);
-	AbsPitchSum = Abs(PitchSum);
+	if ( mS[Clock] >= mS[VerticalDampingUpdate] )
+	{
+		mS[VerticalDampingUpdate] = mS[Clock] + VERT_DAMPING_UPDATE;
 
-	if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
-		UDSum += UDAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
-
-	UDSum = Limit(UDSum , -16384, 16384); 
-	UDSum = DecayBand(UDSum, -10, 10, 10);
+		AbsRollSum = Abs(RollSum);
+		AbsPitchSum = Abs(PitchSum);
 	
-	Temp = SRS16(SRS16(UDSum, 4) * (int16) VertDampKp, 8);
-	if( (Cycles & 0x0003) == 0 )	
+		if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
+			UDSum += UDAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
+	
+		UDSum = Limit(UDSum , -16384, 16384); 
+		UDSum = DecayBand(UDSum, -10, 10, 10);
+		
+		Temp = SRS16(SRS16(UDSum, 4) * (int16) VertDampKp, 8);	
 		if( Temp > VUDComp ) 
 			VUDComp++;
 		else
 			if( Temp < VUDComp )
 				VUDComp--;
-	
-	VUDComp = Limit(VUDComp, -20, 20);
+		
+		VUDComp = Limit(VUDComp, -20, 20);
+
+	}
 
 	#ifdef DEBUG_SENSORS
 	Trace[TUDSum] = UDSum;
@@ -445,16 +451,18 @@ void DoControl(void)
 
 void WaitThrottleClosed(void)
 {
-	DropoutCycles = 1;
-	while( (RC[ThrottleC] >= _ThresStop) )
+	uint24 Timeout;
+	
+	Timeout = mS[Clock] + 500; // mS.
+	while( (RC[ThrottleC] >= RC_THRES_STOP) )
 		if( _NewValues )
 		{
 			UpdateControls();
 			OutSignals();
-			if( --DropoutCycles <= 0 )
+			if( mS[Clock] > Timeout )
 			{
 				LEDRed_TOG;						// toggle red LED 
-				DropoutCycles = 10;				// to signal: THROTTLE OPEN
+				Timeout = mS[Clock] + 500;
 			}
 		}
 	LEDRed_OFF;
@@ -464,60 +472,36 @@ void CheckThrottleMoved(void)
 {
 	static int16 Temp;
 
-//	if( _NewValues )
+	if( mS[Clock] > mS[ThrottleUpdate] )
 	{
-		if( ThrDownCycles > 0 )
-		{
-			if( (LEDCycles & 1) == 0 )
-				ThrDownCycles--;
-			if( ThrDownCycles == 0 )
-				ThrNeutral = DesiredThrottle;	// remember current Throttle level
-		}
-		else
-		{
-			if( ThrNeutral < THR_MIDDLE )
-				Temp = 0;
-			else
-				Temp = ThrNeutral - THR_MIDDLE;
-
-			if( DesiredThrottle < THR_HOVER ) 	// no hovering below this throttle setting
-				ThrDownCycles = THR_DOWNCOUNT;	// left dead area
-
-			if( DesiredThrottle < Temp )
-				ThrDownCycles = THR_DOWNCOUNT;	// left dead area
-			if( DesiredThrottle > ThrNeutral + THR_MIDDLE )
-				ThrDownCycles = THR_DOWNCOUNT;	// left dead area
-		}
+		ThrNeutral = DesiredThrottle;	// remember current Throttle level
+		ThrLow = ThrNeutral - THR_MIDDLE;
+		ThrLow = Max(ThrLow, THR_HOVER);
+		ThrHigh = ThrNeutral + THR_MIDDLE;
+		mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE;
+		_ThrottleMoving = false;
 	}
+	else
+		if ( ( DesiredThrottle <= ThrLow ) || (DesiredThrottle >= ThrHigh ))
+		{
+			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE;
+			_ThrottleMoving = true;
+		}
 } // CheckThrottleMoved
 
 void WaitForRxSignal(void)
 {
-	DropoutCycles = MODELLOSTTIMER;
 	do
 	{		
 		ProcessCommand();
 		if( _Signal )
-		{
 			if ( _NewValues )
 			{
 				UpdateParamSetChoice();
 				ReadParametersEE();
 				DesiredThrottle = 0;
 				OutSignals();
-			}
-		}
-		else
-			if( Armed )
-			{
-				if( --DropoutCycles == 0 )
-				{
-					_LostModel = true;
-					DropoutCycles = MODELLOSTTIMERINT;
-				}
-			}
-			else
-				_LostModel = false;		
+			}	
 	}
 	while( !( _Signal && Armed ) );				// no signal or switch is off
 } // WaitForRXSignal
@@ -535,6 +519,6 @@ void UpdateControls(void)
 		DesiredPitch = RC[PitchC];
 		DesiredYaw = RC[YawC];
 		NavSensitivity = RC[NavGainC];
-		_ReturnHome = RC[RTHC] > _Neutral;
+		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
 	}
 } // UpdateControls
