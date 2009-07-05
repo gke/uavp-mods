@@ -267,18 +267,18 @@ void UpdateParamSetChoice(void)
 
 	UpdateControls();
 
-		if ( (Abs(RC[PitchC]) > STICK_WINDOW) && ((Abs(RC[YawC]) > STICK_WINDOW)|| (Abs(RC[RollC]) > STICK_WINDOW)) )
+		if ( (Abs(RC[PitchC]) > STICK_WINDOW) && ((TxMode1 && (Abs(RC[YawC]) > STICK_WINDOW))|| ((!TxMode1) && (Abs(RC[RollC]) > STICK_WINDOW))) )
 		{
 			
 			if ( RC[PitchC]  > STICK_WINDOW ) // bottom
 			{
-				if ( (RC[YawC] > STICK_WINDOW) || ( RC[RollC] < -STICK_WINDOW) ) // left
+				if ( (TxMode1 && (RC[YawC] > STICK_WINDOW)) || ((!TxMode1) && ( RC[RollC] < -STICK_WINDOW)) ) // left
 				{ // bottom left
 					NewParamSet = 1;
 					NewRTHAltitudeHold = true;
 				}
 				else
-					if ( (RC[YawC] < -STICK_WINDOW) || (RC[RollC] > STICK_WINDOW) ) // right
+					if ( (TxMode1 && (RC[YawC] < -STICK_WINDOW)) || ((!TxMode1) && (RC[RollC] > STICK_WINDOW)) ) // right
 					{ // bottom right
 						NewParamSet = 2;
 						NewRTHAltitudeHold = true;
@@ -286,13 +286,13 @@ void UpdateParamSetChoice(void)
 			}	
 			else
 				if ( RC[PitchC] < -STICK_WINDOW ) // top
-					if ( (RC[YawC] > STICK_WINDOW) || ( RC[RollC] < -STICK_WINDOW) ) // left
+					if ((TxMode1 &&  (RC[YawC] > STICK_WINDOW)) || ((!TxMode1) && ( RC[RollC] < -STICK_WINDOW)) ) // left
 					{
 						NewParamSet = 1;
 						NewRTHAltitudeHold = false;
 					}
 					else
-						if ( (RC[YawC] < -STICK_WINDOW) || (RC[RollC] > STICK_WINDOW) ) // right
+						if ( (TxMode1 && (RC[YawC] < -STICK_WINDOW)) || ((!TxMode1) && (RC[RollC] > STICK_WINDOW)) ) // right
 						{
 							NewParamSet = 2;
 							NewRTHAltitudeHold = false;
@@ -324,12 +324,12 @@ void UpdateParamSetChoice(void)
 			}
 		}
 	
-		if ( (Abs(RC[ThrottleC]) < STICK_WINDOW) && (Abs(RC[PitchC]) < STICK_WINDOW ) && ((Abs(RC[YawC]) > STICK_WINDOW)|| (Abs(RC[RollC]) > STICK_WINDOW)) )
+		if ( (Abs(RC[ThrottleC]) < STICK_WINDOW) && (Abs(RC[PitchC]) < STICK_WINDOW ) && (((!TxMode1) && (Abs(RC[YawC]) > STICK_WINDOW))|| (TxMode1 && (Abs(RC[RollC]) > STICK_WINDOW))) )
 		{
-			if ( (RC[YawC] > STICK_WINDOW) || ( RC[RollC] < -STICK_WINDOW) ) // left
+			if ( ((!TxMode1) && (RC[YawC] > STICK_WINDOW)) || (TxMode1 &&( RC[RollC] < -STICK_WINDOW)) ) // left
 				NewTurnToHome = false;
 			else
-				if ( (RC[YawC] < -STICK_WINDOW) || (RC[RollC] > STICK_WINDOW) ) // right
+				if ( ((!TxMode1) && (RC[YawC] < -STICK_WINDOW)) || (TxMode1 &&(RC[RollC] > STICK_WINDOW)) ) // right
 					NewTurnToHome = true;
 			
 			if ( NewTurnToHome != _TurnToHome )

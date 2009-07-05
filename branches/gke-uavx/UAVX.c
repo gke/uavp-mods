@@ -158,10 +158,10 @@ const rom int8	ComParms[]={
 
 const rom uint8 Map[DX7+1][CONTROLS]=
 	{
-		{ 3,2,1,4,5,6,7 }, 	// Futaba Traditional
+		{ 3,1,2,4,5,6,7 }, 	// Futaba Traditional
 		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8
 		{ 1,2,3,4,5,6,7 },	// JR Traditional
-		{ 6,1,4,7,3,5,2 },	// JR 9XII Spektrum DM9
+		{ 6,1,4,7,3,5,2 },	// JR 9XII Spektrum DM9?
 		{ 6,1,4,7,3,5,2 },	// Spektrum DX7
 	};
 
