@@ -158,7 +158,7 @@ void DoCompassTest()
 	#ifndef DISABLE_COMPASS_CALIBRATION
 
 	TxString("\r\nCompass test\r\n");
-/*
+
 	#define COMP_OPMODE 0b01110000	// standby mode to reliably read EEPROM
 
 	I2CStart();
@@ -230,11 +230,10 @@ void DoCompassTest()
 		Delay1mS(COMPASS_TIME);
 	}
 
-//	InitDirection();
+	Delay1mS(COMPASS_TIME);
+	InitDirection();
 	Delay1mS(COMPASS_TIME);
  
-*/
-
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
 	Compass.high8 = RecvI2CByte(I2C_ACK);
