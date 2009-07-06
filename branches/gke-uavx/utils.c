@@ -259,7 +259,7 @@ void UpdateParamSetChoice(void)
 {
 	#define STICK_WINDOW 30
 
-	int8 NewParamSet, NewRTHAltitudeHold, NewTurnToHome;
+	int8 NewParamSet, NewRTHAltitudeHold, NewTurnToHome, Selector;
 
 	NewParamSet = CurrentParamSet;
 	NewRTHAltitudeHold = _RTHAltitudeHold;
@@ -267,86 +267,91 @@ void UpdateParamSetChoice(void)
 
 	UpdateControls();
 
-		if ( (Abs(RC[PitchC]) > STICK_WINDOW) && ((TxMode1 && (Abs(RC[YawC]) > STICK_WINDOW))|| ((!TxMode1) && (Abs(RC[RollC]) > STICK_WINDOW))) )
-		{
-			
-			if ( RC[PitchC]  > STICK_WINDOW ) // bottom
-			{
-				if ( (TxMode1 && (RC[YawC] > STICK_WINDOW)) || ((!TxMode1) && ( RC[RollC] < -STICK_WINDOW)) ) // left
-				{ // bottom left
+	if ( TxMode2 )
+		Selector = RC[RollC];
+	else
+		Selector = -RC[YawC];
+
+	if ( (Abs(RC[PitchC]) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) )
+	{
+		if ( RC[PitchC] > STICK_WINDOW ) // bottom
+			if ( Selector < -STICK_WINDOW ) // left
+			{ // bottom left
+				NewParamSet = 1;
+				NewRTHAltitudeHold = true;
+			}
+			else
+			{ // bottom right
+				NewParamSet = 2;
+				NewRTHAltitudeHold = true;
+			}	
+		else
+			if ( RC[PitchC] < -STICK_WINDOW ) // top
+				if ( Selector < -STICK_WINDOW ) // left
+				{
 					NewParamSet = 1;
-					NewRTHAltitudeHold = true;
+					NewRTHAltitudeHold = false;
 				}
 				else
-					if ( (TxMode1 && (RC[YawC] < -STICK_WINDOW)) || ((!TxMode1) && (RC[RollC] > STICK_WINDOW)) ) // right
-					{ // bottom right
-						NewParamSet = 2;
-						NewRTHAltitudeHold = true;
-					}
-			}	
-			else
-				if ( RC[PitchC] < -STICK_WINDOW ) // top
-					if ((TxMode1 &&  (RC[YawC] > STICK_WINDOW)) || ((!TxMode1) && ( RC[RollC] < -STICK_WINDOW)) ) // left
-					{
-						NewParamSet = 1;
-						NewRTHAltitudeHold = false;
-					}
-					else
-						if ( (TxMode1 && (RC[YawC] < -STICK_WINDOW)) || ((!TxMode1) && (RC[RollC] > STICK_WINDOW)) ) // right
-						{
-							NewParamSet = 2;
-							NewRTHAltitudeHold = false;
-						}
-			if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHAltitudeHold != _RTHAltitudeHold) )
-			{
+				{ // right
+					NewParamSet = 2;
+					NewRTHAltitudeHold = false;
+				}
+
+		if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHAltitudeHold != _RTHAltitudeHold) )
+		{
 					
-				CurrentParamSet = NewParamSet;
-				_RTHAltitudeHold = NewRTHAltitudeHold;
-				LEDBlue_ON;
+			CurrentParamSet = NewParamSet;
+			_RTHAltitudeHold = NewRTHAltitudeHold;
+			LEDBlue_ON;
+			Beeper_ON;
+			Delay100mSWithOutput(2);
+			Beeper_OFF;
+			if ( CurrentParamSet == 2 )
+			{
+				Delay100mSWithOutput(2);
 				Beeper_ON;
 				Delay100mSWithOutput(2);
 				Beeper_OFF;
-				if ( CurrentParamSet == 2 )
-				{
-					Delay100mSWithOutput(2);
-					Beeper_ON;
-					Delay100mSWithOutput(2);
-					Beeper_OFF;
-				}
-				if ( _RTHAltitudeHold )
-				{
-					Delay100mSWithOutput(4);
-					Beeper_ON;
-					Delay100mSWithOutput(4);
-					Beeper_OFF;
-				}
-				LEDBlue_OFF;
 			}
+			if ( _RTHAltitudeHold )
+			{
+				Delay100mSWithOutput(4);
+				Beeper_ON;
+				Delay100mSWithOutput(4);
+				Beeper_OFF;
+			}
+			LEDBlue_OFF;
 		}
-	
-		if ( (Abs(RC[ThrottleC]) < STICK_WINDOW) && (Abs(RC[PitchC]) < STICK_WINDOW ) && (((!TxMode1) && (Abs(RC[YawC]) > STICK_WINDOW))|| (TxMode1 && (Abs(RC[RollC]) > STICK_WINDOW))) )
-		{
-			if ( ((!TxMode1) && (RC[YawC] > STICK_WINDOW)) || (TxMode1 &&( RC[RollC] < -STICK_WINDOW)) ) // left
-				NewTurnToHome = false;
-			else
-				if ( ((!TxMode1) && (RC[YawC] < -STICK_WINDOW)) || (TxMode1 &&(RC[RollC] > STICK_WINDOW)) ) // right
-					NewTurnToHome = true;
+	}
+
+	if ( TxMode2 )
+		Selector = -RC[YawC];
+	else
+		Selector = RC[RollC];
+
+	if ( (Abs(RC[ThrottleC]) < STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW ) )
+	{
+		if ( Selector < -STICK_WINDOW ) // left
+			NewTurnToHome = false;
+		else
+			NewTurnToHome = true; // right
 			
-			if ( NewTurnToHome != _TurnToHome )
-			{		
-				_TurnToHome = NewTurnToHome;
-				LEDBlue_ON;
-				if ( _TurnToHome )
-				{
-					Beeper_ON;
-					Delay100mSWithOutput(4);
-					Beeper_OFF;
-				}
-				else
-					Delay100mSWithOutput(2);
-				LEDBlue_OFF;
+		if ( NewTurnToHome != _TurnToHome )
+		{		
+			_TurnToHome = NewTurnToHome;
+			LEDBlue_ON;
+			if ( _TurnToHome )
+			{
+				Beeper_ON;
+				Delay100mSWithOutput(4);
+				Beeper_OFF;
 			}
+			else
+				Delay100mSWithOutput(2);
+			LEDBlue_OFF;
 		}
+	}
 } // UpdateParamSetChoice
 
 int16 Make2Pi(int16 A)

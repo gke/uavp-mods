@@ -148,12 +148,55 @@ void ReceiverTest(void)
 
 } // ReceiverTest
 
+static uint8 CP[9];
+
+void GetCompassParameters(void)
+{
+	int8 r;
+
+	#define COMP_OPMODE 0b01110000	// standby mode to reliably read EEPROM
+
+	I2CStart();
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('G')  != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(0x74) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+	Delay1mS(COMPASS_TIME);
+
+	for (r = 0; r <= 8; r++)
+	{
+		CP[r] = 0xff;
+
+		Delay1mS(10);
+
+		I2CStart();
+		if ( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+		if ( SendI2CByte('r')  != I2C_ACK ) goto CTerror;
+		if ( SendI2CByte(r)  != I2C_ACK ) goto CTerror;
+		I2CStop();
+
+		Delay1mS(10);
+
+		I2CStart();
+		if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
+		CP[r] = RecvI2CByte(I2C_NACK);
+		I2CStop();
+	}
+	return;
+
+CTerror:
+	I2CStop();
+	TxString("FAIL\r\n");
+
+} // GetCompassParamters
+
 void DoCompassTest()
 {
 	uint16 v, prev;
 	int16 Temp;
 	i16u Compass;
-	int8 r;
 
 	#ifndef DISABLE_COMPASS_CALIBRATION
 
@@ -170,70 +213,60 @@ void DoCompassTest()
 
 	Delay1mS(COMPASS_TIME);
 
-	TxString("Registers\r\n");
-	for (r = 0; r <= 8; r++)
-	{
-		I2CStart();
-		if ( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-		if ( SendI2CByte('r')  != I2C_ACK ) goto CTerror;
-		if ( SendI2CByte(r)  != I2C_ACK ) goto CTerror;
-		I2CStop();
-
-		Delay1mS(10);
-
-		I2CStart();
-		if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
-		v = RecvI2CByte(I2C_NACK);
-		I2CStop();
-
-		TxVal32((int32)r,0,':');
-		switch (r)
-		{
-		case 0: 
-			TxString("\tI2C\t"); TxString(" 0x"); TxValH(v); 
-			if ( v != 0x42 ) TxString("\t Error expected 0x42 for HMC6352");
-			TxNextLine();
-			break;
-		case 1: break;
-		case 2: TxString("\tXOffset\t"); TxVal32((int32)prev*256|(v & 0xff), 0, 0); TxNextLine(); break;
-		case 3: break;
-		case 4: TxString("\tYOffset\t"); TxVal32((int32)prev*256 |(v & 0xff), 0, 0); TxNextLine(); break;
-		case 5: TxString("\tDelay\t"); TxVal32((int32)v, 0, 0); TxNextLine(); break;
-		case 6: 
-			TxString("\tNSum\t"); TxVal32((int32)v, 0, 0);
-			if ( v !=16 ) TxString("\t Error expected 16");
-			TxNextLine(); 
-			break;
-		case 7: TxString("\tSW Ver\t"); TxString(" 0x"); TxValH(v); TxNextLine(); break;
-		case 8: 
-			TxString("\tOpMode:");
-			switch ( ( v >> 5 ) & 0x03 ) {
-			case 0: TxString("  1Hz"); break;
-			case 1: TxString("  5Hz"); break;
-			case 2: TxString("  10Hz"); break;
-			case 3: TxString("  20Hz"); break;
-			}
- 
-			if ( v & 0x10 ) TxString(" S/R"); 
-
-			switch ( v & 0x03 ) {
-			case 0: TxString(" Standby"); break;
-			case 1: TxString(" Query"); break;
-			case 2: TxString(" Continuous"); break;
-			case 3: TxString(" Not-allowed"); break;
-			}
-			TxNextLine(); 
-			break;
-		default: break;
-		}
-		prev = v;
-		Delay1mS(COMPASS_TIME);
-	}
+	GetCompassParameters();
 
 	Delay1mS(COMPASS_TIME);
 	InitDirection();
 	Delay1mS(COMPASS_TIME);
+
+	TxString("Registers\r\n");
+	TxString("0:\tI2C"); 
+	TxString("\t 0x"); TxValH(CP[0]); 
+	if ( CP[0] != 0x42 ) 
+		TxString("\t Error expected 0x42 for HMC6352");
+	TxNextLine();
+
+	Temp = (CP[1]*256)|CP[2];
+	TxString("1:2:\tXOffset\t"); 
+	TxVal32((int32)Temp, 0, 0); 
+	TxNextLine(); 
+
+	Temp = (CP[3]*256)|CP[4];
+	TxString("3:4:\tYOffset\t"); 
+	TxVal32((int32)Temp, 0, 0); 
+	TxNextLine(); 
+
+	TxString("5:\tDelay\t"); 
+	TxVal32((int32)CP[5], 0, 0); 
+	TxNextLine(); 
+
+	TxString("6:\tNSum\t"); TxVal32((int32)CP[6], 0, 0);
+	if ( CP[6] !=16 ) 
+		TxString("\t Error expected 16");
+	TxNextLine(); 
+
+	TxString("7:\tSW Ver\t"); 
+	TxString(" 0x"); TxValH(CP[7]); 
+	TxNextLine(); 
+
+	TxString("8:\tOpMode:");
+	switch ( ( CP[8] >> 5 ) & 0x03 ) {
+		case 0: TxString("  1Hz"); break;
+		case 1: TxString("  5Hz"); break;
+		case 2: TxString("  10Hz"); break;
+		case 3: TxString("  20Hz"); break;
+		}
  
+	if ( CP[8] & 0x10 ) TxString(" S/R"); 
+
+	switch ( CP[8] & 0x03 ) {
+		case 0: TxString(" Standby"); break;
+		case 1: TxString(" Query"); break;
+		case 2: TxString(" Continuous"); break;
+		case 3: TxString(" Not-allowed"); break;
+		}
+	TxNextLine(); 
+
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK ) goto CTerror;
 	Compass.high8 = RecvI2CByte(I2C_ACK);
@@ -258,6 +291,38 @@ CTerror:
 
 } // DoCompassTest
 
+void CompassRun(void)
+{
+	int16 i, r, Temp;
+	static i16u Compass;	
+
+	for (i=0; i<32000; i++)
+	{
+	//	Delay1mS(COMPASS_TIME);
+	//	GetCompassParameters();
+	//	Delay1mS(COMPASS_TIME);
+	//	InitDirection();
+	//	Delay1mS(COMPASS_TIME);
+
+		I2CStart();
+		_CompassMissRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 
+		Compass.high8 = RecvI2CByte(I2C_ACK);
+		Compass.low8 = RecvI2CByte(I2C_NACK);
+		I2CStop();
+		
+		TxVal32((int32) mS[Clock],3,' ');
+
+	//	Temp = (CP[1]*256)|CP[2];
+	//	TxVal32((int32)Temp, 0, 0); 
+
+	//	Temp = (CP[3]*256)|CP[4];
+	//	TxVal32((int32)Temp, 0, 0); 
+
+		TxVal32((int32) Compass.i16,1,0);
+		TxNextLine();
+	}
+} // CompassRun
+
 void CalibrateCompass(void)
 {	// calibrate the compass by rotating the ufo through 720 deg smoothly
 	#ifndef DISABLE_COMPASS_CALIBRATION
@@ -281,6 +346,8 @@ void CalibrateCompass(void)
 	I2CStop();
 
 	TxString("\r\nCalibration complete\r\n");
+
+	Delay1mS(COMPASS_TIME);
 
 	InitDirection();
 

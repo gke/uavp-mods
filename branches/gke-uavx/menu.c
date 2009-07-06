@@ -284,6 +284,10 @@ void ProcessCommand(void)
 				PowerOutput(ch-'1');
 				ShowPrompt();
 				break;
+			case 'Z':	// configure YGE30i EScs
+				CompassRun();
+				break;
+
 			case '?'  :  // help
 				TxString(SerHelp);
 				ShowPrompt();

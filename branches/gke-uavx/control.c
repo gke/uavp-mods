@@ -461,7 +461,7 @@ void WaitThrottleClosed(void)
 			OutSignals();
 			if( mS[Clock] > Timeout )
 			{
-				LEDRed_TOG;						// toggle red LED 
+				LEDRed_TOG;						// toggle red LED every 0.5Sec 
 				Timeout = mS[Clock] + 500;
 			}
 		}
@@ -470,23 +470,21 @@ void WaitThrottleClosed(void)
 
 void CheckThrottleMoved(void)
 {
-	static int16 Temp;
-
-	if( mS[Clock] > mS[ThrottleUpdate] )
+	if( mS[Clock] < mS[ThrottleUpdate] )
+		ThrNeutral = DesiredThrottle;
+	else
 	{
-		ThrNeutral = DesiredThrottle;	// remember current Throttle level
 		ThrLow = ThrNeutral - THR_MIDDLE;
 		ThrLow = Max(ThrLow, THR_HOVER);
 		ThrHigh = ThrNeutral + THR_MIDDLE;
-		mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE;
-		_ThrottleMoving = false;
-	}
-	else
-		if ( ( DesiredThrottle <= ThrLow ) || (DesiredThrottle >= ThrHigh ))
+		if ( ( DesiredThrottle <= ThrLow ) || ( DesiredThrottle >= ThrHigh ) )
 		{
 			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE;
 			_ThrottleMoving = true;
 		}
+		else
+			_ThrottleMoving = false;
+	}
 } // CheckThrottleMoved
 
 void WaitForRxSignal(void)

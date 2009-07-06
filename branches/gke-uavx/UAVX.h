@@ -367,7 +367,7 @@ typedef union {
 // Mask Bits of ConfigParam
 #define FlyCrossMode 	IsSet(ConfigParam,0)
 //#define FutabaMode		IsSet(ConfigParam,1)
-#define TxMode1			IsSet(ConfigParam,2)
+#define TxMode2			IsSet(ConfigParam,2)
 #define RxPPM			IsSet(ConfigParam,3)
 //#define NegativePPM		IsSet(ConfigParam,4)
 #define UseGPSAlt		IsSet(ConfigParam,5)

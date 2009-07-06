@@ -48,6 +48,8 @@ void InitDirection(void)
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
+	Delay1mS(COMPASS_TIME);
+
 	I2CStart(); // save operation mode in EEPROM
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('L')  != I2C_ACK ) goto CTerror;
