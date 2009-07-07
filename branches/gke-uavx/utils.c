@@ -146,11 +146,7 @@ void InitArrays(void)
 	UDSum = 0;
 	LRIntKorr = FBIntKorr = 0;
 	YawSum = RollSum = PitchSum = 0;
-
 	AE = AltSum = 0;
-
-	BaroRestarts = 0;
-
 
 } // InitArrays
 

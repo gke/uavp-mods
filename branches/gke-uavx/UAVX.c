@@ -250,6 +250,11 @@ void main(void)
 				case Starting:
 					InitArrays();
 
+					// reset origin position and altitude
+					InitBarometer();
+					InitGPS();
+					InitNavigation();
+
 					#ifdef NEW_ERECT_GYROS
 					ErectGyros();
 					IntegralCount = 0;
