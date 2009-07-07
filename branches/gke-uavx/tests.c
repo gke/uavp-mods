@@ -306,9 +306,9 @@ void CompassRun(void)
 
 		I2CStart();
 		_CompassMissRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 
-		Delay10TCY(); 
+		Delay10TCYx(COMPASS_DELAY);
 		Compass.high8 = RecvI2CByte(I2C_ACK);
-		Delay10TCY(); 
+		Delay10TCYx(COMPASS_DELAY);
 		Compass.low8 = RecvI2CByte(I2C_NACK);
 		I2CStop();
 		
@@ -321,7 +321,7 @@ void CompassRun(void)
 	//	TxVal32((int32)Temp, 0, 0); 
 
 		TxVal32((int32) Compass.i16,1,' ');
-
+/*
 		for (r = 0; r<16;r++)
 		{
 			if ( (Compass.i16 & 1 ) == 0 )
@@ -332,6 +332,7 @@ void CompassRun(void)
 				TxChar(' ');
 			Compass.i16 = Compass.i16 >> 1;
 		}
+*/
 		TxNextLine();
 	}
 } // CompassRun
