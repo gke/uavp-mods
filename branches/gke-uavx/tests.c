@@ -211,7 +211,14 @@ void DoCompassTest()
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(COMPASS_TIME);
+	Delay1mS(1);
+
+	I2CStart(); // Do Set/Reset now		
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+	Delay1mS(7);
 
 	GetCompassParameters();
 
@@ -276,7 +283,7 @@ void DoCompassTest()
 	TxVal32((int32)Compass.u16, 1, 0);
 	TxString(" deg \tCorrected ");
 
-	Temp = Compass.u16 - (COMPASS_OFFSET_DEG + NavMagVar)*10;
+	Temp = Compass.u16 - (COMPASS_OFFSET_DEG - NavMagVar)*10;
 	while (Temp < 0) Temp +=3600;
 	while (Temp >= 3600) Temp -=3600;
 	TxVal32((int32)Temp, 1, 0);
@@ -298,41 +305,15 @@ void CompassRun(void)
 
 	for (i=0; i<32000; i++)
 	{
-	//	Delay1mS(COMPASS_TIME);
-	//	GetCompassParameters();
-	//	Delay1mS(COMPASS_TIME);
-	//	InitDirection();
-	//	Delay1mS(COMPASS_TIME);
-
 		I2CStart();
 		_CompassMissRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 
-		Delay10TCYx(COMPASS_DELAY);
 		Compass.high8 = RecvI2CByte(I2C_ACK);
-		Delay10TCYx(COMPASS_DELAY);
 		Compass.low8 = RecvI2CByte(I2C_NACK);
 		I2CStop();
 		
 		TxVal32((int32) mS[Clock],3,' ');
 
-	//	Temp = (CP[1]*256)|CP[2];
-	//	TxVal32((int32)Temp, 0, 0); 
-
-	//	Temp = (CP[3]*256)|CP[4];
-	//	TxVal32((int32)Temp, 0, 0); 
-
 		TxVal32((int32) Compass.i16,1,' ');
-/*
-		for (r = 0; r<16;r++)
-		{
-			if ( (Compass.i16 & 1 ) == 0 )
-				TxChar('0');
-			else
-				TxChar('1');
-			if ( r == 7 )
-				TxChar(' ');
-			Compass.i16 = Compass.i16 >> 1;
-		}
-*/
 		TxNextLine();
 	}
 } // CompassRun
@@ -343,6 +324,13 @@ void CalibrateCompass(void)
 
 	TxString("\r\nCalib. compass - Press any key (x) to continue\r\n");	
 	while( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
+
+	I2CStart(); // Do Set/Reset now		
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CCerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CCerror;
+	I2CStop();
+
+	Delay1mS(7);
 
 	// set Compass device to Calibration mode 
 	I2CStart();

@@ -2,7 +2,6 @@
 
 // Navigation
 // tune this up and down to see if it has any effect on compass fail
-#define COMPASS_DELAY 30
 
 // Accelerometer
 

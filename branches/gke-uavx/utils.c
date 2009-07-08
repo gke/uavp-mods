@@ -199,7 +199,7 @@ void ReadParametersEE(void)
 	NavClosingRadius = (int32)NavRadius * 5L;
 	NavClosingRadius = Limit(NavClosingRadius, 5, 40); // avoid divide by zero
 	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
-	CompassOffset = (((COMPASS_OFFSET_DEG + NavMagVar)*MILLIPI)/180L);
+	CompassOffset = (((COMPASS_OFFSET_DEG - NavMagVar)*MILLIPI)/180L);
 
 	_NegativePPM = (( TxRxType == JR ) || ( TxRxType == JRDM9 ) || ( TxRxType == DX7 ));
 

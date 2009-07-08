@@ -48,14 +48,21 @@ void InitDirection(void)
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(COMPASS_TIME);
+	Delay1mS(1);
 
 	I2CStart(); // save operation mode in EEPROM
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('L')  != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(COMPASS_TIME);
+	Delay1mS(1);
+
+	I2CStart(); // Do offset bridge Set/Reset now
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+	Delay1mS(7);
 
 	// use default heading mode (1/10th degrees)
 
@@ -81,9 +88,7 @@ void GetDirection(void)
 	{
 		I2CStart();
 		_CompassMissRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 
-		Delay10TCYx(COMPASS_DELAY);
 		Compass.high8 = RecvI2CByte(I2C_ACK);
-		Delay10TCYx(COMPASS_DELAY);
 		Compass.low8 = RecvI2CByte(I2C_NACK);
 		I2CStop();
 
