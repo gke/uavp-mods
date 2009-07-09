@@ -193,6 +193,9 @@ First public released version.
   makeallhelper.bat and c-ufo-revision created manually from
   c-ufo-revision-SVN.h
 
+09.07.2009 v3.15m3 Greg Egan
+- Corrected longstanding error in compass bridge set/reset.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

@@ -179,6 +179,15 @@ void InitDirection(void)
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
+//	DELAY_MS(10);
+
+	I2CStart(); // Do Set/Reset now		
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+//	DELAY_MS(10);
+
 	// balance of initialisation using Test Software
 
 	_UseCompass = 1;
