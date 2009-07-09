@@ -57,7 +57,7 @@ void InitDirection(void)
 
 	Delay1mS(1);
 
-	I2CStart(); // Do offset bridge Set/Reset now
+	I2CStart(); // Do Bridge Offset Set/Reset now
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
 	I2CStop();
@@ -268,7 +268,7 @@ void ComputeBaroComp(void)
 		if ( mS[Clock] > mS[BaroUpdate] )
 		{	
 			if ( ReadValueFromBaro() == I2C_NACK) 	
-				if( _ThrottleMoving )	// while moving throttle stick
+				if( _ThrottleMoving && !( ( NavState == ReturningHome ) && _RTHAltitudeHold ) )	// while moving throttle stick
 				{
 					DesiredBaroPressure = BaroVal.u16;
 					StartBaroADC(BARO_PRESS);
@@ -312,7 +312,7 @@ void ComputeBaroComp(void)
 	
 					VBaroComp = Limit(VBaroComp, -5, 15);
 
-					if ( NavState != ReturningHome )
+					if ( !( ( NavState == ReturningHome ) && _RTHAltitudeHold ) )
 					{
 						Temp = DesiredThrottle + VBaroComp;
 						HoverThrottle = HardFilter(HoverThrottle, Temp);

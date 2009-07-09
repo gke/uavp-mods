@@ -237,13 +237,13 @@ void ProcessCommand(void)
 				ShowPrompt();
 				break;
 			case 'R':	// receiver values
-				TxString("\r\nT:");TxValU(ToPercent(RC[ThrottleC]));
-				TxString(",R:");TxValS(ToPercent(RC[RollC]*2));
-				TxString(",P:");TxValS(ToPercent(RC[PitchC]*2));
-				TxString(",Y:");TxValS(ToPercent(RC[YawC]));
-				TxString(",5:");TxValU(ToPercent(RC[RTHC]));
-				TxString(",6:");TxValU(ToPercent(RC[CamTiltC]));
-				TxString(",7:");TxValU(ToPercent(RC[NavGainC]));
+				TxString("\r\nT:");TxValU(ToPercent(RC[ThrottleC], RC_MAXIMUM));
+				TxString(",R:");TxValS(ToPercent(RC[RollC]*2, RC_MAXIMUM));
+				TxString(",P:");TxValS(ToPercent(RC[PitchC]*2, RC_MAXIMUM));
+				TxString(",Y:");TxValS(ToPercent(RC[YawC], RC_MAXIMUM));
+				TxString(",5:");TxValU(ToPercent(RC[RTHC], RC_MAXIMUM));
+				TxString(",6:");TxValU(ToPercent(RC[CamTiltC], RC_MAXIMUM));
+				TxString(",7:");TxValU(ToPercent(RC[NavGainC], RC_MAXIMUM));
 				ShowPrompt();
 				break;
 			case 'S' :	// show status

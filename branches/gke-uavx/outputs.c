@@ -51,11 +51,11 @@ uint8 SaturInt(int16 l)
 
 	if ( ESCType == ESCX3D )
 	{
-		l -= _Minimum;
+		l -= OUT_MINIMUM;
 		r = Limit(l, 1, 200);
 	}
 	else
-		r = Limit(l, _Minimum, _Maximum );
+		r = Limit(l, OUT_MINIMUM, OUT_MAXIMUM );
 
 	return((uint8) r);
 } // SaturInt
@@ -112,7 +112,7 @@ void CheckDemand(int16 CurrThrottle)
 
 	if ( DemandSwing > 0 )
 	{		
-		ScaleHigh = (( _Maximum - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
+		ScaleHigh = (( OUT_MAXIMUM - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
 		ScaleLow = (( (int24)CurrThrottle - IdleThrottle) * 256 )/ DemandSwing;
 		Scale = Min(ScaleHigh, ScaleLow);
 		if ( Scale < 256 )
@@ -136,7 +136,7 @@ void MixAndLimitMotors(void)
 
 	// Altitude stabilization factor
 	CurrThrottle = DesiredThrottle + (VUDComp + VBaroComp); // vertical compensation not optional
-	Temp = (int16)(_Maximum * 90 + 50) / 100; // 10% headroom for control
+	Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
 	CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
 
 	if ( CurrThrottle > IdleThrottle )
@@ -170,14 +170,14 @@ void MixAndLimitCam(void)
 		Cp = PitchSum / (int16)CamPitchKp;
 	}
 	else
-		Cr = Cp = _Minimum;
+		Cr = Cp = OUT_MINIMUM;
 
 	Cr += RC_NEUTRAL;	// IK7 now used for GPS sensitivity control
 		
 	Cp += RC[CamTiltC];		// only Pitch servo is controlled by channel 6
 
-	MCamRoll = Limit(Cr, _Minimum, _Maximum);
-	MCamPitch = Limit(Cp, _Minimum, _Maximum);
+	MCamRoll = Limit(Cr, OUT_MINIMUM, OUT_MAXIMUM);
+	MCamPitch = Limit(Cp, OUT_MINIMUM, OUT_MAXIMUM);
 
 } // MixAndLimitCam
 

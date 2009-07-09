@@ -161,7 +161,8 @@ const rom uint8 Map[DX7+1][CONTROLS]=
 		{ 3,1,2,4,5,6,7 }, 	// Futaba Traditional
 		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8
 		{ 1,2,3,4,5,6,7 },	// JR Traditional
-		{ 6,1,4,7,3,5,2 },	// JR 9XII Spektrum DM9?
+		{ 7,1,4,6,3,5,2 },	// JR 9XII Spektrum DM9 ?
+		{ 6,1,4,7,3,5,2 },	// JR DXS12 ?
 		{ 6,1,4,7,3,5,2 },	// Spektrum DX7
 	};
 
@@ -193,7 +194,7 @@ void main(void)
 
 	InitArrays();
 	ThrNeutral = ThrLow = ThrHigh = MAXINT16;	
-	RC[ThrottleC] = DesiredThrottle = RC[RTHC] = RC[CamTiltC] = RC[NavGainC] = _Minimum;
+	RC[ThrottleC] = DesiredThrottle = RC[RTHC] = RC[CamTiltC] = RC[NavGainC] = OUT_MINIMUM;
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	INTCONbits.TMR0IE = true; 
@@ -214,7 +215,7 @@ void main(void)
 
 		if ( !_Signal )
 		{
-			RC[ThrottleC] = RC[RTHC] = DesiredThrottle = _Minimum;
+			RC[ThrottleC] = RC[RTHC] = DesiredThrottle = OUT_MINIMUM;
 			Beeper_OFF;
 		}
 
@@ -285,7 +286,7 @@ void main(void)
 						else
 						{
 							State = Starting;
-							Temp = (HoverThrottle * 100)/_Maximum;
+							Temp = ToPercent(HoverThrottle, OUT_MAXIMUM);
 							WriteEE(_EESet1 + (&PercentHoverThr - &FirstProgReg), Temp);
 						}
 					break;

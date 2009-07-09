@@ -136,7 +136,7 @@ void InitArrays(void)
 		Trace[i] = 0;
 
 	for (i = 0; i < NoOfMotors; i++)
-		Motor[i] = _Minimum;
+		Motor[i] = OUT_MINIMUM;
 	MCamPitch = MCamRoll = RC_NEUTRAL;
 
 	REp = PEp = YEp = 0;
@@ -188,8 +188,8 @@ void ReadParametersEE(void)
 	for(p = &FirstProgReg; p <= &LastProgReg; p++)
 		*p = ReadEE(addr++);
 
-	IdleThrottle = ((int16)PercentIdleThr * _Maximum )/100;
-	HoverThrottle = ((int16)PercentHoverThr * _Maximum )/100;
+	IdleThrottle = ((int16)PercentIdleThr * OUT_MAXIMUM )/100;
+	HoverThrottle = ((int16)PercentHoverThr * OUT_MAXIMUM )/100;
 
 	RollIntLimit256 = (int16)RollIntLimit * 256L;
 	PitchIntLimit256 = (int16)RollIntLimit * 256L;

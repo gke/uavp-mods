@@ -94,7 +94,7 @@
 #define INITIAL_GPS_SENTENCES 	90		// Number of sentences needed with set HDilute
 #define MIN_HDILUTE				130L	// HDilute * 100	
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
-#define MAX_ANGLE 				30L		// Rx stick units ~= degrees
+#define MAX_ANGLE 				15L		// Rx stick units ~= degrees
 
 #define MAX_CONTROL_CHANGE 		3L		// new hold point if the roll/pitch stick change more
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
@@ -437,7 +437,7 @@ typedef union {
 //#ifdef CLOCK_16MHZ
 #define _ClkOut		(160/4)	/* 16.0 MHz Xtal */
 //#else // CLOCK_40MHZ
-//NOT IMPLEMENTED YET #define _ClkOut		(400/4)	/* 10.0 MHz Xtal * 4 PLL */
+//NOT IMPLEMENTED YET #define _ClkOut		(400L/4)	/* 10.0 MHz Xtal * 4 PLL */
 //#endif
 
 #define _PreScale0	16	/* 1:16 TMR0 prescaler */
@@ -446,16 +446,15 @@ typedef union {
 #define _PostScale2	16
 
 #define TMR2_5MS	78	/* 1x 5ms +  */
-#define TMR2_14MS	234	/* 1x 15ms = 20ms pause time */
 #define TMR2_TICK	2	// uSec
 
-#define _Minimum	1
-#define _Maximum	240
+#define OUT_MINIMUM	1
+#define OUT_MAXIMUM	240
 #define _HolgerMaximum	225 
 
-#define _Neutral	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
+#define OUT_NEUTRAL	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
 
-#define ToPercent(n) (((n)*100)/_Maximum)
+#define ToPercent(n, m) (((n)*100)/m)
 // Parameters for UART port
 // ClockHz/(16*(BaudRate+1))
 
@@ -468,11 +467,11 @@ typedef union {
 // Sanity checks
 
 // check the PPM RX and motor values
-#if _Minimum >= _Maximum
-#error _Minimum < _Maximum!
+#if OUT_MINIMUM >= OUT_MAXIMUM
+#error OUT_MINIMUM < OUT_MAXIMUM!
 #endif
-#if (_Maximum < _Neutral)
-#error Maximum < _Neutral !
+#if (OUT_MAXIMUM < OUT_NEUTRAL)
+#error OUT_MAXIMUM < OUT_NEUTRAL !
 #endif
 
 // end of sanity checks
@@ -647,7 +646,7 @@ enum FlightStates { Starting, Landing, Landed, InFlight};
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
-enum TxRxTypes { Futaba, FutabaDM8, JR, JRDM9, DX7 };
+enum TxRxTypes { Futaba, FutabaDM8, JR, JRDM9, JRDXS12, DX7 };
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,

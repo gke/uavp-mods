@@ -128,9 +128,9 @@ void ReceiverTest(void)
 		TxValH16(v);
 		TxChar(HT);
 		if ( ( s > 0 ) && ( s < 4 ))	
-			TxVal32(((int32)(v & 0x00ff)*200)/_Maximum - 100, 0, '%');
+			TxVal32(((int32)(v & 0x00ff)*200)/OUT_MAXIMUM - 100, 0, '%');
 		else
-			TxVal32(((int32)(v & 0x00ff)*100)/_Maximum, 0, '%');
+			TxVal32(((int32)(v & 0x00ff)*100)/OUT_MAXIMUM, 0, '%');
 
 		if( ( v & 0xff00) != (uint16)0x0100 ) 
 			TxString(" FAIL");
@@ -222,9 +222,9 @@ void DoCompassTest()
 
 	GetCompassParameters();
 
-	Delay1mS(COMPASS_TIME);
+	Delay1mS(7);
 	InitDirection();
-	Delay1mS(COMPASS_TIME);
+	Delay1mS(7);
 
 	TxString("Registers\r\n");
 	TxString("0:\tI2C"); 
@@ -303,7 +303,7 @@ void CompassRun(void)
 	int16 i, r, Temp;
 	static i16u Compass;	
 
-	for (i=0; i<32000; i++)
+	for (i=0; i < 32000; i++)
 	{
 		I2CStart();
 		_CompassMissRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 

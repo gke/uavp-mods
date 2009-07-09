@@ -49,7 +49,7 @@ void AltitudeHold(int16 DesiredAltitude)
 			Temp = SRS16(AE*NavAltKp + AltSum*NavAltKi, 5);
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
-			DesiredThrottle = Limit(DesiredThrottle, 0, _Maximum);
+			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
 		}
 		else
 		{	
@@ -100,7 +100,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 				Range = NavClosingRadius;
 
 			GPSGain = Limit(NavSensitivity, 0, 256);
-			NavKp = ( GPSGain * MAX_ANGLE ) / NavClosingRadius; // /_Maximum) * 256L
+			NavKp = ( GPSGain * MAX_ANGLE ) / NavClosingRadius; // /OUT_MAXIMUM) * 256L
 		
 			Temp = ((int32)Range * NavKp )>>8; // allways +ve so can use >>
 			WayHeading = int16atan2(EastDiff, NorthDiff);
