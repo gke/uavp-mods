@@ -220,7 +220,14 @@ void CompassTest(void)
 	if( SendI2CByte(0x06) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte(COMP_MULT)   != I2C_ACK ) goto CTerror;
 	I2CStop();
+
+	DELAY_MS(50);
 	
+	I2CStart(); // Do Set/Reset now		
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
+	I2CStop();
+
 	DELAY_MS(50);
 
 	I2CStart();
@@ -245,7 +252,14 @@ CTerror:
 void CalibrateCompass(void)
 {
 	while( !RecvComChar() );
+
+	I2CStart(); // Do Set/Reset now		
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CCerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CCerror;
+	I2CStop();
 	
+	DELAY_MS(50);
+
 	// set Compass device to Calibration mode 
 	I2CStart();
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CCerror;
