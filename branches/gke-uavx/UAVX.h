@@ -644,9 +644,11 @@ enum FlightStates { Starting, Landing, Landed, InFlight};
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
-enum TxRxTypes { Futaba, FutabaDM8, JR, JRDM9, JRDXS12, DX7 };
+enum TxRxTypes { Futaba, FutabaDM8, JRPPM, JRPCM, JRDM9, JRDXS12, DX7 };
 
-enum TraceTags {TAbsDirection,TVBaroComp,TBaroRelPressure,				TRollRate,TPitchRate,TYE,				TRollSum,TPitchSum,TYawSum,
+enum TraceTags {TAbsDirection,TVBaroComp,TBE,
+				TRollRate,TPitchRate,TYE,
+				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
 				TUDSum, TVUDComp,
 				TIThrottle,

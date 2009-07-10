@@ -113,8 +113,10 @@ void ShowSetup(uint8 h)
 	switch ( TxRxType ) {
 	case Futaba: TxString("Futaba {"); break;
 	case FutabaDM8:TxString("Futaba DM8 {"); break; 
-	case JR: TxString("JR {"); break; 
+	case JRPPM: TxString("JR PPM {"); break; 
+	case JRPCM: TxString("JR SPCM {"); break; 
 	case JRDM9: TxString("JR DM9 {"); break; 
+	case JRDXS12: TxString("JR DSX12 {"); break; 
 	case DX7: TxString("DX7 & R7000 {"); break;
 	}
 	for ( i = 0; i<CONTROLS; i++)

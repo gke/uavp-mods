@@ -162,11 +162,22 @@ const rom uint8 Map[DX7+1][CONTROLS]=
 	{
 		{ 3,1,2,4,5,6,7 }, 	// Futaba Traditional
 		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8
-		{ 1,2,3,4,5,6,7 },	// JR Traditional
+		{ 1,2,3,4,5,6,7 },	// JR X3810-XP8103/PPM
+		{ 1,2,3,4,5,6,7 },	// JR X3810-XP8103/SPCM
 		{ 7,1,4,6,3,5,2 },	// JR 9XII Spektrum DM9 ?
 		{ 6,1,4,7,3,5,2 },	// JR DXS12 ?
 		{ 6,1,4,7,3,5,2 },	// Spektrum DX7
 	};
+
+/*
+Futaba Traditional
+Futaba 9C DM8/AR7000
+JR X3810-XP8103/PPM
+JR X3810-XP8103/SPCM
+JR 9XII  DM9/AR7000
+JR DSX12/AR7000
+Spektrum DX7/AR7000
+*/
 
 void main(void)
 {
