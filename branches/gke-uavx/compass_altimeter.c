@@ -26,10 +26,17 @@
 
 void InitDirection(void);
 void GetDirection(void);
-uint8 ReadValueFromBaro(void);
-uint8 StartBaroADC(uint8);
+
+void StartBaroADC(void);
+void ReadBaro(void);
+void GetBaroPressure(void);
 void InitBarometer(void);
-void ComputeBaroComp(void);
+void CheckForHover(void);
+void BaroAltitudeHold(int16);
+
+//_____________________________________________________________________________________
+
+// Compass
 
 void InitDirection(void)
 {
@@ -148,13 +155,39 @@ void GetDirection(void)
 
 } // GetDirection
 
+//_____________________________________________________________________________________
+
+// Barometer
+
 #ifdef BARO_HARD_FILTER
 	#define BaroFilter HardFilter
 #else
 	#define BaroFilter MediumFilter
 #endif // BARO_HARD_FILTER
 
-uint8 ReadValueFromBaro(void)
+void StartBaroADC(void)
+{
+	I2CStart();
+	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto SBerror;
+
+	// access control register, start measurement
+	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto SBerror;
+
+	// select 32kHz input, measure temperature
+	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto SBerror;
+	I2CStop();
+
+	mS[BaroUpdate] = mS[Clock] + BARO_PRESS_TIME;
+
+	_BaroAltitudeValid = true;
+	return;
+SBerror:
+	I2CStop();
+	_BaroAltitudeValid = false; 
+	return;
+} // StartBaroADC
+
+void ReadBaro(void)
 {
 	// Possible I2C protocol error - split read of ADC
 	I2CStart();
@@ -164,64 +197,54 @@ uint8 ReadValueFromBaro(void)
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
 	BaroVal.high8 = RecvI2CByte(I2C_NACK);
 	I2CStop();
-		
+			
 	I2CStart();
 	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto RVerror;
 	if( SendI2CByte(BARO_ADC_LSB) != I2C_ACK ) goto RVerror;
 	I2CStart();	// restart
 	if( SendI2CByte(BARO_I2C_ID+1) != I2C_ACK ) goto RVerror;
 	BaroVal.low8 = RecvI2CByte(I2C_NACK);
-	I2CStop();
+		I2CStop();
 
-	return(I2C_NACK);
+	StartBaroADC(); // overlap next acquisition
+
+	return;
 
 RVerror:
 	I2CStop();
+
 	_BaroAltitudeValid = false; // read error, disable baro
-	#ifdef BARO_RETRY
-	_Hovering = false;	
-	if ( BaroRestarts < 100 )
-	{
-		InitBarometer();
-		_BaroRestart = true;
-		BaroRestarts++;
-	}
-	#endif
-	return(I2C_ACK);
-} // ReadValueFromBaro
+	return;
+} // ReadBaro
 
-uint8 StartBaroADC(uint8 PressOrTemp)
+void GetBaroPressure(void)
 {
-	I2CStart();
-	if( SendI2CByte(BARO_I2C_ID) != I2C_ACK ) goto SBerror;
-
-	// access control register, start measurement
-	if( SendI2CByte(BARO_CTL) != I2C_ACK ) goto SBerror;
-
-	// select 32kHz input, measure temperature
-	if( SendI2CByte(PressOrTemp) != I2C_ACK ) goto SBerror;
-	I2CStop();
-
-	if ( PressOrTemp == BARO_PRESS )
-		mS[BaroUpdate] = mS[Clock] + BARO_PRESS_TIME;
-	else
-		mS[BaroUpdate] = mS[Clock] + BARO_TEMP_TIME;
-
-	return(I2C_NACK);
-SBerror:
-	I2CStop();
-	return(I2C_ACK);
-} // StartBaroADC
+	if ( mS[Clock] > mS[BaroUpdate] )
+	{
+		ReadBaro();
+		CurrentBaroPressure = BaroFilter(CurrentBaroPressure, (int24)BaroVal.u16 - OriginBaroPressure);		
+		BaroSample++;
+		if  (BaroSample == BARO_SAMPLES )
+		{
+			_NewBaroValue = true;
+			BaroSample = 0;
+		}
+	}
+}// GetBaroPressure
 
 // initialize compass sensor
 void InitBarometer(void)
 {
+	int24 BaroAv;
+	const int8 Samples = 16;
+	int8 s;
+
 	// SMD500 9.5mS (T) 34mS (P)  
 	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
 	// Baro is assumed offline unless it responds - no retries!
 	static uint8 r;
 
-	VBaroComp = BaroRestarts = 0;
+	VBaroComp = 0;
 
 	// Determine baro type
 	I2CStart();
@@ -239,16 +262,22 @@ void InitBarometer(void)
 		BaroTemp = BARO_TEMP_SMD500;
 		
 	// read pressure once to get base value
-	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
-	Delay1mS(30);
-	r = ReadValueFromBaro();	
-	DesiredBaroPressure = OriginBaroPressure = BaroVal.u16;
-	
-	// set baro device to start temperature conversion
-	// before first call to ComputeBaroComp
-	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;	
+	StartBaroADC();
+	if ( !_BaroAltitudeValid ) goto BAerror;
 
-	mS[BaroUpdate] = mS[Clock] + BARO_PRESS_TIME;
+	BaroAv = 0;
+
+	for (s = 0; s < Samples; s++)
+	{
+		while ( mS[Clock] < mS[BaroUpdate] );
+		ReadBaro();
+		BaroAv += (int24)BaroVal.u16;	
+	}
+	
+	OriginBaroPressure = BaroAv / (int24)Samples;
+	CurrentBaroPressure = 0;
+	_NewBaroValue = false;
+	BaroSample = 0;
 
 	_BaroAltitudeValid = true;
 
@@ -259,82 +288,81 @@ BAerror:
 	I2CStop();
 } // InitBarometer
 
-void ComputeBaroComp(void)
+void CheckForHover(void)
 {
-	static int16 OldBaroRelPressure, Temp, Delta;
-
-	if( _BaroAltitudeValid )
-		// ~10ms for Temperature and 40ms for Pressure at TimeStep = 2 - UGLY
-		if ( mS[Clock] > mS[BaroUpdate] )
-		{	
-			if ( ReadValueFromBaro() == I2C_NACK) 	
-				if( _ThrottleMoving && !( ( NavState == ReturningHome ) && _RTHAltitudeHold ) )	// while moving throttle stick
-				{
-					DesiredBaroPressure = BaroVal.u16;
-					StartBaroADC(BARO_PRESS);
-					_Hovering = false;
-					VBaroComp = 0;	
-				}
-				else
-				{
-					#ifdef BARO_SCRATCHY_BEEPER
-					Beeper_TOG;
-					#endif
-
-					if ( !_Hovering )
-					{
-						BaroRelPressure = 0;
-						_Hovering = true;
-					}
+	CheckThrottleMoved();
 	
-					Temp = BaroVal.u16 - DesiredBaroPressure;
-					StartBaroADC(BARO_PRESS);
+	if( _ThrottleMoving )	// while moving throttle stick
+	{
+		_Hovering = false;
+		DesiredBaroPressure = CurrentBaroPressure;
+		VBaroComp = BE = BEp = 0;	
+	}
+	else
+		_Hovering = _BaroAltitudeValid;
 
-					OldBaroRelPressure = BaroRelPressure;	// remember old value for delta
-					BaroRelPressure = BaroFilter(BaroRelPressure, Temp );	
-					Delta = BaroRelPressure - OldBaroRelPressure;
-					BaroRelPressure = Limit(BaroRelPressure, -2, 8); // was: +10 and -5
+	if ( _Hovering )
+		BaroAltitudeHold(DesiredBaroPressure);
+
+} // CheckForHover
+
+void BaroAltitudeHold(int16 DesiredBaroPressure)
+{	// decreasing pressure is increasing altitude
+	static int16 Temp, Delta;
+
+	if ( _NewBaroValue )
+	{
+		_NewBaroValue = false;
+
+		#ifdef BARO_SCRATCHY_BEEPER
+		Beeper_TOG;
+		#endif
+	
+		BE = CurrentBaroPressure - DesiredBaroPressure;		
+		BE = Limit(BE, -5, 10); 
+			
+		// strictly this is acting more like an integrator 
+		// bumping VBaroComp up and down proportional to the error?	
+		Temp = BE * (int16)BaroCompKp;
+		if( VBaroComp > Temp )
+			VBaroComp--;
+		else
+			if( VBaroComp < Temp )
+					VBaroComp++; // climb
+	
+	// zzz wrong sense?	if( VBaroComp > Temp )
+	//		VBaroComp--;
+					
+		// Differential	
+		Delta = BE - BEp;	
+		VBaroComp += Limit(Delta, -5, 8) * (int16)BaroCompKd;
 		
-					// strictly this is acting more like an integrator 
-					// bumping VBaroComp up and down proportional to the error?	
-					Temp = BaroRelPressure * (int16)BaroCompKp;
-					if( VBaroComp > Temp )
-						VBaroComp--;
-					else
-						if( VBaroComp < Temp )
-								VBaroComp++; // climb
-
-					if( VBaroComp > Temp )
-						VBaroComp--;
-				
-					// Differential		
-					VBaroComp += Limit(Delta, -5, 8) * (int16)BaroCompKd;
+		VBaroComp = Limit(VBaroComp, -5, 20);
 	
-					VBaroComp = Limit(VBaroComp, -5, 15);
-
-					if ( !( ( NavState == ReturningHome ) && _RTHAltitudeHold ) )
-					{
-						Temp = DesiredThrottle + VBaroComp;
-						HoverThrottle = HardFilter(HoverThrottle, Temp);
-					}
-	
-					#ifdef BARO_SCRATCHY_BEEPER
-					Beeper_TOG;
-					#endif
-			}
+		if ( !(  _RTHAltitudeHold && ( NavState == ReturningHome ) ) )
+		{
+			Temp = DesiredThrottle + VBaroComp;
+			HoverThrottle = HardFilter(HoverThrottle, Temp);
 		}
+	
+		BEp = BE;
+		
+		#ifdef BARO_SCRATCHY_BEEPER
+		Beeper_TOG;
+		#endif
+	}
 
 	#ifdef DEBUG_SENSORS	
 	if( IntegralCount == 0 )
 		if ( _BaroAltitudeValid )
 		{
 			Trace[TVBaroComp] = VBaroComp << 4; // scale for UAVPSet
-			Trace[TBaroRelPressure] = BaroRelPressure << 4;
+			Trace[TBE] = BE << 4;
 		}
 		else	// baro sensor not active
 		{
 			Trace[TVBaroComp] = 0;
-			Trace[TBaroRelPressure] = 0;
+			Trace[TBE] = 0;
 		}
 	#endif
 } // ComputeBaroComp	

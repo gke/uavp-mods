@@ -28,6 +28,7 @@
 void Descend(void);
 void Navigate(int16, int16);
 void DoNavigation(void);
+void CheckThrottleMoved(void);
 void DoFailsafe(void);
 
 // Variables
@@ -54,7 +55,7 @@ void AltitudeHold(int16 DesiredAltitude)
 		else
 		{	
 			DesiredThrottle = HoverThrottle;
-			DesiredBaroPressure = OriginBaroPressure - DesiredAltitude;
+			BaroAltitudeHold(-DesiredAltitude);
 		}	
 	else
 	{
@@ -138,6 +139,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 void DoNavigation(void)
 {
 	if ( _GPSValid && ( NavSensitivity > 20 ))
+	{
 		if ( _CompassValid )
 			switch ( NavState ) {
 			case PIC:
@@ -164,6 +166,7 @@ void DoNavigation(void)
 					AltSum = 0; 
 					NavState = ReturningHome;
 				}
+				CheckForHover();
 				break;
 			case ReturningHome:
 				AltitudeHold(NavRTHAlt * 10L);
@@ -186,7 +189,9 @@ void DoNavigation(void)
 			DesiredRoll = DesiredPitch = DesiredYaw = 0;
 			AltitudeHold(-50); // Compass not responding - land
 		}
-
+	} 
+	else // else no GPS
+		CheckForHover();
 } // DoNavigation
 
 void DoFailsafe(void)
@@ -215,6 +220,26 @@ void DoFailsafe(void)
 			}
 					
 } // DoFailsafe
+
+void CheckThrottleMoved(void)
+{
+	if( mS[Clock] < mS[ThrottleUpdate] )
+		ThrNeutral = DesiredThrottle;
+	else
+	{
+		ThrLow = ThrNeutral - THR_MIDDLE;
+		ThrLow = Max(ThrLow, THR_HOVER);
+		ThrHigh = ThrNeutral + THR_MIDDLE;
+		if ( ( DesiredThrottle <= ThrLow ) || ( DesiredThrottle >= ThrHigh ) )
+		{
+			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE;
+			_ThrottleMoving = true;
+		}
+		else
+			_ThrottleMoving = false;
+	}
+} // CheckThrottleMoved
+
 
 void InitNavigation(void)
 {

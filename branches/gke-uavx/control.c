@@ -406,8 +406,7 @@ void CalcGyroValues(void)
 } // CalcGyroValues
 
 void DoControl(void)
-{
-	CheckThrottleMoved();				
+{				
 	CalcGyroValues();
 	GyroCompensation();	
 	AltitudeDamping();
@@ -468,24 +467,6 @@ void WaitThrottleClosed(void)
 	LEDRed_OFF;
 } // WaitThrottleClosed
 
-void CheckThrottleMoved(void)
-{
-	if( mS[Clock] < mS[ThrottleUpdate] )
-		ThrNeutral = DesiredThrottle;
-	else
-	{
-		ThrLow = ThrNeutral - THR_MIDDLE;
-		ThrLow = Max(ThrLow, THR_HOVER);
-		ThrHigh = ThrNeutral + THR_MIDDLE;
-		if ( ( DesiredThrottle <= ThrLow ) || ( DesiredThrottle >= ThrHigh ) )
-		{
-			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE;
-			_ThrottleMoving = true;
-		}
-		else
-			_ThrottleMoving = false;
-	}
-} // CheckThrottleMoved
 
 void WaitForRxSignal(void)
 {

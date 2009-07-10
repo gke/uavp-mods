@@ -72,11 +72,13 @@ int16	AltSum, AE;
 int16	ThrLow, ThrHigh, ThrNeutral;
 
 // Variables for barometric sensor PD-controller
-int24	DesiredBaroPressure, OriginBaroPressure;
-int16   BaroRelPressure, BaroRelTempCorr;
+int24	OriginBaroPressure;
+int16	DesiredBaroPressure, CurrentBaroPressure;
+int16	BE, BEp;
 i16u	BaroVal;
+int8	BaroSample;
 int16	VBaroComp;
-uint8	BaroType, BaroTemp, BaroRestarts;
+uint8	BaroType, BaroTemp;
 
 uint8	LEDShadow;		// shadow register
 int16	AbsDirection;	// wanted heading (240 = 360 deg)
@@ -291,6 +293,7 @@ void main(void)
 						}
 					break;
 				case InFlight:
+
 					DoNavigation();
 
 					LEDGame();
@@ -310,12 +313,11 @@ void main(void)
 			else
 				DoFailsafe();
 
-				RollRate = PitchRate = 0;
-				GetGyroValues();
-				GetDirection();
-				ComputeBaroComp();
+			RollRate = PitchRate = 0;
+			GetGyroValues();
+			GetDirection();
+			GetBaroPressure();
 	
-
 			while ( mS[Clock] < mS[UpdateTimeout] ) {};
 			mS[UpdateTimeout] = mS[Clock] + TimeSlots;
 

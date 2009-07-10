@@ -58,10 +58,6 @@
 
 // Baro
 
-// Attempts reconnection to the barometer if there is an I2C error
-// I2C comms seems now to be reliable with the BMP085 baro.
-//#define BARO_RETRY
-
 // Increase the severity of the filter on the barometer pressure readings
 // may give better altitude hold ( New=(Old*7+New+4)/8) ).
 #define BARO_HARD_FILTER
@@ -98,8 +94,6 @@
 
 #define MAX_CONTROL_CHANGE 		3L		// new hold point if the roll/pitch stick change more
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
-
-#define TURN_TO_HOME
 
 // Misc
 
@@ -330,7 +324,8 @@ typedef union {
 #define BARO_ID_BMP085		((uint8)(0x55))
 
 #define BARO_TEMP_TIME		10
-#define BARO_PRESS_TIME 	(35L*10)		
+#define BARO_PRESS_TIME 	35
+#define BARO_SAMPLES		16	
 
 // Status 
 
@@ -349,6 +344,7 @@ typedef union {
 #define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
 #define _Failsafe			Flags[12]
 #define _GyrosErected		Flags[13]
+#define _NewBaroValue		Flags[14]
 
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
@@ -496,15 +492,18 @@ extern void InitADC(void);
 extern void Descend(void);
 extern void Navigate(int16, int16);
 extern void DoNavigation(void);
+extern void CheckThrottleMoved(void);
 extern void DoFailsafe(void);
 
 // compass_altimeter.c
 extern void InitDirection(void);
 extern void GetDirection(void);
-extern uint8 ReadValueFromBaro(void);
-extern uint8 StartBaroADC(uint8);
+extern void StartBaroADC(void);
+extern void ReadBaro(void);
+extern void GetBaroPressure(void);
 extern void InitBarometer(void);
-extern void ComputeBaroComp(void);
+extern void CheckForHover(void);
+extern void BaroAltitudeHold(int16);
 
 // control.c
 extern void GyroCompensation(void);
@@ -517,7 +516,6 @@ extern void CalcGyroValues(void);
 extern void DoControl(void);
 
 extern void WaitThrottleClosed(void);
-extern void CheckThrottleMoved(void);
 extern void WaitForRxSignal(void);
 extern void UpdateControls(void);
 
@@ -709,11 +707,13 @@ extern int16 	AltSum, AE;
 extern int16	ThrLow, ThrHigh, ThrNeutral;
 			
 // Variables for barometric sensor PD-controller
-extern int24	DesiredBaroPressure, OriginBaroPressure;
-extern int16	BaroRelPressure, BaroRelTempCorr;
+extern int24	OriginBaroPressure;
+extern int16	DesiredBaroPressure, CurrentBaroPressure;
+extern int16	BE, BEp;
 extern i16u		BaroVal;
+extern int8		BaroSample;
 extern int16	VBaroComp;
-extern uint8	BaroType, BaroTemp, BaroRestarts;
+extern uint8	BaroType, BaroTemp;
 
 extern uint8	MCamRoll,MCamPitch;
 extern int16	Motor[NoOfMotors];

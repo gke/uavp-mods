@@ -363,9 +363,6 @@ CCerror:
 
 void BaroTest(void)
 {
-	uint8 r;
-	uint16 P, T, C;
-
 	TxString("\r\nBarometer test\r\n");
 	if ( !_BaroAltitudeValid ) goto BAerror;
 
@@ -374,20 +371,14 @@ void BaroTest(void)
 	else
 		TxString("Type:\tSMD500\r\n");
 	
-	if( !StartBaroADC(BARO_PRESS) ) goto BAerror;
-	Delay1mS(BARO_PRESS_TIME);
-	r = ReadValueFromBaro();
-	P = BaroVal.u16;
-	TxString("Press: \t");	
-	TxVal32((int32)P, 0, 0);
+	while ( mS[Clock] <= mS[BaroUpdate] );
+	ReadBaro();
+	CurrentBaroPressure = (int24)BaroVal.u16 - OriginBaroPressure;		
+	TxString("Origin: \t");
+	TxVal32((int32)OriginBaroPressure,0,0);
+	TxString("\t Rel.: \t");	
+	TxVal32((int32)CurrentBaroPressure, 0, 0);
 		
-	if( !StartBaroADC(BaroTemp) ) goto BAerror;
-	Delay1mS(BARO_TEMP_TIME);
-	r = ReadValueFromBaro();
-	T = BaroVal.u16;
-	TxString("\tTemp: ");
-	TxVal32((int32)T, 0, 0);	
-
 	TxNextLine();
 
 	return;
