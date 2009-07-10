@@ -231,6 +231,11 @@ void LimitYawSum(void)
 					YE -= CurDeviation;
 	}
 
+	#ifdef YAW_RESET
+	if ( (Sign(YawSum) != Sign(YE)) && (Abs(YawSum) > 0) )
+		YawSum = 0;
+	#endif // YAW_RESET
+
 	YawSum += (int16)YE;
 	YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
 

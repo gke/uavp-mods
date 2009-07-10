@@ -7,6 +7,8 @@
 
 // Gyros
 
+#define YAW_RESET
+
 // Outstanding issue with gyro compensation offset sense yet to be resolved
 #define REVERSE_OFFSET_SIGNS
 
