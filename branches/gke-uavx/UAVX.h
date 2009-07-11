@@ -3,11 +3,13 @@
 // Navigation
 // tune this up and down to see if it has any effect on compass fail
 
+#define EMIT_TONE
+
 // Accelerometer
 
 // Gyros
 
-#define YAW_RESET
+//#define YAW_RESET
 
 // Outstanding issue with gyro compensation offset sense yet to be resolved
 #define REVERSE_OFFSET_SIGNS

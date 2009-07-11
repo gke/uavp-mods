@@ -157,6 +157,9 @@ void DoNavigation(void)
 				}
 				else
 				{	
+					#ifdef EMIT_TONE
+					TxChar(0b01010101);
+					#endif // EMIT_TONE
 					NavState = HoldingStation;
 					Navigate(GPSNorthHold, GPSEastHold);
 				}
