@@ -201,8 +201,7 @@ void ReadParametersEE(void)
 	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
 	CompassOffset = (((COMPASS_OFFSET_DEG - NavMagVar)*MILLIPI)/180L);
 
-	_NegativePPM = (( TxRxType == JRPPM ) ||( TxRxType == JRPCM ) 
-				|| ( TxRxType == JRDM9 ) || ( TxRxType == DX7 ));
+	_NegativePPM = (( TxRxType == JRPPM ) || ( TxRxType == JRDM9 ) || ( TxRxType == DX7AR7000 ));
 
 	PIE1bits.CCP1IE = true;
 

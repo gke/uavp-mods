@@ -646,7 +646,7 @@ enum FlightStates { Starting, Landing, Landed, InFlight};
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
-enum TxRxTypes { Futaba, FutabaDM8, JRPPM, JRPCM, JRDM9, JRDXS12, DX7 };
+enum TxRxTypes { Futaba, FutabaDM8, JRPPM, JRDM9, JRDXS12, DX7AR7000, CustomTxRx };
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBE,
 				TRollRate,TPitchRate,TYE,
@@ -784,7 +784,7 @@ extern int8 TxRxType;			// 37c
 
 extern const rom int8 ComParms[];
 
-extern const rom uint8 Map[DX7+1][CONTROLS];
+extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
 
 #define _EESet1		0		// first set starts at address 0x00
 #define _EESet2		0x40	// second set starts at address 0x40

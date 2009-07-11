@@ -57,7 +57,7 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
 
-const rom uint8 RxChMnem[] = "TAERG67";
+const rom uint8 RxChMnem[] = "TAERG12";
 
 void ShowPrompt(void)
 {
@@ -68,6 +68,7 @@ void ShowPrompt(void)
 void ShowSetup(uint8 h)
 {
 	int8 i;
+	int8 RMap[CONTROLS];
 
 	if( h )
 	{
@@ -112,19 +113,25 @@ void ShowSetup(uint8 h)
 	TxString("Tx/Rx: ");
 	switch ( TxRxType ) {
 	case Futaba: TxString("Futaba {"); break;
-	case FutabaDM8:TxString("Futaba DM8 {"); break; 
+	case FutabaDM8:TxString("Futaba DM8 & AR7000 {"); break; 
 	case JRPPM: TxString("JR PPM {"); break; 
-	case JRPCM: TxString("JR SPCM {"); break; 
-	case JRDM9: TxString("JR DM9 {"); break; 
-	case JRDXS12: TxString("JR DSX12 {"); break; 
-	case DX7: TxString("DX7 & R7000 {"); break;
+	case JRDM9: TxString("JR DM9 & AR7000{"); break; 
+	case JRDXS12: TxString("JR DSX12 & AR7000 {"); break; 
+	case DX7AR7000: TxString("Spektrum DX7 & AR7000 {"); break;
+	case CustomTxRx: TxString("Custom {"); break;
 	}
+
+	for (i = 0; i< CONTROLS; i++) // make reverse map
+		RMap[Map[TxRxType][i]-1] = i+1;
+
 	for ( i = 0; i<CONTROLS; i++)
-		TxChar(RxChMnem[Map[TxRxType][i]-1]);
+		TxChar(RxChMnem[RMap[i]-1]);
+
 	TxString("} connect {");
+
 	for ( i = 0; i<CONTROLS; i+=2)
 	{
-		TxChar(RxChMnem[Map[TxRxType][i]-1]);
+		TxChar(RxChMnem[RMap[i]-1]);
 		TxChar(' ');
 	}
 	TxString("}\r\n");
