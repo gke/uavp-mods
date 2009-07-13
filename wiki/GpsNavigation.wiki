@@ -16,13 +16,13 @@ Navigation uses the Gear (Ch5) and Ch7 inputs. This means that parameters can no
 
 The implementation provides two principal functions:
 
-   * Position Hold: The current position is maintained while neither the pitch nor the roll stick are moved (a threshold of about 3% applies). When either is moved away from the neutral position a new potential hold point is recorded from the GPS.   Ch7 controls the overall sensitivity of position acquisition and hold. Navigation system may be disabled by turning the Ch7 Tx potentiometer to minimum sensitivity (usually Anti CW).   
+   * Position Hold: The current position is maintained while neither the pitch nor the roll stick are moved (a threshold of about 3% applies). When either is moved away from the neutral position a new potential hold point is recorded from the GPS.   Ch7 controls the overall sensitivity of position acquisition and hold. Navigation may be disabled by turning the Ch7 Tx potentiometer to minimum sensitivity (usually Anti CW).   
 
-   * Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will attempt to return to the launch point, or more specifically, the position at which a reliable GPS signal was first acquired prior to launch. 
+   * Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will attempt to return to the launch point (Origin), or more specifically, the position at which a reliable GPS signal was first acquired prior to launch. 
 
 Normally the altitude is controlled directly by the pilot with the assistance of the barometer.  The barometer will attempt to maintain a hover if the throttle stick has not moved for ~3 Sec. 
 
-RTH can optionally use the GPS altitude or the Barometer to return at some desired relative altitude.  It is likely this will not be optional and that automatic altitude hold will be engaged on RTH removing some uncertainty when using RTH as a failsafe aid. 
+RTH can optionally use the GPS altitude or the barometer to return at some desired relative altitude.  It is likely this will not be optional and that automatic altitude hold will be engaged on RTH removing some uncertainty when using RTH as a failsafe aid. 
 
 GPS acquisition is signalled by a solid Blue LED. This may take a few minutes to occur depending on the update rate of your GPS as UAVX requires around 100 valid GPS sentences with a small position error bound.
 
@@ -50,13 +50,13 @@ The UAVX version of UAVPSet can read older parameter files and write them to the
 
 === Stick Based Configuration ===
 
-When the Quadrocopter is disarmed the Tx sticks may be used to access some paramters in the field without the use of a PC.
+When the quadrocopter is disarmed the Tx sticks may be used to access some paramters in the field without the use of a PC.
 
   * Pitch Stick: The "corners" are used with left side being parameter set 1 and right side 2. If the bottom corners are used RTH altitude hold is enabled.  If the top corners are used then the Pilot controls RTH altitude. You should see the Blue LED flash and hear short beeps for the parameter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.  
 
-  * Throttle Stick: Only the bottom corners are used. Bottom left disables Turn to Heading (TTH) and so the Quadrocopter uses a combination of pitch and roll to move towards the launch point or origin; Bottom right enables TTH where the Quadrocopter turns and pitches directly towards the origin.
+  * Throttle Stick: Only the bottom corners are used. Bottom left disables Turn to Heading (TTH) and so the Quadrocopter uses a combination of pitch and roll to move towards the Origin; Bottom right enables TTH where the Quadrocopter turns and pitches directly towards the origin.
 
-TTH is not active within the closing radius of the Origin nor is it active when simply holding a position. The Pilot still has control of a yaw offset and thus can control the direction of camera gaze regardless of whether TTH is active or not although if it is active then there will be a small "resistance" to yaw commands.
+TTH is not active within the closing distance, or radius, of the Origin nor is it active when simply holding a position. The Pilot still has control of a yaw offset and thus can control the direction of camera gaze regardless of whether TTH is active or not although if it is active then there will be a small "resistance" to yaw commands.
 
 === PC/GPS Switching ===
 
