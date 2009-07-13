@@ -28,9 +28,9 @@ GPS acquisition is signalled by a solid Blue LED. This may take a few minutes to
 
 === UAVPset Parameters === 
 
-Several of the navigation parameters are available through the version of UAVPset augmented for use with UAVX. Older uavpV3.15 compatible versions of UAVPSet may be used but the navigation related parameters will not be accessible and all navigation functions will be disabled.
+The new version of UAVPSet modified for use by UAVX MUST be used otherwise several additional parameters associated with Navigation will not be defined leading to possible loss of the quadrocopter. Use of the older incompatible versions of UAVPSet may appear to work but will not have done so.
 
-The parameters are:
+The important parameters are:
 
    * Radius: The closing radius in Metres around the desired GPS position. Outside this radius maximum corrective control is applied. Inside the radius proportionately less control is exerted.
 
