@@ -1,4 +1,4 @@
-Navigation has been implemented using the 18F2620 PIC which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to implement navigation for the 16F876 version of equipped quadrocopter. 
+Navigation has been implemented using the 18F2620 PIC which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to implement navigation for the 16F876 version of of the original quadrocopter. 
 
 For maximum flexibility we have chosen to implement the GPS interface using NMEA sentences. A reference to NMEA is at:
 
@@ -8,7 +8,7 @@ We use the $GPGGA sentence and optionally $RMC and $GSV.
 
 Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. The ETEK and LocoSys GPS units have been used with success.
 
-You require the compass and barometer. The Bosch SMD085 is the recommended barometer. See the hardware specific pages for details.
+You require the compass and barometer. The Bosch SMD085 is now the recommended barometer although the software automatically detects which barometer is being used. See the hardware specific pages for details.
 
 === Functionality ===
 
@@ -16,17 +16,17 @@ Navigation uses the Gear (Ch5) and Ch7 inputs. This means that parameters can no
 
 The implementation provides two principal functions:
 
-   * Position Hold: The current position is maintained while neither the pitch nor the roll stick are moved. When either is moved away from the neutral position a new potential hold point is recorded from the GPS.   Ch7 controls the overall sensitivity of position acquisition and hold. Navigation system may be disabled by turning the Ch7 Tx potentiometer to minimum sensitivity. The GPS derived altitude is not used for position hold.  
+   * Position Hold: The current position is maintained while neither the pitch nor the roll stick are moved. When either is moved away from the neutral position a new potential hold point is recorded from the GPS.   Ch7 controls the overall sensitivity of position acquisition and hold. Navigation system may be disabled by turning the Ch7 Tx potentiometer to minimum sensitivity (usually ACW). The GPS derived altitude is not used for maintaining altitude during position hold.  
 
-   * Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will attempt to return to the launch point, or more specifically, the position at which a reliable GPS signal was first acquired prior to launch.
+   * Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will attempt to return to the launch point, or more specifically, the position at which a reliable GPS signal was first acquired prior to launch. 
 
-Normally the altitude is controlled directly by the pilot with the assistance of the barometer.  RTH can optionally use the GPS altitude to return at some desired relative altitude.  
+Normally the altitude is controlled directly by the pilot with the assistance of the barometer.  RTH can optionally use the GPS altitude or the Barometer to return at some desired relative altitude.  It is likely this will not be optional and that automatic altitude hold will be engaged on RTH. 
 
 GPS acquisition is signalled by a solid Blue LED. This may take a few minutes to occur depending on the update rate of your GPS as UAVX requires around 100 valid GPS sentences with a small position error bound.
 
 === UAVPset Parameters === 
 
-Several of the navigation parameters are available through the UAVX version of UAVPset.  
+Several of the navigation parameters are available through the version of UAVPset augmented for use with UAVX. Older uavpV3.15 compatible versions of UAVPSet may be used but the navigation related parameters will not be accessible and all navigation functions will be disabled.
 
 The parameters are:
 
@@ -36,9 +36,11 @@ The parameters are:
 
    * Wind Compensation: Increases the amount of compensation if the desired position is not being maintained.
 
-   * RTH GPS Altitiude: If selected, the GPS altitude in Metres relative to the launch point to be maintained. There is no pilot throttle control with this function.  
+   * RTH Altitude: The GPS altitude in Metres relative to the launch point to be maintained.   
 
-   * RTH Altitude Proportional & Integral: PID constants for altitude hold.
+   * RTH Altitude Proportional & Integral: PI constants for GPS based altitude hold. Not used if the use of GPS Altitude is disabled. 
+
+   * GPS Altitude: This checkbox enables or disables the use of GPS altitude by the RTH function. If disabled then the Barometer is used.
 
 There are, of course, many other tuning parameters within the code which have not been brought through the UAVPSet interface!
 
@@ -46,7 +48,13 @@ The UAVX version of UAVPSet can read older parameter files and write them to the
 
 === Stick Based Configuration ===
 
-Parameter switching and enabling RTH GPS altitude hold is achieved using the pitch stick while the quadrocopter is disarmed. The corners are used with left being parameter set 1 and right 2. If the bottom corners are used RTH GPS altitude is enabled.  You should see the Blue LED flash and hear short beeps for the parameter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.  
+When the Quadrocopter is disarmed the Tx sticks may be used to access some paramters in the field without the use of a PC.
+
+  *Pitch Stick: The "corners" are used with left being parameter set 1 and right 2. If the bottom corners are used RTH altitude hold is enabled.  If the top corners are used then the Pilot controls RTH altitude. You should see the Blue LED flash and hear short beeps for the parameter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.  
+
+  * Throttle Stick: Only the bottom corners are used. Bottom left disables turn to heading and so the Quadrocopter uses a combination of pitch and roll to move towards the launch point or origin; Bottom right enables turn to heading where the Quadrocopter turns and pitches directly towards the origin.
+
+Turn to heading occurs when the Quadrocopter is more than the closing radius away from the Launch point. In both cases the Pilot still has control of a yaw offset and thus can control the direction of camera gaze.
 
 === PC/GPS Switching ===
 
