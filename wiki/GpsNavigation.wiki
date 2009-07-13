@@ -52,9 +52,9 @@ When the Quadrocopter is disarmed the Tx sticks may be used to access some param
 
   *Pitch Stick: The "corners" are used with left being parameter set 1 and right 2. If the bottom corners are used RTH altitude hold is enabled.  If the top corners are used then the Pilot controls RTH altitude. You should see the Blue LED flash and hear short beeps for the parameter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.  
 
-  * Throttle Stick: Only the bottom corners are used. Bottom left disables turn to heading and so the Quadrocopter uses a combination of pitch and roll to move towards the launch point or origin; Bottom right enables turn to heading where the Quadrocopter turns and pitches directly towards the origin.
+  * Throttle Stick: Only the bottom corners are used. Bottom left disables Turn to Heading and so the Quadrocopter uses a combination of pitch and roll to move towards the launch point or origin; Bottom right enables turn to heading where the Quadrocopter turns and pitches directly towards the origin.
 
-Turn to heading occurs when the Quadrocopter is more than the closing radius away from the Launch point. In both cases the Pilot still has control of a yaw offset and thus can control the direction of camera gaze.
+Turn to heading is not active within the closing radius of the Origin. The Pilot still has control of a yaw offset and thus can control the direction of camera gaze regardless of whether Turn to Heading is active although if it is then it will "resist" the yaw command.
 
 === PC/GPS Switching ===
 
