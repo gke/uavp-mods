@@ -55,7 +55,7 @@
 //#define TRICOPTER
 
 // uncomment for 6 channel recievers
-//#define SIX_CHANNEL_RX 
+//#define RX6CH 
 
 // special mode for sensor data output (with UAVPset)
 //#define DEBUG_SENSORS

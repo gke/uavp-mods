@@ -37,11 +37,11 @@
 
 #define MIN_PPM_SYNC_PAUSE 2500  	// 2500 *2us = 5ms
 
-#ifdef SIX_CHANNEL_RX 
+#ifdef RX6CH 
 #define RC_CONTROLS 5			
 #else
 #define RC_CONTROLS CONTROLS
-#endif
+#endif //RX6CH 
 
 // Prototypes
 
@@ -162,10 +162,10 @@ void high_isr_handler(void)
 				// to be cancelled by noise-generated partially correct frames
 				if ( PPM_Index == RC_CONTROLS )
 				{
-					#ifdef SIX_CHANNEL_RX
+					#ifdef RX6CH
 					PPM[CamTiltC].i16 = RC_NEUTRAL;
 					PPM[NavGainC].i16 = RC_MAXIMUM;
-					#endif // SIX_CHANNEL_RX	  
+					#endif // RX6CH	  
 					_NewValues = RCFrameOK;
 					_Signal = true;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;

@@ -25,12 +25,14 @@ rem Add/Delete required combinations to these sets
 set CLOCK=CLOCK_16MHZ
 set PROC=18F2620
 set DBG=NO_DEBUG DEBUG_SENSORS 
+set RX=RX7CH RX6CH
 set CFG=QUAD TRICOPTER
 
 rem Personal choice
 rem set CLOCK=CLOCK_16MHZ
 rem set PROC=18F2520
 rem set DBG=NO_DEBUG DEBUG_SENSORS
+rem set RX=RX7CH RX6CH
 rem set CFG=QUAD
 
 rem Delete working files
@@ -46,5 +48,5 @@ echo Starting makeall uavp > log.lst
 
 rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
 
-for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%c in (%CFG%) do call makeallhelper.bat %VERSION% %%x %%p %%d  %%c
+for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do call makeallhelper.bat %VERSION% %%x %%p %%d  %%r %%c
 
