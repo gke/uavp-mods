@@ -138,14 +138,14 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void DoNavigation(void)
 {
-	if ( _GPSValid && ( NavSensitivity > 20 ))
+	if ( _GPSValid && ( NavSensitivity > NAV_GAIN_THRESHOLD ))
 	{
 		if ( _CompassValid )
 			switch ( NavState ) {
 			case PIC:
 			case HoldingStation:
-				if ( (Abs(DesiredRoll) > MAX_CONTROL_CHANGE) 
-						|| (Abs(DesiredPitch) > MAX_CONTROL_CHANGE) )
+				if ( (Abs(DesiredRoll - RollTrim) > MAX_CONTROL_CHANGE) 
+						|| (Abs(DesiredPitch - PitchTrim) > MAX_CONTROL_CHANGE) )
 				{
 					NavState = PIC;
 
@@ -158,7 +158,7 @@ void DoNavigation(void)
 				else
 				{	
 					#ifdef EMIT_TONE
-					TxChar(0b01010101);
+					TxChar('H'); // why not H? as the frequency is determined control cycle time
 					#endif // EMIT_TONE
 					NavState = HoldingStation;
 					Navigate(GPSNorthHold, GPSEastHold);

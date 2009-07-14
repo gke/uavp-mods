@@ -5,6 +5,7 @@
 
 #define EMIT_TONE
 
+#define CAPTURE_TRIMS
 // Accelerometer
 
 // Gyros
@@ -53,6 +54,9 @@
 // Camera controlling can be used!
 //#define TRICOPTER
 
+// uncomment for 6 channel recievers
+//#define SIX_CHANNEL_RX 
+
 // special mode for sensor data output (with UAVPset)
 //#define DEBUG_SENSORS
 
@@ -87,6 +91,7 @@
 
 // Navigation
 
+#define	NAV_GAIN_THRESHOLD 		20		// Navigation disabled if Ch7 is less than this
 // reads $GPGGA and $GPRMC sentences - all others discarded
 	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
@@ -250,16 +255,16 @@ typedef union {
 
 // RC
 
-#define RC_MINIMUM	0
-#define RC_MAXIMUM	238
-#define RC_NEUTRAL	((RC_MAXIMUM-RC_MINIMUM+1)/2)
+#define RC_MINIMUM			0
+#define RC_MAXIMUM			238
+#define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
 
-#define RC_THRES_STOP	((5*RC_MAXIMUM+50)/100)  /* % */
-#define RC_THRES_START	((10*RC_MAXIMUM+50)/100) /* % */
+#define RC_THRES_STOP		((15L*RC_MAXIMUM)/100)		
+#define RC_THRES_START		((25L*RC_MAXIMUM)/100)		
 
-#define RC_FRAME_TIMEOUT 25
-#define RC_SIGNAL_TIMEOUT (5*RC_FRAME_TIMEOUT)
-#define RC_THR_MAX 		RC_MAXIMUM
+#define RC_FRAME_TIMEOUT 	25
+#define RC_SIGNAL_TIMEOUT 	(5L*RC_FRAME_TIMEOUT)
+#define RC_THR_MAX 			RC_MAXIMUM
 
 // LEDs
 
@@ -349,6 +354,7 @@ typedef union {
 #define _Failsafe			Flags[12]
 #define _GyrosErected		Flags[13]
 #define _NewBaroValue		Flags[14]
+#define _TrimsCaptured		Flags[15]
 
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
@@ -363,6 +369,7 @@ typedef union {
 #define _TurnToHome			Flags[26]
 #define _Proximity			Flags[27]
 
+#define _ParametersValid	Flags[30]
 #define _GPSTestActive		Flags[31]
 
 // Mask Bits of ConfigParam
@@ -522,6 +529,7 @@ extern void DoControl(void);
 extern void WaitThrottleClosed(void);
 extern void WaitForRxSignal(void);
 extern void UpdateControls(void);
+extern void CaptureTrims(void);
 
 // irq.c
 extern void InitTimersAndInterrupts(void);
@@ -629,8 +637,6 @@ extern void AnalogTest(void);extern void Program_SLA(uint8);
 
 extern void DoLEDs(void);
 
-extern uint16	PauseTime;
-
 // Menu strings
 extern const rom uint8  SerHello[];
 extern const rom uint8  SerSetup[];
@@ -648,7 +654,7 @@ enum FlightStates { Starting, Landing, Landed, InFlight};
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
-enum TxRxTypes { Futaba, FutabaDM8, JRPPM, JRDM9, JRDXS12, DX7AR7000, CustomTxRx };
+enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, DX7AR7000, DX7AR6200, CustomTxRx };
 
 enum TraceTags {TAbsDirection,TVBaroComp,TBE,
 				TRollRate,TPitchRate,TYE,
@@ -671,19 +677,18 @@ extern uint24	mS[CompassUpdate+1];
 
 extern uint8	CurrentParamSet;
 
-extern int16	PPM[CONTROLS];
+extern i16u		PPM[CONTROLS];
 extern int16	RC[CONTROLS];
 extern boolean	RCFrameOK;
 extern int8		PPM_Index;
-extern int24	PrevEdge, CurrEdge;
-extern uint16 	Width, CurrCCPR1;
-
-extern uint16	PauseTime; // for tests
+extern int24	PrevEdge;
+extern int16	PauseTime; // for tests
 
 extern int16	RE, PE, YE;
 extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
+extern int16	RollTrim, PitchTrim;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;

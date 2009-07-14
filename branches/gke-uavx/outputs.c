@@ -164,19 +164,14 @@ void MixAndLimitCam(void)
 	static int16 Cr, Cp;
 
 	// use only roll/pitch angle estimates
-	if( (IntegralCount == 0) && ((CamRollKp != 0) || (CamPitchKp != 0)) )
-	{
-		Cr = RollSum / (int16)CamRollKp;
+	if( CamPitchKp != 0 )
 		Cp = PitchSum / (int16)CamPitchKp;
-	}
 	else
-		Cr = Cp = OUT_MINIMUM;
-
-	Cr += RC_NEUTRAL;	// IK7 now used for GPS sensitivity control
+		Cp = OUT_NEUTRAL;
 		
-	Cp += RC[CamTiltC];		// only Pitch servo is controlled by channel 6
+	Cp += RC[CamTiltC];	
 
-	MCamRoll = Limit(Cr, OUT_MINIMUM, OUT_MAXIMUM);
+	MCamRoll = OUT_NEUTRAL;
 	MCamPitch = Limit(Cp, OUT_MINIMUM, OUT_MAXIMUM);
 
 } // MixAndLimitCam
@@ -241,7 +236,7 @@ void OutSignals(void)
 	
 		DisableInterrupts;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
 		while( !INTCONbits.TMR0IF ) ;	// wait for first overflow
-		INTCONbits.TMR0IF=0;		// quit TMR0 interrupt
+		INTCONbits.TMR0IF=0;			// quit TMR0 interrupt
 	
 		if( _OutToggle )	// driver cam servos only every 2nd pulse
 		{

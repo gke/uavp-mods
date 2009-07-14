@@ -38,6 +38,7 @@ void WaitThrottleClosed(void);
 void CheckThrottleMoved(void);
 void WaitForRxSignal(void);
 void UpdateControls(void);
+void CaptureTrims(void);
 
 void GyroCompensation(void)
 {
@@ -76,15 +77,12 @@ void GyroCompensation(void)
 		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
 	
 		#ifdef DEBUG_SENSORS
-		if( IntegralCount == 0 )
-		{
-			Trace[TAx]= LRAcc;
-			Trace[TAz] = FBAcc;
-			Trace[TAy] = UDAcc;
+		Trace[TAx]= LRAcc;
+		Trace[TAz] = FBAcc;
+		Trace[TAy] = UDAcc;
 
-			Trace[TUDSum] = UDSum;
-			Trace[TVUDComp] = VUDComp;
-		}
+		Trace[TUDSum] = UDSum;
+		Trace[TVUDComp] = VUDComp;
 		#endif
 	
 		// Roll
@@ -418,20 +416,16 @@ void DoControl(void)
 
 	// Roll
 
-	// Differential and Proportional for Roll axis
 	Rl  = SRS16(RE *(int16)RollKp + (REp-RE) * RollKd, 4);
 
-	// Integral part for Roll
 	if( IntegralCount == 0 )
 		Rl += SRS16(RollSum * (int16)RollKi, 8); 
 	Rl -= DesiredRoll;						// subtract stick signal
 
 	// Pitch
 
-	// Differential and Proportional for Pitch
 	Pl  = SRS16(PE *(int16)PitchKp + (PEp-PE) * PitchKd, 4);
 
-	// Integral part for Pitch
 	if( IntegralCount == 0 )
 		Pl += SRS16(PitchSum * (int16)PitchKi, 8);
 
@@ -457,11 +451,13 @@ void WaitThrottleClosed(void)
 {
 	uint24 Timeout;
 	
-	Timeout = mS[Clock] + 500; // mS.
-	while( (RC[ThrottleC] >= RC_THRES_STOP) )
+	Timeout = mS[Clock] + 500; 					// mS.
+	do
+	{
 		if( _NewValues )
 		{
 			UpdateControls();
+			DesiredThrottle = 0; 				// prevent motors from starting
 			OutSignals();
 			if( mS[Clock] > Timeout )
 			{
@@ -469,9 +465,11 @@ void WaitThrottleClosed(void)
 				Timeout = mS[Clock] + 500;
 			}
 		}
+	}
+	while( RC[ThrottleC] >= RC_THRES_STOP );
+
 	LEDRed_OFF;
 } // WaitThrottleClosed
-
 
 void WaitForRxSignal(void)
 {
@@ -505,4 +503,23 @@ void UpdateControls(void)
 		NavSensitivity = RC[NavGainC];
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
 	}
+	else
+		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal ) // does not need to be precise so polling OK
+		{
+			CCP1CONbits.CCP1M0 = _NegativePPM; // Reset in case Tx/Rx combo has changed
+			_Signal = false;
+		}
 } // UpdateControls
+
+void CaptureTrims(void)
+{
+	#ifdef CAPTURE_TRIMS
+	if ( !_TrimsCaptured )
+	{
+		RollTrim = Limit(DesiredRoll, -20, 20);
+		PitchTrim = Limit(DesiredPitch, -20, 20);
+		_TrimsCaptured = true;
+	}
+	#endif // CAPTURE_TRIMS
+} // CaptureTrims
+

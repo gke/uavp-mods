@@ -229,6 +229,9 @@ UAVX ********************************************************************
 
 8.05.2009 UAVX Greg Egan
 - Merged flight and test software for 18F2620 PIC.
+
+13.07.2009 UAVX Greg Egan
+- Installation of Tortoise SVN required for builds.
   
 =========================================================================
  SAFETY FIRST!                              

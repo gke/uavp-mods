@@ -35,7 +35,13 @@
 
 // Interrupt Routine
 
-#define MIN_PPM_SYNC_PAUSE 2500  	/* 2500 *2us = 5ms */
+#define MIN_PPM_SYNC_PAUSE 2500  	// 2500 *2us = 5ms
+
+#ifdef SIX_CHANNEL_RX 
+#define RC_CONTROLS 5			
+#else
+#define RC_CONTROLS CONTROLS
+#endif
 
 // Prototypes
 
@@ -48,7 +54,6 @@ void high_isr_handler(void);
 // Variables
 
 uint8 RxCheckSum;
-
 
 void ReceivingGPSOnly(uint8 r)
 {
@@ -70,15 +75,15 @@ void ReceivingGPSOnly(uint8 r)
 
 void MapRC(void)
 {  // re-maps captured PPM to Rx channel sequence
-	uint8 c;
-	#define RCFilter NoFilter
+	static uint8 c;
 
 	for (c = 0 ; c < CONTROLS ; c++)
-		RC[c] = PPM[Map[TxRxType][c]-1]& 0xff;
+		RC[c] = PPM[Map[TxRxType][c]-1].low8;
 
 	RC[RollC] -= RC_NEUTRAL;
 	RC[PitchC] -= RC_NEUTRAL;
 	RC[YawC] -= RC_NEUTRAL;
+	RC[CamTiltC] -= RC_NEUTRAL;
 
 } // MapRC
 
@@ -92,14 +97,11 @@ void InitTimersAndInterrupts(void)
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 	CCP1CONbits.CCP1M0 = _NegativePPM;
 
-//	OpenTimer2(TIMER_INT_ON&T2_PS_1_16&T2_POST_1_16);		
-//	PR2 = TMR2_5MS;		// set compare reg to 9ms
-
 	for (i = 0; i<= CompassUpdate; i++)
 		mS[i] = 0;
 
 	for (i = 0; i < CONTROLS; i++)
-		PPM[i] = RC[i] = 0;
+		PPM[i].i16 = RC[i] = 0;
 
 	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;
 
@@ -122,31 +124,32 @@ void low_isr_handler(void)
 void high_isr_handler(void)
 {	
 	static uint8 ch;
-	
-	if( PIR1bits.CCP1IF && PIE1bits.CCP1IE ) // An Rx PPM pulse edge has been detected
+	static i16u Width;
+	static int24 CurrEdge;	
+	if( PIR1bits.CCP1IF ) 						// An Rx PPM pulse edge has been detected
 	{
-		CurrCCPR1 = CCPR1;
-		if ( CurrCCPR1 < PrevEdge )
-			PrevEdge -= 0xffff;	// Deal with wraparound
+		CurrEdge = CCPR1;
+		if ( CurrEdge < PrevEdge )
+			PrevEdge -= (int24)0x00ffff;		// Deal with wraparound
 
-		Width = CurrCCPR1 - PrevEdge;
-		PrevEdge = CurrCCPR1;		
+		Width.i16 = (int16)(CurrEdge - PrevEdge);
+		PrevEdge = CurrEdge;		
 
-		if ( Width > MIN_PPM_SYNC_PAUSE ) 		// A pause in 2us ticks > 5ms 
+		if ( Width.i16 > MIN_PPM_SYNC_PAUSE ) 	// A pause in 2us ticks > 5ms 
 		{
 			PPM_Index = 0;						// Sync pulse detected - next CH is CH1
 			RCFrameOK = true;
-			PauseTime = Width;
+			PauseTime = Width.i16;
 		}
 		else // An actual channel -- Record the variable part of the PWM time 
-			if (PPM_Index < CONTROLS)
+			if (PPM_Index < RC_CONTROLS)
 			{	
-				Width >>= 1; 					// Width in 4us ticks.
+				Width.i16 >>= 1; 				// Width in 4us ticks.
 	
-				if ( (Width & 0xff00) == 0x0100 ) 	// Check pulse is 1.024 to 2.048mS
+				if ( Width.high8 == 1 ) 		// Check pulse is 1.024 to 2.048mS
 				{
-					PPM[PPM_Index] = Width;
 					_NewValues = false; 		// Strictly after PPM_Index == 0
+					PPM[PPM_Index].i16 = Width.i16;	
 				}	
 				else
 				{
@@ -157,8 +160,12 @@ void high_isr_handler(void)
 				PPM_Index++;
 				// MUST demand rock solid RC frames for autonomous functions not
 				// to be cancelled by noise-generated partially correct frames
-				if ( PPM_Index == CONTROLS )
-				{	  
+				if ( PPM_Index == RC_CONTROLS )
+				{
+					#ifdef SIX_CHANNEL_RX
+					PPM[CamTiltC].i16 = RC_NEUTRAL;
+					PPM[NavGainC].i16 = RC_MAXIMUM;
+					#endif // SIX_CHANNEL_RX	  
 					_NewValues = RCFrameOK;
 					_Signal = true;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
@@ -172,7 +179,7 @@ void high_isr_handler(void)
 		PIR1bits.CCP1IF = false;
 	}	
 
-	if (PIR1bits.RCIF && PIE1bits.RCIE)	// GPS and commands
+	if ( PIR1bits.RCIF && PIE1bits.RCIE)	// RCIE enabled for GPS
 	{
 		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
@@ -185,17 +192,12 @@ void high_isr_handler(void)
 		PIR1bits.RCIF = false;
 	}
 
-	if ( INTCONbits.T0IF && INTCONbits.T0IE )
+	if ( INTCONbits.T0IF )
 	{ 
 		mS[Clock]++;
-		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal )
-		{
-			CCP1CONbits.CCP1M0 = _NegativePPM; // Reset in case Tx/Rx combo has changed
-			_Signal = false;
-		}	
 		INTCONbits.TMR0IF = false;	
 	}
- 	
+	
 } // high_isr_handler
 	
 #pragma code high_isr = 0x08

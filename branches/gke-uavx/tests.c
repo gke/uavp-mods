@@ -124,7 +124,7 @@ void ReceiverTest(void)
 	{
 		TxChar(s+'1');
 		TxString(":\t 0x");
-		v = PPM[s];
+		v = PPM[s].i16;
 		TxValH16(v);
 		TxChar(HT);
 		if ( ( s > 0 ) && ( s < 4 ))	
@@ -525,7 +525,7 @@ void AnalogTest(void)
 	//TxVal32(ADCPitchChan, 0, ' ');
 	TxString("Pitch:\t");		
 	TxVal32(v, 3, 'V');
-if ( GyroType == IDG300 )
+	if ( GyroType == IDG300 )
 	{
 		if ( ( v < 750 ) || ( v > 1750 ) ) 
 			TxString(" gyro NC or fault?");

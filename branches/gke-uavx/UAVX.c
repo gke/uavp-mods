@@ -30,20 +30,17 @@
 
 // Global Variables
 
-
-uint16	PauseTime; 					// for tests
-
 #pragma udata clocks
 uint24	mS[CompassUpdate+1];
 #pragma udata
 
 #pragma udata isrvars
-int16	PPM[CONTROLS];
+i16u	PPM[CONTROLS];
 int16 	RC[CONTROLS];
 boolean	RCFrameOK;
 int8	PPM_Index;
-int24	PrevEdge, CurrEdge;
-uint16 	Width, CurrCCPR1;
+int24	PrevEdge;
+int16	PauseTime; 
 #pragma udata
 
 uint8	State;
@@ -54,6 +51,7 @@ int16	RE, PE, YE;					// gyro rate error
 int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollRate, PitchRate, YawRate;
+int16	RollTrim, PitchTrim;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
@@ -160,24 +158,27 @@ const rom int8	ComParms[]={
 
 const rom uint8 Map[CustomTxRx+1][CONTROLS]=
 	{
-		{ 3,1,2,4,5,6,7 }, 	// Futaba Traditional
+		{ 3,1,2,4,5,6,7 }, 	// Futaba Ch3 Throttle
+		{ 2,1,4,3,5,6,7 },	// Futaba Ch2 Throttle
 		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8
-		{ 1,2,3,4,5,6,7 },	// JR X3810-XP8103/PPM
+		{ 1,2,3,4,5,6,7 },	// JR XP8103/PPM
 		{ 7,1,4,6,3,5,2 },	// JR 9XII Spektrum DM9 ?
-		{ 6,1,4,7,3,2,5 },	// JR DXS12 ?
+		{ 6,1,4,7,3,2,5 },	// JR DXS12 
 		{ 6,1,4,7,3,2,5 },	// Spektrum DX7/AR7000
-	//	{ 5,1,4,6,3,2,7 },	// Spektrum DX7/AR6200
+		{ 5,1,4,6,3,2,7 },	// Spektrum DX7/AR6200
 //#include "custom.h"
 		{ 6,1,4,7,3,2,5 } // custom Tx/Rx combination
 	};
 
 /*
-Futaba Traditional
+Futaba Ch3 Throttle
+Futaba Ch2 Throttle
 Futaba 9C DM8/AR7000
-JR X3810-XP8103/PPM
-JR 9XII  DM9/AR7000
+JR XP8103/PPM
+JR 9XII DM9/AR7000
 JR DSX12/AR7000
 Spektrum DX7/AR7000
+Spektrum DX7/AR6200
 Custom
 */
 
@@ -198,9 +199,11 @@ void main(void)
 
 	CurrentParamSet = 1;
 	ReadParametersEE();
-
+	
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
+
+	_ParametersValid = true;	// assume parameters have been written once?
 	
 	LEDShadow = 0;
     ALL_LEDS_OFF;
@@ -209,7 +212,7 @@ void main(void)
 
 	InitArrays();
 	ThrNeutral = ThrLow = ThrHigh = MAXINT16;	
-	RC[ThrottleC] = DesiredThrottle = RC[RTHC] = RC[CamTiltC] = RC[NavGainC] = OUT_MINIMUM;
+	RC[ThrottleC] = DesiredThrottle = RC[RTHC] = RC[CamTiltC] = RC[NavGainC] = 0;
 
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	INTCONbits.TMR0IE = true; 
@@ -230,7 +233,7 @@ void main(void)
 
 		if ( !_Signal )
 		{
-			RC[ThrottleC] = RC[RTHC] = DesiredThrottle = OUT_MINIMUM;
+			RC[ThrottleC] = RC[RTHC] = DesiredThrottle = 0;
 			Beeper_OFF;
 		}
 
@@ -245,6 +248,8 @@ void main(void)
 		WaitThrottleClosed();		
 		DesiredThrottle = 0;
 
+		_TrimsCaptured = false;
+		RollTrim = PitchTrim = 0;
 		_Failsafe = _LostModel = false;
 		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT;
 		mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT;
@@ -252,15 +257,16 @@ void main(void)
 		State = Starting;
 		mS[UpdateTimeout] = mS[Clock] + TimeSlots;
 
-		while ( Armed  )
+		while ( Armed && _ParametersValid )
 		{	
 			ReceivingGPSOnly(true); // no Command processing while the Quadrocopter is armed
 
 			UpdateGPS();
+			UpdateControls();
 
 			if ( _Signal && !_Failsafe )
 			{
-				UpdateControls();
+				CaptureTrims();
 
 				switch ( State  ) {
 				case Starting:

@@ -140,16 +140,14 @@ void GetDirection(void)
 								* (int16)CompassKp, 8);
 		}
 		#ifdef DEBUG_SENSORS
-		if( IntegralCount == 0 )
-			Trace[TAbsDirection] = DirVal * 4; //AbsDirection; // scale for UAVPSet
+		Trace[TAbsDirection] = DirVal * 4; //AbsDirection; // scale for UAVPSet
 		#endif					
 	}
 	#ifdef DEBUG_SENSORS
 	else	// no new value received
 	{
 		Heading = 0;
-		if( IntegralCount == 0 )
-			Trace[TAbsDirection] = 0;
+		Trace[TAbsDirection] = 0;
 	}
 	#endif
 
@@ -353,17 +351,8 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 	}
 
 	#ifdef DEBUG_SENSORS	
-	if( IntegralCount == 0 )
-		if ( _BaroAltitudeValid )
-		{
-			Trace[TVBaroComp] = VBaroComp << 4; // scale for UAVPSet
-			Trace[TBE] = BE << 4;
-		}
-		else	// baro sensor not active
-		{
-			Trace[TVBaroComp] = 0;
-			Trace[TBE] = 0;
-		}
+	Trace[TVBaroComp] = VBaroComp << 4; // scale for UAVPSet
+	Trace[TBE] = BE << 4;
 	#endif
 } // ComputeBaroComp	
 

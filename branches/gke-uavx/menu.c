@@ -112,12 +112,14 @@ void ShowSetup(uint8 h)
 
 	TxString("Tx/Rx: ");
 	switch ( TxRxType ) {
-	case Futaba: TxString("Futaba {"); break;
+	case FutabaCh3: TxString("Futaba Ch3 {"); break;
+	case FutabaCh2: TxString("Futaba Ch2 {"); break;
 	case FutabaDM8:TxString("Futaba DM8 & AR7000 {"); break; 
 	case JRPPM: TxString("JR PPM {"); break; 
 	case JRDM9: TxString("JR DM9 & AR7000{"); break; 
 	case JRDXS12: TxString("JR DSX12 & AR7000 {"); break; 
 	case DX7AR7000: TxString("Spektrum DX7 & AR7000 {"); break;
+	case DX7AR6200: TxString("Spektrum DX7 & AR6200 {"); break;
 	case CustomTxRx: TxString("Custom {"); break;
 	}
 
@@ -213,6 +215,12 @@ void ProcessCommand(void)
 					LEDBlue_ON;
 					TxString("\r\nRegister ");
 					param = (uint16)(RxNumU()-1);
+					// Attempts to block use of old versions of UAVPSet not compatible with UAVX
+					if ( param < (&LastProgReg - &FirstProgReg) )
+						_ParametersValid = false;
+					else
+						if ( param == (&LastProgReg - &FirstProgReg) )
+							_ParametersValid = true; 	// ALL parameters must be written 
 					TxString(" = ");
 					d = RxNumS();
 					if ( param < _EESet2 )
