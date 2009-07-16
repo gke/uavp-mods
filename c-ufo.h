@@ -142,7 +142,7 @@
 #define DEBUG
 #endif
 
-#define Version	"3.15m3_18f"
+#include "UAVPRevision.h"
 
 // ==============================================
 // == Additional declarations etc for C18 port

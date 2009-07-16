@@ -152,12 +152,21 @@ void InitDirection(void)
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
+	Delay1mS(1);
+
 	I2CStart(); // save operation mode in EEPROM
 	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
 	if( SendI2CByte('L')  != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(50);
+	Delay1mS(1);
+
+	I2CStart(); // Do Bridge Offset Set/Reset now
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+	Delay1mS(7);
 
 	// use default heading mode (1/10th degrees)
 
@@ -180,9 +189,8 @@ void GetDirection(void)
 	if( _UseCompass  ) // continuous mode but Compass only updates avery 50mS
 	{
 		// set Compass device to Compass mode 
-		I2CStart();
-		r = SendI2CByte(COMPASS_I2C_ID+1); // no check
-		Compass = ((uint16)RecvI2CByte(I2C_ACK)*256) | RecvI2CByte(I2C_NACK);
+		I2CStart();		
+		Compass = (uint16)RecvI2CByte(I2C_ACK)*256 | RecvI2CByte(I2C_NACK);
 		I2CStop();
 	
 		// DirVal has 1/10th degrees
