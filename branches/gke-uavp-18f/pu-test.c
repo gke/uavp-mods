@@ -323,6 +323,13 @@ void CalibrateCompass(void)
 	TxString("\r\nCalib. compass. Press any key to cont.\r\n");
 
 	while( !RxChar() );
+
+	I2CStart(); // Do Bridge Offset Set/Reset now
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
+	I2CStop();
+
+	Delay1mS(7);
 	
 	// set Compass device to Calibration mode 
 	I2CStart();

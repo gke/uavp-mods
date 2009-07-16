@@ -36,7 +36,7 @@ set CFG=QUAD TRICOPTER
 
 rem Personal choice
 set CLOCK=CLOCK_16MHZ
-set PROC=18F2520
+set PROC=18F2620
 set GYRO=OPT_IDG OPT_ADXRS300
 set ESC=ESC_PPM
 set DBG=NO_DEBUG DEBUG_SENSORS
@@ -47,6 +47,9 @@ rem Delete working files
 call makeclean.bat
 echo Starting makeall uavp > gen.lst
 echo Starting makeall uavp > log.lst
+
+rem Requires Tortoise SVN 
+call makerev.bat
 
 rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
 
