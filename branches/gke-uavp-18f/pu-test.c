@@ -325,8 +325,8 @@ void CalibrateCompass(void)
 	while( !RxChar() );
 
 	I2CStart(); // Do Bridge Offset Set/Reset now
-	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CTerror;
-	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
+	if( SendI2CByte(COMPASS_I2C_ID) != I2C_ACK ) goto CCerror;
+	if( SendI2CByte('O')  != I2C_ACK ) goto CCerror;
 	I2CStop();
 
 	Delay1mS(7);
