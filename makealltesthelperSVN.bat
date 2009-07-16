@@ -6,12 +6,12 @@ set PIC=18F2520
 rem Helper script for makeall.bat
 rem =======================================================
 rem parameters passed are:
-set 	VERSION=%1
-set	CLOCK=%2
-set	PROC=%3
-set 	GYRO=%4
-set 	ESC=%5
-set 	RX=%6
+
+set	CLOCK=%1
+set	PROC=%2
+set 	GYRO=%3
+set 	ESC=%4
+set 	RX=%5
 
 set CSRC=adc irq lisl prog pu-test sensor serial menu-test utils
 set ASRC=bootl18f
@@ -64,19 +64,19 @@ for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD% -D
 
 for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVPTest-V%VERSION%$WCREV$gke-%PROC%%X%-%T%%G%%R%%E%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVPTest-V3.15.$WCREV$gke-%PROC%%X%-%T%%G%%R%%E%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - UAVPTest-V%VERSION%$WCREV$gke-%PROC%%X%-%D%%T%%G%%R%%E%.hex
-echo compiled - UAVPTest-V%VERSION%$WCREV$gke-%PROC%%X%-%D%%T%%G%%R%%E%.hex >> gen.lst
+echo compiled - UAVPTest-V3.15.$WCREV$gke-%PROC%%X%-%D%%T%%G%%R%%E%.hex
+echo compiled - UAVPTest-V3.15.$WCREV$gke-%PROC%%X%-%D%%T%%G%%R%%E%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - UAVPTest-V%VERSION%$WCREV$gke-%PROC%%X%-%T%%G%%R%%E%.hex
-echo failed - UAVPTest-V%VERSION%$WCREV$gke-%PROC%%X%-%T%%G%%R%%E%.hex >> gen.lst
+echo failed - UAVPTest-V3.15.$WCREV$gke-%PROC%%X%-%T%%G%%R%%E%.hex
+echo failed - UAVPTest-V3.15.$WCREV$gke-%PROC%%X%-%T%%G%%R%%E%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH

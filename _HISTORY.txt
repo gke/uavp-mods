@@ -224,6 +224,10 @@ First public released version.
 
   DEBUG_Motors removed.
 
+16.07.2009 v3.15.xxxgke Greg Egan
+- Corrected compass bridge offset update bug.
+  SVN revision numbers in filenames. Requires Tortoise SVN.
+
 ==============================================
 = Transferring firmware to the PIC           =
 ==============================================

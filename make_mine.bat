@@ -51,9 +51,9 @@ echo Starting makeall uavp > log.lst
 rem Requires Tortoise SVN 
 call makerev.bat
 
-rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
+rem Parameters for makeallhelper.bat are BARO GYRO ESC DBG RX
 
-for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do call makeallhelper.bat %VERSION% %%x %%p %%g %%e %%d %%r %%c
+for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do call makeallhelper.bat %%x %%p %%g %%e %%d %%r %%c
 
 set RX=RX_DEFAULT RX_PPM
 
@@ -62,9 +62,9 @@ call makeclean.bat
 echo Starting makeall uavptest > gen.lst
 echo Starting makeall uavptest > log.lst
 
-rem Parameters for makealltesthelper.bat are VERSION BARO GYRO ESC DBG RX
+rem Parameters for makealltesthelper.bat are BARO GYRO ESC DBG RX
 
-for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%r in (%RX%) do call makealltesthelper.bat %VERSION% %%x %%p %%g %%e %%r
+for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%g in (%GYRO%) do for %%e in (%ESC%) do for %%r in (%RX%) do call makealltesthelper.bat  %%x %%p %%g %%e %%r
 
 
 

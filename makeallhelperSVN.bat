@@ -6,14 +6,13 @@ rem Helper script for makeall.bat
 rem =======================================================
 rem parameters passed are:
 
-set	VERSION=%1
-set	CLOCK=%2
-set 	PROC=%3
-set 	GYRO=%4
-set 	ESC=%5
-set 	DBG=%6
-set 	RX=%7
-set 	CFG=%8
+set	CLOCK=%1
+set 	PROC=%2
+set 	GYRO=%3
+set 	ESC=%4
+set 	DBG=%5
+set 	RX=%6
+set 	CFG=%7
 
 set CSRC=accel adc c-ufo irq lisl menu pid prog sensor serial utils outputs
 set ASRC=bootl18f
