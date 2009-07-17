@@ -24,7 +24,7 @@ Normally the altitude is controlled directly by the pilot with the assistance of
 
 RTH can optionally use the GPS altitude or the barometer to return at some desired relative altitude.  It is likely this will not be optional and that automatic altitude hold will be engaged on RTH removing some uncertainty when using RTH as a failsafe aid. 
 
-During GPS acquisition there will be a flashing Blue LED and a solid Red LED. Once the GPS initial location is determined the Red LED will go out and be replaced by a solid Green LED. This may take a few minutes to occur depending on the update rate of your GPS as UAVX requires around 100 valid GPS sentences with a small position error bound.
+During GPS acquisition there will be a flashing Blue LED and a solid Red LED. Once the GPS initial location is determined the Red LED will go out and be replaced by a solid Green LED. This may take a few minutes to occur depending on the update rate of your GPS as UAVX requires around 100 valid GPS sentences with a small position error bound. The rate at which the Blue LED flashes depends on the GPS unit's update rate.
 
 === UAVPset Parameters === 
 
