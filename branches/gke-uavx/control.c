@@ -76,15 +76,6 @@ void GyroCompensation(void)
 
 		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
 	
-		#ifdef DEBUG_SENSORS
-		Trace[TAx]= LRAcc;
-		Trace[TAz] = FBAcc;
-		Trace[TAy] = UDAcc;
-
-		Trace[TUDSum] = UDSum;
-		Trace[TVUDComp] = VUDComp;
-		#endif
-	
 		// Roll
 
 		// static compensation due to Gravity
@@ -118,6 +109,13 @@ void GyroCompensation(void)
 		FBIntKorr = Limit(FBIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 
 		#ifdef DEBUG_SENSORS
+		Trace[TAx]= LRAcc;
+		Trace[TAz] = FBAcc;
+		Trace[TAy] = UDAcc;
+
+		Trace[TUDSum] = UDSum;
+		Trace[TVUDComp] = VUDComp;
+
 		Trace[TLRAcc] = LRAcc;
 		Trace[TLRGrav] = LRGrav;
 		Trace[TLRDyn] = LRDyn;
@@ -130,17 +128,8 @@ void GyroCompensation(void)
 		#endif // DEBUG_SENSORS	
 	}	
 	else
-	{
-		VUDComp = 0;
-		#ifdef DEBUG_SENSORS
-		Trace[TAx] = 0;
-		Trace[TAz] = 0;
-		Trace[TAy] = 0;
+		LRIntKorr = FBIntKorr = UDAcc = 0;
 
-		Trace[TUDSum] = 0;
-		Trace[TVUDComp] = 0;
-		#endif
-	}
 } // GyroCompensation
 
 void AltitudeDamping(void)
@@ -185,7 +174,7 @@ void AltitudeDamping(void)
 
 void LimitRollSum(void)
 {
-	RollSum += RollRate;
+	RollSum += SRS16(RollRate, 1);	// use 9 bit res. for I controller
 
 	if( IntegralCount == 0 )
 	{
@@ -198,7 +187,7 @@ void LimitRollSum(void)
 
 void LimitPitchSum(void)
 {
-	PitchSum += PitchRate;
+	PitchSum += SRS16(PitchRate, 1);// use 9 bit res. for I controller
 
 	if( IntegralCount == 0 )
 	{
@@ -212,7 +201,7 @@ void LimitYawSum(void)
 {
 	static int16 Temp;
 
-	YE += DesiredYaw;						// add the yaw stick value
+	YE += DesiredYaw;				// add the yaw stick value
 
 	if ( _CompassValid )
 	{
@@ -255,8 +244,6 @@ void GetGyroValues(void)
 		PitchRate += (int16)ADC(NonIDGADCPitchChan, ADCVREF5V);
 	}
 } // GetGyroValues
-
-#ifdef NEW_ERECT_GYROS
 
 void ErectGyros(void)
 {
@@ -301,9 +288,6 @@ void ErectGyros(void)
 
 } // ErectGyros
 
-#endif // NEW_ERECT_GYROS
-
-// Calc the gyro values from added RollRate and PitchRate
 void CalcGyroValues(void)
 {
 	static int16 Temp;
@@ -311,6 +295,7 @@ void CalcGyroValues(void)
 	// RollRate & Pitchsamples hold the sum of 2 consecutive conversions
 	// Approximately 4 bits of precision are discarded in this and related 
 	// calculations presumably because of the range of the 16 bit arithmetic.
+	// The upside if any is reduction in ADC noise!
 
 	if ( GyroType == ADXRS150 )
 	{
@@ -346,60 +331,47 @@ void CalcGyroValues(void)
 	else
 	{
 		// standard flight mode
+		RollRate -= GyroMidRoll;
+		PitchRate -= GyroMidPitch;
 		if ( GyroType == IDG300 )
-		{
-			RollRate = -RollRate + GyroMidRoll ;
-			PitchRate = PitchRate - GyroMidPitch;
-		}
-		else
-		{
-			RollRate =  RollRate - GyroMidRoll;
-			PitchRate =  PitchRate - GyroMidPitch;
-		}
+			RollRate = -RollRate;
 
-		// calc Cross flying mode
-		if( FlyCrossMode )
+		if( FlyXMode )
 		{
-			// Real Roll = 0.707 * (P + R)
+			// "Real" Roll = 0.707 * (P + R)
 			//      Pitch = 0.707 * (P - R)
-			// the constant factor 0.667 is used instead
 			Temp = RollRate + PitchRate;	
 			PitchRate -= RollRate;	
-			RollRate = (Temp * 2)/3;
-			PitchRate = (PitchRate * 2)/3; 	// 7/10 with int24
+			RollRate = (Temp * 7)/10;
+			PitchRate = (PitchRate * 7)/10; 
 		}
+	
+		// Roll
+		RE = SRS16(RollRate, 2); 			// use 8 bit res. for PD controller			
+		LimitRollSum();
+
+		// Pitch
+		PE = SRS16(PitchRate, 2);	
+		LimitPitchSum();	
+
+		// Yaw is sampled only once every frame, 8 bit A/D resolution
+		YawRate = ADC(ADCYawChan, ADCVREF5V) >> 2;
+
+		#ifdef NEW_ERECT_GYROS
+		if (( CurrentParamSet == 1 ) && ( GyroMidYaw == 0 ))
+			GyroMidYaw = YawRate;
+		#else
+		if( GyroMidYaw == 0 )
+			GyroMidYaw = YawRate;
+		#endif // !NEW_ERECT_GYROS
+
+		YawRate -= GyroMidYaw;
+		YE = YawRate;
+		LimitYawSum();
 
 		#ifdef DEBUG_SENSORS
 		Trace[TRollRate] = RollRate;
 		Trace[TPitchRate] = PitchRate;
-		#endif
-	
-		// Roll
-		RE = SRS16(RollRate, 2); 			// use 8 bit res. for PD controller
-
-		RollRate = SRS16(RollRate, 1);		// use 9 bit res. for I controller	
-		LimitRollSum();
-
-		// Pitch
-		PE = SRS16(PitchRate, 2);
-
-		PitchRate = SRS16(PitchRate, 1); 	// use 9 bit res. for I controller	
-		LimitPitchSum();					// for pitch integration
-
-		// Yaw is sampled only once every frame, 8 bit A/D resolution
-		YE = ADC(ADCYawChan, ADCVREF5V) >> 2;
-
-		#ifndef NEW_ERECT_GYROS
-		if( GyroMidYaw == 0 )
-			GyroMidYaw = YE;
-		#endif // !NEW_ERECT_GYROS
-
-		YE -= GyroMidYaw;
-		YawRate = YE;
-
-		LimitYawSum();
-
-		#ifdef DEBUG_SENSORS
 		Trace[TYE] = YE;
 		Trace[TRollSum] = RollSum;
 		Trace[TPitchSum] = PitchSum;
@@ -415,31 +387,24 @@ void DoControl(void)
 	AltitudeDamping();
 
 	// Roll
-
 	Rl  = SRS16(RE *(int16)RollKp + (REp-RE) * RollKd, 4);
 
 	if( IntegralCount == 0 )
 		Rl += SRS16(RollSum * (int16)RollKi, 8); 
-	Rl -= DesiredRoll;						// subtract stick signal
+	Rl -= DesiredRoll;
 
 	// Pitch
-
 	Pl  = SRS16(PE *(int16)PitchKp + (PEp-PE) * PitchKd, 4);
 
 	if( IntegralCount == 0 )
 		Pl += SRS16(PitchSum * (int16)PitchKi, 8);
 
-	Pl -= DesiredPitch;						// subtract stick signal
+	Pl -= DesiredPitch;
 
 	// Yaw
-
-	// the yaw stick signal is already added in LimitYawSum() !
-	//	YE += IYaw;
-
-	// Differential and Proportional for Yaw
 	Yl  = SRS16(YE *(int16)YawKp + (YEp-YE) * YawKd, 4);
 	Yl += SRS16(YawSum * (int16)YawKi, 8);
-	Yl = Limit(Yl, -YawLimit, YawLimit);	// effective slew limit
+	Yl = Limit(Yl, -YawLimit, YawLimit);		// effective slew limit
 
 	REp = RE;
 	PEp = PE;

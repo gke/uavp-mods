@@ -207,9 +207,7 @@ void GetNeutralAccelerations(void)
 
 	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
-	Rp = 0;
-	Pp = 0;
-	Yp = 0;
+	Rp = Pp = Yp = 0;
 	for( i=0; i < 16; i++)
 	{
 		while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == 0 );

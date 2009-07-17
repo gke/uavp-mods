@@ -70,7 +70,7 @@ void DoMix(int16 CurrThrottle)
 	#endif // !TRICOPTER
 
 	#ifndef TRICOPTER
-	if( FlyCrossMode )
+	if( FlyXMode )
 	{	// "Cross" Mode
 		Motor[Left] +=   Pl - Rl - Yl;
 		Motor[Right] += -Pl + Rl - Yl;

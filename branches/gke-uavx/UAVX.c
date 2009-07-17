@@ -278,8 +278,13 @@ void main(void)
 					InitNavigation();
 
 					#ifdef NEW_ERECT_GYROS
-					ErectGyros();
-					IntegralCount = 0;
+					if ( CurrentParamSet == 2 )
+					{
+						ErectGyros();
+						IntegralCount = 0;
+					}
+					else
+						IntegralCount = 16;
 					#else
 					IntegralCount = 16; // erect gyros - old style
 					#endif

@@ -6,10 +6,12 @@
 #define EMIT_TONE
 
 #define CAPTURE_TRIMS
+
 // Accelerometer
 
 // Gyros
 
+#define NEW_ERECT_GYROS
 //#define YAW_RESET
 
 // Outstanding issue with gyro compensation offset sense yet to be resolved
@@ -373,7 +375,7 @@ typedef union {
 #define _GPSTestActive		Flags[31]
 
 // Mask Bits of ConfigParam
-#define FlyCrossMode 	IsSet(ConfigParam,0)
+#define FlyXMode 	IsSet(ConfigParam,0)
 //#define FutabaMode		IsSet(ConfigParam,1)
 #define TxMode2			IsSet(ConfigParam,2)
 #define RxPPM			IsSet(ConfigParam,3)
