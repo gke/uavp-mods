@@ -12,7 +12,7 @@ You require the compass and barometer. The Bosch SMD085 is now the recommended b
 
 === Functionality ===
 
-Navigation uses the Gear (Ch5) and Ch7 inputs. This means that parameters can no longer be changed in flight using Ch5, and roll trim for any servo driven camera is no longer available. Signals for roll and trim stabilisation are still generated. Ch6 is still available for camera pitch trim.
+Navigation uses the Gear (Ch5) and Ch7 inputs. This means that parameters can no longer be changed in flight using Ch5, and roll trim for any servo driven camera is no longer available. Signals for roll and tilt stabilisation are still generated. Ch6 is still available for camera tilt trim. 
 
 The implementation provides two principal functions:
 
