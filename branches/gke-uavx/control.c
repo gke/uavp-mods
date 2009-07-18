@@ -85,7 +85,7 @@ void GyroCompensation(void)
 		#ifdef DISABLE_DYNAMIC_MASS_COMP_ROLL
 		LRDyn = 0;
 		#else
-		LRDyn = RollRate * 2;	
+		LRDyn = RollRate;	
 		#endif
 
 		// correct DC level of the integral
@@ -101,7 +101,7 @@ void GyroCompensation(void)
 		#ifdef DISABLE_DYNAMIC_MASS_COMP_PITCH
 		FBDyn = 0;
 		#else
-		FBDyn = PitchRate * 2;
+		FBDyn = PitchRate;
 		#endif
 
 		// correct DC level of the integral	
