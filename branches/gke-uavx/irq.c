@@ -57,6 +57,7 @@ uint8 RxCheckSum;
 
 void ReceivingGPSOnly(uint8 r)
 {
+	#ifndef DEBUG_SENSORS
 	if ( r != _ReceivingGPS )
 	{
 		PIE1bits.RCIE = false;
@@ -71,6 +72,7 @@ void ReceivingGPSOnly(uint8 r)
    		PIE1bits.RCIE = r;
 		Delay1mS(10);				// switch bounce
 	}
+	#endif // DEBUG_SENSORS
 } // ReceivingGPSOnly
 
 void MapRC(void)

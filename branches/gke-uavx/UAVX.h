@@ -2,8 +2,10 @@
 
 // Navigation
 
+#ifndef DEBUG_SENSORS
 // emits "tone" on Tx pin when hovering
 #define EMIT_TONE
+#endif // DEBUG_SENSORS
 
 // Accelerometer
 // if undefined then damping is computed every impulse cycle
@@ -12,7 +14,7 @@
 // Gyros
 
 // Outstanding issue with gyro compensation offset sense yet to be resolved
-#define REVERSE_OFFSET_SIGNS
+//#define REVERSE_OFFSET_SIGNS
 
 // Barometer
 

@@ -321,7 +321,8 @@ void main(void)
 			OutSignals();
 
 			CheckAlarms();
-			DumpTrace();
+			if ( DesiredThrottle > IdleThrottle )
+				DumpTrace();
 		
 		} // flight while armed
 	}

@@ -444,7 +444,8 @@ void StopMotors(void)
 } // StopMotors
 
 void InitControl(void)
-{	
+{
+	RollTrim = PitchTrim = YawTrim = 0;	
 	VUDComp = VBaroComp = 0;	
 	UDSum = 0;
 	AE = AltSum = 0;

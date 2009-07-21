@@ -189,8 +189,8 @@ void ReadParametersEE(void)
 	HoverThrottle = ((int16)PercentHoverThr * OUT_MAXIMUM )/100;
 
 	RollIntLimit256 = (int16)RollIntLimit * 256L;
-	PitchIntLimit256 = (int16)RollIntLimit * 256L;
-	YawIntLimit256 = (int16)RollIntLimit * 256L;
+	PitchIntLimit256 = (int16)PitchIntLimit * 256L;
+	YawIntLimit256 = (int16)YawIntLimit * 256L;
 
 	NavIntLimit256 = NavIntLimit * 256L; 
 	NavClosingRadius = (int32)NavRadius * 5L;
@@ -604,7 +604,7 @@ void DumpTrace(void)
 #ifdef DEBUG_SENSORS
 	int8 t;
 
-	for (t=0; t <= TopTrace; t++)
+	for (t=0; t <= TIYaw; t++)
 	{
 		TxValH16(Trace[t]);
 		TxChar(';');
