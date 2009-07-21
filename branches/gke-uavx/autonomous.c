@@ -25,11 +25,12 @@
 
 // Prototypes
 
-void Descend(void);
 void Navigate(int16, int16);
+void AltitudeHold(int16);
 void DoNavigation(void);
 void CheckThrottleMoved(void);
 void DoFailsafe(void);
+void InitNavigation(void);
 
 // Variables
 extern int16 ValidGPSSentences;
@@ -42,7 +43,7 @@ void AltitudeHold(int16 DesiredAltitude)
 	int16 Temp;
 
 	if ( _RTHAltitudeHold )
-		if ( UseGPSAlt && _GPSAltitudeValid )
+		if ( _GPSAltitudeValid && UseGPSAlt )
 		{
 			AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
 			AltSum += AE;
@@ -51,21 +52,22 @@ void AltitudeHold(int16 DesiredAltitude)
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
+//TxVal32(AE,0,' ');
+//TxVal32(DesiredThrottle,0,0);
+//TxNextLine();
 		}
 		else
 		{	
 			DesiredThrottle = HoverThrottle;
 			BaroAltitudeHold(-DesiredAltitude);
-		}	
+//TxVal32(DesiredThrottle,0,0);
+//TxNextLine();
+		}
 	else
 	{
 		// manual control of altitude
 	}
 } // AltitudeHold
-
-void Descend(void)
-{	
-} // Descend
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
@@ -148,7 +150,6 @@ void DoNavigation(void)
 						|| (Abs(DesiredPitch - PitchTrim) > MAX_CONTROL_CHANGE) )
 				{
 					NavState = PIC;
-
 					_Proximity = false;
 					GPSNorthHold = GPSNorth;
 					GPSEastHold = GPSEast;

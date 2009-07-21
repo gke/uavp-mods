@@ -97,46 +97,51 @@ void ShowSetup(uint8 h)
 	else
 		TxString("not available\r\n");
 
-	switch ( GyroType ) {
-	case ADXRS300:TxString("Pitch/Roll Gyros: ADXRS610/300 or MLX90609\r\n"); break;
-	case ADXRS150:TxString("Pitch/Roll Gyros: ADXRS613/150\r\n"); break;
-	case IDG300:TxString("Pitch/Roll Gyros: IDG300\r\n"); break;
-	}
-	
-	switch ( ESCType ) {
-	case ESCPPM:TxString("ESC: PPM\r\n"); break;
-	case ESCHolger:TxString("ESC: Holger I2Ce\r\n"); break;
-	case ESCX3D:TxString("ESC: X-3D I2C\r\n"); break;
-	case ESCYGEI2C:TxString("ESC: YGE I2C\r\n"); break;
-	}	
-
-	TxString("Tx/Rx: ");
-	switch ( TxRxType ) {
-	case FutabaCh3: TxString("Futaba Ch3 {"); break;
-	case FutabaCh2: TxString("Futaba Ch2 {"); break;
-	case FutabaDM8:TxString("Futaba DM8 & AR7000 {"); break; 
-	case JRPPM: TxString("JR PPM {"); break; 
-	case JRDM9: TxString("JR DM9 & AR7000{"); break; 
-	case JRDXS12: TxString("JR DSX12 & AR7000 {"); break; 
-	case DX7AR7000: TxString("Spektrum DX7 & AR7000 {"); break;
-	case DX7AR6200: TxString("Spektrum DX7 & AR6200 {"); break;
-	case CustomTxRx: TxString("Custom {"); break;
-	}
-
-	for (i = 0; i< CONTROLS; i++) // make reverse map
-		RMap[Map[TxRxType][i]-1] = i+1;
-
-	for ( i = 0; i<CONTROLS; i++)
-		TxChar(RxChMnem[RMap[i]-1]);
-
-	TxString("} connect {");
-
-	for ( i = 0; i<CONTROLS; i+=2)
+	if ( ReadEE(_EESet1 + (&LastProgReg - &FirstProgReg)) == 0xff )
+		TxString("Parameters appear to be not initialised?\r\n");
+	else
 	{
-		TxChar(RxChMnem[RMap[i]-1]);
-		TxChar(' ');
+		switch ( GyroType ) {
+		case ADXRS300:TxString("Pitch/Roll Gyros: ADXRS610/300 or MLX90609\r\n"); break;
+		case ADXRS150:TxString("Pitch/Roll Gyros: ADXRS613/150\r\n"); break;
+		case IDG300:TxString("Pitch/Roll Gyros: IDG300\r\n"); break;
+		}
+		
+		switch ( ESCType ) {
+		case ESCPPM:TxString("ESC: PPM\r\n"); break;
+		case ESCHolger:TxString("ESC: Holger I2Ce\r\n"); break;
+		case ESCX3D:TxString("ESC: X-3D I2C\r\n"); break;
+		case ESCYGEI2C:TxString("ESC: YGE I2C\r\n"); break;
+		}	
+	
+		TxString("Tx/Rx: ");
+		switch ( TxRxType ) {
+		case FutabaCh3: TxString("Futaba Ch3 {"); break;
+		case FutabaCh2: TxString("Futaba Ch2 {"); break;
+		case FutabaDM8:TxString("Futaba DM8 & AR7000 {"); break; 
+		case JRPPM: TxString("JR PPM {"); break; 
+		case JRDM9: TxString("JR DM9 & AR7000{"); break; 
+		case JRDXS12: TxString("JR DSX12 & AR7000 {"); break; 
+		case DX7AR7000: TxString("Spektrum DX7 & AR7000 {"); break;
+		case DX7AR6200: TxString("Spektrum DX7 & AR6200 {"); break;
+		case CustomTxRx: TxString("Custom {"); break;
+		}
+	
+		for (i = 0; i< CONTROLS; i++) // make reverse map
+			RMap[Map[TxRxType][i]-1] = i+1;
+	
+		for ( i = 0; i<CONTROLS; i++)
+			TxChar(RxChMnem[RMap[i]-1]);
+	
+		TxString("} connect {");
+	
+		for ( i = 0; i<CONTROLS; i+=2)
+		{
+			TxChar(RxChMnem[RMap[i]-1]);
+			TxChar(' ');
+		}
+		TxString("}\r\n");
 	}
-	TxString("}\r\n");
 
 	TxString("Selected parameter set: ");
 	TxChar('0' + CurrentParamSet);
@@ -217,10 +222,10 @@ void ProcessCommand(void)
 					param = (uint16)(RxNumU()-1);
 					// Attempts to block use of old versions of UAVPSet not compatible with UAVX
 					if ( param < (&LastProgReg - &FirstProgReg) )
-						_ParametersValid = false;
+						_ParametersInvalid = true;
 					else
 						if ( param == (&LastProgReg - &FirstProgReg) )
-							_ParametersValid = true; 	// ALL parameters must be written 
+							_ParametersInvalid = false; 	// ALL parameters must be written 
 					TxString(" = ");
 					d = RxNumS();
 					if ( param < _EESet2 )

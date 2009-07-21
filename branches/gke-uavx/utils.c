@@ -29,7 +29,7 @@ void Delay100mSWithOutput(int16);
 int16 SRS16(int16, uint8);
 int32 SRS32(int32, uint8);
 void InitPorts(void);
-void InitArrays(void);
+void InitMisc(void);
 
 int16 ConvertGPSToM(int16);
 int16 ConvertMToGPS(int16);
@@ -39,6 +39,7 @@ void ReadParametersEE(void);
 void WriteEE(uint8, int8);
 void WriteParametersEE(uint8);
 void UpdateWhichParamSet(void);
+void InitParameters(void);
 
 int16 Make2Pi(int16);
 int16 Table16(int16, const int16 *);
@@ -128,27 +129,23 @@ void InitPorts(void)
 } // InitPorts
 
 // resets all important variables - Do NOT call that while in flight!
-void InitArrays(void)
+void InitMisc(void)
 {
 	int8 i;
 
 	for (i=0; i <= TopTrace; i++)
 		Trace[i] = 0;
-
-	for (i = 0; i < NoOfMotors; i++)
-		Motor[i] = OUT_MINIMUM;
-	MCamPitch = MCamRoll = RC_NEUTRAL;
-
-	REp = PEp = YEp = 0;
 	
-	VUDComp = VBaroComp = 0;
-	
-	UDSum = 0;
-	LRIntKorr = FBIntKorr = 0;
-	YawSum = RollSum = PitchSum = 0;
-	AE = AltSum = 0;
+	for ( i = 0; i<32 ; i++ )
+		Flags[i] = false; 
 
-} // InitArrays
+	ThrNeutral = ThrLow = ThrHigh = MAXINT16;
+
+	LEDShadow = 0;
+    ALL_LEDS_OFF;
+	LEDRed_ON;
+	Beeper_OFF;
+} // InitMisc
 
 int16 ConvertGPSToM(int16 c)
 {	// approximately 0.18553257183 Metres per LSB
@@ -309,15 +306,14 @@ void UpdateParamSetChoice(void)
 				Delay100mSWithOutput(2);
 				Beeper_ON;
 				Delay100mSWithOutput(2);
-				Beeper_OFF;
 			}
 			if ( _RTHAltitudeHold )
 			{
 				Delay100mSWithOutput(4);
 				Beeper_ON;
-				Delay100mSWithOutput(4);
-				Beeper_OFF;
+				Delay100mSWithOutput(4);	
 			}
+			Beeper_OFF;
 			LEDBlue_OFF;
 		}
 	}
@@ -342,14 +338,23 @@ void UpdateParamSetChoice(void)
 			{
 				Beeper_ON;
 				Delay100mSWithOutput(4);
-				Beeper_OFF;
 			}
 			else
 				Delay100mSWithOutput(2);
+			Beeper_OFF;
 			LEDBlue_OFF;
 		}
 	}
 } // UpdateParamSetChoice
+
+void InitParameters(void)
+{
+	while ( ReadEE(_EESet1 + (&LastProgReg - &FirstProgReg)) == 0xff )
+		ProcessCommand();
+
+	CurrentParamSet = 1;
+	ReadParametersEE();
+} // InitParamters
 
 int16 Make2Pi(int16 A)
 {

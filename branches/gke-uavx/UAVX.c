@@ -51,7 +51,7 @@ int16	RE, PE, YE;					// gyro rate error
 int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollRate, PitchRate, YawRate;
-int16	RollTrim, PitchTrim;
+int16	RollTrim, PitchTrim, YawTrim;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
@@ -93,7 +93,6 @@ int16	Trace[LastTrace];
 boolean	Flags[32];
 
 uint8	LEDCycles;	
-int8	IntegralCount;
 uint24	RCGlitches;
 int8	BatteryVolts;
 int8	Rw,Pw;
@@ -189,31 +188,18 @@ void main(void)
 
 	DisableInterrupts;
 
+	InitMisc();
 	InitPorts();
-	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
-			USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 
-	InitADC();
-	
+	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
+				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
+
+	InitADC();	
 	InitTimersAndInterrupts();
 
-	CurrentParamSet = 1;
-	ReadParametersEE();
-	
-	for ( i = 0; i<32 ; i++ )
-		Flags[i] = false; 
+	InitParameters();
 
-	_ParametersValid = true;	// assume parameters have been written once?
-	
-	LEDShadow = 0;
-    ALL_LEDS_OFF;
-	LEDRed_ON;
-	Beeper_OFF;
-
-	InitArrays();
-	ThrNeutral = ThrLow = ThrHigh = MAXINT16;	
-	RC[ThrottleC] = DesiredThrottle = RC[RTHC] = RC[CamTiltC] = RC[NavGainC] = 0;
-
+	StopMotors();
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
 	INTCONbits.TMR0IE = true; 
 	EnableInterrupts;
@@ -223,80 +209,62 @@ void main(void)
 
 	InitDirection();
 	InitBarometer();
+	InitGPS();
+	InitNavigation();
 
 	ShowSetup(1);
 	
 	while( true )
 	{
+		StopMotors();
 
 		ReceivingGPSOnly(false);
 
-		if ( !_Signal )
-		{
-			RC[ThrottleC] = RC[RTHC] = DesiredThrottle = 0;
-			Beeper_OFF;
-		}
-
+		Beeper_OFF;
 		ALL_LEDS_OFF; 
 		LEDRed_ON;	
-		if( _AccelerationsValid )
-			LEDYellow_ON;
+		if( _AccelerationsValid ) LEDYellow_ON;
 
-		InitArrays();
 		EnableInterrupts;	
-		WaitForRxSignal();
-		WaitThrottleClosed();		
-		DesiredThrottle = 0;
+		WaitForRxSignalAndArmed();
+		WaitThrottleClosedAndRTHOff();		
 
-		_TrimsCaptured = false;
-		RollTrim = PitchTrim = 0;
 		_Failsafe = _LostModel = false;
 		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT;
 		mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT;
-
-		State = Starting;
 		mS[UpdateTimeout] = mS[Clock] + TimeSlots;
 
-		while ( Armed && _ParametersValid )
-		{	
-			ReceivingGPSOnly(true); // no Command processing while the Quadrocopter is armed
+		State = Starting;
+
+		while ( Armed && !_ParametersInvalid )
+		{ // No Command processing while the Quadrocopter is armed
+	
+			ReceivingGPSOnly(true); 
 
 			UpdateGPS();
 			UpdateControls();
 
 			if ( _Signal && !_Failsafe )
 			{
-				CaptureTrims();
-
 				switch ( State  ) {
-				case Starting:
-					InitArrays();
+				case Starting:	// this state executed once only after arming
+					InitControl();
+					CaptureTrims();
 
-					// reset origin position and altitude
 					InitBarometer();
-					InitGPS();
 					InitNavigation();
+					ResetGPSOrigin();
 
-					#ifdef NEW_ERECT_GYROS
-					if ( CurrentParamSet == 2 )
-					{
-						ErectGyros();
-						IntegralCount = 0;
-					}
-					else
-						IntegralCount = 16;
-					#else
-					IntegralCount = 16; // erect gyros - old style
-					#endif
-
+					ErectGyros();			// DO NOT MOVE QUADROCOPTER!
+			
 					ALL_LEDS_OFF;				
 					AUX_LEDS_OFF;
-
 					LEDGreen_ON;
+					DesiredThrottle = 0;
 					State = Landed;
 					break;
 				case Landed:
-					if ( (DesiredThrottle >= IdleThrottle ) && (IntegralCount == 0) )
+					if ( DesiredThrottle >= IdleThrottle  )
 					{
 						AbsDirection = COMPASS_INVAL;						
 						LEDCycles = 1;
@@ -311,7 +279,7 @@ void main(void)
 							DesiredThrottle = IdleThrottle;
 						else
 						{
-							State = Starting;
+							State = Landed;
 							Temp = ToPercent(HoverThrottle, OUT_MAXIMUM);
 							WriteEE(_EESet1 + (&PercentHoverThr - &FirstProgReg), Temp);
 						}
@@ -338,14 +306,14 @@ void main(void)
 				DoFailsafe();
 
 			RollRate = PitchRate = 0;
-			GetGyroValues();
+			GetGyroValues();				// First gyro read
 			GetDirection();
 			GetBaroPressure();
 	
 			while ( mS[Clock] < mS[UpdateTimeout] ) {};
 			mS[UpdateTimeout] = mS[Clock] + TimeSlots;
 
-			GetGyroValues();
+			GetGyroValues();				// Second gyro read
 
 			DoControl();
 			MixAndLimitMotors();
@@ -356,8 +324,6 @@ void main(void)
 			DumpTrace();
 		
 		} // flight while armed
-	
-		Beeper_OFF;
 	}
 
 } // main

@@ -31,7 +31,7 @@ void LimitPitchSum(void);
 void LimitYawSum(void);
 void GetGyroValues(void);
 void ErectGyros(void);
-void CalcGyroValues(void);
+void CalcGyroRates(void);
 void DoControl(void);
 
 void WaitThrottleClosed(void);
@@ -39,6 +39,8 @@ void CheckThrottleMoved(void);
 void WaitForRxSignal(void);
 void UpdateControls(void);
 void CaptureTrims(void);
+void StopMotors(void);
+void InitControl(void);
 
 void GyroCompensation(void)
 {
@@ -63,7 +65,6 @@ void GyroCompensation(void)
 		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
 		// and come back as MiddleLR etc.
 
-		// 1 unit is 1/4096 of 2g = 1/2048g
 		#ifdef REVERSE_OFFSET_SIGNS	
 		// Jim's solution
 		LRAcc += MiddleLR;
@@ -113,15 +114,10 @@ void GyroCompensation(void)
 		Trace[TAz] = FBAcc;
 		Trace[TAy] = UDAcc;
 
-		Trace[TUDSum] = UDSum;
-		Trace[TVUDComp] = VUDComp;
-
-		Trace[TLRAcc] = LRAcc;
 		Trace[TLRGrav] = LRGrav;
 		Trace[TLRDyn] = LRDyn;
 		Trace[TLRIntKorr] = LRIntKorr;
 
-		Trace[TFBAcc] = FBAcc;
 		Trace[TFBGrav] = FBGrav;
 		Trace[TFBDyn] = FBDyn;
 		Trace[TFBIntKorr] = FBIntKorr;	
@@ -133,20 +129,21 @@ void GyroCompensation(void)
 } // GyroCompensation
 
 void AltitudeDamping(void)
-{
-	int16 Temp, AbsRollSum, AbsPitchSum;
+{ // Uses vertical accelerometer to damp altitude changes due mainly to turbulence
+	static int16 Temp, AbsRollSum, AbsPitchSum;
 
 	#ifdef ENABLE_VERTICAL_VELOCITY_DAMPING
-	// UDSum rises if ufo climbs
-	// Empirical - vertical acceleration decreases at ~approx Angle/8
 
+	#ifdef SLOW_DAMPING
 	if ( mS[Clock] >= mS[VerticalDampingUpdate] )
 	{
+	#endif // SLOW_DAMPING
 		mS[VerticalDampingUpdate] = mS[Clock] + VERT_DAMPING_UPDATE;
 
 		AbsRollSum = Abs(RollSum);
 		AbsPitchSum = Abs(PitchSum);
 	
+		// Empirical - vertical acceleration decreases at ~approx Sum/8
 		if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
 			UDSum += UDAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
 	
@@ -160,9 +157,10 @@ void AltitudeDamping(void)
 			if( Temp < VUDComp )
 				VUDComp--;
 		
-		VUDComp = Limit(VUDComp, -20, 20);
-
+		VUDComp = Limit(VUDComp, -5, 20);  // -20, 20
+	#ifdef SLOW_DAMPING
 	}
+	#endif // SLOW_DAMPING
 
 	#ifdef DEBUG_SENSORS
 	Trace[TUDSum] = UDSum;
@@ -174,59 +172,36 @@ void AltitudeDamping(void)
 
 void LimitRollSum(void)
 {
-	RollSum += SRS16(RollRate, 1);	// use 9 bit res. for I controller
-
-	if( IntegralCount == 0 )
-	{
-		RollSum = Limit(RollSum, -RollIntLimit256, RollIntLimit256);
-		RollSum = Decay(RollSum);	// damps to zero even if still rolled
-		RollSum += LRIntKorr;		// last for accelerometer compensation
-	}
-
+	RollSum += SRS16(RollRate, 1);		// use 9 bit res. for I controller
+	RollSum = Limit(RollSum, -RollIntLimit256, RollIntLimit256);
+	RollSum = Decay(RollSum);			// damps to zero even if still rolled
+	RollSum += LRIntKorr;				// last for accelerometer compensation
 } // LimitRollSum
 
 void LimitPitchSum(void)
 {
-	PitchSum += SRS16(PitchRate, 1);// use 9 bit res. for I controller
-
-	if( IntegralCount == 0 )
-	{
-		PitchSum = Limit(PitchSum, -PitchIntLimit256, PitchIntLimit256);
-		PitchSum = Decay(PitchSum);	// damps to zero even if still pitched
-		PitchSum += FBIntKorr;		// last for accelerometer compensation
-	}
+	PitchSum += SRS16(PitchRate, 1);
+	PitchSum = Limit(PitchSum, -PitchIntLimit256, PitchIntLimit256);
+	PitchSum = Decay(PitchSum);
+	PitchSum += FBIntKorr;
 } // LimitPitchSum
 
 void LimitYawSum(void)
 {
 	static int16 Temp;
 
-	YE += DesiredYaw;				// add the yaw stick value
 
 	if ( _CompassValid )
-	{
 		// CurDeviation is negative if quadrocopter has yawed to the right (go back left)
 		if ( Abs(DesiredYaw) > COMPASS_MIDDLE )
 			AbsDirection = COMPASS_INVAL; // acquire new heading
 		else		
-			if( CurDeviation > COMPASS_MAXDEV )
-				YE -= COMPASS_MAXDEV;
-			else
-				if( CurDeviation < -COMPASS_MAXDEV )
-					YE += COMPASS_MAXDEV;
-				else
-					YE -= CurDeviation;
-	}
-
-	#ifdef YAW_RESET
-	if ( (Sign(YawSum) != Sign(YE)) && (Abs(YawSum) > 0) )
-		YawSum = 0;
-	#endif // YAW_RESET
+			YE -= Limit(CurDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
 
 	YawSum += (int16)YE;
 	YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
 
-	YawSum = Decay(YawSum); // GKE added to kill gyro drift
+	YawSum = Decay(YawSum); 				// GKE added to kill gyro drift
 	YawSum = Decay(YawSum); 
 
 } // LimitYawSum
@@ -250,9 +225,14 @@ void ErectGyros(void)
 	static int8 i;
 
 	RollSum = PitchSum = YawSum = 0;
+	
+	DesiredThrottle = 0;					// prevent motors from starting
 
     for ( i=16; i; i-- )
 	{
+		LEDRed_TOG;
+		Delay100mSWithOutput(GYRO_ERECT_DELAY);
+
 		if ( GyroType == IDG300 )
 		{
 			RollSum += (int16)ADC(IDGADCRollChan, ADCVREF3V3);
@@ -283,23 +263,24 @@ void ErectGyros(void)
 	GyroMidYaw = (YawSum + 32) >> 6;
 
 	RollSum = PitchSum = YawSum = 0;
+	REp = PEp = YEp = 0;
 
 	_GyrosErected = true;
 
 } // ErectGyros
 
-void CalcGyroValues(void)
+void CalcGyroRates(void)
 {
 	static int16 Temp;
 
 	// RollRate & Pitchsamples hold the sum of 2 consecutive conversions
 	// Approximately 4 bits of precision are discarded in this and related 
 	// calculations presumably because of the range of the 16 bit arithmetic.
-	// The upside if any is reduction in ADC noise!
+	// The upside, if any, is a reduction in ADC noise!
 
 	if ( GyroType == ADXRS150 )
 	{
-		RollRate = (RollRate + 2) >> 2; // recreate the 10 bit resolution
+		RollRate = (RollRate + 2) >> 2; 
 		PitchRate = (PitchRate + 2) >> 2;
 	}
 	else
@@ -308,100 +289,57 @@ void CalcGyroValues(void)
 		PitchRate = PitchRate >> 1;
 	}
 	
-	if( IntegralCount > 0 )
-	{
-		// pre-flight auto-zero mode
-		RollSum += RollRate;
-		PitchSum += PitchRate;
+	// standard flight mode
+	RollRate -= GyroMidRoll;
+	PitchRate -= GyroMidPitch;
+	if ( GyroType == IDG300 )
+		RollRate = -RollRate;
 
-		if( IntegralCount == 1 )
-		{
-			if( !_AccelerationsValid )
-			{
-				RollSum += MiddleLR;
-				PitchSum += MiddleFB;
-			}
-			GyroMidRoll = (RollSum + 8) >> 4;	
-			GyroMidPitch = (PitchSum + 8) >> 4;
-			GyroMidYaw = 0;
-			RollSum = PitchSum = LRIntKorr = FBIntKorr = 0;
-		}
-		IntegralCount--;
+	if( FlyXMode )
+	{
+		// "Real" Roll = 0.707 * (P + R), Pitch = 0.707 * (P - R)
+		Temp = RollRate + PitchRate;	
+		PitchRate -= RollRate;	
+		RollRate = (Temp * 7)/10;
+		PitchRate = (PitchRate * 7)/10; 
 	}
-	else
-	{
-		// standard flight mode
-		RollRate -= GyroMidRoll;
-		PitchRate -= GyroMidPitch;
-		if ( GyroType == IDG300 )
-			RollRate = -RollRate;
-
-		if( FlyXMode )
-		{
-			// "Real" Roll = 0.707 * (P + R)
-			//      Pitch = 0.707 * (P - R)
-			Temp = RollRate + PitchRate;	
-			PitchRate -= RollRate;	
-			RollRate = (Temp * 7)/10;
-			PitchRate = (PitchRate * 7)/10; 
-		}
 	
-		// Roll
-		RE = SRS16(RollRate, 2); 			// use 8 bit res. for PD controller			
-		LimitRollSum();
+	// Yaw is sampled only once every frame, 8 bit A/D resolution
+	YawRate = ADC(ADCYawChan, ADCVREF5V) >> 2;	
+	YawRate -= GyroMidYaw;
 
-		// Pitch
-		PE = SRS16(PitchRate, 2);	
-		LimitPitchSum();	
-
-		// Yaw is sampled only once every frame, 8 bit A/D resolution
-		YawRate = ADC(ADCYawChan, ADCVREF5V) >> 2;
-
-		#ifdef NEW_ERECT_GYROS
-		if (( CurrentParamSet == 1 ) && ( GyroMidYaw == 0 ))
-			GyroMidYaw = YawRate;
-		#else
-		if( GyroMidYaw == 0 )
-			GyroMidYaw = YawRate;
-		#endif // !NEW_ERECT_GYROS
-
-		YawRate -= GyroMidYaw;
-		YE = YawRate;
-		LimitYawSum();
-
-		#ifdef DEBUG_SENSORS
-		Trace[TRollRate] = RollRate;
-		Trace[TPitchRate] = PitchRate;
-		Trace[TYE] = YE;
-		Trace[TRollSum] = RollSum;
-		Trace[TPitchSum] = PitchSum;
-		Trace[TYawSum] = YawSum;
-		#endif
-	}
-} // CalcGyroValues
+} // CalcGyroRates
 
 void DoControl(void)
 {				
-	CalcGyroValues();
+	CalcGyroRates();
 	GyroCompensation();	
 	AltitudeDamping();
 
 	// Roll
+				
+	RE = SRS16(RollRate, 2);
+	LimitRollSum();
+ 
 	Rl  = SRS16(RE *(int16)RollKp + (REp-RE) * RollKd, 4);
-
-	if( IntegralCount == 0 )
-		Rl += SRS16(RollSum * (int16)RollKi, 8); 
+	Rl += SRS16(RollSum * (int16)RollKi, 8); 
 	Rl -= DesiredRoll;
 
 	// Pitch
+
+	PE = SRS16(PitchRate, 2);
+	LimitPitchSum();
+
 	Pl  = SRS16(PE *(int16)PitchKp + (PEp-PE) * PitchKd, 4);
-
-	if( IntegralCount == 0 )
-		Pl += SRS16(PitchSum * (int16)PitchKi, 8);
-
+	Pl += SRS16(PitchSum * (int16)PitchKi, 8);
 	Pl -= DesiredPitch;
 
 	// Yaw
+
+	YE = YawRate;
+	YE += DesiredYaw;
+	LimitYawSum();
+
 	Yl  = SRS16(YE *(int16)YawKp + (YEp-YE) * YawKd, 4);
 	Yl += SRS16(YawSum * (int16)YawKi, 8);
 	Yl = Limit(Yl, -YawLimit, YawLimit);		// effective slew limit
@@ -410,9 +348,18 @@ void DoControl(void)
 	PEp = PE;
 	YEp = YE;
 
+	#ifdef DEBUG_SENSORS
+	Trace[TRollRate] = RollRate;
+	Trace[TPitchRate] = PitchRate;
+	Trace[TYE] = YE;
+	Trace[TRollSum] = RollSum;
+	Trace[TPitchSum] = PitchSum;
+	Trace[TYawSum] = YawSum;
+	#endif
+
 } // DoControl
 
-void WaitThrottleClosed(void)
+void WaitThrottleClosedAndRTHOff(void)
 {
 	uint24 Timeout;
 	
@@ -426,17 +373,19 @@ void WaitThrottleClosed(void)
 			OutSignals();
 			if( mS[Clock] > Timeout )
 			{
-				LEDRed_TOG;						// toggle red LED every 0.5Sec 
+				LEDRed_TOG;	
+				if ( _ReturnHome )
+					Beeper_TOG;					// toggle red LED every 0.5Sec 
 				Timeout = mS[Clock] + 500;
 			}
 		}
 	}
-	while( RC[ThrottleC] >= RC_THRES_STOP );
-
+	while( (RC[ThrottleC] >= RC_THRES_STOP) || _ReturnHome );
+	Beeper_OFF;
 	LEDRed_OFF;
-} // WaitThrottleClosed
+} // WaitThrottleClosedAndRTHOff
 
-void WaitForRxSignal(void)
+void WaitForRxSignalAndArmed(void)
 {
 	do
 	{		
@@ -451,7 +400,7 @@ void WaitForRxSignal(void)
 			}	
 	}
 	while( !( _Signal && Armed ) );				// no signal or switch is off
-} // WaitForRXSignal
+} // WaitForRXSignalAndArmed
 
 void UpdateControls(void)
 {
@@ -459,7 +408,7 @@ void UpdateControls(void)
 	{
 		_NewValues = false;
 
-		MapRC();
+		MapRC();								// remap channel order for specific Tx/Rx
 
 		DesiredThrottle = RC[ThrottleC];
 		DesiredRoll = RC[RollC];
@@ -469,22 +418,35 @@ void UpdateControls(void)
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
 	}
 	else
-		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal ) // does not need to be precise so polling OK
-		{
+		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal ) 
+		{ // does not need to be precise so polling OK
 			CCP1CONbits.CCP1M0 = _NegativePPM; // Reset in case Tx/Rx combo has changed
 			_Signal = false;
 		}
 } // UpdateControls
 
 void CaptureTrims(void)
-{
+{ // only used in detecting movement from neutral in hold GPS position
 	#ifdef CAPTURE_TRIMS
-	if ( !_TrimsCaptured )
-	{
-		RollTrim = Limit(DesiredRoll, -20, 20);
-		PitchTrim = Limit(DesiredPitch, -20, 20);
-		_TrimsCaptured = true;
-	}
+	RollTrim = Limit(DesiredRoll, -MAX_TRIM, MAX_TRIM);
+	PitchTrim = Limit(DesiredPitch, -MAX_TRIM, MAX_TRIM);
+	YawTrim = Limit(DesiredYaw, -MAX_TRIM, MAX_TRIM);
 	#endif // CAPTURE_TRIMS
 } // CaptureTrims
+
+void StopMotors(void)
+{
+	int8 i;
+
+	for (i = 0; i < NoOfMotors; i++)
+		Motor[i] = OUT_MINIMUM;
+	MCamPitch = MCamRoll = OUT_NEUTRAL;
+} // StopMotors
+
+void InitControl(void)
+{	
+	VUDComp = VBaroComp = 0;	
+	UDSum = 0;
+	AE = AltSum = 0;
+} // InitControl
 

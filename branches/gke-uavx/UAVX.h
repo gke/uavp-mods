@@ -1,18 +1,15 @@
 // EXPERIMENTAL
 
 // Navigation
-// tune this up and down to see if it has any effect on compass fail
 
+// emits "tone" on Tx pin when hovering
 #define EMIT_TONE
 
-#define CAPTURE_TRIMS
-
 // Accelerometer
+// if undefined then damping is computed every impulse cycle
+#define SLOW_DAMPING
 
 // Gyros
-
-#define NEW_ERECT_GYROS
-//#define YAW_RESET
 
 // Outstanding issue with gyro compensation offset sense yet to be resolved
 #define REVERSE_OFFSET_SIGNS
@@ -86,6 +83,9 @@
 
 // Gyros
 
+// Adds a delay between gyro neutral acquisition samples (16)
+#define GYRO_ERECT_DELAY		2		// x 16 x 100mS 
+
 // Enable "Dynamic mass" compensation Roll and/or Pitch
 // Normally disabled for pitch only 
 //#define DISABLE_DYNAMIC_MASS_COMP_ROLL
@@ -103,8 +103,12 @@
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 #define MAX_ANGLE 				15L		// Rx stick units ~= degrees
 
-#define MAX_CONTROL_CHANGE 		3L		// new hold point if the roll/pitch stick change more
+#define MAX_CONTROL_CHANGE 		7L		// new hold point if the roll/pitch stick change more
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
+#define MAX_TRIM				20L		// max trim offset for hover hold
+
+// capture roll/pitch trims for use in detecting neutral sticks for GPS Hold
+#define CAPTURE_TRIMS
 
 // Misc
 
@@ -314,13 +318,13 @@ typedef union {
 #define Beeper_TOG		if( (LEDShadow&Beeper) == 0 ) SwitchLEDsOn(Beeper); else SwitchLEDsOff(Beeper);
 
 // compass sensor
-#define COMPASS_I2C_ID	0x42	/* I2C slave address */
-#define COMPASS_MAXDEV	30		/* maximum yaw compensation of compass heading */
-#define COMPASS_MAX		240		/* means 360 degrees */
-#define COMPASS_INVAL	(COMPASS_MAX+15)	/* 15*4 cycles to settle */
-#define COMPASS_MIDDLE	10		/* yaw stick neutral dead zone */
+#define COMPASS_I2C_ID	0x42					/* I2C slave address */
+#define COMPASS_MAXDEV	30						/* maximum yaw compensation of compass heading */
+#define COMPASS_MAX		240						/* means 360 degrees */
+#define COMPASS_INVAL	(COMPASS_MAX+15)		/* 15*4 cycles to settle */
+#define COMPASS_MIDDLE	10						/* yaw stick neutral dead zone */
 
-#define COMPASS_TIME	50	/* 20Hz */
+#define COMPASS_TIME	50						/* 20Hz */
 
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
@@ -356,7 +360,7 @@ typedef union {
 #define _Failsafe			Flags[12]
 #define _GyrosErected		Flags[13]
 #define _NewBaroValue		Flags[14]
-#define _TrimsCaptured		Flags[15]
+//#define _TrimsCaptured		Flags[15]
 
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
@@ -371,7 +375,7 @@ typedef union {
 #define _TurnToHome			Flags[26]
 #define _Proximity			Flags[27]
 
-#define _ParametersValid	Flags[30]
+#define _ParametersInvalid	Flags[30]
 #define _GPSTestActive		Flags[31]
 
 // Mask Bits of ConfigParam
@@ -502,11 +506,12 @@ extern int16 ADC(uint8, uint8);
 extern void InitADC(void);
 
 // autonomous.c
-extern void Descend(void);
 extern void Navigate(int16, int16);
+extern void AltitudeHold(int16);
 extern void DoNavigation(void);
 extern void CheckThrottleMoved(void);
 extern void DoFailsafe(void);
+extern void InitNavigation(void);
 
 // compass_altimeter.c
 extern void InitDirection(void);
@@ -525,13 +530,15 @@ extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
 extern void ErectGyros(void);
-extern void CalcGyroValues(void);
+extern void CalcGyroRates(void);
 extern void DoControl(void);
 
-extern void WaitThrottleClosed(void);
-extern void WaitForRxSignal(void);
+extern void WaitThrottleClosedAndRTHOff(void);
+extern void WaitForRxSignalAndArmed(void);
 extern void UpdateControls(void);
 extern void CaptureTrims(void);
+extern void StopMotors(void);
+extern void InitControl(void);
 
 // irq.c
 extern void InitTimersAndInterrupts(void);
@@ -544,7 +551,9 @@ extern int32 ConvertLatLonM(uint8, uint8);
 extern int32 ConvertUTime(uint8, uint8);
 extern void ParseGPRMCSentence(void);
 extern void ParseGPGGASentence(void);
+extern void SetGPSOrigin(void);
 extern void ParseGPSSentence(void);
+extern void ResetGPSOrigin(void);
 extern void PollGPS(uint8);
 extern void InitGPS(void);
 extern void UpdateGPS(void);
@@ -595,7 +604,7 @@ extern void Delay100mSWithOutput(int16);
 extern int16 SRS16(int16, uint8);
 extern int32 SRS32(int32, uint8);
 extern void InitPorts(void);
-extern void InitArrays(void);
+extern void InitMisc(void);
 
 extern int16 ConvertGPSToM(int16);
 extern int16 ConvertMToGPS(int16);
@@ -605,6 +614,7 @@ extern void ReadParametersEE(void);
 extern void WriteEE(uint8, int8);
 extern void WriteParametersEE(uint8);
 extern void UpdateParamSetChoice(void);
+extern void InitParameters(void);
 
 extern int16 Make2Pi(int16);
 extern int16 MakePi(int16);
@@ -667,7 +677,7 @@ enum TraceTags {TAbsDirection,TVBaroComp,TBE,
 				TIRoll, TIPitch, TIYaw,
 				TMFront, TMBack, TMLeft, TMRight,
 				TMCamRoll, TMCamPitch,
-				TLRAcc, TLRGrav, TLRDyn, TLRIntKorr, TFBAcc, TFBGrav, TFBDyn, TFBIntKorr,
+				TLRGrav, TLRDyn, TLRIntKorr, TFBGrav, TFBDyn, TFBIntKorr,
 				LastTrace
 				};
 #define TopTrace TFBIntKorr
@@ -690,7 +700,7 @@ extern int16	RE, PE, YE;
 extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
-extern int16	RollTrim, PitchTrim;
+extern int16	RollTrim, PitchTrim, YawTrim;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
@@ -735,7 +745,6 @@ extern int16	Rl,Pl,Yl;	// PID output values
 extern boolean	Flags[32];
 
 extern uint8	LEDCycles;		// for light display
-extern int8		IntegralCount;
 extern uint24	RCGlitches;
 extern int8		BatteryVolts; 
 

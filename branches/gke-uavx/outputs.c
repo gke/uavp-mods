@@ -87,9 +87,9 @@ void DoMix(int16 CurrThrottle)
 
 	#else	// TRICOPTER
 	Temp = SRS16(Rl - Pl, 1); 
-	Motor[Front] += Pl ;			// front motor
-	Motor[Left]  += Temp;			// rear left
-	Motor[Right] -= Temp; 			// rear right
+	Motor[Front] += Pl ;				// front motor
+	Motor[Left]  += Temp;				// rear left
+	Motor[Right] -= Temp; 				// rear right
 	Motor[Back]   = Yl + RC_NEUTRAL;	// yaw servo
 	#endif
 
@@ -210,44 +210,44 @@ void OutSignals(void)
 		_endasm	
 		PORTB |= 0x0f;
 	
-		} // ESC_PPM
+	} // ESC_PPM
 	
-		MF = Motor[Front];
-		MB = Motor[Back];
-		ML = Motor[Left];
-		MR = Motor[Right];
+	MF = Motor[Front];
+	MB = Motor[Back];
+	ML = Motor[Left];
+	MR = Motor[Right];
 	
-		MT = MCamRoll;
-		ME = MCamPitch;
+	MT = MCamRoll;
+	ME = MCamPitch;
 	
-		if ( ESCType == ESCPPM )
-		{
+	if ( ESCType == ESCPPM )
+	{
 	
-		// simply wait for nearly 1 ms
-		// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-		while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; // 16
+	// simply wait for nearly 1 ms
+	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
+	while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; // 16
 	
-		// now stop CCP1 interrupt
-		// capture can survive 1ms without service!
+	// now stop CCP1 interrupt
+	// capture can survive 1ms without service!
 	
-		// Strictly only if the masked interrupt region below is
-		// less than the minimum valid Rx pulse/gap width which
-		// is 1027uS less capture time overheads
+	// Strictly only if the masked interrupt region below is
+	// less than the minimum valid Rx pulse/gap width which
+	// is 1027uS less capture time overheads
 	
-		DisableInterrupts;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
-		while( !INTCONbits.TMR0IF ) ;	// wait for first overflow
-		INTCONbits.TMR0IF=0;			// quit TMR0 interrupt
+	DisableInterrupts;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
+	while( !INTCONbits.TMR0IF ) ;	// wait for first overflow
+	INTCONbits.TMR0IF=0;			// quit TMR0 interrupt
 	
-		if( _OutToggle )	// driver cam servos only every 2nd pulse
-		{
-			_asm
-			MOVLB	0					// select Bank0
-			MOVLW	0x3f				// turn on motors
-			MOVWF	SHADOWB,1
-			_endasm	
-			PORTB |= 0x3f;
-		}
-		_OutToggle ^= 1;
+	if( _OutToggle )	// driver cam servos only every 2nd pulse
+	{
+		_asm
+		MOVLB	0					// select Bank0
+		MOVLW	0x3f				// turn on motors
+		MOVWF	SHADOWB,1
+		_endasm	
+		PORTB |= 0x3f;
+	}
+	_OutToggle ^= 1;
 	
 	// This loop is exactly 16 cycles int16
 	// under no circumstances should the loop cycle time be changed

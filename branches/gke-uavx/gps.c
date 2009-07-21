@@ -31,7 +31,9 @@ int32 ConvertLatLonM(uint8, uint8);
 int32 ConvertUTime(uint8, uint8);
 void ParseGPRMCSentence(void);
 void ParseGPGGASentence(void);
+void SetGPSOrigin(void);
 void ParseGPSSentence(void);
+void ResetGPSOrigin(void);
 void PollGPS(uint8);
 void InitGPS(void);
 void UpdateGPS(void);
@@ -258,6 +260,24 @@ void ParseGPGGASentence()
 		TxString("$GPGGA ");
 } // ParseGPGGASentence
 
+void SetGPSOrigin(void)
+{
+	static int32 Temp;
+
+	GPSStartTime = GPSMissionTime;
+	GPSOriginLatitude = GPSLatitude;
+	GPSOriginLongitude = GPSLongitude;
+			
+	Temp = GPSLatitude/60000L;
+	Temp = Abs(Temp);
+	Temp = ConvertDDegToMPi(Temp);
+	GPSLongitudeCorrection = int16cos(Temp);
+
+	if ( _GPSAltitudeValid )
+		GPSOriginAltitude = GPSAltitude;
+
+} // SetGPSOrigin
+
 void ParseGPSSentence()
 {
 	static int32 Temp;
@@ -285,7 +305,7 @@ void ParseGPSSentence()
 			NActiveTypes++;
 		}
 
-	    if ( ValidGPSSentences <  INITIAL_GPS_SENTENCES )
+	    if ( ( ValidGPSSentences <  INITIAL_GPS_SENTENCES) || !_GPSAltitudeValid )
 		{   // repetition to ensure GPGGA altitude is captured
 
 			if ( _GPSTestActive )
@@ -296,15 +316,6 @@ void ParseGPSSentence()
 
 			_GPSValid = false;
 
-			GPSStartTime = GPSMissionTime;
-			GPSOriginLatitude = GPSLatitude;
-			GPSOriginLongitude = GPSLongitude;
-			
-			Temp = GPSLatitude/60000L;
-			Temp = Abs(Temp);
-			Temp = ConvertDDegToMPi(Temp);
-			GPSLongitudeCorrection = int16cos(Temp);
-		
 			if ( CurrNType == GPGGA )
 			{
 				GPSOriginAltitude = GPSAltitude;
@@ -315,7 +326,9 @@ void ParseGPSSentence()
 			else
 				if ( CurrNType == GPRMC )
 					_GPSHeadingValid = true;
-				
+		
+			SetGPSOrigin();
+			
 		}
 		else
 		{
@@ -387,7 +400,7 @@ void PollGPS(uint8 ch)
 			if ( tt == MAXTAGINDEX )
 				if ( NEntries > 1 )
 				{
-					Beeper_ON;
+		//zzz			Beeper_ON;
 					GPSRxState = WaitGPSSentinel;
 				}
 				else
@@ -412,6 +425,13 @@ void PollGPS(uint8 ch)
     } 
  
 } // PollGPS
+
+void ResetGPSOrigin(void)
+{
+	if ( (ValidGPSSentences >=  INITIAL_GPS_SENTENCES) && _GPSAltitudeValid )
+		SetGPSOrigin();	
+	// otherwise continue with first acquisition
+} // ResetGPSOrigin
 
 void InitGPS()
 { 

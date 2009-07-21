@@ -264,7 +264,6 @@ void InitBarometer(void)
 	if ( !_BaroAltitudeValid ) goto BAerror;
 
 	BaroAv = 0;
-
 	for (s = 0; s < Samples; s++)
 	{
 		while ( mS[Clock] < mS[BaroUpdate] );
