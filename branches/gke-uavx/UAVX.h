@@ -98,12 +98,12 @@
 #define	NAV_GAIN_THRESHOLD 		20		// Navigation disabled if Ch7 is less than this
 // reads $GPGGA and $GPRMC sentences - all others discarded
 	
-#define	MIN_SATELLITES			5		// preferably >5 for 3D fix
+#define	MIN_SATELLITES			5		// preferably > 5 for 3D fix
 #define MIN_FIX					1		// must be 1 or 2 
 #define INITIAL_GPS_SENTENCES 	90		// Number of sentences needed with set HDilute
 #define MIN_HDILUTE				130L	// HDilute * 100	
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
-#define MAX_ANGLE 				15L		// Rx stick units ~= degrees
+#define MAX_ANGLE 				20L		// Rx stick units ~= degrees
 
 #define MAX_CONTROL_CHANGE 		7L		// new hold point if the roll/pitch stick change more
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
@@ -284,13 +284,13 @@ typedef union {
 #define LEDAUX2		LED1
 #define LEDAUX3		LED7
 
-#define LED1	0x01	/* Aux2 */
-#define LED2	0x02	/* blue */
-#define LED3	0x04	/* red */ 
-#define LED4	0x08	/* green */
-#define LED5	0x10	/* Aux1 */
-#define LED6	0x20	/* yellow */
-#define LED7	0x40	/* Aux3 */
+#define LED1	0x01			// Aux2
+#define LED2	0x02			// blue
+#define LED3	0x04			// red 
+#define LED4	0x08			// green
+#define LED5	0x10			// Aux1 
+#define LED6	0x20			// yellow
+#define LED7	0x40			// Aux3
 #define Beeper	0x80
 
 #define ALL_LEDS_ON		SwitchLEDsOn(LEDBlue|LEDRed|LEDGreen|LEDYellow)
@@ -320,13 +320,13 @@ typedef union {
 #define Beeper_TOG		if( (LEDShadow&Beeper) == 0 ) SwitchLEDsOn(Beeper); else SwitchLEDsOff(Beeper);
 
 // compass sensor
-#define COMPASS_I2C_ID	0x42					/* I2C slave address */
-#define COMPASS_MAXDEV	30						/* maximum yaw compensation of compass heading */
-#define COMPASS_MAX		240						/* means 360 degrees */
-#define COMPASS_INVAL	(COMPASS_MAX+15)		/* 15*4 cycles to settle */
-#define COMPASS_MIDDLE	10						/* yaw stick neutral dead zone */
+#define COMPASS_I2C_ID	0x42				// I2C slave address
+#define COMPASS_MAXDEV	30					// maximum yaw compensation of compass heading 
+#define COMPASS_MAX		240					// means 360 degrees
+#define COMPASS_INVAL	(COMPASS_MAX+15)	// 15*4 cycles to settle
+#define COMPASS_MIDDLE	10					// yaw stick neutral dead zone
 
-#define COMPASS_TIME	50						/* 20Hz */
+#define COMPASS_TIME	50					// 20Hz
 
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
@@ -346,19 +346,19 @@ typedef union {
 
 // Status 
 
-#define	_Signal				Flags[0]	/* if no valid signal is received */
-#define _NegativePPM		Flags[1]	/* Futaba */
-#define	_NewValues			Flags[2]	/* new RX channel values sampled */
-#define _FirstTimeout		Flags[3]	/* is 1 after first 9ms TO expired */
+#define	_Signal				Flags[0]	
+#define _NegativePPM		Flags[1]
+#define	_NewValues			Flags[2]	
+#define _FirstTimeout		Flags[3]
 
-#define _LowBatt			Flags[4]	/* if Batt voltage is low */
-#define _AccelerationsValid Flags[5]	/* 1 if LISL Sensor is used */
-#define	_CompassValid		Flags[6]	/* 1 if compass sensor is enabled */
+#define _LowBatt			Flags[4]	
+#define _AccelerationsValid Flags[5]
+#define	_CompassValid		Flags[6]	
 #define _CompassMissRead 	Flags[7]
-#define _BaroAltitudeValid	Flags[8]	/* 1 if baro sensor active */
-#define _BaroTempRun		Flags[9]	/* 1 if baro temp a/d conversion is running */
-#define _BaroRestart		Flags[10] 	/* Baro restart required */
-#define _OutToggle			Flags[11]	/* cam servos only evers 2nd output pulse */								
+#define _BaroAltitudeValid	Flags[8]
+#define _BaroTempRun		Flags[9]	
+#define _BaroRestart		Flags[10] 	
+#define _OutToggle			Flags[11]									
 #define _Failsafe			Flags[12]
 #define _GyrosErected		Flags[13]
 #define _NewBaroValue		Flags[14]
@@ -450,13 +450,13 @@ typedef union {
 // 0.146484375 Deg/Sec/LSB
 
 //#ifdef CLOCK_16MHZ
-#define _ClkOut		(160/4)	/* 16.0 MHz Xtal */
+#define _ClkOut		(160/4)			// 16.0 MHz Xtal
 //#else // CLOCK_40MHZ
-//NOT IMPLEMENTED YET #define _ClkOut		(400L/4)	/* 10.0 MHz Xtal * 4 PLL */
+//NOT IMPLEMENTED YET #define _ClkOut	(400L/4)	// 10.0 MHz Xtal * 4 PLL
 //#endif
 
-#define _PreScale0	16	/* 1:16 TMR0 prescaler */
-#define _PreScale1	8	/* 1:8 TMR1 prescaler */
+#define _PreScale0	16				// 1:16 TMR0 prescaler 
+#define _PreScale1	8				// 1:8 TMR1 prescaler 
 #define _PreScale2	16
 #define _PostScale2	16
 
@@ -467,7 +467,7 @@ typedef union {
 #define OUT_MAXIMUM	240
 #define _HolgerMaximum	225 
 
-#define OUT_NEUTRAL	((150* _ClkOut/(2*_PreScale1))&0xFF)    /*   0% */
+#define OUT_NEUTRAL	((150* _ClkOut/(2*_PreScale1))&0xFF)    //   0%\
 
 #define ToPercent(n, m) (((n)*100)/m)
 // Parameters for UART port
@@ -670,19 +670,17 @@ enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
 enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, DX7AR7000, DX7AR6200, CustomTxRx };
 
-enum TraceTags {TAbsDirection,TVBaroComp,TBE,
+enum TraceTags {TCurDeviation, TCurrentBaroPressure,
 				TRollRate,TPitchRate,TYE,
 				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
-				TUDSum, TVUDComp,
-				TIThrottle,
-				TIRoll, TIPitch, TIYaw,
+				TLRIntKorr, TFBIntKorr,
+				TDesiredThrottle,
+				TDesiredRoll, TDesiredPitch, TDesiredYaw,
 				TMFront, TMBack, TMLeft, TMRight,
-				TMCamRoll, TMCamPitch,
-				TLRGrav, TLRDyn, TLRIntKorr, TFBGrav, TFBDyn, TFBIntKorr,
-				LastTrace
+				TMCamRoll, TMCamPitch
 				};
-#define TopTrace TFBIntKorr
+#define TopTrace TMCamPitch
 
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
@@ -703,6 +701,7 @@ extern int16	REp,PEp,YEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollTrim, PitchTrim, YawTrim;
+extern int16	HoldRoll, HoldPitch, HoldYaw;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
@@ -756,7 +755,7 @@ extern int16	CurDeviation;	// deviation from correct heading
 
 extern uint8 	RxCheckSum;
 
-extern int16	Trace[LastTrace];
+extern int16	Trace[];
 
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM

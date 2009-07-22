@@ -224,7 +224,7 @@ void DoCompassTest()
 
 	Delay1mS(7);
 	InitDirection();
-	Delay1mS(7);
+	Delay1mS(50);
 
 	TxString("Registers\r\n");
 	TxString("0:\tI2C"); 

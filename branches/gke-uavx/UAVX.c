@@ -52,6 +52,7 @@ int16	REp, PEp, YEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;	// integral 	
 int16	RollRate, PitchRate, YawRate;
 int16	RollTrim, PitchTrim, YawTrim;
+int16	HoldRoll, HoldPitch, HoldYaw;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
@@ -88,7 +89,7 @@ int16	Motor[NoOfMotors];
 int16	Rl,Pl,Yl;		// PID output values
 int16	Vud;
 
-int16	Trace[LastTrace];
+int16	Trace[TopTrace+1];
 
 boolean	Flags[32];
 

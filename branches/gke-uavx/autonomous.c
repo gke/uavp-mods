@@ -146,8 +146,11 @@ void DoNavigation(void)
 			switch ( NavState ) {
 			case PIC:
 			case HoldingStation:
-				if ( (Abs(DesiredRoll - RollTrim) > MAX_CONTROL_CHANGE) 
-						|| (Abs(DesiredPitch - PitchTrim) > MAX_CONTROL_CHANGE) )
+				
+				HoldRoll = SoftFilter(HoldRoll, Abs(DesiredRoll - RollTrim));
+				HoldPitch = SoftFilter(HoldPitch, Abs(DesiredPitch - PitchTrim));
+
+				if ( ( HoldRoll > MAX_CONTROL_CHANGE )||( HoldPitch > MAX_CONTROL_CHANGE ) )
 				{
 					NavState = PIC;
 					_Proximity = false;

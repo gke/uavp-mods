@@ -114,13 +114,8 @@ void GyroCompensation(void)
 		Trace[TAz] = FBAcc;
 		Trace[TAy] = UDAcc;
 
-		Trace[TLRGrav] = LRGrav;
-		Trace[TLRDyn] = LRDyn;
-		Trace[TLRIntKorr] = LRIntKorr;
-
-		Trace[TFBGrav] = FBGrav;
-		Trace[TFBDyn] = FBDyn;
-		Trace[TFBIntKorr] = FBIntKorr;	
+		Trace[TLRIntKorr] = LRIntKorr * 8; // scale up to make visible
+		Trace[TFBIntKorr] = FBIntKorr * 8;	
 		#endif // DEBUG_SENSORS	
 	}	
 	else
@@ -161,11 +156,6 @@ void AltitudeDamping(void)
 	#ifdef SLOW_DAMPING
 	}
 	#endif // SLOW_DAMPING
-
-	#ifdef DEBUG_SENSORS
-	Trace[TUDSum] = UDSum;
-	Trace[TVUDComp] = VUDComp;
-	#endif
 
 	#endif // ENABLE_VERTICAL_VELOCITY_DAMPING
 } // AltitudeDamping
@@ -431,6 +421,8 @@ void CaptureTrims(void)
 	RollTrim = Limit(DesiredRoll, -MAX_TRIM, MAX_TRIM);
 	PitchTrim = Limit(DesiredPitch, -MAX_TRIM, MAX_TRIM);
 	YawTrim = Limit(DesiredYaw, -MAX_TRIM, MAX_TRIM);
+
+	HoldRoll = HoldPitch = HoldYaw = 0;
 	#endif // CAPTURE_TRIMS
 } // CaptureTrims
 

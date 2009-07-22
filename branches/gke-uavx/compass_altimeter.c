@@ -69,7 +69,7 @@ void InitDirection(void)
 	if( SendI2CByte('O')  != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(7);
+	Delay1mS(50);
 
 	// use default heading mode (1/10th degrees)
 
@@ -106,7 +106,6 @@ void GetDirection(void)
 		Compass.u16 /= 15;
 		DirVal = Compass.u16;
 	
-		// must use pre-decrement, because of dumb compiler
 		if( AbsDirection > COMPASS_MAX )
 		{
 			CurDeviation = 0;
@@ -140,15 +139,12 @@ void GetDirection(void)
 								* (int16)CompassKp, 8);
 		}
 		#ifdef DEBUG_SENSORS
-		Trace[TAbsDirection] = DirVal * 4; //AbsDirection; // scale for UAVPSet
+		Trace[TCurDeviation] = CurDeviation * 4;
 		#endif					
 	}
 	#ifdef DEBUG_SENSORS
 	else	// no new value received
-	{
 		Heading = 0;
-		Trace[TAbsDirection] = 0;
-	}
 	#endif
 
 } // GetDirection
@@ -350,8 +346,7 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 	}
 
 	#ifdef DEBUG_SENSORS	
-	Trace[TVBaroComp] = VBaroComp << 4; // scale for UAVPSet
-	Trace[TBE] = BE << 4;
+	Trace[TCurrentBaroPressure] = CurrentBaroPressure; // scale for UAVPSet
 	#endif
 } // ComputeBaroComp	
 

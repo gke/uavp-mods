@@ -164,14 +164,19 @@ void MixAndLimitCam(void)
 	static int16 Cr, Cp;
 
 	// use only roll/pitch angle estimates
+	if( CamRollKp != 0 )
+		Cr = OUT_NEUTRAL + RollSum / (int16)CamRollKp;
+	else
+		Cr = OUT_NEUTRAL;
+
 	if( CamPitchKp != 0 )
 		Cp = PitchSum / (int16)CamPitchKp;
 	else
-		Cp = OUT_NEUTRAL;
+		Cp = 0;
 		
 	Cp += RC[CamTiltC];	
-
-	MCamRoll = OUT_NEUTRAL;
+	
+	MCamRoll = Limit(Cr, OUT_MINIMUM, OUT_MAXIMUM);
 	MCamPitch = Limit(Cp, OUT_MINIMUM, OUT_MAXIMUM);
 
 } // MixAndLimitCam
@@ -183,11 +188,11 @@ uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 void OutSignals(void)
 {
 	#ifdef DEBUG_SENSORS
-	Trace[TIThrottle] = DesiredThrottle;
+	Trace[TDesiredThrottle] = DesiredThrottle;
 
-	Trace[TIRoll] = DesiredRoll;
-	Trace[TIPitch] = DesiredPitch;
-	Trace[TIYaw] = DesiredYaw;
+	Trace[TDesiredRoll] = DesiredRoll;
+	Trace[TDesiredPitch] = DesiredPitch;
+	Trace[TDesiredYaw] = DesiredYaw;
 
 	Trace[TMFront] = Motor[Front];
 	Trace[TMBack] = Motor[Back];

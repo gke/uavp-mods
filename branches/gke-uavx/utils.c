@@ -604,7 +604,7 @@ void DumpTrace(void)
 #ifdef DEBUG_SENSORS
 	int8 t;
 
-	for (t=0; t <= TIYaw; t++)
+	for (t=0; t <= TopTrace; t++)
 	{
 		TxValH16(Trace[t]);
 		TxChar(';');

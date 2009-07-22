@@ -190,31 +190,29 @@ UAVX ********************************************************************
   hidden (bottom blank) option in the UAVPSet tools pulldown menu. 
   The trace values in order are:
 
-   1  Heading Error
-   2  Baro Comp
-   3  Baro Rel Pressure
-   4  Roll Rate
-   5  Pitch Rate
-   6  Yaw Error
-   7  Roll Angle
-   8  Pitch Angle
-   9  Yaw Angle
-  10  Acceleration Left
-  11  Accleration Back
-  12  Accleration Up
-  13  Vertical Velocity
-  14  Vert Comp
-  15  Stick Gas
-  16  Stick Roll
-  17  Stick Pitch
-  18  Stick Yaw
-  19  Motor Front
-  20  Motor Back
-  21  Motor Left
-  22  Motor Right
-  23  TMCamRoll 
-  24  TMCamPitch
-  25  LastTrace
+	1  Heading Error
+	2  Current Baro Pressure				
+	3  Roll Rate
+	4  Pitch Rate
+	5  Yaw Error
+	6  Roll Sum/Angle
+	7  Pitch Sum/Angle
+	8  Yaw Sum/Angle
+	9  LR Acceleration
+	10 FB Acceleration
+	11 UD Acceleration
+	12 Roll Correction
+	13 Pitch Correction
+	14 Desired Throttle
+	15 Desired Roll 
+	16 Desired Pitch
+	17 Desired Yaw
+	18 Motor Front 
+	19 Motor Back
+	20 Motor Left
+	21 Motor Right
+	22 Cam Roll Servo
+	23 Cam Pitch Servo
 
   DEBUG_Motors removed.
 
