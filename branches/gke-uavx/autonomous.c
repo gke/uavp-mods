@@ -52,16 +52,17 @@ void AltitudeHold(int16 DesiredAltitude)
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
-//TxVal32(AE,0,' ');
-//TxVal32(DesiredThrottle,0,0);
-//TxNextLine();
+			#ifdef HYPERTERM_TRACE
+			TxChar('G');
+			#endif // HYPERTERM_TRACE
 		}
 		else
 		{	
 			DesiredThrottle = HoverThrottle;
 			BaroAltitudeHold(-DesiredAltitude);
-//TxVal32(DesiredThrottle,0,0);
-//TxNextLine();
+			#ifdef HYPERTERM_TRACE
+			TxChar('B');
+			#endif // HYPERTERM_TRACE
 		}
 	else
 	{
@@ -152,6 +153,9 @@ void DoNavigation(void)
 
 				if ( ( HoldRoll > MAX_CONTROL_CHANGE )||( HoldPitch > MAX_CONTROL_CHANGE ) )
 				{
+					#ifdef HYPERTERM_TRACE
+					TxChar('R');
+					#endif // HYPERTERM_TRACE
 					NavState = PIC;
 					_Proximity = false;
 					GPSNorthHold = GPSNorth;
@@ -193,12 +197,21 @@ void DoNavigation(void)
 			} // switch NavState
 		else
 		{
+			#ifdef HYPERTERM_TRACE
+			TxChar('x');
+			#endif // HYPERTERM_TRACE
+			CheckForHover();
 			DesiredRoll = DesiredPitch = DesiredYaw = 0;
 			AltitudeHold(-50); // Compass not responding - land
 		}
 	} 
 	else // else no GPS
+	{
+		#ifdef HYPERTERM_TRACE
+		TxChar('_');
+		#endif // HYPERTERM_TRACE
 		CheckForHover();
+	}
 } // DoNavigation
 
 void DoFailsafe(void)

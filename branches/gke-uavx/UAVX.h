@@ -3,8 +3,10 @@
 // Navigation
 
 #ifndef DEBUG_SENSORS
-// emits "tone" on Tx pin when hovering
-#define EMIT_TONE
+#define HYPERTERM_TRACE		// Hyperterm G=GPSAlt, B=BaroAlt, H=Hover, R=ResetPos.
+							// X=NoCompass, _=NoGPS
+
+#define EMIT_TONE			// emits "tone" on Tx pin hover position is locked
 #endif // DEBUG_SENSORS
 
 // Accelerometer
@@ -98,7 +100,7 @@
 #define	NAV_GAIN_THRESHOLD 		20		// Navigation disabled if Ch7 is less than this
 // reads $GPGGA and $GPRMC sentences - all others discarded
 	
-#define	MIN_SATELLITES			5		// preferably > 5 for 3D fix
+#define	MIN_SATELLITES			5		// preferably >5 for 3D fix
 #define MIN_FIX					1		// must be 1 or 2 
 #define INITIAL_GPS_SENTENCES 	90		// Number of sentences needed with set HDilute
 #define MIN_HDILUTE				130L	// HDilute * 100	
