@@ -1,14 +1,55 @@
 Navigation has been implemented using the 18F2620 PIC which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to implement navigation for the 16F876 version of of the original quadrocopter. 
 
-For maximum flexibility we have chosen to implement the GPS interface using NMEA sentences. A reference to NMEA is at:
+=== Requirements ===
 
-  http://home.mira.net/~gnb/gps/nmea.html
+Minimum:
+   * UAVP "Black" flight control board
+   * Accelerometer, Compass and SMD500 Baro
+   * Six channel Tx/Rx ( no Nav sensitivity adjustment or camera pitch trim available )
+   * Replace 16F876 PIC with 18F2620 PIC
+   * 1Hz GPS Unit capable of NMEA $GPGGA sentences at 9600baud
+   * UAVX V1. or later and 2.7 or later UAVPset 
 
-We use the $GPGGA sentence and optionally $RMC and $GSV.
+Recommended substitutions/alternatives:
+   * Seven Channel or more Tx/Rx
+   * BMP085 Barometer with 3.3V modification
+   * Accelerometer supply reduced to 3.3V
+   * 5Hz GPS Unit with additional NMEA $GPRMC and $GPGSV sentences.
+   * Melexis Gyros for Roll/Pitch using the analog interface but the digital option.
 
-Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. The ETEK and LocoSys GPS units have been used with success.
+Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. The ETEK and LocoSys GPS units have been used with success. If using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum. 
 
-You require the compass and barometer. The Bosch SMD085 is now the recommended barometer although the software automatically detects which barometer is being used. See the hardware specific pages for details.
+The current implementation only requires the $GPGGA sentence but other sentences ($GPRMC ) may be included for compatibility with, for example, the EagleTree OSD Pro. Of these only the $GPRMC may be potentially used for heading control in later versions of UAVX. The flight firmware rejects all other NMEA sentence types however their reception does place an additional load on the PIC. Sentences other than those strictly necessary should be deselected when configuring your GPS.
+
+UAVPset allows most hardware configurations to be set directly rather than requiring the previous multiple HEX files.  There are however separate HEX files for debugging sensors and for 6 channel Rxs. The test and flight firmware are now combined.
+
+The following Tx/Rx combinations are supported:
+
+   * Futaba Ch3 Throttle - Aileron, Elevator, Gear, Aux2
+   * Futaba Ch2 Throttle - Aileron, Rudder, Gear, Aux2
+   * Futaba 9C DM8/AR7000 - Throttle, Aileron, Rudder, Aux2
+   * JR XP8103/PPM - Throttle, Elevator, Gear, Aux2
+   * JR 9XII DM9/AR7000 - Aileron, Rudder, Gear, Aux2
+   * JR DXS12/AR7000 - Aileron, Rudder, Gear, Aux2
+   * Spektrum DX7/AR7000 - Aileron, Rudder, Gear, Aux2  
+   * Spektrum DX7/AR6200 - Throttle, Elevator, Gear
+
+With the modes:
+
+   * Mode 1 - Left Stick Elevator and Rudder, Right Stick Throttle and Ailerons
+   * Mode 2 - Left Stick Throttle and Rudder, Right Stick Elevator and Ailerons.
+
+The supported Roll/Pitch Gyros are:
+
+   * ADXRS610/300, Melexis90609
+   * ADXRS613/150
+   * IDG300
+
+The Melexis Gyro is preferred.
+
+=== PC/GPS Switching ===
+
+The arming switch needs to be replaced by a double switch, which when arming, disconnects the PC Tx signal to the quadrocopter and connects the GPS Tx signal. When armed the UAVX software expects only valid GPS NMEA sentences. Specific details will appear under hardware related pages.
 
 === Functionality ===
 
@@ -58,13 +99,16 @@ When the quadrocopter is disarmed the Tx sticks may be used to access some param
 
 TTH is not active within the closing distance, or radius, of the Origin nor is it active when simply holding a position. The Pilot still has control of a yaw offset and thus can control the direction of camera gaze regardless of whether TTH is active or not although if it is active then there will be a small "resistance" to yaw commands.
 
-=== PC/GPS Switching ===
-
-The arming switch needs to be replaced by a double switch, which when arming, disconnects the PC Tx signal to the quadrocopter and connects the GPS Tx signal. When armed the UAVX software expects only valid GPS NMEA sentences. Specific details will appear under hardware related pages.
 
 === Way Points === 
 
 Way point navigation has not been implemented.
+
+=== NMEA === 
+
+For maximum flexibility in GPS choice we have chosen to implement the GPS interface using NMEA sentences. A reference to NMEA is at:
+
+  http://home.mira.net/~gnb/gps/nmea.html
 
 === GNU Conditions ===
 
