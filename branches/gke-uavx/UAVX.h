@@ -3,10 +3,8 @@
 // Navigation
 
 #ifndef DEBUG_SENSORS
-#define HYPERTERM_TRACE		// Hyperterm G=GPSAlt, B=BaroAlt, H=Hover, R=ResetPos.
-							// X=NoCompass, _=NoGPS
-
-#define EMIT_TONE			// emits "tone" on Tx pin hover position is locked
+// emits "tone" on Tx pin when hovering
+#define EMIT_TONE
 #endif // DEBUG_SENSORS
 
 // Accelerometer
@@ -16,7 +14,7 @@
 // Gyros
 
 // Outstanding issue with gyro compensation offset sense yet to be resolved
-//#define REVERSE_OFFSET_SIGNS
+#define REVERSE_OFFSET_SIGNS
 
 // Barometer
 
@@ -105,7 +103,7 @@
 #define INITIAL_GPS_SENTENCES 	90		// Number of sentences needed with set HDilute
 #define MIN_HDILUTE				130L	// HDilute * 100	
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
-#define MAX_ANGLE 				20L		// Rx stick units ~= degrees
+#define MAX_ANGLE 				15L		// Rx stick units ~= degrees
 
 #define MAX_CONTROL_CHANGE 		7L		// new hold point if the roll/pitch stick change more
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
@@ -113,6 +111,8 @@
 
 // capture roll/pitch trims for use in detecting neutral sticks for GPS Hold
 #define CAPTURE_TRIMS
+
+#define MAX_WAYPOINTS			16
 
 // Misc
 
@@ -173,7 +173,8 @@ typedef union {
 
 #define DEGTOM (real32)(111319.5431531) 
 #define MILLIPI 3142 
-#define CENTIPI 314 
+#define CENTIPI 314
+#define TWOCENTIPI 618 
 #define HALFMILLIPI 1571 
 #define TWOMILLIPI 6284
 
@@ -286,13 +287,13 @@ typedef union {
 #define LEDAUX2		LED1
 #define LEDAUX3		LED7
 
-#define LED1	0x01			// Aux2
-#define LED2	0x02			// blue
-#define LED3	0x04			// red 
-#define LED4	0x08			// green
-#define LED5	0x10			// Aux1 
-#define LED6	0x20			// yellow
-#define LED7	0x40			// Aux3
+#define LED1	0x01	// Aux2  
+#define LED2	0x02	// blue  
+#define LED3	0x04	// red   
+#define LED4	0x08	// green  
+#define LED5	0x10	// Aux1  
+#define LED6	0x20	// yellow  
+#define LED7	0x40	// Aux3  
 #define Beeper	0x80
 
 #define ALL_LEDS_ON		SwitchLEDsOn(LEDBlue|LEDRed|LEDGreen|LEDYellow)
@@ -322,13 +323,13 @@ typedef union {
 #define Beeper_TOG		if( (LEDShadow&Beeper) == 0 ) SwitchLEDsOn(Beeper); else SwitchLEDsOff(Beeper);
 
 // compass sensor
-#define COMPASS_I2C_ID	0x42				// I2C slave address
-#define COMPASS_MAXDEV	30					// maximum yaw compensation of compass heading 
-#define COMPASS_MAX		240					// means 360 degrees
-#define COMPASS_INVAL	(COMPASS_MAX+15)	// 15*4 cycles to settle
-#define COMPASS_MIDDLE	10					// yaw stick neutral dead zone
+#define COMPASS_I2C_ID	0x42				// I2C slave address  
+#define COMPASS_MAXDEV	30					// maximum yaw compensation of compass heading  
+#define COMPASS_MAX		6284L				// means 360 degrees  
+#define COMPASS_INVAL	(COMPASS_MAX+15)	// 15*4 cycles to settle  
+#define COMPASS_MIDDLE	10					// yaw stick neutral dead zone  
 
-#define COMPASS_TIME	50					// 20Hz
+#define COMPASS_TIME	50					// 20Hz  
 
 // baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
@@ -348,23 +349,22 @@ typedef union {
 
 // Status 
 
-#define	_Signal				Flags[0]	
+#define	_Signal				Flags[0]
 #define _NegativePPM		Flags[1]
-#define	_NewValues			Flags[2]	
-#define _FirstTimeout		Flags[3]
+#define	_NewValues			Flags[2]
+#define _FirstTimeout		Flags[3]	
 
-#define _LowBatt			Flags[4]	
+#define _LowBatt			Flags[4]
 #define _AccelerationsValid Flags[5]
-#define	_CompassValid		Flags[6]	
+#define	_CompassValid		Flags[6]
 #define _CompassMissRead 	Flags[7]
 #define _BaroAltitudeValid	Flags[8]
-#define _BaroTempRun		Flags[9]	
-#define _BaroRestart		Flags[10] 	
-#define _OutToggle			Flags[11]									
+#define _NewBaroValue		Flags[9]
+
+#define _OutToggle			Flags[11]								
 #define _Failsafe			Flags[12]
 #define _GyrosErected		Flags[13]
-#define _NewBaroValue		Flags[14]
-//#define _TrimsCaptured		Flags[15]
+
 
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
@@ -383,15 +383,14 @@ typedef union {
 #define _GPSTestActive		Flags[31]
 
 // Mask Bits of ConfigParam
-#define FlyXMode 	IsSet(ConfigParam,0)
+#define FlyXMode 	IsSet(P[ConfigParam],0)
 //#define FutabaMode		IsSet(ConfigParam,1)
-#define TxMode2			IsSet(ConfigParam,2)
-#define RxPPM			IsSet(ConfigParam,3)
+#define TxMode2			IsSet(P[ConfigParam],2)
+#define RxPPM			IsSet(P[ConfigParam],3)
 //#define NegativePPM		IsSet(ConfigParam,4)
-#define UseGPSAlt		IsSet(ConfigParam,5)
+#define UseGPSAlt		IsSet(P[ConfigParam],5)
 
 // Constants 
-
 
 // ADC Channels
 #define ADCPORTCONFIG 0b00001010 // AAAAA
@@ -409,6 +408,7 @@ typedef union {
 // ------------------------------------------------------------------------------------
 
 // Accelerometers
+
 // LIS3LV02DQ Inertial Sensor (Accelerometer)
 //  Ax=> Y + right
 //	Ay=> Z + up
@@ -432,7 +432,6 @@ typedef union {
 //	Elevator + pitch up
 //	Rudder + yaw anti-clockwise
 
-
 // IDG300
 // 3.3V Reference +-500 Deg/Sec
 // 0.4882815 Deg/Sec/LSB 
@@ -452,24 +451,24 @@ typedef union {
 // 0.146484375 Deg/Sec/LSB
 
 //#ifdef CLOCK_16MHZ
-#define _ClkOut		(160/4)			// 16.0 MHz Xtal
+#define _ClkOut		(160/4)				// 16.0 MHz Xtal 
 //#else // CLOCK_40MHZ
-//NOT IMPLEMENTED YET #define _ClkOut	(400L/4)	// 10.0 MHz Xtal * 4 PLL
+//NOT IMPLEMENTED YET #define _ClkOut		(400L/4)	// 10.0 MHz Xtal * 4 PLL 
 //#endif
 
-#define _PreScale0	16				// 1:16 TMR0 prescaler 
-#define _PreScale1	8				// 1:8 TMR1 prescaler 
+#define _PreScale0	16					// 1:16 TMR0 prescaler  
+#define _PreScale1	8					// 1:8 TMR1 prescaler  
 #define _PreScale2	16
 #define _PostScale2	16
 
-#define TMR2_5MS	78	/* 1x 5ms +  */
-#define TMR2_TICK	2	// uSec
+#define TMR2_5MS	78					// 1x 5ms +   
+#define TMR2_TICK	2					// uSec
 
 #define OUT_MINIMUM	1
 #define OUT_MAXIMUM	240
 #define _HolgerMaximum	225 
 
-#define OUT_NEUTRAL	((150* _ClkOut/(2*_PreScale1))&0xFF)    //   0%\
+#define OUT_NEUTRAL	((150* _ClkOut/(2*_PreScale1))&0xFF)    //   0%  
 
 #define ToPercent(n, m) (((n)*100)/m)
 // Parameters for UART port
@@ -518,8 +517,9 @@ extern void DoFailsafe(void);
 extern void InitNavigation(void);
 
 // compass_altimeter.c
-extern void InitDirection(void);
-extern void GetDirection(void);
+extern void InitCompass(void);
+extern void InitHeading(void);
+extern void GetHeading(void);
 extern void StartBaroADC(void);
 extern void ReadBaro(void);
 extern void GetBaroPressure(void);
@@ -613,7 +613,7 @@ extern void InitMisc(void);
 extern int16 ConvertGPSToM(int16);
 extern int16 ConvertMToGPS(int16);
 
-extern 	int8 ReadEE(uint8);
+extern int8 ReadEE(uint8);
 extern void ReadParametersEE(void);
 extern void WriteEE(uint8, int8);
 extern void WriteParametersEE(uint8);
@@ -672,7 +672,7 @@ enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
 enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, DX7AR7000, DX7AR6200, CustomTxRx };
 
-enum TraceTags {TCurDeviation, TCurrentBaroPressure,
+enum TraceTags {THE, TCurrentBaroPressure,
 				TRollRate,TPitchRate,TYE,
 				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
@@ -682,24 +682,25 @@ enum TraceTags {TCurDeviation, TCurrentBaroPressure,
 				TMFront, TMBack, TMLeft, TMRight,
 				TMCamRoll, TMCamPitch
 				};
-#define TopTrace TMCamPitch
+
+#define TopTrace TFBIntKorr
 
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
 
-extern uint24	mS[CompassUpdate+1];
+extern uint24	mS[];
 
 extern uint8	CurrentParamSet;
 
-extern i16u		PPM[CONTROLS];
-extern int16	RC[CONTROLS];
+extern i16u		PPM[];
+extern int16	RC[];
 extern boolean	RCFrameOK;
 extern int8		PPM_Index;
 extern int24	PrevEdge;
 extern int16	PauseTime; // for tests
 
-extern int16	RE, PE, YE;
-extern int16	REp,PEp,YEp;
+extern int16	RE, PE, YE, HE;
+extern int16	REp,PEp,YEp, HEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollTrim, PitchTrim, YawTrim;
@@ -707,7 +708,7 @@ extern int16	HoldRoll, HoldPitch, HoldYaw;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
-extern int16	DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralUD;
@@ -728,6 +729,14 @@ enum NavStates { PIC, HoldingStation, ReturningHome, Navigating, Terminating };
 extern uint8 	NavState;
 extern uint8 	NavSensitivity;
 extern int16 	AltSum, AE;
+
+// Waypoints
+
+typedef  struct {
+	int16 N, E, A;
+} WayPoint;
+
+extern WayPoint WP[];
 
 // Failsafes
 extern int16	ThrLow, ThrHigh, ThrNeutral;
@@ -752,8 +761,7 @@ extern uint24	RCGlitches;
 extern int8		BatteryVolts; 
 
 extern uint8	LEDShadow;		// shadow register
-extern int16	AbsDirection;	// wanted heading (240 = 360 deg)
-extern int16	CurDeviation;	// deviation from correct heading
+
 
 extern uint8 	RxCheckSum;
 
@@ -761,57 +769,59 @@ extern int16	Trace[];
 
 // Principal quadrocopter parameters - MUST remain in this order
 // for block read/write to EEPROM
-// Really should be a vector - later!
-extern int8	RollKp; 			// 01
-extern int8	RollKi;				// 02
-extern int8	RollKd;				// 03
-extern int8 BaroTempCoeff;		// 04c
-extern int8	RollIntLimit;		// 05
-extern int8	PitchKp;			// 06
-extern int8	PitchKi;			// 07
-extern int8	PitchKd;			// 08
-extern int8 BaroCompKp;			// 09c
-extern int8	PitchIntLimit;		// 10
+enum Params {
+	RollKp, 			// 01
+	RollKi,				// 02
+	RollKd,				// 03
+	BaroTempCoeff,		// 04c not currently used
+	RollIntLimit,		// 05
+	PitchKp,			// 06
+	PitchKi,			// 07
+	PitchKd,			// 08
+	BaroCompKp,			// 09c
+	PitchIntLimit,		// 10
+	
+	YawKp, 				// 11
+	YawKi,				// 12
+	YawKd,				// 13
+	YawLimit,			// 14
+	YawIntLimit,		// 15
+	ConfigParam,		// 16c
+	TimeSlots,			// 17c
+	LowVoltThres,		// 18c
+	CamRollKp,			// 19
+	PercentHoverThr,	// 20c 
+	
+	VertDampKp,			// 21c
+	MiddleUD,			// 22c
+	PercentIdleThr,		// 23c
+	MiddleLR,			// 24c
+	MiddleFB,			// 25c
+	CamPitchKp,			// 26
+	CompassKp,			// 27
+	BaroCompKd,			// 28c
+	NavRadius,			// 29
+	NavIntLimit,		// 30
+	
+	NavAltKp,			// 31
+	NavAltKi,			// 32
+	NavRTHAlt,			// 33
+	NavMagVar,			// 34c
+	GyroType,			// 35c
+	ESCType,			// 36c
+	TxRxType			// 37c
+	};
 
-extern int8	YawKp; 				// 11
-extern int8	YawKi;				// 12
-extern int8	YawKd;				// 13
-extern int8	YawLimit;			// 14
-extern int8 YawIntLimit;		// 15
-extern int8	ConfigParam;		// 16c
-extern int8 TimeSlots;			// 17c
-extern int8	LowVoltThres;		// 18c
-extern int8	CamRollKp;			// 19
-extern int8	PercentHoverThr;	// 20c 
+#define	LastParam TxRxType
 
-extern int8	VertDampKp;			// 21c
-extern int8 MiddleUD;			// 22c
-extern int8	PercentIdleThr;		// 23c
-extern int8	MiddleLR;			// 24c
-extern int8	MiddleFB;			// 25c
-extern int8	CamPitchKp;			// 26
-extern int8	CompassKp;			// 27
-extern int8	BaroCompKd;			// 28c
-extern int8	NavRadius;			// 29
-extern int8	NavIntLimit;		// 30
-
-extern int8	NavAltKp;			// 31
-extern int8	NavAltKi;			// 32
-extern int8	NavRTHAlt;			// 33
-extern int8	NavMagVar;			// 34c
-extern int8 GyroType;			// 35c
-extern int8 ESCType;			// 36c
-extern int8 TxRxType;			// 37c
-
+extern int8 P[];
 extern const rom int8 ComParms[];
-
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
 
 #define _EESet1		0		// first set starts at address 0x00
 #define _EESet2		0x40	// second set starts at address 0x40
 
-#define FirstProgReg RollKp
-#define	LastProgReg TxRxType
+
 
 // End of c-ufo.h
 

@@ -38,6 +38,8 @@ extern boolean GPSSentenceReceived;
 
 int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr, NavYCorr, SumNavYCorr;
 
+WayPoint WP[MAX_WAYPOINTS];
+
 void AltitudeHold(int16 DesiredAltitude)
 {
 	int16 Temp;
@@ -48,21 +50,20 @@ void AltitudeHold(int16 DesiredAltitude)
 			AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
-			Temp = SRS16(AE*NavAltKp + AltSum*NavAltKi, 5);
+			Temp = SRS16(AE*P[NavAltKp] + AltSum*P[NavAltKi], 5);
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
-			#ifdef HYPERTERM_TRACE
-			TxChar('G');
-			#endif // HYPERTERM_TRACE
+//TxVal32(AE,0,' ');
+//TxVal32(DesiredThrottle,0,0);
+//TxNextLine();
 		}
 		else
 		{	
 			DesiredThrottle = HoverThrottle;
 			BaroAltitudeHold(-DesiredAltitude);
-			#ifdef HYPERTERM_TRACE
-			TxChar('B');
-			#endif // HYPERTERM_TRACE
+//TxVal32(DesiredThrottle,0,0);
+//TxNextLine();
 		}
 	else
 	{
@@ -147,15 +148,12 @@ void DoNavigation(void)
 			switch ( NavState ) {
 			case PIC:
 			case HoldingStation:
-				
+
 				HoldRoll = SoftFilter(HoldRoll, Abs(DesiredRoll - RollTrim));
 				HoldPitch = SoftFilter(HoldPitch, Abs(DesiredPitch - PitchTrim));
 
 				if ( ( HoldRoll > MAX_CONTROL_CHANGE )||( HoldPitch > MAX_CONTROL_CHANGE ) )
 				{
-					#ifdef HYPERTERM_TRACE
-					TxChar('R');
-					#endif // HYPERTERM_TRACE
 					NavState = PIC;
 					_Proximity = false;
 					GPSNorthHold = GPSNorth;
@@ -177,11 +175,13 @@ void DoNavigation(void)
 					AltSum = 0; 
 					NavState = ReturningHome;
 				}
+
 				CheckForHover();
+
 				break;
 			case ReturningHome:
-				AltitudeHold(NavRTHAlt * 10L);
-				Navigate(0, 0);
+				AltitudeHold(WP[0].A);
+				Navigate(WP[0].N, WP[0].E);
 				if ( !_ReturnHome )
 				{
 					GPSNorthHold = GPSNorth;
@@ -197,21 +197,12 @@ void DoNavigation(void)
 			} // switch NavState
 		else
 		{
-			#ifdef HYPERTERM_TRACE
-			TxChar('x');
-			#endif // HYPERTERM_TRACE
-			CheckForHover();
 			DesiredRoll = DesiredPitch = DesiredYaw = 0;
 			AltitudeHold(-50); // Compass not responding - land
 		}
 	} 
 	else // else no GPS
-	{
-		#ifdef HYPERTERM_TRACE
-		TxChar('_');
-		#endif // HYPERTERM_TRACE
 		CheckForHover();
-	}
 } // DoNavigation
 
 void DoFailsafe(void)
@@ -263,6 +254,14 @@ void CheckThrottleMoved(void)
 
 void InitNavigation(void)
 {
+	int8 w;
+
+	for (w = 0; w < MAX_WAYPOINTS; w++)
+	{
+		WP[w].N = WP[w].E = 0; 
+		WP[w].A = P[NavRTHAlt] * 10L; // Decimetres
+	}
+
 	GPSNorthHold = GPSEastHold = 0;
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
 	NavState = PIC;

@@ -184,6 +184,9 @@ void GetCompassParameters(void)
 		CP[r] = RecvI2CByte(I2C_NACK);
 		I2CStop();
 	}
+
+	Delay1mS(7);
+
 	return;
 
 CTerror:
@@ -222,9 +225,7 @@ void DoCompassTest()
 
 	GetCompassParameters();
 
-	Delay1mS(7);
-	InitDirection();
-	Delay1mS(50);
+	InitCompass();
 
 	TxString("Registers\r\n");
 	TxString("0:\tI2C"); 
@@ -283,7 +284,7 @@ void DoCompassTest()
 	TxVal32((int32)Compass.u16, 1, 0);
 	TxString(" deg \tCorrected ");
 
-	Temp = Compass.u16 - (COMPASS_OFFSET_DEG - NavMagVar)*10;
+	Temp = Compass.u16 - (COMPASS_OFFSET_DEG - P[NavMagVar])*10;
 	while (Temp < 0) Temp +=3600;
 	while (Temp >= 3600) Temp -=3600;
 	TxVal32((int32)Temp, 1, 0);
@@ -351,7 +352,7 @@ void CalibrateCompass(void)
 
 	Delay1mS(COMPASS_TIME);
 
-	InitDirection();
+	InitCompass();
 
 	return;
 CCerror:
@@ -431,7 +432,7 @@ void GPSTest(void)
 			else
 				DesiredRoll = DesiredPitch = 0;
 
-			GetDirection();
+			GetHeading();
 
 			Navigate(0, 0);
 
@@ -498,14 +499,14 @@ void AnalogTest(void)
 	TxString("\r\nAnalog ch. test\r\n");
 
 	// Roll
-	if ( GyroType == IDG300 )
+	if ( P[GyroType] == IDG300 )
 		v = ((int24)ADC(IDGADCRollChan, ADCVREF5V) * 50 + 5)/10; // resolution is 0,001 Volt
 	else
 		v = ((int24)ADC(NonIDGADCRollChan, ADCVREF5V) * 50 + 5)/10; 
 	//TxVal32(ADCRollChan, 0, ' ');
 	TxString("Roll: \t"); 
 	TxVal32(v, 3, 'V');
-	if ( GyroType == IDG300 )
+	if ( P[GyroType] == IDG300 )
 	{
 		if ( ( v < 750 ) || ( v > 1750 ) ) 
 			TxString(" gyro NC or fault?");
@@ -518,14 +519,14 @@ void AnalogTest(void)
 	TxNextLine();
 
 	// Pitch
-	if ( GyroType == IDG300 )
+	if ( P[GyroType] == IDG300 )
 		v = ((int24)ADC(IDGADCPitchChan, ADCVREF5V) * 50 + 5)/10; 
 	else
 		v = ((int24)ADC(NonIDGADCPitchChan, ADCVREF5V) * 50 + 5)/10; 
 	//TxVal32(ADCPitchChan, 0, ' ');
 	TxString("Pitch:\t");		
 	TxVal32(v, 3, 'V');
-	if ( GyroType == IDG300 )
+	if ( P[GyroType] == IDG300 )
 	{
 		if ( ( v < 750 ) || ( v > 1750 ) ) 
 			TxString(" gyro NC or fault?");
@@ -573,7 +574,7 @@ void Program_SLA(uint8 niaddr)
 {
 	uint8 nii;
 
-	if ( ESCType == ESCYGEI2C )
+	if ( P[ESCType] == ESCYGEI2C )
 	{
 /* broken
 		for(nii = 0x10; nii<0xF0; nii+=2)
@@ -619,7 +620,7 @@ void ConfigureESCs(void)
 {
 	uint8 nic;
 
-	if ( ESCType == ESCYGEI2C )
+	if ( P[ESCType] == ESCYGEI2C )
 	{
 		for( nic=0; nic<4; nic++)
 		{

@@ -40,25 +40,27 @@ int16 	RC[CONTROLS];
 boolean	RCFrameOK;
 int8	PPM_Index;
 int24	PrevEdge;
-int16	PauseTime; 
+int16	PauseTime;
+uint24	RCGlitches; 
 #pragma udata
 
 uint8	State;
 uint8	CurrentParamSet;
 
-// PID Regler Variablen
-int16	RE, PE, YE;					// gyro rate error	
-int16	REp, PEp, YEp;				// previous error for derivative
-int16	RollSum, PitchSum, YawSum;	// integral 	
+// Control
+int16	RE, PE, YE, HE;					// gyro rate error	
+int16	REp, PEp, YEp, HEp;				// previous error for derivative
+int16	RollSum, PitchSum, YawSum;		// integral 	
 int16	RollRate, PitchRate, YawRate;
 int16	RollTrim, PitchTrim, YawTrim;
 int16	HoldRoll, HoldPitch, HoldYaw;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
-int16	DesiredRoll, DesiredPitch, DesiredYaw, Heading;
+int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
+int16	Rl,Pl,Yl;						// PID output values
 int8	NeutralLR, NeutralFB, NeutralUD;
 int16 	UDAcc, UDSum, VUDComp;
 
@@ -80,64 +82,17 @@ int16	VBaroComp;
 uint8	BaroType, BaroTemp;
 
 uint8	LEDShadow;		// shadow register
-int16	AbsDirection;	// wanted heading (240 = 360 deg)
-int16	CurDeviation;	// deviation from correct heading
 
 uint8	MCamRoll,MCamPitch;
 int16	Motor[NoOfMotors];
 
-int16	Rl,Pl,Yl;		// PID output values
-int16	Vud;
-
 int16	Trace[TopTrace+1];
-
 boolean	Flags[32];
-
 uint8	LEDCycles;	
-uint24	RCGlitches;
 int8	BatteryVolts;
-int8	Rw,Pw;
 
 #pragma udata params
-// Principal quadrocopter parameters - MUST remain in this order
-// for block read/write to EEPROM
-int8	RollKp;
-int8	RollKi;
-int8	RollKd;
-int8	BaroTempCoeff;
-int8	RollIntLimit;
-int8	PitchKp;
-int8	PitchKi;	
-int8	PitchKd;	 
-int8	BaroCompKp;
-int8	PitchIntLimit;
-int8	YawKp;
-int8	YawKi;
-int8	YawKd;
-int8	YawLimit;
-int8	YawIntLimit;
-int8	ConfigParam;
-int8	TimeSlots;	// control update interval + LEGACY_OFFSET
-int8	LowVoltThres;
-int8	CamRollKp;	
-int8	PercentHoverThr;
-int8	VertDampKp; 
-int8	MiddleUD;
-int8	PercentIdleThr;
-int8	MiddleLR;
-int8	MiddleFB;
-int8	CamPitchKp;
-int8	CompassKp;
-int8	BaroCompKd;
-int8	NavRadius;
-int8	NavIntLimit;
-int8	NavAltKp;
-int8	NavAltKi;
-int8	NavRTHAlt;
-int8	NavMagVar;
-int8 	GyroType;			
-int8 	ESCType;
-int8	TxRxType;		
+int8 P[LastParam+1];
 #pragma udata
 
 // mask giving common variables across parameter sets
@@ -208,7 +163,7 @@ void main(void)
 	Delay100mSWithOutput(5);	// wait 0.5 sec until LISL is ready to talk
 	InitLISL();
 
-	InitDirection();
+	InitCompass();
 	InitBarometer();
 	InitGPS();
 	InitNavigation();
@@ -233,7 +188,7 @@ void main(void)
 		_Failsafe = _LostModel = false;
 		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT;
 		mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT;
-		mS[UpdateTimeout] = mS[Clock] + TimeSlots;
+		mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
 
 		State = Starting;
 
@@ -252,10 +207,10 @@ void main(void)
 					InitControl();
 					CaptureTrims();
 
+					InitHeading();
 					InitBarometer();
 					InitNavigation();
 					ResetGPSOrigin();
-
 					ErectGyros();			// DO NOT MOVE QUADROCOPTER!
 			
 					ALL_LEDS_OFF;				
@@ -267,7 +222,7 @@ void main(void)
 				case Landed:
 					if ( DesiredThrottle >= IdleThrottle  )
 					{
-						AbsDirection = COMPASS_INVAL;						
+						InitHeading();						
 						LEDCycles = 1;
 						State = InFlight;
 					}
@@ -282,7 +237,7 @@ void main(void)
 						{
 							State = Landed;
 							Temp = ToPercent(HoverThrottle, OUT_MAXIMUM);
-							WriteEE(_EESet1 + (&PercentHoverThr - &FirstProgReg), Temp);
+							WriteEE(_EESet1 + PercentHoverThr, Temp);
 						}
 					break;
 				case InFlight:
@@ -308,11 +263,11 @@ void main(void)
 
 			RollRate = PitchRate = 0;
 			GetGyroValues();				// First gyro read
-			GetDirection();
+			GetHeading();
 			GetBaroPressure();
 	
 			while ( mS[Clock] < mS[UpdateTimeout] ) {};
-			mS[UpdateTimeout] = mS[Clock] + TimeSlots;
+			mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
 
 			GetGyroValues();				// Second gyro read
 
@@ -322,8 +277,7 @@ void main(void)
 			OutSignals();
 
 			CheckAlarms();
-			if ( DesiredThrottle > IdleThrottle )
-				DumpTrace();
+			DumpTrace();
 		
 		} // flight while armed
 	}

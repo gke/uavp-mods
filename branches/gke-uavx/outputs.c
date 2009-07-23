@@ -49,7 +49,7 @@ uint8 SaturInt(int16 l)
 {
 	static int16 r;
 
-	if ( ESCType == ESCX3D )
+	if ( P[ESCType] == ESCX3D )
 	{
 		l -= OUT_MINIMUM;
 		r = Limit(l, 1, 200);
@@ -164,18 +164,18 @@ void MixAndLimitCam(void)
 	static int16 Cr, Cp;
 
 	// use only roll/pitch angle estimates
-	if( CamRollKp != 0 )
-		Cr = OUT_NEUTRAL + RollSum / (int16)CamRollKp;
+	if( P[CamPitchKp] != 0 )
+		Cp = PitchSum / (int16)P[CamPitchKp];
+	else
+		Cp = OUT_NEUTRAL;
+		
+	Cp += RC[CamTiltC];	
+
+	if( P[CamRollKp] != 0 )
+		Cr = RollSum / (int16)P[CamRollKp];
 	else
 		Cr = OUT_NEUTRAL;
 
-	if( CamPitchKp != 0 )
-		Cp = PitchSum / (int16)CamPitchKp;
-	else
-		Cp = 0;
-		
-	Cp += RC[CamTiltC];	
-	
 	MCamRoll = Limit(Cr, OUT_MINIMUM, OUT_MAXIMUM);
 	MCamPitch = Limit(Cp, OUT_MINIMUM, OUT_MAXIMUM);
 
@@ -206,7 +206,7 @@ void OutSignals(void)
 	WriteTimer0(0);
 	INTCONbits.TMR0IF = false;
 
-	if ( ESCType == ESCPPM )
+	if ( P[ESCType] == ESCPPM )
 	{
 		_asm
 		MOVLB	0						// select Bank0
@@ -225,7 +225,7 @@ void OutSignals(void)
 	MT = MCamRoll;
 	ME = MCamPitch;
 	
-	if ( ESCType == ESCPPM )
+	if ( P[ESCType] == ESCPPM )
 	{
 	
 	// simply wait for nearly 1 ms
@@ -313,7 +313,7 @@ OS006:
 		_OutToggle ^= 1;
 		
 		// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
-		if ( ESCType == ESCX3D )
+		if ( P[ESCType] == ESCX3D )
 		{
 			EscI2CStart();
 			SendEscI2CByte(0x10);	// one command, 4 data bytes
@@ -324,7 +324,7 @@ OS006:
 			EscI2CStop();
 		}
 		else
-			if ( ESCType ==  ESCHolger)
+			if ( P[ESCType] ==  ESCHolger)
 			{
 				EscI2CStart();
 				SendEscI2CByte(0x52);	// one cmd, one data byte per motor
@@ -348,7 +348,7 @@ OS006:
 			}
 			else
 		
-				if ( ESCType == ESCYGEI2C )
+				if ( P[ESCType] == ESCYGEI2C )
 				{
 					EscI2CStart();
 					SendEscI2CByte(0x62);	// one cmd, one data byte per motor

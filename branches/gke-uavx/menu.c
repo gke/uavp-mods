@@ -97,17 +97,17 @@ void ShowSetup(uint8 h)
 	else
 		TxString("not available\r\n");
 
-	if ( ReadEE(_EESet1 + (&LastProgReg - &FirstProgReg)) == 0xff )
+	if ( ReadEE(_EESet1 + LastParam) == 0xff )
 		TxString("Parameters appear to be not initialised?\r\n");
 	else
 	{
-		switch ( GyroType ) {
+		switch ( P[GyroType] ) {
 		case ADXRS300:TxString("Pitch/Roll Gyros: ADXRS610/300 or MLX90609\r\n"); break;
 		case ADXRS150:TxString("Pitch/Roll Gyros: ADXRS613/150\r\n"); break;
 		case IDG300:TxString("Pitch/Roll Gyros: IDG300\r\n"); break;
 		}
 		
-		switch ( ESCType ) {
+		switch ( P[ESCType] ) {
 		case ESCPPM:TxString("ESC: PPM\r\n"); break;
 		case ESCHolger:TxString("ESC: Holger I2Ce\r\n"); break;
 		case ESCX3D:TxString("ESC: X-3D I2C\r\n"); break;
@@ -115,7 +115,7 @@ void ShowSetup(uint8 h)
 		}	
 	
 		TxString("Tx/Rx: ");
-		switch ( TxRxType ) {
+		switch ( P[TxRxType] ) {
 		case FutabaCh3: TxString("Futaba Ch3 {"); break;
 		case FutabaCh2: TxString("Futaba Ch2 {"); break;
 		case FutabaDM8:TxString("Futaba DM8 & AR7000 {"); break; 
@@ -128,7 +128,7 @@ void ShowSetup(uint8 h)
 		}
 	
 		for (i = 0; i< CONTROLS; i++) // make reverse map
-			RMap[Map[TxRxType][i]-1] = i+1;
+			RMap[Map[P[TxRxType]][i]-1] = i+1;
 	
 		for ( i = 0; i<CONTROLS; i++)
 			TxChar(RxChMnem[RMap[i]-1]);
@@ -153,9 +153,9 @@ void ShowSetup(uint8 h)
 // Do NOT call this routine while in flight!
 void ProcessCommand(void)
 {
-	static int8  *p;
+	static int8  p;
 	static uint8 ch;
-	static uint16 param;
+//zzz	static uint16 param;
 	static uint16 addrbase, curraddr;
 	static int8 d;
 
@@ -204,13 +204,12 @@ void ProcessCommand(void)
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				TxChar('0' + CurrentParamSet);
 				ReadParametersEE();
-				param = 1;
-				for(p = &FirstProgReg; p <= &LastProgReg; p++)
+				for(p = 0; p <= LastParam; p++)
 				{
 					TxString("\r\nRegister ");
-					TxValU((uint8)param++);
+					TxValU((uint8)(p+1));
 					TxString(" = ");
-					d = *p;
+					d = P[p];
 					TxValS(d);
 				}
 				ShowPrompt();
@@ -219,26 +218,26 @@ void ProcessCommand(void)
 					// no reprogramming in flight!!!!!!!!!!!!!!!
 					LEDBlue_ON;
 					TxString("\r\nRegister ");
-					param = (uint16)(RxNumU()-1);
+					p = (uint16)(RxNumU()-1);
 					// Attempts to block use of old versions of UAVPSet not compatible with UAVX
-					if ( param < (&LastProgReg - &FirstProgReg) )
+					if ( p < LastParam )
 						_ParametersInvalid = true;
 					else
-						if ( param == (&LastProgReg - &FirstProgReg) )
+						if ( p == LastParam )
 							_ParametersInvalid = false; 	// ALL parameters must be written 
 					TxString(" = ");
 					d = RxNumS();
-					if ( param < _EESet2 )
+					if ( p < _EESet2 )
 						if( CurrentParamSet == 1 )
 						{
-							WriteEE(_EESet1 + (uint16)param, d);
-							if ( ComParms[param] )
-								WriteEE(_EESet2 + param, d);
+							WriteEE(_EESet1 + p, d);
+							if ( ComParms[p] )
+								WriteEE(_EESet2 + p, d);
 						}
 						else
 						{
-							if ( !ComParms[param] )
-								WriteEE(_EESet2 + param, d);
+							if ( !ComParms[p] )
+								WriteEE(_EESet2 + p, d);
 						}
 					LEDBlue_OFF;
 				ShowPrompt();

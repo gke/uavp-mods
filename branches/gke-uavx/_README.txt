@@ -230,6 +230,10 @@ UAVX ********************************************************************
 
 13.07.2009 UAVX Greg Egan
 - Installation of Tortoise SVN required for builds.
+
+22.07.2009
+- Complete rationalisation of compass yaw compensation.
+  Parameters converted to vector.
   
 =========================================================================
  SAFETY FIRST!                              
