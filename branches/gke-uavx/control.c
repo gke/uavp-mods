@@ -49,7 +49,7 @@ void GyroCompensation(void)
 
 	#define GYRO_COMP_STEP 1
 
-	if ( P[GyroType] == IDG300 )
+	if ( GyroType == IDG300 )
 		GravComp = 15;
 	else
 		GravComp = 11;
@@ -67,13 +67,13 @@ void GyroCompensation(void)
 
 		#ifdef REVERSE_OFFSET_SIGNS	
 		// Jim's solution
-		LRAcc += P[MiddleLR];
-		FBAcc += P[MiddleFB];
+		LRAcc += MiddleLR;
+		FBAcc += MiddleFB;
 		#else
-		LRAcc -= P[MiddleLR];
-		FBAcc -= P[MiddleFB];
+		LRAcc -= MiddleLR;
+		FBAcc -= MiddleFB;
 		#endif
-		UDAcc -= P[MiddleUD];
+		UDAcc -= MiddleUD;
 
 		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
 	
@@ -114,7 +114,7 @@ void GyroCompensation(void)
 		Trace[TAz] = FBAcc;
 		Trace[TAy] = UDAcc;
 
-		Trace[TLRIntKorr] = LRIntKorr * 8; // scale up for UAVPSet
+		Trace[TLRIntKorr] = LRIntKorr * 8; // scale up to make visible
 		Trace[TFBIntKorr] = FBIntKorr * 8;	
 		#endif // DEBUG_SENSORS	
 	}	
@@ -145,7 +145,7 @@ void AltitudeDamping(void)
 		UDSum = Limit(UDSum , -16384, 16384); 
 		UDSum = DecayBand(UDSum, -10, 10, 10);
 		
-		Temp = SRS16(SRS16(UDSum, 4) * (int16) P[VertDampKp], 8);	
+		Temp = SRS16(SRS16(UDSum, 4) * (int16) VertDampKp, 8);	
 		if( Temp > VUDComp ) 
 			VUDComp++;
 		else
@@ -180,23 +180,13 @@ void LimitYawSum(void)
 {
 	static int16 Temp;
 
+
 	if ( _CompassValid )
-	{
-		// + CCW
-		HoldYaw = HardFilter(HoldYaw, Abs(DesiredYaw - YawTrim));
-		if ( HoldYaw > COMPASS_MIDDLE ) // acquire new heading
-		{
-			DesiredHeading = Heading;
-			HE = HEp = 0; 
-		}
-		else
-		{
-			HE = MakePi(DesiredHeading - Heading);
-			HE = Limit(HE, -(MILLIPI/6), MILLIPI/6); // 30 deg limit
-			HE = SRS16( (HEp * 3 + HE) * (int16)P[CompassKp], 10); // CompassKp < 16 
-			YE -= Limit(HE, -COMPASS_MAXDEV, COMPASS_MAXDEV);
-		}
-	}
+		// CurDeviation is negative if quadrocopter has yawed to the right (go back left)
+		if ( Abs(DesiredYaw) > COMPASS_MIDDLE )
+			AbsDirection = COMPASS_INVAL; // acquire new heading
+		else		
+			YE -= Limit(CurDeviation, -COMPASS_MAXDEV, COMPASS_MAXDEV);
 
 	YawSum += (int16)YE;
 	YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
@@ -208,7 +198,7 @@ void LimitYawSum(void)
 
 void GetGyroValues(void)
 {
-	if ( P[GyroType] == IDG300 )
+	if ( GyroType == IDG300 )
 	{
 		RollRate += (int16)ADC(IDGADCRollChan, ADCVREF3V3);
 		PitchRate += (int16)ADC(IDGADCPitchChan, ADCVREF3V3);
@@ -233,7 +223,7 @@ void ErectGyros(void)
 		LEDRed_TOG;
 		Delay100mSWithOutput(GYRO_ERECT_DELAY);
 
-		if ( P[GyroType] == IDG300 )
+		if ( GyroType == IDG300 )
 		{
 			RollSum += (int16)ADC(IDGADCRollChan, ADCVREF3V3);
 			PitchSum += (int16)ADC(IDGADCPitchChan, ADCVREF3V3);	
@@ -246,7 +236,7 @@ void ErectGyros(void)
 		YawSum += ADC(ADCYawChan, ADCVREF5V);
 	}
 		
-	if ( P[GyroType] == ADXRS150 )
+	if ( GyroType == ADXRS150 )
 	{
 		RollSum = (RollSum + 1) >> 1; 
 		PitchSum = (PitchSum + 1) >> 1;
@@ -254,8 +244,8 @@ void ErectGyros(void)
 
 	if( !_AccelerationsValid )
 	{
-		RollSum += P[MiddleLR];
-		PitchSum += P[MiddleFB];
+		RollSum += MiddleLR;
+		PitchSum += MiddleFB;
 	}
 
 	GyroMidRoll = (RollSum + 8) >> 4;	
@@ -278,7 +268,7 @@ void CalcGyroRates(void)
 	// calculations presumably because of the range of the 16 bit arithmetic.
 	// The upside, if any, is a reduction in ADC noise!
 
-	if ( P[GyroType] == ADXRS150 )
+	if ( GyroType == ADXRS150 )
 	{
 		RollRate = (RollRate + 2) >> 2; 
 		PitchRate = (PitchRate + 2) >> 2;
@@ -292,7 +282,7 @@ void CalcGyroRates(void)
 	// standard flight mode
 	RollRate -= GyroMidRoll;
 	PitchRate -= GyroMidPitch;
-	if ( P[GyroType] == IDG300 )
+	if ( GyroType == IDG300 )
 		RollRate = -RollRate;
 
 	if( FlyXMode )
@@ -321,8 +311,8 @@ void DoControl(void)
 	RE = SRS16(RollRate, 2);
 	LimitRollSum();
  
-	Rl  = SRS16(RE *(int16)P[RollKp] + (REp-RE) * P[RollKd], 4);
-	Rl += SRS16(RollSum * (int16)P[RollKi], 8); 
+	Rl  = SRS16(RE *(int16)RollKp + (REp-RE) * RollKd, 4);
+	Rl += SRS16(RollSum * (int16)RollKi, 8); 
 	Rl -= DesiredRoll;
 
 	// Pitch
@@ -330,8 +320,8 @@ void DoControl(void)
 	PE = SRS16(PitchRate, 2);
 	LimitPitchSum();
 
-	Pl  = SRS16(PE *(int16)P[PitchKp] + (PEp-PE) * P[PitchKd], 4);
-	Pl += SRS16(PitchSum * (int16)P[PitchKi], 8);
+	Pl  = SRS16(PE *(int16)PitchKp + (PEp-PE) * PitchKd, 4);
+	Pl += SRS16(PitchSum * (int16)PitchKi, 8);
 	Pl -= DesiredPitch;
 
 	// Yaw
@@ -340,17 +330,15 @@ void DoControl(void)
 	YE += DesiredYaw;
 	LimitYawSum();
 
-	Yl  = SRS16(YE *(int16)P[YawKp] + (YEp-YE) * P[YawKd], 4);
-	Yl += SRS16(YawSum * (int16)P[YawKi], 8);
-	Yl = Limit(Yl, -P[YawLimit], P[YawLimit]);		// effective slew limit
+	Yl  = SRS16(YE *(int16)YawKp + (YEp-YE) * YawKd, 4);
+	Yl += SRS16(YawSum * (int16)YawKi, 8);
+	Yl = Limit(Yl, -YawLimit, YawLimit);		// effective slew limit
 
 	REp = RE;
 	PEp = PE;
 	YEp = YE;
-	HEp = HE;
 
 	#ifdef DEBUG_SENSORS
-	Trace[THE] = HE;
 	Trace[TRollRate] = RollRate;
 	Trace[TPitchRate] = PitchRate;
 	Trace[TYE] = YE;

@@ -57,7 +57,7 @@ void CheckAlarms(void);
 void DumpTrace(void);
 
 void Delay1mS(int16 d)
-{ 
+{ 	// Timer0 interrupt at 1mS must be running
 	int16 i;
 	uint8 T0IntEn;
 
@@ -75,8 +75,10 @@ void Delay1mS(int16 d)
 
 } // Delay1mS
 
+// wait blocking for "dur" * 0.1 seconds
+// Motor and servo pulses are still output every 10ms
 void Delay100mSWithOutput(int16 dur)
-{  // Motor and servo pulses are still output every 10ms
+{ // Timer0 Interrupts must be off 
 	int16 i, j;
 	uint8 T0IntEn;
 
@@ -172,7 +174,7 @@ int8 ReadEE(uint8 addr)
 
 void ReadParametersEE(void)
 {
-	static int8 p, c; 
+	static int8 *p, c; 
 	static uint16 addr;
 
 	if( CurrentParamSet == 1 )
@@ -180,28 +182,28 @@ void ReadParametersEE(void)
 	else
 		addr = _EESet2;
 	
-	for(p = 0; p <= LastParam; p++)
-		P[p] = ReadEE(addr + p);
+	for(p = &FirstProgReg; p <= &LastProgReg; p++)
+		*p = ReadEE(addr++);
 
-	IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
-	HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
+	IdleThrottle = ((int16)PercentIdleThr * OUT_MAXIMUM )/100;
+	HoverThrottle = ((int16)PercentHoverThr * OUT_MAXIMUM )/100;
 
-	RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
-	PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
-	YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
+	RollIntLimit256 = (int16)RollIntLimit * 256L;
+	PitchIntLimit256 = (int16)PitchIntLimit * 256L;
+	YawIntLimit256 = (int16)YawIntLimit * 256L;
 
-	NavIntLimit256 = P[NavIntLimit] * 256L; 
-	NavClosingRadius = (int32)P[NavRadius] * 5L;
-	NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
-	SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
-	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
+	NavIntLimit256 = NavIntLimit * 256L; 
+	NavClosingRadius = (int32)NavRadius * 5L;
+	NavClosingRadius = Limit(NavClosingRadius, 5, 40); // avoid divide by zero
+	SqrNavClosingRadius = NavClosingRadius * NavClosingRadius;	
+	CompassOffset = (((COMPASS_OFFSET_DEG - NavMagVar)*MILLIPI)/180L);
 
-	_NegativePPM = (( P[TxRxType] == JRPPM ) || ( P[TxRxType] == JRDM9 ) 
-				|| ( P[TxRxType] == DX7AR7000 )|| ( P[TxRxType] == DX7AR6200 ));
+	_NegativePPM = (( TxRxType == JRPPM ) || ( TxRxType == JRDM9 ) 
+				|| ( TxRxType == DX7AR7000 )|| ( TxRxType == DX7AR6200 ));
 
 	PIE1bits.CCP1IE = true;
 
-	BatteryVolts = P[LowVoltThres];
+	BatteryVolts = LowVoltThres;
 	
 } // ReadParametersEE
 
@@ -233,7 +235,7 @@ void WriteEE(uint8 addr, int8 d)
 
 void WriteParametersEE(uint8 s)
 {
-	int8 p;
+	int8 *p;
 	uint8 b;
 	uint16 addr;
 	
@@ -242,8 +244,9 @@ void WriteParametersEE(uint8 s)
 	else
 		addr = _EESet2;
 
-	for ( p = 0; p <= LastParam; p++)
-		WriteEE(addr++, P[p]);
+	p = &FirstProgReg; 
+	while ( p <= &LastProgReg)
+		WriteEE(addr++, *p++);
 } // WriteParametersEE
 
 void UpdateParamSetChoice(void)
@@ -346,7 +349,7 @@ void UpdateParamSetChoice(void)
 
 void InitParameters(void)
 {
-	while ( ReadEE(_EESet1 + LastParam) == 0xff )
+	while ( ReadEE(_EESet1 + (&LastProgReg - &FirstProgReg)) == 0xff )
 		ProcessCommand();
 
 	CurrentParamSet = 1;
@@ -561,7 +564,7 @@ void CheckAlarms(void)
 
 	NewBatteryVolts = ADC(ADCBattVoltsChan, ADCVREF5V) >> 3; 
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
-	_LowBatt =  (BatteryVolts < (int16) P[LowVoltThres]) & 1;
+	_LowBatt =  (BatteryVolts < (int16) LowVoltThres) & 1;
 
 	if( _LowBatt ) // repeating beep
 	{
@@ -601,15 +604,12 @@ void DumpTrace(void)
 #ifdef DEBUG_SENSORS
 	int8 t;
 
-	if ( DesiredThrottle > IdleThrottle )
+	for (t=0; t <= TopTrace; t++)
 	{
-		for (t=0; t <= TopTrace; t++)
-		{
-			TxValH16(Trace[t]);
-			TxChar(';');
-		}
-		TxNextLine();
+		TxValH16(Trace[t]);
+		TxChar(';');
 	}
+	TxNextLine();
 
 #endif // DEBUG_SENSORS
 } // DumpTrace
