@@ -24,8 +24,9 @@
 
 // Prototypes
 
-void InitDirection(void);
-void GetDirection(void);
+void InitCompass(void);
+void InitHeading(void);
+void GetHeading(void);
 
 void StartBaroADC(void);
 void ReadBaro(void);
@@ -38,7 +39,7 @@ void BaroAltitudeHold(int16);
 
 // Compass
 
-void InitDirection(void)
+void InitCompass(void)
 {
 	// 20Hz continuous read with periodic reset.
 	#ifdef SUPPRESS_COMPASS_SR
@@ -79,17 +80,20 @@ CTerror:
 	_CompassValid = false;
 
 	I2CStop();
-} // InitDirection
+} // InitCompass
 
-void GetDirection(void)
+
+void InitHeading(void)
 {
-	// Read direction, convert it to 2 degrees unit
-	// and store result in variable AbsDirection.
-	// The current heading correction is stored in CurDeviation
-	static int16 DirVal,  temp;
+	GetHeading();
+	DesiredHeading = Heading;
+	HEp = 0;
+} // InitHeading
+
+void GetHeading(void)
+{
 	static i16u Compass;
-	static int32 Temp2;
-	static int8 r;
+	static int32 Temp;
 
 	if( _CompassValid  ) // continuous mode but Compass only updates avery 50mS
 	{
@@ -99,55 +103,14 @@ void GetDirection(void)
 		Compass.low8 = RecvI2CByte(I2C_NACK);
 		I2CStop();
 
-		//Temp2 = (int32)((int32)Compass * MILLIPI)/1800L - COMPASS_OFFSET;
-		Temp2 = ConvertDDegToMPi(Compass.i16) - CompassOffset;
-		Heading = Make2Pi((int16) Temp2);
-
-		Compass.u16 /= 15;
-		DirVal = Compass.u16;
-	
-		if( AbsDirection > COMPASS_MAX )
-		{
-			CurDeviation = 0;
-			AbsDirection--;
-		}
-		else
-		{
-			// setup desired heading (AbsDirection)
-			if( AbsDirection == COMPASS_MAX )	// no heading stored yet
-			{
-				AbsDirection = DirVal;	// store current heading
-				CurDeviation = 0;
-			}
-			// calc deviation and direction of deviation
-			DirVal = AbsDirection - DirVal;
-			// handle wraparound
-			if( DirVal <= -240/2 ) 
-				DirVal +=  240;
-			else
-				if( DirVal > 240/2 ) 
-					DirVal -=  240;
-	
-			// positive means ufo is left off-heading
-			// negative means ufo is right off-heading
-	
-			DirVal = Limit(DirVal, -20, 20); // limit to give soft reaction
-	
-			// Empirical found :-)
-			// New_CurDev = ((3*Old_CurDev) + DirVal) / 4
-			CurDeviation = SRS16((((int16)CurDeviation *3 + DirVal) << 2) 
-								* (int16)CompassKp, 8);
-		}
-		#ifdef DEBUG_SENSORS
-		Trace[TCurDeviation] = CurDeviation * 4;
-		#endif					
+		//Temp = (int32)((int32)Compass * MILLIPI)/1800L - COMPASS_OFFSET;
+		Temp = ConvertDDegToMPi(Compass.i16) - CompassOffset;
+		Heading = Make2Pi((int16) Temp);	
 	}
-	#ifdef DEBUG_SENSORS
-	else	// no new value received
+	else
 		Heading = 0;
-	#endif
 
-} // GetDirection
+} // GetHeading
 
 //_____________________________________________________________________________________
 
@@ -223,6 +186,9 @@ void GetBaroPressure(void)
 			_NewBaroValue = true;
 			BaroSample = 0;
 		}
+		#ifdef DEBUG_SENSORS	
+		Trace[TCurrentBaroPressure] = CurrentBaroPressure;
+		#endif
 	}
 }// GetBaroPressure
 
@@ -316,7 +282,7 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 			
 		// strictly this is acting more like an integrator 
 		// bumping VBaroComp up and down proportional to the error?	
-		Temp = BE * (int16)BaroCompKp;
+		Temp = BE * (int16)P[BaroCompKp];
 		if( VBaroComp > Temp )
 			VBaroComp--;
 		else
@@ -328,7 +294,7 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 					
 		// Differential	
 		Delta = BE - BEp;	
-		VBaroComp += Limit(Delta, -5, 8) * (int16)BaroCompKd;
+		VBaroComp += Limit(Delta, -5, 8) * (int16)P[BaroCompKd];
 		
 		VBaroComp = Limit(VBaroComp, -5, 20);
 	
@@ -345,8 +311,5 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 		#endif
 	}
 
-	#ifdef DEBUG_SENSORS	
-	Trace[TCurrentBaroPressure] = CurrentBaroPressure; // scale for UAVPSet
-	#endif
 } // ComputeBaroComp	
 
