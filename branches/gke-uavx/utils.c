@@ -249,7 +249,7 @@ void UpdateParamSetChoice(void)
 
 	UpdateControls();
 
-	if ( TxMode2 )
+	if ( IsSet( P[ConfigBits], TxMode2) )
 		Selector = RC[RollC];
 	else
 		Selector = -RC[YawC];
@@ -306,7 +306,7 @@ void UpdateParamSetChoice(void)
 		}
 	}
 
-	if ( TxMode2 )
+	if ( IsSet( P[ConfigBits], TxMode2) )
 		Selector = -RC[YawC];
 	else
 		Selector = RC[RollC];

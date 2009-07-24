@@ -171,7 +171,7 @@ void high_isr_handler(void)
 				}	
 			}
 
-		if ( !RxPPM )							
+		if ( !IsSet(P[ConfigBits], RxPPM) )							
 			CCP1CONbits.CCP1M0 ^= 1;				// For composite PPM signal not using wired OR
 
 		PIR1bits.CCP1IF = false;

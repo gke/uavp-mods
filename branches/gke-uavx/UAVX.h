@@ -20,7 +20,8 @@
 // may give better altitude hold ( New=(Old*7+New+4)/8) ).
 #define BARO_HARD_FILTER
 
-#ifndef BATCHMODE
+// Modifications which have been adopted are included BELOW.
+
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
@@ -43,16 +44,13 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// ==============================================
-// == Global compiler switches
-// ==============================================
+#ifndef BATCHMODE
 
-// uncomment this to enable Tri-Copter Mixing.
 // connector K1 = front motor
 //           K2 = rear left motor 
 //           K3 = rear right motor 
 //           K4 = yaw servo output
-// Camera controlling can be used!
+// uncomment this to enable Tri-Copter Mixing.
 //#define TRICOPTER
 
 // uncomment for 6 channel recievers
@@ -62,6 +60,8 @@
 //#define DEBUG_SENSORS
 
 #endif // !BATCHMODE
+
+//________________________________________________________________________________________________
 
 // UAVX Extensions
 
@@ -93,6 +93,10 @@
 
 // reads $GPGGA and $GPRMC sentences - all others discarded
 
+#ifndef DEBUG_SENSORS
+#define EMIT_TONE			// emits "tone" on Tx pin hover position is locked
+#endif // DEBUG_SENSORS
+
 #define	NAV_GAIN_THRESHOLD 		20		// Navigation disabled if Ch7 is less than this
 	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
@@ -106,9 +110,20 @@
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define MAX_TRIM				20L		// max trim offset for hover hold
 
+#define FAILSAFE_TIMEOUT		1000L 	// mS hold last settings
+#define ABORT_TIMEOUT			3000L 	// mS full flight abort 
+#define LOW_THROTTLE_DELAY		1000L	// mS
+#define THROTTLE_UPDATE			3000L	// mS constant throttle time for hover
+#define VERT_DAMPING_UPDATE 	50L 	// mS vertical velocity damping
+
+#define THR_MIDDLE				10  	// throttle stick dead zone for baro 
+#define THR_HOVER				75		// min throttle stick for alti lock
+
+#define GPS_TIMEOUT				2000L	// mS
+
 #define MAX_WAYPOINTS			16
 
-// Misc
+//________________________________________________________________________________________
 
 #include "UAVXRevision.h"
 
@@ -122,85 +137,83 @@
 #include <capture.h>
 #include <adc.h>
 
-// Additional Types
+// Useful Constants
+#define NUL 	0
+#define HT 		9
+#define LF 		10
+#define CR 		13
+#define NAK 	21
+#define ESC 	27
+#define true 	1
+#define false 	0
 
-typedef unsigned char uint8 ;
-typedef signed char int8;
-typedef unsigned int uint16;
-typedef int int16;
-typedef short long int24;
+#define EarthR 				(real32)(6378140.0)
+#define Pi 					(real32)(3.141592654)
+#define RecipEarthR 		(real32)(1.5678552E-7)
+
+#define DEGTOM 				(real32)(111319.5431531) 
+#define MILLIPI 			3142 
+#define CENTIPI 			314 
+#define HALFMILLIPI 		1571 
+#define TWOMILLIPI 			6284
+
+#define MILLIRAD 			18 
+#define CENTIRAD 			2
+#define DEGMILLIRAD 		(real32)(17.453292) 
+#define DECIDEGMILLIRAD 	(real32)(1.7453292)
+#define MILLIRADDEG 		(real32)(0.05729578)
+#define MILLIRADDEG100 		(real32)(5.729578)
+#define CENTIRADDEG 		(real32)(0.5729578)
+#define DEGRAD 				(real32)(0.017453292)
+#define RADDEG 				(real32)(57.2957812)
+#define RADDEG1000000 		(real32)(57295781.2)
+
+#define MAXINT32 			0x7fffffff;
+#define	MAXINT16 			0x7fff;
+
+// Additional Types
+typedef unsigned char 		uint8 ;
+typedef signed char 		int8;
+typedef unsigned int 		uint16;
+typedef int 				int16;
+typedef short long 			int24;
 typedef unsigned short long uint24;
-typedef long int32;
-typedef unsigned long uint32;
-typedef uint8 boolean;
-typedef float real32;
+typedef long 				int32;
+typedef unsigned long 		uint32;
+typedef uint8 				boolean;
+typedef float 				real32;
 
 typedef union {
 	int16 i16;
 	uint16 u16;
 	struct {
-		unsigned char low8;
-		unsigned char high8;
+		uint8 low8;
+		uint8 high8;
 	};
 } i16u;
 
-// Useful Constants
-
-#define NUL 0
-#define HT 9
-#define LF 10
-#define CR 13
-#define NAK 21
-#define ESC 27
-#define true 1
-#define false 0
-
-#define EarthR (real32)(6378140.0)
-#define Pi (real32)(3.141592654)
-#define RecipEarthR (real32)(1.5678552E-7)
-
-#define DEGTOM (real32)(111319.5431531) 
-#define MILLIPI 3142 
-#define CENTIPI 314
-#define TWOCENTIPI 618 
-#define HALFMILLIPI 1571 
-#define TWOMILLIPI 6284
-
-#define MILLIRAD 18 
-#define CENTIRAD 2
-#define DEGMILLIRAD (real32)(17.453292) 
-#define DECIDEGMILLIRAD (real32)(1.7453292)
-#define MILLIRADDEG (real32)(0.05729578)
-#define MILLIRADDEG100 (real32)(5.729578)
-#define CENTIRADDEG (real32)(0.5729578)
-#define DEGRAD (real32)(0.017453292)
-#define RADDEG (real32)(57.2957812)
-#define RADDEG1000000 (real32)(57295781.2)
-
-#define MAXINT32 0x7fffffff;
-#define	MAXINT16 0x7fff;
-
 // Macros
+#define Set(S,b) 			((uint8)(S|=(1<<b)))
+#define Clear(S,b) 			((uint8)(S&=(~(1<<b))))
+#define IsSet(S,b) 			((uint8)((S>>b)&1))
+#define IsClear(S,b) 		((uint8)(!(S>>b)&1))
+#define Invert(S,b) 		((uint8)(S^=(1<<b)))
 
-#define Set(S,b) 		((uint8)(S|=(1<<b)))
-#define Clear(S,b) 		((uint8)(S&=(~(1<<b))))
-#define IsSet(S,b) 		((uint8)((S>>b)&1))
-#define IsClear(S,b) 	((uint8)(!(S>>b)&1))
-#define Invert(S,b) 	((uint8)(S^=(1<<b)))
+#define Abs(i)				((i<0) ? -i : i)
+#define Sign(i)				((i<0) ? -1 : 1)
 
-#define Abs(i)			((i<0) ? -i : i)
-#define Sign(i)			((i<0) ? -1 : 1)
-
-#define Max(i,j) 		((i<j) ? j : i)
-#define Min(i,j) 		((i<j) ? i : j )
-#define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
+#define Max(i,j) 			((i<j) ? j : i)
+#define Min(i,j) 			((i<j) ? i : j )
+#define Limit(i,l,u) 		((i<l) ? l : ((i>u) ? u : i))
 #define DecayBand(i,l,u,d) 	((i<l) ? i+d : ((i>u) ? i-d : i))
-#define Decay(i) 		((i<0) ? i+1 : ((i>0) ? i-1 : 0))
+#define Decay(i) 			((i<0) ? i+1 : ((i>0) ? i-1 : 0))
 
 // To speed up NMEA sentence processing 
 // must have a positive argument
 #define ConvertDDegToMPi(d) (((int32)d * 3574L)>>11)
 #define ConvertMPiToDDeg(d) (((int32)d * 2048L)/3574L)
+
+#define ToPercent(n, m) (((n)*100)/m)
 
 // Simple filters using weighted averaging
 #ifdef SUPPRESSFILTERS
@@ -216,143 +229,49 @@ typedef union {
 #endif
 #define NoFilter(O,N)				(N)
 
-#define DisableInterrupts (INTCONbits.GIEH=0)
-#define EnableInterrupts (INTCONbits.GIEH=1)
-#define InterruptsEnabled (INTCONbits.GIEH)
+#define DisableInterrupts 	(INTCONbits.GIEH=0)
+#define EnableInterrupts 	(INTCONbits.GIEH=1)
+#define InterruptsEnabled 	(INTCONbits.GIEH)
 
-// Bit definitions
+// Clock
+//#ifdef CLOCK_16MHZ
+	#define _ClkOut			(160/4)			// 16.0 MHz Xtal
+//#else // CLOCK_40MHZ
+	//NOT IMPLEMENTED YET #define _ClkOut	(400L/4)	// 10.0 MHz Xtal * 4 PLL
+//#endif
 
-#define Armed		(PORTAbits.RA4)
+#define _PreScale0			16				// 1:16 TMR0 prescaler 
+#define _PreScale1			8				// 1:8 TMR1 prescaler 
+#define _PreScale2			16
+#define _PostScale2			16
 
-#define	I2C_ACK		((uint8)(0))
-#define	I2C_NACK	((uint8)(1))
+// Parameters for UART port ClockHz/(16*(BaudRate+1))
+#define _B9600				104 
+#define _B19200				(_ClkOut*100000/(4*19200) - 1)
+#define _B38400				26 
+#define _B115200			9 
+#define _B230400			(_ClkOut*100000/(4*115200) - 1)
 
-#define SPI_CS		PORTCbits.RC5
-#define SPI_SDA		PORTCbits.RC4
-#define SPI_SCL		PORTCbits.RC3
-#define SPI_IO		TRISCbits.TRISC4
-
-#define	RD_SPI	1
-#define WR_SPI	0
-#define DSEL_LISL  1
-#define SEL_LISL  0
-
-// The LEDs and the beeper
-#define ON	1
-#define OFF	0
-
-#define FAILSAFE_TIMEOUT	1000L 		// mS hold last settings
-#define ABORT_TIMEOUT		3000L 		// mS full flight abort 
-#define LOW_THROTTLE_DELAY	1000L		// mS
-#define THROTTLE_UPDATE		3000L		// mS constant throttle time for hover
-#define VERT_DAMPING_UPDATE 50L 		// mS vertical velocity damping
-
-#define THR_MIDDLE			10  		// throttle stick dead zone for baro 
-#define THR_HOVER			75			// min throttle stick for alti lock
-
-#define GPS_TIMEOUT			2000L		// mS
-
-// RC
-
-#define RC_MINIMUM			0
-#define RC_MAXIMUM			238
-#define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
-
-#define RC_THRES_STOP		((15L*RC_MAXIMUM)/100)		
-#define RC_THRES_START		((25L*RC_MAXIMUM)/100)		
-
-#define RC_FRAME_TIMEOUT 	25
-#define RC_SIGNAL_TIMEOUT 	(5L*RC_FRAME_TIMEOUT)
-#define RC_THR_MAX 			RC_MAXIMUM
-
-// LEDs
-
-#define LEDYellow	LED6
-#define LEDGreen	LED4
-#define	LEDBlue		LED2
-#define LEDRed		LED3
-#define LEDAUX1		LED5
-#define LEDAUX2		LED1
-#define LEDAUX3		LED7
-
-#define LED1	0x01	// Aux2  
-#define LED2	0x02	// blue  
-#define LED3	0x04	// red   
-#define LED4	0x08	// green  
-#define LED5	0x10	// Aux1  
-#define LED6	0x20	// yellow  
-#define LED7	0x40	// Aux3  
-#define Beeper	0x80
-
-#define ALL_LEDS_ON		SwitchLEDsOn(LEDBlue|LEDRed|LEDGreen|LEDYellow)
-#define AUX_LEDS_ON		SwitchLEDsOn(LEDAUX1|LEDAUX2|LEDAUX3)
-
-#define ALL_LEDS_OFF	SwitchLEDsOff(LEDBlue|LEDRed|LEDGreen|LEDYellow)
-#define AUX_LEDS_OFF	SwitchLEDsOff(LEDAUX1|LEDAUX2|LEDAUX3)
-
-#define ARE_ALL_LEDS_OFF if((LEDShadow&(LEDBlue|LEDRed|LEDGreen|LEDYellow))==0)
-
-#define LEDRed_ON		SwitchLEDsOn(LEDRed)
-#define LEDBlue_ON		SwitchLEDsOn(LEDBlue)
-#define LEDGreen_ON		SwitchLEDsOn(LEDGreen)
-#define LEDYellow_ON	SwitchLEDsOn(LEDYellow)
-#define LEDAUX1_ON		SwitchLEDsOn(LEDAUX1)
-#define LEDAUX2_ON		SwitchLEDsOn(LEDAUX2)
-#define LEDAUX3_ON		SwitchLEDsOn(LEDAUX3)
-#define LEDRed_OFF		SwitchLEDsOff(LEDRed)
-#define LEDBlue_OFF		SwitchLEDsOff(LEDBlue)
-#define LEDGreen_OFF	SwitchLEDsOff(LEDGreen)
-#define LEDYellow_OFF	SwitchLEDsOff(LEDYellow)
-#define LEDRed_TOG		if( (LEDShadow&LEDRed) == 0 ) SwitchLEDsOn(LEDRed); else SwitchLEDsOff(LEDRed)
-#define LEDBlue_TOG		if( (LEDShadow&LEDBlue) == 0 ) SwitchLEDsOn(LEDBlue); else SwitchLEDsOff(LEDBlue)
-#define LEDGreen_TOG	if( (LEDShadow&LEDGreen) == 0 ) SwitchLEDsOn(LEDGreen); else SwitchLEDsOff(LEDGreen)
-#define Beeper_OFF		SwitchLEDsOff(Beeper)
-#define Beeper_ON		SwitchLEDsOn(Beeper)
-#define Beeper_TOG		if( (LEDShadow&Beeper) == 0 ) SwitchLEDsOn(Beeper); else SwitchLEDsOff(Beeper);
-
-// compass sensor
-#define COMPASS_I2C_ID	0x42				// I2C slave address  
-#define COMPASS_MAXDEV	30					// maximum yaw compensation of compass heading  
-#define COMPASS_MAX		6284L				// means 360 degrees  
-#define COMPASS_INVAL	(COMPASS_MAX+15)	// 15*4 cycles to settle  
-#define COMPASS_MIDDLE	10					// yaw stick neutral dead zone  
-
-#define COMPASS_TIME	50					// 20Hz  
-
-// baro (altimeter) sensor
-#define BARO_I2C_ID			0xee
-#define BARO_TEMP_BMP085	0x2e
-#define BARO_TEMP_SMD500	0x6e
-#define BARO_PRESS			0xf4
-#define BARO_CTL			0xf4
-#define BARO_ADC_MSB		0xf6
-#define BARO_ADC_LSB		0xf7
-#define BARO_TYPE			0xd0
-//#define BARO_ID_SMD500		??
-#define BARO_ID_BMP085		((uint8)(0x55))
-
-#define BARO_TEMP_TIME		10
-#define BARO_PRESS_TIME 	35
-#define BARO_SAMPLES		16	
+#define TMR2_5MS			78				// 1x 5ms + 
+#define TMR2_TICK			2				// uSec
 
 // Status 
-
-#define	_Signal				Flags[0]
+#define	_Signal				Flags[0]	
 #define _NegativePPM		Flags[1]
-#define	_NewValues			Flags[2]
-#define _FirstTimeout		Flags[3]	
+#define	_NewValues			Flags[2]	
+#define _FirstTimeout		Flags[3]
 
-#define _LowBatt			Flags[4]
+#define _LowBatt			Flags[4]	
 #define _AccelerationsValid Flags[5]
-#define	_CompassValid		Flags[6]
+#define	_CompassValid		Flags[6]	
 #define _CompassMissRead 	Flags[7]
 #define _BaroAltitudeValid	Flags[8]
-#define _NewBaroValue		Flags[9]
-
-#define _OutToggle			Flags[11]								
+#define _BaroTempRun		Flags[9]	
+#define _BaroRestart		Flags[10] 	
+#define _OutToggle			Flags[11]									
 #define _Failsafe			Flags[12]
 #define _GyrosErected		Flags[13]
-
+#define _NewBaroValue		Flags[14]
 
 #define _ReceivingGPS 		Flags[16]
 #define _GPSValid 			Flags[17]
@@ -370,18 +289,60 @@ typedef union {
 #define _ParametersInvalid	Flags[30]
 #define _GPSTestActive		Flags[31]
 
-// Mask Bits of ConfigParam
-#define FlyXMode 	IsSet(P[ConfigParam],0)
-//#define FutabaMode		IsSet(ConfigParam,1)
-#define TxMode2			IsSet(P[ConfigParam],2)
-#define RxPPM			IsSet(P[ConfigParam],3)
-//#define NegativePPM		IsSet(ConfigParam,4)
-#define UseGPSAlt		IsSet(P[ConfigParam],5)
+// LEDs
+#define AUX2M				0x01
+#define BlueM				0x02
+#define RedM				0x04
+#define GreenM				0x08
+#define AUX1M				0x10
+#define YellowM				0x20
+#define AUX3M				0x40
+#define BeeperM				0x80
 
-// Constants 
+#define ALL_LEDS_ON		SwitchLEDsOn(BlueM|RedM|GreenM|YellowM)
+#define AUX_LEDS_ON		SwitchLEDsOn(AUX1M|AUX2M|AUX3M)
+
+#define ALL_LEDS_OFF	SwitchLEDsOff(BlueM|RedM|GreenM|YellowM)
+#define AUX_LEDS_OFF	SwitchLEDsOff(AUX1M|AUX2M|AUX3M)
+
+#define ARE_ALL_LEDS_OFF if((LEDShadow&(BlueM|RedM|GreenM|YellowM))==0)
+
+#define LEDRed_ON		SwitchLEDsOn(RedM)
+#define LEDBlue_ON		SwitchLEDsOn(BlueM)
+#define LEDGreen_ON		SwitchLEDsOn(GreenM)
+#define LEDYellow_ON	SwitchLEDsOn(YellowM)
+#define LEDAUX1_ON		SwitchLEDsOn(AUX1M)
+#define LEDAUX2_ON		SwitchLEDsOn(AUX2M)
+#define LEDAUX3_ON		SwitchLEDsOn(AUX3M)
+#define LEDRed_OFF		SwitchLEDsOff(RedM)
+#define LEDBlue_OFF		SwitchLEDsOff(BlueM)
+#define LEDGreen_OFF	SwitchLEDsOff(GreenM)
+#define LEDYellow_OFF	SwitchLEDsOff(YellowM)
+#define LEDRed_TOG		if( (LEDShadow&RedM) == 0 ) SwitchLEDsOn(RedM); else SwitchLEDsOff(RedM)
+#define LEDBlue_TOG		if( (LEDShadow&BlueM) == 0 ) SwitchLEDsOn(BlueM); else SwitchLEDsOff(BlueM)
+#define LEDGreen_TOG	if( (LEDShadow&GreenM) == 0 ) SwitchLEDsOn(GreenM); else SwitchLEDsOff(GreenM)
+#define Beeper_OFF		SwitchLEDsOff(BeeperM)
+#define Beeper_ON		SwitchLEDsOn(BeeperM)
+#define Beeper_TOG		if( (LEDShadow&BeeperM) == 0 ) SwitchLEDsOn(BeeperM); else SwitchLEDsOff(BeeperM)
+
+// Bit definitions
+#define Armed				(PORTAbits.RA4)
+
+#define	I2C_ACK				((uint8)(0))
+#define	I2C_NACK			((uint8)(1))
+
+#define SPI_CS				PORTCbits.RC5
+#define SPI_SDA				PORTCbits.RC4
+#define SPI_SCL				PORTCbits.RC3
+#define SPI_IO				TRISCbits.TRISC4
+
+#define	RD_SPI				1
+#define WR_SPI				0
+#define DSEL_LISL  			1
+#define SEL_LISL  			0
 
 // ADC Channels
-#define ADCPORTCONFIG 0b00001010 // AAAAA
+#define ADCPORTCONFIG 		0b00001010 // AAAAA
 #define ADCBattVoltsChan 	0 
 #define NonIDGADCRollChan 	1
 #define NonIDGADCPitchChan 	2
@@ -392,90 +353,61 @@ typedef union {
 #define ADCVREF5V 			0
 #define ADCVREF3V3 			1
 
+// RC
+#define RC_MINIMUM			0
+#define RC_MAXIMUM			238
+#define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
 
-// ------------------------------------------------------------------------------------
+#define RC_THRES_STOP		((15L*RC_MAXIMUM)/100)		
+#define RC_THRES_START		((25L*RC_MAXIMUM)/100)		
 
-// Accelerometers
+#define RC_FRAME_TIMEOUT 	25
+#define RC_SIGNAL_TIMEOUT 	(5L*RC_FRAME_TIMEOUT)
+#define RC_THR_MAX 			RC_MAXIMUM
 
-// LIS3LV02DQ Inertial Sensor (Accelerometer)
-//  Ax=> Y + right
-//	Ay=> Z + up
-//	Az=> X + back
+// ESC
+#define OUT_MINIMUM			1
+#define OUT_MAXIMUM			240
+#define OUT_NEUTRAL			((150 * _ClkOut/(2*_PreScale1))&0xFF)    //   0%
+#define _HolgerMaximum		225 
 
-#define ACCSIGN_X	+	
-#define ACCSIGN_Y	-
-#define ACCSIGN_Z	+	
+// Compass sensor
+#define COMPASS_I2C_ID		0x42				// I2C slave address
+#define COMPASS_MAXDEV		30					// maximum yaw compensation of compass heading 
+#define COMPASS_MIDDLE		10					// yaw stick neutral dead zone
+#define COMPASS_TIME		50					// 20Hz
 
-// Gyros
+// Baro (altimeter) sensor
+#define BARO_I2C_ID			0xee
+#define BARO_TEMP_BMP085	0x2e
+#define BARO_TEMP_SMD500	0x6e
+#define BARO_PRESS			0xf4
+#define BARO_CTL			0xf4
+#define BARO_ADC_MSB		0xf6
+#define BARO_ADC_LSB		0xf7
+#define BARO_TYPE			0xd0
+//#define BARO_ID_SMD500	??
+#define BARO_ID_BMP085		((uint8)(0x55))
 
-// Coordinates are NOT right hand cartesian for LEGACY reasons
-// and the desire to keep the current parameters sets!!
-
-//	+P roll right
-//	+Q pitch up
-//	+R yaw clockwise
-
-// Controls 
-//  Aileron + roll right
-//	Elevator + pitch up
-//	Rudder + yaw anti-clockwise
-
-// IDG300
-// 3.3V Reference +-500 Deg/Sec
-// 0.4882815 Deg/Sec/LSB 
-//	+ roll right
-//	+ pitch up
-//	+ yaw clockwise
-
-// ADRSX300 Yaw
-// 5V Reference +-300 Deg/Sec
-// 0.2926875 Deg/Sec/LSB 
-//	+ roll left
-//	+ pitch down
-//	+ yaw clockwise
-
-// ADXRS150
-// 5V Reference +-150 Deg/Sec
-// 0.146484375 Deg/Sec/LSB
-
-//#ifdef CLOCK_16MHZ
-#define _ClkOut		(160/4)				// 16.0 MHz Xtal 
-//#else // CLOCK_40MHZ
-//NOT IMPLEMENTED YET #define _ClkOut		(400L/4)	// 10.0 MHz Xtal * 4 PLL 
-//#endif
-
-#define _PreScale0	16					// 1:16 TMR0 prescaler  
-#define _PreScale1	8					// 1:8 TMR1 prescaler  
-#define _PreScale2	16
-#define _PostScale2	16
-
-#define TMR2_5MS	78					// 1x 5ms +   
-#define TMR2_TICK	2					// uSec
-
-#define OUT_MINIMUM	1
-#define OUT_MAXIMUM	240
-#define _HolgerMaximum	225 
-
-#define OUT_NEUTRAL	((150* _ClkOut/(2*_PreScale1))&0xFF)    //   0%  
-
-#define ToPercent(n, m) (((n)*100)/m)
-// Parameters for UART port
-// ClockHz/(16*(BaudRate+1))
-
-#define _B9600		104 
-#define _B19200		(_ClkOut*100000/(4*19200) - 1)
-#define _B38400		26 
-#define _B115200	9 
-#define _B230400	(_ClkOut*100000/(4*115200) - 1)
+#define BARO_TEMP_TIME		10
+#define BARO_PRESS_TIME 	35
+#define BARO_SAMPLES		16	
 
 // Sanity checks
 
-// check the PPM RX and motor values
+// check the Rx and PPM ranges
 #if OUT_MINIMUM >= OUT_MAXIMUM
 #error OUT_MINIMUM < OUT_MAXIMUM!
 #endif
 #if (OUT_MAXIMUM < OUT_NEUTRAL)
 #error OUT_MAXIMUM < OUT_NEUTRAL !
+#endif
+
+#if RC_MINIMUM >= RC_MAXIMUM
+#error RC_MINIMUM < RC_MAXIMUM!
+#endif
+#if (RC_MAXIMUM < RC_NEUTRAL)
+#error RC_MAXIMUM < RC_NEUTRAL !
 #endif
 
 // end of sanity checks
@@ -533,6 +465,8 @@ extern void StopMotors(void);
 extern void InitControl(void);
 
 // irq.c
+extern void ReceivingGPSOnly(uint8);
+extern void MapRC(void);
 extern void InitTimersAndInterrupts(void);
 extern void ReceivingGPSOnly(uint8);
 
@@ -619,7 +553,6 @@ extern int16 int16sqrt(int16);
 extern void SendLEDs(void);
 extern void SwitchLEDsOn(uint8);
 extern void SwitchLEDsOff(uint8);
-extern void LEDGame(void);
 extern void CheckAlarms(void);
 
 extern void DumpTrace(void);
@@ -635,7 +568,9 @@ extern void DoCompassTest(void);
 extern void CalibrateCompass(void);
 extern void BaroTest(void);
 extern void PowerOutput(int8);
+extern void CompassRun(void);
 extern void GPSTest(void);
+extern void ConfigureESCs(void);
 
 extern void AnalogTest(void);extern void Program_SLA(uint8);
 
@@ -685,6 +620,7 @@ extern int16	RC[];
 extern boolean	RCFrameOK;
 extern int8		PPM_Index;
 extern int24	PrevEdge;
+extern uint24	RCGlitches;
 extern int16	PauseTime; // for tests
 
 extern int16	RE, PE, YE, HE;
@@ -743,22 +679,16 @@ extern int16	Motor[NoOfMotors];
 extern int16	Rl,Pl,Yl;	// PID output values
 
 extern boolean	Flags[32];
-
 extern uint8	LEDCycles;		// for light display
-extern uint24	RCGlitches;
 extern int8		BatteryVolts; 
-
 extern uint8	LEDShadow;		// shadow register
-
-
 extern uint8 	RxCheckSum;
 
 extern int16	Trace[];
 
 // Principal quadrocopter parameters
- 
-#define MAX_PARAMETERS 64
 
+#define MAX_PARAMETERS	64		// parameters in EEPROM start at zero
 enum Params {
 	RollKp, 			// 01
 	RollKi,				// 02
@@ -776,7 +706,7 @@ enum Params {
 	YawKd,				// 13
 	YawLimit,			// 14
 	YawIntLimit,		// 15
-	ConfigParam,		// 16c
+	ConfigBits,			// 16c
 	TimeSlots,			// 17c
 	LowVoltThres,		// 18c
 	CamRollKp,			// 19
@@ -804,11 +734,13 @@ enum Params {
 
 #define	LastParam TxRxType
 
+#define FlyXMode 		0
+#define TxMode2 		2
+#define RxPPM 			3 
+#define UseGPSAlt 		5
+
 extern int8 P[];
 extern const rom int8 ComParms[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
 
-
-
-// End of c-ufo.h
 

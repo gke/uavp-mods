@@ -155,7 +155,6 @@ void ProcessCommand(void)
 {
 	static int8  p;
 	static uint8 ch;
-//zzz	static uint16 param;
 	static uint16 addrbase, curraddr;
 	static int8 d;
 
@@ -209,8 +208,7 @@ void ProcessCommand(void)
 					TxString("\r\nRegister ");
 					TxValU((uint8)(p+1));
 					TxString(" = ");
-					d = P[p];
-					TxValS(d);
+					TxValS(P[p]);
 				}
 				ShowPrompt();
 				break;

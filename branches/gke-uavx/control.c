@@ -295,7 +295,7 @@ void CalcGyroRates(void)
 	if ( P[GyroType] == IDG300 )
 		RollRate = -RollRate;
 
-	if( FlyXMode )
+	if ( IsSet(P[ConfigBits], FlyXMode) )
 	{
 		// "Real" Roll = 0.707 * (P + R), Pitch = 0.707 * (P - R)
 		Temp = RollRate + PitchRate;	
