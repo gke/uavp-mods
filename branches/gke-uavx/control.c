@@ -349,6 +349,8 @@ void DoControl(void)
 	YEp = YE;
 	HEp = HE;
 
+	RollRate = PitchRate = 0;
+
 	#ifdef DEBUG_SENSORS
 	Trace[THE] = HE;
 	Trace[TRollRate] = RollRate;
@@ -429,13 +431,11 @@ void UpdateControls(void)
 
 void CaptureTrims(void)
 { // only used in detecting movement from neutral in hold GPS position
-	#ifdef CAPTURE_TRIMS
 	RollTrim = Limit(DesiredRoll, -MAX_TRIM, MAX_TRIM);
 	PitchTrim = Limit(DesiredPitch, -MAX_TRIM, MAX_TRIM);
 	YawTrim = Limit(DesiredYaw, -MAX_TRIM, MAX_TRIM);
 
 	HoldRoll = HoldPitch = HoldYaw = 0;
-	#endif // CAPTURE_TRIMS
 } // CaptureTrims
 
 void StopMotors(void)
@@ -449,6 +449,7 @@ void StopMotors(void)
 
 void InitControl(void)
 {
+	RollRate = PitchRate = 0;
 	RollTrim = PitchTrim = YawTrim = 0;	
 	VUDComp = VBaroComp = 0;	
 	UDSum = 0;

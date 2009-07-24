@@ -121,21 +121,8 @@ const rom uint8 Map[CustomTxRx+1][CONTROLS]=
 		{ 6,1,4,7,3,2,5 },	// JR DXS12 
 		{ 6,1,4,7,3,2,5 },	// Spektrum DX7/AR7000
 		{ 5,1,4,6,3,2,7 },	// Spektrum DX7/AR6200
-//#include "custom.h"
 		{ 6,1,4,7,3,2,5 } // custom Tx/Rx combination
 	};
-
-/*
-Futaba Ch3 Throttle
-Futaba Ch2 Throttle
-Futaba 9C DM8/AR7000
-JR XP8103/PPM
-JR 9XII DM9/AR7000
-JR DSX12/AR7000
-Spektrum DX7/AR7000
-Spektrum DX7/AR6200
-Custom
-*/
 
 void main(void)
 {
@@ -160,7 +147,6 @@ void main(void)
 	INTCONbits.TMR0IE = true; 
 	EnableInterrupts;
 
-	Delay100mSWithOutput(5);	// wait 0.5 sec until LISL is ready to talk
 	InitLISL();
 
 	InitCompass();
@@ -182,7 +168,7 @@ void main(void)
 		if( _AccelerationsValid ) LEDYellow_ON;
 
 		EnableInterrupts;	
-		WaitForRxSignalAndArmed();
+		WaitForRxSignalAndArmed();			// WAITS here until ARMED
 		WaitThrottleClosedAndRTHOff();		
 
 		_Failsafe = _LostModel = false;
@@ -237,14 +223,12 @@ void main(void)
 						{
 							State = Landed;
 							Temp = ToPercent(HoverThrottle, OUT_MAXIMUM);
-							WriteEE(_EESet1 + PercentHoverThr, Temp);
+							WriteEE((CurrentParamSet-1) * MAX_PARAMETERS + PercentHoverThr, Temp);
 						}
 					break;
 				case InFlight:
 
 					DoNavigation();
-
-					LEDGame();
 
 					if ( DesiredThrottle < IdleThrottle )
 					{
@@ -261,12 +245,11 @@ void main(void)
 			else
 				DoFailsafe();
 
-			RollRate = PitchRate = 0;
 			GetGyroValues();				// First gyro read
 			GetHeading();
 			GetBaroPressure();
 	
-			while ( mS[Clock] < mS[UpdateTimeout] ) {};
+			while ( mS[Clock] < mS[UpdateTimeout] ) {}; // cycle sync. point
 			mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
 
 			GetGyroValues();				// Second gyro read

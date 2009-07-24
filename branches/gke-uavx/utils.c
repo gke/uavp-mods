@@ -51,7 +51,6 @@ int16 int16sqrt(int16);
 void SendLEDs(void);
 void SwitchLEDsOn(uint8);
 void SwitchLEDsOff(uint8);
-void LEDGame(void);
 void CheckAlarms(void);
 
 void DumpTrace(void);
@@ -175,11 +174,7 @@ void ReadParametersEE(void)
 	static int8 p, c; 
 	static uint16 addr;
 
-	if( CurrentParamSet == 1 )
-		addr = _EESet1;	
-	else
-		addr = _EESet2;
-	
+	addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
 	for(p = 0; p <= LastParam; p++)
 		P[p] = ReadEE(addr + p);
 
@@ -237,13 +232,9 @@ void WriteParametersEE(uint8 s)
 	uint8 b;
 	uint16 addr;
 	
-	if( s == 1 )
-		addr = _EESet1;	
-	else
-		addr = _EESet2;
-
+	addr = (s - 1)* MAX_PARAMETERS;
 	for ( p = 0; p <= LastParam; p++)
-		WriteEE(addr++, P[p]);
+		WriteEE( addr + p,  P[p]);
 } // WriteParametersEE
 
 void UpdateParamSetChoice(void)
@@ -346,7 +337,10 @@ void UpdateParamSetChoice(void)
 
 void InitParameters(void)
 {
-	while ( ReadEE(_EESet1 + LastParam) == 0xff )
+	uint16 addr;
+
+	addr = ( CurrentParamSet - 1 ) * MAX_PARAMETERS;
+	while ( ReadEE(addr) == 0xff )
 		ProcessCommand();
 
 	CurrentParamSet = 1;
@@ -378,16 +372,15 @@ const int16 SineTable[17]={
 int16 Table16(int16 Val, const int16 *T)
 {
 	static uint8 Index,Offset;
-	static int16 Temp, Low, High, Result;
+	static int16 Temp, Low, High;
 
 	Index = (uint8) (Val >> 4);
 	Offset = (uint8) (Val & 0x0f);
 	Low = T[Index];
 	High = T[++Index];
 	Temp = (High-Low) * Offset;
-	Result = Low + SRS16(Temp, 4);
 
-	return(Result);
+	return( Low + SRS16(Temp, 4) );
 } // Table16
 
 int16 int16sin(int16 A)
@@ -525,35 +518,6 @@ void SwitchLEDsOff(uint8 l)
 	LEDShadow &= ~l;
 	SendLEDs();
 } // SwitchLEDsOff
-
-void LEDGame(void)
-{
-	if( --LEDCycles == 0 )
-	{
-		LEDCycles = ((255-DesiredThrottle)>>3) +5;	// new setup
-		if( _Hovering )
-		{
-			AUX_LEDS_ON;	// baro locked, all aux-leds on
-		}
-		else
-		if( LEDShadow & LEDAUX1 )
-		{
-			AUX_LEDS_OFF;
-			LEDAUX2_ON;
-		}
-		else
-		if( LEDShadow & LEDAUX2 )
-		{
-			AUX_LEDS_OFF;
-			LEDAUX3_ON;
-		}
-		else
-		{
-			AUX_LEDS_OFF;
-			LEDAUX1_ON;
-		}
-	}
-} // LEDGame
 
 void CheckAlarms(void)
 {

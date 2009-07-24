@@ -255,7 +255,8 @@ void CheckForHover(void)
 	{
 		_Hovering = false;
 		DesiredBaroPressure = CurrentBaroPressure;
-		VBaroComp = BE = BEp = 0;	
+		VBaroComp = BE = BEp = 0;
+		AUX_LEDS_OFF;	
 	}
 	else
 		_Hovering = _BaroAltitudeValid;
@@ -305,7 +306,9 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 		}
 	
 		BEp = BE;
-		
+	
+		AUX_LEDS_ON;
+	
 		#ifdef BARO_SCRATCHY_BEEPER
 		Beeper_TOG;
 		#endif

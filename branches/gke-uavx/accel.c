@@ -167,6 +167,8 @@ void IsLISLActive(void)
 
 void InitLISL(void)
 {
+	Delay100mSWithOutput(5);	// wait 0.5 sec until LISL is ready to talk
+
 	NeutralLR = 0;
 	NeutralFB = 0;
 	NeutralUD = 0;
@@ -180,7 +182,6 @@ void InitLISL(void)
 	}
 	#endif  // USE_ACCELEROMETER
 } // InitLISL
-
 
 void ReadAccelerations()
 {

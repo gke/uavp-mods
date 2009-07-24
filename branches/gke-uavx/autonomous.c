@@ -54,16 +54,11 @@ void AltitudeHold(int16 DesiredAltitude)
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
-//TxVal32(AE,0,' ');
-//TxVal32(DesiredThrottle,0,0);
-//TxNextLine();
 		}
 		else
 		{	
 			DesiredThrottle = HoverThrottle;
 			BaroAltitudeHold(-DesiredAltitude);
-//TxVal32(DesiredThrottle,0,0);
-//TxNextLine();
 		}
 	else
 	{
@@ -122,13 +117,29 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			}
 			else
 				NavYCorr = 0;
-		
+	
+			DesiredRoll += NavRCorr;
 			SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
-			DesiredRoll += NavRCorr + (SumNavRCorr * NavKi) / 256L;
+			#ifdef ZERO_NAVINT
+			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
+				DesiredRoll += (SumNavRCorr * NavKi) / 256L;
+			else
+				SumNavRCorr = 0;
+			#else
+			DesiredRoll += (SumNavRCorr * NavKi) / 256L;
+			#endif //ZERO_NAVINT
 			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
 	
+			DesiredPitch += NavPCorr;
 			SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit256, NavIntLimit256);
-			DesiredPitch += NavPCorr + (SumNavPCorr * NavKi) / 256L;
+			#ifdef ZERO_NAVINT
+			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
+				DesiredPitch += (SumNavPCorr * NavKi) / 256L;
+			else
+				SumNavPCorr = 0;
+			#else
+			DesiredPitch += (SumNavPCorr * NavKi) / 256L;
+			#endif //ZERO_NAVINT
 			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
 
 			DesiredYaw += NavYCorr;
@@ -251,7 +262,6 @@ void CheckThrottleMoved(void)
 	}
 } // CheckThrottleMoved
 
-
 void InitNavigation(void)
 {
 	int8 w;
@@ -265,6 +275,7 @@ void InitNavigation(void)
 	GPSNorthHold = GPSEastHold = 0;
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
 	NavState = PIC;
+	_RTHAltitudeHold = true;
 	_NavComputed = false;
 } // InitNavigation
 

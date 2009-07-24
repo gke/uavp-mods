@@ -97,7 +97,7 @@ void ShowSetup(uint8 h)
 	else
 		TxString("not available\r\n");
 
-	if ( ReadEE(_EESet1 + LastParam) == 0xff )
+	if ( ReadEE(LastParam) == 0xff )
 		TxString("Parameters appear to be not initialised?\r\n");
 	else
 	{
@@ -227,17 +227,17 @@ void ProcessCommand(void)
 							_ParametersInvalid = false; 	// ALL parameters must be written 
 					TxString(" = ");
 					d = RxNumS();
-					if ( p < _EESet2 )
+					if ( p < MAX_PARAMETERS )
 						if( CurrentParamSet == 1 )
 						{
-							WriteEE(_EESet1 + p, d);
+							WriteEE(p, d);
 							if ( ComParms[p] )
-								WriteEE(_EESet2 + p, d);
+								WriteEE(MAX_PARAMETERS + p, d);
 						}
 						else
 						{
 							if ( !ComParms[p] )
-								WriteEE(_EESet2 + p, d);
+								WriteEE(MAX_PARAMETERS + p, d);
 						}
 					LEDBlue_OFF;
 				ShowPrompt();
