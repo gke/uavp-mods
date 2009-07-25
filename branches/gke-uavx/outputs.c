@@ -95,7 +95,7 @@ void DoMix(int16 CurrThrottle)
 
 } // DoMix
 
-uint8 	MotorDemandRescale;
+boolean 	MotorDemandRescale;
 
 void CheckDemand(int16 CurrThrottle)
 {

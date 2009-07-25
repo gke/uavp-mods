@@ -51,6 +51,7 @@ int16 int16sqrt(int16);
 void SendLEDs(void);
 void SwitchLEDsOn(uint8);
 void SwitchLEDsOff(uint8);
+void LEDGame(void);
 void CheckAlarms(void);
 
 void DumpTrace(void);
@@ -58,7 +59,7 @@ void DumpTrace(void);
 void Delay1mS(int16 d)
 { 
 	int16 i;
-	uint8 T0IntEn;
+	boolean T0IntEn;
 
 	T0IntEn = INTCONbits.TMR0IE;	// not protected?
 	INTCONbits.TMR0IE = false;
@@ -77,7 +78,7 @@ void Delay1mS(int16 d)
 void Delay100mSWithOutput(int16 dur)
 {  // Motor and servo pulses are still output every 10ms
 	int16 i, j;
-	uint8 T0IntEn;
+	boolean T0IntEn;
 
 	T0IntEn = INTCONbits.TMR0IE;	// not protected?
 	INTCONbits.TMR0IE = false;
@@ -386,7 +387,7 @@ int16 Table16(int16 Val, const int16 *T)
 int16 int16sin(int16 A)
 {	// A is in milliradian 0 to 2000Pi, result is -255 to 255
 	static int16 	v;
-	static uint8	Negate;
+	static boolean	Negate;
 
 	while ( A < 0 ) A += TWOMILLIPI;
 	while ( A >= TWOMILLIPI ) A -= TWOMILLIPI;
@@ -457,7 +458,7 @@ int16 int16atan2(int16 y, int16 x)
 					A = MILLIPI + A;
 			else
 				if ( y < 0 ) // 4th Quadrant 
-					A = TWOMILLIPI-A;
+					A = TWOMILLIPI - A;
 	}
 	return(A);
 } // int16atan2
@@ -488,7 +489,7 @@ void SendLEDs(void)
 	SPI_IO = WR_SPI;	// SDA is output
 	SPI_SCL = 0;		// because shift is on positive edge
 	
-	for(s=8; s!=0; s--)
+	for(s = 8; s ; s--)
 	{
 		if( i & 0x80 )
 			SPI_SDA = 1;
@@ -518,6 +519,33 @@ void SwitchLEDsOff(uint8 l)
 	LEDShadow &= ~l;
 	SendLEDs();
 } // SwitchLEDsOff
+
+void LEDGame(void)
+{
+	if( --LEDCycles == 0 )
+	{
+		LEDCycles = (( 255 - DesiredThrottle ) >> 3) + 5;	// new setup
+		if( _Hovering )
+			AUX_LEDS_ON;	// baro locked, all aux-leds on
+		else
+			if( LEDShadow & AUX1M )
+			{
+				AUX_LEDS_OFF;
+				LEDAUX2_ON;
+			}
+			else
+				if( LEDShadow & AUX2M )
+				{
+					AUX_LEDS_OFF;
+					LEDAUX3_ON;
+				}
+				else
+				{
+					AUX_LEDS_OFF;
+					LEDAUX1_ON;
+				}
+	}
+} // LEDGame
 
 void CheckAlarms(void)
 {

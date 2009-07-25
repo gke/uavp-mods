@@ -126,7 +126,6 @@ const rom uint8 Map[CustomTxRx+1][CONTROLS]=
 
 void main(void)
 {
-	static uint8	i;
 	static int16	Temp;
 
 	DisableInterrupts;
@@ -229,6 +228,8 @@ void main(void)
 				case InFlight:
 
 					DoNavigation();
+
+					LEDGame();
 
 					if ( DesiredThrottle < IdleThrottle )
 					{

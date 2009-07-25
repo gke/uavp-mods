@@ -1,5 +1,10 @@
 // EXPERIMENTAL
 
+#ifndef DEBUG_SENSORS
+	// if defined emits H=Hold pos., R=Capture new pos., G=GPS RTH alt hold, B=Baro RTH alt hold
+	#define HYPERTERM_TRACE
+#endif // DEBUG_SENSORS
+
 // Navigation
 
 // comment out for normal wind compensation
@@ -11,8 +16,6 @@
 
 // Gyros
 
-// Outstanding issue with gyro compensation offset sense yet to be resolved
-//#define REVERSE_OFFSET_SIGNS
 
 // Barometer
 
@@ -94,7 +97,7 @@
 // reads $GPGGA and $GPRMC sentences - all others discarded
 
 #ifndef DEBUG_SENSORS
-#define EMIT_TONE			// emits "tone" on Tx pin hover position is locked
+#define EMIT_TONE			// emits ~50Hz "tone" on Tx pin hover position is locked
 #endif // DEBUG_SENSORS
 
 #define	NAV_GAIN_THRESHOLD 		20		// Navigation disabled if Ch7 is less than this
@@ -117,7 +120,7 @@
 #define VERT_DAMPING_UPDATE 	50L 	// mS vertical velocity damping
 
 #define THR_MIDDLE				10  	// throttle stick dead zone for baro 
-#define THR_HOVER				75		// min throttle stick for alti lock
+#define THR_HOVER				75		// min throttle stick for altitude lock
 
 #define GPS_TIMEOUT				2000L	// mS
 
@@ -305,7 +308,7 @@ typedef union {
 #define ALL_LEDS_OFF	SwitchLEDsOff(BlueM|RedM|GreenM|YellowM)
 #define AUX_LEDS_OFF	SwitchLEDsOff(AUX1M|AUX2M|AUX3M)
 
-#define ARE_ALL_LEDS_OFF if((LEDShadow&(BlueM|RedM|GreenM|YellowM))==0)
+#define ARE_ALL_LEDS_OFF if( (LEDShadow&(BlueM|RedM|GreenM|YellowM))== 0 )
 
 #define LEDRed_ON		SwitchLEDsOn(RedM)
 #define LEDBlue_ON		SwitchLEDsOn(BlueM)
@@ -553,6 +556,7 @@ extern int16 int16sqrt(int16);
 extern void SendLEDs(void);
 extern void SwitchLEDsOn(uint8);
 extern void SwitchLEDsOff(uint8);
+extern void LEDGame(void);
 extern void CheckAlarms(void);
 
 extern void DumpTrace(void);
@@ -679,7 +683,7 @@ extern int16	Motor[NoOfMotors];
 extern int16	Rl,Pl,Yl;	// PID output values
 
 extern boolean	Flags[32];
-extern uint8	LEDCycles;		// for light display
+extern uint8	LEDCycles;		// for hover light display
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 extern uint8 	RxCheckSum;

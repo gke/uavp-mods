@@ -42,11 +42,14 @@ WayPoint WP[MAX_WAYPOINTS];
 
 void AltitudeHold(int16 DesiredAltitude)
 {
-	int16 Temp;
+	static int16 Temp;
 
 	if ( _RTHAltitudeHold )
 		if ( _GPSAltitudeValid && IsSet(P[ConfigBits], UseGPSAlt) )
 		{
+			#ifdef HYPERTERM_TRACE
+			TxChar('G');
+			#endif // HYPERTERM_TRACE
 			AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
@@ -56,7 +59,10 @@ void AltitudeHold(int16 DesiredAltitude)
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
 		}
 		else
-		{	
+		{
+			#ifdef HYPERTERM_TRACE
+			TxChar('B');
+			#endif // HYPERTERM_TRACE	
 			DesiredThrottle = HoverThrottle;
 			BaroAltitudeHold(-DesiredAltitude);
 		}
@@ -165,6 +171,9 @@ void DoNavigation(void)
 
 				if ( ( HoldRoll > MAX_CONTROL_CHANGE )||( HoldPitch > MAX_CONTROL_CHANGE ) )
 				{
+					#ifdef HYPERTERM_TRACE
+					TxChar('R');
+					#endif // HYPERTERM_TRACE
 					NavState = PIC;
 					_Proximity = false;
 					GPSNorthHold = GPSNorth;

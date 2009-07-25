@@ -255,8 +255,7 @@ void CheckForHover(void)
 	{
 		_Hovering = false;
 		DesiredBaroPressure = CurrentBaroPressure;
-		VBaroComp = BE = BEp = 0;
-		AUX_LEDS_OFF;	
+		VBaroComp = BE = BEp = 0;	
 	}
 	else
 		_Hovering = _BaroAltitudeValid;
@@ -289,9 +288,6 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 		else
 			if( VBaroComp < Temp )
 					VBaroComp++; // climb
-	
-	// zzz wrong sense?	if( VBaroComp > Temp )
-	//		VBaroComp--;
 					
 		// Differential	
 		Delta = BE - BEp;	
@@ -306,8 +302,6 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 		}
 	
 		BEp = BE;
-	
-		AUX_LEDS_ON;
 	
 		#ifdef BARO_SCRATCHY_BEEPER
 		Beeper_TOG;

@@ -85,7 +85,7 @@ int8 NActiveTypes;
 uint8 GPSRxState;
 uint8 ll, nll, cc, tt, lo, hi;
 boolean EmptyField;
-uint8 GPSTxCheckSum, GPSRxCheckSum, GPSCheckSumChar;
+uint8 GPSTxCheckSum, GPSCheckSumChar; // zzz GPSRxCheckSum, 
 #pragma udata
 
 #pragma udata gpsvars4
@@ -146,7 +146,7 @@ int32 ConvertUTime(uint8 lo, uint8 hi)
 } // ConvertUTime
 */
 
-void UpdateField()
+void UpdateField(void)
 {
 	uint8 ch;
 
@@ -161,7 +161,7 @@ void UpdateField()
 	EmptyField = hi < lo;
 } // UpdateField
 
-void ParseGPRMCSentence()
+void ParseGPRMCSentence(void)
 { 	// $GPRMC Recommended minimum specific GNSS data 
 
     UpdateField();
@@ -216,7 +216,7 @@ void ParseGPRMCSentence()
 		TxString("$GPRMC ");   
 } // ParseGPRMCSentence
 
-void ParseGPGGASentence()
+void ParseGPGGASentence(void)
 { 	// full position $GPGGA fix 
 
     UpdateField();
@@ -278,7 +278,7 @@ void SetGPSOrigin(void)
 
 } // SetGPSOrigin
 
-void ParseGPSSentence()
+void ParseGPSSentence(void)
 {
 	static int32 Temp;
 	static uint8 CurrNType;
@@ -349,32 +349,11 @@ void ParseGPSSentence()
 void PollGPS(uint8 ch)
 {
 	switch (GPSRxState) {
-	case WaitGPSBody: 
-		RxCheckSum ^= ch;
-		NMEA[NTail].s[ll++] = ch;
-		if ( ch == '*' )	      
-		{
-			GPSCheckSumChar = GPSTxCheckSum = 0;
-			GPSRxState = WaitGPSCheckSum;
-		}
-		else         
-			if (ch == '$') // abort partial Sentence 
-			{
-				ll = tt = RxCheckSum = 0;
-				NType = FirstNIndex;
-				GPSRxState = WaitNMEATag;
-			}
-			else
-				if ( ll >= (GPSRXBUFFLENGTH-1) )
-					GPSRxState = WaitGPSSentinel;
-				else
-					GPSRxCheckSum = RxCheckSum;
-		break;
 	case WaitGPSCheckSum:
 		if (GPSCheckSumChar < 2)
 		{
 			GPSTxCheckSum = GPSTxCheckSum * 16 + ch;
-			if (ch>='A')
+			if (ch >= 'A')
 				GPSTxCheckSum += 10 - 'A';
 			else
 				GPSTxCheckSum -= '0';
@@ -383,13 +362,21 @@ void PollGPS(uint8 ch)
 		}
 		else
 		{
-			GPSSentenceReceived = GPSRxCheckSum == GPSTxCheckSum;
+			GPSSentenceReceived =  GPSTxCheckSum; // zzz GPSRxCheckSum ==
 			if ( GPSSentenceReceived )
 			{
 				NMEA[NTail].length = ll;
 				NEntries++;
 			}	
 			GPSRxState = WaitGPSSentinel;
+		}
+		break;
+	case WaitGPSSentinel:
+		if (ch == '$')
+		{
+			ll = tt = RxCheckSum = 0;
+			NType = FirstNIndex;
+			GPSRxState = WaitNMEATag;
 		}
 		break;
 	case WaitNMEATag:
@@ -414,14 +401,28 @@ void PollGPS(uint8 ch)
 		else
 	        GPSRxState = WaitGPSSentinel;
 		break;
-	case WaitGPSSentinel:
-		if (ch=='$')
+	case WaitGPSBody: 
+		RxCheckSum ^= ch;
+		NMEA[NTail].s[ll++] = ch;
+		if ( ch == '*' )	      
 		{
-			ll = tt = RxCheckSum = 0;
-			NType = FirstNIndex;
-			GPSRxState = WaitNMEATag;
+			GPSCheckSumChar = GPSTxCheckSum = 0;
+			GPSRxState = WaitGPSCheckSum;
 		}
+		else         
+			if (ch == '$') // abort partial Sentence 
+			{
+				ll = tt = RxCheckSum = 0;
+				NType = FirstNIndex;
+				GPSRxState = WaitNMEATag;
+			}
+			else
+				if ( ll >= (GPSRXBUFFLENGTH-1) )
+					GPSRxState = WaitGPSSentinel;
+			//	else
+			//		GPSRxCheckSum = RxCheckSum;
 		break;
+
     } 
  
 } // PollGPS
@@ -433,7 +434,7 @@ void ResetGPSOrigin(void)
 	// otherwise continue with first acquisition
 } // ResetGPSOrigin
 
-void InitGPS()
+void InitGPS(void)
 { 
 	uint8 n;
 

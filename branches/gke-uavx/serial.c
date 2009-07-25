@@ -149,7 +149,7 @@ int8 RxNumS(void)
 {
 	uint8 ch;
 	int8 n;
-	uint8 Neg;
+	boolean Neg;
 	n = 0;
 
 	Neg = false;

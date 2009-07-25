@@ -65,14 +65,8 @@ void GyroCompensation(void)
 		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
 		// and come back as MiddleLR etc.
 
-		#ifdef REVERSE_OFFSET_SIGNS	
-		// Jim's solution
-		LRAcc += P[MiddleLR];
-		FBAcc += P[MiddleFB];
-		#else
 		LRAcc -= P[MiddleLR];
 		FBAcc -= P[MiddleFB];
-		#endif
 		UDAcc -= P[MiddleUD];
 
 		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
