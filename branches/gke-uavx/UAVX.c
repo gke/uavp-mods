@@ -88,7 +88,8 @@ int16	Motor[NoOfMotors];
 
 int16	Trace[TopTrace+1];
 boolean	Flags[32];
-uint8	LEDCycles;	
+uint8	LEDCycles;
+uint8	HoldResetCount;	
 int8	BatteryVolts;
 
 #pragma udata params
