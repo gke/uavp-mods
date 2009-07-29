@@ -121,6 +121,7 @@ const rom int8	ComParms[]={
 	0,0,0,1,1,1,1
 	};
 
+// Reference Internal Quadrocopter Channel Order
 // 1 Throttle
 // 2 Aileron
 // 3 Elevator
@@ -133,7 +134,7 @@ const rom uint8 Map[CustomTxRx+1][CONTROLS] =
 	{
 		{ 3,1,2,4,5,6,7 }, 	// Futaba Ch3 Throttle
 		{ 2,1,4,3,5,6,7 },	// Futaba Ch2 Throttle
-		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8
+		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8/AR7000
 		{ 1,2,3,4,5,6,7 },	// JR XP8103/PPM
 		{ 7,1,4,6,3,5,2 },	// JR 9XII Spektrum DM9 ?
 
@@ -143,11 +144,13 @@ const rom uint8 Map[CustomTxRx+1][CONTROLS] =
 		{ 6,1,4,7,3,2,5 } 	// custom Tx/Rx combination
 	};
 
+// Rx signalling polarity - this is NOT the edge polarity as 
+// seen by the PIC as it is inverted by the wired NOR
 const rom boolean PPMPosPolarity[CustomTxRx+1] =
 	{
 		false, 	// Futaba Ch3 Throttle
 		false,	// Futaba Ch2 Throttle
-		false,	// Futaba 9C Spektrum DM8
+		true,	// Futaba 9C Spektrum DM8/AR7000
 		true,	// JR XP8103/PPM
 		true,	// JR 9XII Spektrum DM9 ?
 
@@ -169,10 +172,9 @@ void main(void)
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 
-	InitADC();	
-	InitTimersAndInterrupts();
-
+	InitADC();		
 	InitParameters();
+	InitTimersAndInterrupts();
 
 	StopMotors();
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts

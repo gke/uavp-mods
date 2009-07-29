@@ -180,7 +180,7 @@ int8 ReadEE(uint8 addr)
 
 void ReadParametersEE(void)
 {
-	static int8 p, c; 
+	static int8 p, c;
 	static uint16 addr;
 
 	addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
@@ -202,7 +202,8 @@ void ReadParametersEE(void)
 
 	PIE1bits.CCP1IE = false;
 	PosPPM = PPMPosPolarity[P[TxRxType]];
-	CCP1CONbits.CCP1M0 = PosPPM;
+	CCP1CONbits.CCP1M0 = !PosPPM;
+	PPM_Index = PrevEdge = RCGlitches = 0;
 	PIE1bits.CCP1IE = true;
 
 	BatteryVolts = P[LowVoltThres];
@@ -266,32 +267,37 @@ void UpdateParamSetChoice(void)
 	if ( (Abs(RC[PitchC]) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) )
 	{
 		if ( RC[PitchC] > STICK_WINDOW ) // bottom
+		{
 			if ( Selector < -STICK_WINDOW ) // left
 			{ // bottom left
 				NewParamSet = 1;
 				NewRTHAltitudeHold = true;
 			}
 			else
-			{ // bottom right
-				NewParamSet = 2;
-				NewRTHAltitudeHold = true;
-			}	
+				if ( Selector > STICK_WINDOW ) // right
+				{ // bottom right
+					NewParamSet = 2;
+					NewRTHAltitudeHold = true;
+				}
+		}		
 		else
 			if ( RC[PitchC] < -STICK_WINDOW ) // top
+			{		
 				if ( Selector < -STICK_WINDOW ) // left
 				{
+					NewRTHAltitudeHold = false;
 					NewParamSet = 1;
-					NewRTHAltitudeHold = false;
 				}
-				else
-				{ // right
-					NewParamSet = 2;
-					NewRTHAltitudeHold = false;
-				}
+				else 
+					if ( Selector > STICK_WINDOW ) // right
+					{
+						NewRTHAltitudeHold = false;
+						NewParamSet = 2;
+					}
+			}
 
 		if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHAltitudeHold != _RTHAltitudeHold) )
-		{
-					
+		{			
 			CurrentParamSet = NewParamSet;
 			_RTHAltitudeHold = NewRTHAltitudeHold;
 			LEDBlue_ON;
@@ -303,12 +309,14 @@ void UpdateParamSetChoice(void)
 				Delay100mSWithOutput(2);
 				Beeper_ON;
 				Delay100mSWithOutput(2);
+				Beeper_OFF;
 			}
 			if ( _RTHAltitudeHold )
 			{
 				Delay100mSWithOutput(4);
 				Beeper_ON;
-				Delay100mSWithOutput(4);	
+				Delay100mSWithOutput(4);
+				Beeper_OFF;	
 			}
 			Beeper_OFF;
 			LEDBlue_OFF;
@@ -325,7 +333,8 @@ void UpdateParamSetChoice(void)
 		if ( Selector < -STICK_WINDOW ) // left
 			NewTurnToHome = false;
 		else
-			NewTurnToHome = true; // right
+			if ( Selector > STICK_WINDOW ) // left
+				NewTurnToHome = true; // right
 			
 		if ( NewTurnToHome != _TurnToHome )
 		{		
