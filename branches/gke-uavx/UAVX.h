@@ -261,8 +261,7 @@ typedef union {
 #define TMR2_TICK			2				// uSec
 
 // Status 
-#define	_Signal				Flags[0]
-#define	_NegativePPM		Flags[1]	
+#define	_Signal				Flags[0]	
 #define	_NewValues			Flags[2]	
 #define _FirstTimeout		Flags[3]
 
@@ -766,6 +765,6 @@ enum Params {
 extern int8 P[];
 extern const rom int8 ComParms[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
-//extern const rom boolean PPMPosPolarity[];
+extern const rom boolean PPMPosPolarity[];
 
 
