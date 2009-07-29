@@ -156,6 +156,14 @@ int16 ConvertMToGPS(int16 c)
 	return ( ((int32)c * (int32)100000)/((int32)18553) );
 } // ConvertMToGPS
 
+int16 SlewLimit(int16 Old, int16 New, int16 Slew)
+{
+  int16 Lo, Hi;
+  
+  Lo=Old-Slew;
+  Hi=Old+Slew; 
+  return((New<Lo) ? Lo : ((New>Hi) ? Hi : New));
+} // SlewLimit
 
 int8 ReadEE(uint8 addr)
 {
@@ -192,9 +200,9 @@ void ReadParametersEE(void)
 	SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
 	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
 
-	_NegativePPM = (( P[TxRxType] == JRPPM ) || ( P[TxRxType] == JRDM9 ) 
-				|| ( P[TxRxType] == DX7AR7000 )|| ( P[TxRxType] == DX7AR6200 ));
-
+	PIE1bits.CCP1IE = false;
+	PosPPM = PPMPosPolarity[P[TxRxType]];
+	CCP1CONbits.CCP1M0 = PosPPM;
 	PIE1bits.CCP1IE = true;
 
 	BatteryVolts = P[LowVoltThres];
@@ -250,7 +258,7 @@ void UpdateParamSetChoice(void)
 
 	UpdateControls();
 
-	if ( IsSet( P[ConfigBits], TxMode2) )
+	if ( P[ConfigBits] & TxMode2Mask )
 		Selector = RC[RollC];
 	else
 		Selector = -RC[YawC];
@@ -307,7 +315,7 @@ void UpdateParamSetChoice(void)
 		}
 	}
 
-	if ( IsSet( P[ConfigBits], TxMode2) )
+	if ( P[ConfigBits] & TxMode2Mask )
 		Selector = -RC[YawC];
 	else
 		Selector = RC[RollC];
