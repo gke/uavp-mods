@@ -200,12 +200,17 @@ void ReadParametersEE(void)
 	SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
 	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
 
+	_NegativePPM = (( P[TxRxType] == JRPPM ) || ( P[TxRxType] == JRDM9 ) 
+				|| ( P[TxRxType] == DX7AR7000 )|| ( P[TxRxType] == DX7AR6200 ));
+
+	PIE1bits.CCP1IE = true;
+/*
 	PIE1bits.CCP1IE = false;
 	PosPPM = PPMPosPolarity[P[TxRxType]];
 	CCP1CONbits.CCP1M0 = !PosPPM;
 	PPM_Index = PrevEdge = RCGlitches = 0;
 	PIE1bits.CCP1IE = true;
-
+*/
 	BatteryVolts = P[LowVoltThres];
 	
 } // ReadParametersEE

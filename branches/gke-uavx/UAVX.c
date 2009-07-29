@@ -144,6 +144,7 @@ const rom uint8 Map[CustomTxRx+1][CONTROLS] =
 		{ 6,1,4,7,3,2,5 } 	// custom Tx/Rx combination
 	};
 
+/*
 // Rx signalling polarity - this is NOT the edge polarity as 
 // seen by the PIC as it is inverted by the wired NOR
 const rom boolean PPMPosPolarity[CustomTxRx+1] =
@@ -160,6 +161,7 @@ const rom boolean PPMPosPolarity[CustomTxRx+1] =
 		true	// custom Tx/Rx combination
 	};
 
+*/
 void main(void)
 {
 	static int16	Temp;
