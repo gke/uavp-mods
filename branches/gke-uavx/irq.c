@@ -165,6 +165,7 @@ void high_isr_handler(void)
 					#endif // RX6CH	  
 					_NewValues = RCFrameOK;
 					_Signal = true;
+					CCP1CONbits.CCP1M0 = PosPPM;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
 				}	
 			}
