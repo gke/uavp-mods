@@ -36,13 +36,7 @@
 // Interrupt Routine
 
 #define MIN_PPM_SYNC_PAUSE 2500  	// 2500 *2us = 5ms
-
-#ifdef RX6CH 
-#define RC_CONTROLS 5			
-#else
-#define RC_CONTROLS CONTROLS
-#endif //RX6CH 
-
+ 
 // Prototypes
 
 void ReceivingGPSOnly(uint8);
@@ -97,6 +91,7 @@ void InitTimersAndInterrupts(void)
 
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 	// PPM polarity is before wired OR inverter to PIC
+	// Look for leading synchronisation pulse first
 	CCP1CONbits.CCP1M0 = PPMPosPolarity[P[TxRxType]];
 
 	for (i = Clock; i<= CompassUpdate; i++)
@@ -156,9 +151,10 @@ void high_isr_handler(void)
 					RCGlitches++;
 					RCFrameOK = false;
 				}
+				PPM_Index++;
 				// MUST demand rock solid RC frames for autonomous functions not
 				// to be cancelled by noise-generated partially correct frames
-				if ( ++PPM_Index == RC_CONTROLS )
+				if ( PPM_Index == RC_CONTROLS )
 				{
 					#ifdef RX6CH
 					PPM[CamTiltC].i16 = RC_NEUTRAL;
@@ -167,12 +163,15 @@ void high_isr_handler(void)
 					_NewValues = RCFrameOK;
 					_Signal = true;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
-					CCP1CONbits.CCP1M0 = PosPPM; // reset in case Tx/Rx combo has changed
+				}
+				else
+				{
+					// skip trailing channels
 				}	
 			}
 
 		if ( (P[ConfigBits] & RxPPMMask) == 0 )							
-			CCP1CONbits.CCP1M0 ^= 1;				// For composite PPM signal not using wired OR
+			CCP1CONbits.CCP1M0 ^= 1;			// For composite PPM signal not using wired OR
 
 		PIR1bits.CCP1IF = false;
 	}	

@@ -261,7 +261,8 @@ typedef union {
 #define TMR2_TICK			2				// uSec
 
 // Status 
-#define	_Signal				Flags[0]	
+#define	_Signal				Flags[0]
+	
 #define	_NewValues			Flags[2]	
 #define _FirstTimeout		Flags[3]
 
@@ -367,6 +368,12 @@ typedef union {
 #define RC_FRAME_TIMEOUT 	25
 #define RC_SIGNAL_TIMEOUT 	(5L*RC_FRAME_TIMEOUT)
 #define RC_THR_MAX 			RC_MAXIMUM
+
+#ifdef RX6CH 
+#define RC_CONTROLS 5			
+#else
+#define RC_CONTROLS CONTROLS
+#endif //RX6CH
 
 // ESC
 #define OUT_MINIMUM			1
@@ -593,6 +600,7 @@ enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, 
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
+#define MAX_CONTROLS 12 // maximum Rx channels
 enum WaitGPSStates { WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
 enum FlightStates { Starting, Landing, Landed, InFlight};
 

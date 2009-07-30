@@ -416,12 +416,9 @@ void UpdateControls(void)
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
 	}
 	else
-		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal )
-		{
-			CCP1CONbits.CCP1M0 = PosPPM; // Reset in case Tx/Rx combo has changed 
+		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal ) 
 			// does not need to be precise so polling OK
 			_Signal = false;
-		}
 } // UpdateControls
 
 void CaptureTrims(void)

@@ -37,7 +37,7 @@ uint24	mS[CompassUpdate+1];
 // Interrupt related 
 #pragma udata access isrvars
 uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-i16u 	PPM[CONTROLS];
+i16u 	PPM[MAX_CONTROLS];
 int8 	PPM_Index;
 int24 	PrevEdge, CurrEdge;
 i16u 	Width;
