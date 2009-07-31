@@ -34,24 +34,34 @@
 uint24	mS[CompassUpdate+1];
 #pragma udata
 
+// Interrupt related 
 #pragma udata access isrvars
 uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 i16u PPM[CONTROLS];
-boolean PosPPM;
-boolean RCFrameOK;
 int8 PPM_Index;
-int24 PrevEdge;
+int24 PrevEdge, CurrEdge;
 i16u Width;
-int24 CurrEdge;
-uint8 GPSRxState;
-uint8 RxCheckSum;
-uint8 GPSCheckSumChar, GPSTxCheckSum;
-uint8 ll,tt, NHead, NTail, NEntries;
-#pragma udata
 int16 PauseTime;
+uint8 GPSRxState;
+boolean PosPPM, RCFrameOK, GPSSentenceReceived;
+uint8 ll, tt, gps_ch;
+uint8 RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+
+#pragma udata
+
 int16 	RC[CONTROLS];
 uint24	RCGlitches; 
 
+#pragma udata gpsbuff
+struct {
+	uint8 s[GPSRXBUFFLENGTH];
+	uint8 length;
+	} NMEA;
+#pragma udata
+
+const rom uint8 NMEATag[6] = {"GPGGA"};
+
+// Flight State
 uint8	State;
 uint8	CurrentParamSet;
 

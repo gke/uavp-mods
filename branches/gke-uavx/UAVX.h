@@ -281,8 +281,7 @@ typedef union {
 #define _ThrottleMoving		Flags[19]
 #define _Hovering			Flags[20]
 #define _NavComputed 		Flags[21]
-#define _GPSHeadingValid 	Flags[22]
-#define _GPSAltitudeValid	Flags[23]
+
 #define _RTHAltitudeHold	Flags[24]
 #define _ReturnHome			Flags[25]
 #define _TurnToHome			Flags[26]
@@ -590,8 +589,8 @@ enum {Clock,  UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, 
       AbortTimeout, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
-#define CONTROLS  (NavGainC+1)
-
+#define CONTROLS (NavGainC+1)
+enum WaitGPSStates { WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
 enum FlightStates { Starting, Landing, Landed, InFlight};
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
@@ -614,25 +613,32 @@ enum TraceTags {THE, TCurrentBaroPressure,
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
 
-extern uint24	mS[];
+extern uint24 mS[];
 
-extern uint8	CurrentParamSet;
-
-extern i16u		PPM[];
-extern boolean	PosPPM;
-extern boolean	RCFrameOK;
-extern int8		PPM_Index;
-extern int24	PrevEdge;
-extern i16u 	Width;
-extern int24 	CurrEdge;
+extern uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+extern i16u PPM[];
+extern boolean	PosPPM, RCFrameOK, GPSSentenceReceived;
+extern int8 PPM_Index;
+extern int24 PrevEdge, CurrEdge;
+extern i16u Width;
 extern int16	PauseTime; // for tests
-extern uint8	GPSRxState;
-extern uint8	RxCheckSum;
-extern uint8	GPSCheckSumChar, GPSTxCheckSum;
-extern uint8 	ll, tt, NHead, NTail, NEntries;
-extern uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-extern uint24	RCGlitches;
+extern uint8 GPSRxState;
+extern uint8 ll, tt, gps_ch;
+extern uint8 RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+
 extern int16	RC[];
+extern uint24	RCGlitches;
+
+#define MAXTAGINDEX 4
+#define GPSRXBUFFLENGTH 80
+extern struct {
+	uint8 s[GPSRXBUFFLENGTH];
+	uint8 length;
+	} NMEA;
+
+extern const rom uint8 NMEATag[];
+
+extern uint8 CurrentParamSet;
 
 extern int16	RE, PE, YE, HE;
 extern int16	REp,PEp,YEp, HEp;
@@ -650,8 +656,7 @@ extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDAcc, UDSum, VUDComp;
 
 // GPS
-extern uint8 	GPSMode;
-extern int16 	GPSGroundSpeed, GPSHeading, GPSLongitudeCorrection;
+extern int16 	GPSLongitudeCorrection;
 extern uint8 	GPSNoOfSats;
 extern uint8 	GPSFix;
 extern int16 	GPSHDilute;
@@ -694,7 +699,6 @@ extern uint8	LEDCycles;		// for hover light display
 extern int16	HoldResetCount;	
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
-extern uint8 	RxCheckSum;
 
 extern int16	Trace[];
 
@@ -747,9 +751,13 @@ enum Params {
 #define	LastParam TxRxType
 
 #define FlyXMode 		0
+#define FlyXModeMask 	0x01
 #define TxMode2 		2
-#define RxPPM 			3 
+#define TxMode2Mask 	0x02
+#define RxPPM 			3
+#define RxPPMMask		0x04 
 #define UseGPSAlt 		5
+#define	UseGPSAltMask	0x10
 
 extern int8 P[];
 extern const rom int8 ComParms[];

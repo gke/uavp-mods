@@ -44,11 +44,6 @@ void UpdateGPS(void);
 // Variables
 
 #pragma udata gpsvars
-int16 GPSGroundSpeed, GPSHeading;
-boolean GPSSentenceReceived;
-uint8 NType;
-uint8 GPSMode;
-
 uint8 GPSNoOfSats;
 uint8 GPSFix;
 int16 GPSHDilute;
@@ -63,34 +58,12 @@ int16 GPSLongitudeCorrection;
 int16 GPSAltitude, GPSRelAltitude, GPSOriginAltitude;
 #pragma udata
 
-#pragma udata gpsbuff
-// Max NMEA sentence length is 80 char
-#define GPSRXBUFFLENGTH 80
-#define NBUFF_MASK	1
-struct {
-	uint8 s[GPSRXBUFFLENGTH];
-	uint8 type, length;
-	} NMEA[NBUFF_MASK+1];
-#pragma udata
-
 // Global Variables
 
 #pragma udata gpsvars3
-enum WaitGPSStates {WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
 int16 ValidGPSSentences;
-int8 NActiveTypes;
 uint8 nll, cc, lo, hi;
 boolean EmptyField;
-#pragma udata
-
-#pragma udata gpsvars4
-#define MAXTAGINDEX 4
-enum GPSSentences {GPGGA, GPRMC};
-#define FirstNIndex GPGGA
-#define LastNIndex GPRMC
-// must be in sorted alpha order
-const uint8 NMEATag[LastNIndex+1][6] = {{"GPGGA"},{"GPRMC"}};
-uint8 NMEAActive[LastNIndex+1];
 #pragma udata
 
 int16 ConvertInt(uint8 lo, uint8 hi)
@@ -101,7 +74,7 @@ int16 ConvertInt(uint8 lo, uint8 hi)
 	ival = 0;
 	if ( !EmptyField )
 		for (i = lo; i <= hi ; i++ )
-			ival = ival * 10 + NMEA[NHead].s[i] - '0';
+			ival = ival * 10 + NMEA.s[i] - '0';
 
 	return (ival);
 } // ConvertInt
@@ -147,69 +120,14 @@ void UpdateField(void)
 
 	lo = cc;
 
-	ch = NMEA[NHead].s[cc];
+	ch = NMEA.s[cc];
 	while (( cc < nll ) && ( ch != ',' ) && ( ch != '*' ) ) 
-		ch = NMEA[NHead].s[++cc];
+		ch = NMEA.s[++cc];
 
 	hi = cc - 1;
 	cc++;
 	EmptyField = hi < lo;
 } // UpdateField
-
-void ParseGPRMCSentence(void)
-{ 	// $GPRMC Recommended minimum specific GNSS data 
-
-    UpdateField();
-    
-    UpdateField();   //UTime
-	//GPSMissionTime=ConvertUTime(lo,hi);
-
-	UpdateField();	// Status
-	_GPSValid = (NMEA[NHead].s[lo] == 'A');    
-
-	UpdateField();   //Lat
-    GPSLatitude = ConvertLatLonM(lo,hi);
-    UpdateField();   //LatH
-    if (NMEA[NHead].s[lo] == 'S')
-      	GPSLatitude = -GPSLatitude;
-
-    UpdateField();   //Lon
-    // no latitude compensation on longitude - yet!   
-    GPSLongitude = ConvertLatLonM(lo,hi);
-    UpdateField();   //LonH
-	if (NMEA[NHead].s[lo] == 'W')
-      	GPSLongitude = -GPSLongitude;
-         
-    UpdateField();   //Speed over Ground in Knots
-	GPSGroundSpeed = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi);
-	//GPSGroundSpeed = ((int32)GPSGroundSpeed * 515) / 1000L; // Decimetres/Sec
-	GPSGroundSpeed = ((int32)GPSGroundSpeed * 527L)>>10;
-
-    UpdateField();   //Course over ground
-	// drop one decimal place
-    GPSHeading = ConvertInt(lo, hi-3) * 10 + ConvertInt(hi-1, hi-1);
-	//GPSHeading = ((int32)GPSHeading * MILLIPI)/1800L;
-	GPSHeading = ConvertDDegToMPi(GPSHeading);
-
-    UpdateField();   // Date
-
-	UpdateField();
-	/* Not produced by most GPS units
-	GPSMagVariation = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi);
-	//GPSMagVariation = ((int32)GPSMagVariation * MILLIPI)/1800L;
-	GPSMagVariation = ConvertDDegToMPi(GPSMagVariation);
-	*/
-    UpdateField();   // Mag Var Units
-	/*
-	if (NMEA[NHead].s[lo] == 'W')
-		GPSMagVariation = -GPSMagVariation;
-	*/
-	UpdateField();   // Mode (A,D,E)
-	GPSMode = NMEA[NHead].s[lo];
-
-	if ( _GPSTestActive )
-		TxString("$GPRMC ");   
-} // ParseGPRMCSentence
 
 void ParseGPGGASentence(void)
 { 	// full position $GPGGA fix 
@@ -222,14 +140,14 @@ void ParseGPGGASentence(void)
 	UpdateField();   //Lat
     GPSLatitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LatH
-    if (NMEA[NHead].s[lo] == 'S')
+    if (NMEA.s[lo] == 'S')
       	GPSLatitude = -GPSLatitude;
 
     UpdateField();   //Lon
     // no latitude compensation on longitude - yet!    
     GPSLongitude = ConvertLatLonM(lo,hi);
     UpdateField();   //LonH
-	if (NMEA[NHead].s[lo] == 'W')
+	if (NMEA.s[lo] == 'W')
       	GPSLongitude = -GPSLongitude;
          
     UpdateField();   //Fix 
@@ -268,9 +186,7 @@ void SetGPSOrigin(void)
 	Temp = ConvertDDegToMPi(Temp);
 	GPSLongitudeCorrection = int16cos(Temp);
 
-	if ( _GPSAltitudeValid )
-		GPSOriginAltitude = GPSAltitude;
-
+	GPSOriginAltitude = GPSAltitude;
 } // SetGPSOrigin
 
 void ParseGPSSentence(void)
@@ -280,27 +196,13 @@ void ParseGPSSentence(void)
 
 	cc = 0;
 
-	nll = NMEA[NHead].length;
-	CurrNType = NMEA[NHead].type;
+	nll = NMEA.length;
 
-	switch ( CurrNType ) {
-		case GPGGA: ParseGPGGASentence(); break;
-		case GPRMC: ParseGPRMCSentence(); break;
-		default: break;
-	}
-
-	NHead++; NHead &= NBUFF_MASK;
-	NEntries--; // possibility of being clobbering by PollGPS in interrupt
+	ParseGPGGASentence(); 
 
 	if ( _GPSValid )
 	{
-		if ( !NMEAActive[CurrNType] )
-		{
-			NMEAActive[CurrNType] = true;
-			NActiveTypes++;
-		}
-
-	    if ( ( ValidGPSSentences <  INITIAL_GPS_SENTENCES) || !_GPSAltitudeValid )
+	    if ( ValidGPSSentences <  INITIAL_GPS_SENTENCES )
 		{   // repetition to ensure GPGGA altitude is captured
 
 			if ( _GPSTestActive )
@@ -311,16 +213,9 @@ void ParseGPSSentence(void)
 
 			_GPSValid = false;
 
-			if ( CurrNType == GPGGA )
-			{
-				GPSOriginAltitude = GPSAltitude;
-				_GPSAltitudeValid = true;
-				if (GPSHDilute <= MIN_HDILUTE )
-					ValidGPSSentences++;
-			}
-			else
-				if ( CurrNType == GPRMC )
-					_GPSHeadingValid = true;
+			GPSOriginAltitude = GPSAltitude;
+			if (GPSHDilute <= MIN_HDILUTE )
+				ValidGPSSentences++;
 		
 			SetGPSOrigin();
 			
@@ -332,8 +227,7 @@ void ParseGPSSentence(void)
 			GPSEast = GPSLongitude - GPSOriginLongitude;
 			GPSEast = SRS32((int32)GPSEast * GPSLongitudeCorrection, 8); 
 
-			if ( CurrNType == GPGGA )
-				GPSRelAltitude = GPSAltitude - GPSOriginAltitude;
+			GPSRelAltitude = GPSAltitude - GPSOriginAltitude;
 		}
 	}
 	else
@@ -341,65 +235,31 @@ void ParseGPSSentence(void)
 			TxString("invalid\r\n");
 } // ParseGPSSentence
 
+/* inlined in irq.c
+
 void PollGPS(uint8 ch)
 {
-	switch (GPSRxState) {
+	switch ( GPSRxState ) {
 	case WaitGPSCheckSum:
 		if (GPSCheckSumChar < 2)
 		{
-			GPSTxCheckSum = GPSTxCheckSum * 16 + ch;
+			GPSTxCheckSum *= 16;
 			if (ch >= 'A')
-				GPSTxCheckSum += 10 - 'A';
+				GPSTxCheckSum += ( ch - 'A' + 10);
 			else
-				GPSTxCheckSum -= '0';
+				GPSTxCheckSum += ( ch - '0' );
 
 			GPSCheckSumChar++;
 		}
 		else
 		{
-			GPSSentenceReceived = GPSTxCheckSum;
-			if ( GPSSentenceReceived )
-			{
-				NMEA[NTail].length = ll;
-				NEntries++;
-			}	
+			NMEA.length = ll;	
+			GPSSentenceReceived = ( GPSTxCheckSum + RxCheckSum ) == 0;
 			GPSRxState = WaitGPSSentinel;
 		}
 		break;
-	case WaitGPSSentinel:
-		if (ch == '$')
-		{
-			ll = tt = RxCheckSum = 0;
-			NType = FirstNIndex;
-			GPSRxState = WaitNMEATag;
-		}
-		break;
-	case WaitNMEATag:
-		RxCheckSum ^= ch;
-		while ( (ch != NMEATag[NType][tt]) && ( NType < LastNIndex ))
-			NType++;
-		if ( ch == NMEATag[NType][tt] ) 
-			if ( tt == MAXTAGINDEX )
-				if ( NEntries > 1 )
-				{
-		//zzz			Beeper_ON;
-					GPSRxState = WaitGPSSentinel;
-				}
-				else
-				{
-					NTail++; NTail &= NBUFF_MASK;
-					NMEA[NTail].type = NType;
-					GPSRxState = WaitGPSBody;
-				}
-	        else
-				tt++;
-		else
-	        GPSRxState = WaitGPSSentinel;
-		break;
 	case WaitGPSBody: 
-		RxCheckSum ^= ch;
-		NMEA[NTail].s[ll++] = ch;
-		if ( ch == '*' )	      
+		if ( ch == '*' )      
 		{
 			GPSCheckSumChar = GPSTxCheckSum = 0;
 			GPSRxState = WaitGPSCheckSum;
@@ -408,20 +268,42 @@ void PollGPS(uint8 ch)
 			if (ch == '$') // abort partial Sentence 
 			{
 				ll = tt = RxCheckSum = 0;
-				NType = FirstNIndex;
 				GPSRxState = WaitNMEATag;
 			}
 			else
-				if ( ll >= (GPSRXBUFFLENGTH-1) )
+			{
+				RxCheckSum ^= ch;
+				NMEA.s[ll++] = ch; // no check for buffer overflow
+				if ( ll > ( GPSRXBUFFLENGTH-1 ) )
 					GPSRxState = WaitGPSSentinel;
+			}
+					
 		break;
+	case WaitNMEATag:
+		RxCheckSum ^= ch;
+		if ( ch == NMEATag[tt] ) 
+			if ( tt == MAXTAGINDEX )
+				GPSRxState = WaitGPSBody;
+	        else
+				tt++;
+		else
+	        GPSRxState = WaitGPSSentinel;
+		break;
+	case WaitGPSSentinel: // highest priority skipping unused sentence types
+		if (ch == '$')
+		{
+			ll = tt = RxCheckSum = 0;
+			GPSRxState = WaitNMEATag;
+		}
+		break;	
     } 
  
 } // PollGPS
+inlined in irq.c */
 
 void ResetGPSOrigin(void)
 {
-	if ( (ValidGPSSentences >=  INITIAL_GPS_SENTENCES) && _GPSAltitudeValid )
+	if ( ValidGPSSentences >=  INITIAL_GPS_SENTENCES )
 		SetGPSOrigin();	
 	// otherwise continue with first acquisition
 } // ResetGPSOrigin
@@ -431,30 +313,25 @@ void InitGPS(void)
 	uint8 n;
 
 	cc = 0;
-	NEntries = NHead = NTail = 0;
-	for (n = FirstNIndex; n <=LastNIndex; n++)
-		NMEAActive[n] = false;
-	NActiveTypes = 0;
 
-	GPSMode = '_';
-	GPSMissionTime = GPSRelAltitude = GPSHeading = GPSGroundSpeed = GPSFix = GPSNoOfSats = GPSHDilute = 0;
+	GPSMissionTime = GPSRelAltitude = GPSFix = GPSNoOfSats = GPSHDilute = 0;
 	GPSEast = GPSNorth = 0;
 
 	ValidGPSSentences = 0;
 
 	_GPSValid = false; 
-	GPSSentenceReceived=false;
-  	GPSRxState=WaitGPSSentinel; 
+	GPSSentenceReceived = false;
+  	GPSRxState = WaitGPSSentinel; 
   	
 } // InitGPS
 
 void UpdateGPS(void)
 {
-	if ( NEntries > 0 )
+	if ( GPSSentenceReceived )
 	{
 		LEDBlue_ON;
 		LEDRed_OFF;
-	//	GPSSentenceReceived = false;  
+		GPSSentenceReceived = false;  
 		ParseGPSSentence(); // 7.5mS 18f2520 @ 16MHz
 		if ( _GPSValid )
 		{

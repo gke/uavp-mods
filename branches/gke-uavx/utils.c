@@ -192,8 +192,9 @@ void ReadParametersEE(void)
 	SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
 	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
 
+	PIE1bits.CCP1IE = false;
 	PosPPM = PPMPosPolarity[P[TxRxType]];
-
+	CCP1CONbits.CCP1M0 = PosPPM;
 	PIE1bits.CCP1IE = true;
 
 	BatteryVolts = P[LowVoltThres];
@@ -249,7 +250,7 @@ void UpdateParamSetChoice(void)
 
 	UpdateControls();
 
-	if ( IsSet( P[ConfigBits], TxMode2) )
+	if ( P[ConfigBits] & TxMode2Mask )
 		Selector = RC[RollC];
 	else
 		Selector = -RC[YawC];
@@ -306,7 +307,7 @@ void UpdateParamSetChoice(void)
 		}
 	}
 
-	if ( IsSet( P[ConfigBits], TxMode2) )
+	if ( P[ConfigBits] & TxMode2Mask )
 		Selector = -RC[YawC];
 	else
 		Selector = RC[RollC];
@@ -340,7 +341,7 @@ void InitParameters(void)
 	uint16 addr;
 
 	addr = ( CurrentParamSet - 1 ) * MAX_PARAMETERS;
-	while ( ReadEE(addr) == 0xff )
+//zzz	while ( ReadEE(addr) == 0xff )
 		ProcessCommand();
 
 	CurrentParamSet = 1;

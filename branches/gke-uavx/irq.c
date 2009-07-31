@@ -72,14 +72,20 @@ void ReceivingGPSOnly(uint8 r)
 void MapRC(void)
 {  // re-maps captured PPM to Rx channel sequence
 	static uint8 c;
+	static LastThrottle; 
+
+	// Filter throttle only as it will normally be the minimum width pulse
+	LastThrottle = RC[ThrottleC];
 
 	for (c = 0 ; c < CONTROLS ; c++)
 		RC[c] = PPM[Map[P[TxRxType]][c]-1].low8;
+LEDBlue_OFF;
+if ( RC[0] > 20 ) LEDBlue_ON;
+	RC[ThrottleC] = SoftFilter(LastThrottle, RC[ThrottleC]);
 
 	RC[RollC] -= RC_NEUTRAL;
 	RC[PitchC] -= RC_NEUTRAL;
 	RC[YawC] -= RC_NEUTRAL;
-RC[0] = 0; // zzz
 } // MapRC
 
 void InitTimersAndInterrupts(void)
@@ -118,7 +124,6 @@ void low_isr_handler(void)
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
 {	
-	static uint8 ch;	
 	if( PIR1bits.CCP1IF ) 						// An Rx PPM pulse edge has been detected
 	{
 		CurrEdge = CCPR1;
@@ -166,22 +171,82 @@ void high_isr_handler(void)
 				}	
 			}
 
-		if ( !IsSet(P[ConfigBits], RxPPM) )							
+		if ( (P[ConfigBits] & RxPPMMask) == 0 )							
 			CCP1CONbits.CCP1M0 ^= 1;				// For composite PPM signal not using wired OR
 
 		PIR1bits.CCP1IF = false;
 	}	
 
-	if ( PIR1bits.RCIF && PIE1bits.RCIE)	// RCIE enabled for GPS
+	if ( PIR1bits.RCIF & PIE1bits.RCIE)	// RCIE enabled for GPS
 	{
 		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
-			ch = RCREG; // flush
+			gps_ch = RCREG; // flush
 			RCSTAbits.CREN = false;
 			RCSTAbits.CREN = true;
 		}
 		else
-			PollGPS(RCREG);
+		{ // PollGPS inlined to avoid context save and restore within irq
+			gps_ch = RCREG;
+			switch ( GPSRxState ) {
+			case WaitGPSCheckSum:
+				if (GPSCheckSumChar < 2)
+				{
+					if ( gps_ch >= 'A')
+						GPSTxCheckSum = GPSTxCheckSum * 16 + ( gps_ch - 'A' + 10);
+					else
+						GPSTxCheckSum = GPSTxCheckSum * 16 + ( gps_ch - '0' );
+		
+					GPSCheckSumChar++;
+				}
+				else
+				{
+					NMEA.length = ll;	
+					GPSSentenceReceived = ( GPSTxCheckSum + RxCheckSum ) == 0;
+					GPSRxState = WaitGPSSentinel;
+				}
+				break;
+			case WaitGPSBody: 
+				if ( gps_ch == '*' )      
+				{
+					GPSCheckSumChar = GPSTxCheckSum = 0;
+					GPSRxState = WaitGPSCheckSum;
+				}
+				else         
+					if (gps_ch == '$') // abort partial Sentence 
+					{
+						ll = tt = RxCheckSum = 0;
+						GPSRxState = WaitNMEATag;
+					}
+					else
+					{
+						RxCheckSum ^= gps_ch;
+						NMEA.s[ll++] = gps_ch; // no check for buffer overflow
+						if ( ll > ( GPSRXBUFFLENGTH-1 ) )
+							GPSRxState = WaitGPSSentinel;
+					}
+							
+				break;
+			case WaitNMEATag:
+				RxCheckSum ^= gps_ch;
+				if ( gps_ch == NMEATag[tt] ) 
+					if ( tt == MAXTAGINDEX )
+						GPSRxState = WaitGPSBody;
+			        else
+						tt++;
+				else
+			        GPSRxState = WaitGPSSentinel;
+				break;
+			case WaitGPSSentinel: // highest priority skipping unused sentence types
+				if (gps_ch == '$')
+				{
+					ll = tt = RxCheckSum = 0;
+					GPSRxState = WaitNMEATag;
+				}
+				break;	
+		    } 
+		}
+
 		PIR1bits.RCIF = false;
 	}
 
@@ -190,7 +255,7 @@ void high_isr_handler(void)
 		mS[Clock]++;
 		INTCONbits.TMR0IF = false;	
 	}
-	
+
 } // high_isr_handler
 	
 #pragma code high_isr = 0x08

@@ -26,13 +26,6 @@
 
 extern uint8 BaroTemp;
 
-enum GPSSentences {GPGGA, GPRMC};
-#define FirstNIndex GPGGA
-#define LastNIndex GPRMC
-// must be in sorted alpha order
-extern const uint8 NMEATag[LastNIndex+1][6] = {{"GPGGA"},{"GPRMC"}};
-extern uint8 NMEAActive[LastNIndex+1];
-
 void DoLEDs(void)
 {
 	if( !( _Signal && Armed ) )
@@ -445,29 +438,17 @@ void GPSTest(void)
 			else
 				TxChar(' ');
 			
-			if ( NMEAActive[GPRMC] )
-			{	
-				TxString(" c=");
-				TxVal32((int32)ConvertMPiToDDeg(GPSHeading), 1 , ' ');
+			TxString(" fx=");
+			TxVal32(GPSFix, 0, ' ');
 	
-				TxString("md=");
-				TxChar(GPSMode);
-			}
-		
-			if ( NMEAActive[GPGGA] )
-			{
-				TxString(" fx=");
-				TxVal32(GPSFix, 0, ' ');
+			TxString("s=");
+			TxVal32(GPSNoOfSats, 0, ' ');
 	
-				TxString("s=");
-				TxVal32(GPSNoOfSats, 0, ' ');
+			TxString("hd=");
+			TxVal32(GPSHDilute, 2, ' ');
 	
-				TxString("hd=");
-				TxVal32(GPSHDilute, 2, ' ');
-	
-				TxString("ra=");
-				TxVal32(GPSRelAltitude, 1, ' ');
-			}
+			TxString("ra=");
+			TxVal32(GPSRelAltitude, 1, ' ');
 
 			TxVal32(Abs(ConvertGPSToM(GPSNorth)), 0, 0);
 			if ( GPSNorth >=0 )

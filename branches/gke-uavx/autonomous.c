@@ -45,7 +45,7 @@ void AltitudeHold(int16 DesiredAltitude)
 	static int16 Temp;
 
 	if ( _RTHAltitudeHold )
-		if ( _GPSAltitudeValid && IsSet(P[ConfigBits], UseGPSAlt) )
+		if ( P[ConfigBits] & UseGPSAltMask )
 		{
 			AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
 			AltSum += AE;
