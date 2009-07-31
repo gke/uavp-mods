@@ -98,7 +98,7 @@ void ShowSetup(uint8 h)
 	else
 		TxString("not available\r\n");
 
-	if ( ReadEE(LastParam) == 0xff )
+	if ( ReadEE(TxRxType) == -1 )
 		TxString("Parameters appear to be not initialised?\r\n");
 	else
 	{

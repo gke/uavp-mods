@@ -356,15 +356,13 @@ void UpdateParamSetChoice(void)
 
 void InitParameters(void)
 {
-	uint16 addr;
-
+	ALL_LEDS_ON;
 	CurrentParamSet = 1;
-	addr = ( CurrentParamSet - 1 ) * MAX_PARAMETERS;
-	while ( ReadEE(addr) == 0xff )
-		ProcessCommand();
-
+	while ( ReadEE(TxRxType) == -1 ) 
+		ProcessCommand();	
 	CurrentParamSet = 1;
 	ReadParametersEE();
+	ALL_LEDS_OFF;
 } // InitParamters
 
 int16 Make2Pi(int16 A)

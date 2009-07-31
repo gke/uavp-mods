@@ -173,8 +173,8 @@ void main(void)
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 
 	InitADC();		
-	InitParameters();
 	InitTimersAndInterrupts();
+	InitParameters();
 
 	StopMotors();
 	INTCONbits.PEIE = true;		// Enable peripheral interrupts
