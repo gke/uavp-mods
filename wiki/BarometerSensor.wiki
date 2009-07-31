@@ -4,16 +4,16 @@ Sensor options:
    * Current preferred sensor is the BMP085 which can be obtained mounted from http://www.quadroufo.com/ This supersedes the original SMD500 also from Bosch.
 
 Setup:
-   * Current recommended settings using UAVPSet are TEMP=0,P=4, D=4
+   * Current recommended settings using UAVPSet are TEMP=0, P=4, D=4
 
 Current performance:
    * The BMP085 performance is approx +/- 3ft.
    * The original SMD500 performance is  +/- 10ft.
 
 Current algorithm / future improvements:
-   * The BMP085 or SMD500 are automatically detected by the "gke" extensions to uavp.
-   * The better performance of the BMP085 is mainly due to faster updates and averaging.
-   * Temperature compensation is not used in UAVX.  
+   * The BMP085 or SMD500 are automatically detected by the "gke" extensions to UAVP.
+   * The better performance of the BMP085 is mainly due to faster updates and associated averaging over several readings.
+   * Temperature compensation is not currently used in UAVX as it was found to .  
 
 Data sheets:
    * BMP085: http://www.bosch-sensortec.de/content/language1/downloads/BMP085_DataSheet_Rev.1.0_01July2008.pdf
