@@ -74,13 +74,12 @@ void MapRC(void)
 	static uint8 c;
 	static LastThrottle; 
 
-	// Filter throttle only as it will normally be the minimum width pulse
 	LastThrottle = RC[ThrottleC];
 
 	for (c = 0 ; c < CONTROLS ; c++)
 		RC[c] = PPM[Map[P[TxRxType]][c]-1].low8;
-LEDBlue_OFF;
-if ( RC[0] > 20 ) LEDBlue_ON;
+
+	// Filter throttle only as it will normally be the minimum width pulse
 	RC[ThrottleC] = SoftFilter(LastThrottle, RC[ThrottleC]);
 
 	RC[RollC] -= RC_NEUTRAL;
@@ -98,7 +97,7 @@ void InitTimersAndInterrupts(void)
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 	CCP1CONbits.CCP1M0 = PosPPM;
 
-	for (i = 0; i<= CompassUpdate; i++)
+	for (i = Clock; i<= CompassUpdate; i++)
 		mS[i] = 0;
 
 	for (i = 0; i < CONTROLS; i++)
@@ -139,7 +138,7 @@ void high_isr_handler(void)
 			RCFrameOK = true;
 			PauseTime = Width.i16;
 		}
-		else // An actual channel -- Record the variable part of the PWM time 
+		else 
 			if (PPM_Index < RC_CONTROLS)
 			{	
 				Width.i16 >>= 1; 				// Width in 4us ticks.
@@ -155,10 +154,9 @@ void high_isr_handler(void)
 					RCGlitches++;
 					RCFrameOK = false;
 				}
-				PPM_Index++;
 				// MUST demand rock solid RC frames for autonomous functions not
 				// to be cancelled by noise-generated partially correct frames
-				if ( PPM_Index == RC_CONTROLS )
+				if ( ++PPM_Index == RC_CONTROLS )
 				{
 					#ifdef RX6CH
 					PPM[CamTiltC].i16 = RC_NEUTRAL;
@@ -167,17 +165,17 @@ void high_isr_handler(void)
 					_NewValues = RCFrameOK;
 					_Signal = true;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
-					CCP1CONbits.CCP1M0 = PosPPM; // reset in case Tx/Rx combo has changed
+			//zzz		CCP1CONbits.CCP1M0 = PosPPM; // reset in case Tx/Rx combo has changed
 				}	
 			}
 
 		if ( (P[ConfigBits] & RxPPMMask) == 0 )							
-			CCP1CONbits.CCP1M0 ^= 1;				// For composite PPM signal not using wired OR
+			CCP1CONbits.CCP1M0 ^= 1;			// For composite PPM signal not using wired OR
 
 		PIR1bits.CCP1IF = false;
 	}	
 
-	if ( PIR1bits.RCIF & PIE1bits.RCIE)	// RCIE enabled for GPS
+	if ( PIR1bits.RCIF & PIE1bits.RCIE)			// RCIE enabled for GPS
 	{
 		if ( RCSTAbits.OERR || RCSTAbits.FERR )
 		{
@@ -192,17 +190,18 @@ void high_isr_handler(void)
 			case WaitGPSCheckSum:
 				if (GPSCheckSumChar < 2)
 				{
-					if ( gps_ch >= 'A')
-						GPSTxCheckSum = GPSTxCheckSum * 16 + ( gps_ch - 'A' + 10);
+					GPSTxCheckSum *= 16;
+					if ( gps_ch >= 'A' )
+						GPSTxCheckSum += ( gps_ch - 'A' + 10 );
 					else
-						GPSTxCheckSum = GPSTxCheckSum * 16 + ( gps_ch - '0' );
+						GPSTxCheckSum += ( gps_ch - '0' );
 		
 					GPSCheckSumChar++;
 				}
 				else
 				{
 					NMEA.length = ll;	
-					GPSSentenceReceived = ( GPSTxCheckSum + RxCheckSum ) == 0;
+					GPSSentenceReceived = ( GPSTxCheckSum ^ RxCheckSum ) == 0;
 					GPSRxState = WaitGPSSentinel;
 				}
 				break;
@@ -213,7 +212,7 @@ void high_isr_handler(void)
 					GPSRxState = WaitGPSCheckSum;
 				}
 				else         
-					if (gps_ch == '$') // abort partial Sentence 
+					if ( gps_ch == '$' ) // abort partial Sentence 
 					{
 						ll = tt = RxCheckSum = 0;
 						GPSRxState = WaitNMEATag;
@@ -221,7 +220,7 @@ void high_isr_handler(void)
 					else
 					{
 						RxCheckSum ^= gps_ch;
-						NMEA.s[ll++] = gps_ch; // no check for buffer overflow
+						NMEA.s[ll++] = gps_ch; 
 						if ( ll > ( GPSRXBUFFLENGTH-1 ) )
 							GPSRxState = WaitGPSSentinel;
 					}
@@ -238,7 +237,7 @@ void high_isr_handler(void)
 			        GPSRxState = WaitGPSSentinel;
 				break;
 			case WaitGPSSentinel: // highest priority skipping unused sentence types
-				if (gps_ch == '$')
+				if ( gps_ch == '$' )
 				{
 					ll = tt = RxCheckSum = 0;
 					GPSRxState = WaitNMEATag;

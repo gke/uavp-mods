@@ -341,7 +341,7 @@ void InitParameters(void)
 	uint16 addr;
 
 	addr = ( CurrentParamSet - 1 ) * MAX_PARAMETERS;
-//zzz	while ( ReadEE(addr) == 0xff )
+	while ( ReadEE(addr) == 0xff )
 		ProcessCommand();
 
 	CurrentParamSet = 1;

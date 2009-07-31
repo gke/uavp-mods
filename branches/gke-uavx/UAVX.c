@@ -36,17 +36,16 @@ uint24	mS[CompassUpdate+1];
 
 // Interrupt related 
 #pragma udata access isrvars
-uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-i16u PPM[CONTROLS];
-int8 PPM_Index;
-int24 PrevEdge, CurrEdge;
-i16u Width;
-int16 PauseTime;
-uint8 GPSRxState;
+uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+i16u 	PPM[CONTROLS];
+int8 	PPM_Index;
+int24 	PrevEdge, CurrEdge;
+i16u 	Width;
+int16 	PauseTime;
+uint8 	GPSRxState;
 boolean PosPPM, RCFrameOK, GPSSentenceReceived;
-uint8 ll, tt, gps_ch;
-uint8 RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
-
+uint8 	ll, tt, gps_ch;
+uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 #pragma udata
 
 int16 	RC[CONTROLS];
