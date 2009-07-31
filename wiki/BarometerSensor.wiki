@@ -13,7 +13,7 @@ Current performance:
 Current algorithm / future improvements:
    * The BMP085 or SMD500 are automatically detected by the "gke" extensions to UAVP.
    * The better performance of the BMP085 is mainly due to faster updates and associated averaging over several readings.
-   * Temperature compensation is not currently used in UAVX as it was found to .  
+   * Temperature compensation is not currently used in UAVX as it was found to introduce some noise at the relatively high sampling rates used. This may be reviewed later. 
 
 Data sheets:
    * BMP085: http://www.bosch-sensortec.de/content/language1/downloads/BMP085_DataSheet_Rev.1.0_01July2008.pdf
