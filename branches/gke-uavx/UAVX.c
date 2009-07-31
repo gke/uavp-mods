@@ -34,15 +34,23 @@
 uint24	mS[CompassUpdate+1];
 #pragma udata
 
-#pragma udata isrvars
-i16u	PPM[CONTROLS];
-int16 	RC[CONTROLS];
-boolean	RCFrameOK;
-int8	PPM_Index;
-int24	PrevEdge;
-int16	PauseTime;
-uint24	RCGlitches; 
+#pragma udata access isrvars
+uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+i16u PPM[CONTROLS];
+boolean PosPPM;
+boolean RCFrameOK;
+int8 PPM_Index;
+int24 PrevEdge;
+i16u Width;
+int24 CurrEdge;
+uint8 GPSRxState;
+uint8 RxCheckSum;
+uint8 GPSCheckSumChar, GPSTxCheckSum;
+uint8 ll,tt, NHead, NTail, NEntries;
 #pragma udata
+int16 PauseTime;
+int16 	RC[CONTROLS];
+uint24	RCGlitches; 
 
 uint8	State;
 uint8	CurrentParamSet;
@@ -243,7 +251,6 @@ void main(void)
 						}
 					break;
 				case InFlight:
-
 					DoNavigation();
 
 					LEDGame();
@@ -271,7 +278,6 @@ void main(void)
 			mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
 
 			GetGyroValues();				// Second gyro read
-
 			DoControl();
 			MixAndLimitMotors();
 			MixAndLimitCam();

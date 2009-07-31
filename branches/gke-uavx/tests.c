@@ -109,7 +109,7 @@ void ReceiverTest(void)
 	int16 *p;
 	uint16 v;
 
-	if( _PosPPM )
+	if( PosPPM )
 		TxString("\r\nPos. Rx PPM\r\n");
 	else
 		TxString("\r\nNeg. Rx PPM\r\n");

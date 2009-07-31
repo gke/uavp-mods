@@ -1,10 +1,5 @@
 // EXPERIMENTAL
 
-#ifndef DEBUG_SENSORS
-	// if defined emits H=Hold pos., R=Capture new pos., G=GPS RTH alt hold, B=Baro RTH alt hold
-	#define HYPERTERM_TRACE
-#endif // DEBUG_SENSORS
-
 // Navigation
 
 #define MAX_CONTROL_CHANGE 		10L		// new hold point if the roll/pitch stick change more
@@ -263,8 +258,8 @@ typedef union {
 #define TMR2_TICK			2				// uSec
 
 // Status 
-#define	_Signal				Flags[0]	
-#define _PosPPM				Flags[1]
+#define	_Signal				Flags[0]
+	
 #define	_NewValues			Flags[2]	
 #define _FirstTimeout		Flags[3]
 
@@ -624,12 +619,20 @@ extern uint24	mS[];
 extern uint8	CurrentParamSet;
 
 extern i16u		PPM[];
-extern int16	RC[];
+extern boolean	PosPPM;
 extern boolean	RCFrameOK;
 extern int8		PPM_Index;
 extern int24	PrevEdge;
-extern uint24	RCGlitches;
+extern i16u 	Width;
+extern int24 	CurrEdge;
 extern int16	PauseTime; // for tests
+extern uint8	GPSRxState;
+extern uint8	RxCheckSum;
+extern uint8	GPSCheckSumChar, GPSTxCheckSum;
+extern uint8 	ll, tt, NHead, NTail, NEntries;
+extern uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+extern uint24	RCGlitches;
+extern int16	RC[];
 
 extern int16	RE, PE, YE, HE;
 extern int16	REp,PEp,YEp, HEp;

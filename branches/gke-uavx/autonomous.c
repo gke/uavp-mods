@@ -47,9 +47,6 @@ void AltitudeHold(int16 DesiredAltitude)
 	if ( _RTHAltitudeHold )
 		if ( _GPSAltitudeValid && IsSet(P[ConfigBits], UseGPSAlt) )
 		{
-			#ifdef HYPERTERM_TRACE
-			TxChar('G');
-			#endif // HYPERTERM_TRACE
 			AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
@@ -59,10 +56,7 @@ void AltitudeHold(int16 DesiredAltitude)
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
 		}
 		else
-		{
-			#ifdef HYPERTERM_TRACE
-			TxChar('B');
-			#endif // HYPERTERM_TRACE	
+		{	
 			DesiredThrottle = HoverThrottle;
 			BaroAltitudeHold(-DesiredAltitude);
 		}
@@ -166,15 +160,12 @@ void DoNavigation(void)
 			case PIC:
 			case HoldingStation:
 
-				HoldRoll = SoftFilter(HoldRoll, Abs(DesiredRoll - RollTrim));
-				HoldPitch = SoftFilter(HoldPitch, Abs(DesiredPitch - PitchTrim));
+				HoldRoll = Abs(DesiredRoll - RollTrim);
+				HoldPitch = Abs(DesiredPitch - PitchTrim);
 
 				if ( ( HoldRoll > MAX_CONTROL_CHANGE )||( HoldPitch > MAX_CONTROL_CHANGE ) )
 					if ( HoldResetCount > HOLD_RESET_INTERVAL )
 					{
-						#ifdef HYPERTERM_TRACE
-						TxChar('R');
-						#endif // HYPERTERM_TRACE
 						NavState = PIC;
 						_Proximity = false;
 						GPSNorthHold = GPSNorth;
@@ -191,10 +182,6 @@ void DoNavigation(void)
 				}
 				
 				// Keep GPS hold active regardless
-				#ifdef EMIT_TONE
-				if ( NavState != PIC )
-					TxChar('H'); // why not H? as the frequency is determined control cycle time
-				#endif // EMIT_TONE
 				NavState = HoldingStation;
 				Navigate(GPSNorthHold, GPSEastHold);
 	

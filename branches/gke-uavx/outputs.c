@@ -182,7 +182,7 @@ void MixAndLimitCam(void)
 } // MixAndLimitCam
 
 #pragma udata assembly_language=0x080 
-uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+//uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 #pragma udata
 
 void OutSignals(void)

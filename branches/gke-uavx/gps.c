@@ -74,18 +74,13 @@ struct {
 #pragma udata
 
 // Global Variables
-#pragma udata gpsbuff2
-uint8 NHead, NTail, NEntries;
-#pragma udata
 
 #pragma udata gpsvars3
 enum WaitGPSStates {WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
 int16 ValidGPSSentences;
 int8 NActiveTypes;
-uint8 GPSRxState;
-uint8 ll, nll, cc, tt, lo, hi;
+uint8 nll, cc, lo, hi;
 boolean EmptyField;
-uint8 GPSTxCheckSum, GPSCheckSumChar; // zzz GPSRxCheckSum, 
 #pragma udata
 
 #pragma udata gpsvars4
@@ -362,7 +357,7 @@ void PollGPS(uint8 ch)
 		}
 		else
 		{
-			GPSSentenceReceived =  GPSTxCheckSum; // zzz GPSRxCheckSum ==
+			GPSSentenceReceived = GPSTxCheckSum;
 			if ( GPSSentenceReceived )
 			{
 				NMEA[NTail].length = ll;
@@ -419,10 +414,7 @@ void PollGPS(uint8 ch)
 			else
 				if ( ll >= (GPSRXBUFFLENGTH-1) )
 					GPSRxState = WaitGPSSentinel;
-			//	else
-			//		GPSRxCheckSum = RxCheckSum;
 		break;
-
     } 
  
 } // PollGPS

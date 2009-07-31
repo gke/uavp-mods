@@ -51,10 +51,6 @@ void MapRC(void);
 void low_isr_handler(void);
 void high_isr_handler(void);
 
-// Variables
-
-uint8 RxCheckSum;
-
 void ReceivingGPSOnly(uint8 r)
 {
 	if ( r != _ReceivingGPS )
@@ -83,6 +79,7 @@ void MapRC(void)
 	RC[RollC] -= RC_NEUTRAL;
 	RC[PitchC] -= RC_NEUTRAL;
 	RC[YawC] -= RC_NEUTRAL;
+RC[0] = 0; // zzz
 } // MapRC
 
 void InitTimersAndInterrupts(void)
@@ -93,7 +90,7 @@ void InitTimersAndInterrupts(void)
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
-	CCP1CONbits.CCP1M0 = _PosPPM;
+	CCP1CONbits.CCP1M0 = PosPPM;
 
 	for (i = 0; i<= CompassUpdate; i++)
 		mS[i] = 0;
@@ -121,9 +118,7 @@ void low_isr_handler(void)
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
 {	
-	static uint8 ch;
-	static i16u Width;
-	static int24 CurrEdge;	
+	static uint8 ch;	
 	if( PIR1bits.CCP1IF ) 						// An Rx PPM pulse edge has been detected
 	{
 		CurrEdge = CCPR1;
@@ -167,11 +162,11 @@ void high_isr_handler(void)
 					_NewValues = RCFrameOK;
 					_Signal = true;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
-					CCP1CONbits.CCP1M0 = _PosPPM; // reset in case Tx/Rx combo has changed
+					CCP1CONbits.CCP1M0 = PosPPM; // reset in case Tx/Rx combo has changed
 				}	
 			}
 
-		if ( IsClear(P[ConfigBits], RxPPM) )							
+		if ( !IsSet(P[ConfigBits], RxPPM) )							
 			CCP1CONbits.CCP1M0 ^= 1;				// For composite PPM signal not using wired OR
 
 		PIR1bits.CCP1IF = false;
