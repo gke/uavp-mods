@@ -159,7 +159,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void DoNavigation(void)
 {
-	if ( _GPSValid && ( NavSensitivity > NAV_GAIN_THRESHOLD ))
+	if ( _GPSValid && ( NavSensitivity > NAV_GAIN_THRESHOLD ) && ( mS[Clock] > mS[NavActiveTime]) )
 	{
 		if ( _CompassValid )
 			switch ( NavState ) {

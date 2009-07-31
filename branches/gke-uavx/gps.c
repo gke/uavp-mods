@@ -467,7 +467,7 @@ void UpdateGPS(void)
 		if ( _GPSValid )
 		{
 			_NavComputed = false;
-			mS[GPSTimeout] = mS[Clock] + GPS_TIMEOUT;
+			mS[GPSTimeout] = mS[Clock] + GPS_TIMEOUT * 1000L;
 		}
 	}
 	else

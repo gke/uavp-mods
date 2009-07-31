@@ -418,7 +418,7 @@ void UpdateControls(void)
 	else
 		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal ) 
 		{ // does not need to be precise so polling OK
-			CCP1CONbits.CCP1M0 = _NegativePPM; // Reset in case Tx/Rx combo has changed
+			CCP1CONbits.CCP1M0 = _PosPPM; // Reset in case Tx/Rx combo has changed
 			_Signal = false;
 		}
 } // UpdateControls

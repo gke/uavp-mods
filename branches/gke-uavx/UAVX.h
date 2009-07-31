@@ -9,12 +9,13 @@
 
 #define MAX_CONTROL_CHANGE 		10L		// new hold point if the roll/pitch stick change more
 #define HOLD_RESET_INTERVAL		50		// impulse cycles
+#define NAV_ACTIVE_DELAY		5000L	// mS. after throttle exceeds idle that Nav becomes active
 
 // comment out for normal wind compensation
 #define ZERO_NAVINT
 
 // Accelerometer
-// if undefined then damping is computed every impulse cycle
+// if undefined then accelerometer based vertical damping is computed every impulse cycle
 #define SLOW_DAMPING
 
 // Gyros
@@ -116,11 +117,11 @@
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define MAX_TRIM				20L		// max trim offset for hover hold
 
-#define FAILSAFE_TIMEOUT		1000L 	// mS hold last settings
-#define ABORT_TIMEOUT			3000L 	// mS full flight abort 
-#define LOW_THROTTLE_DELAY		1000L	// mS
+#define FAILSAFE_TIMEOUT		1000L 	// mS hold last "good" settings and then either restore flight or abort
+#define ABORT_TIMEOUT			3000L 	// mS full flight abort - motors shutdown until reboot 
+#define LOW_THROTTLE_DELAY		1000L	// mS that motor runs at idle after the throttle is closed
 #define THROTTLE_UPDATE			3000L	// mS constant throttle time for hover
-#define VERT_DAMPING_UPDATE 	50L 	// mS vertical velocity damping
+#define VERT_DAMPING_UPDATE 	50L 	// mS between vertical velocity damping updates
 
 #define THR_MIDDLE				10  	// throttle stick dead zone for baro 
 #define THR_HOVER				75		// min throttle stick for altitude lock
@@ -263,7 +264,7 @@ typedef union {
 
 // Status 
 #define	_Signal				Flags[0]	
-#define _NegativePPM		Flags[1]
+#define _PosPPM				Flags[1]
 #define	_NewValues			Flags[2]	
 #define _FirstTimeout		Flags[3]
 
@@ -591,7 +592,7 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum {Clock,  UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, GPSTimeout, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+      AbortTimeout, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS  (NavGainC+1)
@@ -687,7 +688,7 @@ extern int16	Rl,Pl,Yl;	// PID output values
 
 extern boolean	Flags[32];
 extern uint8	LEDCycles;		// for hover light display
-extern uint8	HoldResetCount;	
+extern int16	HoldResetCount;	
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 extern uint8 	RxCheckSum;
@@ -750,5 +751,6 @@ enum Params {
 extern int8 P[];
 extern const rom int8 ComParms[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
+extern const rom boolean PPMPosPolarity[];
 
 
