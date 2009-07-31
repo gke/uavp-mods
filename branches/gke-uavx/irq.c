@@ -96,7 +96,8 @@ void InitTimersAndInterrupts(void)
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
-	CCP1CONbits.CCP1M0 = PosPPM;
+	// PPM polarity is before wired OR inverter to PIC
+	CCP1CONbits.CCP1M0 = !PPMPosPolarity[P[TxRxType]];
 
 	for (i = Clock; i<= CompassUpdate; i++)
 		mS[i] = 0;
