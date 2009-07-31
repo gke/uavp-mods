@@ -170,26 +170,34 @@ void DoNavigation(void)
 				HoldPitch = SoftFilter(HoldPitch, Abs(DesiredPitch - PitchTrim));
 
 				if ( ( HoldRoll > MAX_CONTROL_CHANGE )||( HoldPitch > MAX_CONTROL_CHANGE ) )
-				{
-					#ifdef HYPERTERM_TRACE
-					TxChar('R');
-					#endif // HYPERTERM_TRACE
-					NavState = PIC;
-					_Proximity = false;
-					GPSNorthHold = GPSNorth;
-					GPSEastHold = GPSEast;
-					SumNavRCorr = SumNavPCorr = SumNavYCorr = 0;
-					_NavComputed = false;
-				}
+					if ( HoldResetCount > HOLD_RESET_INTERVAL )
+					{
+						#ifdef HYPERTERM_TRACE
+						TxChar('R');
+						#endif // HYPERTERM_TRACE
+						NavState = PIC;
+						_Proximity = false;
+						GPSNorthHold = GPSNorth;
+						GPSEastHold = GPSEast;
+						SumNavRCorr = SumNavPCorr = SumNavYCorr = 0;
+						_NavComputed = false;
+					}
+					else
+						HoldResetCount++;
 				else
-				{	
-					#ifdef EMIT_TONE
-					TxChar('H'); // why not H? as the frequency is determined control cycle time
-					#endif // EMIT_TONE
-					NavState = HoldingStation;
-					Navigate(GPSNorthHold, GPSEastHold);
+				{
+					if ( HoldResetCount > 0 )
+						HoldResetCount--;		
 				}
 				
+				// Keep GPS hold active regardless
+				#ifdef EMIT_TONE
+				if ( NavState != PIC )
+					TxChar('H'); // why not H? as the frequency is determined control cycle time
+				#endif // EMIT_TONE
+				NavState = HoldingStation;
+				Navigate(GPSNorthHold, GPSEastHold);
+	
 				if ( _ReturnHome )
 				{
 					AltSum = 0; 
@@ -284,6 +292,7 @@ void InitNavigation(void)
 	GPSNorthHold = GPSEastHold = 0;
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
 	NavState = PIC;
+	HoldResetCount = 0;
 	_RTHAltitudeHold = true;
 	_NavComputed = false;
 } // InitNavigation

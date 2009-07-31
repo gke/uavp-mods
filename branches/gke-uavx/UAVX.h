@@ -7,6 +7,9 @@
 
 // Navigation
 
+#define MAX_CONTROL_CHANGE 		10L		// new hold point if the roll/pitch stick change more
+#define HOLD_RESET_INTERVAL		50		// impulse cycles
+
 // comment out for normal wind compensation
 #define ZERO_NAVINT
 
@@ -109,7 +112,7 @@
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 #define MAX_ANGLE 				25L		// Rx stick units ~= degrees
 
-#define MAX_CONTROL_CHANGE 		7L		// new hold point if the roll/pitch stick change more
+
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define MAX_TRIM				20L		// max trim offset for hover hold
 
@@ -684,6 +687,7 @@ extern int16	Rl,Pl,Yl;	// PID output values
 
 extern boolean	Flags[32];
 extern uint8	LEDCycles;		// for hover light display
+extern uint8	HoldResetCount;	
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 extern uint8 	RxCheckSum;
