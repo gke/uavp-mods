@@ -79,8 +79,9 @@ void MapRC(void)
 	for (c = 0 ; c < CONTROLS ; c++)
 		RC[c] = PPM[Map[P[TxRxType]][c]-1].low8;
 
-	// Filter throttle only as it will normally be the minimum width pulse
-	RC[ThrottleC] = SoftFilter(LastThrottle, RC[ThrottleC]);
+	#ifdef SLEW_LIMIT_THROTTLE
+	RC[ThrottleC] = SlewLimit(LastThrottle, RC[ThrottleC], 5);
+	#endif
 
 	RC[RollC] -= RC_NEUTRAL;
 	RC[PitchC] -= RC_NEUTRAL;
@@ -165,7 +166,6 @@ void high_isr_handler(void)
 					_NewValues = RCFrameOK;
 					_Signal = true;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
-			//zzz		CCP1CONbits.CCP1M0 = PosPPM; // reset in case Tx/Rx combo has changed
 				}	
 			}
 
@@ -175,16 +175,16 @@ void high_isr_handler(void)
 		PIR1bits.CCP1IF = false;
 	}	
 
-	if ( PIR1bits.RCIF & PIE1bits.RCIE)			// RCIE enabled for GPS
+	if ( PIR1bits.RCIF & PIE1bits.RCIE )			// RCIE enabled for GPS
 	{
-		if ( RCSTAbits.OERR || RCSTAbits.FERR )
+		if ( RCSTAbits.OERR | RCSTAbits.FERR )
 		{
 			gps_ch = RCREG; // flush
 			RCSTAbits.CREN = false;
 			RCSTAbits.CREN = true;
 		}
 		else
-		{ // PollGPS inlined to avoid context save and restore within irq
+		{ // PollGPS in-lined to avoid EXPENSIVE context save and restore within irq
 			gps_ch = RCREG;
 			switch ( GPSRxState ) {
 			case WaitGPSCheckSum:
@@ -201,7 +201,7 @@ void high_isr_handler(void)
 				else
 				{
 					NMEA.length = ll;	
-					GPSSentenceReceived = ( GPSTxCheckSum ^ RxCheckSum ) == 0;
+					GPSSentenceReceived = GPSTxCheckSum == RxCheckSum;
 					GPSRxState = WaitGPSSentinel;
 				}
 				break;

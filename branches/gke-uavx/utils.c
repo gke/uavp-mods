@@ -156,6 +156,14 @@ int16 ConvertMToGPS(int16 c)
 	return ( ((int32)c * (int32)100000)/((int32)18553) );
 } // ConvertMToGPS
 
+int16 SlewLimit(int16 Old, int16 New, int16 Slew)
+{
+  int16 Lo, Hi;
+  
+  Lo=Old-Slew;
+  Hi=Old+Slew; 
+  return((New<Lo) ? Lo : ((New>Hi) ? Hi : New));
+} // SlewLimit
 
 int8 ReadEE(uint8 addr)
 {

@@ -1,12 +1,15 @@
 // EXPERIMENTAL
 
+// limits the rate at which the thtottle can change
+#define SLEW_LIMIT_THROTTLE
+
 // Navigation
 
 #define MAX_CONTROL_CHANGE 		10L		// new hold point if the roll/pitch stick change more
-#define HOLD_RESET_INTERVAL		50		// impulse cycles
+#define HOLD_RESET_INTERVAL		50		// no of impulse cycles before GPS position is re-acquired
 #define NAV_ACTIVE_DELAY		5000L	// mS. after throttle exceeds idle that Nav becomes active
 
-// comment out for normal wind compensation
+// comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
 #define ZERO_NAVINT
 
 // Accelerometer
@@ -535,6 +538,7 @@ extern void InitMisc(void);
 
 extern int16 ConvertGPSToM(int16);
 extern int16 ConvertMToGPS(int16);
+extern int16 SlewLimit(int16, int16, int16);
 
 extern int8 ReadEE(uint8);
 extern void ReadParametersEE(void);
