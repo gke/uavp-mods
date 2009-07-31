@@ -1,19 +1,17 @@
 // EXPERIMENTAL
 
-// limits the rate at which the thtottle can change
-#define SLEW_LIMIT_THROTTLE
+#ifndef DEBUG_SENSORS
+	// if defined emits H=Hold pos., R=Capture new pos., G=GPS RTH alt hold, B=Baro RTH alt hold
+	#define HYPERTERM_TRACE
+#endif // DEBUG_SENSORS
 
 // Navigation
 
-#define MAX_CONTROL_CHANGE 		10L		// new hold point if the roll/pitch stick change more
-#define HOLD_RESET_INTERVAL		50		// no of impulse cycles before GPS position is re-acquired
-#define NAV_ACTIVE_DELAY		5000L	// mS. after throttle exceeds idle that Nav becomes active
-
-// comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
+// comment out for normal wind compensation
 #define ZERO_NAVINT
 
 // Accelerometer
-// if undefined then accelerometer based vertical damping is computed every impulse cycle
+// if undefined then damping is computed every impulse cycle
 #define SLOW_DAMPING
 
 // Gyros
@@ -111,15 +109,15 @@
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 #define MAX_ANGLE 				25L		// Rx stick units ~= degrees
 
-
+#define MAX_CONTROL_CHANGE 		7L		// new hold point if the roll/pitch stick change more
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define MAX_TRIM				20L		// max trim offset for hover hold
 
-#define FAILSAFE_TIMEOUT		1000L 	// mS hold last "good" settings and then either restore flight or abort
-#define ABORT_TIMEOUT			3000L 	// mS full flight abort - motors shutdown until reboot 
-#define LOW_THROTTLE_DELAY		1000L	// mS that motor runs at idle after the throttle is closed
+#define FAILSAFE_TIMEOUT		1000L 	// mS hold last settings
+#define ABORT_TIMEOUT			3000L 	// mS full flight abort 
+#define LOW_THROTTLE_DELAY		1000L	// mS
 #define THROTTLE_UPDATE			3000L	// mS constant throttle time for hover
-#define VERT_DAMPING_UPDATE 	50L 	// mS between vertical velocity damping updates
+#define VERT_DAMPING_UPDATE 	50L 	// mS vertical velocity damping
 
 #define THR_MIDDLE				10  	// throttle stick dead zone for baro 
 #define THR_HOVER				75		// min throttle stick for altitude lock
@@ -261,8 +259,8 @@ typedef union {
 #define TMR2_TICK			2				// uSec
 
 // Status 
-#define	_Signal				Flags[0]
-	
+#define	_Signal				Flags[0]	
+#define _NegativePPM		Flags[1]
 #define	_NewValues			Flags[2]	
 #define _FirstTimeout		Flags[3]
 
@@ -284,7 +282,8 @@ typedef union {
 #define _ThrottleMoving		Flags[19]
 #define _Hovering			Flags[20]
 #define _NavComputed 		Flags[21]
-
+#define _GPSHeadingValid 	Flags[22]
+#define _GPSAltitudeValid	Flags[23]
 #define _RTHAltitudeHold	Flags[24]
 #define _ReturnHome			Flags[25]
 #define _TurnToHome			Flags[26]
@@ -368,12 +367,6 @@ typedef union {
 #define RC_FRAME_TIMEOUT 	25
 #define RC_SIGNAL_TIMEOUT 	(5L*RC_FRAME_TIMEOUT)
 #define RC_THR_MAX 			RC_MAXIMUM
-
-#ifdef RX6CH 
-#define RC_CONTROLS 5			
-#else
-#define RC_CONTROLS CONTROLS
-#endif //RX6CH
 
 // ESC
 #define OUT_MINIMUM			1
@@ -544,7 +537,6 @@ extern void InitMisc(void);
 
 extern int16 ConvertGPSToM(int16);
 extern int16 ConvertMToGPS(int16);
-extern int16 SlewLimit(int16, int16, int16);
 
 extern int8 ReadEE(uint8);
 extern void ReadParametersEE(void);
@@ -595,13 +587,12 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
-enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+enum {Clock,  UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
+      AbortTimeout, GPSTimeout, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
-#define CONTROLS (NavGainC+1)
-#define MAX_CONTROLS 12 // maximum Rx channels
-enum WaitGPSStates { WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
+#define CONTROLS  (NavGainC+1)
+
 enum FlightStates { Starting, Landing, Landed, InFlight};
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
@@ -624,32 +615,17 @@ enum TraceTags {THE, TCurrentBaroPressure,
 enum MotorTags {Front, Left, Right, Back};
 #define NoOfMotors 4
 
-extern uint24 mS[];
+extern uint24	mS[];
 
-extern uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-extern i16u PPM[];
-extern boolean	PosPPM, RCFrameOK, GPSSentenceReceived;
-extern int8 PPM_Index;
-extern int24 PrevEdge, CurrEdge;
-extern i16u Width;
-extern int16	PauseTime; // for tests
-extern uint8 GPSRxState;
-extern uint8 ll, tt, gps_ch;
-extern uint8 RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+extern uint8	CurrentParamSet;
 
+extern i16u		PPM[];
 extern int16	RC[];
+extern boolean	RCFrameOK;
+extern int8		PPM_Index;
+extern int24	PrevEdge;
 extern uint24	RCGlitches;
-
-#define MAXTAGINDEX 4
-#define GPSRXBUFFLENGTH 80
-extern struct {
-	uint8 s[GPSRXBUFFLENGTH];
-	uint8 length;
-	} NMEA;
-
-extern const rom uint8 NMEATag[];
-
-extern uint8 CurrentParamSet;
+extern int16	PauseTime; // for tests
 
 extern int16	RE, PE, YE, HE;
 extern int16	REp,PEp,YEp, HEp;
@@ -667,7 +643,8 @@ extern int8		NeutralLR, NeutralFB, NeutralUD;
 extern int16 	UDAcc, UDSum, VUDComp;
 
 // GPS
-extern int16 	GPSLongitudeCorrection;
+extern uint8 	GPSMode;
+extern int16 	GPSGroundSpeed, GPSHeading, GPSLongitudeCorrection;
 extern uint8 	GPSNoOfSats;
 extern uint8 	GPSFix;
 extern int16 	GPSHDilute;
@@ -707,9 +684,9 @@ extern int16	Rl,Pl,Yl;	// PID output values
 
 extern boolean	Flags[32];
 extern uint8	LEDCycles;		// for hover light display
-extern int16	HoldResetCount;	
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
+extern uint8 	RxCheckSum;
 
 extern int16	Trace[];
 
@@ -762,17 +739,12 @@ enum Params {
 #define	LastParam TxRxType
 
 #define FlyXMode 		0
-#define FlyXModeMask 	0x01
 #define TxMode2 		2
-#define TxMode2Mask 	0x02
-#define RxPPM 			3
-#define RxPPMMask		0x04 
+#define RxPPM 			3 
 #define UseGPSAlt 		5
-#define	UseGPSAltMask	0x10
 
 extern int8 P[];
 extern const rom int8 ComParms[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
-extern const rom boolean PPMPosPolarity[];
 
 

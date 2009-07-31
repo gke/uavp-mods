@@ -77,7 +77,6 @@ void ShowSetup(uint8 h)
 	}
 
 	TxString(SerSetup);	// send hello message
-
 	if( _AccelerationsValid )
 		TxString("ONLINE\r\n");
 	else
@@ -98,7 +97,7 @@ void ShowSetup(uint8 h)
 	else
 		TxString("not available\r\n");
 
-	if ( ReadEE(TxRxType) == -1 )
+	if ( ReadEE(LastParam) == 0xff )
 		TxString("Parameters appear to be not initialised?\r\n");
 	else
 	{
@@ -115,9 +114,6 @@ void ShowSetup(uint8 h)
 		case ESCYGEI2C:TxString("ESC: YGE I2C\r\n"); break;
 		}	
 	
-		#ifdef RX6CH
-		TxString("6 CHANNEL VERSION - 5 ACTIVE CHANNELS ONLY\R\N");
-		#endif // RX6CH
 		TxString("Tx/Rx: ");
 		switch ( P[TxRxType] ) {
 		case FutabaCh3: TxString("Futaba Ch3 {"); break;
@@ -131,23 +127,20 @@ void ShowSetup(uint8 h)
 		case CustomTxRx: TxString("Custom {"); break;
 		}
 	
-		for (i = 0; i < CONTROLS; i++) // make reverse map
+		for (i = 0; i< CONTROLS; i++) // make reverse map
 			RMap[Map[P[TxRxType]][i]-1] = i+1;
 	
-		for ( i = 0; i < RC_CONTROLS; i++)
+		for ( i = 0; i<CONTROLS; i++)
 			TxChar(RxChMnem[RMap[i]-1]);
 	
 		TxString("} connect {");
 	
-		for ( i = 0; i < RC_CONTROLS; i+=2)
+		for ( i = 0; i<CONTROLS; i+=2)
 		{
 			TxChar(RxChMnem[RMap[i]-1]);
 			TxChar(' ');
 		}
-		TxChar('}');
-		if ( P[TxRxType] == DX7AR6200 )
-			TxString(" Mix Rudder to Aux1");
-		TxString("\r\n");
+		TxString("}\r\n");
 	}
 
 	TxString("Selected parameter set: ");

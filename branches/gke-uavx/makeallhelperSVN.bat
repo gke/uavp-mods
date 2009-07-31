@@ -26,8 +26,9 @@ set NOW=%hour%%minutes%%ampm%
 set CSRC=accel adc uavx irq menu control compass_altimeter tests serial utils gps autonomous i2c outputs
 set ASRC=bootl18f
 
-set CC="C:\MCC18\bin\mcc18" 
-set CCMD=  -Oi -w1 -Opa- -DBATCHMODE
+set CC="C:\MCC18\bin\mcc18"
+rem set CCMD=  -DBATCHMODE -DNOLEDGAME 
+set CCMD=  -Ou- -Ot- -Ob- -Op- -Or- -Od- -Opa- -DBATCHMODE -DNOLEDGAME 
 
 set ACMD=/q /d%CLOCK% /p%PROC% %%i.asm /l%%i.lst /e%%i.err /o%%i.o
 set AEXE="C:\MCC18\mpasm\mpasmwin.exe"

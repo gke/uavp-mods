@@ -156,14 +156,6 @@ int16 ConvertMToGPS(int16 c)
 	return ( ((int32)c * (int32)100000)/((int32)18553) );
 } // ConvertMToGPS
 
-int16 SlewLimit(int16 Old, int16 New, int16 Slew)
-{
-  int16 Lo, Hi;
-  
-  Lo=Old-Slew;
-  Hi=Old+Slew; 
-  return((New<Lo) ? Lo : ((New>Hi) ? Hi : New));
-} // SlewLimit
 
 int8 ReadEE(uint8 addr)
 {
@@ -180,7 +172,7 @@ int8 ReadEE(uint8 addr)
 
 void ReadParametersEE(void)
 {
-	static int8 p, c;
+	static int8 p, c; 
 	static uint16 addr;
 
 	addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
@@ -200,11 +192,9 @@ void ReadParametersEE(void)
 	SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
 	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
 
-	PIE1bits.CCP1IE = false;
-	PosPPM = PPMPosPolarity[P[TxRxType]];
-	// Look for synchronisation pulse leading edge first
-	CCP1CONbits.CCP1M0 = PosPPM;
-	PPM_Index = PrevEdge = RCGlitches = 0;
+	_NegativePPM = (( P[TxRxType] == JRPPM ) || ( P[TxRxType] == JRDM9 ) 
+				|| ( P[TxRxType] == DX7AR7000 )|| ( P[TxRxType] == DX7AR6200 ));
+
 	PIE1bits.CCP1IE = true;
 
 	BatteryVolts = P[LowVoltThres];
@@ -260,7 +250,7 @@ void UpdateParamSetChoice(void)
 
 	UpdateControls();
 
-	if ( P[ConfigBits] & TxMode2Mask )
+	if ( IsSet( P[ConfigBits], TxMode2) )
 		Selector = RC[RollC];
 	else
 		Selector = -RC[YawC];
@@ -268,37 +258,32 @@ void UpdateParamSetChoice(void)
 	if ( (Abs(RC[PitchC]) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) )
 	{
 		if ( RC[PitchC] > STICK_WINDOW ) // bottom
-		{
 			if ( Selector < -STICK_WINDOW ) // left
 			{ // bottom left
 				NewParamSet = 1;
 				NewRTHAltitudeHold = true;
 			}
 			else
-				if ( Selector > STICK_WINDOW ) // right
-				{ // bottom right
-					NewParamSet = 2;
-					NewRTHAltitudeHold = true;
-				}
-		}		
+			{ // bottom right
+				NewParamSet = 2;
+				NewRTHAltitudeHold = true;
+			}	
 		else
 			if ( RC[PitchC] < -STICK_WINDOW ) // top
-			{		
 				if ( Selector < -STICK_WINDOW ) // left
 				{
-					NewRTHAltitudeHold = false;
 					NewParamSet = 1;
+					NewRTHAltitudeHold = false;
 				}
-				else 
-					if ( Selector > STICK_WINDOW ) // right
-					{
-						NewRTHAltitudeHold = false;
-						NewParamSet = 2;
-					}
-			}
+				else
+				{ // right
+					NewParamSet = 2;
+					NewRTHAltitudeHold = false;
+				}
 
 		if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHAltitudeHold != _RTHAltitudeHold) )
-		{			
+		{
+					
 			CurrentParamSet = NewParamSet;
 			_RTHAltitudeHold = NewRTHAltitudeHold;
 			LEDBlue_ON;
@@ -310,21 +295,19 @@ void UpdateParamSetChoice(void)
 				Delay100mSWithOutput(2);
 				Beeper_ON;
 				Delay100mSWithOutput(2);
-				Beeper_OFF;
 			}
 			if ( _RTHAltitudeHold )
 			{
 				Delay100mSWithOutput(4);
 				Beeper_ON;
-				Delay100mSWithOutput(4);
-				Beeper_OFF;	
+				Delay100mSWithOutput(4);	
 			}
 			Beeper_OFF;
 			LEDBlue_OFF;
 		}
 	}
 
-	if ( P[ConfigBits] & TxMode2Mask )
+	if ( IsSet( P[ConfigBits], TxMode2) )
 		Selector = -RC[YawC];
 	else
 		Selector = RC[RollC];
@@ -334,8 +317,7 @@ void UpdateParamSetChoice(void)
 		if ( Selector < -STICK_WINDOW ) // left
 			NewTurnToHome = false;
 		else
-			if ( Selector > STICK_WINDOW ) // left
-				NewTurnToHome = true; // right
+			NewTurnToHome = true; // right
 			
 		if ( NewTurnToHome != _TurnToHome )
 		{		
@@ -356,13 +338,14 @@ void UpdateParamSetChoice(void)
 
 void InitParameters(void)
 {
-	ALL_LEDS_ON;
-	CurrentParamSet = 1;
-	while ( ReadEE(TxRxType) == -1 ) 
-		ProcessCommand();	
+	uint16 addr;
+
+	addr = ( CurrentParamSet - 1 ) * MAX_PARAMETERS;
+	while ( ReadEE(addr) == 0xff )
+		ProcessCommand();
+
 	CurrentParamSet = 1;
 	ReadParametersEE();
-	ALL_LEDS_OFF;
 } // InitParamters
 
 int16 Make2Pi(int16 A)

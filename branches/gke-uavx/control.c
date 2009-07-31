@@ -289,7 +289,7 @@ void CalcGyroRates(void)
 	if ( P[GyroType] == IDG300 )
 		RollRate = -RollRate;
 
-	if ( P[ConfigBits] & FlyXModeMask )
+	if ( IsSet(P[ConfigBits], FlyXMode) )
 	{
 		// "Real" Roll = 0.707 * (P + R), Pitch = 0.707 * (P - R)
 		Temp = RollRate + PitchRate;	
@@ -417,8 +417,10 @@ void UpdateControls(void)
 	}
 	else
 		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal ) 
-			// does not need to be precise so polling OK
+		{ // does not need to be precise so polling OK
+			CCP1CONbits.CCP1M0 = _NegativePPM; // Reset in case Tx/Rx combo has changed
 			_Signal = false;
+		}
 } // UpdateControls
 
 void CaptureTrims(void)

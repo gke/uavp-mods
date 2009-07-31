@@ -34,33 +34,16 @@
 uint24	mS[CompassUpdate+1];
 #pragma udata
 
-// Interrupt related 
-#pragma udata access isrvars
-uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-i16u 	PPM[MAX_CONTROLS];
-int8 	PPM_Index;
-int24 	PrevEdge, CurrEdge;
-i16u 	Width;
-int16 	PauseTime;
-uint8 	GPSRxState;
-boolean PosPPM, RCFrameOK, GPSSentenceReceived;
-uint8 	ll, tt, gps_ch;
-uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
-#pragma udata
-
+#pragma udata isrvars
+i16u	PPM[CONTROLS];
 int16 	RC[CONTROLS];
+boolean	RCFrameOK;
+int8	PPM_Index;
+int24	PrevEdge;
+int16	PauseTime;
 uint24	RCGlitches; 
-
-#pragma udata gpsbuff
-struct {
-	uint8 s[GPSRXBUFFLENGTH];
-	uint8 length;
-	} NMEA;
 #pragma udata
 
-const rom uint8 NMEATag[6] = {"GPGGA"};
-
-// Flight State
 uint8	State;
 uint8	CurrentParamSet;
 
@@ -105,8 +88,7 @@ int16	Motor[NoOfMotors];
 
 int16	Trace[TopTrace+1];
 boolean	Flags[32];
-uint8	LEDCycles;
-int16	HoldResetCount;	
+uint8	LEDCycles;	
 int8	BatteryVolts;
 
 #pragma udata params
@@ -121,7 +103,6 @@ const rom int8	ComParms[]={
 	0,0,0,1,1,1,1
 	};
 
-// Reference Internal Quadrocopter Channel Order
 // 1 Throttle
 // 2 Aileron
 // 3 Elevator
@@ -130,34 +111,17 @@ const rom int8	ComParms[]={
 // 6 Aux1
 // 7 Aux2
 
-const rom uint8 Map[CustomTxRx+1][CONTROLS] =
+const rom uint8 Map[CustomTxRx+1][CONTROLS]=
 	{
 		{ 3,1,2,4,5,6,7 }, 	// Futaba Ch3 Throttle
 		{ 2,1,4,3,5,6,7 },	// Futaba Ch2 Throttle
-		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8/AR7000
+		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8
 		{ 1,2,3,4,5,6,7 },	// JR XP8103/PPM
 		{ 7,1,4,6,3,5,2 },	// JR 9XII Spektrum DM9 ?
-
 		{ 6,1,4,7,3,2,5 },	// JR DXS12 
 		{ 6,1,4,7,3,2,5 },	// Spektrum DX7/AR7000
 		{ 5,1,4,6,3,2,7 },	// Spektrum DX7/AR6200
-		{ 6,1,4,7,3,2,5 } 	// custom Tx/Rx combination
-	};
-
-// Rx signalling polarity - this is NOT the edge polarity as 
-// seen by the PIC as it is inverted by the wired NOR
-const rom boolean PPMPosPolarity[CustomTxRx+1] =
-	{
-		false, 	// Futaba Ch3 Throttle
-		false,	// Futaba Ch2 Throttle
-		true,	// Futaba 9C Spektrum DM8/AR7000
-		true,	// JR XP8103/PPM
-		true,	// JR 9XII Spektrum DM9 ?
-
-		true,	// JR DXS12
-		true,	// Spektrum DX7/AR7000
-		true,	// Spektrum DX7/AR6200
-		true	// custom Tx/Rx combination
+		{ 6,1,4,7,3,2,5 } // custom Tx/Rx combination
 	};
 
 void main(void)
@@ -172,8 +136,9 @@ void main(void)
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 
-	InitADC();		
+	InitADC();	
 	InitTimersAndInterrupts();
+
 	InitParameters();
 
 	StopMotors();
@@ -244,7 +209,6 @@ void main(void)
 					{
 						InitHeading();						
 						LEDCycles = 1;
-						mS[NavActiveTime] = mS[Clock] + NAV_ACTIVE_DELAY;
 						State = InFlight;
 					}
 					break;
@@ -262,6 +226,7 @@ void main(void)
 						}
 					break;
 				case InFlight:
+
 					DoNavigation();
 
 					LEDGame();
@@ -289,6 +254,7 @@ void main(void)
 			mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
 
 			GetGyroValues();				// Second gyro read
+
 			DoControl();
 			MixAndLimitMotors();
 			MixAndLimitCam();
@@ -299,5 +265,6 @@ void main(void)
 		
 		} // flight while armed
 	}
+
 } // main
 

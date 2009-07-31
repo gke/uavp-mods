@@ -31,7 +31,7 @@ extern void OutSignals(void);
 
 // Constants
 
-#define MAGICNUMBER 	32	//84
+#define MAGICNUMBER 84
 
 #define	PulseFront		0
 #define	PulseLeft		1
@@ -70,7 +70,7 @@ void DoMix(int16 CurrThrottle)
 	#endif // !TRICOPTER
 
 	#ifndef TRICOPTER
-	if( P[ConfigBits] & FlyXModeMask )
+	if( IsSet(P[ConfigBits], FlyXMode) )
 	{	// "Cross" Mode
 		Motor[Left] +=   Pl - Rl - Yl;
 		Motor[Right] += -Pl + Rl - Yl;
@@ -182,7 +182,7 @@ void MixAndLimitCam(void)
 } // MixAndLimitCam
 
 #pragma udata assembly_language=0x080 
-//uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 #pragma udata
 
 void OutSignals(void)
