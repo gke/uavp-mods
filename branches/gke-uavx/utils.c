@@ -204,7 +204,7 @@ void ReadParametersEE(void)
 	PIE1bits.CCP1IE = false;
 	PosPPM = PPMPosPolarity[P[TxRxType]];
 	// Look for synchronisation pulse leading edge first
-	CCP1CONbits.CCP1M0 = PosPPM;
+//zzz	CCP1CONbits.CCP1M0 = PosPPM;
 	PPM_Index = PrevEdge = RCGlitches = 0;
 	PIE1bits.CCP1IE = true;
 

@@ -92,7 +92,7 @@ void InitTimersAndInterrupts(void)
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 	// PPM polarity is before wired OR inverter to PIC
 	// Look for leading synchronisation pulse first
-	CCP1CONbits.CCP1M0 = PPMPosPolarity[P[TxRxType]];
+	CCP1CONbits.CCP1M0 = true;//zzzPPMPosPolarity[P[TxRxType]];
 
 	for (i = Clock; i<= CompassUpdate; i++)
 		mS[i] = 0;
@@ -163,7 +163,7 @@ void high_isr_handler(void)
 					_NewValues = RCFrameOK;
 					_Signal = true;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
-					CCP1CONbits.CCP1M0 = PosPPM;
+			//zzz		CCP1CONbits.CCP1M0 = PosPPM;
 				}
 			}
 
