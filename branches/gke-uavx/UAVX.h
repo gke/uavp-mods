@@ -369,6 +369,12 @@ typedef union {
 #define RC_SIGNAL_TIMEOUT 	(5L*RC_FRAME_TIMEOUT)
 #define RC_THR_MAX 			RC_MAXIMUM
 
+#ifdef RX6CH 
+#define RC_CONTROLS 5			
+#else
+#define RC_CONTROLS CONTROLS
+#endif //RX6CH
+
 // ESC
 #define OUT_MINIMUM			1
 #define OUT_MAXIMUM			240
@@ -594,6 +600,7 @@ enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, 
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
+#define MAX_CONTROLS 12 // maximum Rx channels
 enum WaitGPSStates { WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
 enum FlightStates { Starting, Landing, Landed, InFlight};
 

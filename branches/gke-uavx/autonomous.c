@@ -280,7 +280,6 @@ void InitNavigation(void)
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
 	NavState = PIC;
 	HoldResetCount = 0;
-	_RTHAltitudeHold = true;
 	_NavComputed = false;
 } // InitNavigation
 

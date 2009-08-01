@@ -136,6 +136,7 @@ void InitMisc(void)
 	
 	for ( i = 0; i<32 ; i++ )
 		Flags[i] = false; 
+	_RTHAltitudeHold = true;
 
 	ThrNeutral = ThrLow = ThrHigh = MAXINT16;
 
@@ -202,7 +203,8 @@ void ReadParametersEE(void)
 
 	PIE1bits.CCP1IE = false;
 	PosPPM = PPMPosPolarity[P[TxRxType]];
-	CCP1CONbits.CCP1M0 = !PosPPM;
+	// Look for synchronisation pulse leading edge first
+	CCP1CONbits.CCP1M0 = PosPPM;
 	PPM_Index = PrevEdge = RCGlitches = 0;
 	PIE1bits.CCP1IE = true;
 
@@ -355,14 +357,13 @@ void UpdateParamSetChoice(void)
 
 void InitParameters(void)
 {
-	uint16 addr;
-
-	addr = ( CurrentParamSet - 1 ) * MAX_PARAMETERS;
-	while ( ReadEE(addr) == 0xff )
-		ProcessCommand();
-
+	ALL_LEDS_ON;
+	CurrentParamSet = 1;
+	while ( ReadEE(TxRxType) == -1 ) 
+		ProcessCommand();	
 	CurrentParamSet = 1;
 	ReadParametersEE();
+	ALL_LEDS_OFF;
 } // InitParamters
 
 int16 Make2Pi(int16 A)
