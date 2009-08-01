@@ -40,6 +40,7 @@
 // Prototypes
 
 void ReceivingGPSOnly(uint8);
+void DoRxPolarity(void);
 void InitTimersAndInterrupts(void);
 void MapRC(void);
 void low_isr_handler(void);
@@ -82,6 +83,15 @@ void MapRC(void)
 	RC[YawC] -= RC_NEUTRAL;
 } // MapRC
 
+
+void DoRxPolarity(void)
+{
+	if ( P[ConfigBits] & RxSerialPPMMask  ) // serial PPM frame from within an Rx
+		CCP1CONbits.CCP1M0 = PPMPosPolarity[TxRxType];
+	else
+		CCP1CONbits.CCP1M0 = 1;	
+}  // DoRxPolarity
+
 void InitTimersAndInterrupts(void)
 {
 	int8 i;
@@ -90,9 +100,7 @@ void InitTimersAndInterrupts(void)
 	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
-	// PPM polarity is before wired OR inverter to PIC
-	// Look for leading synchronisation pulse first
-	CCP1CONbits.CCP1M0 = true;//zzzPPMPosPolarity[P[TxRxType]];
+	DoRxPolarity();
 
 	for (i = Clock; i<= CompassUpdate; i++)
 		mS[i] = 0;
@@ -163,13 +171,11 @@ void high_isr_handler(void)
 					_NewValues = RCFrameOK;
 					_Signal = true;
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
-			//zzz		CCP1CONbits.CCP1M0 = PosPPM;
 				}
 			}
 
-	//	if ( (P[ConfigBits] & RxPPMMask) == 0 )	
-		if ( !IsSet(P[ConfigBits], RxPPM ))						
-			CCP1CONbits.CCP1M0 ^= 1;			// For composite PPM signal not using wired OR
+		if ( (P[ConfigBits] & RxSerialPPMMask) == 0 )						
+			CCP1CONbits.CCP1M0 ^= 1;
 
 		PIR1bits.CCP1IF = false;
 	}	

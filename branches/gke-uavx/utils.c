@@ -202,9 +202,7 @@ void ReadParametersEE(void)
 	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
 
 	PIE1bits.CCP1IE = false;
-	PosPPM = PPMPosPolarity[P[TxRxType]];
-	// Look for synchronisation pulse leading edge first
-//zzz	CCP1CONbits.CCP1M0 = PosPPM;
+	DoRxPolarity();
 	PPM_Index = PrevEdge = RCGlitches = 0;
 	PIE1bits.CCP1IE = true;
 

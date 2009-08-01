@@ -99,15 +99,13 @@ uint8 ScanI2CBus(void)
 void ReceiverTest(void)
 {
 	int8 s;
-	int16 *p;
 	uint16 v;
 
-	if( PosPPM )
-		TxString("\r\nPos. Rx PPM\r\n");
-	else
-		TxString("\r\nNeg. Rx PPM\r\n");
+	TxString("\r\nRx: ");
+	ShowRxSetup();
+	TxString("\r\n");
 	
-	TxString("Rx vals:\r\n");
+	TxString("Most recent Values:\r\n");
 	
 	// Be wary as new RC frames are being received as this
 	// is being displayed so data may be from overlapping frames

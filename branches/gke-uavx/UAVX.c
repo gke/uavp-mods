@@ -43,7 +43,7 @@ int24 	PrevEdge, CurrEdge;
 i16u 	Width;
 int16 	PauseTime;
 uint8 	GPSRxState;
-boolean PosPPM, RCFrameOK, GPSSentenceReceived;
+boolean RCFrameOK, GPSSentenceReceived;
 uint8 	ll, tt, gps_ch;
 uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 #pragma udata
@@ -144,15 +144,15 @@ const rom uint8 Map[CustomTxRx+1][CONTROLS] =
 		{ 6,1,4,7,3,2,5 } 	// custom Tx/Rx combination
 	};
 
-// Rx signalling polarity - this is NOT the edge polarity as 
-// seen by the PIC as it is inverted by the wired NOR
+// Rx signalling polarity used only for serial PPM frames usually
+// by tapping internal Rx circuitry.
 const rom boolean PPMPosPolarity[CustomTxRx+1] =
 	{
 		false, 	// Futaba Ch3 Throttle
 		false,	// Futaba Ch2 Throttle
 		true,	// Futaba 9C Spektrum DM8/AR7000
 		true,	// JR XP8103/PPM
-		true,	// JR 9XII Spektrum DM9 ?
+		true,	// JR 9XII Spektrum DM9/AR7000
 
 		true,	// JR DXS12
 		true,	// Spektrum DX7/AR7000

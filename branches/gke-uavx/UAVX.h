@@ -476,6 +476,7 @@ extern void InitControl(void);
 
 // irq.c
 extern void ReceivingGPSOnly(uint8);
+void DoRxPolarity(void);
 extern void MapRC(void);
 extern void InitTimersAndInterrupts(void);
 extern void ReceivingGPSOnly(uint8);
@@ -509,6 +510,7 @@ extern void SendEscI2CByte(uint8);
 
 // menu.c
 extern void ShowPrompt(void);
+extern void ShowRxSetup(void);
 extern void ShowSetup(uint8);
 extern void ProcessCommand(void);
 
@@ -628,7 +630,7 @@ extern uint24 mS[];
 
 extern uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
 extern i16u PPM[];
-extern boolean	PosPPM, RCFrameOK, GPSSentenceReceived;
+extern boolean	RCFrameOK, GPSSentenceReceived;
 extern int8 PPM_Index;
 extern int24 PrevEdge, CurrEdge;
 extern i16u Width;
@@ -763,12 +765,14 @@ enum Params {
 
 #define FlyXMode 		0
 #define FlyXModeMask 	0x01
+
 #define TxMode2 		2
-#define TxMode2Mask 	0x02
-#define RxPPM 			3
-#define RxPPMMask		0x04 
+#define TxMode2Mask 	0x04
+#define RxSerialPPM 	3
+#define RxSerialPPMMask	0x08 
+
 #define UseGPSAlt 		5
-#define	UseGPSAltMask	0x10
+#define	UseGPSAltMask	0x20
 
 extern int8 P[];
 extern const rom int8 ComParms[];

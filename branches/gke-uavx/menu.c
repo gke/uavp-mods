@@ -25,6 +25,7 @@
 // Prototypes
 
 void ShowPrompt(void);
+void ShowRxSetup(void);
 void ShowSetup(uint8);
 void ProcessCommand(void);
 
@@ -64,7 +65,17 @@ void ShowPrompt(void)
 	TxString("\r\n>");
 } // ShowPrompt
 
-// send the current configuration setup to serial port
+void ShowRxSetup(void)
+{
+	if ( P[ConfigBits] & RxSerialPPMMask )
+		if ( PPMPosPolarity[TxRxType] )
+			TxString("Serial PPM frame (Positive Polarity)");
+		else
+			TxString("Serial PPM frame (Negative Polarity)");
+	else
+		TxString("Odd Rx Channels PPM");
+} // ShowRxSetup
+
 void ShowSetup(uint8 h)
 {
 	int8 i;
@@ -131,18 +142,23 @@ void ShowSetup(uint8 h)
 		case CustomTxRx: TxString("Custom {"); break;
 		}
 	
-		for (i = 0; i < CONTROLS; i++) // make reverse map
-			RMap[Map[P[TxRxType]][i]-1] = i+1;
-	
-		for ( i = 0; i < RC_CONTROLS; i++)
-			TxChar(RxChMnem[RMap[i]-1]);
-	
-		TxString("} connect {");
-	
-		for ( i = 0; i < RC_CONTROLS; i+=2)
+		if ( P[ConfigBits] & RxSerialPPMMask )
+			ShowRxSetup();
+		else
 		{
-			TxChar(RxChMnem[RMap[i]-1]);
-			TxChar(' ');
+			for (i = 0; i < CONTROLS; i++) // make reverse map
+				RMap[Map[P[TxRxType]][i]-1] = i+1;
+		
+			for ( i = 0; i < RC_CONTROLS; i++)
+				TxChar(RxChMnem[RMap[i]-1]);
+		
+			TxString("} connect {");
+		
+			for ( i = 0; i < RC_CONTROLS; i+=2)
+			{
+				TxChar(RxChMnem[RMap[i]-1]);
+				TxChar(' ');
+			}
 		}
 		TxChar('}');
 		if ( P[TxRxType] == DX7AR6200 )
