@@ -1,7 +1,14 @@
 #summary The non-ARM way forward.
 
-The current UAVP project is severely limited by the demo C compiler used. The UAVP creators have started work on an ARM based next generation UAVP.
+The essential simplicity of the original UAVP is very attractive. 
 
-This page describes an alternate firmware being developed that may prove to fit half way between the two while maintaining pin compatibility with the original board. Only the processor would have to be replaced if this solution works.
+The next generation UAVP and other quadrocopters have taken the path of higher performance processors and in most cases multiple processors. The complexity of the flight and navigation software is increasing quickly with the additional computational resources available. This is pretty much a fact of life in computing! All good fun and a valid approach.
 
-More information will be coming later...
+Einstein is reported to have said "everything should be kept as simple as possible but no simpler". The last bit of this quote is important!  So the path taken here has been to improve the software and make the absolute minimum of changes to the hardware. This make the refinements accessible to the maximum number of people who simply want to fly.  The only essential hardware change has been a 18F2620 plugin replacement for the original 16F876 Microchip PIC. There are a number of other hardware refinements which are described elsewhere including the related Discussion Thread.
+
+An important step has been the adoption of the Microchip C18 compiler which has dramatically improved the software development process and code reliability.
+
+The current version of the software designated UAVX combines the functions of flight and test software.  The original scheme of needing a different flight program for every combination of sensors, ESCs and Rxs has been collapsed into a single universal program which is configure through an extended version of UAVPSet. Tricopters remain supported.
+
+The very long awaited Navigation functions are now fully implemented and are described elsewhere in these pages.
+ 
