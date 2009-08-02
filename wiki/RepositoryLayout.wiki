@@ -1,30 +1,5 @@
 #summary Show me the code!
 
-We currently host two projects.
+All released source files for flight and test software may be found off the downloads area. Please make sure you understand the provisions of GNU software as it applies to safety and personal risk.
 
-=== UAVP 3.15 mods ===
-The first is a collection of modifications to the original UAVP v3.15 source code. These are released as 3.15modX where X is the modification version. Each version includes all of the modifications in the previous version unless noted otherwise.
-
-3.15mod1:
-   * compile.bat - A command line client to ease building the firmware.
-   * DEBUG_SENSORS - If using a standard PPM ESC, DEBUG_SENSORS no longer causes the ESCs to beep.
-
-3.15mod2:
-   * Battery latch - Changes the standard low battery alarm to be more forgiving of momentary drops in voltage.
-
-3.15mod3:
-   * Added in the Spektrum support code. Set RX=RX_SPK.
-   * Fixed the ability to use the RX parameter.
-
-3.15mod4:
-   * Enable and document the parachute trigger? (Issue #2).
-   * Do you have ideas? Use the issue tab up above to suggest something!
-
-Code:
-   * The code for all of the modifications is kept in SVN trunk.
-
-=== Alternate firmware ===
-This project is an alternate firmware that targets the 18F2520 instead of the 17F876. It is as of yet unreleased. More information will be coming later.
-
-Code:
-   * See the gke branch.
+YOU ARE STRONGLY ADVISED NOT TO USE SOURCE FROM THE SVN AREA AS IT IS CONSTANTLY UNDER DEVELOPMENT AND IS QUITE LIKELY TO BE UNSAFE.  
