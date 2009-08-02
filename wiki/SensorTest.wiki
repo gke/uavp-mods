@@ -2,17 +2,19 @@
 
 Once you have flashed the PIC with a firmware with DEBUG_SENSORS enabled:
    * Launch UAVPSet
-   * In the older ersions of UAVPSet go to the unnamed (blank) option in the Tools menu
+   * In the older versions of UAVPSet go to the unnamed (blank) option in the Tools menu
    * Provide 3/4 throttle. The motors will not spin up if you are using DEBUG_SENSORS firmware (which is needed for this screen to provide you with any output).
    * click on the "Connect / Start" menu item
 
 http://uavp-mods.googlecode.com/files/sensor%20screen%20and%20mapping.jpg
 
-The above picture is a sample of the output that you will see:
+The above picture is a sample of the output that you may see:
    * The first trace is the absolute heading reading from the compass sensor (if installed)
-   * The second two relate to the barometer. If you know their exact meaning, please leave a comment!
+   * The second two relate to the barometer. 
    * The middle set of traces are the accelerometer outputs.
    * The bottom set of traces are the gyro outputs.
+
+The order of the trace values for later versions of UAVP and UAVX are contained in the README files.
 
 This information was compiled from:
 
