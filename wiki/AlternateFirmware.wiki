@@ -2,7 +2,7 @@
 
 The essential simplicity of the original UAVP is very attractive. 
 
-The next generation UAVP and other quadrocopters have taken the path of higher performance processors and in most cases multiple processors. The complexity of the flight and navigation software is increasing quickly with the additional computational resources available. This is pretty much a fact of life in computing! All good fun and a valid approach.
+The next generation UAVP and other quadrocopters have taken the path of higher performance processors and in most cases multiple processors. The complexity of the flight and navigation software is expanding quickly with the additional computational resources available. This is pretty much a fact of life in computing and would be recognised as an extension to Boyle's Law! All good fun and a valid approach if the difficulties associated with complexity can be managed.
 
 Einstein is reported to have said "everything should be kept as simple as possible but no simpler". The last bit of this quote is important!  So the path taken here has been to improve the software and make the absolute minimum of changes to the hardware. This make the refinements accessible to the maximum number of people who simply want to fly.  The only essential hardware change has been a 18F2620 plugin replacement for the original 16F876 Microchip PIC. There are a number of other hardware refinements which are described elsewhere including the related Discussion Thread.
 
