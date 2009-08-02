@@ -1,23 +1,23 @@
-#summary How to compile the UAVP firmware..
+#summary How to compile the UAVP/UAVX firmware..
 
-= Compiling your firmware using the compile.bat from uavp-mod =
+= Generating Flight and Test Programs =
 
-To compile your own firmware:
-   * Download the source from the Downloads section.
-   * Download the cc5x compiler (http://www.bknd.com/cc5xfree.exe).
-   * Run the executable to install the compiler. Install it into c:\program files\microchip\cc5x.
-   * Download MPLAB (http://ww1.microchip.com/downloads/...eDoc/mp810.zip).
-   * Unzip mp810.zip into a temp directory. Run Install_MPLAB_v810.exe.
-   * Unzip the uavp source into a newly created directory.
-   * Launch a command prompt and cd into that directory.
-   * If not using mod2 or later: Run "copy c:\program files\microchip\cc5x\reloc.inc ."
-   * Edit compile.bat to match your UAVP. Settings that you can change are labeled at the top of the file. If you are using Profi-UFO-V315-CAM0-ADX300-PPM.hex the defaults will work for your UAVP.
-   * Note: compile.bat removes all previously compiled hex files when building so backup any old hex files if you want to build more than one version.
-   * Run compile.bat
-   * Done! The batch file will show the firmware built at the end of the build process.
+== Installing the compilers ==
+First you need to install the compilers required for generating the flight and test HEX files. You only need to do this once.
 
-= Compiling your firmware using MPLAB IDE =
+   * Download the latest version of MPLab and the C18 compiler (http://www.microchip.com) and run the installers.
+   * Download and install Tortoise SVN ( http://tortoisesvn.net/ ).
+   * For the superseded 16F876 versions of UAVP download the cc5x compiler (http://www.bknd.com/cc5xfree.exe). Run the installer to install cc5x into c:\program files\microchip\cc5x.
+   * Download the current version of UAVPSet ( http://code.google.com/p/uavp-mods/downloads/list). 
+The latest version of UAVPSet supports V3.15 UAVP and UAVX.
+
+== Obtaining the UAVP/UAVX files ==
+   * Download the appropriate zip archive for your particular PIC processor ( http://code.google.com/p/uavp-mods/downloads/list) and unzip it.
+   * Run the makeall.bat file within the directory created.
+   * Done! Select the appropriate hex file and download it to your quadrocopter using UAVPSet.
+
+== Using MPLab ==
    * All of the revisions on this site now contain an MPLab project workspace file (mcw). For the older 16F876 PICs the compiler is used is cc5x which does not readily support simulation within MPLab.
-   * For 18F2520 and compatible PICs the compiler used is the C18 provided by Microchip free for non-commercial use. With the exception of sensor inputs full simulation can be performed within MPLab.
-= Compiling all versions =
-   * All versions of test and flight software for the 16F876 and 18Fxxxx may be compiled using makeall.bat. The make_mine.bat file may be edited to produce a smaller subset of these files for the particular Rx, sensor and ESCs you are interested in. See the relevant README files. 
+   * With the exception of sensor inputs full simulation can be performed within MPLab when using the C18 compiler. 
+
+See the relevant README files. 
