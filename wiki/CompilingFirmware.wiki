@@ -1,7 +1,5 @@
 #summary How to compile the UAVP/UAVX firmware..
 
-= Generating Flight and Test Programs =
-
 == Installing the compilers ==
 First you need to install the compilers required for generating the flight and test HEX files. You only need to do this once.
 
