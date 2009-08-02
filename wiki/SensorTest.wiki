@@ -2,7 +2,7 @@
 
 Once you have flashed the PIC with a firmware with DEBUG_SENSORS enabled:
    * Launch UAVPSet
-   * go to the unnamed option in the Tools menu
+   * In the older ersions of UAVPSet go to the unnamed (blank) option in the Tools menu
    * Provide 3/4 throttle. The motors will not spin up if you are using DEBUG_SENSORS firmware (which is needed for this screen to provide you with any output).
    * click on the "Connect / Start" menu item
 
