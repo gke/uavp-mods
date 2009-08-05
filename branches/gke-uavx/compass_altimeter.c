@@ -2,7 +2,7 @@
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
 // =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -134,7 +134,10 @@ void StartBaroADC(void)
 	if( SendI2CByte(BARO_PRESS) != I2C_ACK ) goto SBerror;
 	I2CStop();
 
-	mS[BaroUpdate] = mS[Clock] + BARO_PRESS_TIME;
+	if ( BaroType == BARO_ID_BMP085 )
+		mS[BaroUpdate] = mS[Clock] + BMP085_PRESS_TIME_MS;
+	else
+		mS[BaroUpdate] = mS[Clock] + SMD500_PRESS_TIME_MS;
 
 	_BaroAltitudeValid = true;
 	return;
@@ -170,22 +173,29 @@ void ReadBaro(void)
 RVerror:
 	I2CStop();
 
-	_BaroAltitudeValid = false; // read error, disable baro
+	_BaroAltitudeValid = false; 
 	return;
 } // ReadBaro
 
+static int16 BaroAverage;
+
 void GetBaroPressure(void)
-{
+{	// SMD500 9.5mS (T) 34mS (P)  
+	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
+	// Baro is assumed offline unless it responds - no retries!
+
 	if ( mS[Clock] > mS[BaroUpdate] )
 	{
 		ReadBaro();
-		CurrentBaroPressure = BaroFilter(CurrentBaroPressure, (int24)BaroVal.u16 - OriginBaroPressure);		
+		BaroAverage += ( (int24)BaroVal.u16 - OriginBaroPressure );
 		BaroSample++;
-		if  (BaroSample == BARO_SAMPLES )
+		if ( BaroSample == 8 )
 		{
+			CurrentBaroPressure = BaroFilter(CurrentBaroPressure, SRS16( BaroAverage, 3) );
+			BaroSample = BaroAverage = 0;
 			_NewBaroValue = true;
-			BaroSample = 0;
 		}
+
 		#ifdef DEBUG_SENSORS	
 		Trace[TCurrentBaroPressure] = CurrentBaroPressure;
 		#endif
@@ -194,17 +204,13 @@ void GetBaroPressure(void)
 
 // initialize compass sensor
 void InitBarometer(void)
-{
+{	
+	const int8 Samples = 16; 
 	int24 BaroAv;
-	const int8 Samples = 16;
 	int8 s;
+	uint8 r;
 
-	// SMD500 9.5mS (T) 34mS (P)  
-	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
-	// Baro is assumed offline unless it responds - no retries!
-	static uint8 r;
-
-	VBaroComp = 0;
+	VBaroComp = BaroAverage = 0;
 
 	// Determine baro type
 	I2CStart();
@@ -216,11 +222,6 @@ void InitBarometer(void)
 	BaroType = RecvI2CByte(I2C_NACK);
 	I2CStop();
 
-	if ( BaroType == BARO_ID_BMP085 )
-		BaroTemp = BARO_TEMP_BMP085;
-	else
-		BaroTemp = BARO_TEMP_SMD500;
-		
 	// read pressure once to get base value
 	StartBaroADC();
 	if ( !_BaroAltitudeValid ) goto BAerror;
@@ -287,13 +288,13 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 			VBaroComp--;
 		else
 			if( VBaroComp < Temp )
-					VBaroComp++; // climb
+				VBaroComp++; // climb
 					
 		// Differential	
 		Delta = BE - BEp;	
 		VBaroComp += Limit(Delta, -5, 8) * (int16)P[BaroCompKd];
 		
-		VBaroComp = Limit(VBaroComp, -5, 20);
+		VBaroComp = Limit(VBaroComp, BARO_LOW_THR_COMP, BARO_HIGH_THR_COMP);
 	
 		if ( !(  _RTHAltitudeHold && ( NavState == ReturningHome ) ) )
 		{

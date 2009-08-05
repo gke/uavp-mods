@@ -2,7 +2,7 @@
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
 // =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -37,6 +37,7 @@ uint24	mS[CompassUpdate+1];
 // Interrupt related 
 #pragma udata access isrvars
 uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
+uint8	State;
 i16u 	PPM[MAX_CONTROLS];
 int8 	PPM_Index;
 int24 	PrevEdge, CurrEdge;
@@ -49,7 +50,7 @@ uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 #pragma udata
 
 int16 	RC[CONTROLS];
-uint24	RCGlitches; 
+uint16	RCGlitches; 
 
 #pragma udata gpsbuff
 struct {
@@ -60,8 +61,6 @@ struct {
 
 const rom uint8 NMEATag[6] = {"GPGGA"};
 
-// Flight State
-uint8	State;
 uint8	CurrentParamSet;
 
 // Control
@@ -96,7 +95,7 @@ int16	BE, BEp;
 i16u	BaroVal;
 int8	BaroSample;
 int16	VBaroComp;
-uint8	BaroType, BaroTemp;
+uint8	BaroType;
 
 uint8	LEDShadow;		// shadow register
 
@@ -106,7 +105,7 @@ int16	Motor[NoOfMotors];
 int16	Trace[TopTrace+1];
 boolean	Flags[32];
 uint8	LEDCycles;
-int16	HoldResetCount;	
+int16	NavHoldResetCount;	
 int8	BatteryVolts;
 
 #pragma udata params
@@ -121,6 +120,48 @@ const rom int8	ComParms[]={
 	0,0,0,1,1,1,1
 	};
 
+const rom int8 DefaultParams[] = {
+	-18, 			// RollKp, 			01
+	-8, 			// RollKi,			02
+	50, 			// RollKd,			03
+	0, 				// BaroTempCoeff,	04c not currently used
+	4, 				// RollIntLimit,	05
+	-18, 			// PitchKp,			06
+	-8, 			// PitchKi,			07
+	50, 			// PitchKd,			08
+	4, 				// BaroCompKp,		09c
+	4, 				// PitchIntLimit,	10
+	
+	-30, 			// YawKp, 			11
+	-20, 			// YawKi,			12
+	0, 				// YawKd,			13
+	25, 			// YawLimit,		14
+	2, 				// YawIntLimit,		15
+	0, 				// ConfigBits,		16c
+	4, 				// TimeSlots,		17c
+	43, 			// LowVoltThres,	18c
+	0, 				// CamRollKp,		19
+	45, 			// PercentHoverThr,	20c 
+	
+	-1, 			// VertDampKp,		21c
+	0, 				// MiddleUD,		22c
+	20, 			// PercentIdleThr,	23c
+	0, 				// MiddleLR,		24c
+	0, 				// MiddleFB,		25c
+	0, 				// CamPitchKp,		26
+	6, 				// CompassKp,		27
+	4, 				// BaroCompKd,		28c
+	20, 			// NavRadius,		29
+	1, 				// NavIntLimit,		30 
+	6, 				// NavAltKp,		31
+	6, 				// NavAltKi,		32
+	20, 			// NavRTHAlt,		33
+	0, 				// NavMagVar,		34c
+	ADXRS300, 		// GyroType,		35c
+	ESCPPM, 		// ESCType,			36c
+	DX7AR7000 		// TxRxType			37c
+	};
+
 // Reference Internal Quadrocopter Channel Order
 // 1 Throttle
 // 2 Aileron
@@ -130,18 +171,17 @@ const rom int8	ComParms[]={
 // 6 Aux1
 // 7 Aux2
 
-const rom uint8 Map[CustomTxRx+1][CONTROLS] =
-	{
-		{ 3,1,2,4,5,6,7 }, 	// Futaba Ch3 Throttle
-		{ 2,1,4,3,5,6,7 },	// Futaba Ch2 Throttle
-		{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8/AR7000
-		{ 1,2,3,4,5,6,7 },	// JR XP8103/PPM
-		{ 7,1,4,6,3,5,2 },	// JR 9XII Spektrum DM9 ?
+const rom uint8 Map[CustomTxRx+1][CONTROLS] = {
+	{ 3,1,2,4,5,6,7 }, 	// Futaba Ch3 Throttle
+	{ 2,1,4,3,5,6,7 },	// Futaba Ch2 Throttle
+	{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8/AR7000
+	{ 1,2,3,4,5,6,7 },	// JR XP8103/PPM
+	{ 7,1,4,6,3,5,2 },	// JR 9XII Spektrum DM9 ?
 
-		{ 6,1,4,7,3,2,5 },	// JR DXS12 
-		{ 6,1,4,7,3,2,5 },	// Spektrum DX7/AR7000
-		{ 5,1,4,6,3,2,7 },	// Spektrum DX7/AR6200
-		{ 6,1,4,7,3,2,5 } 	// custom Tx/Rx combination
+	{ 6,1,4,7,3,2,5 },	// JR DXS12 
+	{ 6,1,4,7,3,2,5 },	// Spektrum DX7/AR7000
+	{ 5,1,4,6,3,2,7 },	// Spektrum DX7/AR6200
+	{ 6,1,4,7,3,2,5 } 	// custom Tx/Rx combination
 	};
 
 // Rx signalling polarity used only for serial PPM frames usually
@@ -167,6 +207,7 @@ void main(void)
 	DisableInterrupts;
 
 	InitMisc();
+	InitStats();
 	InitPorts();
 
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
@@ -206,19 +247,20 @@ void main(void)
 		WaitThrottleClosedAndRTHOff();		
 
 		_Failsafe = _LostModel = false;
-		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT;
-		mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT;
+		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
+		mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
 		mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
 
 		State = Starting;
 
 		while ( Armed && !_ParametersInvalid )
-		{ // No Command processing while the Quadrocopter is armed
+		{ // no command processing while the Quadrocopter is armed
 	
 			ReceivingGPSOnly(true); 
 
 			UpdateGPS();
 			UpdateControls();
+			CollectStats();
 
 			if ( _Signal && !_Failsafe )
 			{
@@ -244,7 +286,7 @@ void main(void)
 					{
 						InitHeading();						
 						LEDCycles = 1;
-						mS[NavActiveTime] = mS[Clock] + NAV_ACTIVE_DELAY;
+						mS[NavActiveTime] = mS[Clock] + NAV_ACTIVE_DELAY_S*1000L;
 						State = InFlight;
 					}
 					break;
@@ -268,15 +310,15 @@ void main(void)
 
 					if ( DesiredThrottle < IdleThrottle )
 					{
-						mS[ThrottleIdleTimeout] = mS[Clock] + LOW_THROTTLE_DELAY;
+						mS[ThrottleIdleTimeout] = mS[Clock] + LOW_THROTTLE_DELAY_S;
 						State = Landing;
 					}
 					break;
 
 				} // Switch State
 				_LostModel = false;
-				mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT;
-				mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT;
+				mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
+				mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
 			}
 			else
 				DoFailsafe();

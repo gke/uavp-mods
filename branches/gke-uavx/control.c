@@ -2,7 +2,7 @@
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
 // =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -121,37 +121,25 @@ void AltitudeDamping(void)
 { // Uses vertical accelerometer to damp altitude changes due mainly to turbulence
 	static int16 Temp, AbsRollSum, AbsPitchSum;
 
-	#ifdef ENABLE_VERTICAL_VELOCITY_DAMPING
-
-	#ifdef SLOW_DAMPING
-	if ( mS[Clock] >= mS[VerticalDampingUpdate] )
-	{
-	#endif // SLOW_DAMPING
-		mS[VerticalDampingUpdate] = mS[Clock] + VERT_DAMPING_UPDATE;
-
-		AbsRollSum = Abs(RollSum);
-		AbsPitchSum = Abs(PitchSum);
+	AbsRollSum = Abs(RollSum);
+	AbsPitchSum = Abs(PitchSum);
 	
-		// Empirical - vertical acceleration decreases at ~approx Sum/8
-		if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
-			UDSum += UDAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
+	// Empirical - vertical acceleration decreases at ~approx Sum/8
+	if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
+		UDSum += UDAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
 	
-		UDSum = Limit(UDSum , -16384, 16384); 
-		UDSum = DecayBand(UDSum, -10, 10, 10);
+	UDSum = Limit(UDSum , -16384, 16384); 
+	UDSum = DecayBand(UDSum, -10, 10, 10);
 		
-		Temp = SRS16(SRS16(UDSum, 4) * (int16) P[VertDampKp], 8);	
-		if( Temp > VUDComp ) 
-			VUDComp++;
-		else
-			if( Temp < VUDComp )
-				VUDComp--;
+	Temp = SRS16(SRS16(UDSum, 4) * (int16) P[VertDampKp], 8);	
+	if( Temp > VUDComp ) 
+		VUDComp++;
+	else
+		if( Temp < VUDComp )
+			VUDComp--;
 		
-		VUDComp = Limit(VUDComp, -5, 20);  // -20, 20
-	#ifdef SLOW_DAMPING
-	}
-	#endif // SLOW_DAMPING
+	VUDComp = Limit(VUDComp, -5, 20);  // -20, 20
 
-	#endif // ENABLE_VERTICAL_VELOCITY_DAMPING
 } // AltitudeDamping
 
 void LimitRollSum(void)

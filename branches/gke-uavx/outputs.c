@@ -2,7 +2,7 @@
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
 // =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -296,6 +296,7 @@ OS006:
 		//		if( TMR2 = MRight ) PulseRight = 0;
 		//	}
 	
+		mS[Clock]++;
 		EnableInterrupts;
 	
 	} 
@@ -407,6 +408,7 @@ _asm
 OS002:
 _endasm
 
+	mS[Clock]++;
 	EnableInterrupts;	
 
 #endif  // DEBUG_SENSORS

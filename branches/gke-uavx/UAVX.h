@@ -5,25 +5,30 @@
 
 // Navigation
 
-#define MAX_CONTROL_CHANGE 		10L		// new hold point if the roll/pitch stick change more
-#define HOLD_RESET_INTERVAL		50		// no of impulse cycles before GPS position is re-acquired
-#define NAV_ACTIVE_DELAY		5000L	// mS. after throttle exceeds idle that Nav becomes active
+#define NAV_HOLD_LIMIT 			20L		// Dead zone for roll/pitch stick for position hold
+#define NAV_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
+#define NAV_ACTIVE_DELAY_S		10L		// Sec. after throttle exceeds idle that Nav becomes active
+#define NAV_RTH_TIMEOUT_S		30L		// Sec. Descend if no control input when at Origin
 
 // comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
 #define ZERO_NAVINT
 
 // Accelerometer
-// if undefined then accelerometer based vertical damping is computed every impulse cycle
-#define SLOW_DAMPING
 
-// Gyros
+// Altitude Hold
 
+// Throttle reduction and increase limits for Baro Alt Comp
+#define BARO_LOW_THR_COMP		-5L
+#define BARO_HIGH_THR_COMP		20L
 
-// Barometer
+// Throttle reduction and increase limits for GPS Alt Comp
+#define GPSALT_LOW_THR_COMP		-10L
+#define GPSALT_HIGH_THR_COMP	30L
 
-// Increase the severity of the filter on the barometer pressure readings
-// may give better altitude hold ( New=(Old*7+New+4)/8) ).
-#define BARO_HARD_FILTER
+#define BARO_FROM_METRES		5L
+
+// the range within which throttle adjustment is proportional to altitude error
+#define GPSALT_BAND				5L		// Metres
 
 // Modifications which have been adopted are included BELOW.
 
@@ -31,7 +36,7 @@
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
 // =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -48,6 +53,9 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+// Unroll some loops on critical path
+#define UNROLL_LOOPS
 
 #ifndef BATCHMODE
 
@@ -76,13 +84,16 @@
 // A better method is to use the auxilliary LEDs - see Manual.
 #define BARO_SCRATCHY_BEEPER
 
+// Increase the severity of the filter when averaging barometer pressure readings
+// New=(Old*7+New)/8).
+// Probably more important with SMD500
+//#define BARO_HARD_FILTER
+
 // Accelerometers
 
 // Enable this to use the Accelerometer sensor 
 // Normally ENABLED
 #define USE_ACCELEROMETER
-// Enable vertical accelerometer compensation of vertical velocity 
-#define ENABLE_VERTICAL_VELOCITY_DAMPING
 
 // Gyros
 
@@ -98,10 +109,6 @@
 
 // reads $GPGGA and $GPRMC sentences - all others discarded
 
-#ifndef DEBUG_SENSORS
-#define EMIT_TONE			// emits ~50Hz "tone" on Tx pin hover position is locked
-#endif // DEBUG_SENSORS
-
 #define	NAV_GAIN_THRESHOLD 		20		// Navigation disabled if Ch7 is less than this
 	
 #define	MIN_SATELLITES			5		// preferably >5 for 3D fix
@@ -111,20 +118,18 @@
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 #define MAX_ANGLE 				25L		// Rx stick units ~= degrees
 
-
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define MAX_TRIM				20L		// max trim offset for hover hold
 
-#define FAILSAFE_TIMEOUT		1000L 	// mS hold last "good" settings and then either restore flight or abort
-#define ABORT_TIMEOUT			3000L 	// mS full flight abort - motors shutdown until reboot 
-#define LOW_THROTTLE_DELAY		1000L	// mS that motor runs at idle after the throttle is closed
-#define THROTTLE_UPDATE			3000L	// mS constant throttle time for hover
-#define VERT_DAMPING_UPDATE 	50L 	// mS between vertical velocity damping updates
+#define FAILSAFE_TIMEOUT_S		1 		// Sec. hold last "good" settings and then either restore flight or abort
+#define ABORT_TIMEOUT_S			3	 	// Sec. full flight abort - motors shutdown until reboot 
+#define LOW_THROTTLE_DELAY_S	1		// Sec. that motor runs at idle after the throttle is closed
+#define THROTTLE_UPDATE_S		3		// Sec. constant throttle time for hover
 
 #define THR_MIDDLE				10  	// throttle stick dead zone for baro 
 #define THR_HOVER				75		// min throttle stick for altitude lock
 
-#define GPS_TIMEOUT				2000L	// mS
+#define GPS_TIMEOUT_S			2		// Sec.
 
 #define MAX_WAYPOINTS			16
 
@@ -271,7 +276,7 @@ typedef union {
 #define	_CompassValid		Flags[6]	
 #define _CompassMissRead 	Flags[7]
 #define _BaroAltitudeValid	Flags[8]
-#define _BaroTempRun		Flags[9]	
+	
 #define _BaroRestart		Flags[10] 	
 #define _OutToggle			Flags[11]									
 #define _Failsafe			Flags[12]
@@ -365,8 +370,8 @@ typedef union {
 #define RC_THRES_STOP		((15L*RC_MAXIMUM)/100)		
 #define RC_THRES_START		((25L*RC_MAXIMUM)/100)		
 
-#define RC_FRAME_TIMEOUT 	25
-#define RC_SIGNAL_TIMEOUT 	(5L*RC_FRAME_TIMEOUT)
+#define RC_FRAME_TIMEOUT_MS 	25
+#define RC_SIGNAL_TIMEOUT_MS 	(5L*RC_FRAME_TIMEOUT_MS)
 #define RC_THR_MAX 			RC_MAXIMUM
 
 #ifdef RX6CH 
@@ -385,7 +390,7 @@ typedef union {
 #define COMPASS_I2C_ID		0x42				// I2C slave address
 #define COMPASS_MAXDEV		30					// maximum yaw compensation of compass heading 
 #define COMPASS_MIDDLE		10					// yaw stick neutral dead zone
-#define COMPASS_TIME		50					// 20Hz
+#define COMPASS_TIME_MS		50					// 20Hz
 
 // Baro (altimeter) sensor
 #define BARO_I2C_ID			0xee
@@ -399,9 +404,9 @@ typedef union {
 //#define BARO_ID_SMD500	??
 #define BARO_ID_BMP085		((uint8)(0x55))
 
-#define BARO_TEMP_TIME		10
-#define BARO_PRESS_TIME 	35
-#define BARO_SAMPLES		16	
+#define BARO_TEMP_TIME_MS		10
+#define BMP085_PRESS_TIME_MS 	8
+#define SMD500_PRESS_TIME_MS 	35	
 
 // Sanity checks
 
@@ -441,6 +446,8 @@ extern void InitADC(void);
 // autonomous.c
 extern void Navigate(int16, int16);
 extern void AltitudeHold(int16);
+extern void Descend(void);
+extern void AcquireHoldPosition(void);
 extern void DoNavigation(void);
 extern void CheckThrottleMoved(void);
 extern void DoFailsafe(void);
@@ -552,6 +559,7 @@ extern int8 ReadEE(uint8);
 extern void ReadParametersEE(void);
 extern void WriteEE(uint8, int8);
 extern void WriteParametersEE(uint8);
+extern void UseDefaultParameters(void);
 extern void UpdateParamSetChoice(void);
 extern void InitParameters(void);
 
@@ -568,6 +576,10 @@ extern void SwitchLEDsOn(uint8);
 extern void SwitchLEDsOff(uint8);
 extern void LEDGame(void);
 extern void CheckAlarms(void);
+
+extern void InitStats(void);
+extern void CollectStats(void);
+extern void FlightStats(void);
 
 extern void DumpTrace(void);
 
@@ -598,7 +610,7 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+      AbortTimeout, RTHTimeout, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
@@ -620,33 +632,33 @@ enum TraceTags {THE, TCurrentBaroPressure,
 				TMFront, TMBack, TMLeft, TMRight,
 				TMCamRoll, TMCamPitch
 				};
-
 #define TopTrace TFBIntKorr
 
 enum MotorTags {Front, Left, Right, Back};
-#define NoOfMotors 4
+#define NoOfMotors 		4
 
 extern uint24 mS[];
 
-extern uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-extern i16u PPM[];
+extern uint8	State;
+extern uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor and servo outputs
+extern i16u 	PPM[];
 extern boolean	RCFrameOK, GPSSentenceReceived;
-extern int8 PPM_Index;
-extern int24 PrevEdge, CurrEdge;
-extern i16u Width;
+extern int8 	PPM_Index;
+extern int24 	PrevEdge, CurrEdge;
+extern i16u 	Width;
 extern int16	PauseTime; // for tests
-extern uint8 GPSRxState;
-extern uint8 ll, tt, gps_ch;
-extern uint8 RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+extern uint8 	GPSRxState;
+extern uint8 	ll, tt, gps_ch;
+extern uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 
 extern int16	RC[];
-extern uint24	RCGlitches;
+extern uint16	RCGlitches;
 
-#define MAXTAGINDEX 4
+#define MAXTAGINDEX 	4
 #define GPSRXBUFFLENGTH 80
 extern struct {
-	uint8 s[GPSRXBUFFLENGTH];
-	uint8 length;
+		uint8 	s[GPSRXBUFFLENGTH];
+		uint8 	length;
 	} NMEA;
 
 extern const rom uint8 NMEATag[];
@@ -678,7 +690,7 @@ extern int16 	GPSRelAltitude;
 
 extern int16 	SqrNavClosingRadius, NavClosingRadius, CompassOffset;
 
-enum NavStates { PIC, HoldingStation, ReturningHome, Navigating, Terminating };
+enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
 extern uint8 	NavState;
 extern uint8 	NavSensitivity;
 extern int16 	AltSum, AE;
@@ -701,7 +713,7 @@ extern int16	BE, BEp;
 extern i16u		BaroVal;
 extern int8		BaroSample;
 extern int16	VBaroComp;
-extern uint8	BaroType, BaroTemp;
+extern uint8	BaroType;
 
 extern uint8	MCamRoll,MCamPitch;
 extern int16	Motor[NoOfMotors];
@@ -709,7 +721,7 @@ extern int16	Rl,Pl,Yl;	// PID output values
 
 extern boolean	Flags[32];
 extern uint8	LEDCycles;		// for hover light display
-extern int16	HoldResetCount;	
+extern int16	NavHoldResetCount;	
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 
@@ -776,6 +788,7 @@ enum Params {
 
 extern int8 P[];
 extern const rom int8 ComParms[];
+extern const rom int8 DefaultParams[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
 extern const rom boolean PPMPosPolarity[];
 

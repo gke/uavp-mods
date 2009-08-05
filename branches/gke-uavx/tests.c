@@ -2,7 +2,7 @@
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
 // =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -154,7 +154,7 @@ void GetCompassParameters(void)
 	if( SendI2CByte(COMP_OPMODE) != I2C_ACK ) goto CTerror;
 	I2CStop();
 
-	Delay1mS(COMPASS_TIME);
+	Delay1mS(COMPASS_TIME_MS);
 
 	for (r = 0; r <= 8; r++)
 	{
@@ -191,8 +191,6 @@ void DoCompassTest()
 	uint16 v, prev;
 	int16 Temp;
 	i16u Compass;
-
-	#ifndef DISABLE_COMPASS_CALIBRATION
 
 	TxString("\r\nCompass test\r\n");
 
@@ -286,8 +284,6 @@ CTerror:
 	I2CStop();
 	TxString("FAIL\r\n");
 
-	#endif // !DISABLE_COMPASS_CALIBRATION
-
 } // DoCompassTest
 
 void CompassRun(void)
@@ -312,8 +308,6 @@ void CompassRun(void)
 
 void CalibrateCompass(void)
 {	// calibrate the compass by rotating the ufo through 720 deg smoothly
-	#ifndef DISABLE_COMPASS_CALIBRATION
-
 	TxString("\r\nCalib. compass - Press any key (x) to continue\r\n");	
 	while( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
 
@@ -341,7 +335,7 @@ void CalibrateCompass(void)
 
 	TxString("\r\nCalibration complete\r\n");
 
-	Delay1mS(COMPASS_TIME);
+	Delay1mS(COMPASS_TIME_MS);
 
 	InitCompass();
 
@@ -350,7 +344,6 @@ CCerror:
 	I2CStop();
 	TxString("Calibration FAILED\r\n");
 
-	#endif // !DISABLE_COMPASS_CALIBRATION
 } // CalibrateCompass
 
 void BaroTest(void)

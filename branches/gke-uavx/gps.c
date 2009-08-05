@@ -1,7 +1,7 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -236,7 +236,6 @@ void ParseGPSSentence(void)
 } // ParseGPSSentence
 
 /* inlined in irq.c
-
 void PollGPS(uint8 ch)
 {
 	switch ( GPSRxState ) {
@@ -336,7 +335,7 @@ void UpdateGPS(void)
 		if ( _GPSValid )
 		{
 			_NavComputed = false;
-			mS[GPSTimeout] = mS[Clock] + GPS_TIMEOUT * 1000L;
+			mS[GPSTimeout] = mS[Clock] + GPS_TIMEOUT_S*1000L;
 		}
 	}
 	else

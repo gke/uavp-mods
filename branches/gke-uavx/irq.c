@@ -1,7 +1,7 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -20,23 +20,15 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-// Interrupt routine
-// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
-// use at your own risk - see GPL.
-
-// The 64uS assumed for the maximum interrupt latency in the generation of the 
-// output pulse preamble in utils.c  most likely applies to the Timer0 interrupt. 
-// The original version of irq.c had a much longer path through the receiving of bit5 
-// exacerbated by the stick filter code. This caused the edge of the 1mS preamble to 
-// be peridocally missed and for the OutSignals routine to emit preambles greater 
-// than 1mS. GKE
-
 #include "uavx.h"
 
 // Interrupt Routine
 
 #define MIN_PPM_SYNC_PAUSE 2500  	// 2500 *2us = 5ms
- 
+
+// Simple averaging of last two channel captures
+//#define RC_FILTER
+
 // Prototypes
 
 void ReceivingGPSOnly(uint8);
@@ -46,7 +38,7 @@ void MapRC(void);
 void low_isr_handler(void);
 void high_isr_handler(void);
 
-void ReceivingGPSOnly(uint8 r)
+void ReceivingGPSOnly(boolean r)
 {
 	if ( r != _ReceivingGPS )
 	{
@@ -71,16 +63,32 @@ void MapRC(void)
 
 	LastThrottle = RC[ThrottleC];
 
+	#ifdef UNROLL_LOOPS
+	
+	RC[ThrottleC] = PPM[Map[P[TxRxType]][ThrottleC]-1].low8;
+	RC[RollC] = 	PPM[Map[P[TxRxType]][RollC]-1].low8 - RC_NEUTRAL;
+	RC[PitchC] = 	PPM[Map[P[TxRxType]][PitchC]-1].low8 - RC_NEUTRAL;
+	RC[YawC] = 		PPM[Map[P[TxRxType]][YawC]-1].low8 - RC_NEUTRAL;
+	RC[RTHC] = 		PPM[Map[P[TxRxType]][RTHC]-1].low8;
+	RC[CamTiltC] = 	PPM[Map[P[TxRxType]][CamTiltC]-1].low8 - RC_NEUTRAL;
+	RC[NavGainC] = 	PPM[Map[P[TxRxType]][NavGainC]-1].low8;
+
+	#else
+
 	for (c = 0 ; c < CONTROLS ; c++)
 		RC[c] = PPM[Map[P[TxRxType]][c]-1].low8;
+
+	RC[RollC] -= RC_NEUTRAL;
+	RC[PitchC] -= RC_NEUTRAL;
+	RC[YawC] -= RC_NEUTRAL;
+	RC[CamTiltC] -= RC_NEUTRAL;
+
+	#endif // UNROLL_LOOPS
 
 	#ifdef SLEW_LIMIT_THROTTLE
 	RC[ThrottleC] = SlewLimit(LastThrottle, RC[ThrottleC], 5);
 	#endif
 
-	RC[RollC] -= RC_NEUTRAL;
-	RC[PitchC] -= RC_NEUTRAL;
-	RC[YawC] -= RC_NEUTRAL;
 } // MapRC
 
 
@@ -107,13 +115,14 @@ void InitTimersAndInterrupts(void)
 
 	for (i = 0; i < CONTROLS; i++)
 		PPM[i].i16 = RC[i] = 0;
+	#ifdef RX6CH
+	PPM[CamTiltC].i16 = RC_NEUTRAL;
+	PPM[NavGainC].i16 = RC_MAXIMUM;
+	#endif // RX6CH	  
 
 	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;
 
-	PPM_Index =0;
-	PrevEdge = 0;
-	RCGlitches = 0;
-	RxCheckSum = 0;
+	PPM_Index = PrevEdge = RCGlitches = RxCheckSum = 0;
 	_Signal = _NewValues = false;
    	ReceivingGPSOnly(false);
 } // InitTimersAndInterrupts
@@ -127,7 +136,7 @@ void low_isr_handler(void)
 
 #pragma interrupt high_isr_handler
 void high_isr_handler(void)
-{	
+{
 	if( PIR1bits.CCP1IF ) 						// An Rx PPM pulse edge has been detected
 	{
 		CurrEdge = CCPR1;
@@ -141,6 +150,7 @@ void high_isr_handler(void)
 		{
 			PPM_Index = 0;						// Sync pulse detected - next CH is CH1
 			RCFrameOK = true;
+			_NewValues = false; 
 			PauseTime = Width.i16;
 		}
 		else 
@@ -149,10 +159,11 @@ void high_isr_handler(void)
 				Width.i16 >>= 1; 				// Width in 4us ticks.
 	
 				if ( Width.high8 == 1 ) 		// Check pulse is 1.024 to 2.048mS
-				{
-					_NewValues = false; 		// Strictly after PPM_Index == 0
-					PPM[PPM_Index].i16 = Width.i16;	
-				}	
+					#ifdef RC_FILTER
+					PPM[PPM_Index].i16 = (OldPPM + Width.i16 ) >> 1;
+					#else
+					PPM[PPM_Index].i16 = Width.i16;
+					#endif // RC_FILTER		
 				else
 				{
 					// preserve old value i.e. default hold
@@ -164,13 +175,9 @@ void high_isr_handler(void)
 				// to be cancelled by noise-generated partially correct frames
 				if ( PPM_Index == RC_CONTROLS )
 				{
-					#ifdef RX6CH
-					PPM[CamTiltC].i16 = RC_NEUTRAL;
-					PPM[NavGainC].i16 = RC_MAXIMUM;
-					#endif // RX6CH	  
 					_NewValues = RCFrameOK;
 					_Signal = true;
-					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT;
+					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT_MS;
 				}
 			}
 
@@ -197,7 +204,7 @@ void high_isr_handler(void)
 				{
 					GPSTxCheckSum *= 16;
 					if ( gps_ch >= 'A' )
-						GPSTxCheckSum += ( gps_ch - 'A' + 10 );
+						GPSTxCheckSum += ( gps_ch - ('A' - 10) );
 					else
 						GPSTxCheckSum += ( gps_ch - '0' );
 		
@@ -254,7 +261,7 @@ void high_isr_handler(void)
 		PIR1bits.RCIF = false;
 	}
 
-	if ( INTCONbits.T0IF )
+	if ( INTCONbits.T0IF )  // MilliSec clock with some "leaks" in output.c etc.
 	{ 
 		mS[Clock]++;
 		INTCONbits.TMR0IF = false;	

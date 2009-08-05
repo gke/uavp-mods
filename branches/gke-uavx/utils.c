@@ -2,7 +2,7 @@
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
 // =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -38,6 +38,7 @@ int8 ReadEE(uint8);
 void ReadParametersEE(void);
 void WriteEE(uint8, int8);
 void WriteParametersEE(uint8);
+void UseDefaultParameters(void);
 void UpdateWhichParamSet(void);
 void InitParameters(void);
 
@@ -53,6 +54,10 @@ void SwitchLEDsOn(uint8);
 void SwitchLEDsOff(uint8);
 void LEDGame(void);
 void CheckAlarms(void);
+
+void InitStats(void);
+void CollectStats(void);
+void FlightStats(void);
 
 void DumpTrace(void);
 
@@ -159,11 +164,11 @@ int16 ConvertMToGPS(int16 c)
 
 int16 SlewLimit(int16 Old, int16 New, int16 Slew)
 {
-  int16 Lo, Hi;
+  int16 Low, High;
   
-  Lo=Old-Slew;
-  Hi=Old+Slew; 
-  return((New<Lo) ? Lo : ((New>Hi) ? Hi : New));
+  Low = Old - Slew;
+  High = Old + Slew; 
+  return(( New < Low ) ? Low : (( New > High ) ? High : New));
 } // SlewLimit
 
 int8 ReadEE(uint8 addr)
@@ -246,6 +251,19 @@ void WriteParametersEE(uint8 s)
 	for ( p = 0; p <= LastParam; p++)
 		WriteEE( addr + p,  P[p]);
 } // WriteParametersEE
+
+void UseDefaultParameters(void)
+{ // loads a representative set of initial parameters as a base for tuning
+	int8 p;
+
+	for ( p = 0; p <= LastParam; p++ )
+		P[p] = DefaultParams[p];
+
+	WriteParametersEE(1);
+	WriteParametersEE(2);
+	CurrentParamSet = 1;
+	TxString("\r\nDefault Parameters Loaded\r\n");	
+} // UseDefaultParameters
 
 void UpdateParamSetChoice(void)
 {
@@ -603,6 +621,31 @@ void CheckAlarms(void)
 	}
 
 } // CheckAlarms
+
+static int16 MaxGPSAltitude, MinBaroPressure;
+
+void InitStats(void)
+{
+	MaxGPSAltitude = MinBaroPressure = 0;
+}
+
+void CollectStats(void)
+{
+	static int16 Temp;
+
+	if ( GPSRelAltitude > MaxGPSAltitude )
+		MaxGPSAltitude = GPSRelAltitude;
+	Temp = Abs(CurrentBaroPressure);
+	if ( Temp > MinBaroPressure )
+		MinBaroPressure = Temp;
+} // CollectStats
+
+void FlightStats(void)
+{
+	TxString("\r\nFlight Statistics\r\n");
+	TxVal32(MaxGPSAltitude,0,0); TxString(" GPS dM\r\n");
+	TxVal32(MinBaroPressure,0,0); TxString(" Baro clicks\r\n");
+} // FlightStats
 
 void DumpTrace(void)
 {

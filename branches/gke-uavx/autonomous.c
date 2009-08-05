@@ -1,7 +1,7 @@
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -27,6 +27,8 @@
 
 void Navigate(int16, int16);
 void AltitudeHold(int16);
+void Descend(void);
+void AcquireHoldPosition(void);
 void DoNavigation(void);
 void CheckThrottleMoved(void);
 void DoFailsafe(void);
@@ -40,31 +42,59 @@ int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr, NavYCorr, SumNavYCorr;
 
 WayPoint WP[MAX_WAYPOINTS];
 
-void AltitudeHold(int16 DesiredAltitude)
+void AltitudeHold(int16 DesiredAltitude) // Metres
 {
 	static int16 Temp;
 
 	if ( _RTHAltitudeHold )
 		if ( P[ConfigBits] & UseGPSAltMask )
 		{
-			AE = Limit(DesiredAltitude - GPSRelAltitude, -50, 50); // 5 metre band
+			AE = Limit(DesiredAltitude*10L - GPSRelAltitude, -GPSALT_BAND*10L, GPSALT_BAND*10L);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
 			Temp = SRS16(AE*P[NavAltKp] + AltSum*P[NavAltKi], 5);
 		
-			DesiredThrottle = HoverThrottle + Limit(Temp, -10, 30);
+			DesiredThrottle = HoverThrottle + Limit(Temp, GPSALT_LOW_THR_COMP, GPSALT_HIGH_THR_COMP);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
 		}
 		else
 		{	
 			DesiredThrottle = HoverThrottle;
-			BaroAltitudeHold(-DesiredAltitude);
+			BaroAltitudeHold(-DesiredAltitude * BARO_FROM_METRES);
 		}
 	else
 	{
 		// manual control of altitude
 	}
 } // AltitudeHold
+
+void Descend(void)
+{ // uses Baro only
+	int16 DesiredBaroPressure;
+
+	if (  mS[Clock] > mS[AltHoldUpdate] )
+	{
+		// zzz could have micro switch cutout on RC0 Pin 11
+
+		// 0.5 Metres/Sec
+		DesiredThrottle = HoverThrottle;
+		DesiredBaroPressure = Limit (CurrentBaroPressure + BARO_FROM_METRES/2, -BARO_FROM_METRES*100, BARO_FROM_METRES*10);
+		BaroAltitudeHold( DesiredBaroPressure );	
+		mS[AltHoldUpdate] = mS[Clock] + 1000L;
+	}
+} // Descend
+
+void AcquireHoldPosition(void)
+{
+	SumNavRCorr = SumNavPCorr = SumNavYCorr = 0;
+	_NavComputed = false;
+
+	GPSNorthHold = GPSNorth;
+	GPSEastHold = GPSEast;
+	_Proximity = true;
+
+	NavState = HoldingStation;
+} // AcquireHoldPosition
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
@@ -90,7 +120,8 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		EastDiff = GPSEastWay - GPSEast;
 		NorthDiff = GPSNorthWay - GPSNorth;
 
-		if ( (Abs(EastDiff) >= 1 ) || (Abs(NorthDiff) >=1 ))
+		#define BRASHLEY_ZONE 10
+		if ( (Abs(EastDiff) > BRASHLEY_ZONE ) || (Abs(NorthDiff) > BRASHLEY_ZONE )) // zzz Brashley Zone
 		{ 
 			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
 			_Proximity = Range < NavClosingRadius;
@@ -153,70 +184,77 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void DoNavigation(void)
 {
-	if ( _GPSValid && ( NavSensitivity > NAV_GAIN_THRESHOLD ) && ( mS[Clock] > mS[NavActiveTime]) )
-	{
-		if ( _CompassValid )
-			switch ( NavState ) {
-			case PIC:
-			case HoldingStation:
+	if ( _GPSValid && _CompassValid  && ( NavSensitivity > NAV_GAIN_THRESHOLD ) && ( mS[Clock] > mS[NavActiveTime]) )
+		switch ( NavState ) {
+		case PIC:
+		case HoldingStation:
 
-				HoldRoll = Abs(DesiredRoll - RollTrim);
-				HoldPitch = Abs(DesiredPitch - PitchTrim);
+			HoldRoll = Abs(DesiredRoll - RollTrim);
+			HoldPitch = Abs(DesiredPitch - PitchTrim);
 
-				if ( ( HoldRoll > MAX_CONTROL_CHANGE )||( HoldPitch > MAX_CONTROL_CHANGE ) )
-					if ( HoldResetCount > HOLD_RESET_INTERVAL )
-					{
-						NavState = PIC;
-						_Proximity = false;
-						GPSNorthHold = GPSNorth;
-						GPSEastHold = GPSEast;
-						SumNavRCorr = SumNavPCorr = SumNavYCorr = 0;
-						_NavComputed = false;
-					}
-					else
-						HoldResetCount++;
+			if ( ( HoldRoll > NAV_HOLD_LIMIT )||( HoldPitch > NAV_HOLD_LIMIT ) )
+				if ( NavHoldResetCount > NAV_HOLD_RESET_INTERVAL )
+					AcquireHoldPosition();
 				else
-				{
-					if ( HoldResetCount > 0 )
-						HoldResetCount--;		
-				}
+					NavHoldResetCount++;
+			else
+			{
+				if ( NavHoldResetCount > 1 )
+					NavHoldResetCount -= 2;		// Faster decay
+			}
 				
-				// Keep GPS hold active regardless
-				NavState = HoldingStation;
-				Navigate(GPSNorthHold, GPSEastHold);
+			// Keep GPS hold active regardless
+			NavState = HoldingStation;
+			Navigate(GPSNorthHold, GPSEastHold);
 	
-				if ( _ReturnHome )
+			if ( _ReturnHome )
+			{
+				AltSum = 0; 
+				NavState = ReturningHome;
+			}
+
+			CheckForHover();
+
+			break;
+		case ReturningHome:
+			Navigate(WP[0].N, WP[0].E);
+			AltitudeHold(WP[0].A);
+			if ( _ReturnHome )
+			{
+				if ( _Proximity )
 				{
-					AltSum = 0; 
-					NavState = ReturningHome;
+					mS[RTHTimeout] = mS[Clock] + NAV_RTH_TIMEOUT_S*1000L;					
+					NavState = AtHome;
 				}
-
-				CheckForHover();
-
-				break;
-			case ReturningHome:
-				AltitudeHold(WP[0].A);
-				Navigate(WP[0].N, WP[0].E);
-				if ( !_ReturnHome )
+			}
+			else
+				AcquireHoldPosition();					
+			break;
+		case AtHome:
+			Navigate(WP[0].N, WP[0].E);
+			if ( _ReturnHome )
+				if ( mS[Clock] > mS[RTHTimeout] )
 				{
-					GPSNorthHold = GPSNorth;
-					GPSEastHold = GPSEast;
-					SumNavRCorr = SumNavPCorr = SumNavYCorr = 0;
-					_NavComputed = false;
-					NavState = PIC;
-				} 
-				break;
-			case Navigating:
-				// not implemented yet
-				break;
-			} // switch NavState
-		else
-		{
-			DesiredRoll = DesiredPitch = DesiredYaw = 0;
-			AltitudeHold(-50); // Compass not responding - land
-		}
-	} 
-	else // else no GPS
+					mS[AltHoldUpdate] = mS[Clock];
+					NavState = Descending;
+				}
+				else
+					AltitudeHold(WP[0].A);
+			else
+				AcquireHoldPosition();
+			break;
+		case Descending:
+			Navigate(WP[0].N, WP[0].E);
+			if ( _ReturnHome )
+				Descend();
+			else
+				AcquireHoldPosition();
+			break;
+		case Navigating:
+			// not implemented yet
+			break;
+		} // switch NavState
+	else // no Navigation
 		CheckForHover();
 } // DoNavigation
 
@@ -228,17 +266,23 @@ void DoFailsafe(void)
 	{
 		LEDRed_ON;
 		_LostModel = true;
-		DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = 0;		
+		DesiredRoll = DesiredPitch = DesiredYaw = 0;
+		DesiredThrottle = 0;
+		// Descend();	
 	}
 	else
 		if( mS[Clock] > mS[AbortTimeout] ) // timeout - immediate shutdown/abort
+		{
+			mS[AltHoldUpdate] = mS[Clock];
 			_Failsafe = true;
+		}
 		else
 			if ( mS[Clock] > mS[FailsafeTimeout] ) 
 			{
 				DesiredRoll = DesiredPitch = DesiredYaw = 0;
-				// use last "good" throttle
-				// DesiredThrottle = Limit(DesiredThrottle, 0, HoverThrottle*3/4); 
+				if ( State != InFlight )
+					DesiredThrottle = 0;
+				// use last "good" throttle; 
 			}
 			else
 			{
@@ -258,7 +302,7 @@ void CheckThrottleMoved(void)
 		ThrHigh = ThrNeutral + THR_MIDDLE;
 		if ( ( DesiredThrottle <= ThrLow ) || ( DesiredThrottle >= ThrHigh ) )
 		{
-			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE;
+			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE_S*1000L;
 			_ThrottleMoving = true;
 		}
 		else
@@ -273,13 +317,13 @@ void InitNavigation(void)
 	for (w = 0; w < MAX_WAYPOINTS; w++)
 	{
 		WP[w].N = WP[w].E = 0; 
-		WP[w].A = P[NavRTHAlt] * 10L; // Decimetres
+		WP[w].A = P[NavRTHAlt]; // Metres
 	}
 
 	GPSNorthHold = GPSEastHold = 0;
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
 	NavState = PIC;
-	HoldResetCount = 0;
+	NavHoldResetCount = 0;
 	_NavComputed = false;
 } // InitNavigation
 

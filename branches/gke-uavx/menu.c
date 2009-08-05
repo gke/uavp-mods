@@ -2,7 +2,7 @@
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
 // =   Original V3.15 Copyright (c) 2007, 2008 Ing. Wolfgang Mahringer   =
-// =                          http://uavp.ch                             =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
 // =======================================================================
 
 //    This is part of UAVX.
@@ -41,19 +41,17 @@ const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\nAccelerometers ";
 const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"A..Linear test\r\n"
 	"B..Boot\r\n"
-#ifndef DISABLE_COMPASS_CALIBRATION
 	"C..Compass test\r\n"
-#endif // !DISABLE_COMPASS_CALIBRATION
+	"D..Load default parameter set\r\n"
 	"G..GPS test (Use HyperTerm)\r\n"
 	"H..Baro. test\r\n"
 	"I..I2C bus scan\r\n"
-#ifndef DISABLE_COMPASS_CALIBRATION
 	"K..Calib. Compass\r\n"
-#endif // !DISABLE_COMPASS_CALIBRATION
 //	"M..Modify parameters\r\n"
 	"P..RX test\r\n"
 	"S..Setup\r\n"
 	"V..Analog ch.\r\n"
+	"X..Flight Stats\r\n"
 	"Y..Prog. YGE\r\n"
 	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
@@ -204,6 +202,10 @@ void ProcessCommand(void)
 				DoCompassTest();
 				ShowPrompt();
 				break;
+			case 'D':
+				UseDefaultParameters();
+				ShowPrompt();
+				break;
 			case 'G' : // GPS test
 				GPSTest();
 				ShowPrompt();
@@ -293,6 +295,10 @@ void ProcessCommand(void)
 				break;
 			case 'V' :	// analog test
 				AnalogTest();
+				ShowPrompt();
+				break;
+			case 'X' :	// analog test
+				FlightStats();
 				ShowPrompt();
 				break;
 			case 'Y':	// configure YGE30i EScs
