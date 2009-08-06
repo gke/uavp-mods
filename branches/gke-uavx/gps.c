@@ -80,10 +80,12 @@ int16 ConvertInt(uint8 lo, uint8 hi)
 } // ConvertInt
 
 int32 ConvertLatLonM(uint8 lo, uint8 hi)
-{ 	// positions are stored at maximum transmitted GPS resolution which is
-	// approximately 0.18553257183 Metres per LSB (without Longitude compensation)
+{ 	// NMEA coordinates assumed as DDDMM.MMMM ie 4 decimal minute digits
+	// Positions are stored at maximum transmitted NMEA resolution which is
+	// approximately 0.1855 Metres per LSB at the Equator.
 
-	int32 dd, mm, ss;	
+
+	int32 dd, mm, dm;	
 	int32 ival;
 	
 	ival=0;
@@ -91,8 +93,8 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi)
 	{
 	    dd = ConvertInt(lo, hi-7);
 	    mm = ConvertInt(hi-6, hi-5);
-		ss = ConvertInt(hi-3, hi);
-	    ival = dd * 600000 + mm * 10000 + ss;
+		dm = ConvertInt(hi-3, hi);
+	    ival = dd * 600000 + mm * 10000 + dm;
 	}
 	
 	return(ival);
@@ -167,7 +169,7 @@ void ParseGPGGASentence(void)
     //UpdateField();   // GHeight 
     //UpdateField();   // GHeightUnit 
  
-    _GPSValid = (GPSFix >= MIN_FIX) && ( GPSNoOfSats >= MIN_SATELLITES );  
+    _GPSValid = (GPSFix >= GPS_MIN_FIX) && ( GPSNoOfSats >= GPS_MIN_SATELLITES );  
 
 	if ( _GPSTestActive )
 		TxString("$GPGGA ");
@@ -202,23 +204,23 @@ void ParseGPSSentence(void)
 
 	if ( _GPSValid )
 	{
-	    if ( ValidGPSSentences <  INITIAL_GPS_SENTENCES )
+	    if ( ValidGPSSentences <=  GPS_INITIAL_SENTENCES )
 		{   // repetition to ensure GPGGA altitude is captured
 
 			if ( _GPSTestActive )
 			{
-				TxVal32( INITIAL_GPS_SENTENCES - ValidGPSSentences, 0, 0);
+				TxVal32( GPS_INITIAL_SENTENCES - ValidGPSSentences, 0, 0);
 				TxNextLine();
 			}
 
 			_GPSValid = false;
 
-			GPSOriginAltitude = GPSAltitude;
-			if (GPSHDilute <= MIN_HDILUTE )
+			if (GPSHDilute <= GPS_MIN_HDILUTE )
+			{
+				if ( ValidGPSSentences ==  GPS_INITIAL_SENTENCES )
+					SetGPSOrigin();
 				ValidGPSSentences++;
-		
-			SetGPSOrigin();
-			
+			}	
 		}
 		else
 		{
@@ -302,7 +304,7 @@ inlined in irq.c */
 
 void ResetGPSOrigin(void)
 {
-	if ( ValidGPSSentences >=  INITIAL_GPS_SENTENCES )
+	if ( ValidGPSSentences >  GPS_INITIAL_SENTENCES )
 		SetGPSOrigin();	
 	// otherwise continue with first acquisition
 } // ResetGPSOrigin

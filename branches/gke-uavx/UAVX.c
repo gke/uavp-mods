@@ -129,23 +129,23 @@ const rom int8 DefaultParams[] = {
 	-18, 			// PitchKp,			06
 	-8, 			// PitchKi,			07
 	50, 			// PitchKd,			08
-	4, 				// BaroCompKp,		09c
+	2, 				// BaroCompKp,		09c
 	4, 				// PitchIntLimit,	10
 	
-	-30, 			// YawKp, 			11
+	-25, 			// YawKp, 			11
 	-20, 			// YawKi,			12
 	0, 				// YawKd,			13
 	25, 			// YawLimit,		14
 	2, 				// YawIntLimit,		15
 	0, 				// ConfigBits,		16c
 	4, 				// TimeSlots,		17c
-	43, 			// LowVoltThres,	18c
+	48, 			// LowVoltThres,	18c
 	0, 				// CamRollKp,		19
 	45, 			// PercentHoverThr,	20c 
 	
 	-1, 			// VertDampKp,		21c
 	0, 				// MiddleUD,		22c
-	20, 			// PercentIdleThr,	23c
+	10, 			// PercentIdleThr,	23c
 	0, 				// MiddleLR,		24c
 	0, 				// MiddleFB,		25c
 	0, 				// CamPitchKp,		26
@@ -310,7 +310,7 @@ void main(void)
 
 					if ( DesiredThrottle < IdleThrottle )
 					{
-						mS[ThrottleIdleTimeout] = mS[Clock] + LOW_THROTTLE_DELAY_S;
+						mS[ThrottleIdleTimeout] = mS[Clock] + THROTTLE_LOW_DELAY_S;
 						State = Landing;
 					}
 					break;

@@ -411,9 +411,9 @@ void UpdateControls(void)
 
 void CaptureTrims(void)
 { // only used in detecting movement from neutral in hold GPS position
-	RollTrim = Limit(DesiredRoll, -MAX_TRIM, MAX_TRIM);
-	PitchTrim = Limit(DesiredPitch, -MAX_TRIM, MAX_TRIM);
-	YawTrim = Limit(DesiredYaw, -MAX_TRIM, MAX_TRIM);
+	RollTrim = Limit(DesiredRoll, -NAV_MAX_TRIM, NAV_MAX_TRIM);
+	PitchTrim = Limit(DesiredPitch, -NAV_MAX_TRIM, NAV_MAX_TRIM);
+	YawTrim = Limit(DesiredYaw, -NAV_MAX_TRIM, NAV_MAX_TRIM);
 
 	HoldRoll = HoldPitch = HoldYaw = 0;
 } // CaptureTrims

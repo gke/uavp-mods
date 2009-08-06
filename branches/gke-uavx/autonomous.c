@@ -40,7 +40,7 @@ extern boolean GPSSentenceReceived;
 
 int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr, NavYCorr, SumNavYCorr;
 
-WayPoint WP[MAX_WAYPOINTS];
+WayPoint WP[NAV_MAX_WAYPOINTS];
 
 void AltitudeHold(int16 DesiredAltitude) // Metres
 {
@@ -49,12 +49,12 @@ void AltitudeHold(int16 DesiredAltitude) // Metres
 	if ( _RTHAltitudeHold )
 		if ( P[ConfigBits] & UseGPSAltMask )
 		{
-			AE = Limit(DesiredAltitude*10L - GPSRelAltitude, -GPSALT_BAND*10L, GPSALT_BAND*10L);
+			AE = Limit(DesiredAltitude*10L - GPSRelAltitude, -GPS_ALT_BAND*10L, GPS_ALT_BAND*10L);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
 			Temp = SRS16(AE*P[NavAltKp] + AltSum*P[NavAltKi], 5);
 		
-			DesiredThrottle = HoverThrottle + Limit(Temp, GPSALT_LOW_THR_COMP, GPSALT_HIGH_THR_COMP);
+			DesiredThrottle = HoverThrottle + Limit(Temp, GPS_ALT_LOW_THR_COMP, GPS_ALT_HIGH_THR_COMP);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
 		}
 		else
@@ -73,15 +73,16 @@ void Descend(void)
 	int16 DesiredBaroPressure;
 
 	if (  mS[Clock] > mS[AltHoldUpdate] )
-	{
-		// zzz could have micro switch cutout on RC0 Pin 11
+		if ( InTheAir ) 							//  micro switch RC0 Pin 11 to ground when landed
+		{
+			DesiredThrottle = HoverThrottle;
+			DesiredBaroPressure = CurrentBaroPressure + BARO_FROM_METRES/2; // 0.5 Metres/Sec
+			BaroAltitudeHold( DesiredBaroPressure );	
+			mS[AltHoldUpdate] = mS[Clock] + 1000L;
+		}
+		else
+			DesiredThrottle = 0;
 
-		// 0.5 Metres/Sec
-		DesiredThrottle = HoverThrottle;
-		DesiredBaroPressure = Limit (CurrentBaroPressure + BARO_FROM_METRES/2, -BARO_FROM_METRES*100, BARO_FROM_METRES*10);
-		BaroAltitudeHold( DesiredBaroPressure );	
-		mS[AltHoldUpdate] = mS[Clock] + 1000L;
-	}
 } // Descend
 
 void AcquireHoldPosition(void)
@@ -120,8 +121,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		EastDiff = GPSEastWay - GPSEast;
 		NorthDiff = GPSNorthWay - GPSNorth;
 
-		#define BRASHLEY_ZONE 10
-		if ( (Abs(EastDiff) > BRASHLEY_ZONE ) || (Abs(NorthDiff) > BRASHLEY_ZONE )) // zzz Brashley Zone
+		if ( (Abs(EastDiff) > NAV_BRASHLEY_ZONE*METRES_TO_GPS ) || (Abs(NorthDiff) > NAV_BRASHLEY_ZONE*METRES_TO_GPS )) 
 		{ 
 			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
 			_Proximity = Range < NavClosingRadius;
@@ -131,7 +131,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 				Range = NavClosingRadius;
 
 			GPSGain = Limit(NavSensitivity, 0, 256);
-			NavKp = ( GPSGain * MAX_ANGLE ) / NavClosingRadius; // /OUT_MAXIMUM) * 256L
+			NavKp = ( GPSGain * NAV_MAX_ANGLE ) / NavClosingRadius; // /OUT_MAXIMUM) * 256L
 		
 			Temp = ((int32)Range * NavKp )>>8; // allways +ve so can use >>
 			WayHeading = int16atan2(EastDiff, NorthDiff);
@@ -151,26 +151,26 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	
 			DesiredRoll += NavRCorr;
 			SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
-			#ifdef ZERO_NAVINT
+			#ifdef NAV_ZERO_INT
 			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
 				DesiredRoll += (SumNavRCorr * NavKi) / 256L;
 			else
 				SumNavRCorr = 0;
 			#else
 			DesiredRoll += (SumNavRCorr * NavKi) / 256L;
-			#endif //ZERO_NAVINT
+			#endif //NAV_ZERO_INT
 			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
 	
 			DesiredPitch += NavPCorr;
 			SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit256, NavIntLimit256);
-			#ifdef ZERO_NAVINT
+			#ifdef NAV_ZERO_INT
 			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
 				DesiredPitch += (SumNavPCorr * NavKi) / 256L;
 			else
 				SumNavPCorr = 0;
 			#else
 			DesiredPitch += (SumNavPCorr * NavKi) / 256L;
-			#endif //ZERO_NAVINT
+			#endif //NAV_ZERO_INT
 			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
 
 			DesiredYaw += NavYCorr;
@@ -268,7 +268,7 @@ void DoFailsafe(void)
 		_LostModel = true;
 		DesiredRoll = DesiredPitch = DesiredYaw = 0;
 		DesiredThrottle = 0;
-		// Descend();	
+		//Descend();	
 	}
 	else
 		if( mS[Clock] > mS[AbortTimeout] ) // timeout - immediate shutdown/abort
@@ -297,9 +297,9 @@ void CheckThrottleMoved(void)
 		ThrNeutral = DesiredThrottle;
 	else
 	{
-		ThrLow = ThrNeutral - THR_MIDDLE;
-		ThrLow = Max(ThrLow, THR_HOVER);
-		ThrHigh = ThrNeutral + THR_MIDDLE;
+		ThrLow = ThrNeutral - THROTTLE_MIDDLE;
+		ThrLow = Max(ThrLow, THROTTLE_HOVER);
+		ThrHigh = ThrNeutral + THROTTLE_MIDDLE;
 		if ( ( DesiredThrottle <= ThrLow ) || ( DesiredThrottle >= ThrHigh ) )
 		{
 			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE_S*1000L;
@@ -314,7 +314,7 @@ void InitNavigation(void)
 {
 	int8 w;
 
-	for (w = 0; w < MAX_WAYPOINTS; w++)
+	for (w = 0; w < NAV_MAX_WAYPOINTS; w++)
 	{
 		WP[w].N = WP[w].E = 0; 
 		WP[w].A = P[NavRTHAlt]; // Metres

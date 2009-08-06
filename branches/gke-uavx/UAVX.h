@@ -1,37 +1,3 @@
-// EXPERIMENTAL
-
-// limits the rate at which the thtottle can change
-#define SLEW_LIMIT_THROTTLE
-
-// Navigation
-
-#define NAV_HOLD_LIMIT 			20L		// Dead zone for roll/pitch stick for position hold
-#define NAV_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
-#define NAV_ACTIVE_DELAY_S		10L		// Sec. after throttle exceeds idle that Nav becomes active
-#define NAV_RTH_TIMEOUT_S		30L		// Sec. Descend if no control input when at Origin
-
-// comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
-#define ZERO_NAVINT
-
-// Accelerometer
-
-// Altitude Hold
-
-// Throttle reduction and increase limits for Baro Alt Comp
-#define BARO_LOW_THR_COMP		-5L
-#define BARO_HIGH_THR_COMP		20L
-
-// Throttle reduction and increase limits for GPS Alt Comp
-#define GPSALT_LOW_THR_COMP		-10L
-#define GPSALT_HIGH_THR_COMP	30L
-
-#define BARO_FROM_METRES		5L
-
-// the range within which throttle adjustment is proportional to altitude error
-#define GPSALT_BAND				5L		// Metres
-
-// Modifications which have been adopted are included BELOW.
-
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
@@ -54,23 +20,19 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// Unroll some loops on critical path
-#define UNROLL_LOOPS
 
 #ifndef BATCHMODE
 
+// Tricopter 
 // connector K1 = front motor
 //           K2 = rear left motor 
 //           K3 = rear right motor 
 //           K4 = yaw servo output
-// uncomment this to enable Tri-Copter Mixing.
-//#define TRICOPTER
+//#define TRICOPTER						
 
-// uncomment for 6 channel recievers
-//#define RX6CH 
+//#define RX6CH 						// 6ch Receivers
 
-// special mode for sensor data output (with UAVPset)
-//#define DEBUG_SENSORS
+//#define DEBUG_SENSORS					// Debug sensors with UAVPset - no motors
 
 #endif // !BATCHMODE
 
@@ -78,11 +40,25 @@
 
 // UAVX Extensions
 
+// Unroll selected loops on critical path
+#define UNROLL_LOOPS
+
+// Timeouts and Update Intervals
+
+#define FAILSAFE_TIMEOUT_S		1 		// Sec. hold last "good" settings and then either restore flight or abort
+#define ABORT_TIMEOUT_S			3	 	// Sec. full flight abort - motors shutdown until reboot 
+
+#define THROTTLE_LOW_DELAY_S	1		// Sec. that motor runs at idle after the throttle is closed
+#define THROTTLE_UPDATE_S		3		// Sec. constant throttle time for hover
+
+#define NAV_ACTIVE_DELAY_S		10L		// Sec. after throttle exceeds idle that Nav becomes active
+#define NAV_RTH_TIMEOUT_S		30L		// Sec. Descend if no control input when at Origin
+
+#define GPS_TIMEOUT_S			2		// Sec.
+
 // Baro
 
-// Make a "scratchy" beeper noise while altitude hold is engaged.
-// A better method is to use the auxilliary LEDs - see Manual.
-#define BARO_SCRATCHY_BEEPER
+#define BARO_SCRATCHY_BEEPER			// Scratchy beeper nois on hover
 
 // Increase the severity of the filter when averaging barometer pressure readings
 // New=(Old*7+New)/8).
@@ -91,9 +67,7 @@
 
 // Accelerometers
 
-// Enable this to use the Accelerometer sensor 
-// Normally ENABLED
-#define USE_ACCELEROMETER
+#define USE_ACCELEROMETER				// Use the Accelerometer sensor 			
 
 // Gyros
 
@@ -105,33 +79,55 @@
 //#define DISABLE_DYNAMIC_MASS_COMP_ROLL
 //#define DISABLE_DYNAMIC_MASS_COMP_PITCH
 
+// Altitude Hold
+
+// Throttle reduction and increase limits for Baro Alt Comp
+#define BARO_LOW_THR_COMP		-5L
+#define BARO_HIGH_THR_COMP		20L
+
+#define BARO_FROM_METRES		5L		// Baro clicks per Metre
+
+// Throttle reduction and increase limits for GPS Alt Comp
+#define GPS_ALT_LOW_THR_COMP	-10L
+#define GPS_ALT_HIGH_THR_COMP	30L
+
+// the range within which throttle adjustment is proportional to altitude error
+#define GPS_ALT_BAND			5L		// Metres
+
 // Navigation
 
 // reads $GPGGA and $GPRMC sentences - all others discarded
 
-#define	NAV_GAIN_THRESHOLD 		20		// Navigation disabled if Ch7 is less than this
-	
-#define	MIN_SATELLITES			5		// preferably >5 for 3D fix
-#define MIN_FIX					1		// must be 1 or 2 
-#define INITIAL_GPS_SENTENCES 	90		// Number of sentences needed with set HDilute
-#define MIN_HDILUTE				130L	// HDilute * 100	
+#define	GPS_MIN_SATELLITES		5		// preferably > 5 for 3D fix
+#define GPS_MIN_FIX				1		// must be 1 or 2 
+#define GPS_INITIAL_SENTENCES 	90		// Number of sentences needed with set HDilute
+#define GPS_MIN_HDILUTE			130L	// HDilute * 100	
+
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
-#define MAX_ANGLE 				25L		// Rx stick units ~= degrees
 
+#define	NAV_GAIN_THRESHOLD 		40		// Navigation disabled if Ch7 is less than this
+	
+#define NAV_MAX_ANGLE 			25L		// Rx stick units ~= degrees
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
-#define MAX_TRIM				20L		// max trim offset for hover hold
+#define NAV_MAX_TRIM			20L		// max trim offset for hover hold
+#define NAV_HOLD_LIMIT 			20L		// dead zone for roll/pitch stick for position hold
 
-#define FAILSAFE_TIMEOUT_S		1 		// Sec. hold last "good" settings and then either restore flight or abort
-#define ABORT_TIMEOUT_S			3	 	// Sec. full flight abort - motors shutdown until reboot 
-#define LOW_THROTTLE_DELAY_S	1		// Sec. that motor runs at idle after the throttle is closed
-#define THROTTLE_UPDATE_S		3		// Sec. constant throttle time for hover
+#define NAV_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
 
-#define THR_MIDDLE				10  	// throttle stick dead zone for baro 
-#define THR_HOVER				75		// min throttle stick for altitude lock
+#define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used
 
-#define GPS_TIMEOUT_S			2		// Sec.
+#define NAV_BRASHLEY_ZONE 		2		// no GPS corrections this radius from position - Metres
 
-#define MAX_WAYPOINTS			16
+// comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
+//#define NAV_ZERO_INT
+
+#define METRES_TO_GPS 			5		// each GPS lsb 0.185M => use 200mm but better accuracy for WP needed!
+
+// Throttle
+
+#define THROTTLE_SLEW_LIMIT		5		// limits the rate at which the throttle can change (=0 no slew limit)
+#define THROTTLE_MIDDLE			10  	// throttle stick dead zone for baro 
+#define THROTTLE_HOVER			75		// min throttle stick for altitude lock
 
 //________________________________________________________________________________________
 
@@ -336,6 +332,7 @@ typedef union {
 
 // Bit definitions
 #define Armed				(PORTAbits.RA4)
+#define InTheAir			true	// zzz (PORTCbits.RC0) // micro switch to ground when closed
 
 #define	I2C_ACK				((uint8)(0))
 #define	I2C_NACK			((uint8)(1))

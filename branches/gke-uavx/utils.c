@@ -201,7 +201,7 @@ void ReadParametersEE(void)
 	YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
 
 	NavIntLimit256 = P[NavIntLimit] * 256L; 
-	NavClosingRadius = (int32)P[NavRadius] * 5L;
+	NavClosingRadius = (int32)P[NavRadius] * METRES_TO_GPS;
 	NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
 	SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
 	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);

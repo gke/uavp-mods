@@ -85,9 +85,8 @@ void MapRC(void)
 
 	#endif // UNROLL_LOOPS
 
-	#ifdef SLEW_LIMIT_THROTTLE
-	RC[ThrottleC] = SlewLimit(LastThrottle, RC[ThrottleC], 5);
-	#endif
+	if ( THROTTLE_SLEW_LIMIT > 0 )
+		RC[ThrottleC] = SlewLimit(LastThrottle, RC[ThrottleC], THROTTLE_SLEW_LIMIT);
 
 } // MapRC
 
