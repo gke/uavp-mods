@@ -204,13 +204,13 @@ void GetGyroValues(void)
 
 void ErectGyros(void)
 {
-	static int8 i;
+	static uint8 i;
 
 	RollSum = PitchSum = YawSum = 0;
 	
 	DesiredThrottle = 0;					// prevent motors from starting
 
-    for ( i=16; i; i-- )
+    for ( i = 16; i ; i-- )
 	{
 		LEDRed_TOG;
 		Delay100mSWithOutput(GYRO_ERECT_DELAY);
@@ -420,7 +420,7 @@ void CaptureTrims(void)
 
 void StopMotors(void)
 {
-	int8 i;
+	static uint8 i;
 
 	for (i = 0; i < NoOfMotors; i++)
 		Motor[i] = OUT_MINIMUM;

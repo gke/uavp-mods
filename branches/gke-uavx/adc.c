@@ -29,17 +29,12 @@ void InitADC(void);
 
 int16 ADC(uint8 Channel, uint8 VRef)
 {
-	static int16 Result;
-	static uint8 d;
-
 	ADCON1bits.VCFG0 = VRef;
 	SetChanADC(Channel<<3);		// using automatic acq
 	ConvertADC();  
 	while (BusyADC()){};
 
-	Result=ReadADC();
-
-	return (Result); 
+	return ( ReadADC() ); 
 } // ADC
 
 void InitADC()

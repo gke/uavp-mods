@@ -22,12 +22,12 @@
 
 #include "uavx.h"
 
-extern uint8 SaturInt(int16);
-extern void DoMix(int16 CurrThrottle);
-extern void CheckDemand(int16 CurrThrottle);
-extern void MixAndLimitMotors(void);
-extern void MixAndLimitCam(void);
-extern void OutSignals(void);
+uint8 SaturInt(int16);
+void DoMix(int16 CurrThrottle);
+void CheckDemand(int16 CurrThrottle);
+void MixAndLimitMotors(void);
+void MixAndLimitCam(void);
+void OutSignals(void);
 
 // Constants
 

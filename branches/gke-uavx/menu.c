@@ -76,7 +76,7 @@ void ShowRxSetup(void)
 
 void ShowSetup(uint8 h)
 {
-	int8 i;
+	uint8 i;
 	int8 RMap[CONTROLS];
 
 	if( h )
@@ -228,7 +228,7 @@ void ProcessCommand(void)
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				TxChar('0' + CurrentParamSet);
 				ReadParametersEE();
-				for(p = 0; p <= LastParam; p++)
+				for(p = 0; p < MAX_PARAMETERS; p++)
 				{
 					TxString("\r\nRegister ");
 					TxValU((uint8)(p+1));
@@ -243,10 +243,11 @@ void ProcessCommand(void)
 					TxString("\r\nRegister ");
 					p = (uint16)(RxNumU()-1);
 					// Attempts to block use of old versions of UAVPSet not compatible with UAVX
-					if ( p < LastParam )
+					// assumes parameters are written sequentially from 0..(MAX_PARAMETERS-1)
+					if ( p < (MAX_PARAMETERS-1) )
 						_ParametersInvalid = true;
 					else
-						if ( p == LastParam )
+						if ( p == (MAX_PARAMETERS-1) )
 							_ParametersInvalid = false; 	// ALL parameters must be written 
 					TxString(" = ");
 					d = RxNumS();

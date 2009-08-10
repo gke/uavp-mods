@@ -80,7 +80,7 @@ int16	Rl,Pl,Yl;						// PID output values
 int8	NeutralLR, NeutralFB, NeutralUD;
 int16 	UDAcc, UDSum, VUDComp;
 
-int16 	SqrNavClosingRadius, NavClosingRadius, CompassOffset;
+int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
 
 uint8 	NavState;
 uint8 	NavSensitivity;
@@ -109,7 +109,7 @@ int16	NavHoldResetCount;
 int8	BatteryVolts;
 
 #pragma udata params
-int8 P[LastParam+1];
+int8 P[MAX_PARAMETERS];
 #pragma udata
 
 // mask giving common variables across parameter sets
@@ -117,7 +117,10 @@ const rom int8	ComParms[]={
 	0,0,0,1,0,0,0,0,1,0,
 	0,0,0,0,0,1,1,1,0,1,
 	1,1,1,1,1,0,0,1,0,0,
-	0,0,0,1,1,1,1
+	1,1,0,1,1,1,1,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0
 	};
 
 const rom int8 DefaultParams[] = {
@@ -153,13 +156,44 @@ const rom int8 DefaultParams[] = {
 	4, 				// BaroCompKd,		28c
 	20, 			// NavRadius,		29
 	1, 				// NavIntLimit,		30 
-	6, 				// NavAltKp,		31
-	6, 				// NavAltKi,		32
+
+	6, 				// NavAltKp,		31c
+	6, 				// NavAltKi,		32c
 	20, 			// NavRTHAlt,		33
 	0, 				// NavMagVar,		34c
 	ADXRS300, 		// GyroType,		35c
 	ESCPPM, 		// ESCType,			36c
-	DX7AR7000 		// TxRxType			37c
+	DX7AR7000, 		// TxRxType			37c
+	2,				// NeutralRadius	38
+	0,				// 39 - 64 unused currently
+	0,
+
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,	
+	0,
+	0,
+	0,
+
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,	
+	0,
+	0,
+	0,
+
+	0,
+	0,
+	0,
+	0					
 	};
 
 // Reference Internal Quadrocopter Channel Order

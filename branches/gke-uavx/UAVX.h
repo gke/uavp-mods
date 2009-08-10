@@ -85,7 +85,11 @@
 #define BARO_LOW_THR_COMP		-5L
 #define BARO_HIGH_THR_COMP		20L
 
-#define BARO_FROM_METRES		5L		// Baro clicks per Metre
+#define BARO_SCALE				((438L*256L)/1043L)		// Baro*256/GPSAlt
+
+#define BARO_MAX_DESCENT_DMPS	10L		// Decimetres/Sec
+#define BARO_FINAL_DESCENT_DMPS	5L		// Decimetres/Sec
+#define BARO_DESCENT_TRANS_DM	150L	// Decimetres Altitude at final descent starts 
 
 // Throttle reduction and increase limits for GPS Alt Comp
 #define GPS_ALT_LOW_THR_COMP	-10L
@@ -115,8 +119,6 @@
 #define NAV_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
 
 #define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used
-
-#define NAV_BRASHLEY_ZONE 		2		// no GPS corrections this radius from position - Metres
 
 // comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
 //#define NAV_ZERO_INT
@@ -459,7 +461,7 @@ extern void ReadBaro(void);
 extern void GetBaroPressure(void);
 extern void InitBarometer(void);
 extern void CheckForHover(void);
-extern void BaroAltitudeHold(int16);
+extern void BaroPressureHold(int16);
 
 // control.c
 extern void GyroCompensation(void);
@@ -495,7 +497,6 @@ extern void ParseGPGGASentence(void);
 extern void SetGPSOrigin(void);
 extern void ParseGPSSentence(void);
 extern void ResetGPSOrigin(void);
-extern void PollGPS(uint8);
 extern void InitGPS(void);
 extern void UpdateGPS(void);
 
@@ -584,24 +585,24 @@ extern void DumpTrace(void);
 extern void BootStart(void);
 
 // tests.c
+extern void DoLEDs(void);
 extern void LinearTest(void);
 extern uint8 ScanI2CBus(void);
 extern void ReceiverTest(void);
+extern void GetCompassParameters(void);
 extern void DoCompassTest(void);
+extern void CompassRun(void);
 extern void CalibrateCompass(void);
 extern void BaroTest(void);
 extern void PowerOutput(int8);
-extern void CompassRun(void);
 extern void GPSTest(void);
+extern void AnalogTest(void);
+extern void Program_SLA(uint8);
 extern void ConfigureESCs(void);
 
-extern void AnalogTest(void);extern void Program_SLA(uint8);
-
-extern void DoLEDs(void);
-
 // Menu strings
-extern const rom uint8  SerHello[];
-extern const rom uint8  SerSetup[];
+extern const rom uint8 SerHello[];
+extern const rom uint8 SerSetup[];
 extern const rom uint8 SerPrompt[];
 
 // External Variables
@@ -685,7 +686,7 @@ extern int16 	GPSHDilute;
 extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
 extern int16 	GPSRelAltitude;
 
-extern int16 	SqrNavClosingRadius, NavClosingRadius, CompassOffset;
+extern int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
 
 enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
 extern uint8 	NavState;
@@ -714,7 +715,7 @@ extern uint8	BaroType;
 
 extern uint8	MCamRoll,MCamPitch;
 extern int16	Motor[NoOfMotors];
-extern int16	Rl,Pl,Yl;	// PID output values
+extern int16	Rl,Pl,Yl;		// PID output values
 
 extern boolean	Flags[32];
 extern uint8	LEDCycles;		// for hover light display
@@ -761,16 +762,16 @@ enum Params {
 	NavRadius,			// 29
 	NavIntLimit,		// 30
 	
-	NavAltKp,			// 31
-	NavAltKi,			// 32
+	GPSAltKp,			// 31
+	GPSAltKi,			// 32
 	NavRTHAlt,			// 33
 	NavMagVar,			// 34c
 	GyroType,			// 35c
 	ESCType,			// 36c
-	TxRxType			// 37c
+	TxRxType,			// 37c
+	NeutralRadius		// 38
+	// 39 - 64 unused currently
 	};
-
-#define	LastParam TxRxType
 
 #define FlyXMode 		0
 #define FlyXModeMask 	0x01

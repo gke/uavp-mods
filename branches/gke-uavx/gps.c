@@ -34,12 +34,8 @@ void ParseGPGGASentence(void);
 void SetGPSOrigin(void);
 void ParseGPSSentence(void);
 void ResetGPSOrigin(void);
-void PollGPS(uint8);
 void InitGPS(void);
 void UpdateGPS(void);
-
-// Defines
-
 
 // Variables
 
@@ -193,11 +189,7 @@ void SetGPSOrigin(void)
 
 void ParseGPSSentence(void)
 {
-	static int32 Temp;
-	static uint8 CurrNType;
-
 	cc = 0;
-
 	nll = NMEA.length;
 
 	ParseGPGGASentence(); 
@@ -236,71 +228,6 @@ void ParseGPSSentence(void)
 		if ( _GPSTestActive )
 			TxString("invalid\r\n");
 } // ParseGPSSentence
-
-/* inlined in irq.c
-void PollGPS(uint8 ch)
-{
-	switch ( GPSRxState ) {
-	case WaitGPSCheckSum:
-		if (GPSCheckSumChar < 2)
-		{
-			GPSTxCheckSum *= 16;
-			if (ch >= 'A')
-				GPSTxCheckSum += ( ch - 'A' + 10);
-			else
-				GPSTxCheckSum += ( ch - '0' );
-
-			GPSCheckSumChar++;
-		}
-		else
-		{
-			NMEA.length = ll;	
-			GPSSentenceReceived = ( GPSTxCheckSum + RxCheckSum ) == 0;
-			GPSRxState = WaitGPSSentinel;
-		}
-		break;
-	case WaitGPSBody: 
-		if ( ch == '*' )      
-		{
-			GPSCheckSumChar = GPSTxCheckSum = 0;
-			GPSRxState = WaitGPSCheckSum;
-		}
-		else         
-			if (ch == '$') // abort partial Sentence 
-			{
-				ll = tt = RxCheckSum = 0;
-				GPSRxState = WaitNMEATag;
-			}
-			else
-			{
-				RxCheckSum ^= ch;
-				NMEA.s[ll++] = ch; // no check for buffer overflow
-				if ( ll > ( GPSRXBUFFLENGTH-1 ) )
-					GPSRxState = WaitGPSSentinel;
-			}
-					
-		break;
-	case WaitNMEATag:
-		RxCheckSum ^= ch;
-		if ( ch == NMEATag[tt] ) 
-			if ( tt == MAXTAGINDEX )
-				GPSRxState = WaitGPSBody;
-	        else
-				tt++;
-		else
-	        GPSRxState = WaitGPSSentinel;
-		break;
-	case WaitGPSSentinel: // highest priority skipping unused sentence types
-		if (ch == '$')
-		{
-			ll = tt = RxCheckSum = 0;
-			GPSRxState = WaitNMEATag;
-		}
-		break;	
-    } 
- 
-} // PollGPS
-inlined in irq.c */
 
 void ResetGPSOrigin(void)
 {

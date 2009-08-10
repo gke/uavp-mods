@@ -24,7 +24,20 @@
 
 // Prototypes
 
-extern uint8 BaroTemp;
+void DoLEDs(void);
+void LinearTest(void);
+uint8 ScanI2CBus(void);
+void ReceiverTest(void);
+void GetCompassParameters(void);
+void DoCompassTest(void);
+void CompassRun(void);
+void CalibrateCompass(void);
+void BaroTest(void);
+void PowerOutput(int8);
+void GPSTest(void);
+void AnalogTest(void);
+void Program_SLA(uint8);
+void ConfigureESCs(void);
 
 void DoLEDs(void)
 {
@@ -143,7 +156,7 @@ static uint8 CP[9];
 
 void GetCompassParameters(void)
 {
-	int8 r;
+	uint8 r;
 
 	#define COMP_OPMODE 0b01110000	// standby mode to reliably read EEPROM
 
@@ -186,7 +199,7 @@ CTerror:
 
 } // GetCompassParamters
 
-void DoCompassTest()
+void DoCompassTest(void)
 {
 	uint16 v, prev;
 	int16 Temp;
@@ -291,7 +304,7 @@ void CompassRun(void)
 	int16 i, r, Temp;
 	static i16u Compass;	
 
-	for (i=0; i < 32000; i++)
+	for (i = 0; i < 32000; i++)
 	{
 		I2CStart();
 		_CompassMissRead |= SendI2CByte(COMPASS_I2C_ID+1) != I2C_ACK; 

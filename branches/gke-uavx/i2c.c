@@ -201,10 +201,10 @@ int8 SWWriteI2C( unint8 data_out )
 // Prototypes
 
 void I2CDelay(void);
-extern void I2CStart(void);
-extern void I2CStop(void);
-extern uint8 SendI2CByte(uint8);
-extern uint8 RecvI2CByte(uint8);
+void I2CStart(void);
+void I2CStop(void);
+uint8 SendI2CByte(uint8);
+uint8 RecvI2CByte(uint8);
 
 // Constants
 

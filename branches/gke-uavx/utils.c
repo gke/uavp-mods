@@ -70,7 +70,7 @@ void Delay1mS(int16 d)
 	INTCONbits.TMR0IE = false;
 
 	// if d is 1 then delay can be less than 1mS due to 	
-	for (i=d; i; i--)
+	for (i = d; i ; i--)
 	{						// compromises ClockMilliSec;
 		while ( !INTCONbits.TMR0IF ) {};
 		INTCONbits.TMR0IF = 0;
@@ -82,13 +82,14 @@ void Delay1mS(int16 d)
 
 void Delay100mSWithOutput(int16 dur)
 {  // Motor and servo pulses are still output every 10ms
-	int16 i, j;
+	int16 i;
+	uint8 j;
 	boolean T0IntEn;
 
 	T0IntEn = INTCONbits.TMR0IE;	// not protected?
 	INTCONbits.TMR0IE = false;
 
-	for(i = 0; i < dur*10; i++)
+	for( i = 0; i < dur*10; i++)
 		{
 			for (j = 8; j ; j--)
 			{
@@ -134,12 +135,12 @@ void InitPorts(void)
 // resets all important variables - Do NOT call that while in flight!
 void InitMisc(void)
 {
-	int8 i;
+	uint8 i;
 
-	for (i=0; i <= TopTrace; i++)
+	for ( i = 0; i <= TopTrace; i++)
 		Trace[i] = 0;
 	
-	for ( i = 0; i<32 ; i++ )
+	for ( i = 0; i < 32 ; i++ )
 		Flags[i] = false; 
 	_RTHAltitudeHold = true;
 
@@ -190,7 +191,7 @@ void ReadParametersEE(void)
 	static uint16 addr;
 
 	addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
-	for(p = 0; p <= LastParam; p++)
+	for(p = 0; p < MAX_PARAMETERS; p++)
 		P[p] = ReadEE(addr + p);
 
 	IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
@@ -202,6 +203,7 @@ void ReadParametersEE(void)
 
 	NavIntLimit256 = P[NavIntLimit] * 256L; 
 	NavClosingRadius = (int32)P[NavRadius] * METRES_TO_GPS;
+	NavNeutralRadius = (int32)P[NeutralRadius] * METRES_TO_GPS;
 	NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
 	SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
 	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
@@ -243,20 +245,20 @@ void WriteEE(uint8 addr, int8 d)
 
 void WriteParametersEE(uint8 s)
 {
-	int8 p;
+	uint8 p;
 	uint8 b;
 	uint16 addr;
 	
 	addr = (s - 1)* MAX_PARAMETERS;
-	for ( p = 0; p <= LastParam; p++)
+	for ( p = 0; p < MAX_PARAMETERS; p++)
 		WriteEE( addr + p,  P[p]);
 } // WriteParametersEE
 
 void UseDefaultParameters(void)
 { // loads a representative set of initial parameters as a base for tuning
-	int8 p;
+	uint8 p;
 
-	for ( p = 0; p <= LastParam; p++ )
+	for ( p = 0; p < MAX_PARAMETERS; p++ )
 		P[p] = DefaultParams[p];
 
 	WriteParametersEE(1);
@@ -638,6 +640,7 @@ void CollectStats(void)
 	Temp = Abs(CurrentBaroPressure);
 	if ( Temp > MinBaroPressure )
 		MinBaroPressure = Temp;
+	// zzz BaroScale =  -( (int32)MinBaroPressure * 256L )/ MaxGPSAltitude;
 } // CollectStats
 
 void FlightStats(void)
@@ -650,7 +653,7 @@ void FlightStats(void)
 void DumpTrace(void)
 {
 #ifdef DEBUG_SENSORS
-	int8 t;
+	uint8 t;
 
 	if ( DesiredThrottle > IdleThrottle )
 	{

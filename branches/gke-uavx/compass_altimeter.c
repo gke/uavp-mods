@@ -33,7 +33,7 @@ void ReadBaro(void);
 void GetBaroPressure(void);
 void InitBarometer(void);
 void CheckForHover(void);
-void BaroAltitudeHold(int16);
+void BaroPressureHold(int16);
 
 //_____________________________________________________________________________________
 
@@ -207,7 +207,7 @@ void InitBarometer(void)
 {	
 	const int8 Samples = 16; 
 	int24 BaroAv;
-	int8 s;
+	uint8 s;
 	uint8 r;
 
 	VBaroComp = BaroAverage = 0;
@@ -262,11 +262,11 @@ void CheckForHover(void)
 		_Hovering = _BaroAltitudeValid;
 
 	if ( _Hovering )
-		BaroAltitudeHold(DesiredBaroPressure);
+		BaroPressureHold(DesiredBaroPressure);
 
 } // CheckForHover
 
-void BaroAltitudeHold(int16 DesiredBaroPressure)
+void BaroPressureHold(int16 DesiredBaroPressure)
 {	// decreasing pressure is increasing altitude
 	static int16 Temp, Delta;
 
@@ -309,5 +309,5 @@ void BaroAltitudeHold(int16 DesiredBaroPressure)
 		#endif
 	}
 
-} // ComputeBaroComp	
+} // BaroPressureHold	
 

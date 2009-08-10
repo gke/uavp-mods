@@ -35,24 +35,21 @@ void DoFailsafe(void);
 void InitNavigation(void);
 
 // Variables
-extern int16 ValidGPSSentences;
-extern boolean GPSSentenceReceived;
-
 int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr, NavYCorr, SumNavYCorr;
 
 WayPoint WP[NAV_MAX_WAYPOINTS];
 
-void AltitudeHold(int16 DesiredAltitude) // Metres
+void AltitudeHold(int16 DesiredAltitude) // Decimetres
 {
 	static int16 Temp;
 
 	if ( _RTHAltitudeHold )
 		if ( P[ConfigBits] & UseGPSAltMask )
 		{
-			AE = Limit(DesiredAltitude*10L - GPSRelAltitude, -GPS_ALT_BAND*10L, GPS_ALT_BAND*10L);
+			AE = Limit(DesiredAltitude - GPSRelAltitude, -GPS_ALT_BAND*10L, GPS_ALT_BAND*10L);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
-			Temp = SRS16(AE*P[NavAltKp] + AltSum*P[NavAltKi], 5);
+			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 5);
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, GPS_ALT_LOW_THR_COMP, GPS_ALT_HIGH_THR_COMP);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
@@ -60,7 +57,7 @@ void AltitudeHold(int16 DesiredAltitude) // Metres
 		else
 		{	
 			DesiredThrottle = HoverThrottle;
-			BaroAltitudeHold(-DesiredAltitude * BARO_FROM_METRES);
+			BaroPressureHold(-SRS32( (int32)DesiredAltitude * BARO_SCALE, 8) );
 		}
 	else
 	{
@@ -70,14 +67,19 @@ void AltitudeHold(int16 DesiredAltitude) // Metres
 
 void Descend(void)
 { // uses Baro only
-	int16 DesiredBaroPressure;
+	int16 DesiredBaroPressure, PressureIncrease;
 
 	if (  mS[Clock] > mS[AltHoldUpdate] )
 		if ( InTheAir ) 							//  micro switch RC0 Pin 11 to ground when landed
 		{
 			DesiredThrottle = HoverThrottle;
-			DesiredBaroPressure = CurrentBaroPressure + BARO_FROM_METRES/2; // 0.5 Metres/Sec
-			BaroAltitudeHold( DesiredBaroPressure );	
+
+			if ( CurrentBaroPressure < SRS32( BARO_DESCENT_TRANS_DM * BARO_SCALE, 8) )
+				DesiredBaroPressure = CurrentBaroPressure + SRS32( BARO_MAX_DESCENT_DMPS * BARO_SCALE, 8); 
+			else
+				DesiredBaroPressure = CurrentBaroPressure + SRS32( BARO_FINAL_DESCENT_DMPS * BARO_SCALE, 8); 
+
+			BaroPressureHold( DesiredBaroPressure );	
 			mS[AltHoldUpdate] = mS[Clock] + 1000L;
 		}
 		else
@@ -121,7 +123,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		EastDiff = GPSEastWay - GPSEast;
 		NorthDiff = GPSNorthWay - GPSNorth;
 
-		if ( (Abs(EastDiff) > NAV_BRASHLEY_ZONE*METRES_TO_GPS ) || (Abs(NorthDiff) > NAV_BRASHLEY_ZONE*METRES_TO_GPS )) 
+		if ( (Abs(EastDiff) > NavNeutralRadius ) || (Abs(NorthDiff) > NavNeutralRadius )) 
 		{ 
 			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
 			_Proximity = Range < NavClosingRadius;
@@ -176,7 +178,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			DesiredYaw += NavYCorr;
 		}
 		else
-			NavRCorr = NavPCorr = NavYCorr = 0;
+			NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = 0;
 
 		_NavComputed = true;
 	}
@@ -312,12 +314,12 @@ void CheckThrottleMoved(void)
 
 void InitNavigation(void)
 {
-	int8 w;
+	uint8 w;
 
 	for (w = 0; w < NAV_MAX_WAYPOINTS; w++)
 	{
 		WP[w].N = WP[w].E = 0; 
-		WP[w].A = P[NavRTHAlt]; // Metres
+		WP[w].A = P[NavRTHAlt]*10L; // Decimetres
 	}
 
 	GPSNorthHold = GPSEastHold = 0;
