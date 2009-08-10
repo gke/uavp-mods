@@ -63,7 +63,7 @@ The implementation provides two principal functions:
 
    * Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will attempt to return to the launch point (Origin), or more specifically, the position at which a reliable GPS signal was first acquired prior to launch. If the Gear/RTH switch is left activated for more than ~30Sec then the quadrocopter will commence to descend. 
 
-CAUTION: Engaging RTH disables ALL pilot throttle control. Deactivating RTH restores throttle to whatever it is set to at the instant of deactivation. Make sure you have a throttle setting that is appropriate when you deactivate.  If you are close to the ground when RTH is deactivated and you have inadvertently closed the throttle the quadrocopter will fall like a brick!
+CAUTION: Engaging RTH disables ALL pilot throttle control. Deactivating RTH restores throttle to whatever it is set to at the instant of deactivation. Make sure you have a throttle setting that is appropriate when you deactivate RTH.  If you are close to the ground when RTH is deactivated and you have inadvertently closed the throttle the quadrocopter will fall like a brick! This caution does not apply if you have RTH altitude hold disabled.
 
 Normally the altitude is controlled directly by the pilot with the assistance of the barometer.  The barometer will attempt to maintain a hover if the throttle stick has not moved for ~3 Sec. 
 
