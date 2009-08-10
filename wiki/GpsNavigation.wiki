@@ -61,7 +61,9 @@ The implementation provides two principal functions:
 
    * Position Hold: The current position is maintained while neither the pitch nor the roll stick are moved (a threshold of about 3% applies). When either is moved away from the neutral position a new potential hold point is recorded from the GPS.   Ch7 controls the overall sensitivity of position acquisition and hold. Navigation may be disabled by turning the Ch7 Tx potentiometer to minimum sensitivity (usually Anti CW).   
 
-   * Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will attempt to return to the launch point (Origin), or more specifically, the position at which a reliable GPS signal was first acquired prior to launch. 
+   * Return to Home (RTH): If the Gear switch (Ch5) is activated the quadrocopter will attempt to return to the launch point (Origin), or more specifically, the position at which a reliable GPS signal was first acquired prior to launch. If the Gear/RTH switch is left activated for more than ~30Sec then the quadrocopter will commence to descend. 
+
+CAUTION: Engaging RTH disables ALL pilot throttle control. Deactivating RTH restores throttle to whatever is set at the instant of deactivation. Make sure you have a throttle setting that is appropriate when you deactivate.  If you are close to the ground when RTH is deactivated and you have inadvertently closed the throttle the quadrocopter will fall like a brick!
 
 Normally the altitude is controlled directly by the pilot with the assistance of the barometer.  The barometer will attempt to maintain a hover if the throttle stick has not moved for ~3 Sec. 
 
@@ -81,11 +83,13 @@ The important additional parameters are:
 
    * Wind Compensation: Increases the amount of compensation if the desired position is not being maintained.
 
-   * RTH Altitude: The GPS altitude in Metres relative to the launch point to be maintained.   
+   * RTH Altitude: The GPS altitude in Metres relative to the launch point to be maintained. The default is acquire and hold RTH Altitude when RTH is engaged. This may be disabled - see stick programming.  
 
-   * RTH Altitude Proportional & Integral: PI constants for GPS based altitude hold. Not used if the use of GPS Altitude is disabled. 
+   * RTH Altitude Proportional & Integral: PI constants for GPS based altitude hold. Not used if the altitude source selected is the Barometer. 
 
-   * GPS Altitude: This checkbox enables or disables the use of GPS altitude by the RTH function. If disabled then the Barometer is used.
+   * Altitude Source: This checkbox selects which altitude measurement source is to be used for RTH and is either the Barometer or GPS. 
+
+CAUTION: The GPS altitude can be inaccurate depending on the satellite constellation selected/reselected in flight by the GPS unit. The Barometer may also fail if exposed to icing or water droplets which can block the sensor hole.  
 
 There are, of course, many other tuning parameters within the code which have not been brought through the UAVPSet interface!
 
@@ -95,7 +99,7 @@ The UAVX version of UAVPSet can read older parameter files and write them to the
 
 When the quadrocopter is disarmed the Tx sticks may be used to access some paramters in the field without the use of a PC.
 
-  * Pitch Stick: The "corners" are used with left side being parameter set 1 and right side 2. If the bottom corners are used RTH altitude hold is enabled.  If the top corners are used then the Pilot controls RTH altitude. You should see the Blue LED flash and hear short beeps for the parameter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.  
+  * Pitch Stick: The "corners" are used with left side being parameter set 1 and right side 2. If the top corners are used RTH altitude hold is enabled.  If the top corners are used then the Pilot controls RTH altitude. You should see the Blue LED flash and hear short beeps for the parameter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.  
 
   * Throttle Stick: Only the bottom corners are used. Bottom left disables Turn to Heading (TTH) and so the Quadrocopter uses a combination of pitch and roll to move towards the Origin; Bottom right enables TTH where the Quadrocopter turns and pitches directly towards the origin.
 
