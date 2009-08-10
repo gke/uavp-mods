@@ -51,7 +51,9 @@ The Melexis Gyro is preferred.
 
 === PC/GPS Switching ===
 
-The arming switch needs to be replaced by a double switch, which when arming, disconnects the PC Tx signal to the quadrocopter and connects the GPS Tx signal. When armed the UAVX software expects only valid GPS NMEA sentences. Specific details will appear under hardware related pages.
+The arming switch needs to be replaced by a double switch, which when arming, disconnects the PC Tx signal to the quadrocopter and connects the GPS Tx signal. When armed the UAVX software expects only valid GPS NMEA sentences. Specific details will appear under hardware related pages. See also:
+
+http://www.rcgroups.com/forums/showpost.php?p=12843408&postcount=3297
 
 === Functionality ===
 
