@@ -79,6 +79,8 @@ The important additional parameters are:
 
    * Radius: The closing radius in Metres around the desired GPS position. Outside this radius maximum corrective control is applied. Inside the radius proportionately less control is exerted.
 
+   * Neutral Radius: Inside this radius the quadrocopter relies on its gyros and accelerometer to maintain level flight with some drift; no GPS corrections are made. In essence the Radius and the Neutral Radius form a flat bottom bowl shape into which the quadrcopter is guided. Without the Neutral Radius the shape is an inverted cone with the quadrocopter tending to rock around in the bottom.
+
    * Magnetic Variation: The number of degrees Magnetic North is East of True North for your location.
 
    * Wind Compensation: Increases the amount of compensation if the desired position is not being maintained.
