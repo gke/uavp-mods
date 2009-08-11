@@ -108,7 +108,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 	#define NavKi 1
 
-	static int32 Temp;
+	static int16 Temp;
 	static int16 NavKp, GPSGain;
 	static int16 Range, EastDiff, NorthDiff, WayHeading, RelHeading;
 
@@ -133,9 +133,10 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 				Range = NavClosingRadius;
 
 			GPSGain = Limit(NavSensitivity, 0, 256);
-			NavKp = ( GPSGain * NAV_MAX_ANGLE ) / NavClosingRadius; // /OUT_MAXIMUM) * 256L
+			NavKp = ( GPSGain * NAV_MAX_ANGLE ) / ( NavClosingRadius - NavNeutralRadius ); // /OUT_MAXIMUM) * 256L
 		
-			Temp = ((int32)Range * NavKp )>>8; // allways +ve so can use >>
+			Temp = SRS16((Range - NavNeutralRadius) * NavKp, 8);
+			Temp = Limit(Temp, 0, NAV_MAX_ANGLE );
 			WayHeading = int16atan2(EastDiff, NorthDiff);
 
 			RelHeading = Make2Pi(WayHeading - Heading);
