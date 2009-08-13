@@ -66,7 +66,15 @@ The steps are:
 
 Now another interesting feature. Thirty seconds after you have arrived within the  selected radius of the origin position with RTH still engaged the quadrocopter will start to descend at approximately 1 Metre/Sec slowing to 0.5 Metres/Sec.  Disengaging RTH will cause the quadrocopter to revert to GPS assisted position hold but you must control the altitude manually. This is the reason that hover throttle plus 10% may be a good strategy to have as it will arrest the fall and give you enough time to re-establish hover.
 
-The auto descend feature is the logical extension of using RTH primarily as failsafe support. There are many other things we can try/abandon including altitude and distance from Origin containment.....
+The auto descend feature is the logical extension of using RTH primarily as failsafe support. 
+
+== Other Stuff == 
+
+There are many other things we can try/abandon including:
+
+  * Ground proximity using a simple switch to kill throttle (its in the software) or an ultrasonic rangefinder. Not useful for tree encounters or landing upside down.
+  *altitude and distance from Origin containment.
+  * etc....
 
 == Stick Programming ==
 
