@@ -1,7 +1,7 @@
-= Introduction =
-The Mikrokopter has developed code for using only the satelite RX with a DX6, DX7 and the Futaba and JR TX modules.  We should be able to do the same.
+== Introduction ==
+The Mikrokopter has developed code for using only the satellite RX with a DX6, DX7 and the Futaba and JR TX modules.  We should be able to do the same.
 
-= Details =
+== Details ==
 Benefits:  Lighter RX.  Cost $29. Diverstiy 2.4Ghz RX.
 
 The composite PPM signal would hook up to a pin on the K12 connector.
