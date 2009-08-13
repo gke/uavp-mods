@@ -4,7 +4,7 @@
 
 DRAFT DRAFT DRAFT DRAFT
 
-This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software. UAVX also combines test and flight software. A significant amount of effort has been taken however to make the transition from UAVP to UAVX painless. UAVPSet (V2.7 onwards also in this repository) has been extended to include the new features supported by UAVX.
+This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software. UAVX also combines test and flight software. A significant amount of effort has made to render the transition from UAVP to UAVX painless. UAVPSet (V2.7 onwards also in this repository) has been extended to include the new features supported by UAVX.
 
 You should NOT use GPS initially regardless of how tempting it may be to do so. 
 
@@ -26,7 +26,7 @@ Using the UAVX capable version of UAVPSet:
   * Select UAVX in the pulldown. 
   * Initialise your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. 
   * Select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between paramter set 1 & 2. This is done using stick programming (see below) once UAVX is successfully talking to your Tx/Rx. 
-  * Just as for UAVP use Tools->Testsoftware ensure your the Rx signals are being received correctly. Verify this in the Rx Graphic which now displays in % units.
+  * Just as for UAVP use Tools->Testsoftware to ensure your Rx signals are being received correctly. Verify this in the Rx Graphic which now displays in % units.
   * Save your parameters to a file. UAVX will accept V3.15 parameter files but files written by UAVX are not compatible with V3.15.
   * Initialise the accelerometer neutrals as for UAVP.
   * Set up parameter set 2. You will see that many of the parameters are not displayed on the Parameter Set 2 page as these are now common to both parameter sets.
@@ -45,7 +45,7 @@ Using the UAVX capable version of UAVPSet:
   * Turn the knob connected to Channel 7 to minimum (this will disable GPS support).
   * Select off/minimum using your Gear switch on Channel 5 (this turns RTH off). If you fail to do this a beeper alarm will sound.
   * Disable RTH altitude hold (see stick programming). This means that the normal hover mechanism is used whereby the quadrocopter will assume you are hovering after 3 seconds and use the baro and accelerometer to attempt to maintain altitude.
-  * The quadrocopter can return home maintaining its current heading pitching and/or rolling as required to move towards the Origin or it can turn towards the Origin using pitch control only. This may also be set with Stick Programming.
+  * The quadrocopter can return home maintaining its current heading, pitching and/or rolling as required to move towards the Origin, or it can turn towards the Origin using pitch control only. This may also be set with Stick Programming.
   * Arm the quadrocopter and after the initial blinking Red LED as the Gyros are initialised you should see the Blue LED blinking at the update rate of your GPS. At this point the Red LED will stay lit until UAVX is happy with the GPS accuracy. This may take anything up to 5 minutes particularly on the first flight in a new location. Once the Red LED goes out a satisfactory "Origin" location has been recorded. Currently the flight software does not prevent you from taking off before the Red LED goes out but be aware the Origin value may be somewhere (anywhere) along your flight path. Be patient and wait. 
   * Takeoff and fly to a safe height and away from you 30M/100'. Check to see that you have a good hover.
   * Engage RTH using the Gear switch. You should see no change in the behaviour of the quadrocopter. It is important that you HAVE disabled the RTH altitude hold (see above) otherwise you will have no throttle control.
