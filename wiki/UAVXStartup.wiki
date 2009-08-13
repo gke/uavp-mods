@@ -4,25 +4,24 @@
 
 DRAFT DRAFT DRAFT DRAFT
 
-This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software. UAVX also combines test and flight software. A significant amount of effort has made to render the transition from UAVP to UAVX painless. UAVPSet (V2.7 onwards also in this repository) has been extended to include the new features supported by UAVX.
+This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software. UAVX also combines test and flight software. Despite the internal differences a significant amount of effort has made to render the transition from UAVP to UAVX as painless as possible by preserving the validity of most parameter values and a familiar user interface. UAVPSet (V2.7 onwards also in this repository) has been extended to include the new features supported by UAVX.
 
 You should NOT use GPS initially regardless of how tempting it may be to do so. 
 
 == Assumptions ==
 
 It is assumed you are:
-  * familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
-  * you have flown your quadrocopter/tricopter using UAVP flight software with some success.
-  * you have read the UAVP manual.
-  * you have installed the requisite 18F2620 PIC with associated bootloader.
+  * Familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
+  * You have flown your quadrocopter/tricopter using UAVP flight software with some success.
+  * You have read the UAVP manual.
+  * You have installed the requisite 18F2620 PIC with associated bootloader.
 
 == Stage 1: without GPS =
 
-Most of this will be familiar to you as the procedure is nearly identical to that you will have used with UAVP.
+Most of this will be familiar to you as the procedure is nearly identical to that you will have used with UAVP. If you have a GPS DISCONNECT it.
 
 Using the UAVX capable version of UAVPSet:
-  * if you have a GPS DISCONNECT it.
-  * load the flight software into your quadrocopter (there are many fewer HEX files to choose from and the one you need should be self evident).
+  * Load the flight software into your quadrocopter (there are many fewer HEX files to choose from and the one you need should be self evident).
   * Select UAVX in the pulldown. 
   * Initialise your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. 
   * Select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between paramter set 1 & 2. This is done using stick programming (see below) once UAVX is successfully talking to your Tx/Rx. 
