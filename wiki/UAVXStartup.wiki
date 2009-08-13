@@ -30,7 +30,8 @@ Using the UAVX capable version of UAVPSet:
   * Save your parameters to a file. UAVX will accept V3.15 parameter files but files written by UAVX are not compatible with V3.15.
   * Initialise the accelerometer neutrals as for UAVP.
   * Set up parameter set 2. You will see that many of the parameters are not displayed on the Parameter Set 2 page as these are now common to both parameter sets.
-  * Arm the quadrocopter and observe that the Red LED will blink several times at about one second intervals as the Gyros are initialised - this is the first difference from UAVP. The quadrocopter MUST NOT be moved while the Red LED is blinking otherwise you may have a large drift offset!
+  * While you steady your nerves go into the Tools menu and check out some of the many tests available because at about this point you will realise you have not calibrated your compass, checked your baro etc.! The now inbuilt test software has some sanity checks on voltages etc and may detect problems with sensors. In particular look at the Setup display which now has an extended summary of what UAVX thinks you have connected in the way of sensors etc. and whether they may be working.
+  * Arm the quadrocopter and observe that the Red LED will blink several times at about one second intervals as the Gyros are initialised - this is the first difference from UAVP. The quadrocopter MUST NOT be moved while the Red LED is blinking otherwise you may have a large drift offset! The Yellow LED should be on signifying the Accelerometers are online.
   * Ensure that the response of the quadrocopter is acceptable using the normal pre-flight checks. You will see that UAVPSet no longer communicates with UAVX once the quadrocopter is armed. If you need to modify parameters you will need to disarm.
   * Fly (at your own risk as always) and tune the various flight parameters as required.
   
