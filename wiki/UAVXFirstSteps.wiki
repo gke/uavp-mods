@@ -1,0 +1,43 @@
+#summary Brief procedures on how to use UAVX for the first time.
+
+== Introduction ==
+
+DRAFT DRAFT DRAFT DRAFT
+
+This is intended to be a brief introduction to the steps you may wish to take when first using UAVX.
+
+You should NOT use GPS initially regardless of how tempting it may be to do so. 
+
+== Assumptions ==
+
+It is assumed you are:
+  * familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
+  * you have flown your quadrocopter/tricopter using UAVP with some success.
+  * you have read the UAVP manual.
+  * you have installed the requisite 18F2620 PIC with associated bootloader.
+
+== Stage 1: without GPS =
+
+Most of this will be familiar to you as the procedure is nearly identical to that you will have used with UAVP.
+
+Using the UAVX capable version of UAVPSet:
+  * if you have a GPS DISCONNECT it.
+  * load the flight software into your quadrocopter (there many less HEX files to choose from and the one you need should be self evident).
+  * select UAVX in the pulldown. 
+  * initialise your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. 
+  * select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between paramter set 1 & 2. This is done using stick programming (see below) once UAVX is successfully talking to your Tx/Rx. 
+  * As for UAVP use Tools->Testsoftware ensure your the Rx signals are being received correctly. Verify this in the Rx Graphic which now displays in % units.
+  * save your parameters to a file. UAVX will accept V3.15 parameter files but files written by UAVX are not compatible with V3.15.
+  * initialise the accelerometer neutrals as for UAVP.
+  * set up parameter set 2. You will see that many of the parameters are not displayed on the Parameter Set 2 page as these are now common to both parameter sets.
+  * ensure that the response of the quadrocopter is acceptable using the normal pre-flight checks. You will see that UAVPSet no longer communicates with UAVX once the quadrocopter is armed. If you need to modify parameters you will need to disarm.
+  * fly (at your own risk as always) and tune the various flight parameters as required.
+  
+== Stage 2: with GPS ==
+
+This is new territory and you will need to do some homework for your location. Read the GPS Navigation page carefully.
+
+Using the UAVX capable version of UAVPSet:
+  * Connect your GPS.
+  * Set the GPS related parameters (notes below to follow).
+  * 
