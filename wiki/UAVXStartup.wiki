@@ -24,7 +24,7 @@ Using the UAVX capable version of UAVPSet:
   * Load the flight software into your quadrocopter (there are many fewer HEX files to choose from and the one you need should be self evident).
   * Select UAVX in the pulldown. 
   * Initialise your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. 
-  * Select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between paramter set 1 & 2. This is done using stick programming (see below) once UAVX is successfully talking to your Tx/Rx. 
+  * Select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between paramter set 1 & 2. This is done using stick programming (see gpsNavigation ) once UAVX is successfully talking to your Tx/Rx. 
   * Just as for UAVP use Tools->Testsoftware to ensure your Rx signals are being received correctly. Verify this in the Rx Graphic which now displays in % units.
   * Save your parameters to a file. UAVX will accept V3.15 parameter files but files written by UAVX are not compatible with V3.15.
   * Initialise the accelerometer neutrals as for UAVP.
