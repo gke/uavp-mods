@@ -52,7 +52,7 @@ Using the UAVX capable version of UAVPSet:
   * Try switching off RTH and you should come to a halt at the current position. The GPS at this point is attempting to maintain this position but again can be overcome using pitch and roll corrections.  There will be a temptation to "help" the GPS using pitch and roll but be aware that if you move either the pitch and roll sticks by more than about 5% then the desired location will be updated. You may change Yaw without triggering a position update - useful for pointing cameras.
   * Keep playing until you are familiar with what is happening.
 
-== Stage 3: RTH with Altitude Hold and Auto Land ==
+== Stage 3: RTH with Altitude Hold ==
 
 Up to this point moving the control sticks will overcome any corrections the GPS may be exerting. This stage is a lot different as you are handing over throttle control completely to the navigation software.
 
@@ -65,7 +65,11 @@ The steps are:
   * Engage RTH. At this point you have NO THROTTLE CONTROL AT ALL as this is being used by the RTH altitude hold software. Leave the throttle where it is or increase it by about 10%. Do not close throttle as if you disengage RTH the quadrocopter will fall like a brick.  If the RTH altitude you have set is much higher than when you engaged RTH then the quadrocopter will climb quite rapidly and your natural instinct will be to close the throttle - don't do it. If all is well you should see the quadrocopter climb/descend to the RTH altitude you have selected and start heading back to the Origin. If you are unhappy disengage RTH.
   * As in Stage 2 keep playing - safely. 
 
-If you enabled RTH Descend in UAVPSet then thirty seconds after you have arrived within the  selected radius of the Origin position with RTH still engaged the quadrocopter should start to descend at approximately 1 Metre/Sec slowing to 0.5 Metres/Sec.  Disengaging RTH will cause the quadrocopter to revert to GPS assisted position hold but you must control the altitude manually. This is the reason that moving the throttle up 10% after engaging RTH may be a good strategy to have as it will arrest the fall if you disengage and hopefully give you enough time to re-establish hover.
+== Stage 4: RTH with Altitude Hold and Auto Descend ==
+
+THIS IS VERY EXPERIMENTAL and may end up being delayed until the next release.
+
+If you enable RTH Descend in UAVPSet then thirty seconds after you have arrived within the  selected radius of the Origin position with RTH still engaged the quadrocopter should start to descend at approximately 1 Metre/Sec slowing to 0.5 Metres/Sec.  Disengaging RTH will cause the quadrocopter to revert to GPS assisted position hold but you must control the altitude manually. This is the reason that moving the throttle up 10% after engaging RTH may be a good strategy to have as it will arrest the fall if you disengage and hopefully give you enough time to re-establish hover.
 
 The auto descend feature is the logical extension of using RTH primarily as failsafe support. 
 
