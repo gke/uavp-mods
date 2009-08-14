@@ -87,8 +87,8 @@
 
 #define BARO_SCALE				((438L*256L)/1043L)		// Baro*256/GPSAlt
 
-#define BARO_MAX_DESCENT_DMPS	10L		// Decimetres/Sec
-#define BARO_FINAL_DESCENT_DMPS	5L		// Decimetres/Sec
+#define BARO_MAX_DESCENT_DMPS	5L //10L		// Decimetres/Sec
+#define BARO_FINAL_DESCENT_DMPS	2L //5L		// Decimetres/Sec
 #define BARO_DESCENT_TRANS_DM	150L	// Decimetres Altitude at final descent starts 
 
 // Throttle reduction and increase limits for GPS Alt Comp
@@ -102,7 +102,7 @@
 
 // reads $GPGGA and $GPRMC sentences - all others discarded
 
-#define	GPS_MIN_SATELLITES		5		// preferably > 5 for 3D fix
+#define	GPS_MIN_SATELLITES		7		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX				1		// must be 1 or 2 
 #define GPS_INITIAL_SENTENCES 	90		// Number of sentences needed with set HDilute
 #define GPS_MIN_HDILUTE			130L	// HDilute * 100	
@@ -111,10 +111,10 @@
 
 #define	NAV_GAIN_THRESHOLD 		40		// Navigation disabled if Ch7 is less than this
 	
-#define NAV_MAX_ANGLE 			25L		// Rx stick units ~= degrees
+#define NAV_MAX_ANGLE 			20L		// Rx stick units ~= degrees
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
-#define NAV_HOLD_LIMIT 			20L		// dead zone for roll/pitch stick for position hold
+#define NAV_HOLD_LIMIT 			15L		// dead zone for roll/pitch stick for position hold
 
 #define NAV_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
 
@@ -773,16 +773,19 @@ enum Params {
 	// 39 - 64 unused currently
 	};
 
-#define FlyXMode 		0
-#define FlyXModeMask 	0x01
+#define FlyXMode 			0
+#define FlyXModeMask 		0x01
 
-#define TxMode2 		2
-#define TxMode2Mask 	0x04
-#define RxSerialPPM 	3
-#define RxSerialPPMMask	0x08 
+#define TxMode2 			2
+#define TxMode2Mask 		0x04
+#define RxSerialPPM 		3
+#define RxSerialPPMMask		0x08 
 
-#define UseGPSAlt 		5
-#define	UseGPSAltMask	0x20
+#define UseGPSAlt 			5
+#define	UseGPSAltMask		0x20
+
+#define UseRTHDescend 		6
+#define	UseRTHDescendMask	0x40
 
 extern int8 P[];
 extern const rom int8 ComParms[];

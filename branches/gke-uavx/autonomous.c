@@ -236,7 +236,7 @@ void DoNavigation(void)
 		case AtHome:
 			Navigate(WP[0].N, WP[0].E);
 			if ( _ReturnHome )
-				if ( mS[Clock] > mS[RTHTimeout] )
+				if ( (( P[ConfigBits] & UseRTHDescendMask ) != 0 ) && ( mS[Clock] > mS[RTHTimeout] ) )
 				{
 					mS[AltHoldUpdate] = mS[Clock];
 					NavState = Descending;
