@@ -1,12 +1,13 @@
 #summary Brief procedures on how to use UAVX for the first time.
+#labels Featured,UAVX,GPS,UAVP,UAVPSet,gke,jesolins,Phase-Deploy
 
 == Introduction ==
 
-DRAFT DRAFT DRAFT DRAFT
+UAVX was released for Beta testing on the 15 August 2009 Australian EST. The normal caveats apply in that use of UAVX is entirely at your own risk - see the GNU Licence. 
 
 This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software. UAVX also combines test and flight software. Despite the internal differences a significant amount of effort has made to render the transition from UAVP to UAVX as painless as possible by preserving the validity of most parameter values and a familiar user interface. UAVPSet (V3.0 onwards also in this repository) has been extended to include the new features supported by UAVX.
 
-You should NOT use GPS initially regardless of how tempting it may be to do so. 
+You should NOT use GPS initially regardless of how tempting it may be to do so. UAVX only requires GPS for navigation functions.
 
 == Assumptions ==
 
