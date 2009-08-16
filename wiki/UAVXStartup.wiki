@@ -1,5 +1,5 @@
 #summary Brief procedures on how to use UAVX for the first time.
-#labels Featured,UAVX,GPS,UAVP,UAVPSet,gke,jesolins,Phase-Deploy
+#labels Featured,UAVX,GPS,UAVP,UAVPSet,gke,jesolins
 
 == Introduction ==
 
@@ -39,10 +39,12 @@ Using UAVPSet V3.0 or later:
 
 This is new territory and you will need to do some homework for your location particularly the Magnetic Variation. Read the GPS Navigation page carefully.
 
+*WARNING* - If you are using a 6 channel Rx then you do not have control over the GPS gain (see below) which will be maximum - do not proceed if you are unsure. You may still choose to fly with GPS disconnected.
+
 Using the UAVX capable version of UAVPSet:
   * Connect your GPS.
   * Set the GPS related parameters (notes below to follow).
-  * Turn the Pot/Knob connected to Channel 7 to minimum (this will disable GPS support).
+  * Turn the Pot/Knob connected to Channel 7 to minimum (this will disable GPS support).  
   * Select off/minimum using your Gear switch on Channel 5 (this turns RTH off). If you fail to do this a beeper alarm will sound.
   * Disable RTH altitude hold (see stick programming). This means that the normal hover mechanism is used whereby the quadrocopter will assume you are hovering after 3 seconds and use the baro and accelerometer to attempt to maintain altitude.
   * The quadrocopter can return home maintaining its current heading, pitching and/or rolling as required to move towards the Origin, or it can turn towards the Origin using pitch control only. This may also be set with Stick Programming.
