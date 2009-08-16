@@ -42,6 +42,8 @@ With the modes:
    * Mode 1 - Left Stick Elevator and Rudder, Right Stick Throttle and Ailerons
    * Mode 2 - Left Stick Throttle and Rudder, Right Stick Elevator and Ailerons.
 
+The important factor for Tx/Rx combinations is that the Rx servo pulses do not overlap each other in time. Although your Tx/Rx combination may not be explicitly named in the combinations above there is a  reasonable chance that one of the combinations will work.
+
 The supported Roll/Pitch Gyros are:
 
    * ADXRS610/300, Melexis90609
