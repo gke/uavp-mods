@@ -30,27 +30,27 @@ Using UAVPSet V3.0 or later:
   * Save your parameters to a file. UAVX will accept V3.15 parameter files but files written by UAVX are not compatible with V3.15.
   * Initialise the accelerometer neutrals as for UAVP.
   * Set up parameter set 2. You will see that many of the parameters are not displayed on the Parameter Set 2 page as these are now common to both parameter sets.
-  * While you steady your nerves go into the Tools menu and check out some of the many tests available because at about this point you will realise you have not calibrated your compass, checked your baro etc.! The now inbuilt test software has some sanity checks on voltages etc and may detect problems with sensors. In particular look at the Setup display which now has an extended summary of what UAVX thinks you have connected in the way of sensors etc. and whether they may be working.
-  * Arm the quadrocopter and observe that the Red LED will blink several times at about one second intervals as the Gyros are initialised - this is the first difference from UAVP. The quadrocopter MUST NOT be moved while the Red LED is blinking otherwise you may have a large drift offset! It does not need to be level - just stationary. The Yellow LED should be on signifying the Accelerometers are online.
+  * While you steady your nerves go into the Tools menu and check out some of the many tests available because at about this point you will realise you have not calibrated your compass, checked your baro etc.! The now inbuilt test software has some sanity checks on voltages etc and may detect problems with sensors. In particular look at the Setup display which now has an extended summary of what UAVX "thinks" you have connected in the way of sensors etc. and whether they may be working or not.
+  * Arm the quadrocopter and observe that the Red LED will blink several times at about one second intervals as the Gyros are initialised - this is the first difference from UAVP. The quadrocopter MUST NOT be moved while the Red LED is blinking otherwise you may have a large drift offset! The quadrocopter does not need to be level - just stationary. The Yellow LED should be on signifying the Accelerometers are online.
   * Ensure that the response of the quadrocopter is acceptable using the normal pre-flight checks. You will see that UAVPSet no longer communicates with UAVX once the quadrocopter is armed. If you need to modify parameters you will need to disarm.
   * Fly (at your own risk as always) and tune the various flight parameters as required.
   
 == Stage 2: with GPS ==
 
-This is new territory and you will need to do some homework for your location. Read the GPS Navigation page carefully.
+This is new territory and you will need to do some homework for your location particularly the Magnetic Variation. Read the GPS Navigation page carefully.
 
 Using the UAVX capable version of UAVPSet:
   * Connect your GPS.
   * Set the GPS related parameters (notes below to follow).
-  * Turn the knob connected to Channel 7 to minimum (this will disable GPS support).
+  * Turn the Pot/Knob connected to Channel 7 to minimum (this will disable GPS support).
   * Select off/minimum using your Gear switch on Channel 5 (this turns RTH off). If you fail to do this a beeper alarm will sound.
   * Disable RTH altitude hold (see stick programming). This means that the normal hover mechanism is used whereby the quadrocopter will assume you are hovering after 3 seconds and use the baro and accelerometer to attempt to maintain altitude.
   * The quadrocopter can return home maintaining its current heading, pitching and/or rolling as required to move towards the Origin, or it can turn towards the Origin using pitch control only. This may also be set with Stick Programming.
   * Arm the quadrocopter and after the initial blinking Red LED as the Gyros are initialised you should see the Blue LED blinking at the update rate of your GPS. At this point the Red LED will stay lit until UAVX is happy with the GPS accuracy. This may take anything up to 5 minutes particularly on the first flight in a new location. Once the Red LED goes out a satisfactory "Origin" location has been recorded. Currently the flight software does not prevent you from taking off before the Red LED goes out but be aware the Origin value may be somewhere (anywhere) along your flight path. Be patient and wait. 
-  * Takeoff and fly to a safe height and away from you 30M/100'. Check to see that you have a good hover.
+  * Takeoff and fly to a safe height and away from you 30M/100'. Check to see that you have a good hover. This initial hover is *important* as it and subsequent hovers adaptively establish the hover throttle setting used by the RTH altitude hold function. The GPS software is not active until 30 seconds after takeoff. 
   * Engage RTH using the Gear switch. You should see no change in the behaviour of the quadrocopter. It is important that you HAVE disabled the RTH altitude hold (see above) otherwise you will have no throttle control.
-  * Slowly increase the setting of the Channel 7 knob and you should see the quadrocopter start to tilt towards the Origin position (where the GPS location was acquired after arming). You should still have control of pitch, roll, yaw and throttle and can overcome the corrections being applied by the GPS. If Channel 7 is below around 20% GPS assistance is disabled. 
-  * Try switching off RTH and you should come to a halt at the current position. The GPS at this point is attempting to maintain this position but again can be overcome using pitch and roll corrections.  There will be a temptation to "help" the GPS using pitch and roll but be aware that if you move either the pitch and roll sticks by more than about 5% then the desired location will be updated to a new position in the direction of what you perceive to be a drift which is not what you want! You may change Yaw without triggering a position update - useful for pointing cameras.
+  * Slowly increase the setting of the Channel 7 Pot and you should see the quadrocopter start to tilt towards the Origin position (where the GPS location was acquired after arming). You should still have control of pitch, roll, yaw and throttle and can overcome the corrections being applied by the GPS. If Channel 7 is below around 20% GPS assistance is disabled. 
+  * Try switching off RTH and you should come to a halt at the current position. The GPS at this point is attempting to maintain the current position but again can be overcome using pitch and roll corrections.  There will be a temptation to "help" the GPS using pitch and roll but be aware that if you move either the pitch and roll sticks by more than about 5% then the desired location will be updated to a new position in the direction of what you perceive to be a drift which is not what you want! You may change Yaw without triggering a position update - useful for pointing cameras.
   * Keep playing until you are familiar with what is happening.
 
 == Stage 3: RTH with Altitude Hold ==
@@ -72,7 +72,7 @@ THIS IS VERY EXPERIMENTAL so take care and start with an RTH altitude setting wh
 
 If you enable RTH Descend in UAVPSet then thirty seconds after you have arrived within the  selected radius of the Origin position with RTH still engaged the quadrocopter should start to descend at around 1 Meter/Sec slowing in the last 15M.  Disengaging RTH will cause the quadrocopter to revert to GPS assisted position hold but you must control the altitude manually. This is the reason that moving the throttle up 10% after engaging RTH may be a good strategy to have as it will arrest the fall if you disengage and hopefully give you enough time to re-establish hover.
 
-The auto descend feature is the logical extension of using RTH primarily as failsafe support. 
+The auto descend feature is the logical extension of using RTH primarily as failsafe support. We suggest RTH altitude enabled (the default) be adopted with you Rx failsafes set appropriately to advantage of this. 
 
 == Other Stuff == 
 
@@ -85,4 +85,6 @@ There are many other things we can try/abandon including:
 == Suggested Navigation Parameters ==
 
 Use the UAVPSet Tools->Testsoftware->D defaults for now.
+
+An option is to use Parameter set #1 for still conditions and #2 for windy conditions. We expect the more successful combinations of navigation related parameters to evolve over time. More of the internal software controls are likely to be accessible through UAVPSet as we gain experience. 
   
