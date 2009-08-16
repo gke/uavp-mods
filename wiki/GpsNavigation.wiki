@@ -1,5 +1,5 @@
 #summary An overview of the GPS navigation functionality in UAVX
-#labels Featured,UAVX,UAVP,UAVPSet,gke,jesolins
+#labels Featured,GPS,UAVX,UAVP,UAVPSet,gke,jesolins
 
 Navigation has been implemented using the 18F2620 PIC which has significantly more memory available to it. This was one of the reasons that Wolferl was not able to implement navigation for the 16F876 version of of the original quadrocopter. 
 
