@@ -35,7 +35,7 @@ The following Tx/Rx combinations are supported:
    * JR 9XII DM9/AR7000 - Aileron, Rudder, Gear, Aux2
    * JR DXS12/AR7000 - Aileron, Rudder, Gear, Aux2
    * Spektrum DX7/AR7000 - Aileron, Rudder, Gear, Aux2  
-   * Spektrum DX7/AR6200 - Throttle, Elevator, Gear
+   * Spektrum DX7/AR6200 - Throttle, Elevator, Gear (*CAUTION* - not recommended for other than short range use)
 
 With the modes:
 
