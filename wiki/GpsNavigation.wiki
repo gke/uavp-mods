@@ -58,6 +58,10 @@ The arming switch needs to be replaced by a double switch, which when arming, di
 
 http://www.rcgroups.com/forums/showpost.php?p=12843408&postcount=3297
 
+=== Compass Orientation ===
+
+The software expects the compass orientation to be the same as in the manual. The software applies a correction such that True North is along the forward pointing arm. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect. 
+
 === Functionality ===
 
 Navigation uses the Gear (Ch5) and Ch7 inputs. This means that parameters can no longer be changed in flight using Ch5, and roll trim for any servo driven camera is no longer available. Signals for roll and tilt stabilisation are still generated. Ch6 is still available for camera tilt trim. 
