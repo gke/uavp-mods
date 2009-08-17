@@ -47,7 +47,7 @@ Using UAVPSet V3.0 or later:
 
 This is new territory and you will need to do some homework for your location particularly the Magnetic Variation. Read the GPS Navigation page carefully.
 
-*WARNING* - If you are using a 6 channel Rx then you do not have control over the GPS gain (see below) which will be maximum - do not proceed if you are unsure. You may still choose to fly with GPS disconnected.
+*WARNING* - If you are using a 6 channel Rx then you do not have control over the GPS gain (see below) - do not proceed if you are unsure. You may still choose to fly with the GPS disconnected.
 
 Using the UAVX capable version of UAVPSet:
   * Connect your GPS.
