@@ -19,7 +19,7 @@ It is assumed you are:
 
 == Compass Orientation ==
 
-The software expects the compass orientation to be the same as in the manual. A correction such that True North is along the forward pointing arm. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
+The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
 
 == Stage 1: without GPS =
 
