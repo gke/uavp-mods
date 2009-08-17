@@ -19,9 +19,10 @@ It is assumed you are:
 
 === Notes/FAQ ===
 
-* Compass Orientation: The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
-  * Debug Version: The (HEX) files with the word "Debug" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>SensorTestGraphic.
-  * 6 Channel Receivers: Use the versions with 6CH in the HEX file name.
+  * Compass Orientation: You must have a compass for GPS navigation. The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
+  * Barometers: You must have a barometer for GPS navigation as it is required for altitude hold(see below). The BMP085 is recommended but the software can use the SMD500. The software automatically senses which barometer you are using.
+  * UAVX Debug Versions: The (HEX) files with the word "Debug" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>SensorTestGraphic.
+  * 6 Channel Receivers: Use the versions with 6CH in the HEX file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of correction.
   * Tricopters: Use the the files with TRI in the names. 
   
 === Stage 1: without GPS ===
