@@ -47,6 +47,7 @@ uint8 	GPSRxState;
 boolean RCFrameOK, GPSSentenceReceived;
 uint8 	ll, tt, gps_ch;
 uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+uint8	ESCMax;
 #pragma udata
 
 int16 	RC[CONTROLS];
@@ -233,6 +234,9 @@ const rom boolean PPMPosPolarity[CustomTxRx+1] =
 		true,	// Spektrum DX7/AR6200
 		true	// custom Tx/Rx combination
 	};
+
+// Must be in thesame order as 
+const rom ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, OUT_YGEI2C_MAXIMUM, OUT_HOLGER_MAXIMUM };
 
 void main(void)
 {

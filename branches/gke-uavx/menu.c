@@ -119,7 +119,7 @@ void ShowSetup(uint8 h)
 		
 		switch ( P[ESCType] ) {
 		case ESCPPM:TxString("ESC: PPM\r\n"); break;
-		case ESCHolger:TxString("ESC: Holger I2Ce\r\n"); break;
+		case ESCHolger:TxString("ESC: Holger V1.0 I2Ce\r\n"); break;
 		case ESCX3D:TxString("ESC: X-3D I2C\r\n"); break;
 		case ESCYGEI2C:TxString("ESC: YGE I2C\r\n"); break;
 		}	

@@ -54,7 +54,7 @@ gpl-en.txt (in English) and gpl-de.txt (in German).
  How to setup the Compilation Software      
 =========================================================================
 
-    * This version is for the 18F2520 PIC
+    * This version is for the 18F2620 PIC
     * Obtain MPLab and the C18 compiler from Microchip 
 
 =========================================================================
@@ -234,6 +234,8 @@ UAVX ********************************************************************
 22.07.2009
 - Complete rationalisation of compass yaw compensation.
   Parameters converted to vector.
+15.08.2009
+- Release of Experimental UAVX.
   
 =========================================================================
  SAFETY FIRST!                              

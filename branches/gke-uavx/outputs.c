@@ -22,7 +22,6 @@
 
 #include "uavx.h"
 
-uint8 SaturInt(int16);
 void DoMix(int16 CurrThrottle);
 void CheckDemand(int16 CurrThrottle);
 void MixAndLimitMotors(void);
@@ -33,6 +32,7 @@ void OutSignals(void);
 
 #define MAGICNUMBER 	32	//84
 
+// For K1-K4 Connectors
 #define	PulseFront		0
 #define	PulseLeft		1
 #define	PulseRight		2
@@ -44,21 +44,6 @@ void OutSignals(void);
 #define ALL_PULSE_ON	(PORTB |= 0b00001111)
 #define ALL_OUTPUTS_OFF	(PORTB &= 0b11110000)
 #define ALL_OUTPUTS		(PORTB & 0b00001111)
-
-uint8 SaturInt(int16 l)
-{
-	static int16 r;
-
-	if ( P[ESCType] == ESCX3D )
-	{
-		l -= OUT_MINIMUM;
-		r = Limit(l, 1, 200);
-	}
-	else
-		r = Limit(l, OUT_MINIMUM, OUT_MAXIMUM );
-
-	return((uint8) r);
-} // SaturInt
 
 void DoMix(int16 CurrThrottle)
 {
@@ -152,10 +137,10 @@ void MixAndLimitMotors(void)
 		Motor[Front] = Motor[Back] = 
 		Motor[Left] = Motor[Right] = CurrThrottle;
 
-	Motor[Front] = SaturInt(Motor[Front]);
-	Motor[Back] = SaturInt(Motor[Back]);
-	Motor[Left] = SaturInt(Motor[Left]);
-	Motor[Right] = SaturInt(Motor[Right]);
+	Motor[Front] = Limit(Motor[Front], 1, ESCMax);
+	Motor[Back] = Limit(Motor[Back], 1, ESCMax);
+	Motor[Left] = Limit(Motor[Left], 1, ESCMax);
+	Motor[Right] = Limit(Motor[Right], 1, ESCMax);
 
 } // MixAndLimitMotors
 
@@ -181,13 +166,12 @@ void MixAndLimitCam(void)
 
 } // MixAndLimitCam
 
-#pragma udata assembly_language=0x080 
-//uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-#pragma udata
-
 void OutSignals(void)
 {
+	static int8 m;
+
 	#ifdef DEBUG_SENSORS
+
 	Trace[TDesiredThrottle] = DesiredThrottle;
 
 	Trace[TDesiredRoll] = DesiredRoll;
@@ -201,10 +185,14 @@ void OutSignals(void)
 
 	Trace[TMCamRoll] = MCamRoll;
 	Trace[TMCamPitch] = MCamPitch;
+
 	#else // !DEBUG_SENSORS
 
 	WriteTimer0(0);
 	INTCONbits.TMR0IF = false;
+
+	MT = MCamRoll;
+	ME = MCamPitch;
 
 	if ( P[ESCType] == ESCPPM )
 	{
@@ -215,87 +203,79 @@ void OutSignals(void)
 		_endasm	
 		PORTB |= 0x0f;
 	
-	} // ESC_PPM
-	
-	MF = Motor[Front];
-	MB = Motor[Back];
-	ML = Motor[Left];
-	MR = Motor[Right];
-	
-	MT = MCamRoll;
-	ME = MCamPitch;
-	
-	if ( P[ESCType] == ESCPPM )
-	{
-	
-	// simply wait for nearly 1 ms
-	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; // 16
-	
-	// now stop CCP1 interrupt
-	// capture can survive 1ms without service!
-	
-	// Strictly only if the masked interrupt region below is
-	// less than the minimum valid Rx pulse/gap width which
-	// is 1027uS less capture time overheads
-	
-	DisableInterrupts;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
-	while( !INTCONbits.TMR0IF ) ;	// wait for first overflow
-	INTCONbits.TMR0IF=0;			// quit TMR0 interrupt
-	
-	if( _OutToggle )	// driver cam servos only every 2nd pulse
-	{
-		_asm
-		MOVLB	0					// select Bank0
-		MOVLW	0x3f				// turn on motors
-		MOVWF	SHADOWB,1
-		_endasm	
-		PORTB |= 0x3f;
-	}
-	_OutToggle ^= 1;
-	
-	// This loop is exactly 16 cycles int16
-	// under no circumstances should the loop cycle time be changed
-		_asm
-		MOVLB	0						// select Bank0
+		MF = Motor[Front];
+		MB = Motor[Back];
+		ML = Motor[Left];
+		MR = Motor[Right];
+
+		// simply wait for nearly 1 ms
+		// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
+		while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; // 16
+		
+		// now stop CCP1 interrupt
+		// capture can survive 1ms without service!
+		
+		// Strictly only if the masked interrupt region below is
+		// less than the minimum valid Rx pulse width which
+		// is 1027uS less capture time overheads
+		
+		DisableInterrupts;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
+		while( !INTCONbits.TMR0IF ) ;	// wait for first overflow
+		INTCONbits.TMR0IF=0;			// quit TMR0 interrupt
+		
+		if( _OutToggle )	// driver cam servos only every 2nd pulse
+		{
+			_asm
+			MOVLB	0					// select Bank0
+			MOVLW	0x3f				// turn on motors
+			MOVWF	SHADOWB,1
+			_endasm	
+			PORTB |= 0x3f;
+		}
+		_OutToggle ^= 1;
+		
+		// This loop is exactly 16 cycles 
+		// under no circumstances should the loop cycle time be changed
+			_asm
+			MOVLB	0						// select Bank0
 OS005:
-		MOVF	SHADOWB,0,1				// Cannot read PORTB ???
-		MOVWF	PORTB,0
-		ANDLW	0x0f
-		BZ		OS006
-				
-		DECFSZ	MF,1,1					// front motor
-		GOTO	OS007
-				
-		BCF		SHADOWB,PulseFront,1	// stop Front pulse
-OS007:
-		DECFSZ	ML,1,1					// left motor
-		GOTO	OS008
-				
-		BCF		SHADOWB,PulseLeft,1		// stop Left pulse
-OS008:
-		DECFSZ	MR,1,1					// right motor
-		GOTO	OS009
-				
-		BCF		SHADOWB,PulseRight,1	// stop Right pulse
-OS009:
-		DECFSZ	MB,1,1					// rear motor
-		GOTO	OS005
+			MOVF	SHADOWB,0,1				// Cannot read PORTB ???
+			MOVWF	PORTB,0
+			ANDLW	0x0f
+			BZ		OS006
 					
-		BCF		SHADOWB,PulseBack,1		// stop Back pulse			
-	
-		GOTO	OS005
+			DECFSZ	MF,1,1					// front motor
+			GOTO	OS007
+					
+			BCF		SHADOWB,PulseFront,1	// stop Front pulse
+OS007:
+			DECFSZ	ML,1,1					// left motor
+			GOTO	OS008
+					
+			BCF		SHADOWB,PulseLeft,1		// stop Left pulse
+OS008:
+			DECFSZ	MR,1,1					// right motor
+			GOTO	OS009
+					
+			BCF		SHADOWB,PulseRight,1	// stop Right pulse
+OS009:
+			DECFSZ	MB,1,1					// rear motor
+			GOTO	OS005
+						
+			BCF		SHADOWB,PulseBack,1		// stop Back pulse			
+		
+			GOTO	OS005
 OS006:
-		_endasm
-		// This will be the corresponding C code:
-		//	while( ALL_OUTPUTS != 0 )
-		//	{	// remain in loop as int16 as any output is still high
-		//		if( TMR2 = MFront  ) PulseFront  = 0;
-		//		if( TMR2 = MBack ) PulseBack = 0;
-		//		if( TMR2 = MLeft  ) PulseLeft  = 0;
-		//		if( TMR2 = MRight ) PulseRight = 0;
-		//	}
-	
+			_endasm
+			// This will be the corresponding C code:
+			//	while( ALL_OUTPUTS != 0 )
+			//	{	// remain in loop as int16 as any output is still high
+			//		if( TMR2 = MFront  ) PulseFront  = 0;
+			//		if( TMR2 = MBack ) PulseBack = 0;
+			//		if( TMR2 = MLeft  ) PulseLeft  = 0;
+			//		if( TMR2 = MRight ) PulseRight = 0;
+			//	}
+		
 		mS[Clock]++;
 		EnableInterrupts;
 	
@@ -314,71 +294,43 @@ OS006:
 		_OutToggle ^= 1;
 		
 		// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
-		if ( P[ESCType] == ESCX3D )
-		{
-			EscI2CStart();
-			SendEscI2CByte(0x10);	// one command, 4 data bytes
-			SendEscI2CByte(MF); // for all motors
-			SendEscI2CByte(MB);
-			SendEscI2CByte(ML);
-			SendEscI2CByte(MR);
-			EscI2CStop();
-		}
-		else
-			if ( P[ESCType] ==  ESCHolger)
+		
+		if ( P[ESCType] ==  ESCHolger )
+			for (m = 0; m < NoOfMotors; m++)
 			{
 				EscI2CStart();
-				SendEscI2CByte(0x52);	// one cmd, one data byte per motor
-				SendEscI2CByte(MF); // for all motors
-				EscI2CStop();
-			
-				EscI2CStart();
-				SendEscI2CByte(0x54);
-				SendEscI2CByte(MB);
-				EscI2CStop();
-			
-				EscI2CStart();
-				SendEscI2CByte(0x58);
-				SendEscI2CByte(ML);
-				EscI2CStop();
-			
-				EscI2CStart();
-				SendEscI2CByte(0x56);
-				SendEscI2CByte(MR);
+				SendEscI2CByte(0x52 + m*2);	// one cmd, one data byte per motor
+				SendEscI2CByte(Motor[m]); // for all motors
 				EscI2CStop();
 			}
-			else
-		
-				if ( P[ESCType] == ESCYGEI2C )
+		else
+			if ( P[ESCType] == ESCYGEI2C )
+				for (m = 0; m < NoOfMotors; m++)
 				{
 					EscI2CStart();
-					SendEscI2CByte(0x62);	// one cmd, one data byte per motor
-					SendEscI2CByte(MF>>1); // for all motors
-					EscI2CStop();
-				
-					EscI2CStart();
-					SendEscI2CByte(0x64);
-					SendEscI2CByte(MB>>1);
-					EscI2CStop();
-				
-					EscI2CStart();
-					SendEscI2CByte(0x68);
-					SendEscI2CByte(ML>>1);
-					EscI2CStop();
-				
-					EscI2CStart();
-					SendEscI2CByte(0x66);
-					SendEscI2CByte(MR>>1);
+					SendEscI2CByte(0x62 + m*2);	// one cmd, one data byte per motor
+					SendEscI2CByte(Motor[m]>>1); // for all motors
 					EscI2CStop();
 				}
-		}
+			else
+				if ( P[ESCType] == ESCX3D )
+				{
+					EscI2CStart();
+					SendEscI2CByte(0x10);	// one command, 4 data bytes
+					SendEscI2CByte(Motor[Front]); // for all motors
+					SendEscI2CByte(Motor[Back]);
+					SendEscI2CByte(Motor[Left]);
+					SendEscI2CByte(Motor[Right]);
+					EscI2CStop();
+				}
+	}
 
 	while( ReadTimer0() < (uint16)(0x100-3-MAGICNUMBER) ) ; 	// wait for 2nd TMR0 near overflow
 
 	DisableInterrupts;				
 	while( !INTCONbits.TMR0IF ) ;		// wait for 2nd overflow (2 ms)
 
-	// This loop is exactly 16 cycles int16
+	// This loop is exactly 16 cycles 
 	// under no circumstances should the loop cycle time be changed
 _asm
 	MOVLB	0
@@ -412,6 +364,7 @@ _endasm
 	EnableInterrupts;	
 
 #endif  // DEBUG_SENSORS
+
 } // OutSignals
 
 

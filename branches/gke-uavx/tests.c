@@ -132,9 +132,9 @@ void ReceiverTest(void)
 		TxValH16(v);
 		TxChar(HT);
 		if ( ( s > 0 ) && ( s < 4 ))	
-			TxVal32(((int32)(v & 0x00ff)*200)/OUT_MAXIMUM - 100, 0, '%');
+			TxVal32(((int32)(v & 0x00ff)*200)/RC_MAXIMUM - 100, 0, '%');
 		else
-			TxVal32(((int32)(v & 0x00ff)*100)/OUT_MAXIMUM, 0, '%');
+			TxVal32(((int32)(v & 0x00ff)*100)/RC_MAXIMUM, 0, '%');
 
 		if( ( v & 0xff00) != (uint16)0x0100 ) 
 			TxString(" FAIL");

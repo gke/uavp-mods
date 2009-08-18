@@ -228,12 +228,6 @@ void ErectGyros(void)
 		YawSum += ADC(ADCYawChan, ADCVREF5V);
 	}
 		
-	if ( P[GyroType] == ADXRS150 )
-	{
-		RollSum = (RollSum + 1) >> 1; 
-		PitchSum = (PitchSum + 1) >> 1;
-	}
-
 	if( !_AccelerationsValid )
 	{
 		RollSum += P[MiddleLR];
@@ -260,22 +254,21 @@ void CalcGyroRates(void)
 	// calculations presumably because of the range of the 16 bit arithmetic.
 	// The upside, if any, is a reduction in ADC noise!
 
-	if ( P[GyroType] == ADXRS150 )
-	{
-		RollRate = (RollRate + 2) >> 2; 
-		PitchRate = (PitchRate + 2) >> 2;
-	}
-	else
-	{
-		RollRate = RollRate >> 1;	
-		PitchRate = PitchRate >> 1;
-	}
+	// Average of two readings
+	RollRate = RollRate >> 1;	
+	PitchRate = PitchRate >> 1;
 	
-	// standard flight mode
 	RollRate -= GyroMidRoll;
 	PitchRate -= GyroMidPitch;
+
 	if ( P[GyroType] == IDG300 )
 		RollRate = -RollRate;
+	else
+		if ( P[GyroType] == ADXRS150 )	// rescale
+		{
+			RollRate /= 2; 
+			PitchRate /= 2;
+		}
 
 	if ( P[ConfigBits] & FlyXModeMask )
 	{

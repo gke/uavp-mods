@@ -197,6 +197,8 @@ void ReadParametersEE(void)
 	IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
 	HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
 
+	ESCMax = ESCLimits[P[ESCType]];
+
 	RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
 	PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
 	YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
@@ -655,7 +657,7 @@ void DumpTrace(void)
 #ifdef DEBUG_SENSORS
 	uint8 t;
 
-	if ( DesiredThrottle > IdleThrottle )
+	if ( DesiredThrottle > 20 ) // zzzIdleThrottle )
 	{
 		for (t=0; t <= TopTrace; t++)
 		{

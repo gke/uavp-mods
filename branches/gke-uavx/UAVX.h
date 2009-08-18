@@ -109,7 +109,8 @@
 
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 
-#define	NAV_GAIN_THRESHOLD 		40		// Navigation disabled if Ch7 is less than this
+#define	NAV_GAIN_THRESHOLD 		40L		// Navigation disabled if Ch7 is less than this
+#define NAV_GAIN_6CH			80L		// Low GPS gain for 6ch Rx 			
 	
 #define NAV_MAX_ANGLE 			20L		// Rx stick units ~= degrees
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
@@ -119,6 +120,7 @@
 #define NAV_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
 
 #define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used
+
 
 // comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
 //#define NAV_ZERO_INT
@@ -374,16 +376,18 @@ typedef union {
 #define RC_THR_MAX 			RC_MAXIMUM
 
 #ifdef RX6CH 
-#define RC_CONTROLS 5			
+	#define RC_CONTROLS 5			
 #else
-#define RC_CONTROLS CONTROLS
+	#define RC_CONTROLS CONTROLS
 #endif //RX6CH
 
 // ESC
-#define OUT_MINIMUM			1
-#define OUT_MAXIMUM			240
+#define OUT_MINIMUM			1					// Required for PPM timing loops
 #define OUT_NEUTRAL			((150 * _ClkOut/(2*_PreScale1))&0xFF)    //   0%
-#define _HolgerMaximum		225 
+#define OUT_MAXIMUM			240
+#define OUT_HOLGER_MAXIMUM	225
+#define OUT_YGEI2C_MAXIMUM	240
+#define OUT_X3D_MAXIMUM		200 
 
 // Compass sensor
 #define COMPASS_I2C_ID		0x42				// I2C slave address
@@ -520,7 +524,6 @@ extern void ShowSetup(uint8);
 extern void ProcessCommand(void);
 
 // outputs.c
-extern uint8 SaturInt(int16);
 extern void DoMix(int16 CurrThrottle);
 extern void CheckDemand(int16 CurrThrottle);
 extern void MixAndLimitMotors(void);
@@ -630,10 +633,11 @@ enum TraceTags {THE, TCurrentBaroPressure,
 				TMFront, TMBack, TMLeft, TMRight,
 				TMCamRoll, TMCamPitch
 				};
-#define TopTrace TFBIntKorr
+#define TopTrace TMCamPitch
 
-enum MotorTags {Front, Left, Right, Back};
-#define NoOfMotors 		4
+//enum MotorTags {Front, Left, Right, Back};
+enum MotorTags {Front, Back, Right, Left}; // order is important for Holger ESCs
+#define NoOfMotors 		(Back+1)
 
 extern uint24 mS[];
 
@@ -648,6 +652,7 @@ extern int16	PauseTime; // for tests
 extern uint8 	GPSRxState;
 extern uint8 	ll, tt, gps_ch;
 extern uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+extern uint8	ESCMax;
 
 extern int16	RC[];
 extern uint16	RCGlitches;
@@ -791,6 +796,7 @@ extern int8 P[];
 extern const rom int8 ComParms[];
 extern const rom int8 DefaultParams[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
+extern const rom ESCLimits [];
 extern const rom boolean PPMPosPolarity[];
 
 

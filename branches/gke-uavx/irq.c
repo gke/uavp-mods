@@ -40,6 +40,7 @@ void high_isr_handler(void);
 
 void ReceivingGPSOnly(boolean r)
 {
+	#ifndef DEBUG_SENSORS
 	if ( r != _ReceivingGPS )
 	{
 		PIE1bits.RCIE = false;
@@ -54,6 +55,7 @@ void ReceivingGPSOnly(boolean r)
    		PIE1bits.RCIE = r;
 		Delay1mS(10);				// switch bounce
 	}
+	#endif // DEBUG_SENSORS
 } // ReceivingGPSOnly
 
 void MapRC(void)
@@ -70,7 +72,7 @@ void MapRC(void)
 	RC[PitchC] = 	PPM[Map[P[TxRxType]][PitchC]-1].low8 - RC_NEUTRAL;
 	RC[YawC] = 		PPM[Map[P[TxRxType]][YawC]-1].low8 - RC_NEUTRAL;
 	RC[RTHC] = 		PPM[Map[P[TxRxType]][RTHC]-1].low8;
-	RC[CamTiltC] = 	PPM[Map[P[TxRxType]][CamTiltC]-1].low8 - RC_NEUTRAL;
+	RC[CamTiltC] = 	PPM[Map[P[TxRxType]][CamTiltC]-1].low8;
 	RC[NavGainC] = 	PPM[Map[P[TxRxType]][NavGainC]-1].low8;
 
 	#else
@@ -81,7 +83,6 @@ void MapRC(void)
 	RC[RollC] -= RC_NEUTRAL;
 	RC[PitchC] -= RC_NEUTRAL;
 	RC[YawC] -= RC_NEUTRAL;
-	RC[CamTiltC] -= RC_NEUTRAL;
 
 	#endif // UNROLL_LOOPS
 
@@ -116,7 +117,7 @@ void InitTimersAndInterrupts(void)
 		PPM[i].i16 = RC[i] = 0;
 	#ifdef RX6CH
 	PPM[CamTiltC].i16 = RC_NEUTRAL;
-	PPM[NavGainC].i16 = RC_MAXIMUM;
+	PPM[NavGainC].i16 = NAV_GAIN_6CH;
 	#endif // RX6CH	  
 
 	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;
