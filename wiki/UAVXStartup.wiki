@@ -23,7 +23,8 @@ It is assumed you are:
   * Barometers: You must have a barometer for GPS navigation as it is required for altitude hold(see below). The BMP085 is recommended but the software can use the SMD500. The software automatically senses which barometer you are using.
   * UAVX Debug Versions: The (HEX) files with the word "Debug" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>Sensor Test Graphic. See also the README file in the release zip.
   * 6 Channel Receivers: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of correction.
-  * Tricopters: Use the the files with TRI in the names. 
+  * Tricopters: Use the the files with TRI in the names.
+  * Setting Default Parameter Values: Use Tools->Testsoftware->D command in UAVPSet. This command is sent directly to UAVX which uses the defaults stored in UAVX itself. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
   
 === Stage 1: without GPS ===
 
@@ -32,7 +33,7 @@ Most of this will be familiar to you as the procedure is nearly identical to tha
 Using UAVPSet V3.0 or later:
   * Load the flight software into your quadrocopter (there are many fewer HEX files to choose from and the one you need should be self evident).
   * Select UAVX in the pulldown. 
-  * Initialise your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. 
+  * Initialise your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. If you choose to use the D command you need to do a read params to update the UAVPSet screen. See the FAQs above.
   * Select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between paramter set 1 & 2. This is done using stick programming (see the  gpsNavigation page ) once UAVX is successfully talking to your Tx/Rx. 
   * Just as for UAVP use Tools->Testsoftware to ensure your Rx signals are being received correctly. Verify this in the Rx Graphic which now displays in % units.
   * Save your parameters to a file. UAVX will accept V3.15 parameter files but files written by UAVX are not compatible with V3.15.
