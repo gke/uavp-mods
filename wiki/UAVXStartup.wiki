@@ -24,7 +24,7 @@ It is assumed you are:
   * UAVX Debug Versions: The (HEX) files with the word "Debug" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>Sensor Test Graphic. See also the README file in the release zip.
   * 6 Channel Receivers: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of correction.
   * Tricopters: Use the the files with TRI in the names.
-  * Setting Default Parameter Values: Use Tools->Testsoftware->D command in UAVPSet. This command is sent directly to UAVX which uses the defaults stored in UAVX itself. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
+  * Setting Default Parameter Values: Use Tools->Testsoftware->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
   
 === Stage 1: without GPS ===
 
