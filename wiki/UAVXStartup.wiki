@@ -50,7 +50,7 @@ Using UAVPSet V3.0 or later:
   * Select UAVX in the pulldown. 
   * Initialise your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. If you choose to use the D command you need to do a read params to update the UAVPSet screen. See the FAQs above.
   * Select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between paramter set 1 & 2. This is done using stick programming (see the  gpsNavigation page ) once UAVX is successfully talking to your Tx/Rx. 
-  * Just as for UAVP use Tools->Testsoftware to ensure your Rx signals are being received correctly. Verify this in the Rx Graphic which now displays in % units.
+  * Just as for UAVP use Tools->Testsoftware to ensure your Rx signals are being received correctly. Verify this in the Rx Graphic which now displays in % units. *See and accomplish the TX/RX setup instructions above.
   * Save your parameters to a file. UAVX will accept V3.15 parameter files but files written by UAVX are not compatible with V3.15.
   * Initialise the accelerometer neutrals as for UAVP.
   * Set up parameter set 2. You will see that many of the parameters are not displayed on the Parameter Set 2 page as these are now common to both parameter sets.
