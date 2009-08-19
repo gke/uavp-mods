@@ -40,7 +40,7 @@ For UAVX confirm channel 5 switch is in the hover position. This appears as a sl
 
 1. TX on, throttle down, then power-on the UAVP with arming switch in *unarmed* position. 
 
-*WARNING-Never power on the quad before the TX.  If the TX is off and the quad’s arming switch is accidentally left in the armed position the motors could start at high speed when using some RX's and cause serious injury!*
+*WARNING!:  Never power on the quad before the TX.  If the TX is off and the quad’s arming switch is accidentally left in the armed position the motors could start at high speed when using some RX's and cause serious injury!*
 
 2. Select parameter using the pitch/roll sticks(UAVX): Parm 1 with RTH altitude control (default) = upper left, Parm 1 no altitude control = lower left, Parm2 with RTH altitude control = upper right, Parm 2 no altitude control = lower right.
 
@@ -54,7 +54,8 @@ For UAVX confirm channel 5 switch is in the hover position. This appears as a sl
 
 7. Land as soon as the lipo voltage alarm sounds.  Recommend setting is to 48=10.43v in order to allow at least a 1 minute pad for completing a landing with reserve power. The red LED will blink and the beeper will sound steadily when the lipo is below the minimum set voltage.
 
+8. Unarm then remove power from UAVP, then turn TX off.  *Warning!:  Never turn the TX off first!
+
 Have fun and safe flying! 
 Cheers, 
 Jim 
-
