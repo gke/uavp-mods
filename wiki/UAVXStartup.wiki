@@ -43,7 +43,8 @@ It is assumed you:
 ===Tx/Rx Setup===
 As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three wires.
 
-The setup procedure: 
+The setup procedure:
+
   * First make sure that the UAVP is not armed! Set your Tx to its default values to start fresh.  You must use ACRO mode on your Tx.  Set your trims and sub-trims to zero.  Using UAVPset V3.0 pull down menus select the correct Tx/Rx combination and RS to Quad and TX mode for your kit.  Write this to the UAVP.
 
   * Go to the Tool->Testsoftware and do the Rx test and see that all channels pass.  If not then the Tx EPAs (End Point Adjustment) must be adjusted here first.  For most, simply setting channel 5 lower EPA to 80% and upper EPA to 80% will get a pass on all channels that the Tx/Rx combination allows, i.e., either 5 or 7.  The next channels to adjust if you still do not get a pass are setting channels 6 and 7 to 80% upper and lower.  If you still cannot get the channels to pass, then post in the forum for additional help. Here: [http://www.rcgroups.com/forums/showthread.php?t=1093510]
