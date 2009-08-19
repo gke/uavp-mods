@@ -18,18 +18,19 @@ It is very important that you follow the normal safety procedures for electrical
   * You *MUST* conduct a radio range check before every flight. 
   * The aircraft *MUST* be restrained when power is applied and you *MUST* be clear of the propellors at all times.
 
-The motors(s) can start immediately in all electric aircraft when the battery is connected and you should *NEVER* rely on arming switches which are fitted to many aircraft.  PPM receivers can and do receive radio noise which they interpret as valid signals including throttle commands.  PCM receivers with incorrectly set failsafes can also apply full throttle or maintain current throttle which may not be zero if  the transmitter signal is lost.
+The motors(s) can start immediately in all electric aircraft when the battery is connected and you should *NEVER* rely on arming switches which are fitted to many aircraft.  
+
+If your *Tx is OFF* or the aircraft is out of radio range PPM receivers can and do receive radio noise which they interpret as valid signals including throttle commands. PCM receivers with incorrectly set failsafes can also apply *full throttle* or maintain current throttle which may not be zero if the transmitter signal is lost.
 
 This does not apply just to UAVP/UAVX and other quadrocopters. It applies to ALL electric aircraft.
 
 === Assumptions ===
 
-It is assumed you are:
-  * Thoroughly familiar and have been trained in aircraft *SAFETY* by a qualified trainer.
-  * Familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
+It is assumed you:
+  * Are trained in, aircraft *SAFETY* by a qualified FAI affiliated trainer.
+  * You have read and understoodthe UAVP manual as it applies to safety and setting up a UAVP quadrocopter.
+  * Are familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
   * You have flown your quadrocopter/tricopter using UAVP flight software with some success.
-  * You have read the UAVP manual.
-  * You have installed the requisite 18F2620 PIC with associated bootloader.
 
 === Notes/FAQs ===
 
@@ -58,6 +59,8 @@ The setup procedure:
 === Stage 1: without GPS ===
 
 Most of this will be familiar to you as the procedure is nearly identical to that you will have used with UAVP. If you have a GPS DISCONNECT it.
+
+You must have installed the requisite 18F2620 PIC with associated bootloader.
 
 Using UAVPSet V3.0 or later:
   * Load the flight software into your quadrocopter (there are many fewer HEX files to choose from and the one you need should be self evident).
