@@ -40,7 +40,7 @@ It is assumed you:
   * Tricopters: Use the the files with TRI in the names.
   * Setting Default Parameter Values: Use Tools->Testsoftware->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
 
-===Tx/Rx Setup:===
+===Tx/Rx Setup===
 As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three wires.
 
 The setup procedure: 
