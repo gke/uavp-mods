@@ -26,13 +26,13 @@ This does not apply just to UAVP/UAVX and other quadrocopters. It applies to ALL
 
 It is assumed you:
   * Are trained in, aircraft *SAFETY* by a qualified FAI affiliated trainer.
-  * You have read and understoodthe UAVP manual as it applies to safety and setting up a UAVP quadrocopter.
+  * You have read and understood the UAVP manual as it applies to safety and setting up a UAVP quadrocopter.
   * Are familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
-  * You have flown your quadrocopter/tricopter using UAVP flight software with some success.
+  * You have previously flown your quadrocopter/tricopter using UAVP flight software.
 
 === Notes/FAQs ===
 
-  * Rx/Transmitter Step: *Nothing will work* unless your UAVX is succesfully receiving your Rx signal - see the Tx/Rx setup procedure below.
+  * Rx/Transmitter Step: *Nothing will work* unless your UAVX is successfully receiving your Rx signal - see the Tx/Rx setup procedure below.
   * Compass Orientation: You must have a compass for GPS navigation. The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
   * Barometers: You must have a barometer for GPS navigation as it is required for altitude hold(see below). The BMP085 is recommended but the software can use the SMD500. The software automatically senses which barometer you are using.
   * UAVX Debug Versions: The (HEX) files with the word "Debug" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>Sensor Test Graphic. See also the README file in the release zip.
@@ -41,18 +41,18 @@ It is assumed you:
   * Setting Default Parameter Values: Use Tools->Testsoftware->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
 
 ===Tx/Rx Setup:===
-As with the UAVP, a proper TX/RX setup is extremely important for both safety and proper flight operation.  Always setup your TX/RX with the quad tied or weighted down and or props removed or motors disabled by removing two of the three wires.
+As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three wires.
 
 The setup procedure: 
-  * First make sure that the UAVP is not armed! Set your TX to its default values to start fresh.  You must use ACRO mode on your TX.  Set your trims and subtrims to zero.  Using UAVPset v3.0 pull down menus select the correct TX/RX combination and RS to Quad and TX mode for your kit.  Write this to the UAVP.
+  * First make sure that the UAVP is not armed! Set your Tx to its default values to start fresh.  You must use ACRO mode on your Tx.  Set your trims and sub-trims to zero.  Using UAVPset V3.0 pull down menus select the correct Tx/Rx combination and RS to Quad and TX mode for your kit.  Write this to the UAVP.
 
-  * Go to the Tool>Testsoftware and do the RX test and see that all channels pass.  If not then the EPA's must be adjusted here first.  For most, simply setting channel 5 lower EPA to 80% and upper EPA to 80% will get a pass on all channels that the TX/RX combination allows, i.e., either 5 or 7.  The next channels to adjust if you still do not get a pass are setting channels 6 and 7 to 80% upper and lower.  If you still cannot get the channels to pass, then post in the forum for additional help.
+  * Go to the Tool->Testsoftware and do the Rx test and see that all channels pass.  If not then the Tx EPAs (End Point Adjustment) must be adjusted here first.  For most, simply setting channel 5 lower EPA to 80% and upper EPA to 80% will get a pass on all channels that the Tx/Rx combination allows, i.e., either 5 or 7.  The next channels to adjust if you still do not get a pass are setting channels 6 and 7 to 80% upper and lower.  If you still cannot get the channels to pass, then post in the forum for additional help.
 
-  * After you get the channels to pass, go to the TX/RX graphic. Now set channels 1, 2, 4 for EPA's of about 90 upper and lower per the values on the graphic which is in percent. Set channels 3, 6, and 7 for lower EPA of 4% and upper EPA of 90%. Set channel 5 graphic percent using your TX EPA adjust for upper 85% and lower 10% (graphic not EPA percents!). Now set your sub-trims to make the graphic read 4% for channels 3, 6 and 7 and 0% for channels 1, 2, and 4. Channel 5 should be left with the 10% that you set up using the EPA's.
+  * After you get the channels to pass, go to the Tx/Rx graphic. Now set channels 1, 2, 4 for EPA's of about 90 upper and lower per the values on the graphic which is in percent. Set channels 3, 6, and 7 for lower EPA of 4% and upper EPA of 90%. Set channel 5 graphic percent using your Tx EPA adjust for upper 85% and lower 10% (graphic not EPA percents!). Now set your sub-trims to make the graphic read 4% for channels 3, 6 and 7 and 0% for channels 1, 2, and 4. Channel 5 should be left with the 10% that you set up using the EPA's.
 
-  * Test your set still having the quad unarmed then cycling the sticks and channel 5, 6 and 7 switches through the full combinations of ranges.  The graphic should respond correctly and not freeze or disappear.  If it does, then the EPA's and sub-trims are still not correct, so go back and check the values. Adjust if necessary up or down 2-5% on upper and lower and or sub-trims to see if you can get the graphic to respond correctly as these values could vary a bit with different models of TX/RX.
+  * Test your set still having the quadrocopter disarmed then cycling the sticks and channel 5, 6 and 7 switches through the full combinations of ranges.  The graphic should respond correctly and not freeze or disappear.  If it does, then the EPA's and sub-trims are still not correct, so go back and check the values. Adjust if necessary up or down 2-5% on upper and lower and or sub-trims to see if you can get the graphic to respond correctly as these values could vary a bit with different models of Tx/Rx.
 
-  * When you get the graphic to respond, now it the time to very carefully check the TX/RX and motor responses.  Either weight or tie or have someone tightly hold down the quad.  Do the first check with the motor wires disconnected or the props off!  Do not run the throttle at max for any more than a split-second as damage to the ESC's or motors could result! Arm the quad. Move all the sticks and switches through their ranges and confirm that the green LED remains on.  If you got this far, then the UAVX is properly setup for the TX/RX.  *Congratulations and fly safe*!
+  * When you get the graphic to respond, now it the time to very carefully check the Tx/Rx and motor responses.  Either weight or tie or have someone tightly hold down the quad.  Do the first check with the motor wires disconnected or the props off!  Do not run the throttle at max for any more than a split-second as damage to the ESC's or motors could result! Arm the quadrocopter. Move all the sticks and switches through their ranges and confirm that the green LED remains on.  If you got this far, then the UAVX is properly setup for the Tx/Rx.  *Congratulations and fly safe*!
   
 === Stage 1: without GPS ===
 
