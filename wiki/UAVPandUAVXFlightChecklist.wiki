@@ -1,4 +1,5 @@
 #labels UAVXUAVPflightchecklist,Safety
+#Please use this checklist for flying the UAVP and UAVX--Think safety!!!
 =UAVP and UAVX Flight Checklist--THINK SAFETY-SAFETY-SAFETY!!!=
 
 *Safety checklist:* 
