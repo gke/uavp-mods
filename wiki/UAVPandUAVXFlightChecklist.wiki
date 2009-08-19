@@ -34,7 +34,9 @@ For UAVX confirm channel 5 switch is in the hover position. This appears as a sl
 
 6. Do a full stick control check.  Hold the quad firmly in hand or weight it down tightly!  The green LED should remain solid and not blink.
 
-7. TX and UAVP batteries fully charged.
+7. Do a TX/RX range check in all quadrants.
+
+8. Insure that the TX and UAVP batteries are fully charged.
 
 
 *Flight checklist:*
