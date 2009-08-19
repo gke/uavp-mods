@@ -1,5 +1,5 @@
 #summary Brief procedures on how to use UAVX for the first time.
-#labels Featured,UAVX,GPS,UAVP,UAVPSet,gke,jesolins,TXRXsetup
+#labels Featured,UAVX,GPS,UAVP,UAVPSet,gke,jesolins,TXRXsetup,checklist
 
 === Introduction ===
 
@@ -53,7 +53,10 @@ The setup procedure:
   * Test your set still having the quadrocopter disarmed then cycling the sticks and channel 5, 6 and 7 switches through the full combinations of ranges.  The graphic should respond correctly and not freeze or disappear.  If it does, then the EPA's and sub-trims are still not correct, so go back and check the values. Adjust if necessary up or down 2-5% on upper and lower and or sub-trims to see if you can get the graphic to respond correctly as these values could vary a bit with different models of Tx/Rx.
 
   * When you get the graphic to respond, now it the time to very carefully check the Tx/Rx and motor responses.  Either weight or tie or have someone tightly hold down the quad.  Do the first check with the motor wires disconnected or the props off!  Do not run the throttle at max for any more than a split-second as damage to the ESC's or motors could result! Arm the quadrocopter. Move all the sticks and switches through their ranges and confirm that the green LED remains on.  If you got this far, then the UAVX is properly setup for the Tx/Rx.  *Congratulations and fly safe*!
-  
+
+===Pre-Flight Safety Checklist===
+  * Please review the checklist found in our WIKI and note warnigs prior to flight: [http://code.google.com/p/uavp-mods/wiki/UAVPandUAVXFlightChecklist]  
+
 === Stage 1: without GPS ===
 
 Most of this will be familiar to you as the procedure is nearly identical to that you will have used with UAVP. If you have a GPS DISCONNECT it.
