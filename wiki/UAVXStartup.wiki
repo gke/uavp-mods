@@ -32,7 +32,7 @@ It is assumed you:
 
 === Notes/FAQs ===
 
-  * Rx/Transmitter Step: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it will be dangerous - see the Tx/Rx setup procedure below and the WARNING above.
+  * Rx/Transmitter Step: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - see the Tx/Rx setup procedure below and the WARNING above.
   * Compass Orientation: You must have a compass for GPS navigation. The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
   * Barometers: You must have a barometer for GPS navigation as it is required for altitude hold(see below). The BMP085 is recommended but the software can use the SMD500. The software automatically senses which barometer you are using.
   * UAVX Debug Versions: The (HEX) files with the word "Debug" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>Sensor Test Graphic. See also the README file in the release zip.
