@@ -9,7 +9,7 @@ This is intended to be a brief introduction to the steps you may wish to take wh
 
 You should NOT use GPS for your first test flights of UAVX regardless of how tempting it may be to do so. UAVX only requires GPS for navigation functions and may be flown without GPS if desired.
 
-=== WARNING ===
+=== WARNING: electrically powered aircraft ===
 
 It is very important that you follow the normal safety procedures for electrically powered aircraft with propellors. 
   * You *MUST* check that the radio control link is functioning correctly before you apply power to the motor(s). 
