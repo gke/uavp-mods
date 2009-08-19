@@ -10,7 +10,7 @@
 
 3. Stay several feet away from walls and ceilings when flying indoors as the prop currents and vacuum can cause loss of control and crash damage.
 
-4. Check frame for CF/Aluminum/wood cracks and all mounts for fully inserted and tight fit and for any loose screws and make sure motors/props are perfectly level with the pcb. 
+4. Check frame for CF/Aluminum/wood cracks and all mounts are fully inserted and fit tight and for any loose screws.  Make sure motors/props are perfectly level with each other and the pcb. 
 
 5. Check props for stress cracks and replace if necessary.  Check O-rings for stress cracks if prop-savers are used.  Check prop security and tightness on the motors.
 
@@ -47,7 +47,7 @@ For UAVX confirm channel 5 switch is in the hover position. This appears as a sl
 
 2. *Unarmed:* Select a parameter using the pitch/roll sticks(UAVX): *Parm 1 with RTH altitude control = upper left = default*, Parm 1 no altitude control = lower left, Parm2 with RTH altitude control = upper right, Parm 2 no altitude control = lower right.
 
-3. *Unarmed:* Select yaw turn on/off for RTH (UAVX).  Throttle stick to left = RTH yaw turn off (default), Throttle stick to right = RTH yaw turn on.  After RTH is engaged, if the UAVX is outside of the NAV radius set in UAVPset v3.0, a yaw turn to home will happen after a speed of 5kts is reached.
+3. *Unarmed:* Select yaw turn on/off for RTH using the throttle stick(UAVX).  *Throttle stick to left = RTH yaw turn off = default*, Throttle stick to right = RTH yaw turn on.  After RTH is engaged, if the UAVX is outside of the NAV radius set in UAVPset v3.0, a yaw turn to home will happen after a speed of 5kts is reached.
 
 4. *Armed:* Stand behind the UAVP, slightly increase throttle to get props spinning, insure proper nick, roll and yaw stick response. 
 
