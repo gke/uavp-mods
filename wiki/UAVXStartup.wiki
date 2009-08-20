@@ -43,7 +43,7 @@ It is assumed you:
 ===Tx/Rx Setup===
 As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three wires.
 
-*The setup procedure:*
+The setup procedure:
 
   * First make sure that the UAVP is not armed! Set your Tx to its default values to start fresh.  You must use ACRO mode on your Tx.  Set your trims and sub-trims to zero.  Using UAVPset V3.0 pull down menus select the correct Tx/Rx combination and RS to Quad and TX mode for your kit.  Write this to the UAVP.
 
