@@ -314,12 +314,12 @@ typedef union {
 #define ALL_LEDS_OFF	SwitchLEDsOff(BlueM|RedM|GreenM|YellowM)
 #define AUX_LEDS_OFF	SwitchLEDsOff(AUX1M|AUX2M|AUX3M)
 
-#define ARE_ALL_LEDS_OFF if( (LEDShadow&(BlueM|RedM|GreenM|YellowM))== 0 )
+#define ALL_LEDS_ARE_OFF	( (LEDShadow&(BlueM|RedM|GreenM|YellowM))== 0 )
 
 #define LEDRed_ON		SwitchLEDsOn(RedM)
 #define LEDBlue_ON		SwitchLEDsOn(BlueM)
 #define LEDGreen_ON		SwitchLEDsOn(GreenM)
-#define LEDYellow_ON	SwitchLEDsOn(YellowM)
+#define LEDYellow_ON	SwitchLEDsOn(YellowM) 
 #define LEDAUX1_ON		SwitchLEDsOn(AUX1M)
 #define LEDAUX2_ON		SwitchLEDsOn(AUX2M)
 #define LEDAUX3_ON		SwitchLEDsOn(AUX3M)
@@ -364,6 +364,10 @@ typedef union {
 #define ADCVREF3V3 			1
 
 // RC
+
+#define	RC_GOOD_BUCKET_MAX	20
+#define RC_GOOD_RATIO		4
+
 #define RC_MINIMUM			0
 #define RC_MAXIMUM			238
 #define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
@@ -478,7 +482,7 @@ extern void CalcGyroRates(void);
 extern void DoControl(void);
 
 extern void WaitThrottleClosedAndRTHOff(void);
-extern void WaitForRxSignalAndArmed(void);
+extern void WaitForRxSignalAndDisarmed(void);
 extern void UpdateControls(void);
 extern void CaptureTrims(void);
 extern void StopMotors(void);
@@ -515,7 +519,7 @@ extern void EscI2CDelay(void);
 extern void EscWaitClkHi(void);
 extern void EscI2CStart(void);
 extern void EscI2CStop(void);
-extern void SendEscI2CByte(uint8);
+extern uint8 SendEscI2CByte(uint8);
 
 // menu.c
 extern void ShowPrompt(void);
@@ -524,6 +528,7 @@ extern void ShowSetup(uint8);
 extern void ProcessCommand(void);
 
 // outputs.c
+extern uint8 SaturInt(int16);
 extern void DoMix(int16 CurrThrottle);
 extern void CheckDemand(int16 CurrThrottle);
 extern void MixAndLimitMotors(void);
@@ -636,8 +641,8 @@ enum TraceTags {THE, TCurrentBaroPressure,
 #define TopTrace TMCamPitch
 
 //enum MotorTags {Front, Left, Right, Back};
-enum MotorTags {Front, Back, Right, Left}; // order is important for Holger ESCs
-#define NoOfMotors 		(Back+1)
+enum MotorTags {Front=0, Back, Right, Left}; // order is important for Holger ESCs
+#define NoOfMotors 		4
 
 extern uint24 mS[];
 
@@ -655,6 +660,7 @@ extern uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 extern uint8	ESCMax;
 
 extern int16	RC[];
+extern int8		SignalCount;
 extern uint16	RCGlitches;
 
 #define MAXTAGINDEX 	4

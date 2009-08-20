@@ -51,6 +51,7 @@ uint8	ESCMax;
 #pragma udata
 
 int16 	RC[CONTROLS];
+int8	SignalCount;
 uint16	RCGlitches; 
 
 #pragma udata gpsbuff
@@ -256,7 +257,7 @@ void main(void)
 	InitParameters();
 
 	StopMotors();
-	INTCONbits.PEIE = true;		// Enable peripheral interrupts
+	INTCONbits.PEIE = true;						// Enable peripheral interrupts
 	INTCONbits.TMR0IE = true; 
 	EnableInterrupts;
 
@@ -275,14 +276,15 @@ void main(void)
 
 		ReceivingGPSOnly(false);
 
+		EnableInterrupts;
+	
 		Beeper_OFF;
 		ALL_LEDS_OFF; 
-		LEDRed_ON;	
-		if( _AccelerationsValid ) LEDYellow_ON;
 
-		EnableInterrupts;	
-		WaitForRxSignalAndArmed();			// WAITS here until ARMED
-		WaitThrottleClosedAndRTHOff();		
+		WaitForRxSignalAndDisarmed();			// WAIT until Disarmed flashing all LEDs!
+		WaitThrottleClosedAndRTHOff();
+
+		if( _AccelerationsValid ) LEDYellow_ON;
 
 		_Failsafe = _LostModel = false;
 		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
@@ -311,11 +313,8 @@ void main(void)
 					InitBarometer();
 					InitNavigation();
 					ResetGPSOrigin();
-					ErectGyros();			// DO NOT MOVE QUADROCOPTER!
-			
-					ALL_LEDS_OFF;				
-					AUX_LEDS_OFF;
-					LEDGreen_ON;
+					ErectGyros();			// DO NOT MOVE AIRCRAFT!
+
 					DesiredThrottle = 0;
 					State = Landed;
 					break;
@@ -378,6 +377,7 @@ void main(void)
 			DumpTrace();
 		
 		} // flight while armed
+		Delay1mS(20);						// arming switch debounce
 	}
 } // main
 

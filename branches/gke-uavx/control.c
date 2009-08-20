@@ -36,7 +36,7 @@ void DoControl(void);
 
 void WaitThrottleClosed(void);
 void CheckThrottleMoved(void);
-void WaitForRxSignal(void);
+void WaitForRxSignalAndDisarmed(void);
 void UpdateControls(void);
 void CaptureTrims(void);
 void StopMotors(void);
@@ -49,20 +49,20 @@ void GyroCompensation(void)
 
 	#define GYRO_COMP_STEP 1
 
-	if ( P[GyroType] == IDG300 )
-		GravComp = 15;
-	else
-		GravComp = 11;
-
 	if( _AccelerationsValid )
 	{
+		if ( P[GyroType] == IDG300 )
+			GravComp = 8; 		// -1/6 of reference
+		else
+			GravComp = 11; 		// 9..11   
+
 		ReadAccelerations();
 
 		LRAcc = Ax.i16;
 		UDAcc = Ay.i16;
 		FBAcc = Az.i16;
 		
-		// NeutralLR ,NeutralFB, NeutralUD pass through UAVPSet 
+		// NeutralLR, NeutralFB, NeutralUD pass through UAVPSet 
 		// and come back as MiddleLR etc.
 
 		LRAcc -= P[MiddleLR];
@@ -70,6 +70,7 @@ void GyroCompensation(void)
 		UDAcc -= P[MiddleUD];
 
 		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
+						// ??? could check for large negative Acc => upside down?
 	
 		// Roll
 
@@ -250,25 +251,26 @@ void CalcGyroRates(void)
 	static int16 Temp;
 
 	// RollRate & Pitchsamples hold the sum of 2 consecutive conversions
-	// Approximately 4 bits of precision are discarded in this and related 
-	// calculations presumably because of the range of the 16 bit arithmetic.
-	// The upside, if any, is a reduction in ADC noise!
-
-	// Average of two readings
-	RollRate = RollRate >> 1;	
-	PitchRate = PitchRate >> 1;
-	
-	RollRate -= GyroMidRoll;
-	PitchRate -= GyroMidPitch;
+	// 300 Deg/Sec is the "reference" gyro full scale rate
 
 	if ( P[GyroType] == IDG300 )
-		RollRate = -RollRate;
+	{ // 500 Deg/Sec or 1.66 ~= 2 so do not average readings 
+		RollRate -= GyroMidRoll * 2;
+		PitchRate -= GyroMidPitch * 2;
+		RollRate = -RollRate;			// adjust for reversed rool gyro sense
+ 	}
 	else
-		if ( P[GyroType] == ADXRS150 )	// rescale
-		{
+	{ // 1.0
+		// Average of two readings
+		RollRate = ( RollRate >> 1 ) - GyroMidRoll;	
+		PitchRate = ( PitchRate >> 1 ) - GyroMidPitch;
+
+		if ( P[GyroType] == ADXRS150 )	// 150 deg/sec (0.5)
+		{ // 150 Deg/Sec or 0.5
 			RollRate /= 2; 
 			PitchRate /= 2;
 		}
+	}
 
 	if ( P[ConfigBits] & FlyXModeMask )
 	{
@@ -354,8 +356,8 @@ void WaitThrottleClosedAndRTHOff(void)
 			{
 				LEDRed_TOG;	
 				if ( _ReturnHome )
-					Beeper_TOG;					// toggle red LED every 0.5Sec 
-				Timeout = mS[Clock] + 500;
+					Beeper_TOG;					// toggle Beeper every 0.5Sec 
+				Timeout += 500;
 			}
 		}
 	}
@@ -364,22 +366,40 @@ void WaitThrottleClosedAndRTHOff(void)
 	LEDRed_OFF;
 } // WaitThrottleClosedAndRTHOff
 
-void WaitForRxSignalAndArmed(void)
+void WaitForRxSignalAndDisarmed(void)
 {
+	uint24 Timeout;
+	uint8 SaveLEDShadow;
+	
+	Timeout = mS[Clock] + 500; 					// mS.
 	do
 	{		
 		ProcessCommand();
 		if( _Signal )
+		{
 			if ( _NewValues )
 			{
 				UpdateParamSetChoice();
 				ReadParametersEE();
 				DesiredThrottle = 0;
 				OutSignals();
-			}	
+				if ( Armed  )
+					if( mS[Clock] > Timeout )
+					{
+						LEDRed_TOG;
+						Timeout += 500;			// Toggle LEDs every 0.5Sec
+					}
+			}
+		}
+		else
+			LEDRed_ON;	
 	}
-	while( !( _Signal && Armed ) );				// no signal or switch is off
-} // WaitForRXSignalAndArmed
+	while( Armed || !_Signal );
+	Delay1mS(20);				// arming switch debounce
+	LEDRed_OFF;
+	LEDGreen_ON;
+
+} // WaitForRxSignalAndDisarmed
 
 void UpdateControls(void)
 {
@@ -396,10 +416,6 @@ void UpdateControls(void)
 		NavSensitivity = RC[NavGainC];
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
 	}
-	else
-		if ( (mS[Clock] > mS[RCSignalTimeout]) && _Signal ) 
-			// does not need to be precise so polling OK
-			_Signal = false;
 } // UpdateControls
 
 void CaptureTrims(void)
@@ -413,10 +429,10 @@ void CaptureTrims(void)
 
 void StopMotors(void)
 {
-	static uint8 i;
+	static uint8 m;
 
-	for (i = 0; i < NoOfMotors; i++)
-		Motor[i] = OUT_MINIMUM;
+	for (m = 0; m < NoOfMotors; m++)
+		Motor[m] = OUT_MINIMUM;
 	MCamPitch = MCamRoll = OUT_NEUTRAL;
 } // StopMotors
 

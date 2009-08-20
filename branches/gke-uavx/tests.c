@@ -561,7 +561,6 @@ void Program_SLA(uint8 niaddr)
 
 	if ( P[ESCType] == ESCYGEI2C )
 	{
-/* broken
 		for(nii = 0x10; nii<0xF0; nii+=2)
 		{
 			EscI2CStart();
@@ -594,8 +593,6 @@ void Program_SLA(uint8 niaddr)
 			}
 			EscI2CStop();
 		}
-*/
-TxString("Not implemented yet\r\n");
 	}
 	TxString("no controller found or reprogram failed\r\n");
 

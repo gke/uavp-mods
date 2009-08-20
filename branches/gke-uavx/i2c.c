@@ -351,7 +351,7 @@ void EscI2CDelay(void);
 void EscWaitClkHi(void);
 void EscI2CStart(void);
 void EscI2CStop(void);
-void SendEscI2CByte(uint8);
+uint8 SendEscI2CByte(uint8);
 
 // Constants
 
@@ -408,7 +408,7 @@ void EscI2CStop(void)
 // send a byte to I2C slave and return ACK status
 // 0 = ACK
 // 1 = NACK
-void SendEscI2CByte(uint8 d)
+uint8 SendEscI2CByte(uint8 d)
 {
 	static uint8 s;
 
@@ -439,6 +439,8 @@ void SendEscI2CByte(uint8 d)
 	ESC_SCL = 0;
 	ESC_CIO = 0;							// set SCL to output, output a low
 	EscI2CDelay();
+
+	return(0);
 
 } // SendEscI2CByte
 

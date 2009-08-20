@@ -168,7 +168,8 @@ void MixAndLimitCam(void)
 
 void OutSignals(void)
 {
-	static int8 m;
+	static uint8 m;
+	static uint8 r;
 
 	#ifdef DEBUG_SENSORS
 
@@ -293,14 +294,13 @@ OS006:
 		}
 		_OutToggle ^= 1;
 		
-		// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
-		
+		// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL	
 		if ( P[ESCType] ==  ESCHolger )
 			for (m = 0; m < NoOfMotors; m++)
 			{
 				EscI2CStart();
-				SendEscI2CByte(0x52 + m*2);	// one cmd, one data byte per motor
-				SendEscI2CByte(Motor[m]); // for all motors
+				r = SendEscI2CByte(0x52 + m*2);	// one cmd, one data byte per motor
+				r = SendEscI2CByte(Motor[m]); // for all motors
 				EscI2CStop();
 			}
 		else
@@ -308,19 +308,19 @@ OS006:
 				for (m = 0; m < NoOfMotors; m++)
 				{
 					EscI2CStart();
-					SendEscI2CByte(0x62 + m*2);	// one cmd, one data byte per motor
-					SendEscI2CByte(Motor[m]>>1); // for all motors
+					r = SendEscI2CByte(0x62 + m*2);	// one cmd, one data byte per motor
+					r = SendEscI2CByte(Motor[m]>>1); // for all motors
 					EscI2CStop();
 				}
 			else
 				if ( P[ESCType] == ESCX3D )
 				{
 					EscI2CStart();
-					SendEscI2CByte(0x10);	// one command, 4 data bytes
-					SendEscI2CByte(Motor[Front]); // for all motors
-					SendEscI2CByte(Motor[Back]);
-					SendEscI2CByte(Motor[Left]);
-					SendEscI2CByte(Motor[Right]);
+					r = SendEscI2CByte(0x10);	// one command, 4 data bytes
+					r = SendEscI2CByte(Motor[Front]); // for all motors
+					r = SendEscI2CByte(Motor[Back]);
+					r = SendEscI2CByte(Motor[Left]);
+					r = SendEscI2CByte(Motor[Right]);
 					EscI2CStop();
 				}
 	}

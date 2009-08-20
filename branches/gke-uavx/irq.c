@@ -122,7 +122,8 @@ void InitTimersAndInterrupts(void)
 
 	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;
 
-	PPM_Index = PrevEdge = RCGlitches = RxCheckSum = 0;
+	PPM_Index = PrevEdge = RCGlitches = RxCheckSum =  0;
+	SignalCount = -RC_GOOD_BUCKET_MAX;
 	_Signal = _NewValues = false;
    	ReceivingGPSOnly(false);
 } // InitTimersAndInterrupts
@@ -175,8 +176,20 @@ void high_isr_handler(void)
 				// to be cancelled by noise-generated partially correct frames
 				if ( PPM_Index == RC_CONTROLS )
 				{
-					_NewValues = RCFrameOK;
-					_Signal = true;
+					if ( RCFrameOK )
+					{
+						_NewValues = true;
+ 						SignalCount++;
+					}
+					else
+					{
+						_NewValues = false;
+						SignalCount -= RC_GOOD_RATIO;
+					}
+
+					SignalCount = Limit(SignalCount, -RC_GOOD_BUCKET_MAX, RC_GOOD_BUCKET_MAX);
+					_Signal = SignalCount > 0;
+
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT_MS;
 				}
 			}
@@ -264,6 +277,11 @@ void high_isr_handler(void)
 	if ( INTCONbits.T0IF )  // MilliSec clock with some "leaks" in output.c etc.
 	{ 
 		mS[Clock]++;
+		if ( _Signal && (mS[Clock] > mS[RCSignalTimeout]) ) 
+		{
+			_Signal = false;
+			SignalCount = -RC_GOOD_BUCKET_MAX;
+		}
 		INTCONbits.TMR0IF = false;	
 	}
 
