@@ -29,6 +29,7 @@ It is assumed you:
   * You have read and understood the UAVP manual as it applies to safety and setting up a UAVP quadrocopter.
   * Are familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
   * You have previously flown your quadrocopter/tricopter using UAVP flight software.
+  * You have read and understood the contents of this document.
 
 === Notes/FAQs ===
 
