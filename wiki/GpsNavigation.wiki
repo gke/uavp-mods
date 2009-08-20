@@ -108,9 +108,11 @@ The UAVX version of UAVPSet can read older parameter files and write them to the
 
 When the quadrocopter is disarmed the Tx sticks may be used to access some paramters in the field without the use of a PC.
 
-  * Pitch Stick: The "corners" are used with left side being parameter set 1 and right side 2. If the top corners are used RTH altitude hold is enabled.  If the top corners are used then the Pilot controls RTH altitude. You should see the Blue LED flash and hear short beeps for the parameter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.  
+  * Pitch Stick: The "corners" are used with left side being parameter set 1 and right side 2. If the bottom corners are used RTH altitude hold is enabled.  If the top corners are used then the Pilot controls RTH altitude. You should see the Blue LED flash and hear short beeps for the parameter set chosen followed by a slightly longer beep if RTH altitude hold is enabled.   
 
   * Throttle Stick: Only the bottom corners are used. Bottom left disables Turn to Heading (TTH) and so the Quadrocopter uses a combination of pitch and roll to move towards the Origin; Bottom right enables TTH where the Quadrocopter turns and pitches directly towards the origin.
+
+You will only hear beeps if the setting you have selected is different from the previous setting.
 
 TTH is not active within the closing distance, or radius, of the Origin nor is it active when simply holding a position. The Pilot still has control of a yaw offset and thus can control the direction of camera gaze regardless of whether TTH is active or not although if it is active then there will be a small "resistance" to yaw commands.
 
