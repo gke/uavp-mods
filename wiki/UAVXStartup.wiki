@@ -11,10 +11,10 @@ You should NOT use GPS for your first test flights of UAVX regardless of how tem
 
 === WARNING: electrically powered aircraft ===
 
-It is very important that you follow the normal safety procedures for electrically powered aircraft with propellors. 
+It is very important that you follow the normal safety procedures for electrically powered aircraft with propellor(s). 
   * You *MUST* check that the radio control link is functioning correctly before you apply power to the motor(s). 
   * You *MUST* conduct a radio range check before every flight. 
-  * The aircraft *MUST* be restrained when power is applied and you *MUST* be clear of the propellors at all times.
+  * The aircraft *MUST* be restrained when power is applied and you *MUST* be clear of the propellor(s) at all times.
 
 The motors(s) can start immediately in all electric aircraft when the battery is connected and you should *NEVER* rely on arming switches which are fitted to many aircraft.  
 
