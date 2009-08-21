@@ -294,13 +294,15 @@ OS006:
 		}
 		_OutToggle ^= 1;
 		
-		// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL	
+		// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
+		// Ack (r) not checked as no recovery is possible
+		// All motors driven with fourth motor ignored for Tricopter	
 		if ( P[ESCType] ==  ESCHolger )
 			for ( m = 0 ; m < NoOfMotors ; m++ )
 			{
 				ESCI2CStart();
-				r = SendESCI2CByte(0x52 + ( m*2 ));	// one cmd, one data byte per motor
-				r = SendESCI2CByte(Motor[m]); // for all motors
+				r = SendESCI2CByte(0x52 + ( m*2 ));		// one cmd, one data byte per motor
+				r = SendESCI2CByte(Motor[m]); 
 				ESCI2CStop();
 			}
 		else
@@ -309,15 +311,15 @@ OS006:
 				{
 					ESCI2CStart();
 					r = SendESCI2CByte(0x62 + ( m*2) );	// one cmd, one data byte per motor
-					r = SendESCI2CByte(Motor[m]>>1); // for all motors
+					r = SendESCI2CByte(Motor[m]>>1); 
 					ESCI2CStop();
 				}
 			else
 				if ( P[ESCType] == ESCX3D )
 				{
 					ESCI2CStart();
-					r = SendESCI2CByte(0x10);	// one command, 4 data bytes
-					r = SendESCI2CByte(Motor[Front]); // for all motors
+					r = SendESCI2CByte(0x10);			// one command, 4 data bytes
+					r = SendESCI2CByte(Motor[Front]); 
 					r = SendESCI2CByte(Motor[Back]);
 					r = SendESCI2CByte(Motor[Left]);
 					r = SendESCI2CByte(Motor[Right]);

@@ -280,23 +280,6 @@ void high_isr_handler(void)
 			_Signal = false;
 			SignalCount = -RC_GOOD_BUCKET_MAX;
 		}
-
-		if ( ArmingSwitch )				// Debounce switch
-		{
-			if ( ++ArmCount > ARM_DELAY_MS )
-			{
-				ArmCount = ARM_DELAY_MS;
-				Armed = true;
-			}
-		}
-		else
-		{
-			if ( --ArmCount < 0 )
-			{
-				ArmCount = 0;
-				Armed = false;
-			}
-		}
 		INTCONbits.TMR0IF = false;	
 	}
 

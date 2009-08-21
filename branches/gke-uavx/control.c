@@ -386,7 +386,7 @@ void WaitForRxSignalAndDisarmed(void)
 				ReadParametersEE();
 				DesiredThrottle = 0;
 				OutSignals();
-				if ( ArmingSwitch )
+				if ( Armed )
 					if( mS[Clock] > Timeout )
 					{
 						LEDRed_TOG;
@@ -400,9 +400,10 @@ void WaitForRxSignalAndDisarmed(void)
 			LEDGreen_OFF;
 		}	
 	}
-	while( ArmingSwitch || !_Signal );
+	while( ( Armed && FirstPass) || !_Signal );
 
-	Delay1mS(50);
+	FirstPass = false;
+
 	LEDRed_OFF;
 	LEDGreen_ON;
 

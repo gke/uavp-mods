@@ -337,7 +337,7 @@ typedef union {
 #define Beeper_TOG		if( (LEDShadow&BeeperM) == 0 ) SwitchLEDsOn(BeeperM); else SwitchLEDsOff(BeeperM)
 
 // Bit definitions
-#define ArmingSwitch		(PORTAbits.RA4)
+#define Armed		(PORTAbits.RA4)
 #define InTheAir			true	// zzz (PORTCbits.RC0) // micro switch to ground when closed
 
 #define	I2C_ACK				((uint8)(0))
@@ -517,7 +517,6 @@ extern void I2CStop(void);
 extern uint8 SendI2CByte(uint8);
 extern uint8 RecvI2CByte(uint8);
 
-extern void ESCI2CDelay(void);
 extern void ESCWaitClkHi(void);
 extern void ESCI2CStart(void);
 extern void ESCI2CStop(void);
@@ -661,12 +660,11 @@ extern uint8 	GPSRxState;
 extern uint8 	ll, tt, gps_ch;
 extern uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 extern uint8	ESCMax;
-extern volatile boolean	Armed;
-extern uint8	ArmCount;
 
 extern int16	RC[];
 extern int8		SignalCount;
 extern uint16	RCGlitches;
+extern boolean	FirstPass;
 
 #define MAXTAGINDEX 	4
 #define GPSRXBUFFLENGTH 80

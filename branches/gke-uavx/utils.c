@@ -137,9 +137,6 @@ void InitMisc(void)
 {
 	uint8 i;
 
-	ArmCount = 0;
-	Armed = false;
-
 	for ( i = 0; i <= TopTrace; i++)
 		Trace[i] = 0;
 	

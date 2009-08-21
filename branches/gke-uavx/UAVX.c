@@ -48,13 +48,12 @@ boolean RCFrameOK, GPSSentenceReceived;
 uint8 	ll, tt, gps_ch;
 uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 uint8	ESCMax;
-volatile boolean Armed;
-uint8	ArmCount;
 #pragma udata
 
 int16 	RC[CONTROLS];
 int8	SignalCount;
-uint16	RCGlitches; 
+uint16	RCGlitches;
+boolean	FirstPass; 
 
 #pragma udata gpsbuff
 struct {
@@ -271,6 +270,8 @@ void main(void)
 	InitNavigation();
 
 	ShowSetup(1);
+
+	FirstPass = true;
 	
 	while( true )
 	{
@@ -284,7 +285,7 @@ void main(void)
 		if( _AccelerationsValid ) LEDYellow_ON; else LEDYellow_OFF;
 		if ( _Signal ) LEDGreen_ON; else LEDGreen_OFF;
 
-		WaitForRxSignalAndDisarmed();			// WAIT until Disarmed flashing all LEDs!
+		WaitForRxSignalAndDisarmed();			// WAIT until Disarmed!
 		WaitThrottleClosedAndRTHOff();
 
 		_LostModel = false;
@@ -295,7 +296,7 @@ void main(void)
 
 		State = Starting;
 
-		while ( ArmingSwitch && !_ParametersInvalid )
+		while ( Armed && !_ParametersInvalid )
 		{ // no command processing while the Quadrocopter is armed
 	
 			ReceivingGPSOnly(true); 
@@ -380,8 +381,6 @@ void main(void)
 			DumpTrace();
 		
 		} // flight while armed
-		Delay1mS(20); // zzz
-		OutSignals(); // zzz
 	}
 } // main
 

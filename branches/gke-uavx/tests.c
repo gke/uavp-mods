@@ -129,9 +129,11 @@ uint8 ScanI2CBus(void)
 	
 			Delay1mS(2);
 		}
+		TxString("\tAll addresses are returned if Bus is unterminated!\r\n");
 	}
 	else
 		TxString("\tinactive - I2C ESCs not selected..\r\n");
+
 	TxNextLine();
 
 	return(d);
@@ -602,7 +604,7 @@ void ProgramSlaveAddress(uint8 addr)
 			else
 			{
 				if( SendESCI2CByte(0x87) == I2C_ACK ) // select register 0x07
-					if( SendESCI2CByte( addr) == I2C_ACK ) // new slave address
+					if( SendESCI2CByte( addr ) == I2C_ACK ) // new slave address
 					{
 						ESCI2CStop();
 						TxString("ESC at SLA 0x");
@@ -639,13 +641,15 @@ void ConfigureESCs(void)
 				case 3 : TxString("left");  break;
 			}
 			TxString(" ESC, then press any key\r\n");
-			while ( PollRxChar() == '\0' );
+			while( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
 			TxString("\r\nprogramming the ESC SLA ...\r\n");
 	
 			ProgramSlaveAddress( 0x62 + ( m*2 ));
 		}
 	else
-		TxString("YGEI2C not selected as ESC?\r\n");
+		TxString("\tYGEI2C not selected as ESC?\r\n");
+
+	TxString("Finished ESC Configuration\r\n");
 } // ConfigureESCs
 
 
