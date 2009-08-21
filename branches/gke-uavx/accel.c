@@ -171,7 +171,7 @@ void InitLISL(void)
 
 	NeutralLR = 0;
 	NeutralFB = 0;
-	NeutralUD = 0;
+	NeutralDU = 0;
 	#ifdef USE_ACCELEROMETER
 	IsLISLActive();	
 	if( _AccelerationsValid )
@@ -224,6 +224,6 @@ void GetNeutralAccelerations(void)
 
 	NeutralLR = Limit(Rp, -99, 99);
 	NeutralFB = Limit(Pp, -99, 99);
-	NeutralUD = Limit(Yp-1024, -99, 99); // -1g
+	NeutralDU = Limit(Yp-1024, -99, 99); // -1g
 } // GetNeutralAccelerations
 

@@ -120,7 +120,7 @@ void MixAndLimitMotors(void)
     static int16 Temp, CurrThrottle;
 
 	// Altitude stabilization factor
-	CurrThrottle = DesiredThrottle + (VUDComp + VBaroComp); // vertical compensation not optional
+	CurrThrottle = DesiredThrottle + (VDUComp + VBaroComp); // vertical compensation not optional
 	Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
 	CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
 

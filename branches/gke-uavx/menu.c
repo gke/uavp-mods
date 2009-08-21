@@ -252,6 +252,8 @@ void ProcessCommand(void)
 					TxString(" = ");
 					d = RxNumS();
 					if ( p < MAX_PARAMETERS )
+					{
+						P[p] = d;
 						if( CurrentParamSet == 1 )
 						{
 							WriteEE(p, d);
@@ -263,6 +265,7 @@ void ProcessCommand(void)
 							if ( !ComParms[p] )
 								WriteEE(MAX_PARAMETERS + p, d);
 						}
+					}
 					LEDBlue_OFF;
 				ShowPrompt();
 				break;
@@ -274,7 +277,7 @@ void ProcessCommand(void)
 				TxValS(NeutralFB);
 		
 				TxString("   V:");	
-				TxValS(NeutralUD);
+				TxValS(NeutralDU);
 				ShowPrompt();
 				break;
 			case 'P'  :	// Receiver test			

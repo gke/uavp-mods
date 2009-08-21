@@ -80,8 +80,8 @@ int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int16	Rl,Pl,Yl;						// PID output values
-int8	NeutralLR, NeutralFB, NeutralUD;
-int16 	UDAcc, UDSum, VUDComp;
+int8	NeutralLR, NeutralFB, NeutralDU;
+int16 	DUAcc, DUSum, VDUComp;
 
 int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
 
@@ -104,6 +104,12 @@ uint8	LEDShadow;		// shadow register
 
 uint8	MCamRoll,MCamPitch;
 int16	Motor[NoOfMotors];
+
+#pragma udata stats
+int16 	MaxGPSAltitude, MinBaroPressure;
+int16	MaxRollRate, MaxPitchRate, MaxYawRate;
+int16 	MaxLRAcc, MaxFBAcc, MaxDUAcc;
+#pragma udata
 
 int16	Trace[TopTrace+1];
 boolean	Flags[32];
@@ -150,7 +156,7 @@ const rom int8 DefaultParams[] = {
 	45, 			// PercentHoverThr,	20c 
 	
 	-1, 			// VertDampKp,		21c
-	0, 				// MiddleUD,		22c
+	0, 				// MiddleDU,		22c
 	10, 			// PercentIdleThr,	23c
 	0, 				// MiddleLR,		24c
 	0, 				// MiddleFB,		25c
@@ -243,6 +249,7 @@ const rom ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, OUT
 void main(void)
 {
 	static int16	Temp;
+	static uint8	b;
 
 	DisableInterrupts;
 
@@ -269,6 +276,8 @@ void main(void)
 	InitGPS();
 	InitNavigation();
 
+_AccelerationsValid = true;
+GyroCompensation();//zzz
 	ShowSetup(1);
 
 	FirstPass = true;
@@ -317,8 +326,19 @@ void main(void)
 					InitNavigation();
 					ResetGPSOrigin();
 					ErectGyros();			// DO NOT MOVE AIRCRAFT!
-
 					DesiredThrottle = 0;
+
+					for ( b = 0; b < 3; b++ )
+					{
+						Beeper_ON;
+						Delay1mS(200);
+						Beeper_OFF;
+						Delay1mS(800);
+					}
+					Beeper_ON;
+					Delay1mS(800);
+					Beeper_OFF;
+
 					State = Landed;
 					break;
 				case Landed:

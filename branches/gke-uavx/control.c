@@ -59,19 +59,23 @@ void GyroCompensation(void)
 		ReadAccelerations();
 
 		LRAcc = Ax.i16;
-		UDAcc = Ay.i16;
+		DUAcc = Ay.i16;
 		FBAcc = Az.i16;
 		
-		// NeutralLR, NeutralFB, NeutralUD pass through UAVPSet 
+		// NeutralLR, NeutralFB, NeutralDU pass through UAVPSet 
 		// and come back as MiddleLR etc.
 
 		LRAcc -= P[MiddleLR];
 		FBAcc -= P[MiddleFB];
-		UDAcc -= P[MiddleUD];
+		DUAcc -= P[MiddleDU];
 
-		UDAcc -= 1024;	// subtract 1g - not corrrect for other than level
+		DUAcc -= 1024;	// subtract 1g - not corrrect for other than level
 						// ??? could check for large negative Acc => upside down?
-	
+
+		if ( LRAcc > MaxLRAcc ) MaxLRAcc = LRAcc; 
+		if ( FBAcc > MaxFBAcc ) MaxFBAcc = FBAcc; 
+		if ( DUAcc > MaxDUAcc ) MaxDUAcc = DUAcc; 
+		
 		// Roll
 
 		// static compensation due to Gravity
@@ -107,14 +111,14 @@ void GyroCompensation(void)
 		#ifdef DEBUG_SENSORS
 		Trace[TAx]= LRAcc;
 		Trace[TAz] = FBAcc;
-		Trace[TAy] = UDAcc;
+		Trace[TAy] = DUAcc;
 
 		Trace[TLRIntKorr] = LRIntKorr * 8; // scale up for UAVPSet
 		Trace[TFBIntKorr] = FBIntKorr * 8;	
 		#endif // DEBUG_SENSORS	
 	}	
 	else
-		LRIntKorr = FBIntKorr = UDAcc = 0;
+		LRIntKorr = FBIntKorr = DUAcc = 0;
 
 } // GyroCompensation
 
@@ -127,19 +131,19 @@ void AltitudeDamping(void)
 	
 	// Empirical - vertical acceleration decreases at ~approx Sum/8
 	if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
-		UDSum += UDAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
+		DUSum += DUAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
 	
-	UDSum = Limit(UDSum , -16384, 16384); 
-	UDSum = DecayBand(UDSum, -10, 10, 10);
+	DUSum = Limit(DUSum , -16384, 16384); 
+	DUSum = DecayBand(DUSum, -10, 10, 10);
 		
-	Temp = SRS16(SRS16(UDSum, 4) * (int16) P[VertDampKp], 8);	
-	if( Temp > VUDComp ) 
-		VUDComp++;
+	Temp = SRS16(SRS16(DUSum, 4) * (int16) P[VertDampKp], 8);	
+	if( Temp > VDUComp ) 
+		VDUComp++;
 	else
-		if( Temp < VUDComp )
-			VUDComp--;
+		if( Temp < VDUComp )
+			VDUComp--;
 		
-	VUDComp = Limit(VUDComp, -5, 20);  // -20, 20
+	VDUComp = Limit(VDUComp, -5, 20);  // -20, 20
 
 } // AltitudeDamping
 
@@ -191,15 +195,25 @@ void LimitYawSum(void)
 
 void GetGyroValues(void)
 {
+	static int16 Rate;
+
 	if ( P[GyroType] == IDG300 )
 	{
-		RollRate += (int16)ADC(IDGADCRollChan, ADCVREF3V3);
-		PitchRate += (int16)ADC(IDGADCPitchChan, ADCVREF3V3);
+		Rate = (int16)ADC(IDGADCRollChan, ADCVREF3V3);
+		RollRate += Rate;
+		if ( Rate > MaxRollRate ) MaxRollRate = Rate;
+		Rate = (int16)ADC(IDGADCPitchChan, ADCVREF3V3);
+		PitchRate += Rate;
+		if ( Rate > MaxPitchRate ) MaxPitchRate = Rate;
 	}
 	else
 	{
-		RollRate += (int16)ADC(NonIDGADCRollChan, ADCVREF5V);
-		PitchRate += (int16)ADC(NonIDGADCPitchChan, ADCVREF5V);
+		Rate = (int16)ADC(NonIDGADCRollChan, ADCVREF5V);
+		RollRate += Rate;
+		if ( Rate > MaxRollRate ) MaxRollRate = Rate;
+		Rate = (int16)ADC(NonIDGADCPitchChan, ADCVREF5V);
+		PitchRate += Rate;
+		if ( Rate > MaxPitchRate ) MaxPitchRate = Rate;
 	}
 } // GetGyroValues
 
@@ -282,7 +296,8 @@ void CalcGyroRates(void)
 	}
 	
 	// Yaw is sampled only once every frame, 8 bit A/D resolution
-	YawRate = ADC(ADCYawChan, ADCVREF5V) >> 2;	
+	YawRate = ADC(ADCYawChan, ADCVREF5V) >> 2;
+	if ( YawRate > MaxYawRate) MaxYawRate = YawRate;	
 	YawRate -= GyroMidYaw;
 
 } // CalcGyroRates
@@ -449,8 +464,8 @@ void InitControl(void)
 {
 	RollRate = PitchRate = 0;
 	RollTrim = PitchTrim = YawTrim = 0;	
-	VUDComp = VBaroComp = 0;	
-	UDSum = 0;
+	VDUComp = VBaroComp = 0;	
+	DUSum = 0;
 	AE = AltSum = 0;
 } // InitControl
 

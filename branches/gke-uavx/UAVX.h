@@ -689,8 +689,8 @@ extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
-extern int8		NeutralLR, NeutralFB, NeutralUD;
-extern int16 	UDAcc, UDSum, VUDComp;
+extern int8		NeutralLR, NeutralFB, NeutralDU;
+extern int16 	DUAcc, DUSum, VDUComp;
 
 // GPS
 extern int16 	GPSLongitudeCorrection;
@@ -737,6 +737,10 @@ extern int16	NavHoldResetCount;
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 
+extern int16 	MaxGPSAltitude, MinBaroPressure;
+extern int16 	MaxRollRate, MaxPitchRate, MaxYawRate;
+extern int16 	MaxLRAcc, MaxFBAcc, MaxDUAcc;
+
 extern int16	Trace[];
 
 // Principal quadrocopter parameters
@@ -766,7 +770,7 @@ enum Params {
 	PercentHoverThr,	// 20c 
 	
 	VertDampKp,			// 21c
-	MiddleUD,			// 22c
+	MiddleDU,			// 22c
 	PercentIdleThr,		// 23c
 	MiddleLR,			// 24c
 	MiddleFB,			// 25c

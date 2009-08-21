@@ -212,7 +212,7 @@ void ReadParametersEE(void)
 
 	PIE1bits.CCP1IE = false;
 	DoRxPolarity();
-	PPM_Index = PrevEdge = RCGlitches = 0;
+	PPM_Index = PrevEdge = 0;
 	PIE1bits.CCP1IE = true;
 
 	BatteryVolts = P[LowVoltThres];
@@ -379,7 +379,7 @@ void InitParameters(void)
 {
 	ALL_LEDS_ON;
 	CurrentParamSet = 1;
-	while ( ReadEE(TxRxType) == -1 ) 
+// zzz	while ( ReadEE(TxRxType) == -1 ) 
 		ProcessCommand();	
 	CurrentParamSet = 1;
 	ReadParametersEE();
@@ -626,30 +626,45 @@ void CheckAlarms(void)
 
 } // CheckAlarms
 
-static int16 MaxGPSAltitude, MinBaroPressure;
-
 void InitStats(void)
 {
 	MaxGPSAltitude = MinBaroPressure = 0;
+	MaxRollRate = MaxPitchRate = MaxYawRate = 0;
+	MaxLRAcc = MaxFBAcc = MaxDUAcc = 0;
 }
 
 void CollectStats(void)
 {
 	static int16 Temp;
 
-	if ( GPSRelAltitude > MaxGPSAltitude )
-		MaxGPSAltitude = GPSRelAltitude;
+	if ( GPSRelAltitude > MaxGPSAltitude ) MaxGPSAltitude = GPSRelAltitude;
 	Temp = Abs(CurrentBaroPressure);
-	if ( Temp > MinBaroPressure )
-		MinBaroPressure = Temp;
+	if ( Temp > MinBaroPressure ) MinBaroPressure = Temp;
 	// zzz BaroScale =  -( (int32)MinBaroPressure * 256L )/ MaxGPSAltitude;
 } // CollectStats
 
 void FlightStats(void)
 {
+	int16 Scale;
+
+	Scale = 3000;
+	if ( P[GyroType] == IDG300 )
+		Scale = 5000;
+	else
+		if ( P[GyroType] == ADXRS150 )
+			Scale =1500;
+
 	TxString("\r\nFlight Statistics\r\n");
-	TxVal32(MaxGPSAltitude,0,0); TxString(" GPS dM\r\n");
-	TxVal32(MinBaroPressure,0,0); TxString(" Baro clicks\r\n");
+	TxString("GPS:  \t");TxVal32(MaxGPSAltitude,0,' '); TxString("Dm\r\n"); 
+	TxString("Baro: \t");TxVal32(MinBaroPressure,0,' '); TxString("lsb\r\n"); 
+	TxNextLine();
+	TxString("Roll: \t"); TxVal32(((int32)(MaxRollRate - GyroMidRoll) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
+	TxString("Pitch:\t"); TxVal32(((int32)(MaxPitchRate - GyroMidPitch) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
+	TxString("Yaw:  \t");TxVal32(((int32)(MaxYawRate - GyroMidYaw) * 3000)>>8,1,' '); TxString("Deg/Sec\r\n");
+	TxNextLine();
+	TxString("Left->Right:\t"); TxVal32(((int32)MaxLRAcc*1000+512)/1024, 3, 'G'); TxNextLine(); 
+	TxString("Down->Up:   \t"); TxVal32(((int32)MaxDUAcc*1000+512)/1024, 3, 'G'); TxNextLine(); 
+	TxString("Front->Back:\t"); TxVal32(((int32)MaxFBAcc*1000+512)/1024, 3, 'G'); TxNextLine();
 } // FlightStats
 
 void DumpTrace(void)
