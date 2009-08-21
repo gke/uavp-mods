@@ -378,13 +378,15 @@ void WaitForRxSignalAndDisarmed(void)
 		ProcessCommand();
 		if( _Signal )
 		{
+			LEDGreen_ON;
+
 			if ( _NewValues )
 			{
 				UpdateParamSetChoice();
 				ReadParametersEE();
 				DesiredThrottle = 0;
 				OutSignals();
-				if ( ArmingSwitch  )
+				if ( ArmingSwitch )
 					if( mS[Clock] > Timeout )
 					{
 						LEDRed_TOG;
@@ -393,10 +395,14 @@ void WaitForRxSignalAndDisarmed(void)
 			}
 		}
 		else
-			LEDRed_ON;	
+		{
+			LEDRed_ON;
+			LEDGreen_OFF;
+		}	
 	}
 	while( ArmingSwitch || !_Signal );
-	Delay1mS(20);
+
+	Delay1mS(50);
 	LEDRed_OFF;
 	LEDGreen_ON;
 

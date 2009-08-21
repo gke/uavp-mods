@@ -280,13 +280,12 @@ void main(void)
 
 		EnableInterrupts;
 	
-		Beeper_OFF;
-		ALL_LEDS_OFF; 
+		Beeper_OFF; 
+		if( _AccelerationsValid ) LEDYellow_ON; else LEDYellow_OFF;
+		if ( _Signal ) LEDGreen_ON; else LEDGreen_OFF;
 
 		WaitForRxSignalAndDisarmed();			// WAIT until Disarmed flashing all LEDs!
 		WaitThrottleClosedAndRTHOff();
-
-		if( _AccelerationsValid ) LEDYellow_ON;
 
 		_LostModel = false;
 		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
