@@ -148,8 +148,8 @@ void ReceiverTest(void)
 	ShowRxSetup();
 	TxString("\r\n");
 	
-	TxString(" RAW Rx frame values - neutrals NOT applied\r\n");
-	TxString(" Channel order is: ");
+	TxString("\tRAW Rx frame values - neutrals NOT applied\r\n");
+	TxString("\tChannel order is: ");
 	for ( s = 0; s < RC_CONTROLS; s++)
 		TxChar(RxChMnem[RMap[s]-1]);
 		

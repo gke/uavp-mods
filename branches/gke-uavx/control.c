@@ -358,7 +358,9 @@ void DoControl(void)
 void WaitThrottleClosedAndRTHOff(void)
 {
 	uint24 Timeout;
+	int16 CurrentThrottle;
 	
+	CurrentThrottle = RC_MAXIMUM;
 	Timeout = mS[Clock] + 500; 					// mS.
 	do
 	{
@@ -366,6 +368,7 @@ void WaitThrottleClosedAndRTHOff(void)
 		if( _NewValues )
 		{
 			UpdateControls();
+			CurrentThrottle = DesiredThrottle;
 			DesiredThrottle = 0; 				// prevent motors from starting
 			OutSignals();
 			if( mS[Clock] > Timeout )
@@ -377,7 +380,7 @@ void WaitThrottleClosedAndRTHOff(void)
 			}
 		}
 	}
-	while( (RC[ThrottleC] >= RC_THRES_STOP) || _ReturnHome );
+	while( ( CurrentThrottle >= RC_THRES_STOP) || _ReturnHome );
 	Beeper_OFF;
 	LEDRed_OFF;
 } // WaitThrottleClosedAndRTHOff
