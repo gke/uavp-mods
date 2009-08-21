@@ -45,7 +45,7 @@ For UAVX confirm channel 5 switch is in the hover position. This appears as a sl
 
 *WARNING!:  Never power on the quad before the TX.  If the TX is off and the quad’s arming switch is accidentally left in the armed position the motors could start at high speed when using some RX's and cause serious injury!*
 
-2. *Disarmed:* Select a parameter using the pitch/roll sticks(UAVX): *Parm 1 with RTH altitude control = upper left = default*, Parm 1 no altitude control = lower left, Parm2 with RTH altitude control = upper right, Parm 2 no altitude control = lower right.
+2. *Disarmed:* Select a parameter using the pitch/roll sticks(UAVX): *Parm 1 with RTH altitude control = lower left = default*, Parm 1 with no RTH altitude control = upper left, Parm2 with RTH altitude control = lower right, Parm 2 no altitude control = upper right.
 
 3. *Disarmed:* Select yaw turn on/off for RTH using the throttle stick(UAVX).  *Throttle stick to left = RTH yaw turn off = default*, Throttle stick to right = RTH yaw turn on.  After RTH is engaged, if the UAVX is outside of the NAV radius set in UAVPset v3.0, the quad will yaw turn to the home position.
 
