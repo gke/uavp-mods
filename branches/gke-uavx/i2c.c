@@ -347,11 +347,11 @@ uint8 RecvI2CByte(uint8 r)
 
 // Prototypes
 
-void EscI2CDelay(void);
-void EscWaitClkHi(void);
-void EscI2CStart(void);
-void EscI2CStop(void);
-uint8 SendEscI2CByte(uint8);
+void ESCI2CDelay(void);
+void ESCWaitClkHi(void);
+void ESCI2CStart(void);
+void ESCI2CStop(void);
+uint8 SendESCI2CByte(uint8);
 
 // Constants
 
@@ -360,59 +360,57 @@ uint8 SendEscI2CByte(uint8);
 #define	 ESC_DIO		TRISBbits.TRISB1
 #define	 ESC_CIO		TRISBbits.TRISB2
 
-void EscI2CDelay(void)
+void ESCI2CDelay(void)
 {
 	Delay1TCY();
 	Delay1TCY();
 	Delay1TCY();
-} // EscI2CDelay
+} // ESCI2CDelay
 
-void EscWaitClkHi(void)
+void ESCWaitClkHi(void)
 {
 	static uint8 s;
 
 	s = 1;
 
-	EscI2CDelay();
+	ESCI2CDelay();
 	ESC_CIO=1;								// set SCL to input, output a high
 	while( !ESC_SCL ) 
 		if( ++s == 0 )			 
 			break;;							// wait for line to come hi with timeout
-	EscI2CDelay();
-} // EscWaitClkHi
+	ESCI2CDelay();
+} // ESCWaitClkHi
 
-// send a start condition
-void EscI2CStart(void)
+void ESCI2CStart(void)
 {
 	ESC_DIO=1;								// set SDA to input, output a high
-	EscWaitClkHi();
+	ESCWaitClkHi();
 	ESC_SDA = 0;							// start condition
 	ESC_DIO = 0;							// output a low
-	EscI2CDelay();
+	ESCI2CDelay();
 	ESC_SCL = 0;
 	ESC_CIO = 0;							// set SCL to output, output a low
-} // EscI2CStart
+} // ESCI2CStart
 
-// send a stop condition
-void EscI2CStop(void)
+void ESCI2CStop(void)
 {
 	ESC_DIO=0;								// set SDA to output
 	ESC_SDA = 0;							// output a low
-	EscWaitClkHi();
+	ESCWaitClkHi();
 
 	ESC_DIO=1;								// set SDA to input, output a high, STOP condition
-	EscI2CDelay();							// leave clock high
-} // EscI2CStop
+	ESCI2CDelay();							// leave clock high
+} // ESCI2CStop
 
 
 // send a byte to I2C slave and return ACK status
 // 0 = ACK
 // 1 = NACK
-uint8 SendEscI2CByte(uint8 d)
+uint8 SendESCI2CByte(uint8 d)
 {
 	static uint8 s;
 
-	for(s=8; s; s--)
+	for( s = 8 ; s ; s-- )
 	{
 		if( d & 0x80 )
 			ESC_DIO = 1;					// switch to input, line is high
@@ -424,25 +422,24 @@ uint8 SendEscI2CByte(uint8 d)
 	
 		ESC_CIO=1;							// set SCL to input, output a high
 		while( !ESC_SCL ) ;					// wait for line to come hi ??? hang YES YES YES
-		EscI2CDelay();
+		ESCI2CDelay();
 		ESC_SCL = 0;
 		ESC_CIO = 0;						// set SCL to output, output a low
 		d <<= 1;
 	}
 	ESC_DIO = 1;							// set SDA to input
-	EscI2CDelay();
+	ESCI2CDelay();
 	ESC_CIO=1;								// set SCL to input, output a high
 	while( !ESC_SCL ) ;						// wait for line to come hi ??? hang
 
-	EscI2CDelay();							// here is the ACK	
+	ESCI2CDelay();							// here is the ACK	
 
 	ESC_SCL = 0;
 	ESC_CIO = 0;							// set SCL to output, output a low
-	EscI2CDelay();
+	ESCI2CDelay();
 
-	return(0);
+	return(I2C_ACK);
 
-} // SendEscI2CByte
-
+} // SendESCI2CByte
 
 

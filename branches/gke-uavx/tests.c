@@ -36,7 +36,7 @@ void BaroTest(void);
 void PowerOutput(int8);
 void GPSTest(void);
 void AnalogTest(void);
-void Program_SLA(uint8);
+void ProgramSlaveAddress(uint8);
 void ConfigureESCs(void);
 
 void DoLEDs(void)
@@ -90,10 +90,13 @@ void LinearTest(void)
 uint8 ScanI2CBus(void)
 {
 	int16 s;
-	uint8 d = 0;
+	uint8 d;
 
-	for(s=0x10; s<=0xf6; s+=2)
-	{	// use all uneven addresses for read mode
+	d = 0;
+
+	TxString("Sensor Bus\r\n");
+	for ( s = 0x10 ; s <= 0xf6 ; s += 2 )
+	{
 		I2CStart();
 		if( SendI2CByte(s) == I2C_ACK )
 		{
@@ -106,6 +109,31 @@ uint8 ScanI2CBus(void)
 
 		Delay1mS(2);
 	}
+
+	TxString("\r\nESC Bus\r\n");
+
+	if ( (P[ESCType] == ESCHolger)||(P[ESCType] == ESCX3D)||(P[ESCType] == ESCYGEI2C) )
+	{
+
+		for ( s = 0x10 ; s <= 0xf6 ; s += 2 )
+		{
+			I2CStart();
+			if( SendESCI2CByte(s) == I2C_ACK )
+			{
+				d++;
+				TxString("\t0x");
+				TxValH(s);
+				TxNextLine();
+			}
+			I2CStop();
+	
+			Delay1mS(2);
+		}
+	}
+	else
+		TxString("\tinactive - I2C ESCs not selected..\r\n");
+	TxNextLine();
+
 	return(d);
 } // ScanI2CBus
 
@@ -555,72 +583,69 @@ void AnalogTest(void)
 	TxNextLine();	
 } // AnalogTest
 
-void Program_SLA(uint8 niaddr)
+void ProgramSlaveAddress(uint8 addr)
 {
-	uint8 nii;
+	uint8 s;
 
-	if ( P[ESCType] == ESCYGEI2C )
+	for (s = 0x10 ; s < 0xf0 ; s += 2 )
 	{
-		for(nii = 0x10; nii<0xF0; nii+=2)
-		{
-			EscI2CStart();
-			if( SendEscI2CByte(nii) == 0 )
-			{
-				if( nii == niaddr )
-				{	// controller is already programmed OK
-					EscI2CStop();
-					TxString("controller at SLA 0x");
-					TxValH(nii);
-					TxString(" is already programmed OK\r\n");
-					return;
-				}
-				else
-				{
-					if( SendEscI2CByte(0x87) == 0 ) // select register 0x07
-					{
-						if( SendEscI2CByte(niaddr) == 0 ) // new slave address
-						{
-							EscI2CStop();
-							TxString("controller at SLA 0x");
-							TxValH(nii);
-							TxString(" reprogrammed to SLA 0x");
-							TxValH(niaddr);
-							TxNextLine();
-							return;
-						}
-					}
-				}
+		ESCI2CStart();
+		if( SendESCI2CByte(s) == I2C_ACK )
+			if( s == addr )
+			{	// ESC is already programmed OK
+				ESCI2CStop();
+				TxString("ESC at SLA 0x");
+				TxValH(addr);
+				TxString(" is already programmed OK\r\n");
+				return;
 			}
-			EscI2CStop();
-		}
+			else
+			{
+				if( SendESCI2CByte(0x87) == I2C_ACK ) // select register 0x07
+					if( SendESCI2CByte( addr) == I2C_ACK ) // new slave address
+					{
+						ESCI2CStop();
+						TxString("ESC at SLA 0x");
+						TxValH(s);
+						TxString(" reprogrammed to SLA 0x");
+						TxValH(addr);
+						TxNextLine();
+						return;
+					}
+			}
+		ESCI2CStop();
 	}
-	TxString("no controller found or reprogram failed\r\n");
+	TxString("No response from ESC at SLA 0x");
+	TxValH(addr);
+	TxString(" or re-program failed\r\n");
 
-} // Program_SLA
+} // ProgramSlaveAddress
 
 void ConfigureESCs(void)
 {
-	uint8 nic;
+	uint8 m;
+
+	TxNextLine();
 
 	if ( P[ESCType] == ESCYGEI2C )
-	{
-		for( nic=0; nic<4; nic++)
+		for ( m = 0 ; m < NoOfMotors ; m++ )
 		{
 			TxString("\r\nConnect ONLY ");
-			switch(nic)
+			switch( m )
 			{
 				case 0 : TxString("front"); break;
 				case 1 : TxString("back");  break;
 				case 2 : TxString("right"); break;
 				case 3 : TxString("left");  break;
 			}
-			TxString(" controller, then press any key\r\n");
-			while( PollRxChar() == '\0' );
-			TxString("\r\nprogramming the controller...\r\n");
+			TxString(" ESC, then press any key\r\n");
+			while ( PollRxChar() == '\0' );
+			TxString("\r\nprogramming the ESC SLA ...\r\n");
 	
-			Program_SLA(0x62+nic+nic);
+			ProgramSlaveAddress( 0x62 + ( m*2 ));
 		}
-	}
+	else
+		TxString("YGEI2C not selected as ESC?\r\n");
 } // ConfigureESCs
 
 

@@ -37,7 +37,7 @@ uint24	mS[CompassUpdate+1];
 // Interrupt related 
 #pragma udata access isrvars
 uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-uint8	State;
+uint8	State, FailState;
 i16u 	PPM[MAX_CONTROLS];
 int8 	PPM_Index;
 int24 	PrevEdge, CurrEdge;
@@ -48,6 +48,8 @@ boolean RCFrameOK, GPSSentenceReceived;
 uint8 	ll, tt, gps_ch;
 uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 uint8	ESCMax;
+volatile boolean Armed;
+uint8	ArmCount;
 #pragma udata
 
 int16 	RC[CONTROLS];
@@ -286,14 +288,15 @@ void main(void)
 
 		if( _AccelerationsValid ) LEDYellow_ON;
 
-		_Failsafe = _LostModel = false;
+		_LostModel = false;
 		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
 		mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
 		mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
+		FailState = Waiting;
 
 		State = Starting;
 
-		while ( Armed && !_ParametersInvalid )
+		while ( ArmingSwitch && !_ParametersInvalid )
 		{ // no command processing while the Quadrocopter is armed
 	
 			ReceivingGPSOnly(true); 
@@ -302,7 +305,7 @@ void main(void)
 			UpdateControls();
 			CollectStats();
 
-			if ( _Signal && !_Failsafe )
+			if ( _Signal && ( FailState != Terminated ) )
 			{
 				switch ( State  ) {
 				case Starting:	// this state executed once only after arming
@@ -356,6 +359,7 @@ void main(void)
 				_LostModel = false;
 				mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
 				mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
+				FailState = Waiting;
 			}
 			else
 				DoFailsafe();
@@ -377,7 +381,8 @@ void main(void)
 			DumpTrace();
 		
 		} // flight while armed
-		Delay1mS(20);						// arming switch debounce
+		Delay1mS(20); // zzz
+		OutSignals(); // zzz
 	}
 } // main
 

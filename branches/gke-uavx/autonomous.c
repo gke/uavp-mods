@@ -265,33 +265,35 @@ void DoFailsafe(void)
 { // only relevant to PPM Rx or Quad NOT synchronising with Rx
 
 	ALL_LEDS_OFF;
-	if ( _Failsafe )
-	{
+	switch ( FailState ) {
+	case Terminated:
 		LEDRed_ON;
 		_LostModel = true;
 		DesiredRoll = DesiredPitch = DesiredYaw = 0;
 		DesiredThrottle = 0;
-		//Descend();	
-	}
-	else
+		StopMotors();
+		//Descend();
+		break;
+	case Aborting:
 		if( mS[Clock] > mS[AbortTimeout] ) // timeout - immediate shutdown/abort
 		{
 			mS[AltHoldUpdate] = mS[Clock];
-			_Failsafe = true;
+			FailState = Terminated;
 		}
-		else
-			if ( mS[Clock] > mS[FailsafeTimeout] ) 
-			{
-				DesiredRoll = DesiredPitch = DesiredYaw = 0;
-				if ( State != InFlight )
-					DesiredThrottle = 0;
-				// use last "good" throttle; 
-			}
-			else
-			{
-				// continue on last "good" signals
-			}
-					
+		break;
+	case Waiting:
+		if ( State != InFlight )
+			DesiredThrottle = 0;
+
+		if ( mS[Clock] > mS[FailsafeTimeout] ) 
+		{
+			DesiredRoll = DesiredPitch = DesiredYaw = 0;
+			FailState = Aborting;
+
+			// use last "good" throttle; 
+		}
+		break;
+	}			
 } // DoFailsafe
 
 void CheckThrottleMoved(void)

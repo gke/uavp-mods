@@ -53,7 +53,6 @@ void ReceivingGPSOnly(boolean r)
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 
    		PIE1bits.RCIE = r;
-		Delay1mS(10);				// switch bounce
 	}
 	#endif // DEBUG_SENSORS
 } // ReceivingGPSOnly
@@ -270,7 +269,6 @@ void high_isr_handler(void)
 				break;	
 		    } 
 		}
-
 		PIR1bits.RCIF = false;
 	}
 
@@ -281,6 +279,23 @@ void high_isr_handler(void)
 		{
 			_Signal = false;
 			SignalCount = -RC_GOOD_BUCKET_MAX;
+		}
+
+		if ( ArmingSwitch )				// Debounce switch
+		{
+			if ( ++ArmCount > ARM_DELAY_MS )
+			{
+				ArmCount = ARM_DELAY_MS;
+				Armed = true;
+			}
+		}
+		else
+		{
+			if ( --ArmCount < 0 )
+			{
+				ArmCount = 0;
+				Armed = false;
+			}
 		}
 		INTCONbits.TMR0IF = false;	
 	}

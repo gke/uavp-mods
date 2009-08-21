@@ -296,32 +296,32 @@ OS006:
 		
 		// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL	
 		if ( P[ESCType] ==  ESCHolger )
-			for (m = 0; m < NoOfMotors; m++)
+			for ( m = 0 ; m < NoOfMotors ; m++ )
 			{
-				EscI2CStart();
-				r = SendEscI2CByte(0x52 + m*2);	// one cmd, one data byte per motor
-				r = SendEscI2CByte(Motor[m]); // for all motors
-				EscI2CStop();
+				ESCI2CStart();
+				r = SendESCI2CByte(0x52 + ( m*2 ));	// one cmd, one data byte per motor
+				r = SendESCI2CByte(Motor[m]); // for all motors
+				ESCI2CStop();
 			}
 		else
 			if ( P[ESCType] == ESCYGEI2C )
-				for (m = 0; m < NoOfMotors; m++)
+				for ( m = 0 ; m < NoOfMotors ; m++ )
 				{
-					EscI2CStart();
-					r = SendEscI2CByte(0x62 + m*2);	// one cmd, one data byte per motor
-					r = SendEscI2CByte(Motor[m]>>1); // for all motors
-					EscI2CStop();
+					ESCI2CStart();
+					r = SendESCI2CByte(0x62 + ( m*2) );	// one cmd, one data byte per motor
+					r = SendESCI2CByte(Motor[m]>>1); // for all motors
+					ESCI2CStop();
 				}
 			else
 				if ( P[ESCType] == ESCX3D )
 				{
-					EscI2CStart();
-					r = SendEscI2CByte(0x10);	// one command, 4 data bytes
-					r = SendEscI2CByte(Motor[Front]); // for all motors
-					r = SendEscI2CByte(Motor[Back]);
-					r = SendEscI2CByte(Motor[Left]);
-					r = SendEscI2CByte(Motor[Right]);
-					EscI2CStop();
+					ESCI2CStart();
+					r = SendESCI2CByte(0x10);	// one command, 4 data bytes
+					r = SendESCI2CByte(Motor[Front]); // for all motors
+					r = SendESCI2CByte(Motor[Back]);
+					r = SendESCI2CByte(Motor[Left]);
+					r = SendESCI2CByte(Motor[Right]);
+					ESCI2CStop();
 				}
 	}
 

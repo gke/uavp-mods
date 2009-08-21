@@ -45,6 +45,8 @@
 
 // Timeouts and Update Intervals
 
+#define ARM_DELAY_MS			20L		// mS. (MAX 250) time for which the switch state must persist.
+
 #define FAILSAFE_TIMEOUT_S		1 		// Sec. hold last "good" settings and then either restore flight or abort
 #define ABORT_TIMEOUT_S			3	 	// Sec. full flight abort - motors shutdown until reboot 
 
@@ -58,7 +60,7 @@
 
 // Baro
 
-#define BARO_SCRATCHY_BEEPER			// Scratchy beeper nois on hover
+#define BARO_SCRATCHY_BEEPER			// Scratchy beeper noise on hover
 
 // Increase the severity of the filter when averaging barometer pressure readings
 // New=(Old*7+New)/8).
@@ -335,7 +337,7 @@ typedef union {
 #define Beeper_TOG		if( (LEDShadow&BeeperM) == 0 ) SwitchLEDsOn(BeeperM); else SwitchLEDsOff(BeeperM)
 
 // Bit definitions
-#define Armed				(PORTAbits.RA4)
+#define ArmingSwitch		(PORTAbits.RA4)
 #define InTheAir			true	// zzz (PORTCbits.RC0) // micro switch to ground when closed
 
 #define	I2C_ACK				((uint8)(0))
@@ -515,11 +517,11 @@ extern void I2CStop(void);
 extern uint8 SendI2CByte(uint8);
 extern uint8 RecvI2CByte(uint8);
 
-extern void EscI2CDelay(void);
-extern void EscWaitClkHi(void);
-extern void EscI2CStart(void);
-extern void EscI2CStop(void);
-extern uint8 SendEscI2CByte(uint8);
+extern void ESCI2CDelay(void);
+extern void ESCWaitClkHi(void);
+extern void ESCI2CStart(void);
+extern void ESCI2CStop(void);
+extern uint8 SendESCI2CByte(uint8);
 
 // menu.c
 extern void ShowPrompt(void);
@@ -605,7 +607,7 @@ extern void BaroTest(void);
 extern void PowerOutput(int8);
 extern void GPSTest(void);
 extern void AnalogTest(void);
-extern void Program_SLA(uint8);
+extern void ProgramSlaveAddress(uint8);
 extern void ConfigureESCs(void);
 
 // Menu strings
@@ -623,6 +625,7 @@ enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC};
 #define MAX_CONTROLS 12 // maximum Rx channels
 enum WaitGPSStates { WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
 enum FlightStates { Starting, Landing, Landed, InFlight};
+enum FailStates { Waiting, Aborting, Terminated };
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
@@ -646,7 +649,7 @@ enum MotorTags {Front=0, Back, Right, Left}; // order is important for Holger ES
 
 extern uint24 mS[];
 
-extern uint8	State;
+extern uint8	State, FailState;
 extern uint8 	SHADOWB, MF, MB, ML, MR, MT, ME; // motor and servo outputs
 extern i16u 	PPM[];
 extern boolean	RCFrameOK, GPSSentenceReceived;
@@ -658,6 +661,8 @@ extern uint8 	GPSRxState;
 extern uint8 	ll, tt, gps_ch;
 extern uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
 extern uint8	ESCMax;
+extern volatile boolean	Armed;
+extern uint8	ArmCount;
 
 extern int16	RC[];
 extern int8		SignalCount;

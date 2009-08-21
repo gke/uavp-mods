@@ -347,6 +347,7 @@ void WaitThrottleClosedAndRTHOff(void)
 	Timeout = mS[Clock] + 500; 					// mS.
 	do
 	{
+		ProcessCommand();
 		if( _NewValues )
 		{
 			UpdateControls();
@@ -383,7 +384,7 @@ void WaitForRxSignalAndDisarmed(void)
 				ReadParametersEE();
 				DesiredThrottle = 0;
 				OutSignals();
-				if ( Armed  )
+				if ( ArmingSwitch  )
 					if( mS[Clock] > Timeout )
 					{
 						LEDRed_TOG;
@@ -394,8 +395,8 @@ void WaitForRxSignalAndDisarmed(void)
 		else
 			LEDRed_ON;	
 	}
-	while( Armed || !_Signal );
-	Delay1mS(20);				// arming switch debounce
+	while( ArmingSwitch || !_Signal );
+	Delay1mS(20);
 	LEDRed_OFF;
 	LEDGreen_ON;
 
@@ -415,6 +416,7 @@ void UpdateControls(void)
 		DesiredYaw = RC[YawC];
 		NavSensitivity = RC[NavGainC];
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
+		FailState = Waiting;
 	}
 } // UpdateControls
 
