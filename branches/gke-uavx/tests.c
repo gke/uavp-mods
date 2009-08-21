@@ -141,30 +141,34 @@ uint8 ScanI2CBus(void)
 
 void ReceiverTest(void)
 {
-	int8 s;
+	uint8 s;
 	uint16 v;
 
 	TxString("\r\nRx: ");
 	ShowRxSetup();
 	TxString("\r\n");
 	
-	TxString("Most recent Values:\r\n");
+	TxString(" RAW Rx frame values - neutrals NOT applied\r\n");
+	TxString(" Channel order is: ");
+	for ( s = 0; s < RC_CONTROLS; s++)
+		TxChar(RxChMnem[RMap[s]-1]);
+		
+	TxString("\r\nMost recent Values:\r\n");
 	
 	// Be wary as new RC frames are being received as this
 	// is being displayed so data may be from overlapping frames
 
 	// don't check for NewValues as this is constantly toggling
-	for( s=0; s < CONTROLS; s++ )
+	for ( s = 0; s < CONTROLS ; s++ )
 	{
 		TxChar(s+'1');
+		TxString(": ");
+		TxChar(RxChMnem[RMap[s]-1]);
 		TxString(":\t 0x");
 		v = PPM[s].i16;
 		TxValH16(v);
 		TxChar(HT);
-		if ( ( s > 0 ) && ( s < 4 ))	
-			TxVal32(((int32)(v & 0x00ff)*200)/RC_MAXIMUM - 100, 0, '%');
-		else
-			TxVal32(((int32)(v & 0x00ff)*100)/RC_MAXIMUM, 0, '%');
+	    TxVal32(((int32)(v & 0x00ff)*100)/RC_MAXIMUM, 0, '%');
 
 		if( ( v & 0xff00) != (uint16)0x0100 ) 
 			TxString(" FAIL");

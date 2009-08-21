@@ -55,6 +55,9 @@ int8	SignalCount;
 uint16	RCGlitches;
 boolean	FirstPass; 
 
+const rom uint8 RxChMnem[] = "TAERG12";
+int8 	RMap[CONTROLS];
+
 #pragma udata gpsbuff
 struct {
 	uint8 s[GPSRXBUFFLENGTH];

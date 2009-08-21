@@ -56,7 +56,7 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
 
-const rom uint8 RxChMnem[] = "TAERG12";
+
 
 void ShowPrompt(void)
 {
@@ -77,7 +77,6 @@ void ShowRxSetup(void)
 void ShowSetup(uint8 h)
 {
 	uint8 i;
-	int8 RMap[CONTROLS];
 
 	if( h )
 	{
@@ -143,10 +142,7 @@ void ShowSetup(uint8 h)
 		if ( P[ConfigBits] & RxSerialPPMMask )
 			ShowRxSetup();
 		else
-		{
-			for (i = 0; i < CONTROLS; i++) // make reverse map
-				RMap[Map[P[TxRxType]][i]-1] = i+1;
-		
+		{	
 			for ( i = 0; i < RC_CONTROLS; i++)
 				TxChar(RxChMnem[RMap[i]-1]);
 		

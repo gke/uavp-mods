@@ -45,8 +45,6 @@
 
 // Timeouts and Update Intervals
 
-#define ARM_DELAY_MS			20L		// mS. (MAX 250) time for which the switch state must persist.
-
 #define FAILSAFE_TIMEOUT_S		1 		// Sec. hold last "good" settings and then either restore flight or abort
 #define ABORT_TIMEOUT_S			3	 	// Sec. full flight abort - motors shutdown until reboot 
 
@@ -741,6 +739,8 @@ extern int16 	MaxGPSAltitude, MinBaroPressure;
 extern int16 	MaxRollRate, MaxPitchRate, MaxYawRate;
 extern int16 	MaxLRAcc, MaxFBAcc, MaxDUAcc;
 
+extern int8 	RMap[CONTROLS];
+
 extern int16	Trace[];
 
 // Principal quadrocopter parameters
@@ -809,6 +809,7 @@ extern int8 P[];
 extern const rom int8 ComParms[];
 extern const rom int8 DefaultParams[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
+extern const rom uint8 RxChMnem[];
 extern const rom ESCLimits [];
 extern const rom boolean PPMPosPolarity[];
 

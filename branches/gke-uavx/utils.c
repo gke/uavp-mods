@@ -188,11 +188,15 @@ int8 ReadEE(uint8 addr)
 void ReadParametersEE(void)
 {
 	static int8 p, c;
+	static uint8 i;
 	static uint16 addr;
 
 	addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
 	for(p = 0; p < MAX_PARAMETERS; p++)
 		P[p] = ReadEE(addr + p);
+
+	for (i = 0; i < CONTROLS; i++) // make reverse map
+		RMap[Map[P[TxRxType]][i]-1] = i+1;
 
 	IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
 	HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
