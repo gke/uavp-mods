@@ -368,6 +368,7 @@ void WaitThrottleClosedAndRTHOff(void)
 		if( _NewValues )
 		{
 			UpdateControls();
+			UpdateParamSetChoice();
 			CurrentThrottle = DesiredThrottle;
 			DesiredThrottle = 0; 				// prevent motors from starting
 			OutSignals();
@@ -379,6 +380,7 @@ void WaitThrottleClosedAndRTHOff(void)
 				Timeout += 500;
 			}
 		}
+		ReadParametersEE();	
 	}
 	while( ( CurrentThrottle >= RC_THRES_STOP) || _ReturnHome );
 	Beeper_OFF;
@@ -400,8 +402,8 @@ void WaitForRxSignalAndDisarmed(void)
 
 			if ( _NewValues )
 			{
+				UpdateControls();
 				UpdateParamSetChoice();
-				ReadParametersEE();
 				DesiredThrottle = 0;
 				OutSignals();
 				if ( Armed )
@@ -416,7 +418,8 @@ void WaitForRxSignalAndDisarmed(void)
 		{
 			LEDRed_ON;
 			LEDGreen_OFF;
-		}	
+		}
+		ReadParametersEE();	
 	}
 	while( ( Armed && FirstPass) || !_Signal );
 

@@ -68,6 +68,7 @@ struct {
 const rom uint8 NMEATag[6] = {"GPGGA"};
 
 uint8	CurrentParamSet;
+boolean ParametersChanged;
 
 // Control
 int16	RE, PE, YE, HE;					// gyro rate error	
@@ -247,7 +248,7 @@ const rom boolean PPMPosPolarity[CustomTxRx+1] =
 	};
 
 // Must be in thesame order as 
-const rom ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, OUT_YGEI2C_MAXIMUM, OUT_HOLGER_MAXIMUM };
+const rom ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, OUT_YGEI2C_MAXIMUM };
 
 void main(void)
 {
@@ -279,8 +280,6 @@ void main(void)
 	InitGPS();
 	InitNavigation();
 
-_AccelerationsValid = true;
-GyroCompensation();//zzz
 	ShowSetup(1);
 
 	FirstPass = true;

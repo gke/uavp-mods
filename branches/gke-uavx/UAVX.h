@@ -615,7 +615,7 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, RTHTimeout, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
@@ -674,6 +674,7 @@ extern struct {
 extern const rom uint8 NMEATag[];
 
 extern uint8 CurrentParamSet;
+extern boolean ParametersChanged;
 
 extern int16	RE, PE, YE, HE;
 extern int16	REp,PEp,YEp, HEp;

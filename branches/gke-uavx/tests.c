@@ -152,13 +152,17 @@ void ReceiverTest(void)
 	TxString("\tChannel order is: ");
 	for ( s = 0; s < RC_CONTROLS; s++)
 		TxChar(RxChMnem[RMap[s]-1]);
-		
-	TxString("\r\nMost recent Values:\r\n");
+
+	if ( _Signal )
+		TxString("\r\nSignal OK ");
+	else
+		TxString("\r\nSignal FAIL ");	
+	TxVal32(mS[Clock] - mS[LastValidRx], 3, 0);
+	TxString(" Sec. ago\r\n");
 	
 	// Be wary as new RC frames are being received as this
 	// is being displayed so data may be from overlapping frames
 
-	// don't check for NewValues as this is constantly toggling
 	for ( s = 0; s < CONTROLS ; s++ )
 	{
 		TxChar(s+'1');

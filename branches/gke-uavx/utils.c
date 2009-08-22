@@ -146,6 +146,8 @@ void InitMisc(void)
 
 	ThrNeutral = ThrLow = ThrHigh = MAXINT16;
 
+	GyroMidRoll = GyroMidPitch = GyroMidYaw = RollRate = PitchRate = YawRate = 0;
+
 	LEDShadow = 0;
     ALL_LEDS_OFF;
 	LEDRed_ON;
@@ -191,35 +193,40 @@ void ReadParametersEE(void)
 	static uint8 i;
 	static uint16 addr;
 
-	addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
-	for(p = 0; p < MAX_PARAMETERS; p++)
-		P[p] = ReadEE(addr + p);
-
-	for (i = 0; i < CONTROLS; i++) // make reverse map
-		RMap[Map[P[TxRxType]][i]-1] = i+1;
-
-	IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
-	HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
-
-	ESCMax = ESCLimits[P[ESCType]];
-
-	RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
-	PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
-	YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
-
-	NavIntLimit256 = P[NavIntLimit] * 256L; 
-	NavClosingRadius = (int32)P[NavRadius] * METRES_TO_GPS;
-	NavNeutralRadius = (int32)P[NeutralRadius] * METRES_TO_GPS;
-	NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
-	SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
-	CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
-
-	PIE1bits.CCP1IE = false;
-	DoRxPolarity();
-	PPM_Index = PrevEdge = 0;
-	PIE1bits.CCP1IE = true;
-
-	BatteryVolts = P[LowVoltThres];
+	if ( ParametersChanged )
+	{   // overkill if only a single parameter has changed but is not in flight loop
+		addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
+		for(p = 0; p < MAX_PARAMETERS; p++)
+			P[p] = ReadEE(addr + p);
+	
+		for (i = 0; i < CONTROLS; i++) // make reverse map
+			RMap[Map[P[TxRxType]][i]-1] = i+1;
+	
+		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
+		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
+	
+		ESCMax = ESCLimits[P[ESCType]];
+	
+		RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
+		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
+		YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
+	
+		NavIntLimit256 = P[NavIntLimit] * 256L; 
+		NavClosingRadius = (int32)P[NavRadius] * METRES_TO_GPS;
+		NavNeutralRadius = (int32)P[NeutralRadius] * METRES_TO_GPS;
+		NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
+		SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
+		CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
+	
+		PIE1bits.CCP1IE = false;
+		DoRxPolarity();
+		PPM_Index = PrevEdge = 0;
+		PIE1bits.CCP1IE = true;
+	
+		BatteryVolts = P[LowVoltThres];
+		
+		ParametersChanged = false;
+	}
 	
 } // ReadParametersEE
 
@@ -283,8 +290,6 @@ void UpdateParamSetChoice(void)
 	NewRTHAltitudeHold = _RTHAltitudeHold;
 	NewTurnToHome = _TurnToHome;
 
-	UpdateControls();
-
 	if ( P[ConfigBits] & TxMode2Mask )
 		Selector = RC[RollC];
 	else
@@ -323,7 +328,7 @@ void UpdateParamSetChoice(void)
 			}
 
 		if ( ( NewParamSet != CurrentParamSet ) || ( NewRTHAltitudeHold != _RTHAltitudeHold) )
-		{			
+		{	
 			CurrentParamSet = NewParamSet;
 			_RTHAltitudeHold = NewRTHAltitudeHold;
 			LEDBlue_ON;
@@ -344,6 +349,7 @@ void UpdateParamSetChoice(void)
 				Delay100mSWithOutput(4);
 				Beeper_OFF;	
 			}
+			ParametersChanged |= true;
 			Beeper_OFF;
 			LEDBlue_OFF;
 		}
@@ -383,9 +389,10 @@ void InitParameters(void)
 {
 	ALL_LEDS_ON;
 	CurrentParamSet = 1;
-// zzz	while ( ReadEE(TxRxType) == -1 ) 
+	while ( ReadEE(TxRxType) == -1 ) 
 		ProcessCommand();	
 	CurrentParamSet = 1;
+	ParametersChanged = true;
 	ReadParametersEE();
 	ALL_LEDS_OFF;
 } // InitParamters

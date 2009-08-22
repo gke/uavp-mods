@@ -249,7 +249,7 @@ void ProcessCommand(void)
 					d = RxNumS();
 					if ( p < MAX_PARAMETERS )
 					{
-						P[p] = d;
+						// Keep RAM based set up to date.
 						if( CurrentParamSet == 1 )
 						{
 							WriteEE(p, d);
@@ -261,6 +261,7 @@ void ProcessCommand(void)
 							if ( !ComParms[p] )
 								WriteEE(MAX_PARAMETERS + p, d);
 						}
+						ParametersChanged = true;
 					}
 					LEDBlue_OFF;
 				ShowPrompt();

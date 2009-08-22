@@ -189,6 +189,8 @@ void high_isr_handler(void)
 					SignalCount = Limit(SignalCount, -RC_GOOD_BUCKET_MAX, RC_GOOD_BUCKET_MAX);
 					_Signal = SignalCount > 0;
 
+					if ( _Signal)
+						mS[LastValidRx] = mS[Clock];
 					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT_MS;
 				}
 			}
