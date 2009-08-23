@@ -358,7 +358,6 @@ void main(void)
 				} // Switch State
 				_LostModel = false;
 				mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
-				mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
 				FailState = Waiting;
 			}
 			else

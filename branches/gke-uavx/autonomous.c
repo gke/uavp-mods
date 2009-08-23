@@ -287,6 +287,7 @@ void DoFailsafe(void)
 
 		if ( mS[Clock] > mS[FailsafeTimeout] ) 
 		{
+			mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
 			DesiredRoll = DesiredPitch = DesiredYaw = 0;
 			FailState = Aborting;
 

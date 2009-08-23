@@ -444,13 +444,18 @@ void GPSTest(void)
 
 	TxString("\r\nGPS test\r\n");
 	TxString("Monitors GPS input at 9.6Kb - units metres and degrees\r\n");
-	TxString("Set Baud Rate to 9.6Kb - you will get trash on the screen until you do this \r\n");
 	TxString("ARM the quadrocopter to connect the GPS\r\n");
+	TxString("Set Baud Rate to 9.6Kb - you will get trash on the screen until you do this \r\n");
 	TxString("DISARM to terminate the test \r\n");
 
-	while( !PollRxChar() );
-
 	ReceivingGPSOnly(true);
+	
+	while ( !Armed )
+	{
+		Delay1mS(1000);
+		TxChar('.');
+	}
+
 	_GPSTestActive = true;
 
 	while ( Armed )
