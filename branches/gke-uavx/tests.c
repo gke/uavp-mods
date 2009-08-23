@@ -444,15 +444,16 @@ void GPSTest(void)
 
 	TxString("\r\nGPS test\r\n");
 	TxString("Monitors GPS input at 9.6Kb - units metres and degrees\r\n");
-	TxString("DISARM the quadrocopter\r\n");
-	TxString("Press any key to continue, set Baud Rate to 9.6Kb and ARM \r\n");
+	TxString("Set Baud Rate to 9.6Kb - you will get trash on the screen until you do this \r\n");
+	TxString("ARM the quadrocopter to connect the GPS\r\n");
+	TxString("DISARM to terminate the test \r\n");
 
 	while( !PollRxChar() );
 
 	ReceivingGPSOnly(true);
 	_GPSTestActive = true;
 
-	while ( true )
+	while ( Armed )
 	{
 		DoLEDs();
 
@@ -492,26 +493,15 @@ void GPSTest(void)
 			TxString("ra=");
 			TxVal32(GPSRelAltitude, 1, ' ');
 
-			TxVal32(Abs(ConvertGPSToM(GPSNorth)), 0, 0);
-			if ( GPSNorth >=0 )
-				TxChar('n');
-			else
-				TxChar('s');
-			TxChar(' ');
-			TxVal32(Abs(ConvertGPSToM(GPSEast)), 0, 0);
-			if ( GPSEast >=0 )
-				TxChar('e');
-			else
-				TxChar('w');
-
-			TxString(" -> r=");
-			TxVal32(DesiredRoll, 0, ' ');
-			TxString(" p=");		
-			TxVal32(DesiredPitch, 0, ' ');
 			TxNextLine();
 		}	
 		_GPSValid = false;	
 	}
+
+	TxString("GPS Test TERMINATED \r\n");
+	TxString("Set Baud Rate to 38Kb \r\n");
+	ReceivingGPSOnly(false);
+ 	_GPSTestActive = false;
 	
 } // GPSTest
 
