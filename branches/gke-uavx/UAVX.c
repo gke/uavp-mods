@@ -287,24 +287,11 @@ void main(void)
 	while( true )
 	{
 		StopMotors();
-
 		ReceivingGPSOnly(false);
-
 		EnableInterrupts;
+
+		LightsAndSirens();				// Check for Rx Signal, Disarmed on power up, Throttle closed
 	
-		Beeper_OFF; 
-		if( _AccelerationsValid ) LEDYellow_ON; else LEDYellow_OFF;
-		if ( _Signal ) LEDGreen_ON; else LEDGreen_OFF;
-
-		WaitForRxSignalAndDisarmed();			// WAIT until Disarmed!
-		WaitThrottleClosedAndRTHOff();
-
-		_LostModel = false;
-		mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
-		mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
-		mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
-		FailState = Waiting;
-
 		State = Starting;
 
 		while ( Armed && !_ParametersInvalid )
@@ -328,18 +315,9 @@ void main(void)
 					InitNavigation();
 					ResetGPSOrigin();
 					ErectGyros();			// DO NOT MOVE AIRCRAFT!
-					DesiredThrottle = 0;
 
-					for ( b = 0; b < 3; b++ )
-					{
-						Beeper_ON;
-						Delay1mS(200);
-						Beeper_OFF;
-						Delay1mS(800);
-					}
-					Beeper_ON;
-					Delay1mS(800);
-					Beeper_OFF;
+					DesiredThrottle = 0;
+					DoStartingBeepsWithOutput(3);	
 
 					State = Landed;
 					break;

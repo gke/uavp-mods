@@ -34,12 +34,11 @@ void ErectGyros(void);
 void CalcGyroRates(void);
 void DoControl(void);
 
-void WaitThrottleClosed(void);
 void CheckThrottleMoved(void);
-void WaitForRxSignalAndDisarmed(void);
 void UpdateControls(void);
 void CaptureTrims(void);
 void StopMotors(void);
+void LightsAndSirens(void);
 void InitControl(void);
 
 void GyroCompensation(void)
@@ -355,81 +354,6 @@ void DoControl(void)
 
 } // DoControl
 
-void WaitThrottleClosedAndRTHOff(void)
-{
-	uint24 Timeout;
-	int16 CurrentThrottle;
-	
-	CurrentThrottle = RC_MAXIMUM;
-	Timeout = mS[Clock] + 500; 					// mS.
-	do
-	{
-		ProcessCommand();
-		if( _NewValues )
-		{
-			UpdateControls();
-			UpdateParamSetChoice();
-			CurrentThrottle = DesiredThrottle;
-			DesiredThrottle = 0; 				// prevent motors from starting
-			OutSignals();
-			if( mS[Clock] > Timeout )
-			{
-				LEDRed_TOG;	
-				if ( _ReturnHome )
-					Beeper_TOG;					// toggle Beeper every 0.5Sec 
-				Timeout += 500;
-			}
-		}
-		ReadParametersEE();	
-	}
-	while( ( CurrentThrottle >= RC_THRES_STOP) || _ReturnHome );
-	Beeper_OFF;
-	LEDRed_OFF;
-} // WaitThrottleClosedAndRTHOff
-
-void WaitForRxSignalAndDisarmed(void)
-{
-	uint24 Timeout;
-	uint8 SaveLEDShadow;
-	
-	Timeout = mS[Clock] + 500; 					// mS.
-	do
-	{		
-		ProcessCommand();
-		if( _Signal )
-		{
-			LEDGreen_ON;
-
-			if ( _NewValues )
-			{
-				UpdateControls();
-				UpdateParamSetChoice();
-				DesiredThrottle = 0;
-				OutSignals();
-				if ( Armed )
-					if( mS[Clock] > Timeout )
-					{
-						LEDRed_TOG;
-						Timeout += 500;			// Toggle LEDs every 0.5Sec
-					}
-			}
-		}
-		else
-		{
-			LEDRed_ON;
-			LEDGreen_OFF;
-		}
-		ReadParametersEE();	
-	}
-	while( ( Armed && FirstPass) || !_Signal );
-
-	FirstPass = false;
-
-	LEDRed_OFF;
-	LEDGreen_ON;
-
-} // WaitForRxSignalAndDisarmed
-
 void UpdateControls(void)
 {
 	if ( _NewValues )
@@ -466,6 +390,69 @@ void StopMotors(void)
 	MCamPitch = MCamRoll = OUT_NEUTRAL;
 } // StopMotors
 
+void LightsAndSirens(void)
+{
+	uint24 Timeout;
+	int16 CurrentThrottle;
+
+	if( _AccelerationsValid ) LEDYellow_ON; else LEDYellow_OFF;
+	if ( _Signal ) LEDGreen_ON; else LEDGreen_OFF;
+
+	Beeper_OFF; 
+	CurrentThrottle = RC_MAXIMUM;
+	Timeout = mS[Clock] + 500; 					// mS.
+	do
+	{
+		ProcessCommand();
+		if( _Signal )
+		{
+			LEDGreen_ON;
+			if( _NewValues )
+			{
+				UpdateControls();
+				UpdateParamSetChoice();
+				CurrentThrottle = DesiredThrottle;
+				DesiredThrottle = 0; 				// prevent motors from starting
+				OutSignals();
+				if( mS[Clock] > Timeout )
+				{
+					if ( _ReturnHome )
+					{
+						Beeper_TOG;					
+						LEDRed_TOG;
+					}
+					else
+						if ( Armed )
+							LEDRed_TOG;
+						
+					Timeout += 500;
+				}
+			}
+		}
+		else
+		{
+			LEDRed_ON;
+			LEDGreen_OFF;
+		}	
+		ReadParametersEE();	
+	}
+	while( (!_Signal) || (Armed && FirstPass) || _ReturnHome || ( CurrentThrottle >= RC_THRES_STOP) );
+
+	FirstPass = false;
+
+	Beeper_OFF;
+	LEDRed_OFF;
+	LEDGreen_ON;
+
+	_LostModel = false;
+	mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
+	mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
+	mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
+	FailState = Waiting;
+
+} // LightsAndSirens
+
+
 void InitControl(void)
 {
 	RollRate = PitchRate = 0;
@@ -474,4 +461,6 @@ void InitControl(void)
 	DUSum = 0;
 	AE = AltSum = 0;
 } // InitControl
+
+
 

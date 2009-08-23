@@ -481,11 +481,10 @@ extern void ErectGyros(void);
 extern void CalcGyroRates(void);
 extern void DoControl(void);
 
-extern void WaitThrottleClosedAndRTHOff(void);
-extern void WaitForRxSignalAndDisarmed(void);
 extern void UpdateControls(void);
 extern void CaptureTrims(void);
 extern void StopMotors(void);
+extern void LightsAndSirens(void);
 extern void InitControl(void);
 
 // irq.c
@@ -581,6 +580,9 @@ extern void SwitchLEDsOn(uint8);
 extern void SwitchLEDsOff(uint8);
 extern void LEDGame(void);
 extern void CheckAlarms(void);
+
+extern void DoBeep100mSWithOutput(uint8, uint8);
+extern void DoStartingBeepsWithOutput(uint8);
 
 extern void InitStats(void);
 extern void CollectStats(void);

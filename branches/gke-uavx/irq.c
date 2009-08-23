@@ -25,6 +25,7 @@
 // Interrupt Routine
 
 #define MIN_PPM_SYNC_PAUSE 2500  	// 2500 *2us = 5ms
+// no less than 1500
 
 // Simple averaging of last two channel captures
 //#define RC_FILTER

@@ -55,6 +55,9 @@ void SwitchLEDsOff(uint8);
 void LEDGame(void);
 void CheckAlarms(void);
 
+void DoBeep1MsWithOutput(uint8, uint8);
+void DoStartingBeepsWithOutput(uint8);
+
 void InitStats(void);
 void CollectStats(void);
 void FlightStats(void);
@@ -332,23 +335,11 @@ void UpdateParamSetChoice(void)
 			CurrentParamSet = NewParamSet;
 			_RTHAltitudeHold = NewRTHAltitudeHold;
 			LEDBlue_ON;
-			Beeper_ON;
-			Delay100mSWithOutput(2);
-			Beeper_OFF;
+			DoBeep100mSWithOutput(2, 2);
 			if ( CurrentParamSet == 2 )
-			{
-				Delay100mSWithOutput(2);
-				Beeper_ON;
-				Delay100mSWithOutput(2);
-				Beeper_OFF;
-			}
+				DoBeep100mSWithOutput(2, 2);
 			if ( _RTHAltitudeHold )
-			{
-				Delay100mSWithOutput(4);
-				Beeper_ON;
-				Delay100mSWithOutput(4);
-				Beeper_OFF;	
-			}
+				DoBeep100mSWithOutput(4, 4);
 			ParametersChanged |= true;
 			Beeper_OFF;
 			LEDBlue_OFF;
@@ -373,13 +364,8 @@ void UpdateParamSetChoice(void)
 			_TurnToHome = NewTurnToHome;
 			LEDBlue_ON;
 			if ( _TurnToHome )
-			{
-				Beeper_ON;
-				Delay100mSWithOutput(4);
-			}
-			else
-				Delay100mSWithOutput(2);
-			Beeper_OFF;
+				DoBeep100mSWithOutput(4, 2);
+
 			LEDBlue_OFF;
 		}
 	}
@@ -636,6 +622,24 @@ void CheckAlarms(void)
 	}
 
 } // CheckAlarms
+
+void DoBeep100mSWithOutput(uint8 t, uint8 d)
+{
+	Beeper_ON;
+	Delay100mSWithOutput(t);
+	Beeper_OFF;
+	Delay100mSWithOutput(d);
+} // DoBeep100mSWithOutput
+
+void DoStartingBeepsWithOutput(uint8 b)
+{
+	uint8 i;
+
+	for ( i = 0; i < b; i++ )
+		DoBeep100mSWithOutput(2, 8);
+
+	DoBeep100mSWithOutput(8,0);
+} // DoStartingBeeps
 
 void InitStats(void)
 {

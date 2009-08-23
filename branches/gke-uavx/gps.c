@@ -210,13 +210,16 @@ void ParseGPSSentence(void)
 			if (GPSHDilute <= GPS_MIN_HDILUTE )
 			{
 				if ( ValidGPSSentences ==  GPS_INITIAL_SENTENCES )
+				{
 					SetGPSOrigin();
+					DoBeep100mSWithOutput(1,0);
+				}
 				ValidGPSSentences++;
 			}	
 		}
 		else
 		{
-			// all cordinates in 0.0001 Minutes relative to Origin
+			// all coordinates in 0.0001 Minutes or ~0.185M units relative to Origin
 			GPSNorth = GPSLatitude - GPSOriginLatitude;
 			GPSEast = GPSLongitude - GPSOriginLongitude;
 			GPSEast = SRS32((int32)GPSEast * GPSLongitudeCorrection, 8); 

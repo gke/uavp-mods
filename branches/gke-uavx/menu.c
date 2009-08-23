@@ -289,6 +289,8 @@ void ProcessCommand(void)
 				TxString(",5:");TxValU(ToPercent(RC[RTHC], RC_MAXIMUM));
 				TxString(",6:");TxValU(ToPercent(RC[CamTiltC], RC_MAXIMUM));
 				TxString(",7:");TxValU(ToPercent(RC[NavGainC], RC_MAXIMUM));
+// zzz Glitches
+//zzz _Signal
 				ShowPrompt();
 				break;
 			case 'S' :	// show status
