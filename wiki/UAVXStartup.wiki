@@ -37,17 +37,17 @@ It is assumed you:
   * Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
   * Compass Orientation: You must have a compass for GPS navigation. The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
   * Barometers: You must have a barometer for GPS navigation as it is required for altitude hold(see below). The BMP085 is recommended but the software can use the SMD500. The software automatically senses which barometer you are using.
-  * UAVX Debug Versions: The (HEX) files with the word "Debug" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>Sensor Test Graphic. See also the README file in the release zip.
+  * UAVX Debug Versions: The (HEX) files with the word "Debug" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>Sensor Test Graphic. See also the README file in the release zip as it tells you what information is available to display.
   * 6 Channel Receivers: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of correction.
   * Tricopters: Use the the files with TRI in the names.
   * Setting Default Parameter Values: Use Tools->Testsoftware->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
 
 ===Tx/Rx Setup===
-As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three wires.
+As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three motor wires on each motor.
 
 The setup procedure:
 
-  * First make sure that the UAVP is not armed! Set your Tx to its default values to start fresh.  You must use ACRO mode on your Tx.  Set your trims and sub-trims to zero.  Using UAVPset V3.0 pull down menus select the correct Tx/Rx combination and RS to Quad and TX mode for your kit.  Write this to the UAVP.
+  * First make sure that the UAVP is not armed! Set your Tx to its default values to start fresh.  You must use ACRO mode on your Tx.  Set your trims and sub-trims to zero.  Using UAVPset V3.0 pull down menus select the correct Tx/Rx combination and Rx to Quad and TX mode for your kit.  Write this to the UAVP.
 
   * Go to the Tool->Testsoftware and do the Rx test and see that all channels pass.  If not then the Tx EPAs (End Point Adjustment) must be adjusted here first.  For most, simply setting channel 5 lower EPA to 80% and upper EPA to 80% will get a pass on all channels that the Tx/Rx combination allows, i.e., either 5 or 7.  The next channels to adjust if you still do not get a pass are setting channels 6 and 7 to 80% upper and lower.  If you still cannot get the channels to pass, then post in the forum for additional help. Here: [http://www.rcgroups.com/forums/showthread.php?t=1093510]
 
