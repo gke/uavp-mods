@@ -229,32 +229,33 @@ void HorizontalDamping(void)
 	AbsRollSum = Abs(RollSum);
 	AbsPitchSum = Abs(PitchSum);
 	
-	// Empirical - vertical acceleration decreases at ~approx Sum/8
 	if ( AbsRollSum < 200 ) // ~ 10deg
 	{
 		LRVel += LRAcc;
+		LRVel = Limit(LRVel, -16384, 16384);
 		LRDisp = SRS16(LRVel, 8);
 		LRComp = SRS16(LRDisp * P[HorizDampKp], 8);
 		LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-
-		FBVel = Decay(FBVel, 2);
-		LRDisp = Decay(LRDisp, 2);
 	}
 	else
 		LRComp = 0;
 
+	LRVel = Decay(LRVel, 2);
+	LRDisp = Decay(LRDisp, 2);
+
 	if ( AbsPitchSum < 200 ) // ~ 10deg
 	{
 		FBVel += FBAcc;
+		FBVel = Limit(FBVel, -16384, 16384);
 		FBDisp = SRS16(FBVel, 8);
 		FBComp = SRS16(FBDisp * P[HorizDampKp], 8);
 		FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-
-		FBVel = Decay(FBVel, 2);
-		LRDisp = Decay(LRDisp, 2); 
 	}
 	else
 		FBComp = 0;
+
+	FBVel = Decay(FBVel, 2);
+	FBDisp = Decay(FBDisp, 2); 
 
 } // HorizontalDamping
 
