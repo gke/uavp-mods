@@ -180,9 +180,10 @@ RVerror:
 static int16 BaroAverage;
 
 void GetBaroPressure(void)
-{	// SMD500 9.5mS (T) 34mS (P)  
+{	
+	int16 Temp;
+	// SMD500 9.5mS (T) 34mS (P)  
 	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
-	// Baro is assumed offline unless it responds - no retries!
 
 	if ( mS[Clock] > mS[BaroUpdate] )
 	{
@@ -192,6 +193,12 @@ void GetBaroPressure(void)
 		if ( BaroSample == 8 )
 		{
 			CurrentBaroPressure = BaroFilter(CurrentBaroPressure, SRS16( BaroAverage, 3) );
+			if ( State == InFlight )
+			{
+				Temp = Abs(CurrentBaroPressure);
+				if ( Temp > Stats[BaroPressureS].i16 ) 
+					Stats[BaroPressureS].i16 = Temp;
+			}
 			BaroSample = BaroAverage = 0;
 			_NewBaroValue = true;
 		}
@@ -202,15 +209,13 @@ void GetBaroPressure(void)
 	}
 }// GetBaroPressure
 
-// initialize compass sensor
 void InitBarometer(void)
 {	
-	const int8 Samples = 16; 
-	int24 BaroAv;
+	uint24 BaroAv;
 	uint8 s;
 	uint8 r;
 
-	VBaroComp = BaroAverage = 0;
+	BaroComp = BaroAverage = 0;
 
 	// Determine baro type
 	I2CStart();
@@ -227,14 +232,14 @@ void InitBarometer(void)
 	if ( !_BaroAltitudeValid ) goto BAerror;
 
 	BaroAv = 0;
-	for (s = 0; s < Samples; s++)
+	for ( s = 32; s ; s-- )
 	{
 		while ( mS[Clock] < mS[BaroUpdate] );
 		ReadBaro();
-		BaroAv += (int24)BaroVal.u16;	
+		BaroAv += BaroVal.u16;	
 	}
 	
-	OriginBaroPressure = BaroAv / (int24)Samples;
+	OriginBaroPressure = (int16)(BaroAv >> 5);
 	CurrentBaroPressure = 0;
 	_NewBaroValue = false;
 	BaroSample = 0;
@@ -256,7 +261,7 @@ void CheckForHover(void)
 	{
 		_Hovering = false;
 		DesiredBaroPressure = CurrentBaroPressure;
-		VBaroComp = BE = BEp = 0;	
+		BaroComp = BE = BEp = 0;	
 	}
 	else
 		_Hovering = _BaroAltitudeValid;
@@ -284,21 +289,21 @@ void BaroPressureHold(int16 DesiredBaroPressure)
 		// strictly this is acting more like an integrator 
 		// bumping VBaroComp up and down proportional to the error?	
 		Temp = BE * (int16)P[BaroCompKp];
-		if( VBaroComp > Temp )
-			VBaroComp--;
+		if( BaroComp > Temp )
+			BaroComp--;
 		else
-			if( VBaroComp < Temp )
-				VBaroComp++; // climb
+			if( BaroComp < Temp )
+				BaroComp++; // climb
 					
 		// Differential	
 		Delta = BE - BEp;	
-		VBaroComp += Limit(Delta, -5, 8) * (int16)P[BaroCompKd];
+		BaroComp += Limit(Delta, -5, 8) * (int16)P[BaroCompKd];
 		
-		VBaroComp = Limit(VBaroComp, BARO_LOW_THR_COMP, BARO_HIGH_THR_COMP);
+		BaroComp = Limit(BaroComp, BARO_LOW_THR_COMP, BARO_HIGH_THR_COMP);
 	
 		if ( !(  _RTHAltitudeHold && ( NavState == ReturningHome ) ) )
 		{
-			Temp = DesiredThrottle + VBaroComp;
+			Temp = DesiredThrottle + BaroComp;
 			HoverThrottle = HardFilter(HoverThrottle, Temp);
 		}
 	

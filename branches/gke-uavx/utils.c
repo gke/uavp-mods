@@ -50,17 +50,18 @@ int16 int16atan2(int16, int16);
 int16 int16sqrt(int16);
 
 void SendLEDs(void);
-void SwitchLEDsOn(uint8);
-void SwitchLEDsOff(uint8);
+void LEDsOn(uint8);
+void LEDsOff(uint8);
 void LEDGame(void);
 void CheckAlarms(void);
 
 void DoBeep1MsWithOutput(uint8, uint8);
 void DoStartingBeepsWithOutput(uint8);
 
-void InitStats(void);
-void CollectStats(void);
-void FlightStats(void);
+void ZeroStats(void);
+void ReadStatsEE(void);
+void WriteStatsEE(void);
+void ShowStats(void);
 
 void DumpTrace(void);
 
@@ -140,14 +141,19 @@ void InitMisc(void)
 {
 	uint8 i;
 
+	State = Starting;				// For trace preconditions
+
 	for ( i = 0; i <= TopTrace; i++)
 		Trace[i] = 0;
 	
 	for ( i = 0; i < 32 ; i++ )
 		Flags[i] = false; 
 	_RTHAltitudeHold = true;
+	_ParametersValid = true;
 
 	ThrNeutral = ThrLow = ThrHigh = MAXINT16;
+	ESCMin = OUT_MINIMUM;
+	ESCMax = OUT_MAXIMUM;
 
 	GyroMidRoll = GyroMidPitch = GyroMidYaw = RollRate = PitchRate = YawRate = 0;
 
@@ -158,7 +164,7 @@ void InitMisc(void)
 } // InitMisc
 
 int16 ConvertGPSToM(int16 c)
-{	// approximately 0.18553257183 Metres per LSB
+{	// approximately 0.18553257183 Metres per LSB at the Equator
 	// only for converting difference in coordinates to 32K
 	return ( ((int32)c * (int32)18553)/((int32)100000) );
 } // ConvertGPSToM
@@ -189,7 +195,6 @@ int8 ReadEE(uint8 addr)
 	return(b);	
 } // ReadEE
 
-
 void ReadParametersEE(void)
 {
 	static int8 p, c;
@@ -209,6 +214,10 @@ void ReadParametersEE(void)
 		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
 	
 		ESCMax = ESCLimits[P[ESCType]];
+		if ( P[ESCType] == ESCPPM )
+			ESCMin = 1;
+		else
+			ESCMin = 0;
 	
 		RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
 		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
@@ -543,17 +552,17 @@ void SendLEDs(void)
 	SPI_IO = RD_SPI;
 }
 
-void SwitchLEDsOn(uint8 l)
+void LEDsOn(uint8 l)
 {
 	LEDShadow |= l;
 	SendLEDs();
-} // SwitchLEDsOn
+} // LEDsOn
 
-void SwitchLEDsOff(uint8 l)
+void LEDsOff(uint8 l)
 {
 	LEDShadow &= ~l;
 	SendLEDs();
-} // SwitchLEDsOff
+} // LEDsOff
 
 void LEDGame(void)
 {
@@ -641,53 +650,70 @@ void DoStartingBeepsWithOutput(uint8 b)
 	DoBeep100mSWithOutput(8,0);
 } // DoStartingBeeps
 
-void InitStats(void)
+void ZeroStats(void)
 {
-	MaxGPSAltitude = MinBaroPressure = 0;
-	MaxRollRate = MaxPitchRate = MaxYawRate = 0;
-	MaxLRAcc = MaxFBAcc = MaxDUAcc = 0;
-}
+	uint8 s;
 
-void CollectStats(void)
+	for (s = 0 ; s < MaxStats ; s++ )
+		Stats[s].i16 = 0;
+} // ZeroStats
+
+void ReadStatsEE(void)
 {
-	static int16 Temp;
+	uint8 s;
 
-	if ( GPSRelAltitude > MaxGPSAltitude ) MaxGPSAltitude = GPSRelAltitude;
-	Temp = Abs(CurrentBaroPressure);
-	if ( Temp > MinBaroPressure ) MinBaroPressure = Temp;
-	// zzz BaroScale =  -( (int32)MinBaroPressure * 256L )/ MaxGPSAltitude;
-} // CollectStats
+	for (s = 0 ; s < MaxStats ; s++ )
+	{
+		Stats[s].low8 = ReadEE(STATS_ADDR_EE + s*2);
+		Stats[s].high8 = ReadEE(STATS_ADDR_EE + s*2 + 1);
+	}
+} // InitStats
 
-void FlightStats(void)
+void WriteStatsEE()
 {
-	int16 Scale;
+	uint8 s;
+	int16 Temp;
+
+	for (s = 0 ; s < MaxStats ; s++ )
+	{
+		WriteEE(STATS_ADDR_EE + s*2, Stats[s].low8);
+		WriteEE(STATS_ADDR_EE + s*2 + 1, Stats[s].high8);
+	}
+
+	Temp = ToPercent(HoverThrottle, OUT_MAXIMUM);
+	WriteEE((CurrentParamSet-1) * MAX_PARAMETERS + PercentHoverThr, Temp);
+} // WriteStatsEE
+
+void ShowStats(void)
+{
+	static int16 Scale;
 
 	Scale = 3000;
 	if ( P[GyroType] == IDG300 )
 		Scale = 5000;
 	else
 		if ( P[GyroType] == ADXRS150 )
-			Scale =1500;
+			Scale = 1500;
 
 	TxString("\r\nFlight Statistics\r\n");
-	TxString("GPS:  \t");TxVal32(MaxGPSAltitude,0,' '); TxString("Dm\r\n"); 
-	TxString("Baro: \t");TxVal32(MinBaroPressure,0,' '); TxString("lsb\r\n"); 
+	TxString("GPS:  \t");TxVal32(Stats[GPSAltitudeS].i16,0,' '); TxString("Dm\r\n"); 
+	TxString("Baro: \t");TxVal32(Stats[BaroPressureS].i16,0,' '); TxString("lsb\r\n"); 
 	TxNextLine();
-	TxString("Roll: \t"); TxVal32(((int32)(MaxRollRate - GyroMidRoll) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
-	TxString("Pitch:\t"); TxVal32(((int32)(MaxPitchRate - GyroMidPitch) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
-	TxString("Yaw:  \t");TxVal32(((int32)(MaxYawRate - GyroMidYaw) * 3000)>>8,1,' '); TxString("Deg/Sec\r\n");
+	TxString("Roll: \t"); TxVal32(((int32)(Stats[RollRateS].i16 - Stats[GyroMidRollS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
+	TxString("Pitch:\t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
+	TxString("Yaw:  \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>8,1,' '); TxString("Deg/Sec\r\n");
 	TxNextLine();
-	TxString("Left->Right:\t"); TxVal32(((int32)MaxLRAcc*1000+512)/1024, 3, 'G'); TxNextLine(); 
-	TxString("Down->Up:   \t"); TxVal32(((int32)MaxDUAcc*1000+512)/1024, 3, 'G'); TxNextLine(); 
-	TxString("Front->Back:\t"); TxVal32(((int32)MaxFBAcc*1000+512)/1024, 3, 'G'); TxNextLine();
-} // FlightStats
+	TxString("Left->Right:\t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
+	TxString("Down->Up:   \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
+	TxString("Front->Back:\t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine();
+} // ShowStats
 
 void DumpTrace(void)
 {
 #ifdef DEBUG_SENSORS
 	uint8 t;
 
-	if ( DesiredThrottle > 20 ) // zzzIdleThrottle )
+	if ( DesiredThrottle > 20 ) 
 	{
 		for (t=0; t <= TopTrace; t++)
 		{

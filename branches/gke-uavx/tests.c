@@ -41,18 +41,17 @@ void ConfigureESCs(void);
 
 void DoLEDs(void)
 {
-	if( !( _Signal && Armed ) )
+	if ( _AccelerationsValid  ) LEDYellow_ON; else LEDYellow_OFF;
+
+	if( _Signal )
 	{
-		LEDRed_ON;
-		LEDGreen_OFF;
-		if ( _AccelerationsValid  )
-			LEDYellow_ON;
+		LEDRed_OFF;
+		LEDGreen_ON;
 	}
 	else
 	{
-		LEDGreen_ON;
-		LEDRed_OFF;
-		LEDYellow_OFF;
+		LEDGreen_OFF;
+		LEDRed_ON;
 	}
 } // DoLEDs
 
@@ -442,8 +441,8 @@ void GPSTest(void)
 {
 	uint8 ch; 
 
-	TxString("\r\nGPS test\r\n");
-	TxString("Monitors GPS input at 9.6Kb - units metres and degrees\r\n");
+TxString("\r\nGPS test\r\n");
+	TxString("Monitors GPS input at 9.6Kb - units GPS lsb (~0.185M) and degrees\r\n");
 	TxString("ARM the quadrocopter to connect the GPS\r\n");
 	TxString("Set Baud Rate to 9.6Kb - you will get trash on the screen until you do this \r\n");
 	TxString("DISARM to terminate the test \r\n");
@@ -452,7 +451,7 @@ void GPSTest(void)
 	
 	while ( !Armed )
 	{
-		Delay1mS(1000);
+		Delay1mS(500);
 		TxChar('.');
 	}
 
@@ -465,17 +464,7 @@ void GPSTest(void)
 		UpdateGPS();	
 		if ( _GPSValid )
 		{
-			if ( Armed && _Signal )
-			{
-				DesiredRoll = RC[RollC];
-				DesiredPitch = RC[PitchC];
-			}
-			else
-				DesiredRoll = DesiredPitch = 0;
-
 			GetHeading();
-
-			Navigate(0, 0);
 
 			if ( _CompassValid)
 				TxVal32((int32)ConvertMPiToDDeg(Heading), 1, 0);
@@ -498,13 +487,19 @@ void GPSTest(void)
 			TxString("ra=");
 			TxVal32(GPSRelAltitude, 1, ' ');
 
+			TxString("re=");
+			TxVal32(GPSEast,0,' ');
+
+			TxString("rn=");
+			TxVal32(GPSNorth,0,' ');
+
 			TxNextLine();
 		}	
 		_GPSValid = false;	
 	}
 
 	TxString("GPS Test TERMINATED \r\n");
-	TxString("Set Baud Rate to 38Kb \r\n");
+	TxString("Set Baud Rate to 38.4Kb \r\n");
 	ReceivingGPSOnly(false);
  	_GPSTestActive = false;
 	

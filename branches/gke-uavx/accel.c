@@ -145,7 +145,7 @@ void WriteLISL(uint8 d, uint8 c)
 
 void IsLISLActive(void)
 {
-	int8 r;
+	static int8 r;
 
 	_AccelerationsValid = false;
 	SPI_CS = DSEL_LISL;
@@ -201,7 +201,7 @@ void ReadAccelerations()
 void GetNeutralAccelerations(void)
 {
 	// this routine is called ONLY ONCE while booting
-	// read 16 time all 3 axis of linear sensor.
+	// and averages accelerations over 16 samples.
 	// Puts values in Neutralxxx registers.
 	static uint8 i;
 	static int16 Rp, Pp, Yp;
@@ -209,7 +209,7 @@ void GetNeutralAccelerations(void)
 	Delay100mSWithOutput(2);	// wait 1/10 sec until LISL is ready to talk
 	// already done in caller program
 	Rp = Pp = Yp = 0;
-	for ( i=0; i < 16; i++)
+	for ( i = 16; i; i--)
 	{
 		while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == 0 );
 		ReadAccelerations();

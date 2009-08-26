@@ -64,8 +64,8 @@ boolean EmptyField;
 
 int16 ConvertInt(uint8 lo, uint8 hi)
 {
-	uint8 i;
-	int16 ival;
+	static uint8 i;
+	static int16 ival;
 
 	ival = 0;
 	if ( !EmptyField )
@@ -79,10 +79,8 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi)
 { 	// NMEA coordinates assumed as DDDMM.MMMM ie 4 decimal minute digits
 	// Positions are stored at maximum transmitted NMEA resolution which is
 	// approximately 0.1855 Metres per LSB at the Equator.
-
-
-	int32 dd, mm, dm;	
-	int32 ival;
+	static int32 dd, mm, dm;	
+	static int32 ival;
 	
 	ival=0;
 	if ( !EmptyField )
@@ -114,7 +112,7 @@ int32 ConvertUTime(uint8 lo, uint8 hi)
 
 void UpdateField(void)
 {
-	uint8 ch;
+	static uint8 ch;
 
 	lo = cc;
 
@@ -225,6 +223,8 @@ void ParseGPSSentence(void)
 			GPSEast = SRS32((int32)GPSEast * GPSLongitudeCorrection, 8); 
 
 			GPSRelAltitude = GPSAltitude - GPSOriginAltitude;
+			if ( ( State == InFlight ) && ( GPSRelAltitude > Stats[GPSAltitudeS].i16 )) 
+				Stats[GPSAltitudeS].i16 = GPSRelAltitude;
 		}
 	}
 	else
@@ -267,7 +267,7 @@ void UpdateGPS(void)
 		if ( _GPSValid )
 		{
 			_NavComputed = false;
-			mS[GPSTimeout] = mS[Clock] + GPS_TIMEOUT_S*1000L;
+			mS[GPSTimeout] = mS[Clock] + GPS_TIMEOUT_MS;
 		}
 	}
 	else

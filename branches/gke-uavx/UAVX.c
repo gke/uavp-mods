@@ -47,7 +47,7 @@ uint8 	GPSRxState;
 boolean RCFrameOK, GPSSentenceReceived;
 uint8 	ll, tt, gps_ch;
 uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
-uint8	ESCMax;
+uint8	ESCMin, ESCMax;
 #pragma udata
 
 int16 	RC[CONTROLS];
@@ -76,16 +76,19 @@ int16	REp, PEp, YEp, HEp;				// previous error for derivative
 int16	RollSum, PitchSum, YawSum;		// integral 	
 int16	RollRate, PitchRate, YawRate;
 int16	RollTrim, PitchTrim, YawTrim;
-int16	HoldRoll, HoldPitch, HoldYaw;
+int16	HoldYaw;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
+
+#pragma udata accs
 i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int16	Rl,Pl,Yl;						// PID output values
 int8	NeutralLR, NeutralFB, NeutralDU;
-int16 	DUAcc, DUSum, VDUComp;
+int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, LRDisp, FBDisp, DUComp, LRComp, FBComp;
+#pragma udata
 
 int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
 
@@ -101,7 +104,7 @@ int16	DesiredBaroPressure, CurrentBaroPressure;
 int16	BE, BEp;
 i16u	BaroVal;
 int8	BaroSample;
-int16	VBaroComp;
+int16	BaroComp;
 uint8	BaroType;
 
 uint8	LEDShadow;		// shadow register
@@ -110,9 +113,7 @@ uint8	MCamRoll,MCamPitch;
 int16	Motor[NoOfMotors];
 
 #pragma udata stats
-int16 	MaxGPSAltitude, MinBaroPressure;
-int16	MaxRollRate, MaxPitchRate, MaxYawRate;
-int16 	MaxLRAcc, MaxFBAcc, MaxDUAcc;
+i16u Stats[MaxStats];
 #pragma udata
 
 int16	Trace[TopTrace+1];
@@ -140,7 +141,7 @@ const rom int8 DefaultParams[] = {
 	-18, 			// RollKp, 			01
 	-8, 			// RollKi,			02
 	50, 			// RollKd,			03
-	0, 				// BaroTempCoeff,	04c not currently used
+	0, 				// HorizDampKp,		04c 
 	4, 				// RollIntLimit,	05
 	-18, 			// PitchKp,			06
 	-8, 			// PitchKi,			07
@@ -258,7 +259,8 @@ void main(void)
 	DisableInterrupts;
 
 	InitMisc();
-	InitStats();
+	ReadStatsEE();
+
 	InitPorts();
 
 	OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
@@ -294,19 +296,21 @@ void main(void)
 	
 		State = Starting;
 
-		while ( Armed && !_ParametersInvalid )
+		while ( Armed && _ParametersValid )
 		{ // no command processing while the Quadrocopter is armed
 	
 			ReceivingGPSOnly(true); 
 
 			UpdateGPS();
 			UpdateControls();
-			CollectStats();
 
-			if ( _Signal && ( FailState != Terminated ) )
+			if ( _Signal && ( FailState != Terminated ) && ( FailState != Returning ) )
 			{
 				switch ( State  ) {
 				case Starting:	// this state executed once only after arming
+
+					LEDYellow_OFF;
+					ZeroStats();
 					InitControl();
 					CaptureTrims();
 
@@ -326,7 +330,7 @@ void main(void)
 					{
 						InitHeading();						
 						LEDCycles = 1;
-						mS[NavActiveTime] = mS[Clock] + NAV_ACTIVE_DELAY_S*1000L;
+						mS[NavActiveTime] = mS[Clock] + NAV_ACTIVE_DELAY_MS;
 						State = InFlight;
 					}
 					break;
@@ -339,8 +343,7 @@ void main(void)
 						else
 						{
 							State = Landed;
-							Temp = ToPercent(HoverThrottle, OUT_MAXIMUM);
-							WriteEE((CurrentParamSet-1) * MAX_PARAMETERS + PercentHoverThr, Temp);
+							WriteStatsEE();
 						}
 					break;
 				case InFlight:
@@ -350,14 +353,14 @@ void main(void)
 
 					if ( DesiredThrottle < IdleThrottle )
 					{
-						mS[ThrottleIdleTimeout] = mS[Clock] + THROTTLE_LOW_DELAY_S;
+						mS[ThrottleIdleTimeout] = mS[Clock] + THROTTLE_LOW_DELAY_MS;
 						State = Landing;
 					}
 					break;
 
 				} // Switch State
 				_LostModel = false;
-				mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_S*1000L;
+				mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_MS;
 				FailState = Waiting;
 			}
 			else

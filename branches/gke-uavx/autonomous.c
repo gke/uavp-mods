@@ -46,7 +46,7 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 	if ( _RTHAltitudeHold )
 		if ( P[ConfigBits] & UseGPSAltMask )
 		{
-			AE = Limit(DesiredAltitude - GPSRelAltitude, -GPS_ALT_BAND*10L, GPS_ALT_BAND*10L);
+			AE = Limit(DesiredAltitude - GPSRelAltitude, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
 			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 5);
@@ -67,20 +67,20 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 
 void Descend(void)
 { // uses Baro only
-	int16 DesiredBaroPressure, PressureIncrease;
+	static int16 DesiredBaroPressure;
 
 	if (  mS[Clock] > mS[AltHoldUpdate] )
 		if ( InTheAir ) 							//  micro switch RC0 Pin 11 to ground when landed
 		{
 			DesiredThrottle = HoverThrottle;
 
-			if ( CurrentBaroPressure < SRS32( BARO_DESCENT_TRANS_DM * BARO_SCALE, 8) )
-				DesiredBaroPressure = CurrentBaroPressure + SRS32( BARO_MAX_DESCENT_DMPS * BARO_SCALE, 8); 
+			if ( CurrentBaroPressure < -( BARO_DESCENT_TRANS_DM * BARO_SCALE)/256L )
+				DesiredBaroPressure = CurrentBaroPressure + (BARO_MAX_DESCENT_DMPS * BARO_SCALE)/256L;
 			else
-				DesiredBaroPressure = CurrentBaroPressure + SRS32( BARO_FINAL_DESCENT_DMPS * BARO_SCALE, 8); 
+				DesiredBaroPressure = CurrentBaroPressure + (BARO_FINAL_DESCENT_DMPS * BARO_SCALE)/256L; 
 
 			BaroPressureHold( DesiredBaroPressure );	
-			mS[AltHoldUpdate] = mS[Clock] + 1000L;
+			mS[AltHoldUpdate] += 1000L;
 		}
 		else
 			DesiredThrottle = 0;
@@ -179,7 +179,10 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			DesiredYaw += NavYCorr;
 		}
 		else
+		{
+			// bump compensation with Acc here
 			NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = 0;
+		}
 
 		_NavComputed = true;
 	}
@@ -187,6 +190,8 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void DoNavigation(void)
 {
+	static int16 HoldRoll, HoldPitch, HoldYaw;
+
 	if ( _GPSValid && _CompassValid  && ( NavSensitivity > NAV_GAIN_THRESHOLD ) && ( mS[Clock] > mS[NavActiveTime]) )
 		switch ( NavState ) {
 		case PIC:
@@ -206,8 +211,7 @@ void DoNavigation(void)
 					NavHoldResetCount -= 2;		// Faster decay
 			}
 				
-			// Keep GPS hold active regardless
-			NavState = HoldingStation;
+			NavState = HoldingStation;			// Keep GPS hold active regardless
 			Navigate(GPSNorthHold, GPSEastHold);
 	
 			if ( _ReturnHome )
@@ -226,7 +230,7 @@ void DoNavigation(void)
 			{
 				if ( _Proximity )
 				{
-					mS[RTHTimeout] = mS[Clock] + NAV_RTH_TIMEOUT_S*1000L;					
+					mS[RTHTimeout] = mS[Clock] + NAV_RTH_TIMEOUT_MS;					
 					NavState = AtHome;
 				}
 			}
@@ -263,37 +267,77 @@ void DoNavigation(void)
 
 void DoFailsafe(void)
 { // only relevant to PPM Rx or Quad NOT synchronising with Rx
-
-	ALL_LEDS_OFF;
-	switch ( FailState ) {
-	case Terminated:
-		LEDRed_ON;
-		_LostModel = true;
-		DesiredRoll = DesiredPitch = DesiredYaw = 0;
-		DesiredThrottle = 0;
-		StopMotors();
-		//Descend();
-		break;
-	case Aborting:
-		if( mS[Clock] > mS[AbortTimeout] ) // timeout - immediate shutdown/abort
-		{
-			mS[AltHoldUpdate] = mS[Clock];
-			FailState = Terminated;
-		}
-		break;
-	case Waiting:
-		if ( State != InFlight )
-			DesiredThrottle = 0;
-
-		if ( mS[Clock] > mS[FailsafeTimeout] ) 
-		{
-			mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_S*1000L;
+	if ( State == InFlight )
+		switch ( FailState ) {
+		case Terminated:
 			DesiredRoll = DesiredPitch = DesiredYaw = 0;
-			FailState = Aborting;
+			if ( CurrentBaroPressure < -(BARO_FAILSAFE_MIN_ALT_DM * BARO_SCALE)/256L )
+			{
+				Descend();							// progressively increase desired baro pressure
+				if ( mS[Clock ] > mS[AbortTimeout] )
+					if ( _Signal )
+					{
+						LEDRed_OFF;
+						LEDGreen_ON;
+						FailState = Waiting;
+					}
+					else
+						mS[AbortTimeout] += ABORT_UPDATE_MS;
+			}
+			else
+			{ // shutdown motors to avoid prop injury
+				DesiredThrottle = 0;
+				StopMotors();
+			}
+			break;
+		case Returning:
+			DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = 0;
+			NavSensitivity = RC_NEUTRAL;		// 50% gain
+			_ReturnHome = _TurnToHome = true;
+			NavState = ReturningHome;
+			DoNavigation();						// if GPS is out then check for hover will see zero throttle
+			if ( mS[Clock ] > mS[AbortTimeout] )
+				if ( _Signal )
+				{
+					LEDRed_OFF;
+					LEDGreen_ON;
+					FailState = Waiting;
+				}
+				else
+					mS[AbortTimeout] += ABORT_UPDATE_MS;
+			break;
+		case Aborting:
+			if( mS[Clock] > mS[AbortTimeout] )
+			{
+				_LostModel = true;
+				LEDGreen_OFF;
+				LEDRed_ON;
 
-			// use last "good" throttle; 
-		}
-		break;
+				mS[AltHoldUpdate] = mS[Clock];
+				AltitudeHold(WP[0].A);
+				mS[AbortTimeout] += ABORT_TIMEOUT_MS;
+
+				#ifdef NAV_PPM_FAILSAFE_RTH
+				FailState = Returning;
+				#else
+				FailState = Terminated;
+				#endif // PPM_FAILSAFE_RTH
+			}
+			break;
+		case Waiting:
+			if ( mS[Clock] > mS[FailsafeTimeout] ) 
+			{
+				LEDRed_ON;
+				mS[AbortTimeout] = mS[Clock] + ABORT_TIMEOUT_MS;
+				DesiredRoll = DesiredPitch = DesiredYaw = 0;
+				FailState = Aborting;
+				// use last "good" throttle; 
+			}
+			break;
+		} // Switch FailState
+	else
+	{
+		DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = 0;
 	}			
 } // DoFailsafe
 
@@ -308,7 +352,7 @@ void CheckThrottleMoved(void)
 		ThrHigh = ThrNeutral + THROTTLE_MIDDLE;
 		if ( ( DesiredThrottle <= ThrLow ) || ( DesiredThrottle >= ThrHigh ) )
 		{
-			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE_S*1000L;
+			mS[ThrottleUpdate] = mS[Clock] + THROTTLE_UPDATE_MS;
 			_ThrottleMoving = true;
 		}
 		else
@@ -318,7 +362,7 @@ void CheckThrottleMoved(void)
 
 void InitNavigation(void)
 {
-	uint8 w;
+	static uint8 w;
 
 	for (w = 0; w < NAV_MAX_WAYPOINTS; w++)
 	{

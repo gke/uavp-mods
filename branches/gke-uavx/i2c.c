@@ -99,7 +99,7 @@ uint8 SendI2CByte(uint8 d)
 {
 	uint8 s;
 
-	for(s=8; s ; s--)
+	for ( s = 8; s ; s-- )
 	{
 		if( d & 0x80 )
 			I2C_DIO = 1;					// switch to input, line is high
@@ -138,7 +138,7 @@ uint8 RecvI2CByte(uint8 r)
 	d = 0;
 	I2C_DIO = 1;							// set SDA to input, output a high
 
-	for(s=8; s ; s--)
+	for ( s = 8; s ; s-- )
 		if( I2CWaitClkHi() )
 		{ 
 			d <<= 1;
@@ -221,7 +221,7 @@ uint8 SendESCI2CByte(uint8 d)
 {
 	static uint8 s, t;
 
-	for( s = 8 ; s ; s-- )
+	for ( s = 8 ; s ; s-- )
 	{
 		if( d & 0x80 )
 			ESC_DIO = 1;	

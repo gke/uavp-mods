@@ -120,7 +120,7 @@ void MixAndLimitMotors(void)
     static int16 Temp, CurrThrottle;
 
 	// Altitude stabilization factor
-	CurrThrottle = DesiredThrottle + (VDUComp + VBaroComp); // vertical compensation not optional
+	CurrThrottle = DesiredThrottle + (DUComp + BaroComp); // vertical compensation not optional
 	Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
 	CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
 
@@ -137,10 +137,10 @@ void MixAndLimitMotors(void)
 		Motor[Front] = Motor[Back] = 
 		Motor[Left] = Motor[Right] = CurrThrottle;
 
-	Motor[Front] = Limit(Motor[Front], 1, ESCMax);
-	Motor[Back] = Limit(Motor[Back], 1, ESCMax);
-	Motor[Left] = Limit(Motor[Left], 1, ESCMax);
-	Motor[Right] = Limit(Motor[Right], 1, ESCMax);
+	Motor[Front] = Limit(Motor[Front], ESCMin, ESCMax);
+	Motor[Back] = Limit(Motor[Back], ESCMin, ESCMax);
+	Motor[Left] = Limit(Motor[Left], ESCMin, ESCMax);
+	Motor[Right] = Limit(Motor[Right], ESCMin, ESCMax);
 
 } // MixAndLimitMotors
 
@@ -161,8 +161,8 @@ void MixAndLimitCam(void)
 	else
 		Cr = OUT_NEUTRAL;
 
-	MCamRoll = Limit(Cr, OUT_MINIMUM, OUT_MAXIMUM);
-	MCamPitch = Limit(Cp, OUT_MINIMUM, OUT_MAXIMUM);
+	MCamRoll = Limit(Cr, 1, OUT_MAXIMUM);
+	MCamPitch = Limit(Cp, 1, OUT_MAXIMUM);
 
 } // MixAndLimitCam
 

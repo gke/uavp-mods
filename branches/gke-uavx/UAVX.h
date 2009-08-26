@@ -45,16 +45,17 @@
 
 // Timeouts and Update Intervals
 
-#define FAILSAFE_TIMEOUT_S		1 		// Sec. hold last "good" settings and then either restore flight or abort
-#define ABORT_TIMEOUT_S			3	 	// Sec. full flight abort - motors shutdown until reboot 
+#define FAILSAFE_TIMEOUT_MS		1000L 		// mS. hold last "good" settings and then either restore flight or abort
+#define ABORT_TIMEOUT_MS		3000L	 	// mS. autonomous RTH with GPS or Descend without. 
+#define ABORT_UPDATE_MS			2000L		// mS. retry period for RC Signal and restore Pilot in Control
 
-#define THROTTLE_LOW_DELAY_S	1		// Sec. that motor runs at idle after the throttle is closed
-#define THROTTLE_UPDATE_S		3		// Sec. constant throttle time for hover
+#define THROTTLE_LOW_DELAY_MS	1000L		// mS. that motor runs at idle after the throttle is closed
+#define THROTTLE_UPDATE_MS		3000L		// mS. constant throttle time for hover
 
-#define NAV_ACTIVE_DELAY_S		10L		// Sec. after throttle exceeds idle that Nav becomes active
-#define NAV_RTH_TIMEOUT_S		30L		// Sec. Descend if no control input when at Origin
+#define NAV_ACTIVE_DELAY_MS		10000L		// mS. after throttle exceeds idle that Nav becomes active
+#define NAV_RTH_TIMEOUT_MS		30000L		// mS. Descend if no control input when at Origin
 
-#define GPS_TIMEOUT_S			2		// Sec.
+#define GPS_TIMEOUT_MS			2000L		// mS.
 
 // Baro
 
@@ -72,7 +73,7 @@
 // Gyros
 
 // Adds a delay between gyro neutral acquisition samples (16)
-#define GYRO_ERECT_DELAY		2		// x 16 x 100mS 
+#define GYRO_ERECT_DELAY		1		// x 64 x 100mS 
 
 // Enable "Dynamic mass" compensation Roll and/or Pitch
 // Normally disabled for pitch only 
@@ -85,18 +86,19 @@
 #define BARO_LOW_THR_COMP		-5L
 #define BARO_HIGH_THR_COMP		20L
 
-#define BARO_SCALE				((438L*256L)/1043L)		// Baro*256/GPSAlt
+#define BARO_SCALE				108L	//((438L*256L)/1043L)		// Baro*256/GPSAlt
 
-#define BARO_MAX_DESCENT_DMPS	5L //10L		// Decimetres/Sec
-#define BARO_FINAL_DESCENT_DMPS	2L //5L		// Decimetres/Sec
-#define BARO_DESCENT_TRANS_DM	150L	// Decimetres Altitude at final descent starts 
+#define BARO_MAX_DESCENT_DMPS		5L //10L	// Decimetres/Sec
+#define BARO_FINAL_DESCENT_DMPS		2L //5L		// Decimetres/Sec
+#define BARO_DESCENT_TRANS_DM		150L		// Decimetres Altitude at final descent starts 
+#define BARO_FAILSAFE_MIN_ALT_DM	50L			// Decimetres above the origin the motors cut on failsafe descent
 
 // Throttle reduction and increase limits for GPS Alt Comp
 #define GPS_ALT_LOW_THR_COMP	-10L
 #define GPS_ALT_HIGH_THR_COMP	30L
 
 // the range within which throttle adjustment is proportional to altitude error
-#define GPS_ALT_BAND			5L		// Metres
+#define GPS_ALT_BAND_DM			50L				// Decimetres
 
 // Navigation
 
@@ -121,6 +123,7 @@
 
 #define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used
 
+//#define NAV_PPM_FAILSAFE_RTH			// PPM signal failure causes RTH with Signal sampled periodically
 
 // comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
 //#define NAV_ZERO_INT
@@ -215,8 +218,7 @@ typedef union {
 #define Max(i,j) 			((i<j) ? j : i)
 #define Min(i,j) 			((i<j) ? i : j )
 #define Limit(i,l,u) 		((i<l) ? l : ((i>u) ? u : i))
-#define DecayBand(i,l,u,d) 	((i<l) ? i+d : ((i>u) ? i-d : i))
-#define Decay(i) 			((i<0) ? i+1 : ((i>0) ? i-1 : 0))
+#define Decay(i, l) 			((i <= l) ? i+l : ((i>=l) ? i-l : 0))
 
 // To speed up NMEA sentence processing 
 // must have a positive argument
@@ -295,7 +297,7 @@ typedef union {
 #define _TurnToHome			Flags[26]
 #define _Proximity			Flags[27]
 
-#define _ParametersInvalid	Flags[30]
+#define _ParametersValid	Flags[30]
 #define _GPSTestActive		Flags[31]
 
 // LEDs
@@ -308,31 +310,32 @@ typedef union {
 #define AUX3M				0x40
 #define BeeperM				0x80
 
-#define ALL_LEDS_ON		SwitchLEDsOn(BlueM|RedM|GreenM|YellowM)
-#define AUX_LEDS_ON		SwitchLEDsOn(AUX1M|AUX2M|AUX3M)
+#define ALL_LEDS_ON		LEDsOn(BlueM|RedM|GreenM|YellowM)
+#define AUX_LEDS_ON		LEDsOn(AUX1M|AUX2M|AUX3M)
 
-#define ALL_LEDS_OFF	SwitchLEDsOff(BlueM|RedM|GreenM|YellowM)
-#define AUX_LEDS_OFF	SwitchLEDsOff(AUX1M|AUX2M|AUX3M)
+#define ALL_LEDS_OFF	LEDsOff(BlueM|RedM|GreenM|YellowM)
+#define AUX_LEDS_OFF	LEDsOff(AUX1M|AUX2M|AUX3M)
 
 #define ALL_LEDS_ARE_OFF	( (LEDShadow&(BlueM|RedM|GreenM|YellowM))== 0 )
 
-#define LEDRed_ON		SwitchLEDsOn(RedM)
-#define LEDBlue_ON		SwitchLEDsOn(BlueM)
-#define LEDGreen_ON		SwitchLEDsOn(GreenM)
-#define LEDYellow_ON	SwitchLEDsOn(YellowM) 
-#define LEDAUX1_ON		SwitchLEDsOn(AUX1M)
-#define LEDAUX2_ON		SwitchLEDsOn(AUX2M)
-#define LEDAUX3_ON		SwitchLEDsOn(AUX3M)
-#define LEDRed_OFF		SwitchLEDsOff(RedM)
-#define LEDBlue_OFF		SwitchLEDsOff(BlueM)
-#define LEDGreen_OFF	SwitchLEDsOff(GreenM)
-#define LEDYellow_OFF	SwitchLEDsOff(YellowM)
-#define LEDRed_TOG		if( (LEDShadow&RedM) == 0 ) SwitchLEDsOn(RedM); else SwitchLEDsOff(RedM)
-#define LEDBlue_TOG		if( (LEDShadow&BlueM) == 0 ) SwitchLEDsOn(BlueM); else SwitchLEDsOff(BlueM)
-#define LEDGreen_TOG	if( (LEDShadow&GreenM) == 0 ) SwitchLEDsOn(GreenM); else SwitchLEDsOff(GreenM)
-#define Beeper_OFF		SwitchLEDsOff(BeeperM)
-#define Beeper_ON		SwitchLEDsOn(BeeperM)
-#define Beeper_TOG		if( (LEDShadow&BeeperM) == 0 ) SwitchLEDsOn(BeeperM); else SwitchLEDsOff(BeeperM)
+#define LEDRed_ON		LEDsOn(RedM)
+#define LEDBlue_ON		LEDsOn(BlueM)
+#define LEDGreen_ON		LEDsOn(GreenM)
+#define LEDYellow_ON	LEDsOn(YellowM) 
+#define LEDAUX1_ON		LEDsOn(AUX1M)
+#define LEDAUX2_ON		LEDsOn(AUX2M)
+#define LEDAUX3_ON		LEDsOn(AUX3M)
+#define LEDRed_OFF		LEDsOff(RedM)
+#define LEDBlue_OFF		LEDsOff(BlueM)
+#define LEDGreen_OFF	LEDsOff(GreenM)
+#define LEDYellow_OFF	LEDsOff(YellowM)
+#define LEDYellow_TOG		if( (LEDShadow&YellowM) == 0 ) LEDsOn(YellowM); else LEDsOff(YellowM)
+#define LEDRed_TOG		if( (LEDShadow&RedM) == 0 ) LEDsOn(RedM); else LEDsOff(RedM)
+#define LEDBlue_TOG		if( (LEDShadow&BlueM) == 0 ) LEDsOn(BlueM); else LEDsOff(BlueM)
+#define LEDGreen_TOG	if( (LEDShadow&GreenM) == 0 ) LEDsOn(GreenM); else LEDsOff(GreenM)
+#define Beeper_OFF		LEDsOff(BeeperM)
+#define Beeper_ON		LEDsOn(BeeperM)
+#define Beeper_TOG		if( (LEDShadow&BeeperM) == 0 ) LEDsOn(BeeperM); else LEDsOff(BeeperM)
 
 // Bit definitions
 #define Armed		(PORTAbits.RA4)
@@ -372,8 +375,8 @@ typedef union {
 #define RC_MAXIMUM			238
 #define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
 
-#define RC_THRES_STOP		((15L*RC_MAXIMUM)/100)		
-#define RC_THRES_START		((25L*RC_MAXIMUM)/100)		
+#define RC_THRES_STOP		((10L*RC_MAXIMUM)/100)		
+#define RC_THRES_START		((20L*RC_MAXIMUM)/100)		
 
 #define RC_FRAME_TIMEOUT_MS 	25
 #define RC_SIGNAL_TIMEOUT_MS 	(5L*RC_FRAME_TIMEOUT_MS)
@@ -478,6 +481,8 @@ extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
 extern void ErectGyros(void);
+extern void VerticalDamping(void);
+extern void HorizontalDamping(void);
 extern void CalcGyroRates(void);
 extern void DoControl(void);
 
@@ -576,17 +581,18 @@ extern int16 int16atan2(int16, int16);
 extern int16 int16sqrt(int16);
 
 extern void SendLEDs(void);
-extern void SwitchLEDsOn(uint8);
-extern void SwitchLEDsOff(uint8);
+extern void LEDsOn(uint8);
+extern void LEDsOff(uint8);
 extern void LEDGame(void);
 extern void CheckAlarms(void);
 
 extern void DoBeep100mSWithOutput(uint8, uint8);
 extern void DoStartingBeepsWithOutput(uint8);
 
-extern void InitStats(void);
-extern void CollectStats(void);
-extern void FlightStats(void);
+extern void ZeroStats(void);
+extern void ReadStatsEE(void);
+extern void WriteStatsEE(void);
+extern void ShowStats(void);
 
 extern void DumpTrace(void);
 
@@ -622,9 +628,10 @@ enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, 
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
 #define MAX_CONTROLS 12 // maximum Rx channels
+
 enum WaitGPSStates { WaitGPSSentinel, WaitNMEATag, WaitGPSBody, WaitGPSCheckSum};
 enum FlightStates { Starting, Landing, Landed, InFlight};
-enum FailStates { Waiting, Aborting, Terminated };
+enum FailStates { Waiting, Aborting, Returning, Terminated };
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
@@ -659,9 +666,10 @@ extern int16	PauseTime; // for tests
 extern uint8 	GPSRxState;
 extern uint8 	ll, tt, gps_ch;
 extern uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
-extern uint8	ESCMax;
+extern uint8	ESCMin, ESCMax;
 
 extern int16	RC[];
+extern int8 	RMap[CONTROLS];
 extern int8		SignalCount;
 extern uint16	RCGlitches;
 extern boolean	FirstPass;
@@ -683,7 +691,7 @@ extern int16	REp,PEp,YEp, HEp;
 extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollTrim, PitchTrim, YawTrim;
-extern int16	HoldRoll, HoldPitch, HoldYaw;
+extern int16	HoldYaw;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
@@ -691,7 +699,7 @@ extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralDU;
-extern int16 	DUAcc, DUSum, VDUComp;
+extern int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, LRDisp, FBDisp, DUComp, LRComp, FBComp;
 
 // GPS
 extern int16 	GPSLongitudeCorrection;
@@ -725,7 +733,7 @@ extern int16	DesiredBaroPressure, CurrentBaroPressure;
 extern int16	BE, BEp;
 extern i16u		BaroVal;
 extern int8		BaroSample;
-extern int16	VBaroComp;
+extern int16	BaroComp;
 extern uint8	BaroType;
 
 extern uint8	MCamRoll,MCamPitch;
@@ -738,22 +746,22 @@ extern int16	NavHoldResetCount;
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 
-extern int16 	MaxGPSAltitude, MinBaroPressure;
-extern int16 	MaxRollRate, MaxPitchRate, MaxYawRate;
-extern int16 	MaxLRAcc, MaxFBAcc, MaxDUAcc;
-
-extern int8 	RMap[CONTROLS];
+enum Statistics { GPSAltitudeS, BaroPressureS, RollRateS, PitchRateS, YawRateS, 
+				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, MaxStats};
+extern i16u Stats[];
 
 extern int16	Trace[];
 
 // Principal quadrocopter parameters
+
+// parameters start at address zero in EEPROM
 
 #define MAX_PARAMETERS	64		// parameters in EEPROM start at zero
 enum Params {
 	RollKp, 			// 01
 	RollKi,				// 02
 	RollKd,				// 03
-	BaroTempCoeff,		// 04c not currently used
+	HorizDampKp,		// 04c
 	RollIntLimit,		// 05
 	PitchKp,			// 06
 	PitchKi,			// 07
@@ -808,6 +816,7 @@ enum Params {
 #define UseRTHDescend 		6
 #define	UseRTHDescendMask	0x40
 
+#define STATS_ADDR_EE	 	( MAX_PARAMETERS *2 )
 extern int8 P[];
 extern const rom int8 ComParms[];
 extern const rom int8 DefaultParams[];
