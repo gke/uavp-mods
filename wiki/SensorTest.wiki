@@ -6,6 +6,8 @@ Once you have flashed the PIC with a firmware with DEBUG_SENSORS enabled:
    * Provide 3/4 throttle. The motors will not spin up if you are using DEBUG_SENSORS firmware (which is needed for this screen to provide you with any output).
    * click on the "Connect / Start" menu item
 
+The order of the trace values for later versions of UAVP and UAVX are contained in the README files and are also detailed below.
+
 http://uavp-mods.googlecode.com/files/sensor%20screen%20and%20mapping.jpg
 
 The above picture is a sample of the output that you may see:
@@ -14,7 +16,31 @@ The above picture is a sample of the output that you may see:
    * The middle set of traces are the accelerometer outputs.
    * The bottom set of traces are the gyro outputs.
 
-The order of the trace values for later versions of UAVP and UAVX are contained in the README files.
+=== Trace numbers ===
+
+1  Heading Error
+2  Current Baro Pressure				
+3  Roll Rate
+4  Pitch Rate
+5  Yaw Error
+6  Roll Sum/Angle
+7  Pitch Sum/Angle
+8  Yaw Sum/Angle
+9  LR Acceleration
+10 FB Acceleration
+11 UD Acceleration
+12 Roll Correction
+  * 13 Pitch Correction
+  * 14 Desired Throttle
+  * 15 Desired Roll 
+  * 16 Desired Pitch
+  * 17 Desired Yaw
+  * 18 Motor Front 
+  * 19 Motor Back
+  * 20 Motor Left
+  * 21 Motor Right
+  * 22 Cam Roll Servo
+  * 23 Cam Pitch Servo
 
 This information was compiled from:
 
