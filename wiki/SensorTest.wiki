@@ -8,7 +8,7 @@ Once you have flashed the PIC with a firmware with DEBUG_SENSORS enabled:
    * Provide 3/4 throttle. The motors will not spin up if you are using DEBUG_SENSORS firmware (which is needed for this screen to provide you with any output).
    * click on the "Connect / Start" menu item
 
-The order of the trace values for UAVX and later UAVP versions are detailed below.
+The order of the trace values for UAVX and later UAVP versions are detailed below. *Divisor* is used for scaling down a trace and *Offset* to position the trace within the particular pane.
 
 http://uavp-mods.googlecode.com/files/sensor%20screen%20and%20mapping.jpg
 
