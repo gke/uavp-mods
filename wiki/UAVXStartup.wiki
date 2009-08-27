@@ -35,7 +35,8 @@ It is assumed you:
   * I have solid Green and a flashing Blue LED: You are ready to fly as the GPS has recorded your origin location.
 
 ==== Tx/Rx ====
-  * Rx/Transmitter setup: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see below). 
+  * My Tx/Rx combination is not listed:  see UAVPSet FAQ.
+  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
   * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of GPS based navigation correction. You may have to mix Aux1 to Rudder to obtain Yaw control.
 ==== Setting Parameters ====
   * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
@@ -46,7 +47,7 @@ It is assumed you:
 ==== Compass ====
   * Is a Compass required: It is possible to fly a quadrocopter manually without a compass. You must have a compass for GPS navigation.
   * Do I need to calibrate the Compass: You must calibrate the compass using Tools->Test Software->K. Follow the instructions carefully. 
-  * Compass Orientation: The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
+  * Compass orientation: The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
 ==== Barometer ====
   * Is a Barometers required: It is possible to fly a quadrocopter manually without a barometer but you will not have any automatic hover hold. You must have a barometer for GPS navigation as it is required for altitude hold(see below). 
   * What is the recommended Barometer: The BMP085 is recommended but UAVX can use the SMD500. UAVX automatically senses which barometer you are using.
@@ -64,7 +65,7 @@ It is assumed you:
 
 ==== UAVPset General ====
   * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed.
-  * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board - you may need to scroll down and select it in the Tx/Rx pulldown box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx.
+  * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pulldown box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx.
   * I have a Rx which uses a single connection to the UAVP: Select the Rx to Quad checkbox. 
   * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and as we seem to act like engineers (usually a good thing) and learning by doing, without reading, there seems little point to writing a description of what each does. Play with each test as they are all harmless except Compass Calibration. The tools are also accessible using HyperTerm (@38.4KBaud) which is required for the GPS test.  
   * How do I know if UAVX understands what is connected and whether it is working: Use the Tools->Test Software->S command and check the setup information displayed.
