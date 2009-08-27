@@ -29,10 +29,10 @@ It is assumed you:
   * I have a solid Green LED and a flickering Yellow LED: Good you are ready to arm.
   * I have a solid Green LED and a solid Yellow LED and flashing Red LED after I armed: You throttle was open when you armed - close it.
   * I saw the Red LED flash in a regular way when I armed just before the starting beeps: This is the Gyro calibration being performed. You must not move the quadrocopter while this is happening. It does not need to be perfectly level just stationary.
-  * I heard the startup three short beeps and one long beep and now have a flashing Red LED but solid Green: The quadrocopter is ready to fly but has not detected a GPS unit as being connected.
-  * I have Green, flashing Blue and flashing Red: The GPS is online and acquiring a valid position fix. You can take off but your origin or launch location for RTH will be invalid.
-  * The Blue and Green LEDs are on and the Red is still flashing after a long time: Yes it does seem like a long time when all we want to do is just fly!  It can take 2-3 minutes especially if your GPS does not have battery backup or if it is a new flying location.
-  * I have Green and flashing Blue: You are ready to fly as the GPS has recorded your origin location.
+  * I heard the startup three short beeps and one long beep and now have solid Green and Red LEDs: The quadrocopter is ready to fly but has not detected a GPS unit as being connected. It may be your GPS is not set to the correct configuration (See Compass FAQs).
+  * I have solid Green and Red LEDs and a flashing Blue LED: The GPS is online and is still acquiring a valid position fix. You can take off but your origin or launch location for RTH will be invalid.
+  * The Blue LED is flashing but both the Green and Red LEDs are still on solid after a long time: Yes it does seem like a long time when all we want to do is just fly!  It can take 2-3 minutes especially if your GPS does not have battery backup or if it is a new flying location.
+  * I have solid Green and a flashing Blue LED: You are ready to fly as the GPS has recorded your origin location.
 
 ==== Tx/Rx ====
   * Rx/Transmitter setup: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see below). 
