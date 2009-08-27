@@ -30,7 +30,7 @@ For UAVX confirm channel 5 switch is in the manual/hover position. This appears 
 
 4. *Armed:* UAVPgkeware/UAVX Green LED will be on when armed (UAVP-Wolf).  UAVPgkeware/UAVX: Red will blink as gyros initialize then go solid if GPS has not taken its first position fix.
 
-5. After gyro initialization (blinking red LED) the Red LED and Green LED will be on solid. There will then be three short beeps and one long beep at which time the throttle is active. If GPS is installed the Blue LED will be blinking.  The Red LED will go out when UAVX has taken a good GPS fix.  This can be from seconds to minutes depending on how recent the GPS was powered on in the same location.
+5. After gyro initialization (blinking Red LED) the Red LED and Green LED must be on solid. There will then be three short beeps and one long beep at which time the throttle is active. If GPS is installed the Blue LED will be blinking.  The Red LED will go out when UAVX has taken a good GPS fix.  This can be from seconds to minutes depending on how recent the GPS was powered on in the same location.
 
 6. Do a full stick control check.  Hold the quad firmly in hand or weight it down tightly!  The Green LED should remain solid and not blink.
 
