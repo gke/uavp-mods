@@ -21,6 +21,11 @@ It is assumed you:
 === Notes/FAQs ===
   * Is there a Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
  
+==== Tx/Rx ====
+  * My Tx/Rx combination is not listed:  see UAVPSet FAQs.
+  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
+  * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of GPS based navigation correction. You may have to mix Aux1 to Rudder to obtain Yaw control.
+
 ==== Lights and Sirens! ====
   * I get a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude *through you* when you bend over it to arm!
   * I have a Red Light and No Green: There is no Rx signal. Did you turn on your Tx? (see Tx/Rx Setup below).
@@ -34,10 +39,6 @@ It is assumed you:
   * The Blue LED is flashing but both the Green and Red LEDs are still on solid after a long time: Yes it does seem like a long time when all we want to do is just fly!  It can take 2-3 minutes especially if your GPS does not have battery backup or if it is a new flying location.
   * I have solid Green and a flashing Blue LED: You are ready to fly as the GPS has recorded your origin location.
 
-==== Tx/Rx ====
-  * My Tx/Rx combination is not listed:  see UAVPSet FAQ.
-  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
-  * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of GPS based navigation correction. You may have to mix Aux1 to Rudder to obtain Yaw control.
 ==== Setting Parameters ====
   * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
   * Setting your own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming (See below). Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
