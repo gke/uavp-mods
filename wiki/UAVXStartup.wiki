@@ -22,13 +22,15 @@ It is assumed you:
   * Is there a Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
  
 ==== Lights and Sirens! ====
-  * I get a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude through you when you arm!
-  * I have a Red Light and No Green: There is no Rx signal (see Tx/Rx Setup below).
+  * I get a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude *through you* when bend over it to arm!
+  * I have a Red Light and No Green: There is no Rx signal. Did you turn on your Tx? (see Tx/Rx Setup below).
   * I saw a brief flash on the Yellow LED when I switched on: This was the accelerometer test. If you did not see this your accelerometers were offline or not installed.
   * I have a solid Green LED and a flickering Yellow LED: Good you are ready to arm.
   * I have a solid Green LED but got a flashing Red LED which is continuing when I armed: You throttle was open when you armed  - close it to zero.
+  * I saw the Red LED flash in a regular way when I armed just before the starting beeps: This is the Gyro calibration being performed. You must not move the quadrocopter while this is happening. It does not need to be perfectly level just stationary.
   * I heard the startup three short beeps and one long beep and now have a flashing Red LED but solid Green: The quadrocopter is ready to fly but has not detected a GPS unit as being connected.
-  * I have Green, flashing Blue and flashing Red: The GPS is online and acquiring a valid position fix. You can take off but your orging location for RTH will be invalid.
+  * I have Green, flashing Blue and flashing Red: The GPS is online and acquiring a valid position fix. You can take off but your origin or launch location for RTH will be invalid.
+  * The Blue and Green LEDs are on and the Red is still flashing after a long time: Yes it does seem like a long time when all we want to do is just fly!  It can take 2-3 minutes especially if your GPS does not have battery backup or if it is a new flying location.
   * I have Green and flashing Blue: You are ready to fly as the GPS has recorded your origin location.
 
 ==== Tx/Rx ====
@@ -50,7 +52,7 @@ It is assumed you:
   * Does Wind or Light Effect the Barometer: Yes it does. You need to wrap the Barometer in foam which does not have closed foam cells or use some other masking arrangement of your choosing. You must avoid strong light falling directly on the sensor inlet hole or water droplets from rain blocking this hole. 
 ==== Accelerometers ====
   * Is an Accelerometer required: While it is just possible to fly a quadrocopter without accelerometers you must have them for GPS navigation 
-  * Do I need to set Calibrate the Accelerometers: Yes and it is important to do this correctly as the quadrocopter's ability to achieve and maintain level flight depends ABSOLUTELY on your accuracy. Make sure the quadrocopter (the plane of the propellor blades) is *perfectly* level. Use a spirit level to ensure this. Without MOVING the quadrocopter connect the battery. Select the Accelerometer Neutrals Icon in UAVPset and then select the read button. The numbers will then appear in the relevant offset boxes in UAVPSet. Do NOT change the vertical axis offset to zero as was the case for UAVP. You should only need to do this once as the offsets will not change unless you crash or move the accelerometer board relative to the rest of the quadrocopter. Make a note of the offsets so you can restore them should you accidentally overwrite the values in the field.
+  * Do I need to set calibrate the Accelerometers: Yes and it is important to do this correctly as the quadrocopter's ability to achieve and maintain level flight depends ABSOLUTELY on your accuracy. Make sure the quadrocopter (the plane of the propellor blades) is *perfectly* level. Use a spirit level to ensure this. Without MOVING the quadrocopter connect the battery. Select the Accelerometer Neutrals Icon in UAVPset and then select the read button. The numbers will then appear in the relevant offset boxes in UAVPSet. Do NOT change the vertical axis offset to zero as was the case for UAVP. You should only need to do this once as the offsets will not change unless you crash or move the accelerometer board relative to the rest of the quadrocopter. Make a note of the offsets so you can restore them should you accidentally overwrite the values in the field.
 
 ==== GPS ====
   * What Settings should I use with my GPS: You should use NMEA output at 9600 baud, 4Hz update rate. The NMEA $GPGGA sentence is the only one required for navigation. Other sentences are processed but rejected although this requires some of the processing capacity of the PIC and should be avoided if possible.
@@ -62,7 +64,7 @@ It is assumed you:
   * When does the Quadrocopter respond to UAVPSet commands: The quadropter talks to UAVPSet *ONLY* when disarmed.
   * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board - you may need to scroll down and select it in the Tx/Rx pulldown box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx.
   * I have a Rx which uses a single connection to the UAVP: Select the Rx to Quad checkbox. 
-  * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and as we seem to act like engineers (a good thing) and learning by doing, without reading, there seems little point to writing a description of what each does. Play with each test as they are all harmless except Compass Calibration. The tools are also accessible using HyperTerm (@38.4KBaud) which is required for the GPS test.  
+  * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and as we seem to act like engineers (usually a good thing) and learning by doing, without reading, there seems little point to writing a description of what each does. Play with each test as they are all harmless except Compass Calibration. The tools are also accessible using HyperTerm (@38.4KBaud) which is required for the GPS test.  
   * How do I know if UAVX understands what is connected and whether it is working: Use the Tools->Test Software->S command and check the setup information displayed.
   * The arrangement of the screen seems incorrect for my language: You will need to use the English version until the other translations are completed. Use the Configuration->Miscellaneous pulldown and select English under language. 
   * I am using a Notebook and UAVPSet does not fit on the screen: You may need to change the screen resolution and pan so the UAVPSet window fits. For the ASUS eee
