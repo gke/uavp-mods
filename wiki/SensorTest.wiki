@@ -16,6 +16,9 @@ Once you have successfully obtained traces you may modify which traces to displa
    * Stop the trace by selecting STOP in the menu.
    * Select Configuration. In each row of numbers *Input* is the number corresponding to the sensor or other value you wish to observe. *Divisor* is used to scale the trace down if it is too large. *Offset* to position the trace within the particular pane you may find values of 50, 100 and 150 useful.
    * Close the configuration window.
+   * Resume as detailed above.
+
+The image below shows an example of the image you can expect to see.
    
 http://uavp-mods.googlecode.com/files/sensor%20screen%20and%20mapping.jpg
 
