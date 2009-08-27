@@ -28,7 +28,7 @@ It is assumed you:
 
 ==== Lights and Sirens! ====
   * I get a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude *through you* when you bend over it to arm!
-  * I have a Red Light and No Green: There is no Rx signal. Did you turn on your Tx? (see Tx/Rx Setup below).
+  * I have a solid Red LED and a solid Yellow LED: There is no Rx signal. Did you turn on your Tx? (see Tx/Rx Setup below).
   * I saw a brief flash on the Yellow LED when I switched on: This was the accelerometer test. If you did not see this your accelerometers were offline or not installed.
   * I have a solid Green LED and a solid Yellow LED: You probably have your throttle open - close it before arming.
   * I have a solid Green LED and a flickering Yellow LED: Good you are ready to arm.
