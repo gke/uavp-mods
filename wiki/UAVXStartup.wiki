@@ -76,7 +76,7 @@ It is assumed you:
   * The arrangement of the screen seems incorrect for my language: You will need to use the English version until the other translations are completed. Use the Configuration->Miscellaneous pulldown and select English under language. 
   * I am using a Notebook and UAVPSet does not fit on the screen: You may need to change the screen resolution and pan so the UAVPSet window fits. 
 
-   * For the ASUS eee set the display to 1024x768.  
+    * For the ASUS eee set the display to 1024x768.  
   
   * ...... more to follow.
 
