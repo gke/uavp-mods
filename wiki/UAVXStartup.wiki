@@ -45,7 +45,7 @@ It is assumed you:
 
 ==== GPS ====
   * What Settings should I use with my GPS: 9600 baud, 4Hz update rate. The NMEA $GPGGA sentence is the only one required for navigation. Other sentences are processed but rejected although this requires some of the processing capacity of the PIC and should be avoided if possible.
-  * Do I need a Level Converter: The PIC requires 5V TTL signalling and you will require a 3.3V to 5V level converter.
+  * Do I need a Level Converter: The PIC requires 5V TTL signalling and so you will need a 3.3V to 5V level converter.
   * Can I use the UAVP board to Connect my GPS to my PC: Yes. You remove the PIC and swap the Tx and Rx leads of the level translator you have used for your GPS. This is a last option as it is better to have a dedicated connection to your PC. There are numerous TTL to USB adapters available.
 
 ==== File Versions
