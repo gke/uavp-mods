@@ -72,7 +72,7 @@ It is assumed you:
 set the display to 1024x768.    
   * ...... more to follow.
 
-==== File Versions
+==== File Versions ====
   * UAVX Debug Versions: These HEX files include Debug_SENSORS in their name. These are NOT flight software and are used to debug sensors and most importantly for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
 
 ==== Other ====
