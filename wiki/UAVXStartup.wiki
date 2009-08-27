@@ -35,22 +35,24 @@ It is assumed you:
   * Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
 
 ==== Tx/Rx ====
- * Rx/Transmitter Setup: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see below).
+  * Rx/Transmitter Setup: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see below).
   * 6 Channel Receivers: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of correction.
 ==== Setting Parameters ====
-  * Setting Default Parameter Values: Use Tools->Testsoftware->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
+  * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
+  * Setting Your Own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between paramter sets using stick programming. Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccesful or the values were rejected as invalid. You should always do your read after writing parameters to double check that the PIC has received them. 
 ==== ESCs ====
-  * I2C ESCs: The YGE i2C ESC must be programmed to respond to particular addresses on the I2C bus. Use the Tools->Testsoftware->Y command and follow the instructions.
+  * I2C ESCs: The YGE i2C ESC must be programmed to respond to particular addresses on the I2C bus. Use the Tools->Test Software->Y command and follow the instructions.
 ==== Compass ====
   * Compass Orientation: You must have a compass for GPS navigation. The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
 ==== Barometer ====
   * Barometers: You must have a barometer for GPS navigation as it is required for altitude hold(see below). The BMP085 is recommended but the software can use the SMD500. The software automatically senses which barometer you are using.
 ==== Accelerometer ====
- 
-
+  * Setting up Accelerometers: Make sure the quadrocopter is perfectly level. Use a spirit level to ensure this. Select the Accelerometer Neutrals Icon in UAVPset and then select the read button. The numbers will then appear in the relevant offset boxes in UAVPSet. You should only need to do this once as the offsets will not change unless you crash or move the accelerometer board relative to the rest of the quadrocopter. Make a note of the offsets so you can restore them should you accidentally overwrite the values.
+It is important to do this correctly as the quadrocopter's ability to achive and maintain level flight depends ABSOLUTELY on your accuracy.
 ==== File Versions
-  * UAVX Debug Versions: The (HEX) files with the word "Debug SENSORS" have the motor control *disabled* for safety reasons. These versions are not flight versions and are intended for use in checking the various sensors and LED outputs on Quadrocopter.  Sensor outputs may be viewed in a graphical form using Tools>Sensor Test Graphic. 
+  * UAVX Debug Versions: These HEX files include Debug_SENSORS in their name. These are NOT flight software and are used to debug sensors and most importantly for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
 
+==== Other ====
   * Tricopters: Use the the files with TRI in the names.
 
 
