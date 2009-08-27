@@ -59,7 +59,7 @@ It is assumed you:
   * What else do I need to consider: The GPS connection to the quadrocopter must occur at the same time as the quadrocopter is armed and disconnected as the quadrocopter is disarmed. You will need a dual switch for this.
 
 ==== UAVPset General ====
-  * When does the Quadrocopter respond to UAVPSet commands: The quadropter talks to UAVPSet *ONLY* when disarmed and to the GPS unit when armed.
+  * When does the Quadrocopter respond to UAVPSet commands: The quadropter talks to UAVPSet *ONLY* when disarmed.
   * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board - you may need to scroll down. Select it in the pulldown window. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx.
   * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and as we seem to act like engineers (a good thing) and learning by doing, without reading, there seems little point to writing a description of what each does. Play with each test as they are all harmless except Compass Calibration (see below). The tools are also accessible using HyperTerm which is required for the GPS test.
   * How do I know if UAVX understands what is connected and whether it is working: Use the Tools->Test Software->S command and check the setup information displayed.
