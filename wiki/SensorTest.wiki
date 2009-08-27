@@ -2,14 +2,21 @@
 
 === Introduction ===
 
-Once you have flashed the PIC with a firmware with DEBUG_SENSORS enabled:
-   * Launch UAVPSet
-   * In the older versions of UAVPSet go to the unnamed (blank) option in the Tools menu
-   * Provide 3/4 throttle. The motors will not spin up if you are using DEBUG_SENSORS firmware (which is needed for this screen to provide you with any output).
-   * click on the "Connect / Start" menu item
+You must first load the DEBUG version of the software. This version has been modified so the motors should not start for safety reasons. You are advised however to disable the motors by removing the propellors or disconnecting two motor wires on each motor.
 
-The order of the trace values for UAVX and later UAVP versions are detailed below. *Divisor* is used for scaling down a trace and *Offset* to position the trace within the particular pane.
+Once you have done this:
+   * Launch UAVPSet.
+   * Select Tools->Sensor Test Graphic. In the older versions of UAVPSet go to the unnamed (blank) option also in the Tools pulldown menu.
+   * ARM the quadrocopter.
+   * Click on the Connect/Start menu item.
+   * Advance the throttle and the traces should progressively appear. If the motors start you have loaded the wrong software (see above).
 
+Once you have successfully obtained traces you may modify which traces to display:
+
+   * Stop the trace by selecting STOP in the menu.
+   * Select Configuration. In each row of numbers *Input* is the number corresponding to the sensor or other value you wish to observe. *Divisor* is used to scale the trace down if it is too large. *Offset* to position the trace within the particular pane you may find values of 50, 100 and 150 useful.
+   * Close the configuration window.
+   
 http://uavp-mods.googlecode.com/files/sensor%20screen%20and%20mapping.jpg
 
 The above picture is a sample of the output that you may see:
