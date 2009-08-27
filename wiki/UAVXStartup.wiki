@@ -9,19 +9,6 @@ This is intended to be a brief introduction to the steps you may wish to take wh
 
 You should NOT use GPS for your first test flights of UAVX regardless of how tempting it may be to do so. UAVX only requires GPS for navigation functions and may be flown without GPS if desired.
 
-=== WARNING: electrically powered aircraft ===
-
-It is very important that you follow the normal safety procedures for electrically powered aircraft with propellor(s). 
-  * You *MUST* check that the radio control link is functioning correctly before you apply power to the motor(s). 
-  * You *MUST* conduct a radio range check before every flight. 
-  * The aircraft *MUST* be restrained when power is applied and you *MUST* be clear of the propellor(s) at all times.
-
-The motors(s) can start immediately in all electric aircraft when the battery is connected and you should *NEVER* rely on arming switches which are fitted to many aircraft.  
-
-If your *Tx is OFF* or the aircraft is out of radio range PPM receivers can, and do, receive radio noise which they interpret as valid signals; this includes throttle commands. PCM receivers with incorrectly set failsafes can also apply *full throttle* or maintain current throttle which may not be zero if the transmitter signal is lost.
-
-This does not apply just to UAVP/UAVX and other quadrocopters. It applies to ALL electric aircraft.
-
 === Assumptions ===
 
 It is assumed you:
@@ -39,20 +26,21 @@ It is assumed you:
   * 6 Channel Receivers: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of GPS based navigation correction.
 ==== Setting Parameters ====
   * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
-  * Setting Your Own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming. Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccesful or the values were rejected as invalid. You should always do your read after writing parameters to double check that the PIC has received them. 
+  * Setting Your Own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming. Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
 ==== ESCs ====
   * I2C ESCs: The YGE i2C ESC must be programmed to respond to particular addresses on the I2C bus. Use the Tools->Test Software->Y command and follow the instructions.
 ==== Compass ====
   * Is a Compass Required: It is possible to fly a quadrocopter manually without a compass. You must have a compass for GPS navigation.
   * Do I need to Calibrate the Compass: You must calibrate the compass using Tools->Test Software->K. Follow the instructions carefully. 
-  * Compass Orientation: You must have a compass for GPS navigation. The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
+  * Compass Orientation: The software expects the compass orientation to be the same as in the manual. A correction is made by the software such that a heading of zero is obtained when the forward arm points True North. The Compass may be mounted elsewhere on the aircraft as it is the orientation that is important. The orientation was not important for non-GPS versions which used changes in direction not the absolute direction. Be aware that the North arrow on the Sparkfun boards may be incorrect!
 ==== Barometer ====
-  * Is a Barometers Required: It is possible to fly a quadrocopter manually without a barometer but you will not have any automatic hover hold. You must have a barometer for GPS navigation as it is required for altitude hold(see below). The BMP085 is recommended but the software can use the SMD500. The software automatically senses which barometer you are using.
+  * Is a Barometers Required: It is possible to fly a quadrocopter manually without a barometer but you will not have any automatic hover hold. You must have a barometer for GPS navigation as it is required for altitude hold(see below). 
+  * What is the reccomended Barometer: The BMP085 is recommended but the software can use the SMD500. The software automatically senses which barometer you are using.
   * Do I need to Calibrate the Barometer: No this is done automatically each flight. 
   * Does Wind or Light Effect the Barometer: Yes it does. You need to wrap the Barometer in foam which does not have closed foam cells or with some other masking arrangement of your choosing. You must avoid strong light falling directly on the sensor inlet hole or water droplets from rain blocking this hole. 
 ==== Accelerometers ====
   * Is an Accelerometer Required: While it is just possible to fly a quadrocopter without an accelerometers you must have them for GPS navigation 
-  * Do I need to set Calibrate the Accelerometers: Yes and it is important to do this correctly as the quadrocopter's ability to achieve and maintain level flight depends ABSOLUTELY on your accuracy accuracy. Make sure the quadrocopter is perfectly level. Use a spirit level to ensure this. Without MOVING the quadrocopter connect the battery. Select the Accelerometer Neutrals Icon in UAVPset and then select the read button. The numbers will then appear in the relevant offset boxes in UAVPSet. You should only need to do this once as the offsets will not change unless you crash or move the accelerometer board relative to the rest of the quadrocopter. Make a note of the offsets so you can restore them should you accidentally overwrite the values.
+  * Do I need to set Calibrate the Accelerometers: Yes and it is important to do this correctly as the quadrocopter's ability to achieve and maintain level flight depends ABSOLUTELY on your accuracy accuracy. Make sure the quadrocopter is perfectly level. Use a spirit level to ensure this. Without MOVING the quadrocopter connect the battery. Select the Accelerometer Neutrals Icon in UAVPset and then select the read button. The numbers will then appear in the relevant offset boxes in UAVPSet. Do NOT change the vertical axis offset to zero as was the case for UAVP. You should only need to do this once as the offsets will not change unless you crash or move the accelerometer board relative to the rest of the quadrocopter. Make a note of the offsets so you can restore them should you accidentally overwrite the values in the field.
 
 ==== File Versions
   * UAVX Debug Versions: These HEX files include Debug_SENSORS in their name. These are NOT flight software and are used to debug sensors and most importantly for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
@@ -166,5 +154,18 @@ There are many other things we can try/abandon including:
 
 Use the UAVPSet Tools->Testsoftware->D defaults for now.
 
-An option is to use Parameter set #1 for still conditions and #2 for windy conditions. We expect the more successful combinations of navigation related parameters to evolve over time. More of the internal software controls are likely to be accessible through UAVPSet as we gain experience. 
+An option is to use Parameter set #1 for still conditions and #2 for windy conditions. We expect the more successful combinations of navigation related parameters to evolve over time. More of the internal software controls are likely to be accessible through UAVPSet as we gain experience.
+
+=== WARNING: electrically powered aircraft ===
+
+It is very important that you follow the normal safety procedures for electrically powered aircraft with propellor(s). 
+  * You *MUST* check that the radio control link is functioning correctly before you apply power to the motor(s). 
+  * You *MUST* conduct a radio range check before every flight. 
+  * The aircraft *MUST* be restrained when power is applied and you *MUST* be clear of the propellor(s) at all times.
+
+The motors(s) can start immediately in all electric aircraft when the battery is connected and you should *NEVER* rely on arming switches which are fitted to many aircraft.  
+
+If your *Tx is OFF* or the aircraft is out of radio range PPM receivers can, and do, receive radio noise which they interpret as valid signals; this includes throttle commands. PCM receivers with incorrectly set failsafes can also apply *full throttle* or maintain current throttle which may not be zero if the transmitter signal is lost.
+
+This does not apply just to UAVP/UAVX and other quadrocopters. It applies to ALL electric aircraft. 
   
