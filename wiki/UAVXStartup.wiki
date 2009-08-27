@@ -19,7 +19,8 @@ It is assumed you:
   * You have read and understood the contents of this document.
 
 === Notes/FAQs ===
-  * Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
+  * Is there a Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
+  * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and, as has been noted, we seem to be acting like engineers and learning by doing, without reading, there seems little point to writing a description of what each does. Play as they are all harmless except Compass Calibration (see below). The tools are also accessible using HyerTerm which is required for the GPS test. 
 
 ==== Tx/Rx ====
   * Rx/Transmitter Setup: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see below).
@@ -41,6 +42,11 @@ It is assumed you:
 ==== Accelerometers ====
   * Is an Accelerometer Required: While it is just possible to fly a quadrocopter without an accelerometers you must have them for GPS navigation 
   * Do I need to set Calibrate the Accelerometers: Yes and it is important to do this correctly as the quadrocopter's ability to achieve and maintain level flight depends ABSOLUTELY on your accuracy accuracy. Make sure the quadrocopter is perfectly level. Use a spirit level to ensure this. Without MOVING the quadrocopter connect the battery. Select the Accelerometer Neutrals Icon in UAVPset and then select the read button. The numbers will then appear in the relevant offset boxes in UAVPSet. Do NOT change the vertical axis offset to zero as was the case for UAVP. You should only need to do this once as the offsets will not change unless you crash or move the accelerometer board relative to the rest of the quadrocopter. Make a note of the offsets so you can restore them should you accidentally overwrite the values in the field.
+
+==== GPS ====
+  * What Settings should I use with my GPS: 9600 baud, 4Hz update rate. The NMEA $GPGGA sentence is the only one required for navigation. Other sentences are processed but rejected although this requires some of the processing capacity of the PIC and should be avoided if possible.
+  * Do I need a Level Converter: The PIC requires 5V TTL signalling and you will require a 3.3V to 5V level converter.
+  * Can I use the UAVP board to Connect my GPS to my PC: Yes. You remove the PIC and swap the Tx and Rx leads of the level translator you have used for your GPS. This is a last option as it is better to have a dedicated connection to your PC. There are numerous TTL to USB adapters available.
 
 ==== File Versions
   * UAVX Debug Versions: These HEX files include Debug_SENSORS in their name. These are NOT flight software and are used to debug sensors and most importantly for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
