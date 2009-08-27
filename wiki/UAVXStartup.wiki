@@ -22,12 +22,23 @@ It is assumed you:
   * Is there a Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
   * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and, as has been noted, we seem to be acting like engineers and learning by doing, without reading, there seems little point to writing a description of what each does. Play as they are all harmless except Compass Calibration (see below). The tools are also accessible using HyerTerm which is required for the GPS test. 
 
+==== Lights and Sirens! ====
+  * I get a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude through you when you arm!
+  * I have a Red Light and No Green: There is no Rx signal (see Tx/Rx Setup below).
+  * I saw a brief flash on the Yellow LED when I switched on: This was the accelerometer test. If you did not see this your accelerometers were offline or not installed.
+  * I have a solid Green LED and a flickering Yellow LED: Good you are ready to arm.
+  * I have a solid Green LED but got a flashing Red LED which is continuing when I armed: You throttle was open when you armed  - close it to zero.
+  * I heard the startup three short beeps and one long beep and now have a flashing Red LED but solid Green: The quadrocopter is ready to fly but has not detected a GPS unit as being connected.
+  * I have Green, flashing Blue and flashing Red: The GPS is online and acquiring a valid position fix. You can take off but your orging location for RTH will be invalid.
+  * I have Green and flashing Blue: You are ready to fly as the GPS has recorded your origin location.
+
+  * 
 ==== Tx/Rx ====
   * Rx/Transmitter Setup: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see below).
   * 6 Channel Receivers: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of GPS based navigation correction.
 ==== Setting Parameters ====
   * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
-  * Setting Your Own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming. Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
+  * Setting Your Own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming (See below). Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
 ==== ESCs ====
   * I2C ESCs: The YGE i2C ESC must be programmed to respond to particular addresses on the I2C bus. Use the Tools->Test Software->Y command and follow the instructions.
 ==== Compass ====
@@ -57,7 +68,7 @@ It is assumed you:
   * UAVX Debug Versions: These HEX files include Debug_SENSORS in their name. These are NOT flight software and are used to debug sensors and most importantly for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
 
 ==== Other ====
-  * Tricopters: Use the the files with TRI in the names.
+  * Tricopters: Use the files with TRI in the names.
 
 
 ===Tx/Rx Setup===
