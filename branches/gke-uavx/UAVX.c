@@ -111,6 +111,7 @@ uint8	LEDShadow;		// shadow register
 
 uint8	MCamRoll,MCamPitch;
 int16	Motor[NoOfMotors];
+boolean	ESCI2CFail[NoOfMotors];
 
 #pragma udata stats
 i16u Stats[MaxStats];
@@ -318,9 +319,9 @@ void main(void)
 					InitBarometer();
 					InitNavigation();
 					ResetGPSOrigin();
-					ErectGyros();			// DO NOT MOVE AIRCRAFT!
 
 					DesiredThrottle = 0;
+					ErectGyros();			// DO NOT MOVE AIRCRAFT!
 					DoStartingBeepsWithOutput(3);	
 
 					State = Landed;

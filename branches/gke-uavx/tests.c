@@ -128,7 +128,7 @@ uint8 ScanI2CBus(void)
 	
 			Delay1mS(2);
 		}
-		TxString("\tAll addresses are returned if Bus is unterminated!\r\n");
+		TxString("\All addresses returned if Bus unterminated ..\r\n");
 	}
 	else
 		TxString("\tinactive - I2C ESCs not selected..\r\n");

@@ -439,6 +439,7 @@ void StopMotors(void)
 
 	for (m = 0; m < NoOfMotors; m++)
 		Motor[m] = ESCMin;
+
 	MCamPitch = MCamRoll = OUT_NEUTRAL;
 } // StopMotors
 

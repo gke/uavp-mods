@@ -117,11 +117,22 @@ void ShowSetup(uint8 h)
 		}
 		
 		switch ( P[ESCType] ) {
-		case ESCPPM:TxString("ESC: PPM\r\n"); break;
-		case ESCHolger:TxString("ESC: Holger V1.0 I2Ce\r\n"); break;
-		case ESCX3D:TxString("ESC: X-3D I2C\r\n"); break;
-		case ESCYGEI2C:TxString("ESC: YGE I2C\r\n"); break;
-		}	
+		case ESCPPM:TxString("ESC: PPM "); break;
+		case ESCHolger:TxString("ESC: Holger I2C {"); break;
+		case ESCX3D:TxString("ESC: X-3D I2C {"); break;
+		case ESCYGEI2C:TxString("ESC: YGE I2C {"); break;
+		}
+
+		if ( P[ESCType] != ESCPPM )
+		{
+			for ( i = 0; i < NoOfMotors; i++ )
+				if ( ESCI2CFail[i] )
+					TxString(" Fail");
+				else
+					TxString(" OK");
+			TxString(" }");
+		}
+		TxNextLine();	
 	
 		#ifdef RX6CH
 		TxString("6 CHANNEL VERSION - 5 ACTIVE CHANNELS ONLY\R\N");

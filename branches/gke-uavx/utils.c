@@ -197,17 +197,16 @@ int8 ReadEE(uint8 addr)
 
 void ReadParametersEE(void)
 {
-	static int8 p, c;
-	static uint8 i;
+	uint8 i;
 	static uint16 addr;
 
 	if ( ParametersChanged )
 	{   // overkill if only a single parameter has changed but is not in flight loop
 		addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
-		for(p = 0; p < MAX_PARAMETERS; p++)
-			P[p] = ReadEE(addr + p);
+		for ( i = 0; i < MAX_PARAMETERS; i++)
+			P[i] = ReadEE(addr + i);
 	
-		for (i = 0; i < CONTROLS; i++) // make reverse map
+		for ( i = 0; i < CONTROLS; i++) // make reverse map
 			RMap[Map[P[TxRxType]][i]-1] = i+1;
 	
 		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
@@ -217,7 +216,11 @@ void ReadParametersEE(void)
 		if ( P[ESCType] == ESCPPM )
 			ESCMin = 1;
 		else
+		{
 			ESCMin = 0;
+			for ( i = 0; i < NoOfMotors; i++ )
+				ESCI2CFail[i] = false;
+		}
 	
 		RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
 		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
@@ -696,16 +699,16 @@ void ShowStats(void)
 			Scale = 1500;
 
 	TxString("\r\nFlight Statistics\r\n");
-	TxString("GPS:  \t");TxVal32(Stats[GPSAltitudeS].i16,0,' '); TxString("Dm\r\n"); 
-	TxString("Baro: \t");TxVal32(Stats[BaroPressureS].i16,0,' '); TxString("lsb\r\n"); 
+	TxString("GPS:  \t");TxVal32(Stats[GPSAltitudeS].i16,1,' '); TxString("M\r\n"); 
+	TxString("Baro: \t");TxVal32(Stats[BaroPressureS].i16,0,' '); TxString("counts\r\n"); 
 	TxNextLine();
 	TxString("Roll: \t"); TxVal32(((int32)(Stats[RollRateS].i16 - Stats[GyroMidRollS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
 	TxString("Pitch:\t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
 	TxString("Yaw:  \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>8,1,' '); TxString("Deg/Sec\r\n");
 	TxNextLine();
 	TxString("Left->Right:\t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
-	TxString("Down->Up:   \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
 	TxString("Front->Back:\t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine();
+	TxString("Down->Up:   \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
 } // ShowStats
 
 void DumpTrace(void)

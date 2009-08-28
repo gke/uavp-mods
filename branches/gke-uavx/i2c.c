@@ -53,16 +53,14 @@ void I2CDelay(void)
 	Delay10TCY();
 } // I2CDelay
 
-// put SCL to high-z and wait until line is really hi
-// returns != 0 if ok
 uint8 I2CWaitClkHi(void)
 {
 	uint8 s;
 
-	s = 1;
-
 	I2CDelay();
-	I2C_CIO=1;	// set SCL to input, output a high
+	I2C_CIO=1;								// set SCL to input, output a high
+
+	s = 1;
 	while( !I2C_SCL )						// timeout wraparound through 255 1.25mS							
 		if( ++s == 0 )			 
 			break;	
@@ -109,7 +107,7 @@ uint8 SendI2CByte(uint8 d)
 			I2C_DIO = 0;					// switch to output, line is low
 		}
 	
-		if(I2CWaitClkHi())
+		if( I2CWaitClkHi() )
 		{ 	
 			I2C_SCL = 0;
 			I2C_CIO = 0;					// set SCL to output, output a low
@@ -120,7 +118,7 @@ uint8 SendI2CByte(uint8 d)
 	}
 
 	I2C_DIO = 1;							// set SDA to input
-	if(I2CWaitClkHi())
+	if( I2CWaitClkHi() )
 		s = I2C_SDA;
 	else
 		return(I2C_NACK);	
@@ -214,7 +212,7 @@ void ESCI2CStop(void)
 	ESCWaitClkHi();
 
 	ESC_DIO=1;								// set SDA to input, output a high, STOP condition
-	I2CDelay();							// leave clock high
+	I2CDelay();								// leave clock high
 } // ESCI2CStop
 
 uint8 SendESCI2CByte(uint8 d)
@@ -234,9 +232,10 @@ uint8 SendESCI2CByte(uint8 d)
 		I2CDelay();
 		ESC_CIO=1;						
 
-		t = 0;
+		t = 1;
 		while( !ESC_SCL )					// timeout wraparound through 255 1.25mS							
-			if ( ++t == 0 ) return ( I2C_NACK );
+			if ( ++t == 0 ) 
+				return ( I2C_NACK );
 
 		I2CDelay();
 		ESC_SCL = 0;
@@ -247,9 +246,10 @@ uint8 SendESCI2CByte(uint8 d)
 	I2CDelay();
 	ESC_CIO=1;			
 
-	t = 0;
+	t = 1;
 	while( !ESC_SCL )									
-		if ( ++t == 0 ) return ( I2C_NACK );
+		if ( ++t == 0 ) 
+			return ( I2C_NACK );
 
 	I2CDelay();	
 	ESC_SCL = 0;

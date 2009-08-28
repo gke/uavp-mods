@@ -683,8 +683,8 @@ extern struct {
 
 extern const rom uint8 NMEATag[];
 
-extern uint8 CurrentParamSet;
-extern boolean ParametersChanged;
+extern uint8 	CurrentParamSet;
+extern boolean 	ParametersChanged;
 
 extern int16	RE, PE, YE, HE;
 extern int16	REp,PEp,YEp, HEp;
@@ -738,6 +738,7 @@ extern uint8	BaroType;
 
 extern uint8	MCamRoll,MCamPitch;
 extern int16	Motor[NoOfMotors];
+extern boolean	ESCI2CFail[NoOfMotors];
 extern int16	Rl,Pl,Yl;		// PID output values
 
 extern boolean	Flags[32];

@@ -302,7 +302,8 @@ OS006:
 			{
 				ESCI2CStart();
 				r = SendESCI2CByte(0x52 + ( m*2 ));		// one cmd, one data byte per motor
-				r = SendESCI2CByte(Motor[m]); 
+				r |= SendESCI2CByte(Motor[m]);
+				ESCI2CFail[m] |= r;  
 				ESCI2CStop();
 			}
 		else
@@ -311,7 +312,8 @@ OS006:
 				{
 					ESCI2CStart();
 					r = SendESCI2CByte(0x62 + ( m*2) );	// one cmd, one data byte per motor
-					r = SendESCI2CByte(Motor[m]>>1); 
+					r |= SendESCI2CByte(Motor[m]>>1);
+					ESCI2CFail[m] |= r; 
 					ESCI2CStop();
 				}
 			else
@@ -319,10 +321,11 @@ OS006:
 				{
 					ESCI2CStart();
 					r = SendESCI2CByte(0x10);			// one command, 4 data bytes
-					r = SendESCI2CByte(Motor[Front]); 
-					r = SendESCI2CByte(Motor[Back]);
-					r = SendESCI2CByte(Motor[Left]);
-					r = SendESCI2CByte(Motor[Right]);
+					r |= SendESCI2CByte(Motor[Front]); 
+					r |= SendESCI2CByte(Motor[Back]);
+					r |= SendESCI2CByte(Motor[Left]);
+					r |= SendESCI2CByte(Motor[Right]);
+					ESCI2CFail[0] |= r;
 					ESCI2CStop();
 				}
 	}
