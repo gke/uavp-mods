@@ -22,8 +22,7 @@ It is assumed you:
   * Is there a Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
  
 ==== Tx/Rx ====
-  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below).
-  * I am using I2C ESCs (Holger, X3D, YGE) and they don't start: Make sure you ground the signal lead of the PPM connection otherwise the electrical noise may cause the ESC to believe it is talking to a PPM signal rather than a digital I2C signal. 
+  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
   * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pulldown box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx.
    * Graupner MX16s -> JR XP8103/R700-PPM
   * What does the Tx Mode checkbox do: This is used to tell the stick programming software (see below) which channels to use. It does not swap where your throttle etc. is on your Tx. Set it and do a Write if you are using a Tx with the throttle on the left hand.
@@ -47,7 +46,8 @@ It is assumed you:
   * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
   * Setting your own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming (See below). Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
 ==== ESCs ====
-  * I2C ESCs: The YGE i2C ESC must be programmed to respond to particular addresses on the I2C bus. Use the Tools->Test Software->Y command and follow the instructions.
+  * YGE I2C ESCs: The YGE i2C ESC must be programmed to respond to particular addresses on the I2C bus. Use the Tools->Test Software->Y command and follow the instructions.
+  * I am using I2C ESCs (Holger, X3D, YGE) and the motors don't start: Make sure you ground the signal lead of the ESC's PPM connection otherwise the electrical noise may cause the ESC to believe it is talking to a PPM signal rather than a digital I2C signal.
   * My motors are making a periodic beeping sound: You may have loaded the Debug SENSORS version of the UAVX and not disconnected your motors. This version of UAVX does not generate signals to control the motors and so your ESCs are not detecting a valid signal. You may have the wrong ESC selected in your configuration. 
 ==== Compass ====
   * Is a Compass required: It is possible to fly a quadrocopter manually without a compass. You must have a compass for GPS navigation.
