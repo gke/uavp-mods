@@ -169,7 +169,7 @@ const rom int8 DefaultParams[] = {
 	0, 				// CamPitchKp,		26
 	6, 				// CompassKp,		27
 	4, 				// BaroCompKd,		28c
-	20, 			// NavRadius,		29
+	30, 			// NavRadius,		29
 	1, 				// NavIntLimit,		30 
 
 	6, 				// NavAltKp,		31c

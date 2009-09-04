@@ -489,7 +489,7 @@ void LightsAndSirens(void)
 		}	
 		ReadParametersEE();	
 	}
-	while( (!_Signal) || (Armed && FirstPass) || _ReturnHome || ( CurrentThrottle >= RC_THRES_STOP) );
+	while( (!_Signal) || (Armed && FirstPass) || _ReturnHome || ( CurrentThrottle >= RC_THRES_START) );
 
 	FirstPass = false;
 

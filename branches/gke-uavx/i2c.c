@@ -20,143 +20,126 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// i2c subroutines
-
 #include "uavx.h"
 
-void I2CStart(void);
-void I2CStop(void);
-uint8 I2CWaitClkHi(void);
-void I2CDelay(void);
-uint8 SendI2CByte(uint8);
-uint8 RecvI2CByte(uint8);
-
-// Wolfgang's I2C Routines - modified
+// Sensor I2C Routines
 
 // Prototypes
 
-void I2CDelay(void);
 void I2CStart(void);
 void I2CStop(void);
+boolean I2CWaitClkHi(void);
 uint8 SendI2CByte(uint8);
 uint8 RecvI2CByte(uint8);
 
 // Constants
+
+#ifdef CLOCK_40MHZ
+#define	I2C_DELAY		Delay10TCYx(3)
+#else
+#define	I2C_DELAY		Delay10TCY()				// 2.5uSec - 400KHz
+#endif
+
+#define I2C_IN			1
+#define I2C_OUT			0
 
 #define I2C_SDA			PORTBbits.RB6
 #define I2C_DIO			TRISBbits.TRISB6
 #define I2C_SCL			PORTBbits.RB7
 #define I2C_CIO			TRISBbits.TRISB7
 
-void I2CDelay(void) 
+#define I2C_DATA_LOW	{I2C_SDA=0;I2C_DIO=I2C_OUT;I2C_DELAY;}
+#define I2C_DATA_FLOAT	{I2C_DIO=I2C_IN;I2C_DELAY;}
+#define I2C_CLK_LOW		{I2C_SCL=0;I2C_CIO=I2C_OUT;I2C_DELAY;}
+#define I2C_CLK_FLOAT	{I2C_CIO=I2C_IN;I2C_DELAY;}
+
+
+boolean I2CWaitClkHi(void)
 {
-	Delay10TCY();
-} // I2CDelay
+	static uint8 s;
 
-uint8 I2CWaitClkHi(void)
-{
-	uint8 s;
-
-	I2CDelay();
-	I2C_CIO=1;								// set SCL to input, output a high
-
+	I2C_CLK_FLOAT;								// set SCL to input, output a high
 	s = 1;
-	while( !I2C_SCL )						// timeout wraparound through 255 1.25mS							
-		if( ++s == 0 )			 
-			break;	
-	I2CDelay();
-	return(s);
+	while( !I2C_SCL )							// timeout wraparound through 255 to 0 1.25mS
+		if( ++s == 0 ) return (false);
+	
+	return( true );
 } // I2CWaitClkHi
 
 void I2CStart(void)
 {
-	uint8 r;
-
-	I2C_DIO=1;								// set SDA to input, output a high
+	static boolean r;
+	
+	I2C_DATA_FLOAT;
 	r = I2CWaitClkHi();
-	I2C_SDA = 0;							// start condition
-	I2C_DIO = 0;							// output a low
-	I2CDelay();
-	I2C_SCL = 0;
-	I2C_CIO = 0;							// set SCL to output, output a low
+	I2C_DATA_LOW;
+	I2C_CLK_LOW;
 } // I2CStart
 
 void I2CStop(void)
 {
-	uint8 r;
+	static boolean r;
 
-	I2C_DIO=0;								// set SDA to output
-	I2C_SDA = 0;							// output a low
+	I2C_DATA_LOW;
 	r = I2CWaitClkHi();
-
-	I2C_DIO=1;								// set SDA to input, output a high, STOP condition
-	I2CDelay();								// leave clock high
+	I2C_DATA_FLOAT;
 } // I2CStop 
 
 uint8 SendI2CByte(uint8 d)
 {
-	uint8 s;
+	static uint8 s;
 
 	for ( s = 8; s ; s-- )
 	{
 		if( d & 0x80 )
-			I2C_DIO = 1;					// switch to input, line is high
+			I2C_DATA_FLOAT
 		else
-		{
-			I2C_SDA = 0;			
-			I2C_DIO = 0;					// switch to output, line is low
-		}
+			I2C_DATA_LOW
 	
 		if( I2CWaitClkHi() )
 		{ 	
-			I2C_SCL = 0;
-			I2C_CIO = 0;					// set SCL to output, output a low
+			I2C_CLK_LOW;
 			d <<= 1;
 		}
 		else
 			return(I2C_NACK);	
 	}
 
-	I2C_DIO = 1;							// set SDA to input
+	I2C_DATA_FLOAT;
 	if( I2CWaitClkHi() )
 		s = I2C_SDA;
 	else
 		return(I2C_NACK);	
 
-	I2C_SCL = 0;
-	I2C_CIO = 0;							// set SCL to output, output a low
+	I2C_CLK_LOW;
 
 	return(s);
 } // SendI2CByte
 
 uint8 RecvI2CByte(uint8 r)
 {
-	uint8 s, d;
+	static uint8 s, d;
+
+	I2C_DATA_FLOAT;
 
 	d = 0;
-	I2C_DIO = 1;							// set SDA to input, output a high
-
 	for ( s = 8; s ; s-- )
 		if( I2CWaitClkHi() )
 		{ 
 			d <<= 1;
 			if( I2C_SDA )
 				d |= 1;
-			I2C_SCL = 0;
-			I2C_CIO = 0;
+			I2C_CLK_LOW;
  		}
 		else
 			return(0);
 
 	I2C_SDA = r;
-	I2C_DIO = 0;
-											// set SDA to output
+	I2C_DIO = I2C_OUT;
+										
 	if( I2CWaitClkHi() )
 	{
-		I2C_SCL = 0;
-		I2C_CIO = 0;						// set SCL to output, output a low
-	//	I2CDelay();
-	//	I2C_IO = 0;	// set SDA to output
+		I2C_CLK_LOW;
 		return(d);
 	}
 	else
@@ -164,11 +147,11 @@ uint8 RecvI2CByte(uint8 r)
 } // RecvI2CByte
 
 // -----------------------------------------------------------
-// Wolfgang's SW I2C Routines for ESCs - modified
+// SW I2C Routines for ESCs
 
 // Prototypes
 
-void ESCWaitClkHi(void);
+boolean ESCWaitClkHi(void);
 void ESCI2CStart(void);
 void ESCI2CStop(void);
 uint8 SendESCI2CByte(uint8);
@@ -180,82 +163,68 @@ uint8 SendESCI2CByte(uint8);
 #define	 ESC_DIO		TRISBbits.TRISB1
 #define	 ESC_CIO		TRISBbits.TRISB2
 
-void ESCWaitClkHi(void)
+#define ESC_DATA_LOW	{ESC_SDA=0;ESC_DIO=I2C_OUT;I2C_DELAY;}
+#define ESC_DATA_FLOAT	{ESC_DIO=I2C_IN;I2C_DELAY;}
+#define ESC_CLK_LOW		{ESC_SCL=0;ESC_CIO=I2C_OUT;I2C_DELAY;}
+#define ESC_CLK_FLOAT	{ESC_CIO=I2C_IN;I2C_DELAY;}
+
+boolean ESCWaitClkHi(void)
 {
 	static uint8 s;
 
-	s = 1;
-
-	I2CDelay();
-	ESC_CIO=1;								// set SCL to input, output a high
+	ESC_CLK_FLOAT;
+	s = 1;						
 	while( !ESC_SCL ) 
-		if( ++s == 0 )			 
-			break;;							// wait for line to come hi with timeout
-	I2CDelay();
+		if( ++s == 0 ) return (false);					
+
+	return ( true );
 } // ESCWaitClkHi
 
 void ESCI2CStart(void)
 {
-	ESC_DIO=1;								// set SDA to input, output a high
-	ESCWaitClkHi();
-	ESC_SDA = 0;							// start condition
-	ESC_DIO = 0;							// output a low
-	I2CDelay();
-	ESC_SCL = 0;
-	ESC_CIO = 0;							// set SCL to output, output a low
+	static uint8 r;
+
+	ESC_DATA_FLOAT;
+	r = ESCWaitClkHi();
+	ESC_DATA_LOW;		
+	ESC_CLK_LOW;				
 } // ESCI2CStart
 
 void ESCI2CStop(void)
 {
-	ESC_DIO=0;								// set SDA to output
-	ESC_SDA = 0;							// output a low
+	ESC_DATA_LOW;
 	ESCWaitClkHi();
-
-	ESC_DIO=1;								// set SDA to input, output a high, STOP condition
-	I2CDelay();								// leave clock high
+	ESC_DATA_FLOAT;
 } // ESCI2CStop
 
 uint8 SendESCI2CByte(uint8 d)
 {
 	static uint8 s, t;
 
-	for ( s = 8 ; s ; s-- )
+	for ( s = 8; s ; s-- )
 	{
 		if( d & 0x80 )
-			ESC_DIO = 1;	
+			ESC_DATA_FLOAT
 		else
-		{
-			ESC_SDA = 0;
-			ESC_DIO = 0;		
-		}
+			ESC_DATA_LOW
 	
-		I2CDelay();
-		ESC_CIO=1;						
-
-		t = 1;
-		while( !ESC_SCL )					// timeout wraparound through 255 1.25mS							
-			if ( ++t == 0 ) 
-				return ( I2C_NACK );
-
-		I2CDelay();
-		ESC_SCL = 0;
-		ESC_CIO = 0;		
-		d <<= 1;
+		if( ESCWaitClkHi() )
+		{ 	
+			ESC_CLK_LOW;
+			d <<= 1;
+		}
+		else
+			return(I2C_NACK);	
 	}
-	ESC_DIO = 1;					
-	I2CDelay();
-	ESC_CIO=1;			
 
-	t = 1;
-	while( !ESC_SCL )									
-		if ( ++t == 0 ) 
-			return ( I2C_NACK );
+	ESC_DATA_FLOAT;
+	if( ESCWaitClkHi() )
+		s = ESC_SDA;
+	else
+		return(I2C_NACK);	
 
-	I2CDelay();	
-	ESC_SCL = 0;
-	ESC_CIO = 0;						
-	I2CDelay();
-
-	return( I2C_ACK );
+	ESC_CLK_LOW;
+										
+	return( s );
 
 } // SendESCI2CByte

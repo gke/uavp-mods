@@ -112,8 +112,6 @@ uint8 ScanI2CBus(void)
 	TxString("\r\nESC Bus\r\n");
 
 	if ( (P[ESCType] == ESCHolger)||(P[ESCType] == ESCX3D)||(P[ESCType] == ESCYGEI2C) )
-	{
-
 		for ( s = 0x10 ; s <= 0xf6 ; s += 2 )
 		{
 			I2CStart();
@@ -128,8 +126,6 @@ uint8 ScanI2CBus(void)
 	
 			Delay1mS(2);
 		}
-		TxString("\All addresses returned if Bus unterminated ..\r\n");
-	}
 	else
 		TxString("\tinactive - I2C ESCs not selected..\r\n");
 
@@ -441,7 +437,7 @@ void GPSTest(void)
 {
 	uint8 ch; 
 
-TxString("\r\nGPS test\r\n");
+	TxString("\r\nGPS test\r\n");
 	TxString("Monitors GPS input at 9.6Kb - units GPS lsb (~0.185M) and degrees\r\n");
 	TxString("ARM the quadrocopter to connect the GPS\r\n");
 	TxString("Set Baud Rate to 9.6Kb - you will get trash on the screen until you do this \r\n");
@@ -585,7 +581,7 @@ void AnalogTest(void)
 
 void ProgramSlaveAddress(uint8 addr)
 {
-	uint8 s;
+	static uint8 s;
 
 	for (s = 0x10 ; s < 0xf0 ; s += 2 )
 	{
@@ -594,7 +590,7 @@ void ProgramSlaveAddress(uint8 addr)
 			if( s == addr )
 			{	// ESC is already programmed OK
 				ESCI2CStop();
-				TxString("ESC at SLA 0x");
+				TxString("\tESC at SLA 0x");
 				TxValH(addr);
 				TxString(" is already programmed OK\r\n");
 				return;
@@ -605,7 +601,7 @@ void ProgramSlaveAddress(uint8 addr)
 					if( SendESCI2CByte( addr ) == I2C_ACK ) // new slave address
 					{
 						ESCI2CStop();
-						TxString("ESC at SLA 0x");
+						TxString("\tESC at SLA 0x");
 						TxValH(s);
 						TxString(" reprogrammed to SLA 0x");
 						TxValH(addr);
@@ -615,39 +611,42 @@ void ProgramSlaveAddress(uint8 addr)
 			}
 		ESCI2CStop();
 	}
-	TxString("No response from ESC at SLA 0x");
+	TxString("\tESC at SLA 0x");
 	TxValH(addr);
-	TxString(" or re-program failed\r\n");
-
+	TxString(" no response - check cabling and pullup resistors!\r\n");
 } // ProgramSlaveAddress
+
+boolean CheckESCBus(void)
+{
+	return ( true );
+} // CheckESCBus
 
 void ConfigureESCs(void)
 {
-	uint8 m;
+	uint8 m, s;
 
-	TxNextLine();
-
-	if ( P[ESCType] == ESCYGEI2C )
+	if ( P[ESCType] == ESCYGEI2C )		
+	{
+		TxString("\r\nProgram YGE ESCs\r\n");
 		for ( m = 0 ; m < NoOfMotors ; m++ )
 		{
-			TxString("\r\nConnect ONLY ");
+			TxString("Connect ONLY ");
 			switch( m )
 			{
-				case 0 : TxString("front"); break;
-				case 1 : TxString("back");  break;
-				case 2 : TxString("right"); break;
-				case 3 : TxString("left");  break;
+				case 0 : TxString("Front"); break;
+				case 1 : TxString("Back");  break;
+				case 2 : TxString("Right"); break;
+				case 3 : TxString("Left");  break;
 			}
-			TxString(" ESC, then press any key\r\n");
+			TxString(" ESC, then press any key \r\n");
 			while( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
-			TxString("\r\nprogramming the ESC SLA ...\r\n");
-	
+		//	TxString("\r\n");
 			ProgramSlaveAddress( 0x62 + ( m*2 ));
 		}
+		TxString("\r\nConnect ALL ESCs and power-cycle the Quadrocopter\r\n");
+	}
 	else
-		TxString("\tYGEI2C not selected as ESC?\r\n");
-
-	TxString("Finished ESC Configuration\r\n");
+		TxString("\r\nYGEI2C not selected as ESC?\r\n");
 } // ConfigureESCs
 
 

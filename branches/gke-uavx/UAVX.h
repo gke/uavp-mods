@@ -83,8 +83,8 @@
 // Altitude Hold
 
 // Throttle reduction and increase limits for Baro Alt Comp
-#define BARO_LOW_THR_COMP		-5L
-#define BARO_HIGH_THR_COMP		20L
+#define BARO_LOW_THR_COMP		-7L
+#define BARO_HIGH_THR_COMP		30L
 
 #define BARO_SCALE				108L	//((438L*256L)/1043L)		// Baro*256/GPSAlt
 
@@ -375,8 +375,8 @@ typedef union {
 #define RC_MAXIMUM			238
 #define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
 
-#define RC_THRES_STOP		((10L*RC_MAXIMUM)/100)		
-#define RC_THRES_START		((20L*RC_MAXIMUM)/100)		
+#define RC_THRES_STOP		((6L*RC_MAXIMUM)/100)		
+#define RC_THRES_START		((10L*RC_MAXIMUM)/100)		
 
 #define RC_FRAME_TIMEOUT_MS 	25
 #define RC_SIGNAL_TIMEOUT_MS 	(5L*RC_FRAME_TIMEOUT_MS)
@@ -513,13 +513,13 @@ extern void InitGPS(void);
 extern void UpdateGPS(void);
 
 // i2c.c
-void I2CDelay(void);
+extern boolean I2CWaitClkHi(void);
 extern void I2CStart(void);
 extern void I2CStop(void);
 extern uint8 SendI2CByte(uint8);
 extern uint8 RecvI2CByte(uint8);
 
-extern void ESCWaitClkHi(void);
+extern boolean ESCWaitClkHi(void);
 extern void ESCI2CStart(void);
 extern void ESCI2CStop(void);
 extern uint8 SendESCI2CByte(uint8);
@@ -537,6 +537,7 @@ extern void CheckDemand(int16 CurrThrottle);
 extern void MixAndLimitMotors(void);
 extern void MixAndLimitCam(void);
 extern void OutSignals(void);
+extern void InitI2CESCs(void);
 
 // serial.c
 extern void TxString(const rom uint8 *);

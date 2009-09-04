@@ -27,6 +27,7 @@ void CheckDemand(int16 CurrThrottle);
 void MixAndLimitMotors(void);
 void MixAndLimitCam(void);
 void OutSignals(void);
+void InitI2CESCs(void);
 
 // Constants
 
@@ -372,4 +373,40 @@ _endasm
 
 } // OutSignals
 
+void InitI2CESCs(void)
+{
+	static uint8 m;
+	static boolean r;
 
+	if ( P[ESCType] ==  ESCHolger )
+		for ( m = 0 ; m < NoOfMotors ; m++ )
+		{
+			ESCI2CStart();
+			r = SendESCI2CByte(0x52 + ( m*2 ));		// one cmd, one data byte per motor
+			r |= SendESCI2CByte(0);
+			ESCI2CFail[m] |= r;  
+			ESCI2CStop();
+		}
+	else
+		if ( P[ESCType] == ESCYGEI2C )
+			for ( m = 0 ; m < NoOfMotors ; m++ )
+			{
+				ESCI2CStart();
+				r = SendESCI2CByte(0x62 + ( m*2 ));	// one cmd, one data byte per motor
+				r |= SendESCI2CByte(0);
+				ESCI2CFail[m] |= r; 
+				ESCI2CStop();
+			}
+		else
+			if ( P[ESCType] == ESCX3D )
+			{
+				ESCI2CStart();
+				r = SendESCI2CByte(0x10);			// one command, 4 data bytes
+				r |= SendESCI2CByte(0); 
+				r |= SendESCI2CByte(0);
+				r |= SendESCI2CByte(0);
+				r |= SendESCI2CByte(0);
+				ESCI2CFail[0] |= r;
+				ESCI2CStop();
+			}
+} // InitI2CESCs

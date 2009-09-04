@@ -205,13 +205,7 @@ void ReadParametersEE(void)
 		addr = (CurrentParamSet - 1)* MAX_PARAMETERS;	
 		for ( i = 0; i < MAX_PARAMETERS; i++)
 			P[i] = ReadEE(addr + i);
-	
-		for ( i = 0; i < CONTROLS; i++) // make reverse map
-			RMap[Map[P[TxRxType]][i]-1] = i+1;
-	
-		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
-		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
-	
+
 		ESCMax = ESCLimits[P[ESCType]];
 		if ( P[ESCType] == ESCPPM )
 			ESCMin = 1;
@@ -220,7 +214,14 @@ void ReadParametersEE(void)
 			ESCMin = 0;
 			for ( i = 0; i < NoOfMotors; i++ )
 				ESCI2CFail[i] = false;
+			InitI2CESCs();
 		}
+
+		for ( i = 0; i < CONTROLS; i++) // make reverse map
+			RMap[Map[P[TxRxType]][i]-1] = i+1;
+	
+		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
+		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
 	
 		RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
 		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
