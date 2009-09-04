@@ -22,7 +22,8 @@ It is assumed you:
   * Is there a Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
  
 ==== Tx/Rx ====
-  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
+  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below).
+  * I am using I2C ESCs (Holger, X3D, YGE) and they don't start: Make sure you ground the signal lead of the PPM connection otherwise the electrical noise may cause the ESC to believe it is talking to a PPM signal rather than a digital I2C signal. 
   * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pulldown box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx.
    * Graupner MX16s -> JR XP8103/R700-PPM
   * What does the Tx Mode checkbox do: This is used to tell the stick programming software (see below) which channels to use. It does not swap where your throttle etc. is on your Tx. Set it and do a Write if you are using a Tx with the throttle on the left hand.
