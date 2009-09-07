@@ -22,8 +22,9 @@
 
 #include "uavx.h"
 
-void DoMix(int16 CurrThrottle);
-void CheckDemand(int16 CurrThrottle);
+void DoMix(int16);
+void CheckDemand(int16);
+int16 ThrottleCurve(int16);
 void MixAndLimitMotors(void);
 void MixAndLimitCam(void);
 void OutSignals(void);
@@ -116,12 +117,25 @@ void CheckDemand(int16 CurrThrottle)
 
 } // CheckDemand
 
+int16 ThrottleCurve(int16 CurrentThrottle)
+{
+	static int16 CurveThrottle;
+
+	CurveThrottle = CurrentThrottle;
+
+	return (CurveThrottle);
+
+} // ThrottleCurve
+
 void MixAndLimitMotors(void)
 { 	// expensive ~400uSec @16MHz
     static int16 Temp, CurrThrottle;
 
-	// Altitude stabilization factor
-	CurrThrottle = DesiredThrottle + (DUComp + BaroComp); // vertical compensation not optional
+	CurrThrottle = DesiredThrottle;
+	if ( P[ConfigBits] & UseThrottleCurveMask )
+		CurrThrottle = ThrottleCurve(CurrThrottle);
+
+	CurrThrottle = CurrThrottle + (DUComp + BaroComp); // vertical compensation not optional
 	Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
 	CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
 
@@ -303,7 +317,7 @@ OS006:
 			{
 				ESCI2CStart();
 				r = SendESCI2CByte(0x52 + ( m*2 ));		// one cmd, one data byte per motor
-				r |= SendESCI2CByte(Motor[m]);
+				r |= SendESCI2CByte( Motor[m] );
 				ESCI2CFail[m] |= r;  
 				ESCI2CStop();
 			}
@@ -313,7 +327,7 @@ OS006:
 				{
 					ESCI2CStart();
 					r = SendESCI2CByte(0x62 + ( m*2) );	// one cmd, one data byte per motor
-					r |= SendESCI2CByte(Motor[m]>>1);
+					r |= SendESCI2CByte( Motor[m]>>1 );
 					ESCI2CFail[m] |= r; 
 					ESCI2CStop();
 				}
@@ -322,10 +336,10 @@ OS006:
 				{
 					ESCI2CStart();
 					r = SendESCI2CByte(0x10);			// one command, 4 data bytes
-					r |= SendESCI2CByte(Motor[Front]); 
-					r |= SendESCI2CByte(Motor[Back]);
-					r |= SendESCI2CByte(Motor[Left]);
-					r |= SendESCI2CByte(Motor[Right]);
+					r |= SendESCI2CByte( Motor[Front] ); 
+					r |= SendESCI2CByte( Motor[Back] );
+					r |= SendESCI2CByte( Motor[Left] );
+					r |= SendESCI2CByte( Motor[Right] );
 					ESCI2CFail[0] |= r;
 					ESCI2CStop();
 				}

@@ -338,7 +338,7 @@ typedef union {
 #define Beeper_TOG		if( (LEDShadow&BeeperM) == 0 ) LEDsOn(BeeperM); else LEDsOff(BeeperM)
 
 // Bit definitions
-#define Armed		(PORTAbits.RA4)
+#define Armed			(PORTAbits.RA4)
 #define InTheAir			true	// zzz (PORTCbits.RC0) // micro switch to ground when closed
 
 #define	I2C_ACK				((uint8)(0))
@@ -534,6 +534,7 @@ extern void ProcessCommand(void);
 extern uint8 SaturInt(int16);
 extern void DoMix(int16 CurrThrottle);
 extern void CheckDemand(int16 CurrThrottle);
+extern int16 ThrottleCurve(int16);
 extern void MixAndLimitMotors(void);
 extern void MixAndLimitCam(void);
 extern void OutSignals(void);
@@ -748,7 +749,8 @@ extern int16	NavHoldResetCount;
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 
-enum Statistics { GPSAltitudeS, BaroPressureS, RollRateS, PitchRateS, YawRateS, 
+enum Statistics { GPSAltitudeS, BaroPressureS, RollRateS, PitchRateS, YawRateS,
+				RollS, PitchS,
 				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, MaxStats};
 extern i16u Stats[];
 
@@ -804,19 +806,22 @@ enum Params {
 	// 39 - 64 unused currently
 	};
 
-#define FlyXMode 			0
-#define FlyXModeMask 		0x01
+#define FlyXMode 				0
+#define FlyXModeMask 			0x01
 
-#define TxMode2 			2
-#define TxMode2Mask 		0x04
-#define RxSerialPPM 		3
-#define RxSerialPPMMask		0x08 
+#define TxMode2 				2
+#define TxMode2Mask 			0x04
+#define RxSerialPPM 			3
+#define RxSerialPPMMask			0x08 
 
-#define UseGPSAlt 			5
-#define	UseGPSAltMask		0x20
+#define UseGPSAlt 				5
+#define	UseGPSAltMask			0x20
 
-#define UseRTHDescend 		6
-#define	UseRTHDescendMask	0x40
+#define UseRTHDescend 			6
+#define	UseRTHDescendMask		0x40
+
+#define UseThrottleCurve 		7
+#define	UseThrottleCurveMask	0x80
 
 #define STATS_ADDR_EE	 	( MAX_PARAMETERS *2 )
 extern int8 P[];

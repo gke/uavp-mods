@@ -22,7 +22,7 @@
 
 #include "uavx.h"
 
-// Sensor I2C Routines
+// SW I2C Routines for Sensors
 
 // Prototypes
 
@@ -37,7 +37,7 @@ uint8 RecvI2CByte(uint8);
 #ifdef CLOCK_40MHZ
 #define	I2C_DELAY		Delay10TCYx(3)
 #else
-#define	I2C_DELAY		Delay10TCY()				// 2.5uSec - 400KHz
+#define	I2C_DELAY		Delay10TCY()
 #endif
 
 #define I2C_IN			1
@@ -48,10 +48,10 @@ uint8 RecvI2CByte(uint8);
 #define I2C_SCL			PORTBbits.RB7
 #define I2C_CIO			TRISBbits.TRISB7
 
-#define I2C_DATA_LOW	{I2C_SDA=0;I2C_DIO=I2C_OUT;I2C_DELAY;}
-#define I2C_DATA_FLOAT	{I2C_DIO=I2C_IN;I2C_DELAY;}
-#define I2C_CLK_LOW		{I2C_SCL=0;I2C_CIO=I2C_OUT;I2C_DELAY;}
-#define I2C_CLK_FLOAT	{I2C_CIO=I2C_IN;I2C_DELAY;}
+#define I2C_DATA_LOW	{I2C_SDA=0;I2C_DIO=I2C_OUT;}
+#define I2C_DATA_FLOAT	{I2C_DIO=I2C_IN;}
+#define I2C_CLK_LOW		{I2C_SCL=0;I2C_CIO=I2C_OUT;}
+#define I2C_CLK_FLOAT	{I2C_CIO=I2C_IN;} 
 
 
 boolean I2CWaitClkHi(void)
@@ -83,6 +83,9 @@ void I2CStop(void)
 	I2C_DATA_LOW;
 	r = I2CWaitClkHi();
 	I2C_DATA_FLOAT;
+
+	I2C_DELAY;
+
 } // I2CStop 
 
 uint8 SendI2CByte(uint8 d)
@@ -121,7 +124,6 @@ uint8 RecvI2CByte(uint8 r)
 	static uint8 s, d;
 
 	I2C_DATA_FLOAT;
-
 	d = 0;
 	for ( s = 8; s ; s-- )
 		if( I2CWaitClkHi() )
@@ -163,10 +165,10 @@ uint8 SendESCI2CByte(uint8);
 #define	 ESC_DIO		TRISBbits.TRISB1
 #define	 ESC_CIO		TRISBbits.TRISB2
 
-#define ESC_DATA_LOW	{ESC_SDA=0;ESC_DIO=I2C_OUT;I2C_DELAY;}
-#define ESC_DATA_FLOAT	{ESC_DIO=I2C_IN;I2C_DELAY;}
-#define ESC_CLK_LOW		{ESC_SCL=0;ESC_CIO=I2C_OUT;I2C_DELAY;}
-#define ESC_CLK_FLOAT	{ESC_CIO=I2C_IN;I2C_DELAY;}
+#define ESC_DATA_LOW	{ESC_SDA=0;ESC_DIO=I2C_OUT;}
+#define ESC_DATA_FLOAT	{ESC_DIO=I2C_IN;}
+#define ESC_CLK_LOW		{ESC_SCL=0;ESC_CIO=I2C_OUT;}
+#define ESC_CLK_FLOAT	{ESC_CIO=I2C_IN;}
 
 boolean ESCWaitClkHi(void)
 {
@@ -195,6 +197,9 @@ void ESCI2CStop(void)
 	ESC_DATA_LOW;
 	ESCWaitClkHi();
 	ESC_DATA_FLOAT;
+
+    I2C_DELAY;
+
 } // ESCI2CStop
 
 uint8 SendESCI2CByte(uint8 d)
@@ -222,9 +227,7 @@ uint8 SendESCI2CByte(uint8 d)
 		s = ESC_SDA;
 	else
 		return(I2C_NACK);	
-
 	ESC_CLK_LOW;
 										
 	return( s );
-
 } // SendESCI2CByte

@@ -223,13 +223,13 @@ void VerticalDamping(void)
 
 void HorizontalDamping(void)
 { // Uses accelerometer to damp lateral disturbances while hovering
-	#define HORIZ_DAMPING_LIMIT 3
+	#define HORIZ_DAMPING_LIMIT 8
 	static int16 Temp, AbsRollSum, AbsPitchSum;
 
 	AbsRollSum = Abs(RollSum);
 	AbsPitchSum = Abs(PitchSum);
 	
-	if ( AbsRollSum < 200 ) // ~ 10deg
+	if ( AbsRollSum < 200 ) 				// ~ 10deg
 	{
 		LRVel += LRAcc;
 		LRVel = Limit(LRVel, -16384, 16384);
@@ -261,16 +261,28 @@ void HorizontalDamping(void)
 
 void LimitRollSum(void)
 {
+	static int16 Temp;
+
 	RollSum += SRS16(RollRate, 1);		// use 9 bit res. for I controller
 	RollSum = Limit(RollSum, -RollIntLimit256, RollIntLimit256);
-	RollSum = Decay(RollSum, 1);			// damps to zero even if still rolled
+
+	Temp = Abs(RollSum);
+	if ( Temp > Stats[RollS].i16 ) Stats[RollS].i16 = Temp;
+
+	RollSum = Decay(RollSum, 1);		// damps to zero even if still rolled
 	RollSum += LRIntKorr;				// last for accelerometer compensation
 } // LimitRollSum
 
 void LimitPitchSum(void)
 {
+	static int16 Temp;
+
 	PitchSum += SRS16(PitchRate, 1);
 	PitchSum = Limit(PitchSum, -PitchIntLimit256, PitchIntLimit256);
+
+	Temp = Abs(PitchSum);
+	if ( Temp > Stats[PitchS].i16 ) Stats[PitchS].i16 = Temp;
+
 	PitchSum = Decay(PitchSum, 1);
 	PitchSum += FBIntKorr;
 } // LimitPitchSum
