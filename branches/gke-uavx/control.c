@@ -234,6 +234,7 @@ void HorizontalDamping(void)
 		LRVel += LRAcc;
 		LRVel = Limit(LRVel, -16384, 16384);
 		LRDisp += SRS16(LRVel, 8);
+		LRDisp = Limit(LRDisp, -256, 256);
 		LRComp = SRS16(LRDisp * P[HorizDampKp], 8);
 		LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
 	}
@@ -248,6 +249,7 @@ void HorizontalDamping(void)
 		FBVel += FBAcc;
 		FBVel = Limit(FBVel, -16384, 16384);
 		FBDisp += SRS16(FBVel, 8);
+		FBDisp = Limit(FBDisp, -256, 256);
 		FBComp = SRS16(FBDisp * P[HorizDampKp], 8);
 		FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
 	}
