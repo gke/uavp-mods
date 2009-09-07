@@ -233,7 +233,7 @@ void HorizontalDamping(void)
 	{
 		LRVel += LRAcc;
 		LRVel = Limit(LRVel, -16384, 16384);
-		LRDisp = SRS16(LRVel, 8);
+		LRDisp += SRS16(LRVel, 8);
 		LRComp = SRS16(LRDisp * P[HorizDampKp], 8);
 		LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
 	}
@@ -247,7 +247,7 @@ void HorizontalDamping(void)
 	{
 		FBVel += FBAcc;
 		FBVel = Limit(FBVel, -16384, 16384);
-		FBDisp = SRS16(FBVel, 8);
+		FBDisp += SRS16(FBVel, 8);
 		FBComp = SRS16(FBDisp * P[HorizDampKp], 8);
 		FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
 	}
@@ -266,8 +266,8 @@ void LimitRollSum(void)
 	RollSum += SRS16(RollRate, 1);		// use 9 bit res. for I controller
 	RollSum = Limit(RollSum, -RollIntLimit256, RollIntLimit256);
 
-	Temp = Abs(RollSum);
-	if ( Temp > Stats[RollS].i16 ) Stats[RollS].i16 = Temp;
+//	Temp = Abs(RollSum);
+//	if ( Temp > Stats[RollS].i16 ) Stats[RollS].i16 = Temp;
 
 	RollSum = Decay(RollSum, 1);		// damps to zero even if still rolled
 	RollSum += LRIntKorr;				// last for accelerometer compensation
@@ -280,8 +280,8 @@ void LimitPitchSum(void)
 	PitchSum += SRS16(PitchRate, 1);
 	PitchSum = Limit(PitchSum, -PitchIntLimit256, PitchIntLimit256);
 
-	Temp = Abs(PitchSum);
-	if ( Temp > Stats[PitchS].i16 ) Stats[PitchS].i16 = Temp;
+//	Temp = Abs(PitchSum);
+//	if ( Temp > Stats[PitchS].i16 ) Stats[PitchS].i16 = Temp;
 
 	PitchSum = Decay(PitchSum, 1);
 	PitchSum += FBIntKorr;

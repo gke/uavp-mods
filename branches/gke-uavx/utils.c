@@ -707,9 +707,9 @@ void ShowStats(void)
 	TxString("Pitch: \t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
 	TxString("Yaw:   \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>8,1,' '); TxString("Deg/Sec\r\n");
 	TxNextLine();
-	TxString("RollA: \t"); TxVal32((int32)Stats[RollS].i16,0,' '); TxString(" \r\n");
-	TxString("PitchA:\t"); TxVal32((int32)Stats[PitchS].i16,0,' '); TxString(" \r\n");
-	TxNextLine();
+//	TxString("RollA: \t"); TxVal32((int32)Stats[RollS].i16,0,' '); TxString(" \r\n");
+//	TxString("PitchA:\t"); TxVal32((int32)Stats[PitchS].i16,0,' '); TxString(" \r\n");
+//	TxNextLine();
 	TxString("Left->Right:\t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
 	TxString("Front->Back:\t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine();
 	TxString("Down->Up:   \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 

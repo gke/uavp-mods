@@ -750,8 +750,9 @@ extern int8		BatteryVolts;
 extern uint8	LEDShadow;		// shadow register
 
 enum Statistics { GPSAltitudeS, BaroPressureS, RollRateS, PitchRateS, YawRateS,
+				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, 
 				RollS, PitchS,
-				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, MaxStats};
+				MaxStats};
 extern i16u Stats[];
 
 extern int16	Trace[];
