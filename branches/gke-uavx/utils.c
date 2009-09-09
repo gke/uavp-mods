@@ -110,6 +110,13 @@ void Delay100mSWithOutput(int16 dur)
 	INTCONbits.TMR0IE = T0IntEn;
 } // Delay100mSWithOutput
 
+#ifndef USE_LIMIT_MACRO
+int16 ProcLimit(int16 i, int16 l, int16 u)
+{
+	return ((i<l) ? l : ((i>u) ? u : i));	
+} // ProcLimit
+#endif // USE_LIMIT_MACRO
+
 int16 SRS16(int16 x, uint8 s)
 {
 	return((x<0) ? -((-x)>>s) : (x>>s));
@@ -707,12 +714,12 @@ void ShowStats(void)
 	TxString("Pitch: \t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
 	TxString("Yaw:   \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>8,1,' '); TxString("Deg/Sec\r\n");
 	TxNextLine();
-//	TxString("RollA: \t"); TxVal32((int32)Stats[RollS].i16,0,' '); TxString(" \r\n");
-//	TxString("PitchA:\t"); TxVal32((int32)Stats[PitchS].i16,0,' '); TxString(" \r\n");
-//	TxNextLine();
-	TxString("Left->Right:\t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
-	TxString("Front->Back:\t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine();
-	TxString("Down->Up:   \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
+	TxString("LRAcc: \t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
+	TxString("FBAcc: \t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine();
+	TxString("DUAcc: \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
+    TxNextLine();
+	TxString("LRDrift:\t"); TxVal32((int32)Stats[LRDriftAccS].i16, 0, ' '); TxString("lsb\r\n");; 
+	TxString("FBDrift:\t"); TxVal32((int32)Stats[FBDriftAccS].i16, 0, ' '); TxString("lsb\r\n");;
 } // ShowStats
 
 void DumpTrace(void)

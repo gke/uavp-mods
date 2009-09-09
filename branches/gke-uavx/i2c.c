@@ -53,7 +53,6 @@ uint8 RecvI2CByte(uint8);
 #define I2C_CLK_LOW		{I2C_SCL=0;I2C_CIO=I2C_OUT;}
 #define I2C_CLK_FLOAT	{I2C_CIO=I2C_IN;} 
 
-
 boolean I2CWaitClkHi(void)
 {
 	static uint8 s;

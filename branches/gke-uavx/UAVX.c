@@ -120,7 +120,7 @@ i16u Stats[MaxStats];
 int16	Trace[TopTrace+1];
 boolean	Flags[32];
 uint8	LEDCycles;
-int16	NavHoldResetCount;	
+int16	AttitudeHoldResetCount;	
 int8	BatteryVolts;
 
 #pragma udata params
@@ -132,7 +132,7 @@ const rom int8	ComParms[]={
 	0,0,0,1,0,0,0,0,1,0,
 	0,0,0,0,0,1,1,1,0,1,
 	1,1,1,1,1,0,0,1,0,0,
-	1,1,0,1,1,1,1,0,0,0,
+	1,1,0,1,1,1,1,0,1,0,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0
@@ -180,8 +180,8 @@ const rom int8 DefaultParams[] = {
 	ESCPPM, 		// ESCType,			36c
 	DX7AR7000, 		// TxRxType			37c
 	2,				// NeutralRadius	38
-	0,				// 39 - 64 unused currently
-	0,
+	0,				// ThrottleCurve	39c
+	0,				// 38 - 64 unused currently
 
 	0,
 	0,

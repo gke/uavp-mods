@@ -114,9 +114,12 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 	if ( _NavComputed ) // maintain previous corrections
 	{
-		DesiredRoll = Limit(DesiredRoll + NavRCorr, -RC_NEUTRAL, RC_NEUTRAL);
-		DesiredPitch = Limit(DesiredPitch + NavPCorr, -RC_NEUTRAL, RC_NEUTRAL);
-		DesiredYaw = Limit(DesiredYaw + NavYCorr, -RC_NEUTRAL, RC_NEUTRAL);
+		Temp = DesiredRoll + NavRCorr;
+		DesiredRoll = Limit(Temp, -RC_NEUTRAL, RC_NEUTRAL);
+		Temp = DesiredPitch + NavPCorr;
+		DesiredPitch = Limit(Temp, -RC_NEUTRAL, RC_NEUTRAL);
+		Temp = DesiredYaw + NavYCorr;
+		DesiredYaw = Limit(Temp, -RC_NEUTRAL, RC_NEUTRAL);
 	}
 	else
 	{
@@ -190,27 +193,14 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 void DoNavigation(void)
 {
-	static int16 HoldRoll, HoldPitch, HoldYaw;
-
 	if ( _GPSValid && _CompassValid  && ( NavSensitivity > NAV_GAIN_THRESHOLD ) && ( mS[Clock] > mS[NavActiveTime]) )
 		switch ( NavState ) {
 		case PIC:
 		case HoldingStation:
 
-			HoldRoll = Abs(DesiredRoll - RollTrim);
-			HoldPitch = Abs(DesiredPitch - PitchTrim);
-
-			if ( ( HoldRoll > NAV_HOLD_LIMIT )||( HoldPitch > NAV_HOLD_LIMIT ) )
-				if ( NavHoldResetCount > NAV_HOLD_RESET_INTERVAL )
-					AcquireHoldPosition();
-				else
-					NavHoldResetCount++;
-			else
-			{
-				if ( NavHoldResetCount > 1 )
-					NavHoldResetCount -= 2;		// Faster decay
-			}
-				
+			if ( !_AttitudeHold )
+				AcquireHoldPosition();
+			
 			NavState = HoldingStation;			// Keep GPS hold active regardless
 			Navigate(GPSNorthHold, GPSEastHold);
 	
@@ -336,9 +326,8 @@ void DoFailsafe(void)
 			break;
 		} // Switch FailState
 	else
-	{
 		DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = 0;
-	}			
+			
 } // DoFailsafe
 
 void CheckThrottleMoved(void)
@@ -373,7 +362,7 @@ void InitNavigation(void)
 	GPSNorthHold = GPSEastHold = 0;
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
 	NavState = PIC;
-	NavHoldResetCount = 0;
+	AttitudeHoldResetCount = 0;
 	_NavComputed = false;
 } // InitNavigation
 

@@ -117,9 +117,9 @@
 #define NAV_MAX_ANGLE 			20L		// Rx stick units ~= degrees
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
-#define NAV_HOLD_LIMIT 			15L		// dead zone for roll/pitch stick for position hold
 
-#define NAV_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
+#define ATTITUDE_HOLD_LIMIT 			15L		// dead zone for roll/pitch stick for position hold
+#define ATTITUDE_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
 
 #define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used
 
@@ -217,8 +217,14 @@ typedef union {
 
 #define Max(i,j) 			((i<j) ? j : i)
 #define Min(i,j) 			((i<j) ? i : j )
-#define Limit(i,l,u) 		((i<l) ? l : ((i>u) ? u : i))
 #define Decay(i, l) 			((i <= l) ? i+l : ((i>=l) ? i-l : 0))
+
+#define USE_LIMIT_MACRO
+#ifdef USE_LIMIT_MACRO
+	#define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
+#else
+	#define Limit			ProcLimit
+#endif
 
 // To speed up NMEA sentence processing 
 // must have a positive argument
@@ -291,6 +297,7 @@ typedef union {
 #define _ThrottleMoving		Flags[19]
 #define _Hovering			Flags[20]
 #define _NavComputed 		Flags[21]
+#define _AttitudeHold		Flags[22]
 
 #define _RTHAltitudeHold	Flags[24]
 #define _ReturnHome			Flags[25]
@@ -481,8 +488,7 @@ extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
 extern void ErectGyros(void);
-extern void VerticalDamping(void);
-extern void HorizontalDamping(void);
+extern void InertialDamping(void);
 extern void CalcGyroRates(void);
 extern void DoControl(void);
 
@@ -534,7 +540,7 @@ extern void ProcessCommand(void);
 extern uint8 SaturInt(int16);
 extern void DoMix(int16 CurrThrottle);
 extern void CheckDemand(int16 CurrThrottle);
-extern int16 ThrottleCurve(int16);
+extern int16 DoThrottleCurve(int16);
 extern void MixAndLimitMotors(void);
 extern void MixAndLimitCam(void);
 extern void OutSignals(void);
@@ -557,6 +563,7 @@ extern void TxVal32(int32, int8, uint8);
 // utils.c
 extern void Delay1mS(int16);
 extern void Delay100mSWithOutput(int16);
+extern int16 ProcLimit(int16, int16, int16);
 extern int16 SRS16(int16, uint8);
 extern int32 SRS32(int32, uint8);
 extern void InitPorts(void);
@@ -745,13 +752,13 @@ extern int16	Rl,Pl,Yl;		// PID output values
 
 extern boolean	Flags[32];
 extern uint8	LEDCycles;		// for hover light display
-extern int16	NavHoldResetCount;	
+extern int16	AttitudeHoldResetCount;	
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 
 enum Statistics { GPSAltitudeS, BaroPressureS, RollRateS, PitchRateS, YawRateS,
 				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, 
-				RollS, PitchS,
+				LRDriftAccS, FBDriftAccS,
 				MaxStats};
 extern i16u Stats[];
 
@@ -803,7 +810,8 @@ enum Params {
 	GyroType,			// 35c
 	ESCType,			// 36c
 	TxRxType,			// 37c
-	NeutralRadius		// 38
+	NeutralRadius,		// 38
+	ThrottleCurve		// 39c
 	// 39 - 64 unused currently
 	};
 
@@ -820,9 +828,6 @@ enum Params {
 
 #define UseRTHDescend 			6
 #define	UseRTHDescendMask		0x40
-
-#define UseThrottleCurve 		7
-#define	UseThrottleCurveMask	0x80
 
 #define STATS_ADDR_EE	 	( MAX_PARAMETERS *2 )
 extern int8 P[];

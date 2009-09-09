@@ -25,8 +25,7 @@
 // Prototypes
 
 void GyroCompensation(void);
-void VerticalDamping(void);
-void HorizontalDamping(void);
+void InertialDamping(void);
 void LimitRollSum(void);
 void LimitPitchSum(void);
 void LimitYawSum(void);
@@ -196,70 +195,57 @@ void GyroCompensation(void)
 
 } // GyroCompensation
 
-void VerticalDamping(void)
-{ // Uses vertical accelerometer to damp altitude changes due mainly to turbulence
-	static int16 Temp, AbsRollSum, AbsPitchSum;
-
-	AbsRollSum = Abs(RollSum);
-	AbsPitchSum = Abs(PitchSum);
+void InertialDamping(void)
+{ // Uses accelerometer to damp lateral and vertical disturbances while hovering
+	#define HORIZ_DAMPING_LIMIT 	5
+	#define HORIZ_DAMPING_WINDOW 	100
+	static int16 Temp;
 	
-	// Empirical - vertical acceleration decreases at ~approx Sum/8
-	if ( (AbsRollSum < 200) && ( AbsPitchSum < 200) ) // ~ 10deg
-		DUVel += DUAcc + SRS16( AbsRollSum + AbsPitchSum, 3);
-	
-	DUVel = Limit(DUVel , -16384, 16384); 
-	DUVel = Decay(DUVel, 10);
-		
-	Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 8);	
-	if( Temp > DUComp ) 
-		DUComp++;
-	else
-		if( Temp < DUComp )
-			DUComp--;
-		
-	DUComp = Limit(DUComp, -5, 20);  // -20, 20
-
-} // VerticalDamping
-
-void HorizontalDamping(void)
-{ // Uses accelerometer to damp lateral disturbances while hovering
-	#define HORIZ_DAMPING_LIMIT 8
-	static int16 Temp, AbsRollSum, AbsPitchSum;
-
-	AbsRollSum = Abs(RollSum);
-	AbsPitchSum = Abs(PitchSum);
-	
-	if ( AbsRollSum < 200 ) 				// ~ 10deg
+	if ( _Hovering && _AttitudeHold ) 
 	{
+		// Down - Up
+		DUVel += DUAcc;		
+		DUVel = Limit(DUVel , -16384, 16384); 			
+		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 8);
+		if( Temp > DUComp ) 
+			DUComp++;
+		else
+			if( Temp < DUComp )
+				DUComp--;			
+		DUComp = Limit(DUComp, -5, 20);  // -20, 20
+		DUVel = Decay(DUVel, 10);
+
+		// Left - Right
 		LRVel += LRAcc;
 		LRVel = Limit(LRVel, -16384, 16384);
 		LRDisp += SRS16(LRVel, 8);
 		LRDisp = Limit(LRDisp, -256, 256);
 		LRComp = SRS16(LRDisp * P[HorizDampKp], 8);
 		LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-	}
-	else
-		LRComp = 0;
 
-	LRVel = Decay(LRVel, 2);
-	LRDisp = Decay(LRDisp, 2);
+		LRVel = Decay(LRVel, 2);
+		LRDisp = Decay(LRDisp, 2);
 
-	if ( AbsPitchSum < 200 ) // ~ 10deg
-	{
+		// Front - Back
 		FBVel += FBAcc;
 		FBVel = Limit(FBVel, -16384, 16384);
 		FBDisp += SRS16(FBVel, 8);
 		FBDisp = Limit(FBDisp, -256, 256);
 		FBComp = SRS16(FBDisp * P[HorizDampKp], 8);
 		FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
+
+		FBVel = Decay(FBVel, 2);
+		FBDisp = Decay(FBDisp, 2); 
 	}
 	else
-		FBComp = 0;
+	{
+		DUVel = LRVel = LRDisp = FBVel = FBDisp = 0;
 
-	FBVel = Decay(FBVel, 2);
-	FBDisp = Decay(FBDisp, 2); 
-
-} // HorizontalDamping
+		DUComp = Decay(DUComp, 1);
+		LRComp = Decay(LRComp, 1);
+		FBComp = Decay(FBComp, 1);
+	}
+} // InertialDamping
 
 void LimitRollSum(void)
 {
@@ -267,10 +253,6 @@ void LimitRollSum(void)
 
 	RollSum += SRS16(RollRate, 1);		// use 9 bit res. for I controller
 	RollSum = Limit(RollSum, -RollIntLimit256, RollIntLimit256);
-
-//	Temp = Abs(RollSum);
-//	if ( Temp > Stats[RollS].i16 ) Stats[RollS].i16 = Temp;
-
 	RollSum = Decay(RollSum, 1);		// damps to zero even if still rolled
 	RollSum += LRIntKorr;				// last for accelerometer compensation
 } // LimitRollSum
@@ -281,10 +263,6 @@ void LimitPitchSum(void)
 
 	PitchSum += SRS16(PitchRate, 1);
 	PitchSum = Limit(PitchSum, -PitchIntLimit256, PitchIntLimit256);
-
-//	Temp = Abs(PitchSum);
-//	if ( Temp > Stats[PitchS].i16 ) Stats[PitchS].i16 = Temp;
-
 	PitchSum = Decay(PitchSum, 1);
 	PitchSum += FBIntKorr;
 } // LimitPitchSum
@@ -296,7 +274,9 @@ void LimitYawSum(void)
 	if ( _CompassValid )
 	{
 		// + CCW
-		HoldYaw = HardFilter(HoldYaw, Abs(DesiredYaw - YawTrim));
+		Temp = DesiredYaw - YawTrim;
+		Temp = Abs(Temp);
+		HoldYaw = HardFilter(HoldYaw, Temp);
 		if ( HoldYaw > COMPASS_MIDDLE ) // acquire new heading
 		{
 			DesiredHeading = Heading;
@@ -311,14 +291,12 @@ void LimitYawSum(void)
 		}
 	}
 
-	YawSum += (int16)YE;
+	YawSum += YE;
 	YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
 
 	YawSum = Decay(YawSum, 2); 				// GKE added to kill gyro drift
 
 } // LimitYawSum
-
-
 
 void CalcGyroRates(void)
 {
@@ -328,13 +306,13 @@ void CalcGyroRates(void)
 	// 300 Deg/Sec is the "reference" gyro full scale rate
 
 	if ( P[GyroType] == IDG300 )
-	{ // 500 Deg/Sec or 1.66 ~= 2 so do not average readings 
+	{ 	// 500 Deg/Sec or 1.66 ~= 2 so do not average readings 
 		RollRate -= GyroMidRoll * 2;
 		PitchRate -= GyroMidPitch * 2;
 		RollRate = -RollRate;			// adjust for reversed roll gyro sense
  	}
 	else
-	{ // 1.0
+	{ 	// 1.0
 		// Average of two readings
 		RollRate = ( RollRate >> 1 ) - GyroMidRoll;	
 		PitchRate = ( PitchRate >> 1 ) - GyroMidPitch;
@@ -366,8 +344,8 @@ void DoControl(void)
 {				
 	CalcGyroRates();
 	GyroCompensation();	
-	VerticalDamping();
-	HorizontalDamping();
+
+	InertialDamping();					// only while Hovering and Roll/Pitch neutral
 
 	// Roll
 				
@@ -420,6 +398,8 @@ void DoControl(void)
 
 void UpdateControls(void)
 {
+	static HoldRoll, HoldPitch;
+
 	if ( _NewValues )
 	{
 		_NewValues = false;
@@ -427,7 +407,7 @@ void UpdateControls(void)
 		MapRC();								// remap channel order for specific Tx/Rx
 
 		DesiredThrottle = RC[ThrottleC];
-		if ( DesiredThrottle < RC_THRES_STOP )
+		if ( DesiredThrottle < RC_THRES_STOP )	// to deal with usual non-zero EPA
 			DesiredThrottle = 0;
 
 		DesiredRoll = RC[RollC];
@@ -435,6 +415,26 @@ void UpdateControls(void)
 		DesiredYaw = RC[YawC];
 		NavSensitivity = RC[NavGainC];
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
+
+		HoldRoll = DesiredRoll - RollTrim;
+		HoldRoll = Abs(HoldRoll);
+		HoldPitch = DesiredPitch - PitchTrim;
+		HoldPitch = Abs(HoldPitch);
+
+		if ( ( HoldRoll > ATTITUDE_HOLD_LIMIT )||( HoldPitch > ATTITUDE_HOLD_LIMIT ) )
+			if ( AttitudeHoldResetCount > ATTITUDE_HOLD_RESET_INTERVAL )
+				_AttitudeHold = false;
+			else
+			{
+				AttitudeHoldResetCount++;
+				_AttitudeHold = true;
+			}
+		else
+		{
+			_AttitudeHold = true;	
+			if ( AttitudeHoldResetCount > 1 )
+				AttitudeHoldResetCount -= 2;		// Faster decay
+		}
 	}
 } // UpdateControls
 

@@ -114,7 +114,7 @@ uint8 ScanI2CBus(void)
 	if ( (P[ESCType] == ESCHolger)||(P[ESCType] == ESCX3D)||(P[ESCType] == ESCYGEI2C) )
 		for ( s = 0x10 ; s <= 0xf6 ; s += 2 )
 		{
-			I2CStart();
+			ESCI2CStart();
 			if( SendESCI2CByte(s) == I2C_ACK )
 			{
 				d++;
@@ -122,7 +122,7 @@ uint8 ScanI2CBus(void)
 				TxValH(s);
 				TxNextLine();
 			}
-			I2CStop();
+			ESCI2CStop();
 	
 			Delay1mS(2);
 		}

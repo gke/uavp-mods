@@ -210,7 +210,7 @@ void ParseGPSSentence(void)
 				if ( ValidGPSSentences ==  GPS_INITIAL_SENTENCES )
 				{
 					SetGPSOrigin();
-					DoBeep100mSWithOutput(1,0);
+					DoBeep100mSWithOutput(2,0);
 				}
 				ValidGPSSentences++;
 			}	
