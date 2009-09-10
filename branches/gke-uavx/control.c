@@ -197,14 +197,20 @@ void GyroCompensation(void)
 
 void InertialDamping(void)
 { // Uses accelerometer to damp lateral and vertical disturbances while hovering
-	#define HORIZ_DAMPING_LIMIT 	5
-	#define HORIZ_DAMPING_WINDOW 	100
-	static int16 Temp;
+	#define HORIZ_DAMPING_LIMIT 	5L
 	
+	static int16 Temp, AbsRollSum, AbsPitchSum;
+	static int16 Dt;
+	
+	// Empirical - acceleration changes at ~approx Sum/8
 	if ( _Hovering && _AttitudeHold ) 
 	{
+		Dt = (int16)(mS[Clock] - mS[LastDamping]);
+
 		// Down - Up
-		DUVel += DUAcc;		
+		AbsRollSum = Abs(RollSum);
+		AbsPitchSum = Abs(PitchSum);
+		DUVel += DUAcc + SRS16( AbsRollSum + AbsPitchSum, 3);		
 		DUVel = Limit(DUVel , -16384, 16384); 			
 		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 8);
 		if( Temp > DUComp ) 
@@ -215,11 +221,13 @@ void InertialDamping(void)
 		DUComp = Limit(DUComp, -5, 20);  // -20, 20
 		DUVel = Decay(DUVel, 10);
 
-		// Left - Right
-		LRVel += LRAcc;
-		LRVel = Limit(LRVel, -16384, 16384);
-		LRDisp += SRS16(LRVel, 8);
-		LRDisp = Limit(LRDisp, -256, 256);
+		// Left - Right  ~units mm and mm/sec
+		// 		Vel += Acc * 9.81/1024 * DT_MS;
+		// 		Disp += Vel * DT_MS/1000;
+
+		LRVel += SRS32((int32) (LRAcc + SRS16(RollSum, 3)) * Dt, 7); 	
+		LRDisp += SRS16(LRVel * Dt, 10);		
+		LRDisp = Limit(LRDisp, -4096, 4096);
 		LRComp = SRS16(LRDisp * P[HorizDampKp], 8);
 		LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
 
@@ -227,10 +235,9 @@ void InertialDamping(void)
 		LRDisp = Decay(LRDisp, 2);
 
 		// Front - Back
-		FBVel += FBAcc;
-		FBVel = Limit(FBVel, -16384, 16384);
-		FBDisp += SRS16(FBVel, 8);
-		FBDisp = Limit(FBDisp, -256, 256);
+		FBVel += SRS32((int32) (FBAcc + SRS16(PitchSum, 3)) * Dt, 7); 
+		FBDisp += SRS16(FBVel * Dt, 10);
+		FBDisp = Limit(FBDisp, -4096, 4096);
 		FBComp = SRS16(FBDisp * P[HorizDampKp], 8);
 		FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
 
@@ -244,7 +251,10 @@ void InertialDamping(void)
 		DUComp = Decay(DUComp, 1);
 		LRComp = Decay(LRComp, 1);
 		FBComp = Decay(FBComp, 1);
+
 	}
+
+	mS[LastDamping] = mS[Clock];
 } // InertialDamping
 
 void LimitRollSum(void)
@@ -413,7 +423,11 @@ void UpdateControls(void)
 		DesiredRoll = RC[RollC];
 		DesiredPitch = RC[PitchC];
 		DesiredYaw = RC[YawC];
+
+		#ifndef RX6CH
 		NavSensitivity = RC[NavGainC];
+		#endif // !RX6CH
+
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
 
 		HoldRoll = DesiredRoll - RollTrim;
@@ -449,7 +463,7 @@ void CaptureTrims(void)
 
 void StopMotors(void)
 {
-	static uint8 m;
+	uint8 m;
 
 	for (m = 0; m < NoOfMotors; m++)
 		Motor[m] = ESCMin;

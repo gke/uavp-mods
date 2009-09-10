@@ -224,6 +224,10 @@ void ReadParametersEE(void)
 			InitI2CESCs();
 		}
 
+		#ifdef RX6CH
+		NavSensitivity = ((int16)P[PercentNavSens6Ch] * RC_MAXIMUM)/100;
+		#endif // RX6CH
+
 		for ( i = 0; i < CONTROLS; i++) // make reverse map
 			RMap[Map[P[TxRxType]][i]-1] = i+1;
 	

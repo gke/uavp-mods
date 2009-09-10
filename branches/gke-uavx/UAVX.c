@@ -132,7 +132,7 @@ const rom int8	ComParms[]={
 	0,0,0,1,0,0,0,0,1,0,
 	0,0,0,0,0,1,1,1,0,1,
 	1,1,1,1,1,0,0,1,0,0,
-	1,1,0,1,1,1,1,0,1,0,
+	1,1,0,1,1,1,1,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0
@@ -180,7 +180,7 @@ const rom int8 DefaultParams[] = {
 	ESCPPM, 		// ESCType,			36c
 	DX7AR7000, 		// TxRxType			37c
 	2,				// NeutralRadius	38
-	0,				// ThrottleCurve	39c
+	30,				// PercentNavSens6Ch	39
 	0,				// 38 - 64 unused currently
 
 	0,
@@ -277,7 +277,6 @@ void main(void)
 	EnableInterrupts;
 
 	InitLISL();
-
 	InitCompass();
 	InitBarometer();
 	InitGPS();

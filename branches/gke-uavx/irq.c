@@ -117,7 +117,7 @@ void InitTimersAndInterrupts(void)
 		PPM[i].i16 = RC[i] = 0;
 	#ifdef RX6CH
 	PPM[CamTiltC].i16 = RC_NEUTRAL;
-	PPM[NavGainC].i16 = NAV_GAIN_6CH;
+	PPM[NavGainC].i16 = 0;
 	#endif // RX6CH	  
 
 	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;

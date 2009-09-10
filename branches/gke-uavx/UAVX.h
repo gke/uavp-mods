@@ -540,7 +540,6 @@ extern void ProcessCommand(void);
 extern uint8 SaturInt(int16);
 extern void DoMix(int16 CurrThrottle);
 extern void CheckDemand(int16 CurrThrottle);
-extern int16 DoThrottleCurve(int16);
 extern void MixAndLimitMotors(void);
 extern void MixAndLimitCam(void);
 extern void OutSignals(void);
@@ -632,7 +631,7 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, LastDamping, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
@@ -811,7 +810,7 @@ enum Params {
 	ESCType,			// 36c
 	TxRxType,			// 37c
 	NeutralRadius,		// 38
-	ThrottleCurve		// 39c
+	PercentNavSens6Ch	// 39c
 	// 39 - 64 unused currently
 	};
 

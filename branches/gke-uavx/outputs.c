@@ -24,7 +24,6 @@
 
 void DoMix(int16);
 void CheckDemand(int16);
-int16 DoThrottleCurve(int16);
 void MixAndLimitMotors(void);
 void MixAndLimitCam(void);
 void OutSignals(void);
@@ -117,25 +116,11 @@ void CheckDemand(int16 CurrThrottle)
 
 } // CheckDemand
 
-int16 DoThrottleCurve(int16 CurrentThrottle)
-{
-	static int16 CurveThrottle;
-
-	CurveThrottle = CurrentThrottle;
-
-	return (CurveThrottle);
-
-} // DoThrottleCurve
-
 void MixAndLimitMotors(void)
 { 	// expensive ~400uSec @16MHz
     static int16 Temp, CurrThrottle;
 
-	CurrThrottle = DesiredThrottle;
-	if ( P[ThrottleCurve] > 0 )
-		CurrThrottle = DoThrottleCurve(CurrThrottle);
-
-	CurrThrottle = CurrThrottle + (DUComp + BaroComp); // vertical compensation not optional
+	CurrThrottle = DesiredThrottle + (DUComp + BaroComp); // vertical compensation not optional
 	Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
 	CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
 
