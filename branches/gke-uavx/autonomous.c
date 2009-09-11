@@ -49,7 +49,7 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 			AE = Limit(DesiredAltitude - GPSRelAltitude, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
-			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 5);
+			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 7);
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, GPS_ALT_LOW_THR_COMP, GPS_ALT_HIGH_THR_COMP);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
@@ -156,34 +156,21 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 				NavYCorr = 0;
 	
 			DesiredRoll += NavRCorr;
-			SumNavRCorr = Limit (SumNavRCorr + Range, -NavIntLimit256, NavIntLimit256);
-			#ifdef NAV_ZERO_INT
-			if ( Sign(SumNavRCorr) == Sign(NavRCorr) )
-				DesiredRoll += (SumNavRCorr * NavKi) / 256L;
-			else
-				SumNavRCorr = 0;
-			#else
-			DesiredRoll += (SumNavRCorr * NavKi) / 256L;
-			#endif //NAV_ZERO_INT
+			Temp = SumNavRCorr + Range;
+			SumNavRCorr = Limit (Temp , -NavIntLimit32, NavIntLimit32);
+			DesiredRoll += SRS16(SumNavRCorr * NavKi, 8);
 			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
 	
 			DesiredPitch += NavPCorr;
-			SumNavPCorr = Limit (SumNavPCorr + Range, -NavIntLimit256, NavIntLimit256);
-			#ifdef NAV_ZERO_INT
-			if ( Sign(SumNavPCorr) == Sign(NavPCorr) )
-				DesiredPitch += (SumNavPCorr * NavKi) / 256L;
-			else
-				SumNavPCorr = 0;
-			#else
-			DesiredPitch += (SumNavPCorr * NavKi) / 256L;
-			#endif //NAV_ZERO_INT
+			Temp = SumNavPCorr + Range;
+			SumNavPCorr = Limit (Temp, -NavIntLimit32, NavIntLimit32);
+			DesiredPitch += SRS16(SumNavPCorr * NavKi, 8);
 			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
 
 			DesiredYaw += NavYCorr;
 		}
 		else
 		{
-			// bump compensation with Acc here
 			NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = 0;
 		}
 

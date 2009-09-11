@@ -125,9 +125,6 @@
 
 //#define NAV_PPM_FAILSAFE_RTH			// PPM signal failure causes RTH with Signal sampled periodically
 
-// comment out for normal wind compensation otherwise integral assist is cancelled upon reaching target
-//#define NAV_ZERO_INT
-
 #define METRES_TO_GPS 			5		// each GPS lsb 0.185M => use 200mm but better accuracy for WP needed!
 
 // Throttle
@@ -488,7 +485,8 @@ extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
 extern void ErectGyros(void);
-extern void InertialDamping(void);
+extern void VerticalDamping(void);
+extern void HorizontalDamping(void);
 extern void CalcGyroRates(void);
 extern void DoControl(void);
 
@@ -700,7 +698,7 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollTrim, PitchTrim, YawTrim;
 extern int16	HoldYaw;
-extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
+extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit32;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;

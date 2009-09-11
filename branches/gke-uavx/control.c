@@ -25,7 +25,8 @@
 // Prototypes
 
 void GyroCompensation(void);
-void InertialDamping(void);
+void VerticalDamping(void);
+void HorizontalDamping(void);
 void LimitRollSum(void);
 void LimitPitchSum(void);
 void LimitYawSum(void);
@@ -195,24 +196,17 @@ void GyroCompensation(void)
 
 } // GyroCompensation
 
-void InertialDamping(void)
-{ // Uses accelerometer to damp lateral and vertical disturbances while hovering
-	#define HORIZ_DAMPING_LIMIT 	5L
-	
-	static int16 Temp, AbsRollSum, AbsPitchSum;
-	static int16 Dt;
+void VerticalDamping(void)
+{ // Uses accelerometer to damp vertical disturbances while hovering	
+	static int16 Temp;
 	
 	// Empirical - acceleration changes at ~approx Sum/8
 	if ( _Hovering && _AttitudeHold ) 
 	{
-		Dt = (int16)(mS[Clock] - mS[LastDamping]);
-
 		// Down - Up
-		AbsRollSum = Abs(RollSum);
-		AbsPitchSum = Abs(PitchSum);
-		DUVel += DUAcc + SRS16( AbsRollSum + AbsPitchSum, 3);		
+		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 3);		
 		DUVel = Limit(DUVel , -16384, 16384); 			
-		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 8);
+		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 11);
 		if( Temp > DUComp ) 
 			DUComp++;
 		else
@@ -220,40 +214,54 @@ void InertialDamping(void)
 				DUComp--;			
 		DUComp = Limit(DUComp, -5, 20);  // -20, 20
 		DUVel = Decay(DUVel, 10);
+	}
+	else
+	{
+		DUVel =  0;
+		DUComp = Decay(DUComp, 1);
+	}
+} // VerticalDamping	
+
+void HorizontalDamping(void)
+{ // Uses accelerometer to damp horizontal disturbances while hovering
+	#define HORIZ_DAMPING_LIMIT 	5L
+	static int16 Dt;
+
+	if ( 0 ) // only there is no GPS
+	{
+// CODE NOT FULL COMMISIONED YET - DO NOT ACTIVATE
+		Dt = (int16)(mS[Clock] - mS[LastDamping]);
 
 		// Left - Right  ~units mm and mm/sec
 		// 		Vel += Acc * 9.81/1024 * DT_MS;
 		// 		Disp += Vel * DT_MS/1000;
-
+	
 		LRVel += SRS32((int32) (LRAcc + SRS16(RollSum, 3)) * Dt, 7); 	
 		LRDisp += SRS16(LRVel * Dt, 10);		
 		LRDisp = Limit(LRDisp, -4096, 4096);
 		LRComp = SRS16(LRDisp * P[HorizDampKp], 8);
 		LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-
+	
 		LRVel = Decay(LRVel, 2);
 		LRDisp = Decay(LRDisp, 2);
-
+	
 		// Front - Back
 		FBVel += SRS32((int32) (FBAcc + SRS16(PitchSum, 3)) * Dt, 7); 
 		FBDisp += SRS16(FBVel * Dt, 10);
 		FBDisp = Limit(FBDisp, -4096, 4096);
 		FBComp = SRS16(FBDisp * P[HorizDampKp], 8);
 		FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-
+	
 		FBVel = Decay(FBVel, 2);
-		FBDisp = Decay(FBDisp, 2); 
-	}
+		FBDisp = Decay(FBDisp, 2);
+	} 
 	else
 	{
-		DUVel = LRVel = LRDisp = FBVel = FBDisp = 0;
+		LRVel = LRDisp = FBVel = FBDisp = 0;
 
-		DUComp = Decay(DUComp, 1);
 		LRComp = Decay(LRComp, 1);
 		FBComp = Decay(FBComp, 1);
-
 	}
-
 	mS[LastDamping] = mS[Clock];
 } // InertialDamping
 
@@ -296,7 +304,7 @@ void LimitYawSum(void)
 		{
 			HE = MakePi(DesiredHeading - Heading);
 			HE = Limit(HE, -(MILLIPI/6), MILLIPI/6); // 30 deg limit
-			HE = SRS16( (HEp * 3 + HE) * (int16)P[CompassKp], 10); // CompassKp < 16 
+			HE = SRS16( (HEp * 3 + HE) * (int16)P[CompassKp], 12); // CompassKp < 16 
 			YE -= Limit(HE, -COMPASS_MAXDEV, COMPASS_MAXDEV);
 		}
 	}
@@ -355,7 +363,8 @@ void DoControl(void)
 	CalcGyroRates();
 	GyroCompensation();	
 
-	InertialDamping();					// only while Hovering and Roll/Pitch neutral
+	VerticalDamping();		
+	HorizontalDamping();
 
 	// Roll
 				
