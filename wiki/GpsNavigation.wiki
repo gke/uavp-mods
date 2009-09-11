@@ -21,9 +21,9 @@ Recommended substitutions/alternatives:
    * Melexis Gyros for Roll/Pitch using the analog interface but the digital option.
  
 
-The current implementation only requires the $GPGGA sentence but other sentences ($GPRMC ) may be included for compatibility with, for example, the EagleTree OSD Pro. Of these only the $GPRMC may be potentially used for heading control in later versions of UAVX. The flight firmware rejects all other NMEA sentence types however their reception does place an additional load on the PIC. Sentences other than those strictly necessary should be deselected when configuring your GPS.
+The current implementation only requires the $GPGGA sentence but other sentences may be included for compatibility with, for example, the EagleTree OSD Pro.  The flight firmware rejects all other NMEA sentence types however their reception does place an additional load on the PIC. Sentences other than those strictly necessary should be deselected when configuring your GPS. $GPRMC may be potentially used for heading control in later versions of UAVX.
 
-Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing cost. 
+Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update rate. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing load; yes it takes processing time to throw away stuff! 
 
 The ETEK and Locosys LS20031 GPS units have been used with success. The Locosys LS20031 has a built in battery backup making startup faster. 
 
