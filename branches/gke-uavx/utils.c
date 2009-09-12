@@ -238,9 +238,9 @@ void ReadParametersEE(void)
 		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
 		YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
 	
-		NavIntLimit32 = P[NavIntLimit] * 32L; 
-		NavClosingRadius = (int32)P[NavRadius] * METRES_TO_GPS;
-		NavNeutralRadius = (int32)P[NeutralRadius] * METRES_TO_GPS;
+		NavIntLimit256 = P[NavIntLimit] * 256L; 
+		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
+		NavNeutralRadius = (int16)P[NeutralRadius] * METRES_TO_GPS;
 		NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
 		SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
 		CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
@@ -722,8 +722,8 @@ void ShowStats(void)
 	TxString("FBAcc: \t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine();
 	TxString("DUAcc: \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
     TxNextLine();
-	TxString("LRDrift:\t"); TxVal32((int32)Stats[LRDriftAccS].i16, 0, ' '); TxString("lsb\r\n");; 
-	TxString("FBDrift:\t"); TxVal32((int32)Stats[FBDriftAccS].i16, 0, ' '); TxString("lsb\r\n");;
+	TxString("LRDrift:\t"); TxVal32((int32)Stats[LRDriftS].i16, 3, ' '); TxString("M\r\n");; 
+	TxString("FBDrift:\t"); TxVal32((int32)Stats[FBDriftS].i16, 3, ' '); TxString("M\r\n");;
 } // ShowStats
 
 void DumpTrace(void)

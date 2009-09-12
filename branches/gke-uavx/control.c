@@ -206,7 +206,7 @@ void VerticalDamping(void)
 		// Down - Up
 		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 3);		
 		DUVel = Limit(DUVel , -16384, 16384); 			
-		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 11);
+		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 8);
 		if( Temp > DUComp ) 
 			DUComp++;
 		else
@@ -225,45 +225,12 @@ void VerticalDamping(void)
 void HorizontalDamping(void)
 { // Uses accelerometer to damp horizontal disturbances while hovering
 	#define HORIZ_DAMPING_LIMIT 	5L
-	static int16 Dt;
+	static int16 Dt, Temp;
 
-	if ( 0 ) // only there is no GPS
-	{
-// CODE NOT FULL COMMISIONED YET - DO NOT ACTIVATE
-		Dt = (int16)(mS[Clock] - mS[LastDamping]);
+	LRComp = 0;
+	FBComp = 0;
 
-		// Left - Right  ~units mm and mm/sec
-		// 		Vel += Acc * 9.81/1024 * DT_MS;
-		// 		Disp += Vel * DT_MS/1000;
-	
-		LRVel += SRS32((int32) (LRAcc + SRS16(RollSum, 3)) * Dt, 7); 	
-		LRDisp += SRS16(LRVel * Dt, 10);		
-		LRDisp = Limit(LRDisp, -4096, 4096);
-		LRComp = SRS16(LRDisp * P[HorizDampKp], 8);
-		LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-	
-		LRVel = Decay(LRVel, 2);
-		LRDisp = Decay(LRDisp, 2);
-	
-		// Front - Back
-		FBVel += SRS32((int32) (FBAcc + SRS16(PitchSum, 3)) * Dt, 7); 
-		FBDisp += SRS16(FBVel * Dt, 10);
-		FBDisp = Limit(FBDisp, -4096, 4096);
-		FBComp = SRS16(FBDisp * P[HorizDampKp], 8);
-		FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-	
-		FBVel = Decay(FBVel, 2);
-		FBDisp = Decay(FBDisp, 2);
-	} 
-	else
-	{
-		LRVel = LRDisp = FBVel = FBDisp = 0;
-
-		LRComp = Decay(LRComp, 1);
-		FBComp = Decay(FBComp, 1);
-	}
-	mS[LastDamping] = mS[Clock];
-} // InertialDamping
+} // HorizontalDamping
 
 void LimitRollSum(void)
 {
@@ -304,7 +271,7 @@ void LimitYawSum(void)
 		{
 			HE = MakePi(DesiredHeading - Heading);
 			HE = Limit(HE, -(MILLIPI/6), MILLIPI/6); // 30 deg limit
-			HE = SRS16( (HEp * 3 + HE) * (int16)P[CompassKp], 12); // CompassKp < 16 
+			HE = SRS16( (HEp * 3 + HE) * (int16)P[CompassKp], 10); // CompassKp < 16 
 			YE -= Limit(HE, -COMPASS_MAXDEV, COMPASS_MAXDEV);
 		}
 	}
@@ -374,7 +341,7 @@ void DoControl(void)
 	Rl  = SRS16(RE *(int16)P[RollKp] + (REp-RE) * P[RollKd], 4);
 	Rl += SRS16(RollSum * (int16)P[RollKi], 8); 
 	Rl -= DesiredRoll;
-	Rl -= LRComp;
+	Rl += LRComp;
 
 	// Pitch
 
@@ -384,7 +351,7 @@ void DoControl(void)
 	Pl  = SRS16(PE *(int16)P[PitchKp] + (PEp-PE) * P[PitchKd], 4);
 	Pl += SRS16(PitchSum * (int16)P[PitchKi], 8);
 	Pl -= DesiredPitch;
-	Pl -= FBComp;
+	Pl += FBComp;
 
 	// Yaw
 
@@ -537,6 +504,7 @@ void LightsAndSirens(void)
 	_LostModel = false;
 	mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_MS;
 	mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
+	mS[LastDamping] = mS[Clock];
 	FailState = Waiting;
 
 } // LightsAndSirens

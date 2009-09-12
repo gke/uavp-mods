@@ -49,7 +49,7 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 			AE = Limit(DesiredAltitude - GPSRelAltitude, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
-			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 7);
+			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 5);
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, GPS_ALT_LOW_THR_COMP, GPS_ALT_HIGH_THR_COMP);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
@@ -157,13 +157,13 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	
 			DesiredRoll += NavRCorr;
 			Temp = SumNavRCorr + Range;
-			SumNavRCorr = Limit (Temp , -NavIntLimit32, NavIntLimit32);
+			SumNavRCorr = Limit (Temp , -NavIntLimit256, NavIntLimit256);
 			DesiredRoll += SRS16(SumNavRCorr * NavKi, 8);
 			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
 	
 			DesiredPitch += NavPCorr;
 			Temp = SumNavPCorr + Range;
-			SumNavPCorr = Limit (Temp, -NavIntLimit32, NavIntLimit32);
+			SumNavPCorr = Limit (Temp, -NavIntLimit256, NavIntLimit256);
 			DesiredPitch += SRS16(SumNavPCorr * NavKi, 8);
 			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
 

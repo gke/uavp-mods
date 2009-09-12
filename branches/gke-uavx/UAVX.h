@@ -698,14 +698,15 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollTrim, PitchTrim, YawTrim;
 extern int16	HoldYaw;
-extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit32;
+extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralDU;
-extern int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, LRDisp, FBDisp, DUComp, LRComp, FBComp;
+extern int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
+extern int32	LRDisp, FBDisp;
 
 // GPS
 extern int16 	GPSLongitudeCorrection;
@@ -755,7 +756,7 @@ extern uint8	LEDShadow;		// shadow register
 
 enum Statistics { GPSAltitudeS, BaroPressureS, RollRateS, PitchRateS, YawRateS,
 				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, 
-				LRDriftAccS, FBDriftAccS,
+				LRDriftS, FBDriftS,
 				MaxStats};
 extern i16u Stats[];
 

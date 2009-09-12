@@ -187,7 +187,8 @@ void ESCI2CStart(void)
 
 	ESC_DATA_FLOAT;
 	r = ESCWaitClkHi();
-	ESC_DATA_LOW;		
+	ESC_DATA_LOW;
+	I2C_DELAY;		
 	ESC_CLK_LOW;				
 } // ESCI2CStart
 
