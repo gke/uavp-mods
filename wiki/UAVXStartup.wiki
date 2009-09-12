@@ -29,7 +29,7 @@ It is assumed you:
   * I have a Futaba and only Ch6 is connected to a Pot so how do I swap Ch6 and Ch7: Try the "Custom" Rx/Tx config in the UAVPSet pulldown. UAVX can map any input sequence order to any other order provided that the Rx pulses do not overlap and are emitted by the Rx with no gaps. You need to change the *custom* setting definition in the source program to achieve this (uavx.c). 
   * What does the Tx Mode checkbox do: This is used to tell the stick programming software (see below) which channels to use. It *does not swap* where your throttle etc. is on your Tx. Set it and do a Write if you are using a Tx with the throttle on the left hand.
   * I have a Rx which uses a single connection to the UAVP: Select the Rx to Quad checkbox in UAVPSet and do a Write.
-  * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will not have any control on the degree of corrections applied by the GPS navigation software without modifying the UAVX yourself. The release files do default to a moderate amount of GPS based navigation correction. You may have to mix Aux1 to Rudder to obtain Yaw control.
+  * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will need to set the GPS Navigation sensitivity using UAVPSet and will not be able to change it when in flight. You may have to mix Aux1 to Rudder to obtain Yaw control.
 
 ==== Lights and Sirens! ====
   * I get a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude *through you* when you bend over it to arm!
