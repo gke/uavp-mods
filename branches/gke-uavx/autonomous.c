@@ -29,6 +29,7 @@ void Navigate(int16, int16);
 void AltitudeHold(int16);
 void Descend(void);
 void AcquireHoldPosition(void);
+void NavGainSchedule(int16);
 void DoNavigation(void);
 void CheckThrottleMoved(void);
 void DoFailsafe(void);
@@ -46,10 +47,11 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 	if ( _RTHAltitudeHold )
 		if ( P[ConfigBits] & UseGPSAltMask )
 		{
-			AE = Limit(DesiredAltitude - GPSRelAltitude, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
+			AE = DesiredAltitude - GPSRelAltitude;
+			AE = Limit(AE, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
-			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 5);
+			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 7);
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, GPS_ALT_LOW_THR_COMP, GPS_ALT_HIGH_THR_COMP);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
@@ -94,10 +96,23 @@ void AcquireHoldPosition(void)
 
 	GPSNorthHold = GPSNorth;
 	GPSEastHold = GPSEast;
-	_Proximity = true;
+	_Proximity = _CloseProximity = true;
 
 	NavState = HoldingStation;
 } // AcquireHoldPosition
+
+void NavGainSchedule(int16 Range)
+{ // Retain for now - maybe extend into generalised gain schedule
+	static int16 Angle;
+
+	if ( Range < NavNeutralRadius )
+		NavKp = ( NavSensitivity );//* NavClosingRadius ) / NavClosingRadius;
+	else
+		NavKp = ( NavSensitivity * NAV_APPROACH_ANGLE ) / NavClosingRadius; 
+
+	NavKi = 1;
+
+} // NavGainSchedule
 
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
@@ -106,10 +121,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// cos/sin/arctan lookup tables are used for speed.
 	// BEWARE magic numbers for integer arithmetic
 
-	#define NavKi 1
-
 	static int16 Temp;
-	static int16 NavKp, GPSGain;
 	static int16 Range, EastDiff, NorthDiff, WayHeading, RelHeading;
 
 	if ( _NavComputed ) // maintain previous corrections
@@ -126,53 +138,45 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		EastDiff = GPSEastWay - GPSEast;
 		NorthDiff = GPSNorthWay - GPSNorth;
 
-		if ( (Abs(EastDiff) > NavNeutralRadius ) || (Abs(NorthDiff) > NavNeutralRadius )) 
-		{ 
-			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
-			_Proximity = Range < NavClosingRadius;
-			if ( _Proximity )
-				Range = int16sqrt( NorthDiff*NorthDiff + EastDiff*EastDiff); 
-			else
-				Range = NavClosingRadius;
-
-			GPSGain = Limit(NavSensitivity, 0, 256);
-			NavKp = ( GPSGain * NAV_MAX_ANGLE ) / ( NavClosingRadius - NavNeutralRadius ); // /OUT_MAXIMUM) * 256L
+		Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
+		_Proximity = Range < NavClosingRadius;
+		if ( _Proximity )
+			Range = int16sqrt( NorthDiff*NorthDiff + EastDiff*EastDiff); 
+		else
+			Range = NavClosingRadius;
+	
+		NavKp = ( NavSensitivity * NAV_APPROACH_ANGLE ) / NavClosingRadius;
 		
-			Temp = SRS16((Range - NavNeutralRadius) * NavKp, 8);
-			Temp = Limit(Temp, 0, NAV_MAX_ANGLE );
-			WayHeading = int16atan2(EastDiff, NorthDiff);
+		Temp = SRS16(Range * NavKp, 8);
+		Temp = Limit(Temp, 1, NAV_APPROACH_ANGLE );
+		WayHeading = int16atan2(EastDiff, NorthDiff);
 
-			RelHeading = Make2Pi(WayHeading - Heading);
-			NavRCorr = SRS32((int32)int16sin(RelHeading) * Temp, 8);			
-			NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Temp, 8);
+		RelHeading = Make2Pi(WayHeading - Heading);
+		NavRCorr = SRS32((int32)int16sin(RelHeading) * Temp, 8);			
+		NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Temp, 8);
 
-			if ( _TurnToHome && (Range >= NavClosingRadius) )
-			{
-				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
-				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
-				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
-			}
-			else
-				NavYCorr = 0;
-	
-			DesiredRoll += NavRCorr;
-			Temp = SumNavRCorr + Range;
-			SumNavRCorr = Limit (Temp , -NavIntLimit256, NavIntLimit256);
-			DesiredRoll += SRS16(SumNavRCorr * NavKi, 8);
-			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
-	
-			DesiredPitch += NavPCorr;
-			Temp = SumNavPCorr + Range;
-			SumNavPCorr = Limit (Temp, -NavIntLimit256, NavIntLimit256);
-			DesiredPitch += SRS16(SumNavPCorr * NavKi, 8);
-			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
-
-			DesiredYaw += NavYCorr;
+		if ( _TurnToHome && !_Proximity )
+		{
+			RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
+			NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
+			NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
 		}
 		else
-		{
-			NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = 0;
-		}
+			NavYCorr = 0;
+	
+		DesiredRoll += NavRCorr;
+		Temp = SumNavRCorr + Range;
+		SumNavRCorr = Limit (Temp , -NavIntLimit32, NavIntLimit32);
+		DesiredRoll += SRS16(SumNavRCorr * NavKi, 8);
+		DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
+	
+		DesiredPitch += NavPCorr;
+		Temp = SumNavPCorr + Range;
+		SumNavPCorr = Limit (Temp, -NavIntLimit32, NavIntLimit32);
+		DesiredPitch += SRS16(SumNavPCorr * NavKi, 8);
+		DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
+
+		DesiredYaw += NavYCorr;
 
 		_NavComputed = true;
 	}

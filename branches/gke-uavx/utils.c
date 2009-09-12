@@ -238,12 +238,12 @@ void ReadParametersEE(void)
 		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
 		YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
 	
-		NavIntLimit256 = P[NavIntLimit] * 256L; 
+		NavIntLimit32 = (int16)P[NavIntLimit] * 32L; 
 		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
 		NavNeutralRadius = (int16)P[NeutralRadius] * METRES_TO_GPS;
 		NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
-		SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
-		CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
+		SqrNavClosingRadius = (int16)P[NavClosingRadius] * (int16)P[NavClosingRadius];	
+		CompassOffset = (((COMPASS_OFFSET_DEG - (int16)P[NavMagVar])*MILLIPI)/180L);
 	
 		PIE1bits.CCP1IE = false;
 		DoRxPolarity();

@@ -26,7 +26,6 @@
 
 void GyroCompensation(void);
 void VerticalDamping(void);
-void HorizontalDamping(void);
 void LimitRollSum(void);
 void LimitPitchSum(void);
 void LimitYawSum(void);
@@ -205,8 +204,8 @@ void VerticalDamping(void)
 	{
 		// Down - Up
 		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 3);		
-		DUVel = Limit(DUVel , -16384, 16384); 			
-		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 8);
+		DUVel = Limit(DUVel , -16384, 16383); 			
+		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 11);
 		if( Temp > DUComp ) 
 			DUComp++;
 		else
@@ -221,16 +220,6 @@ void VerticalDamping(void)
 		DUComp = Decay(DUComp, 1);
 	}
 } // VerticalDamping	
-
-void HorizontalDamping(void)
-{ // Uses accelerometer to damp horizontal disturbances while hovering
-	#define HORIZ_DAMPING_LIMIT 	5L
-	static int16 Dt, Temp;
-
-	LRComp = 0;
-	FBComp = 0;
-
-} // HorizontalDamping
 
 void LimitRollSum(void)
 {
@@ -271,7 +260,7 @@ void LimitYawSum(void)
 		{
 			HE = MakePi(DesiredHeading - Heading);
 			HE = Limit(HE, -(MILLIPI/6), MILLIPI/6); // 30 deg limit
-			HE = SRS16( (HEp * 3 + HE) * (int16)P[CompassKp], 10); // CompassKp < 16 
+			HE = SRS32( (int32)(HEp * 3 + HE) * (int32)P[CompassKp], 12);  
 			YE -= Limit(HE, -COMPASS_MAXDEV, COMPASS_MAXDEV);
 		}
 	}
@@ -331,7 +320,6 @@ void DoControl(void)
 	GyroCompensation();	
 
 	VerticalDamping();		
-	HorizontalDamping();
 
 	// Roll
 				
@@ -341,7 +329,6 @@ void DoControl(void)
 	Rl  = SRS16(RE *(int16)P[RollKp] + (REp-RE) * P[RollKd], 4);
 	Rl += SRS16(RollSum * (int16)P[RollKi], 8); 
 	Rl -= DesiredRoll;
-	Rl += LRComp;
 
 	// Pitch
 
@@ -351,7 +338,6 @@ void DoControl(void)
 	Pl  = SRS16(PE *(int16)P[PitchKp] + (PEp-PE) * P[PitchKd], 4);
 	Pl += SRS16(PitchSum * (int16)P[PitchKi], 8);
 	Pl -= DesiredPitch;
-	Pl += FBComp;
 
 	// Yaw
 
@@ -504,7 +490,6 @@ void LightsAndSirens(void)
 	_LostModel = false;
 	mS[FailsafeTimeout] = mS[Clock] + FAILSAFE_TIMEOUT_MS;
 	mS[UpdateTimeout] = mS[Clock] + P[TimeSlots];
-	mS[LastDamping] = mS[Clock];
 	FailState = Waiting;
 
 } // LightsAndSirens
@@ -513,8 +498,8 @@ void InitControl(void)
 {
 	RollRate = PitchRate = 0;
 	RollTrim = PitchTrim = YawTrim = 0;	
-	DUComp = LRComp = FBComp = BaroComp = 0;	
-	DUVel = LRVel = FBVel = LRDisp, FBDisp = 0;
+	DUComp = BaroComp = 0;	
+	DUVel = 0;
 	AE = AltSum = 0;
 } // InitControl
 

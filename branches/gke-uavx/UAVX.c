@@ -77,7 +77,7 @@ int16	RollSum, PitchSum, YawSum;		// integral
 int16	RollRate, PitchRate, YawRate;
 int16	RollTrim, PitchTrim, YawTrim;
 int16	HoldYaw;
-int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
+int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit32;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
@@ -87,8 +87,7 @@ i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int16	Rl,Pl,Yl;						// PID output values
 int8	NeutralLR, NeutralFB, NeutralDU;
-int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
-int32	LRDisp, FBDisp;
+int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp;
 #pragma udata
 
 int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
@@ -96,6 +95,7 @@ int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
 uint8 	NavState;
 uint8 	NavSensitivity;
 int16	AltSum, AE;
+int16 	NavKp, NavKi;
 
 int16	ThrLow, ThrHigh, ThrNeutral;
 
@@ -148,7 +148,7 @@ const rom int8 DefaultParams[] = {
 	-18, 			// PitchKp,			06
 	-8, 			// PitchKi,			07
 	50, 			// PitchKd,			08
-	2, 				// BaroCompKp,		09c
+	8, 				// BaroCompKp,		09c
 	4, 				// PitchIntLimit,	10
 	
 	-25, 			// YawKp, 			11
@@ -162,19 +162,19 @@ const rom int8 DefaultParams[] = {
 	0, 				// CamRollKp,		19
 	45, 			// PercentHoverThr,	20c 
 	
-	-1, 			// VertDampKp,		21c
+	-8, 			// VertDampKp,		21c
 	0, 				// MiddleDU,		22c
 	10, 			// PercentIdleThr,	23c
 	0, 				// MiddleLR,		24c
 	0, 				// MiddleFB,		25c
 	0, 				// CamPitchKp,		26
-	6, 				// CompassKp,		27
-	4, 				// BaroCompKd,		28c
+	24, 			// CompassKp,		27
+	16, 			// BaroCompKd,		28c
 	30, 			// NavRadius,		29
-	1, 				// NavIntLimit,		30 
+	8, 				// NavIntLimit,		30 
 
-	6, 				// NavAltKp,		31c
-	6, 				// NavAltKi,		32c
+	24, 			// NavAltKp,		31c
+	24, 			// NavAltKi,		32c
 	20, 			// NavRTHAlt,		33
 	0, 				// NavMagVar,		34c
 	ADXRS300, 		// GyroType,		35c
@@ -324,7 +324,6 @@ void main(void)
 					ErectGyros();			// DO NOT MOVE AIRCRAFT!
 					DoStartingBeepsWithOutput(3);
 	
-					mS[LastDamping] = mS[Clock];
 					State = Landed;
 					break;
 				case Landed:

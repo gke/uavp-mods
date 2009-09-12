@@ -288,7 +288,7 @@ void BaroPressureHold(int16 DesiredBaroPressure)
 			
 		// strictly this is acting more like an integrator 
 		// bumping VBaroComp up and down proportional to the error?	
-		Temp = SRS16(BE * (int16)P[BaroCompKp], 2);
+		Temp = SRS16(BE * (int16)P[BaroCompKp], 4);
 		if( BaroComp > Temp )
 			BaroComp--;
 		else
@@ -297,7 +297,7 @@ void BaroPressureHold(int16 DesiredBaroPressure)
 					
 		// Differential	
 		Delta = BE - BEp;	
-		BaroComp += Limit(Delta, -5, 8) * (int16)P[BaroCompKd];
+		BaroComp += SRS16(Limit(Delta, -5, 8) * (int16)P[BaroCompKd], 2);
 		
 		BaroComp = Limit(BaroComp, BARO_LOW_THR_COMP, BARO_HIGH_THR_COMP);
 	

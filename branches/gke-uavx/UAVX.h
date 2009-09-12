@@ -114,7 +114,7 @@
 #define	NAV_GAIN_THRESHOLD 		40L		// Navigation disabled if Ch7 is less than this
 #define NAV_GAIN_6CH			80L		// Low GPS gain for 6ch Rx 			
 	
-#define NAV_MAX_ANGLE 			20L		// Rx stick units ~= degrees
+#define NAV_APPROACH_ANGLE 		20L		// Rx stick units ~= degrees
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
 
@@ -300,6 +300,7 @@ typedef union {
 #define _ReturnHome			Flags[25]
 #define _TurnToHome			Flags[26]
 #define _Proximity			Flags[27]
+#define _CloseProximity		Flags[28]
 
 #define _ParametersValid	Flags[30]
 #define _GPSTestActive		Flags[31]
@@ -462,6 +463,7 @@ extern void Navigate(int16, int16);
 extern void AltitudeHold(int16);
 extern void Descend(void);
 extern void AcquireHoldPosition(void);
+extern void NavGainSchedule(int16);
 extern void DoNavigation(void);
 extern void CheckThrottleMoved(void);
 extern void DoFailsafe(void);
@@ -486,7 +488,6 @@ extern void LimitYawSum(void);
 extern void GetGyroValues(void);
 extern void ErectGyros(void);
 extern void VerticalDamping(void);
-extern void HorizontalDamping(void);
 extern void CalcGyroRates(void);
 extern void DoControl(void);
 
@@ -629,7 +630,7 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, LastDamping, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
@@ -698,15 +699,14 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollTrim, PitchTrim, YawTrim;
 extern int16	HoldYaw;
-extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
+extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit32;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralDU;
-extern int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
-extern int32	LRDisp, FBDisp;
+extern int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp;
 
 // GPS
 extern int16 	GPSLongitudeCorrection;
@@ -722,6 +722,7 @@ enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigat
 extern uint8 	NavState;
 extern uint8 	NavSensitivity;
 extern int16 	AltSum, AE;
+extern int16 	NavKp, NavKi;
 
 // Waypoints
 
@@ -809,7 +810,7 @@ enum Params {
 	ESCType,			// 36c
 	TxRxType,			// 37c
 	NeutralRadius,		// 38
-	PercentNavSens6Ch	// 39c
+	PercentNavSens6Ch	// 39
 	// 39 - 64 unused currently
 	};
 
