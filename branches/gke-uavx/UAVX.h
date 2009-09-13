@@ -625,6 +625,7 @@ extern void CompassRun(void);
 extern void CalibrateCompass(void);
 extern void BaroTest(void);
 extern void PowerOutput(int8);
+extern void LEDsAndBuzzer(void);
 extern void GPSTest(void);
 extern void AnalogTest(void);
 extern void ProgramSlaveAddress(uint8);

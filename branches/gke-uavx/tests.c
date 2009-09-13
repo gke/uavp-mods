@@ -34,6 +34,7 @@ void CompassRun(void);
 void CalibrateCompass(void);
 void BaroTest(void);
 void PowerOutput(int8);
+void LEDsAndBuzzer(void);
 void GPSTest(void);
 void AnalogTest(void);
 void ProgramSlaveAddress(uint8);
@@ -418,7 +419,6 @@ BAerror:
 	TxString("FAIL\r\n");
 } // BaroTest
 
-// flash output for a second, then return to its previous state
 void PowerOutput(int8 d)
 {
 	int8 s;
@@ -429,8 +429,49 @@ void PowerOutput(int8 d)
 	{
 		LEDShadow ^= m;
 		SendLEDs();
-		Delay1mS(200);
+		Delay1mS(50);
 	}		
+} // PowerOutput
+
+void LEDsAndBuzzer(void)
+{
+	uint8 s, m, mask, LEDSave;
+
+	LEDSave = LEDShadow;
+	LEDShadow  = 0;
+	SendLEDs();	
+
+	TxString("\r\nOutput test\r\n");
+	mask = 1;
+	for ( m = 1; m <= 8; m++ )		
+	{
+		TxChar(HT);
+		TxChar(m+'0');
+		TxString(":8 ");
+		switch( m ) {
+		case 1: TxString("Aux2   "); break;
+		case 2: TxString("Blue   "); break;
+		case 3: TxString("Red    "); break;
+		case 4: TxString("Green  "); break;
+		case 5: TxString("Aux1   "); break;
+		case 6: TxString("Yellow "); break;
+		case 7: TxString("Aux3   "); break;
+		case 8: TxString("Beeper "); break;
+		}
+		TxString("\tPress any key (x) to continue\r\n");	
+		while( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
+
+		for( s = 0; s < 10; s++ )	// 10 flashes (count MUST be even!)
+		{
+			LEDShadow ^= mask;
+			SendLEDs();
+			Delay1mS(50);
+		}
+		mask <<= 1;
+	}
+	LEDShadow  = LEDSave;
+	SendLEDs();	
+	TxString("Test Finished\r\n");		
 } // PowerOutput
 
 void GPSTest(void)
