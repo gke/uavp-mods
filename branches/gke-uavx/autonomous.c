@@ -364,6 +364,7 @@ void InitNavigation(void)
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
 	NavState = PIC;
 	AttitudeHoldResetCount = 0;
+	_Proximity = _CloseProximity = true;
 	_NavComputed = false;
 } // InitNavigation
 
