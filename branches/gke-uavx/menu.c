@@ -294,9 +294,9 @@ void ProcessCommand(void)
 				break;
 			case 'R':	// receiver values
 				TxString("\r\nT:");TxValU(ToPercent(RC[ThrottleC], RC_MAXIMUM));
-				TxString(",R:");TxValS(ToPercent(RC[RollC]*2, RC_MAXIMUM));
-				TxString(",P:");TxValS(ToPercent(RC[PitchC]*2, RC_MAXIMUM));
-				TxString(",Y:");TxValS(ToPercent(RC[YawC]*2, RC_MAXIMUM));
+				TxString(",R:");TxValS(ToPercent((RC[RollC]- RC_NEUTRAL) * 2, RC_MAXIMUM));
+				TxString(",P:");TxValS(ToPercent((RC[PitchC]- RC_NEUTRAL) * 2, RC_MAXIMUM));
+				TxString(",Y:");TxValS(ToPercent((RC[YawC]- RC_NEUTRAL) * 2, RC_MAXIMUM));
 				TxString(",5:");TxValU(ToPercent(RC[RTHC], RC_MAXIMUM));
 				TxString(",6:");TxValU(ToPercent(RC[CamTiltC], RC_MAXIMUM));
 				TxString(",7:");TxValU(ToPercent(RC[NavGainC], RC_MAXIMUM));

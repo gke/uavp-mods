@@ -25,7 +25,7 @@
 // Prototypes
 
 void GyroCompensation(void);
-void VerticalDamping(void);
+void InertialDamping(void);
 void LimitRollSum(void);
 void LimitPitchSum(void);
 void LimitYawSum(void);
@@ -195,15 +195,16 @@ void GyroCompensation(void)
 
 } // GyroCompensation
 
-void VerticalDamping(void)
-{ // Uses accelerometer to damp vertical disturbances while hovering	
+void InertialDamping(void)
+{ // Uses accelerometer to damp disturbances while hovering
+	#define HORIZ_DAMPING_LIMIT 	5
 	static int16 Temp;
 	
 	// Empirical - acceleration changes at ~approx Sum/8
 	if ( _Hovering && _AttitudeHold ) 
 	{
 		// Down - Up
-		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 3);		
+		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 2);		
 		DUVel = Limit(DUVel , -16384, 16383); 			
 		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 11);
 		if( Temp > DUComp ) 
@@ -213,13 +214,49 @@ void VerticalDamping(void)
 				DUComp--;			
 		DUComp = Limit(DUComp, -5, 20);  // -20, 20
 		DUVel = Decay(DUVel, 10);
+
+ 		if ( _CloseProximity )
+		{
+			// Left - Right
+			LRVel += LRAcc - SRS16(RollSum, 1);
+			LRVel = Limit(LRVel , -16384, 16383);  	
+			Temp = SRS16(SRS16(LRVel, 4) * P[HorizDampKp], 11);
+			if( Temp > LRComp ) 
+				LRComp++;
+			else
+				if( Temp < LRComp )
+					LRComp--;
+			LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
+			LRVel = Decay(LRVel, 10);
+	
+			// Front - Back
+			FBVel += FBAcc - SRS16(PitchSum, 1);
+			FBVel = Limit(FBVel , -16384, 16383);  
+			Temp = SRS16(SRS16(FBVel, 4) * P[HorizDampKp], 11);
+			if( Temp > FBComp ) 
+				FBComp++;
+			else
+				if( Temp < FBComp )
+					FBComp--;
+			FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
+			FBVel = Decay(FBVel, 10);
+		}
+		else
+		{
+			LRVel = FBVel = 0;
+			LRComp = Decay(LRComp, 1);
+			FBComp = Decay(FBComp, 1);
+		}
 	}
 	else
 	{
-		DUVel =  0;
+		DUVel = LRVel = FBVel = 0;
+
 		DUComp = Decay(DUComp, 1);
+		LRComp = Decay(LRComp, 1);
+		FBComp = Decay(FBComp, 1);
 	}
-} // VerticalDamping	
+} // InertialDamping	
 
 void LimitRollSum(void)
 {
@@ -319,7 +356,7 @@ void DoControl(void)
 	CalcGyroRates();
 	GyroCompensation();	
 
-	VerticalDamping();		
+	InertialDamping();		
 
 	// Roll
 				
@@ -329,6 +366,7 @@ void DoControl(void)
 	Rl  = SRS16(RE *(int16)P[RollKp] + (REp-RE) * P[RollKd], 4);
 	Rl += SRS16(RollSum * (int16)P[RollKi], 8); 
 	Rl -= DesiredRoll;
+	Rl -= LRComp;
 
 	// Pitch
 
@@ -338,6 +376,7 @@ void DoControl(void)
 	Pl  = SRS16(PE *(int16)P[PitchKp] + (PEp-PE) * P[PitchKd], 4);
 	Pl += SRS16(PitchSum * (int16)P[PitchKi], 8);
 	Pl -= DesiredPitch;
+	Pl -= FBComp;
 
 	// Yaw
 
@@ -382,9 +421,9 @@ void UpdateControls(void)
 		if ( DesiredThrottle < RC_THRES_STOP )	// to deal with usual non-zero EPA
 			DesiredThrottle = 0;
 
-		DesiredRoll = RC[RollC];
-		DesiredPitch = RC[PitchC];
-		DesiredYaw = RC[YawC];
+		DesiredRoll = RC[RollC] - RC_NEUTRAL;
+		DesiredPitch = RC[PitchC] - RC_NEUTRAL;
+		DesiredYaw = RC[YawC] - RC_NEUTRAL;
 
 		#ifndef RX6CH
 		NavSensitivity = RC[NavGainC];
@@ -425,7 +464,7 @@ void CaptureTrims(void)
 
 void StopMotors(void)
 {
-	uint8 m;
+	static uint8 m;
 
 	for (m = 0; m < NoOfMotors; m++)
 		Motor[m] = ESCMin;
@@ -498,8 +537,8 @@ void InitControl(void)
 {
 	RollRate = PitchRate = 0;
 	RollTrim = PitchTrim = YawTrim = 0;	
-	DUComp = BaroComp = 0;	
-	DUVel = 0;
+	BaroComp = 0;
+	DUComp = DUVel = LRVel = LRComp = FBVel = FBComp = 0;	
 	AE = AltSum = 0;
 } // InitControl
 

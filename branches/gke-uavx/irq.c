@@ -61,16 +61,16 @@ void ReceivingGPSOnly(boolean r)
 void MapRC(void)
 {  // re-maps captured PPM to Rx channel sequence
 	static uint8 c;
-	static LastThrottle; 
+	static int16 LastThrottle, Temp; 
 
 	LastThrottle = RC[ThrottleC];
 
 	#ifdef UNROLL_LOOPS
 	
 	RC[ThrottleC] = PPM[Map[P[TxRxType]][ThrottleC]-1].low8;
-	RC[RollC] = 	PPM[Map[P[TxRxType]][RollC]-1].low8 - RC_NEUTRAL;
-	RC[PitchC] = 	PPM[Map[P[TxRxType]][PitchC]-1].low8 - RC_NEUTRAL;
-	RC[YawC] = 		PPM[Map[P[TxRxType]][YawC]-1].low8 - RC_NEUTRAL;
+	RC[RollC] = 	PPM[Map[P[TxRxType]][RollC]-1].low8;
+	RC[PitchC] = 	PPM[Map[P[TxRxType]][PitchC]-1].low8;
+	RC[YawC] = 		PPM[Map[P[TxRxType]][YawC]-1].low8;
 	RC[RTHC] = 		PPM[Map[P[TxRxType]][RTHC]-1].low8;
 	RC[CamTiltC] = 	PPM[Map[P[TxRxType]][CamTiltC]-1].low8;
 	RC[NavGainC] = 	PPM[Map[P[TxRxType]][NavGainC]-1].low8;
@@ -78,11 +78,10 @@ void MapRC(void)
 	#else
 
 	for (c = 0 ; c < CONTROLS ; c++)
-		RC[c] = PPM[Map[P[TxRxType]][c]-1].low8;
-
-	RC[RollC] -= RC_NEUTRAL;
-	RC[PitchC] -= RC_NEUTRAL;
-	RC[YawC] -= RC_NEUTRAL;
+	{
+		Temp = PPM[Map[P[TxRxType]][c]-1].low8;
+		RC[c] = RxFilter(RC[c], Temp);
+	}
 
 	#endif // UNROLL_LOOPS
 

@@ -1,3 +1,9 @@
+// EXPERIMENTAL
+
+#define RxFilter					MediumFilter
+//#define RxFilter					SoftFilter
+//#define RxFilter					NoFilter
+
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
@@ -41,7 +47,7 @@
 // UAVX Extensions
 
 // Unroll selected loops on critical path
-#define UNROLL_LOOPS
+//#define UNROLL_LOOPS
 
 // Timeouts and Update Intervals
 
@@ -112,7 +118,9 @@
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 
 #define	NAV_GAIN_THRESHOLD 		40L		// Navigation disabled if Ch7 is less than this
-#define NAV_GAIN_6CH			80L		// Low GPS gain for 6ch Rx 			
+#define NAV_GAIN_6CH			80L		// Low GPS gain for 6ch Rx
+
+//#define NAV_ZERO_INT 					// Zeros the integral when the sign is not the same as the error			
 	
 #define NAV_APPROACH_ANGLE 		20L		// Rx stick units ~= degrees
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
@@ -129,7 +137,7 @@
 
 // Throttle
 
-#define THROTTLE_SLEW_LIMIT		5		// limits the rate at which the throttle can change (=0 no slew limit)
+#define THROTTLE_SLEW_LIMIT		0		// limits the rate at which the throttle can change (=0 no slew limit, 5 OK)
 #define THROTTLE_MIDDLE			10  	// throttle stick dead zone for baro 
 #define THROTTLE_HOVER			75		// min throttle stick for altitude lock
 
@@ -487,7 +495,7 @@ extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
 extern void ErectGyros(void);
-extern void VerticalDamping(void);
+extern void InertialDamping(void);
 extern void CalcGyroRates(void);
 extern void DoControl(void);
 
@@ -706,7 +714,7 @@ extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralDU;
-extern int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp;
+extern int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
 
 // GPS
 extern int16 	GPSLongitudeCorrection;

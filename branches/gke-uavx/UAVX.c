@@ -87,7 +87,7 @@ i16u	Ax, Ay, Az;
 int8	LRIntKorr, FBIntKorr;
 int16	Rl,Pl,Yl;						// PID output values
 int8	NeutralLR, NeutralFB, NeutralDU;
-int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp;
+int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
 #pragma udata
 
 int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
