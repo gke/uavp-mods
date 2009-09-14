@@ -318,13 +318,13 @@ void UpdateParamSetChoice(void)
 	NewTurnToHome = _TurnToHome;
 
 	if ( P[ConfigBits] & TxMode2Mask )
-		Selector = RC[RollC];
+		Selector = DesiredRoll;
 	else
-		Selector = -RC[YawC];
+		Selector = -DesiredYaw;
 
-	if ( (Abs(RC[PitchC]) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) )
+	if ( (Abs(DesiredPitch) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) )
 	{
-		if ( RC[PitchC] > STICK_WINDOW ) // bottom
+		if ( DesiredPitch > STICK_WINDOW ) // bottom
 		{
 			if ( Selector < -STICK_WINDOW ) // left
 			{ // bottom left
@@ -339,7 +339,7 @@ void UpdateParamSetChoice(void)
 				}
 		}		
 		else
-			if ( RC[PitchC] < -STICK_WINDOW ) // top
+			if ( DesiredPitch < -STICK_WINDOW ) // top
 			{		
 				if ( Selector < -STICK_WINDOW ) // left
 				{
@@ -371,9 +371,9 @@ void UpdateParamSetChoice(void)
 	}
 
 	if ( P[ConfigBits] & TxMode2Mask )
-		Selector = -RC[YawC];
+		Selector = -DesiredYaw;
 	else
-		Selector = RC[RollC];
+		Selector = DesiredRoll;
 
 	if ( (Abs(RC[ThrottleC]) < STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW ) )
 	{

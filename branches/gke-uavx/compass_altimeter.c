@@ -297,7 +297,7 @@ void BaroPressureHold(int16 DesiredBaroPressure)
 					
 		// Differential	
 		Delta = BE - BEp;	
-		BaroComp += SRS16(Limit(Delta, -5, 8) * (int16)P[BaroCompKd], 2);
+		BaroComp += SRS16(Delta * (int16)P[BaroCompKd], 2);
 		
 		BaroComp = Limit(BaroComp, BARO_LOW_THR_COMP, BARO_HIGH_THR_COMP);
 	

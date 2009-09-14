@@ -114,7 +114,7 @@ void ErectGyros(void)
 
 void GyroCompensation(void)
 {
-	static int16 GravComp, AbsRollSum, AbsPitchSum, Temp;
+	static int16 GravComp, Temp;
 	static int16 LRGrav, LRDyn, FBGrav, FBDyn;
 
 	#define GYRO_COMP_STEP 1
@@ -162,7 +162,7 @@ void GyroCompensation(void)
 		#endif
 
 		// correct DC level of the integral
-		LRIntKorr = (LRAcc + LRGrav + LRDyn) / 10;
+		LRIntKorr = SRS16(LRAcc + LRGrav + LRDyn, 3); // / 10;
 		LRIntKorr = Limit(LRIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 	
 		// Pitch
@@ -178,7 +178,7 @@ void GyroCompensation(void)
 		#endif
 
 		// correct DC level of the integral	
-		FBIntKorr = (FBAcc + FBGrav + FBDyn) / 10;
+		FBIntKorr = SRS16(FBAcc + FBGrav + FBDyn, 3); // / 10;
 		FBIntKorr = Limit(FBIntKorr, -GYRO_COMP_STEP, GYRO_COMP_STEP); 
 
 		#ifdef DEBUG_SENSORS
@@ -204,7 +204,7 @@ void InertialDamping(void)
 	if ( _Hovering && _AttitudeHold ) 
 	{
 		// Down - Up
-		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 2);		
+		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 3);		
 		DUVel = Limit(DUVel , -16384, 16383); 			
 		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 11);
 		if( Temp > DUComp ) 
@@ -218,7 +218,7 @@ void InertialDamping(void)
  		if ( _CloseProximity )
 		{
 			// Left - Right
-			LRVel += LRAcc - SRS16(RollSum, 1);
+			LRVel += LRAcc - SRS16(RollSum, 2);
 			LRVel = Limit(LRVel , -16384, 16383);  	
 			Temp = SRS16(SRS16(LRVel, 4) * P[HorizDampKp], 11);
 			if( Temp > LRComp ) 
@@ -230,7 +230,7 @@ void InertialDamping(void)
 			LRVel = Decay(LRVel, 10);
 	
 			// Front - Back
-			FBVel += FBAcc - SRS16(PitchSum, 1);
+			FBVel += FBAcc - SRS16(PitchSum, 2);
 			FBVel = Limit(FBVel , -16384, 16383);  
 			Temp = SRS16(SRS16(FBVel, 4) * P[HorizDampKp], 11);
 			if( Temp > FBComp ) 
