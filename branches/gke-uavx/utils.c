@@ -48,6 +48,7 @@ int16 int16sin(int16);
 int16 int16cos(int16);
 int16 int16atan2(int16, int16);
 int16 int16sqrt(int16);
+int32 int32sqrt(int32);
 
 void SendLEDs(void);
 void LEDsOn(uint8);
@@ -527,17 +528,34 @@ int16 int16sqrt(int16 n)
 {
   static int16 r, b;
 
-  r=0;
-  b=256;
-  while (b>0) 
+  r = 0;
+  b = 256;
+  while ( b > 0 ) 
     {
-    if (r*r>n)
-      r-=b;
-    b=(b>>1);
-    r+=b;
+    if ( r*r > n )
+      r -= b;
+    b >>= 1;
+    r += b;
     }
   return(r);
 } // int16sqrt
+
+int32 int32sqrt(int32 n)
+// 32 bit numbers 
+{
+  static int32 r, b;
+
+  r = 0;
+  b = 65536;
+  while (b > 0) 
+    {
+    if ( r*r > n )
+      r -= b;
+    b >>= 1;
+    r += b;
+    }
+  return(r);
+} // int32sqrt
 
 void SendLEDs(void)
 {
@@ -711,19 +729,20 @@ void ShowStats(void)
 			Scale = 1500;
 
 	TxString("\r\nFlight Statistics\r\n");
-	TxString("GPS:   \t");TxVal32(Stats[GPSAltitudeS].i16,1,' '); TxString("M\r\n"); 
-	TxString("Baro:  \t");TxVal32(Stats[BaroPressureS].i16,0,' '); TxString("counts\r\n"); 
-	TxNextLine();
+
+	TxString("Vel:   \t");TxVal32((Stats[GPSVelS].i16*10L)/METRES_TO_GPS,1,' '); TxString("M/S\r\n\r\n"); 
+
+	TxString("GAlt:  \t");TxVal32(Stats[GPSAltitudeS].i16,1,' '); TxString("M\r\n"); 
+	TxString("BAlt:  \t");TxVal32((Stats[BaroPressureS].i16 * 256)/BARO_SCALE, 1, ' '); TxString("M (");
+	TxVal32(Stats[BaroPressureS].i16,0,' '); TxString(")\r\n\r\n"); 
+
 	TxString("Roll:  \t"); TxVal32(((int32)(Stats[RollRateS].i16 - Stats[GyroMidRollS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
 	TxString("Pitch: \t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
-	TxString("Yaw:   \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>8,1,' '); TxString("Deg/Sec\r\n");
-	TxNextLine();
-	TxString("LRAcc: \t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
-	TxString("FBAcc: \t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine();
-	TxString("DUAcc: \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
-    TxNextLine();
-	TxString("LRDrift:\t"); TxVal32((int32)Stats[LRDriftS].i16, 3, ' '); TxString("M\r\n");; 
-	TxString("FBDrift:\t"); TxVal32((int32)Stats[FBDriftS].i16, 3, ' '); TxString("M\r\n");;
+	TxString("Yaw:   \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>10,1,' '); TxString("Deg/Sec\r\n\r\n");
+
+	TxString("LRAcc: \t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine(); 
+	TxString("FBAcc: \t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine();
+	TxString("DUAcc: \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine(); 
 } // ShowStats
 
 void DumpTrace(void)

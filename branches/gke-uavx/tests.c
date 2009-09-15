@@ -64,19 +64,19 @@ void LinearTest(void)
 	{
 		ReadAccelerations();
 	
-		TxString("Left->Right: \t");
+		TxString("L->R: \t");
 		TxVal32(((int32)Ax.i16*1000+512)/1024, 3, 'G');	
 		if ( Abs((Ax.i16)) > 128 )
 			TxString(" fault?");
 		TxNextLine();
 
-		TxString("Front->Back: \t");	
+		TxString("F->B: \t");	
 		TxVal32(((int32)Az.i16*1000+512)/1024, 3, 'G');
 		if ( Abs((Az.i16)) > 128 )
 			TxString(" fault?");	
 		TxNextLine();
 
-		TxString("Down->Up:    \t");
+		TxString("D->U:    \t");
 	
 		TxVal32(((int32)Ay.i16*1000+512)/1024, 3, 'G');
 		if ( ( Ay.i16 < 896 ) || ( Ay.i16 > 1152 ) )

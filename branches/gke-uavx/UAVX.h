@@ -1,5 +1,8 @@
 // EXPERIMENTAL
 
+#define HORIZ_DAMPING_LIMIT 		3	// equivalent stick units - no larger than 5
+#define HORIZ_DAMPING_DECAY			10	// how quickly the damping decays - range of 1 to 20
+
 #define RxFilter					MediumFilter
 //#define RxFilter					SoftFilter
 //#define RxFilter					NoFilter
@@ -594,6 +597,7 @@ extern int16 int16sin(int16);
 extern int16 int16cos(int16);
 extern int16 int16atan2(int16, int16);
 extern int16 int16sqrt(int16);
+extern int32 int32sqrt(int32);
 
 extern void SendLEDs(void);
 extern void LEDsOn(uint8);
@@ -639,7 +643,7 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+      AbortTimeout, RTHTimeout, LastValidRx, LastGPS, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
@@ -722,7 +726,7 @@ extern int16 	GPSLongitudeCorrection;
 extern uint8 	GPSNoOfSats;
 extern uint8 	GPSFix;
 extern int16 	GPSHDilute;
-extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSNorthP, GPSEastP, GPSVel;
 extern int16 	GPSRelAltitude;
 
 extern int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
@@ -764,9 +768,8 @@ extern int16	AttitudeHoldResetCount;
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 
-enum Statistics { GPSAltitudeS, BaroPressureS, RollRateS, PitchRateS, YawRateS,
+enum Statistics { GPSAltitudeS, BaroPressureS, GPSVelS, RollRateS, PitchRateS, YawRateS,
 				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, 
-				LRDriftS, FBDriftS,
 				MaxStats};
 extern i16u Stats[];
 

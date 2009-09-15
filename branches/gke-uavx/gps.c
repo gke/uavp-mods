@@ -49,7 +49,7 @@ int16 GPSHDilute;
 int32 GPSMissionTime, GPSStartTime;
 int32 GPSLatitude, GPSLongitude;
 int32 GPSOriginLatitude, GPSOriginLongitude;
-int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+int16 GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSNorthP, GPSEastP, GPSVel;
 int16 GPSLongitudeCorrection;
 int16 GPSAltitude, GPSRelAltitude, GPSOriginAltitude;
 #pragma udata
@@ -176,7 +176,10 @@ void SetGPSOrigin(void)
 	GPSStartTime = GPSMissionTime;
 	GPSOriginLatitude = GPSLatitude;
 	GPSOriginLongitude = GPSLongitude;
-			
+	GPSNorthP = GPSEastP = GPSVel = 0;
+
+	mS[LastGPS] = mS[Clock];
+	
 	Temp = GPSLatitude/60000L;
 	Temp = Abs(Temp);
 	Temp = ConvertDDegToMPi(Temp);
@@ -187,6 +190,9 @@ void SetGPSOrigin(void)
 
 void ParseGPSSentence(void)
 {
+	static int16 EastDiff, NorthDiff;
+	static int24 GPSInterval;
+
 	cc = 0;
 	nll = NMEA.length;
 
@@ -217,14 +223,31 @@ void ParseGPSSentence(void)
 		}
 		else
 		{
+			GPSInterval = mS[Clock] - mS[LastGPS];
+			mS[LastGPS] = mS[Clock];
+
 			// all coordinates in 0.0001 Minutes or ~0.185M units relative to Origin
 			GPSNorth = GPSLatitude - GPSOriginLatitude;
 			GPSEast = GPSLongitude - GPSOriginLongitude;
 			GPSEast = SRS32((int32)GPSEast * GPSLongitudeCorrection, 8); 
 
+			EastDiff = GPSEast - GPSEastP;
+			NorthDiff = GPSNorth - GPSNorthP;
+			GPSVel = int16sqrt(EastDiff*EastDiff + NorthDiff*NorthDiff);
+			GPSVel = ((int24)GPSVel * 1000L)/GPSInterval;
+
+			GPSNorthP = GPSNorth;
+			GPSEastP = GPSEast;			
+
 			GPSRelAltitude = GPSAltitude - GPSOriginAltitude;
-			if ( ( State == InFlight ) && ( GPSRelAltitude > Stats[GPSAltitudeS].i16 )) 
-				Stats[GPSAltitudeS].i16 = GPSRelAltitude;
+
+			if ( State == InFlight )
+			{
+				if ( GPSRelAltitude > Stats[GPSAltitudeS].i16 ) 
+					Stats[GPSAltitudeS].i16 = GPSRelAltitude;
+				if ( GPSVel > Stats[GPSVelS].i16 )
+					Stats[GPSVelS].i16 = GPSVel;
+			}
 		}
 	}
 	else
@@ -246,7 +269,7 @@ void InitGPS(void)
 	cc = 0;
 
 	GPSMissionTime = GPSRelAltitude = GPSFix = GPSNoOfSats = GPSHDilute = 0;
-	GPSEast = GPSNorth = 0;
+	GPSEast = GPSNorth = GPSVel = 0;
 
 	ValidGPSSentences = 0;
 

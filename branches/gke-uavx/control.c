@@ -197,13 +197,14 @@ void GyroCompensation(void)
 
 void InertialDamping(void)
 { // Uses accelerometer to damp disturbances while hovering
-	#define HORIZ_DAMPING_LIMIT 	5
+
 	static int16 Temp;
 	
-	// Empirical - acceleration changes at ~approx Sum/8
+
 	if ( _Hovering && _AttitudeHold ) 
 	{
 		// Down - Up
+		// Empirical - acceleration changes at ~approx Sum/8
 		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 3);		
 		DUVel = Limit(DUVel , -16384, 16383); 			
 		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 11);
@@ -218,7 +219,7 @@ void InertialDamping(void)
  		if ( _CloseProximity )
 		{
 			// Left - Right
-			LRVel += LRAcc - SRS16(RollSum, 2);
+			LRVel += LRAcc; // zzz - SRS16(RollSum, 2);
 			LRVel = Limit(LRVel , -16384, 16383);  	
 			Temp = SRS16(SRS16(LRVel, 4) * P[HorizDampKp], 11);
 			if( Temp > LRComp ) 
@@ -227,10 +228,10 @@ void InertialDamping(void)
 				if( Temp < LRComp )
 					LRComp--;
 			LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-			LRVel = Decay(LRVel, 10);
+			LRVel = Decay(LRVel, HORIZ_DAMPING_DECAY);
 	
 			// Front - Back
-			FBVel += FBAcc - SRS16(PitchSum, 2);
+			FBVel += FBAcc; // zzz - SRS16(PitchSum, 2);
 			FBVel = Limit(FBVel , -16384, 16383);  
 			Temp = SRS16(SRS16(FBVel, 4) * P[HorizDampKp], 11);
 			if( Temp > FBComp ) 
@@ -239,7 +240,7 @@ void InertialDamping(void)
 				if( Temp < FBComp )
 					FBComp--;
 			FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-			FBVel = Decay(FBVel, 10);
+			FBVel = Decay(FBVel, HORIZ_DAMPING_DECAY);
 		}
 		else
 		{
@@ -355,7 +356,6 @@ void DoControl(void)
 {				
 	CalcGyroRates();
 	GyroCompensation();	
-
 	InertialDamping();		
 
 	// Roll
