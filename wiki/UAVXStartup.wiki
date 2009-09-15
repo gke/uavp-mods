@@ -47,6 +47,7 @@ It is assumed you:
 
 ==== Setting Parameters ====
   * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
+  * Can I use my old UAVP parameter files: Yes but there are more parameters in UAVX than UAVP so if you are a reading an old parameter file you should first load the defaults using the D command (see above). 
   * Setting your own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming (See below). Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
 ==== ESCs ====
   * YGE I2C ESCs: The YGE i2C ESC must be programmed to respond to particular addresses on the I2C bus. Use the Tools->Test Software->Y command and follow the instructions.
