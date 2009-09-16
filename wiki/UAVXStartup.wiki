@@ -41,16 +41,16 @@ It is assumed you:
   * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will need to set the GPS Navigation sensitivity using UAVPSet and will not be able to change it when in flight. You may have to mix Aux1 to Rudder to obtain Yaw control.
 
 ==== Lights and Sirens! ====
-  * I get a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude *through you* when you bend over it to arm!
+  * I have a solid Green LED and a solid Yellow LED - the Red LED is flashing in time with a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude *through you* when you bend over it to arm!
 
   * I have a solid Red LED and a solid Yellow LED: There is no Rx signal. Did you turn on your Tx? (see Tx/Rx Setup below).
   * I saw a brief flash on the Yellow LED when I switched on: This was the accelerometer test. If you did not see this your accelerometers were offline or not installed.
 
   * I have a solid Green LED and a solid Yellow LED: You probably have your throttle open - close it before arming.
 
-  * I have a solid Green LED and a flickering Yellow LED: Good you are ready to arm.
+  * I have a solid Green LED, solid Yellow LED and flashing Red LED after I armed: You throttle was open when you armed - close the throttle, disarm and re-arm.
 
-  * I have a solid Green LED and a solid Yellow LED and flashing Red LED after I armed: You throttle was open when you armed - close it.
+  * I have a solid Green LED and a flickering Yellow LED: Good you are ready to arm.
 
   * I have a solid Green LED but the Red LED flashed in a regular way several times when I armed just before the starting beeps: This is the Gyro calibration being performed. *Do not move the quadrocopter* while this is happening. It does not need to be perfectly level just stationary.
 
