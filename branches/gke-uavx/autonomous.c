@@ -135,25 +135,16 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			else
 				Range = NavClosingRadius;
 
-			NavKp = ( NavSensitivity * NAV_APPROACH_ANGLE ) / ( NavClosingRadius - NavNeutralRadius ); // /OUT_MAXIMUM) * 256L
+			NavKp = ( NavSensitivity * NAV_APPROACH_ANGLE ) / ( NavClosingRadius - NavNeutralRadius );
 		
+			WayHeading = int16atan2(EastDiff, NorthDiff);
+			RelHeading = Make2Pi(WayHeading - Heading);
+
 			Correction = SRS16((Range - NavNeutralRadius) * NavKp, 8);
 			Correction = Limit(Correction, 1, NAV_APPROACH_ANGLE );
-			WayHeading = int16atan2(EastDiff, NorthDiff);
 
-			RelHeading = Make2Pi(WayHeading - Heading);
-			NavRCorr = SRS32((int32)int16sin(RelHeading) * Correction, 8);			
-			NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Correction, 8);
-
-			if ( _TurnToHome && !_Proximity )
-			{
-				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
-				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
-				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
-			}
-			else
-				NavYCorr = 0;
-	
+			// Roll
+			NavRCorr = SRS32((int32)int16sin(RelHeading) * Correction, 8);
 			DesiredRoll += NavRCorr;
 			Temp = SumNavRCorr + Range;
 			SumNavRCorr = Limit (Temp, -NavIntLimit32, NavIntLimit32);
@@ -166,7 +157,9 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			DesiredRoll += (SumNavRCorr * NavKi) / 256L;
 			#endif //NAV_ZERO_INT
 			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
-	
+
+			// Pitch
+			NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Correction, 8);
 			DesiredPitch += NavPCorr;
 			Temp = SumNavPCorr + Range;
 			SumNavPCorr = Limit (Temp, -NavIntLimit32, NavIntLimit32);
@@ -180,11 +173,25 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			#endif //NAV_ZERO_INT
 			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
 
+			// Yaw
+			if ( _TurnToHome && !_Proximity )
+			{
+				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
+				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
+				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
+			}
+			else
+				NavYCorr = 0;	
 			DesiredYaw += NavYCorr;
 		}
 		else
 		{
-			NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = 0;
+			// Neutral Zone - no GPS influence
+			NavRCorr = Decay(NavRCorr, 1);
+			NavPCorr = Decay(NavPCorr, 1);
+			SumNavRCorr = 0;
+			SumNavPCorr = 0;
+			NavYCorr = Decay(NavYCorr, 1);
 			_CloseProximity = true;
 		}
 

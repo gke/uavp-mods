@@ -198,7 +198,7 @@ void ESCI2CStop(void)
 	ESCWaitClkHi();
 	ESC_DATA_FLOAT;
 
-  //  I2C_DELAY;
+    I2C_DELAY;
 
 } // ESCI2CStop
 

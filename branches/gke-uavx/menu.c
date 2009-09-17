@@ -137,8 +137,8 @@ void ShowSetup(uint8 h)
 		#endif // RX6CH
 		TxString("Tx/Rx: ");
 		switch ( P[TxRxType] ) {
-		case FutabaCh3: TxString("Futaba Ch3 {"); break;
-		case FutabaCh2: TxString("Futaba Ch2 {"); break;
+		case FutabaCh3: TxString("Futaba Th 3 {"); break;
+		case FutabaCh2: TxString("Futaba Th 2 {"); break;
 		case FutabaDM8:TxString("Futaba DM8 & AR7000 {"); break; 
 		case JRPPM: TxString("JR PPM {"); break; 
 		case JRDM9: TxString("JR DM9 & AR7000{"); break; 
@@ -146,6 +146,9 @@ void ShowSetup(uint8 h)
 		case DX7AR7000: TxString("Spektrum DX7 & AR7000 {"); break;
 		case DX7AR6200: TxString("Spektrum DX7 & AR6200 {"); break;
 		case CustomTxRx: TxString("Custom {"); break;
+		case FutabaCh3_6_7: TxString("Futaba Th 2 Swap 6&7 {"); break;
+		case DX7AR6000:TxString("Spektrum DX7 & AR6000 {"); break; 
+		case GraupnerMX16s: TxString("Graupner MX16s {"); break;
 		}
 	
 		if ( P[ConfigBits] & RxSerialPPMMask )
@@ -296,7 +299,7 @@ void ProcessCommand(void)
 				TxString(",P:");TxValS(ToPercent((RC[PitchC]- RC_NEUTRAL) * 2, RC_MAXIMUM));
 				TxString(",Y:");TxValS(ToPercent((RC[YawC]- RC_NEUTRAL) * 2, RC_MAXIMUM));
 				TxString(",5:");TxValU(ToPercent(RC[RTHC], RC_MAXIMUM));
-				TxString(",6:");TxValU(ToPercent(RC[CamTiltC], RC_MAXIMUM));
+				TxString(",6:");TxValS(ToPercent((RC[CamPitchC] - RC_NEUTRAL) * 2, RC_MAXIMUM));
 				TxString(",7:");TxValU(ToPercent(RC[NavGainC], RC_MAXIMUM));
 				ShowPrompt();
 				break;

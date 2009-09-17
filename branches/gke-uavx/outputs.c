@@ -120,7 +120,11 @@ void MixAndLimitMotors(void)
 { 	// expensive ~400uSec @16MHz
     static int16 Temp, CurrThrottle;
 
-	CurrThrottle = DesiredThrottle + (DUComp + BaroComp); // vertical compensation not optional
+	if ( DesiredThrottle < IdleThrottle )
+		CurrThrottle = 0;
+	else
+		CurrThrottle = DesiredThrottle + (DUComp + BaroComp); // vertical compensation not optional
+
 	Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
 	CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
 
@@ -153,13 +157,13 @@ void MixAndLimitCam(void)
 		Cp = (PitchSum * 4) / (int16)P[CamPitchKp];
 	else
 		Cp = OUT_NEUTRAL;
-		
-	Cp += RC[CamTiltC];	
+	Cp += DesiredCamPitchTrim; 			
 
 	if( P[CamRollKp] != 0 )
 		Cr = (RollSum * 4) / (int16)P[CamRollKp];
 	else
 		Cr = OUT_NEUTRAL;
+	Cr += P[CamRollTrim];
 
 	MCamRoll = Limit(Cr, 1, OUT_MAXIMUM);
 	MCamPitch = Limit(Cp, 1, OUT_MAXIMUM);

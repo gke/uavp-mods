@@ -80,7 +80,7 @@ int16	HoldYaw;
 int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit32;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
-int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
+int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim, Heading;
 
 #pragma udata accs
 i16u	Ax, Ay, Az;
@@ -133,7 +133,7 @@ const rom int8	ComParms[]={
 	0,0,0,1,0,0,0,0,1,0,
 	0,0,0,0,0,1,1,1,0,1,
 	1,1,1,1,1,0,0,1,0,0,
-	1,1,0,1,1,1,1,0,0,0,
+	1,1,0,1,1,1,1,0,0,1,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0
@@ -182,10 +182,10 @@ const rom int8 DefaultParams[] = {
 	DX7AR7000, 		// TxRxType			37c
 	2,				// NeutralRadius	38
 	30,				// PercentNavSens6Ch	39
-	0,				// 38 - 64 unused currently
+	0,				// CamRollTrim,		40c
+	0,				// NavKd			41
+	0,				// 42 - 64 unused currently
 
-	0,
-	0,
 	0,
 	0,
 	0,
@@ -222,8 +222,8 @@ const rom int8 DefaultParams[] = {
 // 7 Aux2
 
 const rom uint8 Map[CustomTxRx+1][CONTROLS] = {
-	{ 3,1,2,4,5,6,7 }, 	// Futaba Ch3 Throttle
-	{ 2,1,4,3,5,6,7 },	// Futaba Ch2 Throttle
+	{ 3,1,2,4,5,6,7 }, 	// Futaba Thr 3 Throttle
+	{ 2,1,4,3,5,6,7 },	// Futaba Thr 2 Throttle
 	{ 5,3,2,1,6,4,7 },	// Futaba 9C Spektrum DM8/AR7000
 	{ 1,2,3,4,5,6,7 },	// JR XP8103/PPM
 	{ 7,1,4,6,3,5,2 },	// JR 9XII Spektrum DM9 ?
@@ -231,7 +231,12 @@ const rom uint8 Map[CustomTxRx+1][CONTROLS] = {
 	{ 6,1,4,7,3,2,5 },	// JR DXS12 
 	{ 6,1,4,7,3,2,5 },	// Spektrum DX7/AR7000
 	{ 5,1,4,6,3,2,7 },	// Spektrum DX7/AR6200
-	{ 3,1,2,4,5,7,6 } 	// custom Tx/Rx combination
+
+	{ 3,1,2,4,5,7,6 }, 	// Futaba Thr 3 Sw 6/7
+	{ 1,2,3,4,5,6,7 },	// Spektrum DX7/AR6000
+	{ 1,2,3,4,5,6,7 },	// Graupner MX16s
+
+	{ 1,2,3,4,5,6,7 }	// Custom
 	};
 
 // Rx signalling polarity used only for serial PPM frames usually
@@ -247,6 +252,9 @@ const rom boolean PPMPosPolarity[CustomTxRx+1] =
 		true,	// JR DXS12
 		true,	// Spektrum DX7/AR7000
 		true,	// Spektrum DX7/AR6200
+		true,	// Futaba Thr 3 Sw 6/7
+		true,	// Spektrum DX7/AR6000
+		true,	// Graupner MX16s
 		true	// custom Tx/Rx combination
 	};
 

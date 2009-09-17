@@ -72,7 +72,7 @@ void MapRC(void)
 	RC[PitchC] = 	PPM[Map[P[TxRxType]][PitchC]-1].low8;
 	RC[YawC] = 		PPM[Map[P[TxRxType]][YawC]-1].low8;
 	RC[RTHC] = 		PPM[Map[P[TxRxType]][RTHC]-1].low8;
-	RC[CamTiltC] = 	PPM[Map[P[TxRxType]][CamTiltC]-1].low8;
+	RC[CamPitchC] = 	PPM[Map[P[TxRxType]][CamPitchC]-1].low8;
 	RC[NavGainC] = 	PPM[Map[P[TxRxType]][NavGainC]-1].low8;
 
 	#else
@@ -115,7 +115,7 @@ void InitTimersAndInterrupts(void)
 	for (i = 0; i < CONTROLS; i++)
 		PPM[i].i16 = RC[i] = 0;
 	#ifdef RX6CH
-	PPM[CamTiltC].i16 = RC_NEUTRAL;
+	PPM[CamPitchC].i16 = RC_NEUTRAL;
 	PPM[NavGainC].i16 = 0;
 	#endif // RX6CH	  
 

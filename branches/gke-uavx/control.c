@@ -425,6 +425,8 @@ void UpdateControls(void)
 		DesiredPitch = RC[PitchC] - RC_NEUTRAL;
 		DesiredYaw = RC[YawC] - RC_NEUTRAL;
 
+		DesiredCamPitchTrim = RC[CamPitchC] - RC_NEUTRAL;
+
 		#ifndef RX6CH
 		NavSensitivity = RC[NavGainC];
 		#endif // !RX6CH

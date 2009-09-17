@@ -645,7 +645,7 @@ extern const rom uint8 SerPrompt[];
 enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
       AbortTimeout, RTHTimeout, LastValidRx, LastGPS, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
-enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
+enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamPitchC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
 #define MAX_CONTROLS 12 // maximum Rx channels
 
@@ -655,7 +655,8 @@ enum FailStates { Waiting, Aborting, Returning, Terminated };
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
-enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, DX7AR7000, DX7AR6200, CustomTxRx };
+enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, 
+				DX7AR7000, DX7AR6200, FutabaCh3_6_7, DX7AR6000, GraupnerMX16s, CustomTxRx };
 
 enum TraceTags {THE, TCurrentBaroPressure,
 				TRollRate,TPitchRate,TYE,
@@ -669,8 +670,7 @@ enum TraceTags {THE, TCurrentBaroPressure,
 				};
 #define TopTrace TMCamPitch
 
-//enum MotorTags {Front, Left, Right, Back};
-enum MotorTags {Front=0, Back, Right, Left}; // order is important for Holger ESCs
+enum MotorTags {Front=0, Back, Right, Left}; // order is important for X3D & Holger ESCs
 #define NoOfMotors 		4
 
 extern uint24 mS[];
@@ -715,7 +715,7 @@ extern int16	HoldYaw;
 extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit32;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
-extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
+extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralDU;
@@ -822,8 +822,10 @@ enum Params {
 	ESCType,			// 36c
 	TxRxType,			// 37c
 	NeutralRadius,		// 38
-	PercentNavSens6Ch	// 39
-	// 39 - 64 unused currently
+	PercentNavSens6Ch,	// 39
+	CamRollTrim,		// 40c
+	NavKd				// 41		
+	// 42 - 64 unused currently
 	};
 
 #define FlyXMode 				0

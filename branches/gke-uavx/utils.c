@@ -160,6 +160,7 @@ void InitMisc(void)
 	_ParametersValid = true;
 
 	ThrNeutral = ThrLow = ThrHigh = MAXINT16;
+	IdleThrottle = RC_THRES_STOP;
 	ESCMin = OUT_MINIMUM;
 	ESCMax = OUT_MAXIMUM;
 
@@ -233,6 +234,7 @@ void ReadParametersEE(void)
 			RMap[Map[P[TxRxType]][i]-1] = i+1;
 	
 		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
+		IdleThrottle = Max( IdleThrottle, RC_THRES_STOP );
 		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
 	
 		RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
@@ -406,7 +408,7 @@ void InitParameters(void)
 	ParametersChanged = true;
 	ReadParametersEE();
 	ALL_LEDS_OFF;
-} // InitParamters
+} // InitParameters
 
 int16 Make2Pi(int16 A)
 {
