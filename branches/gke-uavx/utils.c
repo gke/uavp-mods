@@ -118,6 +118,24 @@ int16 ProcLimit(int16 i, int16 l, int16 u)
 } // ProcLimit
 #endif // USE_LIMIT_MACRO
 
+int16 DecayX(int16 i, int16 d)
+{
+	if ( i < 0 )
+	{
+		i += d;
+		if ( i >0 )
+			i = 0;
+	}
+	else
+	if ( i > 0 )
+	{
+		i -= d;
+		if ( i < 0 )
+			i = 0;
+	}
+	return (i);
+} // DecayX
+
 int16 SRS16(int16 x, uint8 s)
 {
 	return((x<0) ? -((-x)>>s) : (x>>s));
@@ -307,7 +325,8 @@ void UseDefaultParameters(void)
 	WriteParametersEE(1);
 	WriteParametersEE(2);
 	CurrentParamSet = 1;
-	TxString("\r\nDefault Parameters Loaded\r\n");	
+	TxString("\r\nDefault Parameters Loaded\r\n");
+	TxString("Do a READ CONFIG to refresh the UAVPSet parameter display\r\n");	
 } // UseDefaultParameters
 
 void UpdateParamSetChoice(void)

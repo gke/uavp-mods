@@ -279,6 +279,7 @@ void ProcessCommand(void)
 				ShowPrompt();
 				break;
 			case 'N' :	// neutral values
+				GetNeutralAccelerations();
 				TxString("\r\nNeutral    R:");
 				TxValS(NeutralLR);
 		

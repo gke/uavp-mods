@@ -213,8 +213,8 @@ void InertialDamping(void)
 		else
 			if( Temp < DUComp )
 				DUComp--;			
-		DUComp = Limit(DUComp, -5, 20);  // -20, 20
-		DUVel = Decay(DUVel, 10);
+		DUComp = Limit(DUComp, DAMP_VERT_LIMIT_LOW, DAMP_VERT_LIMIT_HIGH);  // -20, 20
+		DUVel = DecayX(DUVel, P[VertDampDecay]);
 
  		if ( _CloseProximity )
 		{
@@ -227,8 +227,8 @@ void InertialDamping(void)
 			else
 				if( Temp < LRComp )
 					LRComp--;
-			LRComp = Limit(LRComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-			LRVel = Decay(LRVel, HORIZ_DAMPING_DECAY);
+			LRComp = Limit(LRComp, -DAMP_HORIZ_LIMIT, DAMP_HORIZ_LIMIT);
+			LRVel = DecayX(LRVel, P[HorizDampDecay]);
 	
 			// Front - Back
 			FBVel += FBAcc; // zzz - SRS16(PitchSum, 2);
@@ -239,23 +239,23 @@ void InertialDamping(void)
 			else
 				if( Temp < FBComp )
 					FBComp--;
-			FBComp = Limit(FBComp, -HORIZ_DAMPING_LIMIT, HORIZ_DAMPING_LIMIT);
-			FBVel = Decay(FBVel, HORIZ_DAMPING_DECAY);
+			FBComp = Limit(FBComp, -DAMP_HORIZ_LIMIT, DAMP_HORIZ_LIMIT);
+			FBVel = DecayX(FBVel, P[HorizDampDecay]);
 		}
 		else
 		{
 			LRVel = FBVel = 0;
-			LRComp = Decay(LRComp, 1);
-			FBComp = Decay(FBComp, 1);
+			LRComp = Decay1(LRComp);
+			FBComp = Decay1(FBComp);
 		}
 	}
 	else
 	{
 		DUVel = LRVel = FBVel = 0;
 
-		DUComp = Decay(DUComp, 1);
-		LRComp = Decay(LRComp, 1);
-		FBComp = Decay(FBComp, 1);
+		DUComp = Decay1(DUComp);
+		LRComp = Decay1(LRComp);
+		FBComp = Decay1(FBComp);
 	}
 } // InertialDamping	
 
@@ -265,7 +265,7 @@ void LimitRollSum(void)
 
 	RollSum += SRS16(RollRate, 1);		// use 9 bit res. for I controller
 	RollSum = Limit(RollSum, -RollIntLimit256, RollIntLimit256);
-	RollSum = Decay(RollSum, 1);		// damps to zero even if still rolled
+	RollSum = Decay1(RollSum);		// damps to zero even if still rolled
 	RollSum += LRIntKorr;				// last for accelerometer compensation
 } // LimitRollSum
 
@@ -275,7 +275,7 @@ void LimitPitchSum(void)
 
 	PitchSum += SRS16(PitchRate, 1);
 	PitchSum = Limit(PitchSum, -PitchIntLimit256, PitchIntLimit256);
-	PitchSum = Decay(PitchSum, 1);
+	PitchSum = Decay1(PitchSum);
 	PitchSum += FBIntKorr;
 } // LimitPitchSum
 
@@ -306,7 +306,7 @@ void LimitYawSum(void)
 	YawSum += YE;
 	YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
 
-	YawSum = Decay(YawSum, 2); 				// GKE added to kill gyro drift
+	YawSum = DecayX(YawSum, 2); 				// GKE added to kill gyro drift
 
 } // LimitYawSum
 
@@ -428,7 +428,8 @@ void UpdateControls(void)
 		DesiredCamPitchTrim = RC[CamPitchC] - RC_NEUTRAL;
 
 		#ifndef RX6CH
-		NavSensitivity = RC[NavGainC];
+		NavSensitivity = RC[NavGainC] - NAV_GAIN_THRESHOLD;
+		NavSensitivity = Limit(NavSensitivity, 0, RC_MAXIMUM);
 		#endif // !RX6CH
 
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;

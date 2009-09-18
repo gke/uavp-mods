@@ -1,7 +1,11 @@
 // EXPERIMENTAL
 
-#define HORIZ_DAMPING_LIMIT 		3	// equivalent stick units - no larger than 5
-#define HORIZ_DAMPING_DECAY			10	// how quickly the damping decays - range of 1 to 20
+#define NEW_HOLD							// New position hold scheme - comment out for old version
+
+#define DAMP_HORIZ_LIMIT 			3L		// equivalent stick units - no larger than 5
+
+#define DAMP_VERT_LIMIT_LOW			-5L		// maximum throttle reduction
+#define DAMP_VERT_LIMIT_HIGH		20L		// maximum throttle increase
 
 #define RxFilter					MediumFilter
 //#define RxFilter					SoftFilter
@@ -125,7 +129,8 @@
 
 //#define NAV_ZERO_INT 					// Zeros the integral when the sign is not the same as the error			
 	
-#define NAV_APPROACH_ANGLE 		20L		// Rx stick units ~= degrees
+#define NAV_APPROACH_ANGLE 		20L		// Rx stick units ~= degrees - maximum pitch/roll angle
+#define NAV_INT_LIMIT			3L		// Suggested 1-4 
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
 
@@ -225,11 +230,11 @@ typedef union {
 
 #define Max(i,j) 			((i<j) ? j : i)
 #define Min(i,j) 			((i<j) ? i : j )
-#define Decay(i, l) 			((i <= l) ? i+l : ((i>=l) ? i-l : 0))
+#define Decay1(i) 			((i < 0) ? i+1 : ((i > 0) ? i-1 : 0))
 
 #define USE_LIMIT_MACRO
 #ifdef USE_LIMIT_MACRO
-	#define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
+	#define Limit(i,l,u) 	((i < l) ? l : ((i > u) ? u : i))
 #else
 	#define Limit			ProcLimit
 #endif
@@ -573,6 +578,7 @@ extern void TxVal32(int32, int8, uint8);
 extern void Delay1mS(int16);
 extern void Delay100mSWithOutput(int16);
 extern int16 ProcLimit(int16, int16, int16);
+extern int16 DecayX(int16, int16);
 extern int16 SRS16(int16, uint8);
 extern int32 SRS32(int32, uint8);
 extern void InitPorts(void);
@@ -824,8 +830,10 @@ enum Params {
 	NeutralRadius,		// 38
 	PercentNavSens6Ch,	// 39
 	CamRollTrim,		// 40c
-	NavKd				// 41		
-	// 42 - 64 unused currently
+	NavKd,				// 41
+	VertDampDecay,		// 42c
+	HorizDampDecay		// 43c		
+	// 44 - 64 unused currently
 	};
 
 #define FlyXMode 				0

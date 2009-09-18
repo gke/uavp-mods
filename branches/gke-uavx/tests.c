@@ -59,26 +59,32 @@ void DoLEDs(void)
 void LinearTest(void)
 {
 	TxString("\r\nAccelerometer test:\r\n");
-
+	TxString("Read once - no averaging\r\n");
 	if( _AccelerationsValid )
 	{
 		ReadAccelerations();
 	
-		TxString("L->R: \t");
-		TxVal32(((int32)Ax.i16*1000+512)/1024, 3, 'G');	
+		TxString("\tL->R: \t");
+		TxVal32(((int32)Ax.i16*1000+512)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Ax.i16, 0 , ')');
 		if ( Abs((Ax.i16)) > 128 )
 			TxString(" fault?");
 		TxNextLine();
 
-		TxString("F->B: \t");	
+		TxString("\tF->B: \t");	
 		TxVal32(((int32)Az.i16*1000+512)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Az.i16, 0 , ')');
 		if ( Abs((Az.i16)) > 128 )
 			TxString(" fault?");	
 		TxNextLine();
 
-		TxString("D->U:    \t");
+		TxString("\tD->U:    \t");
 	
 		TxVal32(((int32)Ay.i16*1000+512)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Ay.i16 - 1024, 0 , ')');
 		if ( ( Ay.i16 < 896 ) || ( Ay.i16 > 1152 ) )
 			TxString(" fault?");	
 		TxNextLine();

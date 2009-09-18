@@ -134,7 +134,7 @@ const rom int8	ComParms[]={
 	0,0,0,0,0,1,1,1,0,1,
 	1,1,1,1,1,0,0,1,0,0,
 	1,1,0,1,1,1,1,0,0,1,
-	0,0,0,0,0,0,0,0,0,0,
+	0,1,1,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0
 	};
@@ -143,7 +143,7 @@ const rom int8 DefaultParams[] = {
 	-18, 			// RollKp, 			01
 	-8, 			// RollKi,			02
 	50, 			// RollKd,			03
-	0, 				// HorizDampKp,		04c 
+	-4, 			// HorizDampKp,		04c 
 	4, 				// RollIntLimit,	05
 	-18, 			// PitchKp,			06
 	-8, 			// PitchKi,			07
@@ -183,11 +183,12 @@ const rom int8 DefaultParams[] = {
 	2,				// NeutralRadius	38
 	30,				// PercentNavSens6Ch	39
 	0,				// CamRollTrim,		40c
-	0,				// NavKd			41
-	0,				// 42 - 64 unused currently
 
-	0,
-	0,
+	0,				// NavKd			41
+	10,				// VertDampDecay    42c
+	10,				// HorizDampDecay	43c
+	0,				// 44 - 64 unused currently
+
 	0,
 	0,
 	0,	
