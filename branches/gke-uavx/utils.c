@@ -245,24 +245,26 @@ void ReadParametersEE(void)
 		}
 
 		#ifdef RX6CH
-		NavSensitivity = ((int16)P[PercentNavSens6Ch] * RC_MAXIMUM)/100;
+		NavSensitivity = ((int16)P[PercentNavSens6Ch] * RC_MAXIMUM)/100L;
 		#endif // RX6CH
 
 		for ( i = 0; i < CONTROLS; i++) // make reverse map
 			RMap[Map[P[TxRxType]][i]-1] = i+1;
 	
-		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
+		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100L;
 		IdleThrottle = Max( IdleThrottle, RC_THRES_STOP );
-		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
+		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100L;
 	
 		RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
 		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
 		YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
 	
 		NavIntLimit32 = (int16)P[NavIntLimit] * 32L; 
-		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
+
 		NavNeutralRadius = (int16)P[NeutralRadius] * METRES_TO_GPS;
-		NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
+		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
+		NavClosingRadius = Limit(NavClosingRadius, NavNeutralRadius+(int16)5L*METRES_TO_GPS, (int16)40L*METRES_TO_GPS); // avoid divide by zero
+
 		SqrNavClosingRadius = (int16)P[NavClosingRadius] * (int16)P[NavClosingRadius];	
 		CompassOffset = (((COMPASS_OFFSET_DEG - (int16)P[NavMagVar])*MILLIPI)/180L);
 	
@@ -749,7 +751,7 @@ void ShowStats(void)
 		if ( P[GyroType] == ADXRS150 )
 			Scale = 1500;
 
-	TxString("\r\nFlight Statistics\r\n");
+	TxString("\r\nFlight Statistics (Maximum values)\r\n");
 
 	TxString("Vel:   \t");TxVal32((Stats[GPSVelS].i16*10L)/METRES_TO_GPS,1,' '); TxString("M/S\r\n\r\n"); 
 

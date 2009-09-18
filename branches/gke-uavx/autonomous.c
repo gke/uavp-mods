@@ -140,6 +140,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			WayHeading = int16atan2(EastDiff, NorthDiff);
 			DiffHeading = WayHeading - Heading;
 			RelHeading = Make2Pi(DiffHeading);
+
 			RWeight = int16sin(RelHeading);
 			PWeight = -(int32)int16cos(RelHeading);
 
@@ -155,7 +156,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 			Temp = SumNavRCorr + RangeS;
 			Temp = SRS16(Temp * P[NavKi], 2);
-			SumNavRCorr = Limit (Temp, -NAV_INT_LIMIT*256, NAV_INT_LIMIT*256);
+			SumNavRCorr = Limit (Temp, -NAV_INT_LIMIT*256L, NAV_INT_LIMIT*256L);
 			NavRCorr += SumNavPCorr;
 
 		//	NavRCorr += GPSVel * P[NavKd];
@@ -175,7 +176,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 			Temp = SumNavPCorr + RangeS;
 			Temp = SRS16(Temp * P[NavKi], 2);
-			SumNavPCorr = Limit (Temp, -NAV_INT_LIMIT*256, NAV_INT_LIMIT*256);
+			SumNavPCorr = Limit (Temp, -NAV_INT_LIMIT*256L, NAV_INT_LIMIT*256L);
 			NavPCorr += SumNavPCorr;
 
 		//	NavPCorr += GPSVel * P[NavKd];

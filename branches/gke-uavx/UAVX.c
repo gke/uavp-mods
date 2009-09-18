@@ -162,7 +162,7 @@ const rom int8 DefaultParams[] = {
 	0, 				// CamRollKp,		19
 	45, 			// PercentHoverThr,	20c 
 	
-	-8, 			// VertDampKp,		21c
+	-4, 			// VertDampKp,		21c
 	0, 				// MiddleDU,		22c
 	10, 			// PercentIdleThr,	23c
 	0, 				// MiddleLR,		24c
@@ -235,7 +235,7 @@ const rom uint8 Map[CustomTxRx+1][CONTROLS] = {
 
 	{ 3,1,2,4,5,7,6 }, 	// Futaba Thr 3 Sw 6/7
 	{ 1,2,3,4,5,6,7 },	// Spektrum DX7/AR6000
-	{ 1,2,3,4,5,6,7 },	// Graupner MX16s
+	{ 1,2,3,4,5,6,7 },	// Graupner MX16S
 
 	{ 1,2,3,4,5,6,7 }	// Custom
 	};
@@ -253,9 +253,9 @@ const rom boolean PPMPosPolarity[CustomTxRx+1] =
 		true,	// JR DXS12
 		true,	// Spektrum DX7/AR7000
 		true,	// Spektrum DX7/AR6200
-		true,	// Futaba Thr 3 Sw 6/7
+		false,	// Futaba Thr 3 Sw 6/7
 		true,	// Spektrum DX7/AR6000
-		true,	// Graupner MX16s
+		true,	// Graupner MX16S
 		true	// custom Tx/Rx combination
 	};
 
