@@ -249,6 +249,10 @@ If you enable RTH Descend in UAVPSet then thirty seconds after you have arrived 
 
 The auto descend feature is the logical extension of using RTH primarily as failsafe support. We suggest RTH altitude enabled (the default) be adopted with you Rx failsafes set appropriately to advantage of this. 
 
+=== Camera Pitch and Roll ===
+
+The UAVP also has servo connections for channel 6 and 7 to control gryo asssited pitch and roll.  Channel 6 is for pitch and 7 is for roll.  You can adjust responiveness by setting values in the fields in the UAVPset.
+
 === Other Stuff === 
 
 There are many other things we can try/abandon including:
