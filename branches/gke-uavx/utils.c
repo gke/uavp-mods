@@ -264,8 +264,7 @@ void ReadParametersEE(void)
 		NavNeutralRadius = (int16)P[NeutralRadius] * METRES_TO_GPS;
 		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
 		NavClosingRadius = Limit(NavClosingRadius, NavNeutralRadius+(int16)5L*METRES_TO_GPS, (int16)40L*METRES_TO_GPS); // avoid divide by zero
-
-		SqrNavClosingRadius = (int16)P[NavClosingRadius] * (int16)P[NavClosingRadius];	
+	
 		CompassOffset = (((COMPASS_OFFSET_DEG - (int16)P[NavMagVar])*MILLIPI)/180L);
 	
 		PIE1bits.CCP1IE = false;
@@ -737,7 +736,7 @@ void WriteStatsEE()
 	}
 
 	Temp = ToPercent(HoverThrottle, OUT_MAXIMUM);
-	WriteEE((CurrentParamSet-1) * MAX_PARAMETERS + PercentHoverThr, Temp);
+	WriteEE(PercentHoverThr, Temp);
 } // WriteStatsEE
 
 void ShowStats(void)

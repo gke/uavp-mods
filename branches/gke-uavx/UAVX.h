@@ -735,7 +735,7 @@ extern int16 	GPSHDilute;
 extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSNorthP, GPSEastP, GPSVel;
 extern int16 	GPSRelAltitude;
 
-extern int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
+extern int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
 
 enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
 extern uint8 	NavState;
@@ -839,16 +839,17 @@ enum Params {
 #define FlyXMode 				0
 #define FlyXModeMask 			0x01
 
+#define UseRTHDescend 			1
+#define	UseRTHDescendMask		0x02
+
 #define TxMode2 				2
 #define TxMode2Mask 			0x04
+
 #define RxSerialPPM 			3
 #define RxSerialPPMMask			0x08 
 
 #define UseGPSAlt 				5
 #define	UseGPSAltMask			0x20
-
-#define UseRTHDescend 			6
-#define	UseRTHDescendMask		0x40
 
 #define STATS_ADDR_EE	 	( MAX_PARAMETERS *2 )
 extern int8 P[];

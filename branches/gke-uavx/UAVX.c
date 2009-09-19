@@ -90,7 +90,7 @@ int8	NeutralLR, NeutralFB, NeutralDU;
 int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
 #pragma udata
 
-int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
+int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
 
 uint8 	NavState;
 uint8 	NavSensitivity;
