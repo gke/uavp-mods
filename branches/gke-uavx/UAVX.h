@@ -718,7 +718,7 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollTrim, PitchTrim, YawTrim;
 extern int16	HoldYaw;
-extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit32;
+extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim, Heading;
@@ -741,7 +741,6 @@ enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigat
 extern uint8 	NavState;
 extern uint8 	NavSensitivity;
 extern int16 	AltSum, AE;
-extern int16 	NavKp, NavKi;
 
 // Waypoints
 
@@ -818,7 +817,7 @@ enum Params {
 	CompassKp,			// 27
 	BaroCompKd,			// 28c
 	NavRadius,			// 29
-	NavIntLimit,		// 30
+	NavKi,				// 30
 	
 	GPSAltKp,			// 31
 	GPSAltKi,			// 32

@@ -259,8 +259,6 @@ void ReadParametersEE(void)
 		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
 		YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
 	
-		NavIntLimit32 = (int16)P[NavIntLimit] * 32L; 
-
 		NavNeutralRadius = (int16)P[NeutralRadius] * METRES_TO_GPS;
 		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
 		NavClosingRadius = Limit(NavClosingRadius, NavNeutralRadius+(int16)5L*METRES_TO_GPS, (int16)40L*METRES_TO_GPS); // avoid divide by zero

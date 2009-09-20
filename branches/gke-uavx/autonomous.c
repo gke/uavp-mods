@@ -108,7 +108,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// cos/sin/arctan lookup tables are used for speed.
 	// BEWARE magic numbers for integer arithmetic
 
-	static int16 Temp, Correction, RWeight, PWeight, SignedRange, RSign, PSign;
+	static int16 Temp, NavKp, Correction, RWeight, PWeight, SignedRange, RSign, PSign;
 	static int16 Range, RangeToNeutral, EastDiff, NorthDiff, WayHeading, RelHeading, DiffHeading;
 
 	if ( _NavComputed ) // maintain previous corrections
@@ -143,8 +143,6 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 			RWeight = int16sin(RelHeading);
 			PWeight = -(int32)int16cos(RelHeading);
-
-		#ifdef NEW_HOLD
 
 			// Roll
 			RSign = Sign(RWeight);
@@ -187,33 +185,6 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			NavPCorr = SRS16(PWeight * NavPCorr, 8);
 			Temp = DesiredPitch + NavPCorr;
 			DesiredPitch = Limit(Temp, -RC_NEUTRAL, RC_NEUTRAL);
-
-		#else
-
-			Correction = SRS16(RangeToNeutral * NavKp, 8);
-			Correction = Limit(Correction, 1, NAV_APPROACH_ANGLE );
-
-			// Roll
-			NavRCorr = RWeight * Correction;
-			Temp = SumNavRCorr + RangeToNeutral;
-			SumNavRCorr = Limit (Temp, -NavIntLimit32, NavIntLimit32);
-			NavRCorr += SumNavRCorr;
-			SumNavRCorr = DecayX(SumNavRCorr, 5);
-			NavRCorr = SRS16(NavRCorr, 8);
-			DesiredRoll += NavRCorr;
-			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
-
-			// Pitch
-			NavPCorr = PWeight * Correction;
-			Temp = SumNavPCorr + RangeToNeutral;
-			SumNavPCorr = Limit (Temp, -NavIntLimit32, NavIntLimit32);
-			NavPCorr += SumNavPCorr;
-			SumNavPCorr = DecayX(SumNavPCorr, 5);
-			NavPCorr = SRS16(NavPCorr, 8);
-			DesiredPitch += NavPCorr;
-			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
-
-		#endif // EXP_HOLD
 
 			// Yaw
 			if ( _TurnToHome && !_Proximity )

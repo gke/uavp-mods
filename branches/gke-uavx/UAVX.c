@@ -77,7 +77,7 @@ int16	RollSum, PitchSum, YawSum;		// integral
 int16	RollRate, PitchRate, YawRate;
 int16	RollTrim, PitchTrim, YawTrim;
 int16	HoldYaw;
-int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit32;
+int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
 int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim, Heading;
@@ -95,7 +95,6 @@ int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
 uint8 	NavState;
 uint8 	NavSensitivity;
 int16	AltSum, AE;
-int16 	NavKp, NavKi;
 
 int16	ThrLow, ThrHigh, ThrNeutral;
 
@@ -171,7 +170,7 @@ const rom int8 DefaultParams[] = {
 	24, 			// CompassKp,		27
 	16, 			// BaroCompKd,		28c
 	30, 			// NavRadius,		29
-	8, 				// NavIntLimit,		30 
+	8, 				// NavKi,		30 
 
 	24, 			// NavAltKp,		31c
 	24, 			// NavAltKi,		32c
