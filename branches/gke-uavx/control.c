@@ -409,7 +409,7 @@ void DoControl(void)
 
 void UpdateControls(void)
 {
-	static HoldRoll, HoldPitch;
+	static int16 HoldRoll, HoldPitch;
 
 	if ( _NewValues )
 	{

@@ -739,7 +739,7 @@ extern int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
 
 enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
 extern uint8 	NavState;
-extern uint8 	NavSensitivity;
+extern int16 	NavSensitivity;
 extern int16 	AltSum, AE;
 
 // Waypoints
@@ -856,7 +856,7 @@ extern const rom int8 ComParms[];
 extern const rom int8 DefaultParams[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
 extern const rom uint8 RxChMnem[];
-extern const rom ESCLimits [];
+extern const rom uint8 ESCLimits [];
 extern const rom boolean PPMPosPolarity[];
 
 

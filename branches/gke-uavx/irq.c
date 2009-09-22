@@ -67,13 +67,13 @@ void MapRC(void)
 
 	#ifdef UNROLL_LOOPS
 	
-	RC[ThrottleC] = PPM[Map[P[TxRxType]][ThrottleC]-1].low8;
-	RC[RollC] = 	PPM[Map[P[TxRxType]][RollC]-1].low8;
-	RC[PitchC] = 	PPM[Map[P[TxRxType]][PitchC]-1].low8;
-	RC[YawC] = 		PPM[Map[P[TxRxType]][YawC]-1].low8;
-	RC[RTHC] = 		PPM[Map[P[TxRxType]][RTHC]-1].low8;
-	RC[CamPitchC] = 	PPM[Map[P[TxRxType]][CamPitchC]-1].low8;
-	RC[NavGainC] = 	PPM[Map[P[TxRxType]][NavGainC]-1].low8;
+	RC[ThrottleC] = RxFilter(RC[ThrottleC], PPM[Map[P[TxRxType]][ThrottleC]-1].low8);
+	RC[RollC] = 	RxFilter(RC[RollC], 	PPM[Map[P[TxRxType]][RollC]-1].low8);
+	RC[PitchC] = 	RxFilter(RC[PitchC], 	PPM[Map[P[TxRxType]][PitchC]-1].low8);
+	RC[YawC] = 		RxFilter(RC[YawC], 		PPM[Map[P[TxRxType]][YawC]-1].low8);
+	RC[RTHC] = 		RxFilter(RC[RTHC], 		PPM[Map[P[TxRxType]][RTHC]-1].low8);
+	RC[CamPitchC] = RxFilter(RC[CamPitchC],	PPM[Map[P[TxRxType]][CamPitchC]-1].low8);
+	RC[NavGainC] = 	RxFilter(RC[NavGainC], 	PPM[Map[P[TxRxType]][NavGainC]-1].low8);
 
 	#else
 

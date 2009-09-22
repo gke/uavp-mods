@@ -93,7 +93,7 @@ int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
 int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
 
 uint8 	NavState;
-uint8 	NavSensitivity;
+int16 	NavSensitivity;
 int16	AltSum, AE;
 
 int16	ThrLow, ThrHigh, ThrNeutral;
@@ -259,7 +259,7 @@ const rom boolean PPMPosPolarity[CustomTxRx+1] =
 	};
 
 // Must be in thesame order as 
-const rom ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, OUT_YGEI2C_MAXIMUM };
+const rom uint8 ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, OUT_YGEI2C_MAXIMUM };
 
 void main(void)
 {
