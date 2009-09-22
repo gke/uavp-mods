@@ -164,7 +164,7 @@ You will only hear beeps if the setting you have selected is different from the 
 
 TTH is not active within the closing distance, or radius, of the Origin nor is it active when simply holding a position. The Pilot still has control of a yaw offset and thus can control the direction of camera gaze regardless of whether TTH is active or not although if it is active then there will be a small "resistance" to yaw commands.
 
-Tx (Mode 2) labeled with Stick and channel options: http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2707491-209-UAVP%20stick%20commands%20jesolins.jpg  
+Tx (Mode 2) labeled with Stick and channel options: http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2774700-93-UAVP%20stick%20commands%20jesolins.jpg 
 
 ===Pre-Flight Safety Checklist===
   * Please review the checklist found in our WIKI and note all warnings prior to flight: [http://code.google.com/p/uavp-mods/wiki/UAVPandUAVXFlightChecklist]  
