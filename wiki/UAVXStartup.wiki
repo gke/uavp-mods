@@ -166,6 +166,10 @@ TTH is not active within the closing distance, or radius, of the Origin nor is i
 
 Tx (Mode 2) labeled with Stick and channel options: http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2774700-93-UAVP%20stick%20commands%20jesolins.jpg 
 
+RTH altitude hold is *enabled* and TTH *disabled* when you power up the quad. These are the safest values for use with Rx failsafes.
+
+Unlike parameters any changes you make through stick programming are not stored permanently. They ARE retained if you arm/disarm and are only lost when you disconnect power.
+
 ===Pre-Flight Safety Checklist===
   * Please review the checklist found in our WIKI and note all warnings prior to flight: [http://code.google.com/p/uavp-mods/wiki/UAVPandUAVXFlightChecklist]  
 
