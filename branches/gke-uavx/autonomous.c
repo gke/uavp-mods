@@ -45,7 +45,7 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 	static int16 Temp;
 
 	if ( _RTHAltitudeHold )
-		if ( P[ConfigBits] & UseGPSAltMask )
+		if ( P[ConfigBits] & UseGPSAltMask || !_BaroAltitudeValid )
 		{
 			AE = DesiredAltitude - GPSRelAltitude;
 			AE = Limit(AE, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
@@ -57,9 +57,9 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
 		}
 		else
-		{	
+		{
 			DesiredThrottle = HoverThrottle;
-			BaroPressureHold(-SRS32( (int32)DesiredAltitude * BARO_SCALE, 8) );
+			BaroPressureHold(-SRS32( (int32)DesiredAltitude * BARO_SCALE, 8) );	
 		}
 	else
 	{
@@ -69,19 +69,19 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 
 void Descend(void)
 { // uses Baro only
-	static int16 DesiredBaroPressure;
+	static int16 DesiredRelBaroPressure;
 
 	if (  mS[Clock] > mS[AltHoldUpdate] )
 		if ( InTheAir ) 							//  micro switch RC0 Pin 11 to ground when landed
 		{
 			DesiredThrottle = HoverThrottle;
 
-			if ( CurrentBaroPressure < -( BARO_DESCENT_TRANS_DM * BARO_SCALE)/256L )
-				DesiredBaroPressure = CurrentBaroPressure + (BARO_MAX_DESCENT_DMPS * BARO_SCALE)/256L;
+			if ( CurrentRelBaroPressure < -( BARO_DESCENT_TRANS_DM * BARO_SCALE)/256L )
+				DesiredRelBaroPressure = CurrentRelBaroPressure + (BARO_MAX_DESCENT_DMPS * BARO_SCALE)/256L;
 			else
-				DesiredBaroPressure = CurrentBaroPressure + (BARO_FINAL_DESCENT_DMPS * BARO_SCALE)/256L; 
+				DesiredRelBaroPressure = CurrentRelBaroPressure + (BARO_FINAL_DESCENT_DMPS * BARO_SCALE)/256L; 
 
-			BaroPressureHold( DesiredBaroPressure );	
+			BaroPressureHold( DesiredRelBaroPressure );	
 			mS[AltHoldUpdate] += 1000L;
 		}
 		else
@@ -278,7 +278,7 @@ void DoFailsafe(void)
 		switch ( FailState ) {
 		case Terminated:
 			DesiredRoll = DesiredPitch = DesiredYaw = 0;
-			if ( CurrentBaroPressure < -(BARO_FAILSAFE_MIN_ALT_DM * BARO_SCALE)/256L )
+			if ( CurrentRelBaroPressure < -(BARO_FAILSAFE_MIN_ALT_DM * BARO_SCALE)/256L )
 			{
 				Descend();							// progressively increase desired baro pressure
 				if ( mS[Clock ] > mS[AbortTimeout] )

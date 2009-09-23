@@ -411,11 +411,11 @@ void BaroTest(void)
 	
 	while ( mS[Clock] <= mS[BaroUpdate] );
 	ReadBaro();
-	CurrentBaroPressure = (int24)BaroVal.u16 - OriginBaroPressure;		
+	CurrentRelBaroPressure = (int24)BaroVal.u16 - OriginBaroPressure;		
 	TxString("Origin: \t");
 	TxVal32((int32)OriginBaroPressure,0,0);
 	TxString("\t Rel.: \t");	
-	TxVal32((int32)CurrentBaroPressure, 0, 0);
+	TxVal32((int32)CurrentRelBaroPressure, 0, 0);
 		
 	TxNextLine();
 

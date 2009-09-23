@@ -76,18 +76,22 @@ int16 ConvertInt(uint8 lo, uint8 hi)
 } // ConvertInt
 
 int32 ConvertLatLonM(uint8 lo, uint8 hi)
-{ 	// NMEA coordinates assumed as DDDMM.MMMM ie 4 decimal minute digits
-	// Positions are stored at maximum transmitted NMEA resolution which is
+{ 	// NMEA coordinates normally assumed as DDDMM.MMMM ie 4 decimal minute digits
+	// but code can deal with 3 to 5 decimal minutes 
+	// Positions are stored at 4 decimal minute NMEA resolution which is
 	// approximately 0.1855 Metres per LSB at the Equator.
 	static int32 dd, mm, dm;	
 	static int32 ival;
-	
+
 	ival=0;
 	if ( !EmptyField )
 	{
-	    dd = ConvertInt(lo, hi-7);
-	    mm = ConvertInt(hi-6, hi-5);
-		dm = ConvertInt(hi-3, hi);
+	    dd = ConvertInt(lo, lo+2);
+	    mm = ConvertInt(lo+3, lo+4);
+		if ( ( hi-lo ) == 8 ) 				// 3 digit decimal minutes
+			dm = ConvertInt(lo+6, lo+8) * 10;
+		else								// 4 digit or more
+			dm = ConvertInt(lo+6, lo+9);
 	    ival = dd * 600000 + mm * 10000 + dm;
 	}
 	

@@ -603,7 +603,7 @@ void SendLEDs(void)
 	PORTCbits.RC1 = 0;	// latch into drivers
 	SPI_SCL = 1;		// rest state for LISL
 	SPI_IO = RD_SPI;
-}
+} // SendLEDs
 
 void LEDsOn(uint8 l)
 {
@@ -750,19 +750,24 @@ void ShowStats(void)
 
 	TxString("\r\nFlight Statistics (Maximum values)\r\n");
 
-	TxString("Vel:   \t");TxVal32((Stats[GPSVelS].i16*10L)/METRES_TO_GPS,1,' '); TxString("M/S\r\n\r\n"); 
+	TxString("Vel:    \t");TxVal32((Stats[GPSVelS].i16*10L)/METRES_TO_GPS,1,' '); TxString("M/S\r\n\r\n"); 
 
-	TxString("GAlt:  \t");TxVal32(Stats[GPSAltitudeS].i16,1,' '); TxString("M\r\n"); 
-	TxString("BAlt:  \t");TxVal32((Stats[BaroPressureS].i16 * 256)/BARO_SCALE, 1, ' '); TxString("M (");
-	TxVal32(Stats[BaroPressureS].i16,0,' '); TxString(")\r\n\r\n"); 
+	TxString("GAlt:   \t");TxVal32(Stats[GPSAltitudeS].i16,1,' '); TxString("M\r\n"); 
+	TxString("BAlt:   \t");TxVal32((Stats[RelBaroPressureS].i16 * 256)/BARO_SCALE, 1, ' '); TxString("M (");
+	TxVal32(Stats[RelBaroPressureS].i16,0,' '); TxString(")\r\n\r\n"); 
 
-	TxString("Roll:  \t"); TxVal32(((int32)(Stats[RollRateS].i16 - Stats[GyroMidRollS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
-	TxString("Pitch: \t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
-	TxString("Yaw:   \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>10,1,' '); TxString("Deg/Sec\r\n\r\n");
+	TxString("Roll:   \t"); TxVal32(((int32)(Stats[RollRateS].i16 - Stats[GyroMidRollS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
+	TxString("Pitch:  \t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
+	TxString("Yaw:    \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>10,1,' '); TxString("Deg/Sec\r\n\r\n");
 
-	TxString("LRAcc: \t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine(); 
-	TxString("FBAcc: \t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine();
-	TxString("DUAcc: \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine(); 
+	TxString("LRAcc:  \t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine(); 
+	TxString("FBAcc:  \t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine();
+	TxString("DUAcc:  \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)>>10, 3, 'G'); TxNextLine();
+
+	TxString("\r\nSensor Failures (Count)\r\n");
+	TxString("Acc:    \t");TxVal32((int32)Stats[AccFailS].i16,0 , ' '); TxNextLine();
+	TxString("Compass:\t");TxVal32((int32)Stats[CompassFailS].i16,0 , ' '); TxNextLine();
+	TxString("Baro:   \t");TxVal32((int32)Stats[BaroFailS].i16,0 , ' '); TxNextLine(); 
 } // ShowStats
 
 void DumpTrace(void)

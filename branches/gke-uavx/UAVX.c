@@ -100,7 +100,7 @@ int16	ThrLow, ThrHigh, ThrNeutral;
 
 // Variables for barometric sensor PD-controller
 int24	OriginBaroPressure;
-int16	DesiredBaroPressure, CurrentBaroPressure;
+int16	DesiredRelBaroPressure, CurrentRelBaroPressure;
 int16	BE, BEp;
 i16u	BaroVal;
 int8	BaroSample;

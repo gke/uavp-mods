@@ -7,8 +7,8 @@
 #define DAMP_VERT_LIMIT_LOW			-5L		// maximum throttle reduction
 #define DAMP_VERT_LIMIT_HIGH		20L		// maximum throttle increase
 
-#define RxFilter					MediumFilter
-//#define RxFilter					SoftFilter
+#define RxFilter					MediumFilterU
+//#define RxFilter					SoftFilterU
 //#define RxFilter					NoFilter
 
 // =======================================================================
@@ -52,9 +52,6 @@
 //________________________________________________________________________________________________
 
 // UAVX Extensions
-
-// Unroll selected loops on critical path
-//#define UNROLL_LOOPS
 
 // Timeouts and Update Intervals
 
@@ -247,18 +244,18 @@ typedef union {
 #define ToPercent(n, m) (((n)*100)/m)
 
 // Simple filters using weighted averaging
-#ifdef SUPPRESSFILTERS
-  #define VerySoftFilter(O,N)		(N)
-  #define SoftFilter(O,N) 			(N)
-  #define MediumFilter(O,N) 		(N)
-  #define AccelerometerFilter(O,N) 	(N)
-#else
-  #define VerySoftFilter(O,N) 		(SRS16((O)+(N)*3, 2))
-  #define SoftFilter(O,N) 			(SRS16((O)+(N), 1))
-  #define MediumFilter(O,N) 		(SRS16((O)*3+(N), 2))
-  #define HardFilter(O,N) 			(SRS16((O)*7+(N), 3))
-#endif
-#define NoFilter(O,N)				(N)
+#define VerySoftFilter(O,N) 	(SRS16((O)+(N)*3, 2))
+#define SoftFilter(O,N) 		(SRS16((O)+(N), 1))
+#define MediumFilter(O,N) 		(SRS16((O)*3+(N), 2))
+#define HardFilter(O,N) 		(SRS16((O)*7+(N), 3))
+
+// Unsigned
+#define VerySoftFilterU(O,N)	(((O)+(N)*3+2)>>2)
+#define SoftFilterU(O,N) 		(((O)+(N)+1)>>1)
+#define MediumFilterU(O,N) 		(((O)*3+(N)+2)>>2)
+#define HardFilterU(O,N) 		(((O)*7+(N)+4)>>3)
+
+#define NoFilter(O,N)			(N)
 
 #define DisableInterrupts 	(INTCONbits.GIEH=0)
 #define EnableInterrupts 	(INTCONbits.GIEH=1)
@@ -664,7 +661,7 @@ enum GyroTypes { ADXRS300, ADXRS150, IDG300};
 enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, 
 				DX7AR7000, DX7AR6200, FutabaCh3_6_7, DX7AR6000, GraupnerMX16s, CustomTxRx };
 
-enum TraceTags {THE, TCurrentBaroPressure,
+enum TraceTags {THE, TCurrentRelBaroPressure,
 				TRollRate,TPitchRate,TYE,
 				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
@@ -755,7 +752,7 @@ extern int16	ThrLow, ThrHigh, ThrNeutral;
 			
 // Variables for barometric sensor PD-controller
 extern int24	OriginBaroPressure;
-extern int16	DesiredBaroPressure, CurrentBaroPressure;
+extern int16	DesiredRelBaroPressure, CurrentRelBaroPressure;
 extern int16	BE, BEp;
 extern i16u		BaroVal;
 extern int8		BaroSample;
@@ -773,8 +770,9 @@ extern int16	AttitudeHoldResetCount;
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 
-enum Statistics { GPSAltitudeS, BaroPressureS, GPSVelS, RollRateS, PitchRateS, YawRateS,
+enum Statistics { GPSAltitudeS, RelBaroPressureS, GPSVelS, RollRateS, PitchRateS, YawRateS,
 				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, 
+				AccFailS, CompassFailS, BaroFailS,
 				MaxStats};
 extern i16u Stats[];
 
