@@ -162,9 +162,7 @@ When the quadrocopter is disarmed the Tx sticks may be used to access some param
 
 You will only hear beeps if the setting you have selected is different from the previous setting.
 
-RTH altitude hold is *enabled* and TTH *disabled* when you power up the quad. These are the safest values for use with Rx failsafes.
-
-Unlike parameters any changes you make through stick programming are not stored permanently. They ARE retained if you arm/disarm and are only lost when you disconnect power.
+RTH altitude hold is *enabled* and TTH *disabled* when you power up the quad. These are the safest values for use with Rx failsafes. Unlike the main parameter sets any changes you make through stick programming are not stored permanently. They ARE retained if you arm/disarm but are lost when you disconnect power.
 
 TTH is not active within the closing distance, or radius, of the Origin nor is it active when simply holding a position. The Pilot still has control of a yaw offset and thus can control the direction of camera gaze regardless of whether TTH is active or not although if it is active then there will be a small "resistance" to yaw commands.
 
