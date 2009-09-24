@@ -207,7 +207,7 @@ void InertialDamping(void)
 		// Empirical - acceleration changes at ~approx Sum/8
 		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 3);		
 		DUVel = Limit(DUVel , -16384, 16383); 			
-		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 11);
+		Temp = SRS16(SRS16(DUVel, 4) * (int16) P[VertDampKp], 13);
 		if( Temp > DUComp ) 
 			DUComp++;
 		else
@@ -219,9 +219,9 @@ void InertialDamping(void)
  		if ( _CloseProximity )
 		{
 			// Left - Right
-			LRVel += LRAcc; // zzz - SRS16(RollSum, 2);
+			LRVel += LRAcc;
 			LRVel = Limit(LRVel , -16384, 16383);  	
-			Temp = SRS16(SRS16(LRVel, 4) * P[HorizDampKp], 11);
+			Temp = SRS16(SRS16(LRVel, 4) * (int32)P[HorizDampKp], 13);
 			if( Temp > LRComp ) 
 				LRComp++;
 			else
@@ -231,9 +231,9 @@ void InertialDamping(void)
 			LRVel = DecayX(LRVel, P[HorizDampDecay]);
 	
 			// Front - Back
-			FBVel += FBAcc; // zzz - SRS16(PitchSum, 2);
+			FBVel += FBAcc;
 			FBVel = Limit(FBVel , -16384, 16383);  
-			Temp = SRS16(SRS16(FBVel, 4) * P[HorizDampKp], 11);
+			Temp = SRS16(SRS16(FBVel, 4) * (int32)P[HorizDampKp], 13);
 			if( Temp > FBComp ) 
 				FBComp++;
 			else

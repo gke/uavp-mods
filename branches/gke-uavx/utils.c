@@ -754,7 +754,7 @@ void ShowStats(void)
 
 	TxString("GAlt:   \t");TxVal32(Stats[GPSAltitudeS].i16,1,' '); TxString("M\r\n"); 
 	TxString("BAlt:   \t");TxVal32((Stats[RelBaroPressureS].i16 * 256)/BARO_SCALE, 1, ' '); TxString("M (");
-	TxVal32(Stats[RelBaroPressureS].i16,0,' '); TxString(")\r\n\r\n"); 
+	TxVal32(Stats[RelBaroPressureS].i16,0,' '); TxString(" clicks)\r\n\r\n"); 
 
 	TxString("Roll:   \t"); TxVal32(((int32)(Stats[RollRateS].i16 - Stats[GyroMidRollS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
 	TxString("Pitch:  \t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
