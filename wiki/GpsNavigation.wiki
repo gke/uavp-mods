@@ -24,7 +24,7 @@ The current implementation only requires the $GPGGA sentence but other sentences
 
 Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update rate. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing load; yes it takes processing time to throw away stuff! 
 
-GPS units produce coordinates which typically have 4 or 5 decimal places of precision; older GPS units may have only 3. UAVX can read coordinates with both *4 or 5 digit decimal places ONLY*. 
+GPS units produce coordinates which typically have 4 or 5 decimal places of precision; older GPS units may have only 3. UAVX can automatically read coordinates with either *4 or 5 decimal places ONLY*. 
 
   * 5 digit example: $GPGGA,113627.00,5139.*83616*,N,00720.*65450*,W ........
   * 4 digit example: $GPGGA,113627.00,03738.*1360*,S,14525.*2502*,E ........
