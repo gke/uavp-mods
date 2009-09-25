@@ -101,6 +101,8 @@ The important additional parameters are:
 
    * Wind Compensation: Increases the amount of compensation if the desired position is not being maintained.
 
+   * Velocity Compensation: To velocity when approaching the desired position particularly with RTH.
+
    * RTH Altitude: The GPS altitude in Metres relative to the launch point to be maintained. The default is acquire and hold RTH Altitude when RTH is engaged. This may be disabled - see stick programming. Be aware that RTH altitude hold is disabled then the altitude will depend on the pilot or Rx failsafe stick setting.  
 
    * RTH Altitude Proportional & Integral: PI constants for GPS based altitude hold. Not used if the altitude source selected is the Barometer. 
