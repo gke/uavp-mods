@@ -116,8 +116,8 @@
 
 #define	GPS_MIN_SATELLITES		7		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX				1		// must be 1 or 2 
-#define GPS_INITIAL_SENTENCES 	90		// Number of sentences needed with set HDilute
-#define GPS_MIN_HDILUTE			130L	// HDilute * 100	
+#define GPS_INITIAL_SENTENCES 	90L		// Number of sentences needed with set HDilute
+#define GPS_MIN_HDILUTE			110L	// HDilute * 100	
 
 #define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
 

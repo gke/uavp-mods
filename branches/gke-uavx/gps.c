@@ -65,14 +65,14 @@ boolean EmptyField;
 int16 ConvertInt(uint8 lo, uint8 hi)
 {
 	static uint8 i;
-	static int16 ival;
+	static int16 r;
 
-	ival = 0;
+	r = 0;
 	if ( !EmptyField )
 		for (i = lo; i <= hi ; i++ )
-			ival = ival * 10 + NMEA.s[i] - '0';
+			r = r * 10 + NMEA.s[i] - '0';
 
-	return (ival);
+	return (r);
 } // ConvertInt
 
 int32 ConvertLatLonM(uint8 lo, uint8 hi)
@@ -80,22 +80,22 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi)
 	// but code can deal with 3 to 5 decimal minutes 
 	// Positions are stored at 4 decimal minute NMEA resolution which is
 	// approximately 0.1855 Metres per LSB at the Equator.
-	static int32 dd, mm, dm;	
-	static int32 ival;
-
-	ival=0;
+	static int32 dd, mm, dm, r;
+	static int8 dp;	
+	
+	r = 0;
 	if ( !EmptyField )
 	{
-	    dd = ConvertInt(lo, lo+2);
-	    mm = ConvertInt(lo+3, lo+4);
-		if ( ( hi-lo ) == 8 ) 				// 3 digit decimal minutes
-			dm = ConvertInt(lo+6, lo+8) * 10;
-		else								// 4 digit or more
-			dm = ConvertInt(lo+6, lo+9);
-	    ival = dd * 600000 + mm * 10000 + dm;
+		dp = lo + 4; // could do this in initialisation for Lat and Lon?
+		while ( NMEA.s[dp] != '.') dp++;
+
+	    dd = ConvertInt(lo, dp - 3);
+	    mm = ConvertInt(dp - 2 , dp - 1);
+		dm = ConvertInt(dp + 1, dp + 4);
+	    r = dd * 600000 + mm * 10000 + dm;
 	}
 	
-	return(ival);
+	return(r);
 } // ConvertLatLonM
 
 /*	
@@ -138,18 +138,18 @@ void ParseGPGGASentence(void)
 	//GPSMissionTime=ConvertUTime(lo,hi);
 
 	UpdateField();   //Lat
-    GPSLatitude = ConvertLatLonM(lo,hi);
+    GPSLatitude = ConvertLatLonM(lo, hi);
     UpdateField();   //LatH
     if (NMEA.s[lo] == 'S')
       	GPSLatitude = -GPSLatitude;
 
     UpdateField();   //Lon
     // no latitude compensation on longitude - yet!    
-    GPSLongitude = ConvertLatLonM(lo,hi);
+    GPSLongitude = ConvertLatLonM(lo, hi);
     UpdateField();   //LonH
 	if (NMEA.s[lo] == 'W')
       	GPSLongitude = -GPSLongitude;
-         
+        
     UpdateField();   //Fix 
     GPSFix = (uint8)(ConvertInt(lo,hi));
 
