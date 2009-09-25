@@ -29,10 +29,9 @@ The ETEK and Locosys LS20031 GPS units have been used with success. The Locosys 
 
 UAVPset allows most hardware configurations to be set directly rather than requiring the previous multiple HEX files.  There are however separate HEX files for debugging sensors and for 6 channel Rxs. The test and flight firmware are now combined.
 
-The coordinates produced by GPS units typically have 4 or 5 decimal places of precision in their coordinates; older GPS units may have only 3. UAVX can read coordinates with both 4 and 5 digit decimal places. It cannot read 
+GPS units produce coordinates which typically have 4 or 5 decimal places of precision; older GPS units may have only 3. UAVX can read coordinates with both 4 and 5 digit decimal places ONLY. 
 
   * 5 digit example: $GPGGA,113627.00,5139.*83616*,N,00720.*65450*,W ........
-
   * 4 digit example: $GPGGA,113627.00,03738.*1360*,S,14525.*2502*,E,
 
 The following Tx/Rx combinations are supported:
