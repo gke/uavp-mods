@@ -28,7 +28,9 @@ Your GPS should preferably have the ability to update at 5Hz. Lower update rates
 GPS units produce coordinates which typically have 4 or 5 decimal places of precision; older GPS units may have only 3. UAVX can read coordinates with both *4 or 5 digit decimal places ONLY*. 
 
   * 5 digit example: $GPGGA,113627.00,5139.*83616*,N,00720.*65450*,W ........
-  * 4 digit example: $GPGGA,113627.00,03738.*1360*,S,14525.*2502*,E,
+  * 4 digit example: $GPGGA,113627.00,03738.*1360*,S,14525.*2502*,E ........
+
+Use your GPS logger to determine which format your GPS uses.
 
 The ETEK and Locosys LS20031 GPS units have been used with success. The Locosys LS20031 has a built in battery backup making startup faster. 
 
