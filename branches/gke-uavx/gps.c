@@ -217,13 +217,16 @@ void ParseGPSSentence(void)
 
 			if (GPSHDilute <= GPS_MIN_HDILUTE )
 			{
+				GPSHDilute = MAXINT16; 
 				if ( ValidGPSSentences ==  GPS_INITIAL_SENTENCES )
 				{
 					SetGPSOrigin();
 					DoBeep100mSWithOutput(2,0);
 				}
 				ValidGPSSentences++;
-			}	
+			}
+			else
+				ValidGPSSentences = 0;	
 		}
 		else
 		{
