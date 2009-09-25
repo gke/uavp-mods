@@ -10,7 +10,7 @@ Minimum:
    * Accelerometer, Compass and SMD500 Baro
    * Six channel Tx/Rx ( no Nav sensitivity adjustment or camera pitch trim available )
    * Replace 16F876 PIC with 18F2620 PIC
-   * 1Hz GPS Unit capable of NMEA $GPGGA sentences at 9600baud
+   * 1Hz GPS Unit capable of NMEA $GPGGA sentences at 9600baud with 4 or 5 decimal places of coordinate precision (see below).
    * UAVX V1. or later and 2.7 or later UAVPset 
 
 Recommended substitutions/alternatives:
@@ -20,7 +20,6 @@ Recommended substitutions/alternatives:
    * 5Hz GPS Unit with additional NMEA $GPRMC and $GPGSV sentences.
    * Melexis Gyros for Roll/Pitch using the analog interface but the digital option.
  
-
 The current implementation only requires the $GPGGA sentence but other sentences may be included for compatibility with, for example, the EagleTree OSD Pro.  The flight firmware rejects all other NMEA sentence types however their reception does place an additional load on the PIC. Sentences other than those strictly necessary should be deselected when configuring your GPS. $GPRMC may be potentially used for heading control in later versions of UAVX.
 
 Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update rate. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing load; yes it takes processing time to throw away stuff! 
