@@ -77,7 +77,7 @@ int16 ConvertInt(uint8 lo, uint8 hi)
 
 int32 ConvertLatLonM(uint8 lo, uint8 hi)
 { 	// NMEA coordinates normally assumed as DDDMM.MMMM ie 4 decimal minute digits
-	// but code can deal with 3 to 5 decimal minutes 
+	// but code can deal with 4 and 5 decimal minutes 
 	// Positions are stored at 4 decimal minute NMEA resolution which is
 	// approximately 0.1855 Metres per LSB at the Equator.
 	static int32 dd, mm, dm, r;
@@ -137,29 +137,29 @@ void ParseGPGGASentence(void)
     UpdateField();   //UTime
 	//GPSMissionTime=ConvertUTime(lo,hi);
 
-	UpdateField();   //Lat
+	UpdateField();   	//Lat
     GPSLatitude = ConvertLatLonM(lo, hi);
     UpdateField();   //LatH
     if (NMEA.s[lo] == 'S')
       	GPSLatitude = -GPSLatitude;
 
-    UpdateField();   //Lon
+    UpdateField();   	//Lon
     // no latitude compensation on longitude - yet!    
     GPSLongitude = ConvertLatLonM(lo, hi);
-    UpdateField();   //LonH
+    UpdateField();   	//LonH
 	if (NMEA.s[lo] == 'W')
       	GPSLongitude = -GPSLongitude;
         
-    UpdateField();   //Fix 
+    UpdateField();   	//Fix 
     GPSFix = (uint8)(ConvertInt(lo,hi));
 
-    UpdateField();   //Sats
+    UpdateField();   	//Sats
     GPSNoOfSats = (uint8)(ConvertInt(lo,hi));
 
-    UpdateField();   // HDilute
+    UpdateField();   	// HDilute
 	GPSHDilute = ConvertInt(lo, hi-3) * 100 + ConvertInt(hi-1, hi); 
 
-    UpdateField();   // Alt
+    UpdateField();   	// Alt
 	GPSAltitude = ConvertInt(lo, hi-2) * 10 + ConvertInt(hi, hi); // Decimetres
 
     //UpdateField();   // AltUnit - assume Metres!
@@ -170,7 +170,11 @@ void ParseGPGGASentence(void)
     _GPSValid = (GPSFix >= GPS_MIN_FIX) && ( GPSNoOfSats >= GPS_MIN_SATELLITES );  
 
 	if ( _GPSTestActive )
+	{
 		TxString("$GPGGA ");
+		if ( !_GPSValid )
+			TxString("invalid\r\n");
+	}
 } // ParseGPGGASentence
 
 void SetGPSOrigin(void)
@@ -202,6 +206,8 @@ void ParseGPSSentence(void)
 
 	ParseGPGGASentence(); 
 
+	if ( State == InFlight ) Stats[GPSSentencesS].i16++;
+
 	if ( _GPSValid )
 	{
 	    if ( ValidGPSSentences <=  GPS_INITIAL_SENTENCES )
@@ -217,7 +223,6 @@ void ParseGPSSentence(void)
 
 			if (GPSHDilute <= GPS_MIN_HDILUTE )
 			{
-				GPSHDilute = MAXINT16; 
 				if ( ValidGPSSentences ==  GPS_INITIAL_SENTENCES )
 				{
 					SetGPSOrigin();
@@ -232,6 +237,13 @@ void ParseGPSSentence(void)
 		{
 			GPSInterval = mS[Clock] - mS[LastGPS];
 			mS[LastGPS] = mS[Clock];
+
+			if ( State == InFlight )
+				if ( GPSHDilute > Stats[MaxHDiluteS].i16 ) 
+					Stats[MaxHDiluteS].i16 = GPSHDilute; 
+				else 
+					if ( GPSHDilute < Stats[MinHDiluteS].i16 ) 
+						Stats[MinHDiluteS].i16 = GPSHDilute;
 
 			// all coordinates in 0.0001 Minutes or ~0.185M units relative to Origin
 			GPSNorth = GPSLatitude - GPSOriginLatitude;
@@ -258,8 +270,8 @@ void ParseGPSSentence(void)
 		}
 	}
 	else
-		if ( _GPSTestActive )
-			TxString("invalid\r\n");
+		if ( State == InFlight ) Stats[GPSInvalidS].i16++;
+
 } // ParseGPSSentence
 
 void ResetGPSOrigin(void)

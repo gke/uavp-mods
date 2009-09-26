@@ -325,8 +325,9 @@ void main(void)
 
 					InitHeading();
 					InitBarometer();
+				InitGPS();
 					InitNavigation();
-					ResetGPSOrigin();
+				//	ResetGPSOrigin();
 
 					DesiredThrottle = 0;
 					ErectGyros();			// DO NOT MOVE AIRCRAFT!

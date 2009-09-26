@@ -347,7 +347,7 @@ void CalcGyroRates(void)
 	
 	// Yaw is sampled only once every frame, 8 bit A/D resolution
 	YawRate = ADC(ADCYawChan, ADCVREF5V) >> 2;
-	if ( YawRate > Stats[YawRateS].i16) Stats[YawRateS].i16 = YawRate;	
+	if (( State == InFlight ) && (YawRate > Stats[YawRateS].i16) ) Stats[YawRateS].i16 = YawRate;	
 	YawRate -= GyroMidYaw;
 
 } // CalcGyroRates
