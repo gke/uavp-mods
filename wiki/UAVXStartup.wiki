@@ -41,6 +41,8 @@ It is assumed you:
   * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will need to set the GPS Navigation sensitivity using UAVPSet and will not be able to change it when in flight. You may have to mix Aux1 to Rudder to obtain Yaw control.
 
 ==== Lights and Sirens! ====
+  * All of the LEDs are on: Your PIC has no paramters loaded yet. Use Tools->Test Software->D command in UAVPSet to load a default set of parameters. 
+
   * I have a solid Green LED and a solid Yellow LED - the Red LED is flashing in time with a very annoying beeper noise when the quadrocopter is disarmed:  You have the RTH switch activated. Switch it off as you do not want the quadrocopter to go to full throttle and climb to the RTH altitude *through you* when you bend over it to arm!
 
   * I have a solid Red LED and a solid Yellow LED: There is no Rx signal. Did you turn on your Tx? (see Tx/Rx Setup below).
