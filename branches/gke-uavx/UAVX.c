@@ -90,11 +90,11 @@ int8	NeutralLR, NeutralFB, NeutralDU;
 int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
 #pragma udata
 
-int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
+int16 	NavClosingRadius, NavNeutralRadius, NavCloseToNeutralRadius, CompassOffset;
 
 uint8 	NavState;
 int16 	NavSensitivity;
-int16	AltSum, AE;
+int16 	AltSum, AE, RangeP;
 
 int16	ThrLow, ThrHigh, ThrNeutral;
 
@@ -305,6 +305,12 @@ void main(void)
 	
 		State = Starting;
 
+		#ifdef FAKE_FLIGHT // zzz
+
+		FakeFlight();
+
+		#else
+
 		while ( Armed && _ParametersValid )
 		{ // no command processing while the Quadrocopter is armed
 	
@@ -393,6 +399,7 @@ void main(void)
 			DumpTrace();
 		
 		} // flight while armed
+		#endif // FAKE_FLIGHT
 	}
 } // main
 

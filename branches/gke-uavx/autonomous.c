@@ -92,6 +92,7 @@ void Descend(void)
 void AcquireHoldPosition(void)
 {
 	SumNavRCorr = SumNavPCorr = SumNavYCorr = 0;
+	RangeP = MAXINT16;
 	_NavComputed = false;
 
 	GPSNorthHold = GPSNorth;
@@ -101,6 +102,10 @@ void AcquireHoldPosition(void)
 	NavState = HoldingStation;
 } // AcquireHoldPosition
 
+#ifdef FAKE_FLIGHT
+static int16 NavVel, Range; 
+#endif // FAKE_FLIGHT
+
 void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 {	// _GPSValid must be true immediately prior to entry	
 	// This routine does not point the quadrocopter at the destination
@@ -108,8 +113,11 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// cos/sin/arctan lookup tables are used for speed.
 	// BEWARE magic numbers for integer arithmetic
 
-	static int16 Temp, NavKp, Correction, RWeight, PWeight, SignedRange, RSign, PSign;
-	static int16 Range, RangeToNeutral, EastDiff, NorthDiff, WayHeading, RelHeading, DiffHeading;
+	static int16 Temp, NavKp, Correction, RWeight, PWeight, SignedRange, PSign, RSign;
+	static int16 RangeToNeutral, EastDiff, NorthDiff, WayHeading, RelHeading, DiffHeading;
+	#ifndef FAKE_FLIGHT
+	static int16 NavVel, Range;
+	#endif // FAKE_FLIGHT
 
 	if ( _NavComputed ) // maintain previous corrections
 	{
@@ -127,62 +135,63 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 		if ( (Abs(EastDiff) > NavNeutralRadius ) || (Abs(NorthDiff) > NavNeutralRadius )) 
 		{ 
-			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
-			_CloseProximity = false;
-			_Proximity = Range < NavClosingRadius;
-			if ( _Proximity )
-				RangeToNeutral = int16sqrt( NorthDiff*NorthDiff + EastDiff*EastDiff) - NavNeutralRadius; 
-			else
-				RangeToNeutral = NavClosingRadius - NavNeutralRadius;
+			Range = int32sqrt( (int32)NorthDiff*(int32)NorthDiff + (int32)EastDiff*(int32)EastDiff );
 
-			NavKp = ( NavSensitivity * NAV_APPROACH_ANGLE ) / RangeToNeutral;
+			if ( RangeP == MAXINT16 )
+				RangeP = Range;
+			NavVel = RangeP - Range;
+			if ( Abs(NavVel) < 5 ) NavVel = 0;
+			RangeP = Range;
+
+			_Proximity = Range < NavClosingRadius; 
+			_CloseProximity = false;
+
+			if ( !_Proximity )
+				Range = NavClosingRadius;
+
+			RangeToNeutral = Range - NavNeutralRadius;
 		
 			WayHeading = int16atan2(EastDiff, NorthDiff);
 			DiffHeading = WayHeading - Heading;
 			RelHeading = Make2Pi(DiffHeading);
 
-			RWeight = int16sin(RelHeading);
-			PWeight = -(int32)int16cos(RelHeading);
+			NavKp = ( NavSensitivity * NAV_APPROACH_ANGLE ) / NavCloseToNeutralRadius;
 
 			// Roll
 			RSign = Sign(RWeight);
-			RWeight = Abs(RWeight);
-
+			RWeight = int16sin(RelHeading);
 			SignedRange = RangeToNeutral * RSign;
 
 			NavRCorr = SignedRange * NavKp;
 
-			Temp = SumNavRCorr + SignedRange;
-			Temp = SRS16(Temp * (int16)P[NavKi], 2);
+			Temp = SumNavRCorr + SRS16(RangeToNeutral * RWeight, 8);
 			SumNavRCorr = Limit (Temp, -NAV_INT_LIMIT*256L, NAV_INT_LIMIT*256L);
-			NavRCorr += SumNavRCorr;
+			NavRCorr += SRS16(SumNavRCorr * (int16)P[NavKi], 2);
 			SumNavRCorr = DecayX(SumNavRCorr, 5);
 
-		//	NavRCorr += GPSVel * P[NavKd];
+			NavRCorr += NavVel * P[NavKd] * RSign;
 
-			NavRCorr = Limit(NavRCorr, 1, NAV_APPROACH_ANGLE );
-			NavRCorr = SRS16(RWeight * NavRCorr, 8);
+			NavRCorr = Limit(NavRCorr, -NAV_APPROACH_ANGLE, NAV_APPROACH_ANGLE );
+			NavRCorr = SRS16(Abs(RWeight) * NavRCorr, 8);
 			Temp = DesiredRoll + NavRCorr;
 			DesiredRoll = Limit(Temp , -RC_NEUTRAL, RC_NEUTRAL);
 
 			// Pitch
-			PSign = Sign(PWeight);			
-			PWeight = Abs(PWeight);
-
+			PSign = Sign(PWeight);	
+			PWeight = -(int32)int16cos(RelHeading);
 			SignedRange = RangeToNeutral * PSign;
 
 			NavPCorr = SignedRange * NavKp;
 
-			Temp = SumNavPCorr + SignedRange;
-			Temp = SRS16(Temp * (int16)P[NavKi], 2);
+			Temp = SumNavPCorr + SRS16(RangeToNeutral * PWeight, 8);
 			SumNavPCorr = Limit (Temp, -NAV_INT_LIMIT*256L, NAV_INT_LIMIT*256L);
-			NavPCorr += SumNavPCorr;
+			NavPCorr +=  SRS16(SumNavPCorr * (int16)P[NavKi], 2);
 			SumNavPCorr = DecayX(SumNavPCorr, 5);
 
-		//	NavPCorr += GPSVel * P[NavKd];
+			NavPCorr += NavVel * P[NavKd] * PSign;
 
-			NavPCorr = Limit(NavPCorr, 1, NAV_APPROACH_ANGLE );
-			NavPCorr = SRS16(PWeight * NavPCorr, 8);
+			NavPCorr = Limit(NavPCorr, -NAV_APPROACH_ANGLE, NAV_APPROACH_ANGLE );
+			NavPCorr = SRS16(Abs(PWeight) * NavPCorr, 8);
 			Temp = DesiredPitch + NavPCorr;
 			DesiredPitch = Limit(Temp, -RC_NEUTRAL, RC_NEUTRAL);
 
@@ -207,6 +216,58 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		_NavComputed = true;
 	}
 } // Navigate
+
+void FakeFlight()
+{
+
+	#ifdef FAKE_FLIGHT
+
+	static int16 CosH, SinH, A;
+
+	#define FAKE_NORTH_WIND 	0
+	#define FAKE_EAST_WIND 		0
+    #define SCALEVEL			1024
+
+	if ( Armed )
+	{
+		Heading = 0;
+	
+		DesiredRoll = DesiredPitch = 0;
+		GPSEast = 1000L; GPSNorth = 1000L;
+	
+		TxString("GPSEast GPSNorth DesiredRoll DesiredPitch Range NavVel ");
+		TxString("NavRCorr SumNavRCorr NavPCorr SumNavPCorr\r\n");
+	
+		while ( Armed )
+		{
+			Delay100mSWithOutput(5);
+			CosH = int16cos(Heading);
+			SinH = int16sin(Heading);
+			GPSEast += ((int32)(-DesiredPitch) * SinH)/SCALEVEL;
+			GPSNorth += ((int32)(-DesiredPitch) * CosH)/SCALEVEL;
+			
+			A = Make2Pi(Heading + HALFMILLIPI);
+			CosH = int16cos(A);
+			SinH = int16sin(A);
+			GPSEast += ((int32)DesiredRoll * SinH) / SCALEVEL;
+			GPSEast += FAKE_EAST_WIND; // wind	
+			GPSNorth += ((int32)DesiredRoll * CosH) / SCALEVEL;
+			GPSNorth += FAKE_NORTH_WIND; // wind
+		
+			_NavComputed = false;
+	
+			Navigate(0,0);
+		
+			TxVal32(GPSEast, 0, ' '); TxVal32(GPSNorth, 0, ' '); 
+			TxVal32(DesiredRoll, 0, ' '); TxVal32(DesiredPitch, 0, ' ');
+			TxVal32(Range, 0, ' '); TxVal32(NavVel, 0, ' ');
+			TxVal32(NavRCorr, 0, ' '); TxVal32(SumNavRCorr, 0, ' ');
+			TxVal32(NavPCorr, 0, ' '); TxVal32(SumNavPCorr, 0, ' ');
+			TxNextLine();
+		}
+	}
+	#endif // FAKE_FLIGHT
+} // FakeFlight
 
 void DoNavigation(void)
 {
@@ -378,6 +439,7 @@ void InitNavigation(void)
 
 	GPSNorthHold = GPSEastHold = 0;
 	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
+	RangeP = MAXINT16;
 	NavState = PIC;
 	AttitudeHoldResetCount = 0;
 	_Proximity = _CloseProximity = true;

@@ -1,5 +1,7 @@
 // EXPERIMENTAL
 
+//#define FAKE_FLIGHT							// For testing the Navigate function zzz
+
 #define NEW_HOLD							// New position hold scheme - comment out for old version
 
 #define DAMP_HORIZ_LIMIT 			3L		// equivalent stick units - no larger than 5
@@ -191,8 +193,8 @@
 #define RADDEG 				(real32)(57.2957812)
 #define RADDEG1000000 		(real32)(57295781.2)
 
-#define MAXINT32 			0x7fffffff;
-#define	MAXINT16 			0x7fff;
+#define MAXINT32 			0x7fffffff
+#define	MAXINT16 			0x7fff
 
 // Additional Types
 typedef unsigned char 		uint8 ;
@@ -478,6 +480,7 @@ extern void Descend(void);
 extern void AcquireHoldPosition(void);
 extern void NavGainSchedule(int16);
 extern void DoNavigation(void);
+extern void FakeFlight(void); 
 extern void CheckThrottleMoved(void);
 extern void DoFailsafe(void);
 extern void InitNavigation(void);
@@ -732,12 +735,12 @@ extern int16 	GPSHDilute;
 extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSNorthP, GPSEastP, GPSVel;
 extern int16 	GPSRelAltitude;
 
-extern int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
+extern int16 	NavClosingRadius, NavNeutralRadius, NavCloseToNeutralRadius, CompassOffset;
 
 enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
 extern uint8 	NavState;
 extern int16 	NavSensitivity;
-extern int16 	AltSum, AE;
+extern int16 	AltSum, AE, RangeP;
 
 // Waypoints
 

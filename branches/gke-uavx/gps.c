@@ -121,7 +121,7 @@ void UpdateField(void)
 	lo = cc;
 
 	ch = NMEA.s[cc];
-	while (( cc < nll ) && ( ch != ',' ) && ( ch != '*' ) ) 
+	while (( ch != ',' ) && ( ch != '*' ) && ( cc < nll )) 
 		ch = NMEA.s[++cc];
 
 	hi = cc - 1;
@@ -198,7 +198,7 @@ void SetGPSOrigin(void)
 
 void ParseGPSSentence(void)
 {
-	static int16 EastDiff, NorthDiff;
+	static int16 EastDiff, NorthDiff, GPSVelP;
 	static int24 GPSInterval;
 
 	cc = 0;
@@ -252,8 +252,10 @@ void ParseGPSSentence(void)
 
 			EastDiff = GPSEast - GPSEastP;
 			NorthDiff = GPSNorth - GPSNorthP;
+			GPSVelP = GPSVel;
 			GPSVel = int16sqrt(EastDiff*EastDiff + NorthDiff*NorthDiff);
 			GPSVel = ((int24)GPSVel * 1000L)/GPSInterval;
+			GPSVel = SoftFilter(GPSVelP, GPSVel);
 
 			GPSNorthP = GPSNorth;
 			GPSEastP = GPSEast;			

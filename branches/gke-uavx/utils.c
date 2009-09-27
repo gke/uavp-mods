@@ -262,6 +262,7 @@ void ReadParametersEE(void)
 		NavNeutralRadius = (int16)P[NeutralRadius] * METRES_TO_GPS;
 		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
 		NavClosingRadius = Limit(NavClosingRadius, NavNeutralRadius+(int16)5L*METRES_TO_GPS, (int16)40L*METRES_TO_GPS); // avoid divide by zero
+		NavCloseToNeutralRadius = NavClosingRadius - NavNeutralRadius;
 	
 		CompassOffset = (((COMPASS_OFFSET_DEG - (int16)P[NavMagVar])*MILLIPI)/180L);
 	
@@ -420,7 +421,7 @@ void InitParameters(void)
 {
 	ALL_LEDS_ON;
 	CurrentParamSet = 1;
-	while ( ReadEE(TxRxType) == -1 ) 
+//	while ( ReadEE(TxRxType) == -1 ) 
 		ProcessCommand();	
 	CurrentParamSet = 1;
 	ParametersChanged = true;
