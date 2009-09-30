@@ -85,7 +85,7 @@ It is assumed you:
 
   * Are there any adjustments for setting North: The Magnetic variation must be set correctly using UAVPSet. Look it up for your location. *Check that the front motor arm is pointing to True North* when the heading reads zero using Tools->Test Software->C (Compass test).
 
-  * The Compass seems to be offset by 180deg: Some earlier compasses had an offset of 90deg instead of the 270deg for more recent ones. If you can recompile the code with the correct offset for your compass but later releases of UAVX will have additional hex files with the old offset. 
+  * The Compass seems to be offset by 180deg: Some earlier compasses had an offset of 90deg instead of the 270deg for more recent ones. If you can recompile the code with the correct offset for your compass but later releases of UAVX will have additional hex files with "90D" in the file name. 
 
 ==== Barometer ====
   * Is a Barometers required: It is possible to fly a quadrocopter manually without a barometer but you will not have any automatic hover hold. You must have a barometer for GPS navigation as it is required for altitude hold(see below). 
