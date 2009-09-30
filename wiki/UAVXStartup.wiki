@@ -142,7 +142,8 @@ It is assumed you:
 
 ===Tx/Rx Setup===
 
-*WARNING*  *It is strongly advised that you remove props or disable the motors by removing one or two of the three wires before proceding with the Tx/Rx setup!*
+*WARNING:*  *It is strongly advised that you remove props or disable the motors by removing one or two of the three wires before proceding with the Tx/Rx setup!*
+
 As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three motor wires on each motor.
 
 The setup procedure:
