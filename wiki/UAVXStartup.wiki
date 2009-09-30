@@ -21,6 +21,8 @@ It is assumed you:
   * You have previously flown your quadrocopter/tricopter using UAVP flight software.
 
   * You have read and understood the contents of this document.
+  * *You will read and comply with all WARNINGS and CAUTIONS for Safety*
+
 
 === Notes/FAQs ===
   * Is there a Pre-flight Safety Checklist: There is a safety checklist which you should use (see below). 
@@ -139,6 +141,8 @@ It is assumed you:
 
 
 ===Tx/Rx Setup===
+
+*WARNING*  *It is strongly advised that you remove props or disable the motors by removing one or two of the three wires before proceding with the Tx/Rx setup!*
 As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three motor wires on each motor.
 
 The setup procedure:
