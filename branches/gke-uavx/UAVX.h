@@ -1,17 +1,16 @@
 // EXPERIMENTAL
 
-//#define FAKE_FLIGHT							// For testing the Navigate function zzz
+//#define FAKE_FLIGHT						// For testing Nav on the GROUND!
+//#define SIMPLE_POS_HOLD					// Proportional control ONLY 
 
-#define NEW_HOLD							// New position hold scheme - comment out for old version
+#define NAV_MAX_ROLL_PITCH 		20L		// Rx stick units ~= degrees max pitch/roll angle
+#define NAV_INT_LIMIT			10L		// Suggest half NAV_MAX_ROLL_PITCH 
+#define NAV_DIFF_LIMIT			10L		// Suggest half NAV_MAX_ROLL_PITCH 
 
-#define DAMP_HORIZ_LIMIT 			3L		// equivalent stick units - no larger than 5
+#define DAMP_HORIZ_LIMIT 		3L		// equivalent stick units - no larger than 5
 
-#define DAMP_VERT_LIMIT_LOW			-5L		// maximum throttle reduction
-#define DAMP_VERT_LIMIT_HIGH		20L		// maximum throttle increase
-
-#define RxFilter					MediumFilterU
-//#define RxFilter					SoftFilterU
-//#define RxFilter					NoFilter
+#define DAMP_VERT_LIMIT_LOW		-5L		// maximum throttle reduction
+#define DAMP_VERT_LIMIT_HIGH	20L		// maximum throttle increase
 
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
@@ -121,15 +120,17 @@
 #define GPS_INITIAL_SENTENCES 	10L		// Number of sentences needed with set HDilute
 #define GPS_MIN_HDILUTE			130L	// HDilute * 100	
 
-#define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
+#ifdef C90
+	#define COMPASS_OFFSET_DEG	90L		// North degrees CW from Front - older compass
+#else
+	#define COMPASS_OFFSET_DEG	270L	// North degrees CW from Front
+#endif // COMPASS_OFFSET_90
 
 #define	NAV_GAIN_THRESHOLD 		40L		// Navigation disabled if Ch7 is less than this
 #define NAV_GAIN_6CH			80L		// Low GPS gain for 6ch Rx
 
 //#define NAV_ZERO_INT 					// Zeros the integral when the sign is not the same as the error			
 	
-#define NAV_APPROACH_ANGLE 		20L		// Rx stick units ~= degrees - maximum pitch/roll angle
-#define NAV_INT_LIMIT			3L		// Suggested 1-4 
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
 
@@ -349,7 +350,7 @@ typedef union {
 #define LEDBlue_OFF		LEDsOff(BlueM)
 #define LEDGreen_OFF	LEDsOff(GreenM)
 #define LEDYellow_OFF	LEDsOff(YellowM)
-#define LEDYellow_TOG		if( (LEDShadow&YellowM) == 0 ) LEDsOn(YellowM); else LEDsOff(YellowM)
+#define LEDYellow_TOG	if( (LEDShadow&YellowM) == 0 ) LEDsOn(YellowM); else LEDsOff(YellowM)
 #define LEDRed_TOG		if( (LEDShadow&RedM) == 0 ) LEDsOn(RedM); else LEDsOff(RedM)
 #define LEDBlue_TOG		if( (LEDShadow&BlueM) == 0 ) LEDsOn(BlueM); else LEDsOff(BlueM)
 #define LEDGreen_TOG	if( (LEDShadow&GreenM) == 0 ) LEDsOn(GreenM); else LEDsOff(GreenM)
@@ -387,6 +388,10 @@ typedef union {
 #define ADCVREF3V3 			1
 
 // RC
+
+#define RxFilter					MediumFilterU
+//#define RxFilter					SoftFilterU
+//#define RxFilter					NoFilter
 
 #define	RC_GOOD_BUCKET_MAX	20
 #define RC_GOOD_RATIO		4
