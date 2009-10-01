@@ -1,317 +1,304 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// =      Rewritten 2008 Ing. Greg Egan         =
-// ==============================================
-//
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// ==============================================
+// =======================================================================
+// =                     UAVX Quadrocopter Controller                    =
+// =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
+// =           http://code.google.com/p/uavp-mods/ http://uavp.ch        =
+// =======================================================================
 
-// Interrupt routine
-// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
-// use at your own risk - see GPL.
+//    This is part of UAVX.
 
-#include "c-ufo.h"
-#include "bits.h"
+//    UAVX is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
 
-#include <int16cxx.h>	//interrupt support
+//    UAVX is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
 
-#pragma origin 4
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#include "uavx.h"
 
 // Interrupt Routine
 
-bank1 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
+#define MIN_PPM_SYNC_PAUSE 2500  	// 2500 *2us = 5ms
+// no less than 1500
 
-uns8	RecFlags;
+// Simple averaging of last two channel captures
+//#define RC_FILTER
 
-#pragma interruptSaveCheck w
+// Prototypes
 
-#define USE_FILTERS
+void ReceivingGPSOnly(uint8);
+void DoRxPolarity(void);
+void InitTimersAndInterrupts(void);
+void MapRC(void);
+void low_isr_handler(void);
+void high_isr_handler(void);
 
-interrupt irq(void)
+void ReceivingGPSOnly(boolean r)
 {
-int8	NewRoll, NewNick, NewTurn;	
-int16 	Temp;
-uns16 	CCPR1 @0x15;
-
-// For 2.4GHz systems see README_DSM2_ETC.
- 
-	int_save_registers;	// save W and STATUS
-
-	if( TMR2IF )	// 5 or 14 ms have elapsed without an active edge
+	#ifndef DEBUG_SENSORS
+	if ( r != _ReceivingGPS )
 	{
-		TMR2IF = 0;	// quit int
-#ifndef RX_PPM	// single PPM pulse train from receiver
-		if( _FirstTimeout )			// 5 ms have been gone by...
-		{
-			PR2 = TMR2_5MS;			// set compare reg to 5ms
-			goto ErrorRestart;
-		}
-		_FirstTimeout = 1;
-		PR2 = TMR2_14MS;			// set compare reg to 14ms
-#endif
-		RecFlags = 0;
+		PIE1bits.RCIE = false;
+		_ReceivingGPS = r;
+		if ( _ReceivingGPS )
+			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
+				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B9600);
+		else
+			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
+				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
+
+   		PIE1bits.RCIE = r;
 	}
-	if( CCP1IF )
+	#endif // DEBUG_SENSORS
+} // ReceivingGPSOnly
+
+void MapRC(void)
+{  // re-maps captured PPM to Rx channel sequence
+	static uint8 c;
+	static LastThrottle; 
+
+	LastThrottle = RC[ThrottleC];
+
+	#ifdef UNROLL_LOOPS
+	
+	RC[ThrottleC] = PPM[Map[P[TxRxType]][ThrottleC]-1].low8;
+	RC[RollC] = 	PPM[Map[P[TxRxType]][RollC]-1].low8 - RC_NEUTRAL;
+	RC[PitchC] = 	PPM[Map[P[TxRxType]][PitchC]-1].low8 - RC_NEUTRAL;
+	RC[YawC] = 		PPM[Map[P[TxRxType]][YawC]-1].low8 - RC_NEUTRAL;
+	RC[RTHC] = 		PPM[Map[P[TxRxType]][RTHC]-1].low8;
+	RC[CamTiltC] = 	PPM[Map[P[TxRxType]][CamTiltC]-1].low8;
+	RC[NavGainC] = 	PPM[Map[P[TxRxType]][NavGainC]-1].low8;
+
+	#else
+
+	for (c = 0 ; c < CONTROLS ; c++)
+		RC[c] = PPM[Map[P[TxRxType]][c]-1].low8;
+
+	RC[RollC] -= RC_NEUTRAL;
+	RC[PitchC] -= RC_NEUTRAL;
+	RC[YawC] -= RC_NEUTRAL;
+
+	#endif // UNROLL_LOOPS
+
+	if ( THROTTLE_SLEW_LIMIT > 0 )
+		RC[ThrottleC] = SlewLimit(LastThrottle, RC[ThrottleC], THROTTLE_SLEW_LIMIT);
+
+} // MapRC
+
+
+void DoRxPolarity(void)
+{
+	if ( P[ConfigBits] & RxSerialPPMMask  ) // serial PPM frame from within an Rx
+		CCP1CONbits.CCP1M0 = PPMPosPolarity[TxRxType];
+	else
+		CCP1CONbits.CCP1M0 = 1;	
+}  // DoRxPolarity
+
+void InitTimersAndInterrupts(void)
+{
+	static uint8 i;
+
+	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
+	OpenTimer1(T1_8BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
+
+	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
+	DoRxPolarity();
+
+	for (i = Clock; i<= CompassUpdate; i++)
+		mS[i] = 0;
+
+	for (i = 0; i < CONTROLS; i++)
+		PPM[i].i16 = RC[i] = 0;
+	#ifdef RX6CH
+	PPM[CamTiltC].i16 = RC_NEUTRAL;
+	PPM[NavGainC].i16 = 0;
+	#endif // RX6CH	  
+
+	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;
+
+	PPM_Index = PrevEdge = RCGlitches = RxCheckSum =  0;
+	SignalCount = -RC_GOOD_BUCKET_MAX;
+	_Signal = _NewValues = false;
+   	ReceivingGPSOnly(false);
+} // InitTimersAndInterrupts
+
+
+#pragma interrupt low_isr_handler
+void low_isr_handler(void)
+{
+	return;
+} // low_isr_handler
+
+#pragma interrupt high_isr_handler
+void high_isr_handler(void)
+{
+	if( PIR1bits.CCP1IF ) 						// An Rx PPM pulse edge has been detected
 	{
-		TMR2 = 0;				// re-set timer and postscaler
-		TMR2IF = 0;				// quit int
-		_FirstTimeout = 0;
+		CurrEdge = CCPR1;
+		if ( CurrEdge < PrevEdge )
+			PrevEdge -= (int24)0x00ffff;		// Deal with wraparound
 
-#ifndef RX_PPM						// single PPM pulse train from receiver
-							// standard usage (PPM, 3 or 4 channels input)
-		CCPR1.low8 = CCPR1L;
-		CCPR1.high8 = CCPR1H;
-		CCP1M0 ^= 1;	// toggle edge bit
-		PR2 = TMR2_5MS;				// set compare reg to 5ms
+		Width.i16 = (int16)(CurrEdge - PrevEdge);
+		PrevEdge = CurrEdge;		
 
-		if( NegativePPM ^ CCP1M0  )		// a negative edge
+		if ( Width.i16 > MIN_PPM_SYNC_PAUSE ) 	// A pause in 2us ticks > 5ms 
 		{
-#endif
-			// could be replaced by a switch ???
-
-			if( RecFlags == 0 )
-			{
-				NewK1 = CCPR1;
-			}
-			else
-			if( RecFlags == 2 )
-			{
-				NewK3 = CCPR1;
-				NewK2 = NewK3 - NewK2;
-				NewK2 >>= 1;
-			}
-			else
-			if( RecFlags == 4 )
-			{
-				NewK5 = CCPR1;
-				NewK4 = NewK5 - NewK4;
-				NewK4 >>= 1;
-			}
-			else
-			if( RecFlags == 6 )
-			{
-				NewK7 = CCPR1;
-				NewK6 = NewK7 - NewK6;
-				NewK6 >>= 1; 		
-#ifdef RX_DSM2
-				if (NewK6.high8 !=1) 	// add glitch detection to 6 & 7
-					goto ErrorRestart;
-#else
-				IK6 = NewK6.low8;
-#endif // RX_DSM2	
-			}
-#ifdef RX_PPM
-			else
-#else
-			else	// values are unsafe
-				goto ErrorRestart;
+			PPM_Index = 0;						// Sync pulse detected - next CH is CH1
+			RCFrameOK = true;
+			_NewValues = false; 
+			PauseTime = Width.i16;
 		}
-		else	// a positive edge
-		{
-#endif // RX_PPM 
-			if( RecFlags == 1 )
-			{
-				NewK2 = CCPR1;
-				NewK1 = NewK2 - NewK1;
-				NewK1 >>= 1;
-			}
-			else
-			if( RecFlags == 3 )
-			{
-				NewK4 = CCPR1;
-				NewK3 = NewK4 - NewK3;
-				NewK3 >>= 1;
-			}
-			else
-			if( RecFlags == 5 )
-			{
-				NewK6 = CCPR1;
-				NewK5 = NewK6 - NewK5;
-				NewK5 >>= 1;
-
-				// sanity check - NewKx has values in 4us units now. 
-				// content must be 256..511 (1024-2047us)
-				if( (NewK1.high8 == 1) &&
-				    (NewK2.high8 == 1) &&
-				    (NewK3.high8 == 1) &&
-				    (NewK4.high8 == 1) &&
-				    (NewK5.high8 == 1) )
+		else 
+			if (PPM_Index < RC_CONTROLS)
+			{	
+				Width.i16 >>= 1; 				// Width in 4us ticks.
+	
+				if ( Width.high8 == 1 ) 		// Check pulse is 1.024 to 2.048mS
+					#ifdef RC_FILTER
+					PPM[PPM_Index].i16 = (OldPPM + Width.i16 ) >> 1;
+					#else
+					PPM[PPM_Index].i16 = Width.i16;
+					#endif // RC_FILTER		
+				else
 				{
-#ifndef RX_DSM2									
-					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
+					// preserve old value i.e. default hold
+					RCGlitches++;
+					RCFrameOK = false;
+				}
+				PPM_Index++;
+				// MUST demand rock solid RC frames for autonomous functions not
+				// to be cancelled by noise-generated partially correct frames
+				if ( PPM_Index == RC_CONTROLS )
+				{
+					if ( RCFrameOK )
 					{
-						IGas = NewK3.low8;
-#ifdef EXCHROLLNICK
-						NewRoll = NewK2.low8 - _Neutral;
-						NewNick = NewK1.low8- _Neutral;
-#else
-						NewRoll = NewK1.low8- _Neutral;
-						NewNick = NewK2.low8- _Neutral;
-#endif // EXCHROLLNICK
+						_NewValues = true;
+ 						SignalCount++;
 					}
 					else
 					{
-						IGas  = NewK1.low8;
-						NewRoll = NewK2.low8- _Neutral;
-						NewNick = NewK3.low8- _Neutral;
+						_NewValues = false;
+						SignalCount -= RC_GOOD_RATIO;
 					}
-					NewTurn = NewK4.low8 - _Neutral;
-					
-					// DoubleRate removed
-										
-#ifdef USE_FILTERS
-					Temp = (int16)IRoll << 1;// UGLY code forced by cc5x compiler
-					Temp += (int16)IRoll;
-					Temp += NewRoll;
-					Temp += 2;	
-					Temp >>= 2;
-					IRoll = Temp;
 
-					Temp = (int16)INick << 1;
-					Temp += (int16)INick;
-					Temp += NewNick;
-					Temp += 2;
-					Temp >>= 2;
-					INick = Temp;
+					SignalCount = Limit(SignalCount, -RC_GOOD_BUCKET_MAX, RC_GOOD_BUCKET_MAX);
+					_Signal = SignalCount > 0;
 
-
-					Temp = (int16)ITurn << 1;
-					Temp += (int16)ITurn;
-					Temp += NewTurn;
-					Temp += 2; 
-					Temp >>= 2;
-					ITurn = Temp;
-#else
-					IRoll = NewRoll; 
-					INick = NewNick;
-					ITurn = NewTurn;
-#endif // USE_FILTERS	
-					IK5 = NewK5.low8;
-					IK6 = - _Neutral;
-					IK7 = - _Neutral;
-
-					_NoSignal = 0;
-					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
-#endif // !RX_DSM2
+					if ( _Signal)
+						mS[LastValidRx] = mS[Clock];
+					mS[RCSignalTimeout] = mS[Clock] + RC_SIGNAL_TIMEOUT_MS;
 				}
-				else	// values are unsafe
-					goto ErrorRestart;
 			}
-			else
-			if( RecFlags == 7 )
-			{
-				NewK7 = CCPR1 - NewK7;
-				NewK7 >>= 1;	
-#ifdef RX_DSM2
-				if (NewK7.high8 !=1)	
-					goto ErrorRestart;
 
-				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
-				{
-//EDIT FROM HERE ->
-// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
-					IGas = NewK5.low8;
+		if ( (P[ConfigBits] & RxSerialPPMMask) == 0 )						
+			CCP1CONbits.CCP1M0 ^= 1;
 
-					NewRoll = NewK3.low8 - _Neutral; 
-					NewNick = NewK2.low8 - _Neutral;
-					NewTurn = NewK1.low8 - _Neutral;
+		PIR1bits.CCP1IF = false;
+	}	
 
-					IK5 = NewK6.low8; // do not filter
-					IK6 = NewK4.low8;
-					IK7 = NewK7.low8;
-// TO HERE
-				}
-				else // Reference 2.4GHz configuration DX7 Tx and AR7000 Rx
-				{
-					IGas = NewK6.low8;
-
-					NewRoll = NewK1.low8 - _Neutral; 
-					NewNick = NewK4.low8 - _Neutral;
-					NewTurn = NewK7.low8 - _Neutral;
-
-					IK5 = NewK3.low8; // do not filter
-					IK6 = NewK5.low8;
-					IK7 = NewK2.low8;
-				}
-
-				// DoubleRate removed
-
-#ifdef USE_FILTERS
-				Temp = (int)IRoll << 1;
-				Temp += (int)IRoll;
-				Temp += NewRoll;
-				//Temp += 2;		// run out of code space!
-				Temp >>= 2;
-				IRoll = Temp;
-
-				Temp = (int)INick << 1;
-				Temp += (int)INick;
-				Temp += NewNick;
-				//Temp += 2;
-				Temp >>= 2;
-				INick = Temp;
-
-				Temp = (int)ITurn << 1;
-				Temp += (int)ITurn;
-				Temp += NewTurn;
-				//Temp += 2;
-				Temp >>= 2;
-				ITurn = Temp;
-#else
-				IRoll = NewRoll; 
-				INick = NewNick;
-				ITurn = NewTurn;		
-#endif // USE_FILTERS
-				_NoSignal = 0;
-				_NewValues = 1;
-#else				
-				IK7 = NewK7.low8;
-#endif // RX_DSM2 
-				RecFlags = -1;
-			}
-			else
-			{
-ErrorRestart:
-				_NewValues = 0;
-				_NoSignal = 1;		// Signal lost
-				RecFlags = -1;
-#ifndef RX_PPM
-				if( NegativePPM )
-					CCP1M0 = 1;	// wait for positive edge next
-				else
-					CCP1M0 = 0;	// wait for negative edge next
-#endif
-			}	
-#ifndef RX_PPM
-		}
-#endif
-		CCP1IF = 0;				// quit int
-		RecFlags++;
-	}
-	else
-	if( T0IF && T0IE )
+	if ( PIR1bits.RCIF & PIE1bits.RCIE )			// RCIE enabled for GPS
 	{
-		T0IF = 0;				// quit int
-		TimeSlot--;
+		if ( RCSTAbits.OERR | RCSTAbits.FERR )
+		{
+			gps_ch = RCREG; // flush
+			RCSTAbits.CREN = false;
+			RCSTAbits.CREN = true;
+		}
+		else
+		{ // PollGPS in-lined to avoid EXPENSIVE context save and restore within irq
+			gps_ch = RCREG;
+			switch ( GPSRxState ) {
+			case WaitGPSCheckSum:
+				if (GPSCheckSumChar < 2)
+				{
+					GPSTxCheckSum *= 16;
+					if ( gps_ch >= 'A' )
+						GPSTxCheckSum += ( gps_ch - ('A' - 10) );
+					else
+						GPSTxCheckSum += ( gps_ch - '0' );
+		
+					GPSCheckSumChar++;
+				}
+				else
+				{
+					NMEA.length = ll;	
+					GPSSentenceReceived = GPSTxCheckSum == RxCheckSum;
+					GPSRxState = WaitGPSSentinel;
+				}
+				break;
+			case WaitGPSBody: 
+				if ( gps_ch == '*' )      
+				{
+					GPSCheckSumChar = GPSTxCheckSum = 0;
+					GPSRxState = WaitGPSCheckSum;
+				}
+				else         
+					if ( gps_ch == '$' ) // abort partial Sentence 
+					{
+						ll = tt = RxCheckSum = 0;
+						GPSRxState = WaitNMEATag;
+					}
+					else
+					{
+						RxCheckSum ^= gps_ch;
+						NMEA.s[ll++] = gps_ch; 
+						if ( ll > ( GPSRXBUFFLENGTH-1 ) )
+							GPSRxState = WaitGPSSentinel;
+					}
+							
+				break;
+			case WaitNMEATag:
+				RxCheckSum ^= gps_ch;
+				if ( gps_ch == NMEATag[tt] ) 
+					if ( tt == MAXTAGINDEX )
+						GPSRxState = WaitGPSBody;
+			        else
+						tt++;
+				else
+			        GPSRxState = WaitGPSSentinel;
+				break;
+			case WaitGPSSentinel: // highest priority skipping unused sentence types
+				if ( gps_ch == '$' )
+				{
+					ll = tt = RxCheckSum = 0;
+					GPSRxState = WaitNMEATag;
+				}
+				break;	
+		    } 
+		}
+		PIR1bits.RCIF = false;
 	}
+
+	if ( INTCONbits.T0IF )  // MilliSec clock with some "leaks" in output.c etc.
+	{ 
+		mS[Clock]++;
+		if ( _Signal && (mS[Clock] > mS[RCSignalTimeout]) ) 
+		{
+			_Signal = false;
+			SignalCount = -RC_GOOD_BUCKET_MAX;
+		}
+		INTCONbits.TMR0IF = false;	
+	}
+
+} // high_isr_handler
 	
-	int_restore_registers;
-}
+#pragma code high_isr = 0x08
+void high_isr (void)
+{
+  _asm goto high_isr_handler _endasm
+} // high_isr
+#pragma code
+
+#pragma code low_isr = 0x18
+void low_isr (void)
+{
+  _asm goto low_isr_handler _endasm
+} // low_isr
+#pragma code
 
