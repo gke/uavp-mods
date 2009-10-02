@@ -29,6 +29,7 @@ void Navigate(int16, int16);
 void AltitudeHold(int16);
 void Descend(void);
 void AcquireHoldPosition(void);
+void NavGainSchedule(int16);
 void DoNavigation(void);
 void CheckThrottleMoved(void);
 void DoFailsafe(void);
@@ -36,6 +37,8 @@ void InitNavigation(void);
 
 // Variables
 int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr, NavYCorr, SumNavYCorr;
+int16 NavKp, NavVel, Range, RangeToNeutral;  
+int16 RWeight, PWeight, PSign, RSign, RollP, RollI, RollD, PitchP, PitchI, PitchD; 
 
 WayPoint WP[NAV_MAX_WAYPOINTS];
 
@@ -44,20 +47,21 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 	static int16 Temp;
 
 	if ( _RTHAltitudeHold )
-		if ( P[ConfigBits] & UseGPSAltMask )
+		if ( P[ConfigBits] & UseGPSAltMask || !_BaroAltitudeValid )
 		{
-			AE = Limit(DesiredAltitude - GPSRelAltitude, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
+			AE = DesiredAltitude - GPSRelAltitude;
+			AE = Limit(AE, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
-			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 5);
+			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 7);
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, GPS_ALT_LOW_THR_COMP, GPS_ALT_HIGH_THR_COMP);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
 		}
 		else
-		{	
+		{
 			DesiredThrottle = HoverThrottle;
-			BaroPressureHold(-SRS32( (int32)DesiredAltitude * BARO_SCALE, 8) );
+			BaroPressureHold(-SRS32( (int32)DesiredAltitude * BARO_SCALE, 8) );	
 		}
 	else
 	{
@@ -67,19 +71,19 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 
 void Descend(void)
 { // uses Baro only
-	static int16 DesiredBaroPressure;
+	static int16 DesiredRelBaroPressure;
 
 	if (  mS[Clock] > mS[AltHoldUpdate] )
 		if ( InTheAir ) 							//  micro switch RC0 Pin 11 to ground when landed
 		{
 			DesiredThrottle = HoverThrottle;
 
-			if ( CurrentBaroPressure < -( BARO_DESCENT_TRANS_DM * BARO_SCALE)/256L )
-				DesiredBaroPressure = CurrentBaroPressure + (BARO_MAX_DESCENT_DMPS * BARO_SCALE)/256L;
+			if ( CurrentRelBaroPressure < -( BARO_DESCENT_TRANS_DM * BARO_SCALE)/256L )
+				DesiredRelBaroPressure = CurrentRelBaroPressure + (BARO_MAX_DESCENT_DMPS * BARO_SCALE)/256L;
 			else
-				DesiredBaroPressure = CurrentBaroPressure + (BARO_FINAL_DESCENT_DMPS * BARO_SCALE)/256L; 
+				DesiredRelBaroPressure = CurrentRelBaroPressure + (BARO_FINAL_DESCENT_DMPS * BARO_SCALE)/256L; 
 
-			BaroPressureHold( DesiredBaroPressure );	
+			BaroPressureHold( DesiredRelBaroPressure );	
 			mS[AltHoldUpdate] += 1000L;
 		}
 		else
@@ -90,11 +94,12 @@ void Descend(void)
 void AcquireHoldPosition(void)
 {
 	SumNavRCorr = SumNavPCorr = SumNavYCorr = 0;
+	RangeP = MAXINT16;
 	_NavComputed = false;
 
 	GPSNorthHold = GPSNorth;
 	GPSEastHold = GPSEast;
-	_Proximity = true;
+	_Proximity = _CloseProximity = true;
 
 	NavState = HoldingStation;
 } // AcquireHoldPosition
@@ -106,11 +111,10 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 	// cos/sin/arctan lookup tables are used for speed.
 	// BEWARE magic numbers for integer arithmetic
 
-	#define NavKi 1
+	#define OLD_NAVKI	2
 
-	static int16 Temp;
-	static int16 NavKp, GPSGain;
-	static int16 Range, EastDiff, NorthDiff, WayHeading, RelHeading;
+	static int16 Temp, Correction, SignedRange;
+	static int16 EastDiff, NorthDiff, WayHeading, RelHeading, DiffHeading;
 
 	if ( _NavComputed ) // maintain previous corrections
 	{
@@ -127,60 +131,188 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		NorthDiff = GPSNorthWay - GPSNorth;
 
 		if ( (Abs(EastDiff) > NavNeutralRadius ) || (Abs(NorthDiff) > NavNeutralRadius )) 
-		{ 
-			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
+		{
+			NavKp = ( NavSensitivity * NAV_MAX_ROLL_PITCH ) / NavCloseToNeutralRadius;
+			WayHeading = int16atan2(EastDiff, NorthDiff);
+			DiffHeading = WayHeading - Heading;
+			RelHeading = Make2Pi(DiffHeading);
+
+ 		#ifdef SIMPLE_POS_HOLD			// Minimal reference proportional control only 
+
+			_CloseProximity = false;
+			Range = Max(Abs(NorthDiff), Abs(EastDiff));
 			_Proximity = Range < NavClosingRadius;
+
 			if ( _Proximity )
-				Range = int32sqrt( (int32)NorthDiff*(int32)NorthDiff + (int32)EastDiff*(int32)EastDiff); 
+				Range = int32sqrt( NorthDiff*NorthDiff + EastDiff*EastDiff ); 
 			else
 				Range = NavClosingRadius;
+			RangeToNeutral = Range - NavNeutralRadius;
 
-			GPSGain = Limit(NavSensitivity, 0, 256);
-			NavKp = ( GPSGain * NAV_MAX_ANGLE ) / ( NavClosingRadius - NavNeutralRadius ); // /OUT_MAXIMUM) * 256L
+			NavVel = 0; // for FakeFlight
 		
-			Temp = SRS16((Range - NavNeutralRadius) * NavKp, 8);
-			Temp = Limit(Temp, 0, NAV_MAX_ANGLE );
-			WayHeading = int16atan2(EastDiff, NorthDiff);
+			Temp = SRS16(RangeToNeutral * NavKp, 8);
+			Temp = Limit(Temp, 0, NAV_MAX_ROLL_PITCH );
 
-			RelHeading = Make2Pi(WayHeading - Heading);
 			NavRCorr = SRS32((int32)int16sin(RelHeading) * Temp, 8);			
+			DesiredRoll += NavRCorr;
+			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
+	
 			NavPCorr = SRS32(-(int32)int16cos(RelHeading) * Temp, 8);
+			DesiredPitch += NavPCorr;
+			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
 
-			if ( _TurnToHome && (Range >= NavClosingRadius) )
+		#else // !SIMPLE_POS_HOLD
+
+			// Expectation is ~4Hz
+
+			Range = int32sqrt( (int32)NorthDiff*(int32)NorthDiff + (int32)EastDiff*(int32)EastDiff );
+
+			if ( RangeP == MAXINT16 )
+				RangeP = Range;
+			NavVel = RangeP - Range;
+			if ( Abs(NavVel) < 5 ) 
+				NavVel = 0;
+			RangeP = Range;
+		
+			_Proximity = Range < NavClosingRadius; 
+			_CloseProximity = false;
+
+			if ( !_Proximity )
+				Range = NavClosingRadius;
+
+			RangeToNeutral = Range - NavNeutralRadius;
+
+			// Roll
+			RWeight = int16sin(RelHeading);
+			RSign = Sign(RWeight);
+			SignedRange = RangeToNeutral * RSign;
+
+			RollP = SRS16(SignedRange * NavKp, 8);
+
+			Temp = SumNavRCorr + RSign * 2;
+			SumNavRCorr = Limit (Temp, -NAV_INT_LIMIT, NAV_INT_LIMIT);
+			RollI = SRS16(SumNavRCorr * (int16)P[NavKi], 4);
+			SumNavRCorr = DecayX(SumNavRCorr, 1);
+
+			RollD = SRS16(NavVel * P[NavKd] * RSign, 6);
+			RollD = Limit(RollD, -NAV_DIFF_LIMIT, NAV_DIFF_LIMIT);
+
+			NavRCorr = RollP + RollI + RollD;
+
+			NavRCorr = Limit(NavRCorr, -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH );
+			NavRCorr = SRS16(Abs(RWeight) * NavRCorr, 8);
+			Temp = DesiredRoll + NavRCorr;
+			DesiredRoll = Limit(Temp , -RC_NEUTRAL, RC_NEUTRAL);
+
+			// Pitch
+			PWeight = -(int32)int16cos(RelHeading);
+			PSign = Sign(PWeight);	
+			SignedRange = RangeToNeutral * PSign;
+
+			PitchP = SRS16(SignedRange * NavKp, 8);
+
+			Temp = SumNavPCorr + PSign * 2;
+			SumNavPCorr = Limit (Temp, -NAV_INT_LIMIT, NAV_INT_LIMIT);
+			PitchI = SRS16(SumNavPCorr * (int16)P[NavKi], 4);
+			SumNavPCorr = DecayX(SumNavPCorr, 1);
+
+			PitchD = SRS16(NavVel * P[NavKd] * PSign, 6);
+			PitchD = Limit(PitchD, -NAV_DIFF_LIMIT, NAV_DIFF_LIMIT);
+
+			NavPCorr = PitchP + PitchI + PitchD;
+
+			NavPCorr = Limit(NavPCorr, -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH );
+			NavPCorr = SRS16(Abs(PWeight) * NavPCorr, 8);
+			Temp = DesiredPitch + NavPCorr;
+			DesiredPitch = Limit(Temp, -RC_NEUTRAL, RC_NEUTRAL);
+
+		#endif // SIMPLE_POS_HOLD
+
+			// Yaw
+			if ( _TurnToHome && !_Proximity )
 			{
-				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
+				RelHeading = MakePi(DiffHeading); // make +/- MilliPi
 				NavYCorr = -(RelHeading * NAV_YAW_LIMIT) / HALFMILLIPI;
 				NavYCorr = Limit(NavYCorr, -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
 			}
 			else
-				NavYCorr = 0;
-	
-			DesiredRoll += NavRCorr;
-			Temp = SumNavRCorr + Range;
-			SumNavRCorr = Limit (Temp , -NavIntLimit256, NavIntLimit256);
-			DesiredRoll += SRS16(SumNavRCorr * NavKi, 8);
-			DesiredRoll = Limit(DesiredRoll , -RC_NEUTRAL, RC_NEUTRAL);
-	
-			DesiredPitch += NavPCorr;
-			Temp = SumNavPCorr + Range;
-			SumNavPCorr = Limit (Temp, -NavIntLimit256, NavIntLimit256);
-			DesiredPitch += SRS16(SumNavPCorr * NavKi, 8);
-			DesiredPitch = Limit(DesiredPitch , -RC_NEUTRAL, RC_NEUTRAL);
-
+				NavYCorr = 0;	
 			DesiredYaw += NavYCorr;
 		}
 		else
 		{
-			NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = 0;
+			// Neutral Zone - no GPS influence
+			NavPCorr = NavRCorr = NavPCorr = SumNavRCorr = SumNavPCorr = NavYCorr =  0;
+			_CloseProximity = true;
 		}
 
 		_NavComputed = true;
 	}
 } // Navigate
 
+void FakeFlight()
+{
+	#ifdef FAKE_FLIGHT
+
+	static int16 CosH, SinH, A;
+
+	#define FAKE_NORTH_WIND 	0
+	#define FAKE_EAST_WIND 		0
+    #define SCALEVEL			256L
+
+	if ( Armed )
+	{
+		Heading = 0;
+
+		RangeP = MAXINT16;	
+		GPSEast = 200L; GPSNorth = 200L;
+	
+		TxString("\r\n Sens Kp East North DRoll DPitch Range Vel ");
+		TxString("RP RI RD RSign RWt | PP PI PD PSign PWt\r\n");
+	
+		while ( Armed )
+		{
+			UpdateControls();
+
+			DesiredRoll = DesiredPitch = 0;
+
+			_NavComputed = false;
+			Navigate(0,0);
+
+			Delay100mSWithOutput(5);
+			CosH = int16cos(Heading);
+			SinH = int16sin(Heading);
+			GPSEast += ((int32)(-DesiredPitch) * SinH)/SCALEVEL;
+			GPSNorth += ((int32)(-DesiredPitch) * CosH)/SCALEVEL;
+			
+			A = Make2Pi(Heading + HALFMILLIPI);
+			CosH = int16cos(A);
+			SinH = int16sin(A);
+			GPSEast += ((int32)DesiredRoll * SinH) / SCALEVEL;
+			GPSEast += FAKE_EAST_WIND; // wind	
+			GPSNorth += ((int32)DesiredRoll * CosH) / SCALEVEL;
+			GPSNorth += FAKE_NORTH_WIND; // wind
+		
+			TxVal32((int32)NavSensitivity,0,' ');TxVal32((int32)NavKp,0,' ');
+			TxVal32(GPSEast, 0, ' '); TxVal32(GPSNorth, 0, ' '); 
+			TxVal32((int32)DesiredRoll, 0, ' '); TxVal32((int32)DesiredPitch, 0, ' ');
+			TxVal32((int32)Range, 0, ' '); 
+			TxVal32((int32)NavVel, 0, ' ');
+			TxVal32((int32)RollP, 0, ' '); TxVal32((int32)RollI, 0, ' '); TxVal32((int32)RollD, 0, ' '); 
+			TxVal32((int32)RSign, 0, ' '); TxVal32((int32)RWeight, 0, ' ');
+			TxString("| ");
+			TxVal32((int32)PitchP, 0, ' '); TxVal32((int32)PitchI, 0, ' '); TxVal32((int32)PitchD, 0, ' '); 
+			TxVal32((int32)PSign, 0, ' '); TxVal32((int32)PWeight, 0, ' ');
+			TxNextLine();
+		}
+	}
+	#endif // FAKE_FLIGHT
+} // FakeFlight
+
 void DoNavigation(void)
 {
-	if ( _GPSValid && _CompassValid  && ( NavSensitivity > NAV_GAIN_THRESHOLD ) && ( mS[Clock] > mS[NavActiveTime]) )
+	if ( _GPSValid && _CompassValid  && ( NavSensitivity > 0 ) && ( mS[Clock] > mS[NavActiveTime]) )
 		switch ( NavState ) {
 		case PIC:
 		case HoldingStation:
@@ -248,7 +380,7 @@ void DoFailsafe(void)
 		switch ( FailState ) {
 		case Terminated:
 			DesiredRoll = DesiredPitch = DesiredYaw = 0;
-			if ( CurrentBaroPressure < -(BARO_FAILSAFE_MIN_ALT_DM * BARO_SCALE)/256L )
+			if ( CurrentRelBaroPressure < -(BARO_FAILSAFE_MIN_ALT_DM * BARO_SCALE)/256L )
 			{
 				Descend();							// progressively increase desired baro pressure
 				if ( mS[Clock ] > mS[AbortTimeout] )
@@ -347,9 +479,14 @@ void InitNavigation(void)
 	}
 
 	GPSNorthHold = GPSEastHold = 0;
-	NavRCorr = SumNavRCorr = NavPCorr = SumNavPCorr = NavYCorr = SumNavYCorr = 0;
+	NavPCorr = NavRCorr = NavPCorr = SumNavRCorr = SumNavPCorr = NavYCorr = 0;
+
+	RollP, RollI = RollD = PitchP = PitchI = PitchD = 0;
+	RangeP = MAXINT16;
+
 	NavState = PIC;
 	AttitudeHoldResetCount = 0;
+	_Proximity = _CloseProximity = true;
 	_NavComputed = false;
 } // InitNavigation
 

@@ -187,7 +187,8 @@ void ReadAccelerations()
 {
 	static uint8 r;
 
-	r = ReadLISL(LISL_STATUS + LISL_READ); // no check for 0x3a
+	r = ReadLISL(LISL_STATUS + LISL_READ);
+
 	Ax.low8  = ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
 	Ax.high8 = ReadLISLNext();
 	Ay.low8  = ReadLISLNext();
@@ -195,6 +196,8 @@ void ReadAccelerations()
 	Az.low8  = ReadLISLNext();
 	Az.high8 = ReadLISLNext();
 	SPI_CS = DSEL_LISL;	// end transmission
+
+	if ( ((r & 0xf0) != 0) && (State == InFlight) ) Stats[AccFailS].i16++;	// data over run - acc out of range
 
 } // ReadAccelerations
 

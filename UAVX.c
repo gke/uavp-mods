@@ -77,10 +77,10 @@ int16	RollSum, PitchSum, YawSum;		// integral
 int16	RollRate, PitchRate, YawRate;
 int16	RollTrim, PitchTrim, YawTrim;
 int16	HoldYaw;
-int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
+int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256;
 int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 int16	HoverThrottle, DesiredThrottle, IdleThrottle;
-int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
+int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim, Heading;
 
 #pragma udata accs
 i16u	Ax, Ay, Az;
@@ -88,20 +88,19 @@ int8	LRIntKorr, FBIntKorr;
 int16	Rl,Pl,Yl;						// PID output values
 int8	NeutralLR, NeutralFB, NeutralDU;
 int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
-int32	LRDisp, FBDisp;
 #pragma udata
 
-int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
+int16 	NavClosingRadius, NavNeutralRadius, NavCloseToNeutralRadius, CompassOffset;
 
 uint8 	NavState;
-uint8 	NavSensitivity;
-int16	AltSum, AE;
+int16 	NavSensitivity;
+int16 	AltSum, AE, RangeP;
 
 int16	ThrLow, ThrHigh, ThrNeutral;
 
 // Variables for barometric sensor PD-controller
 int24	OriginBaroPressure;
-int16	DesiredBaroPressure, CurrentBaroPressure;
+int16	DesiredRelBaroPressure, CurrentRelBaroPressure;
 int16	BE, BEp;
 i16u	BaroVal;
 int8	BaroSample;
@@ -134,21 +133,21 @@ const rom int8	ComParms[]={
 	0,0,0,0,0,1,1,1,0,1,
 	1,1,1,1,1,0,0,1,0,0,
 	1,1,0,1,1,1,1,0,0,1,
-	0,0,0,0,0,0,0,0,0,0,
+	0,1,1,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0
 	};
 
 const rom int8 DefaultParams[] = {
 	-18, 			// RollKp, 			01
-	-8, 			// RollKi,			02
+	-16, 			// RollKi,			02
 	50, 			// RollKd,			03
-	0, 				// HorizDampKp,		04c 
+	-4, 			// HorizDampKp,		04c 
 	4, 				// RollIntLimit,	05
 	-18, 			// PitchKp,			06
-	-8, 			// PitchKi,			07
+	-16, 			// PitchKi,			07
 	50, 			// PitchKd,			08
-	2, 				// BaroCompKp,		09c
+	8, 				// BaroCompKp,		09c
 	4, 				// PitchIntLimit,	10
 	
 	-25, 			// YawKp, 			11
@@ -162,19 +161,19 @@ const rom int8 DefaultParams[] = {
 	0, 				// CamRollKp,		19
 	45, 			// PercentHoverThr,	20c 
 	
-	-1, 			// VertDampKp,		21c
+	-16, 			// VertDampKp,		21c
 	0, 				// MiddleDU,		22c
 	10, 			// PercentIdleThr,	23c
 	0, 				// MiddleLR,		24c
 	0, 				// MiddleFB,		25c
 	0, 				// CamPitchKp,		26
-	6, 				// CompassKp,		27
-	4, 				// BaroCompKd,		28c
+	24, 			// CompassKp,		27
+	20, 			// BaroCompKd,		28c
 	30, 			// NavRadius,		29
-	1, 				// NavIntLimit,		30 
+	8, 				// NavKi,			30 
 
-	6, 				// NavAltKp,		31c
-	6, 				// NavAltKi,		32c
+	24, 			// NavAltKp,		31c
+	24, 			// NavAltKi,		32c
 	20, 			// NavRTHAlt,		33
 	0, 				// NavMagVar,		34c
 	ADXRS300, 		// GyroType,		35c
@@ -182,12 +181,13 @@ const rom int8 DefaultParams[] = {
 	DX7AR7000, 		// TxRxType			37c
 	2,				// NeutralRadius	38
 	30,				// PercentNavSens6Ch	39
-	0,				// CamRollTrim		40c
-	0,				// 41 - 64 unused currently
+	0,				// CamRollTrim,		40c
 
-	0,
-	0,
-	0,
+	0,				// NavKd			41
+	10,				// VertDampDecay    42c
+	5,				// HorizDampDecay	43c
+	0,				// 44 - 64 unused currently
+
 	0,
 	0,
 	0,	
@@ -259,7 +259,7 @@ const rom boolean PPMPosPolarity[CustomTxRx+1] =
 	};
 
 // Must be in thesame order as 
-const rom ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, OUT_YGEI2C_MAXIMUM };
+const rom uint8 ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, OUT_YGEI2C_MAXIMUM };
 
 void main(void)
 {
@@ -305,6 +305,12 @@ void main(void)
 	
 		State = Starting;
 
+		#ifdef FAKE_FLIGHT // zzz
+
+		FakeFlight();
+
+		#else
+
 		while ( Armed && _ParametersValid )
 		{ // no command processing while the Quadrocopter is armed
 	
@@ -325,14 +331,14 @@ void main(void)
 
 					InitHeading();
 					InitBarometer();
+				InitGPS();
 					InitNavigation();
-					ResetGPSOrigin();
+				//	ResetGPSOrigin();
 
 					DesiredThrottle = 0;
 					ErectGyros();			// DO NOT MOVE AIRCRAFT!
 					DoStartingBeepsWithOutput(3);
 	
-					mS[LastDamping] = mS[Clock];
 					State = Landed;
 					break;
 				case Landed:
@@ -393,6 +399,7 @@ void main(void)
 			DumpTrace();
 		
 		} // flight while armed
+		#endif // FAKE_FLIGHT
 	}
 } // main
 

@@ -61,31 +61,15 @@ void ReceivingGPSOnly(boolean r)
 void MapRC(void)
 {  // re-maps captured PPM to Rx channel sequence
 	static uint8 c;
-	static LastThrottle; 
+	static int16 LastThrottle, Temp; 
 
 	LastThrottle = RC[ThrottleC];
 
-	#ifdef UNROLL_LOOPS
-	
-	RC[ThrottleC] = PPM[Map[P[TxRxType]][ThrottleC]-1].low8;
-	RC[RollC] = 	PPM[Map[P[TxRxType]][RollC]-1].low8 - RC_NEUTRAL;
-	RC[PitchC] = 	PPM[Map[P[TxRxType]][PitchC]-1].low8 - RC_NEUTRAL;
-	RC[YawC] = 		PPM[Map[P[TxRxType]][YawC]-1].low8 - RC_NEUTRAL;
-	RC[RTHC] = 		PPM[Map[P[TxRxType]][RTHC]-1].low8;
-	RC[CamTiltC] = 	PPM[Map[P[TxRxType]][CamTiltC]-1].low8;
-	RC[NavGainC] = 	PPM[Map[P[TxRxType]][NavGainC]-1].low8;
-
-	#else
-
 	for (c = 0 ; c < CONTROLS ; c++)
-		RC[c] = PPM[Map[P[TxRxType]][c]-1].low8;
-
-	RC[RollC] -= RC_NEUTRAL;
-	RC[PitchC] -= RC_NEUTRAL;
-	RC[YawC] -= RC_NEUTRAL;
-	RC[CamTiltC] -= RC_NEUTRAL;
-
-	#endif // UNROLL_LOOPS
+	{
+		Temp = PPM[Map[P[TxRxType]][c]-1].low8;
+		RC[c] = RxFilter(RC[c], Temp);
+	}
 
 	if ( THROTTLE_SLEW_LIMIT > 0 )
 		RC[ThrottleC] = SlewLimit(LastThrottle, RC[ThrottleC], THROTTLE_SLEW_LIMIT);
@@ -117,7 +101,7 @@ void InitTimersAndInterrupts(void)
 	for (i = 0; i < CONTROLS; i++)
 		PPM[i].i16 = RC[i] = 0;
 	#ifdef RX6CH
-	PPM[CamTiltC].i16 = RC_NEUTRAL;
+	PPM[CamPitchC].i16 = RC_NEUTRAL;
 	PPM[NavGainC].i16 = 0;
 	#endif // RX6CH	  
 
