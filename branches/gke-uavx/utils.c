@@ -118,6 +118,24 @@ int16 ProcLimit(int16 i, int16 l, int16 u)
 } // ProcLimit
 #endif // USE_LIMIT_MACRO
 
+int16 DecayX(int16 i, int16 d)
+{
+	if ( i < 0 )
+	{
+		i += d;
+		if ( i >0 )
+			i = 0;
+	}
+	else
+	if ( i > 0 )
+	{
+		i -= d;
+		if ( i < 0 )
+			i = 0;
+	}
+	return (i);
+} // DecayX
+
 int16 SRS16(int16 x, uint8 s)
 {
 	return((x<0) ? -((-x)>>s) : (x>>s));
@@ -160,6 +178,7 @@ void InitMisc(void)
 	_ParametersValid = true;
 
 	ThrNeutral = ThrLow = ThrHigh = MAXINT16;
+	IdleThrottle = RC_THRES_STOP;
 	ESCMin = OUT_MINIMUM;
 	ESCMax = OUT_MAXIMUM;
 
@@ -226,26 +245,26 @@ void ReadParametersEE(void)
 		}
 
 		#ifdef RX6CH
-		NavSensitivity = ((int16)P[PercentNavSens6Ch] * RC_MAXIMUM)/100;
+		NavSensitivity = ((int16)P[PercentNavSens6Ch] * RC_MAXIMUM)/100L;
 		#endif // RX6CH
 
 		for ( i = 0; i < CONTROLS; i++) // make reverse map
 			RMap[Map[P[TxRxType]][i]-1] = i+1;
 	
-		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100;
-		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100;
+		IdleThrottle = ((int16)P[PercentIdleThr] * OUT_MAXIMUM )/100L;
+		IdleThrottle = Max( IdleThrottle, RC_THRES_STOP );
+		HoverThrottle = ((int16)P[PercentHoverThr] * OUT_MAXIMUM )/100L;
 	
 		RollIntLimit256 = (int16)P[RollIntLimit] * 256L;
 		PitchIntLimit256 = (int16)P[PitchIntLimit] * 256L;
 		YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
 	
-		NavIntLimit256 = P[NavIntLimit] * 256L; 
-
 		NavNeutralRadius = (int16)P[NeutralRadius] * METRES_TO_GPS;
 		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
 		NavClosingRadius = Limit(NavClosingRadius, NavNeutralRadius+(int16)5L*METRES_TO_GPS, (int16)40L*METRES_TO_GPS); // avoid divide by zero
-
-		CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
+		NavCloseToNeutralRadius = NavClosingRadius - NavNeutralRadius;
+	
+		CompassOffset = (((COMPASS_OFFSET_DEG - (int16)P[NavMagVar])*MILLIPI)/180L);
 	
 		PIE1bits.CCP1IE = false;
 		DoRxPolarity();
@@ -307,7 +326,7 @@ void UseDefaultParameters(void)
 	WriteParametersEE(2);
 	CurrentParamSet = 1;
 	TxString("\r\nDefault Parameters Loaded\r\n");
-	TxString("Do a READ CONFIG to refresh the UAVPSet parameter display\r\n");		
+	TxString("Do a READ CONFIG to refresh the UAVPSet parameter display\r\n");	
 } // UseDefaultParameters
 
 void UpdateParamSetChoice(void)
@@ -321,13 +340,13 @@ void UpdateParamSetChoice(void)
 	NewTurnToHome = _TurnToHome;
 
 	if ( P[ConfigBits] & TxMode2Mask )
-		Selector = RC[RollC];
+		Selector = DesiredRoll;
 	else
-		Selector = -RC[YawC];
+		Selector = -DesiredYaw;
 
-	if ( (Abs(RC[PitchC]) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) )
+	if ( (Abs(DesiredPitch) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) )
 	{
-		if ( RC[PitchC] > STICK_WINDOW ) // bottom
+		if ( DesiredPitch > STICK_WINDOW ) // bottom
 		{
 			if ( Selector < -STICK_WINDOW ) // left
 			{ // bottom left
@@ -342,7 +361,7 @@ void UpdateParamSetChoice(void)
 				}
 		}		
 		else
-			if ( RC[PitchC] < -STICK_WINDOW ) // top
+			if ( DesiredPitch < -STICK_WINDOW ) // top
 			{		
 				if ( Selector < -STICK_WINDOW ) // left
 				{
@@ -374,9 +393,9 @@ void UpdateParamSetChoice(void)
 	}
 
 	if ( P[ConfigBits] & TxMode2Mask )
-		Selector = -RC[YawC];
+		Selector = -DesiredYaw;
 	else
-		Selector = RC[RollC];
+		Selector = DesiredRoll;
 
 	if ( (Abs(RC[ThrottleC]) < STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW ) )
 	{
@@ -402,13 +421,13 @@ void InitParameters(void)
 {
 	ALL_LEDS_ON;
 	CurrentParamSet = 1;
-	while ( ReadEE(TxRxType) == -1 ) 
+//	while ( ReadEE(TxRxType) == -1 ) 
 		ProcessCommand();	
 	CurrentParamSet = 1;
 	ParametersChanged = true;
 	ReadParametersEE();
 	ALL_LEDS_OFF;
-} // InitParamters
+} // InitParameters
 
 int16 Make2Pi(int16 A)
 {
@@ -530,14 +549,14 @@ int16 int16sqrt(int16 n)
 {
   static int16 r, b;
 
-  r=0;
-  b=256;
-  while (b>0) 
+  r = 0;
+  b = 256;
+  while ( b > 0 ) 
     {
-    if (r*r>n)
-      r-=b;
-    b=(b>>1);
-    r+=b;
+    if ( r*r > n )
+      r -= b;
+    b >>= 1;
+    r += b;
     }
   return(r);
 } // int16sqrt
@@ -585,7 +604,7 @@ void SendLEDs(void)
 	PORTCbits.RC1 = 0;	// latch into drivers
 	SPI_SCL = 1;		// rest state for LISL
 	SPI_IO = RD_SPI;
-}
+} // SendLEDs
 
 void LEDsOn(uint8 l)
 {
@@ -692,7 +711,7 @@ void ZeroStats(void)
 	for (s = 0 ; s < MaxStats ; s++ )
 		Stats[s].i16 = 0;
 
-	Stats[MinHDiluteS].i16 = 10000L;
+	Stats[MinHDiluteS].i16 = MAXINT16;
 	Stats[MaxHDiluteS].i16 = 0;
 } // ZeroStats
 
@@ -759,7 +778,6 @@ void ShowStats(void)
 	TxVal32((int32)Stats[MaxHDiluteS].i16, 2, 0); TxNextLine();
 	TxString("Invalid:\t");TxVal32(((int32)Stats[GPSInvalidS].i16*10000)/Stats[GPSSentencesS].i16, 4, '%'); TxNextLine();
 } // ShowStats
-
 
 void DumpTrace(void)
 {

@@ -30,33 +30,31 @@ void ShowSetup(uint8);
 void ProcessCommand(void);
 
 #pragma idata menu1
-const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright 2008,2009 G.K. Egan & 2007-2008 W. Mahringer\r\n"
+const rom uint8 SerHello[] = "\r\nUAVX " Version " Copyright 2008-2009 G.K. Egan & 2007-2008 W. Mahringer\r\n"
 							  "This is FREE SOFTWARE and comes with ABSOLUTELY NO WARRANTY\r\n"
 							  "see http://www.gnu.org/licenses/!\r\n";
 
-const rom uint8 SerSetup[] = "\r\nUAVX V" Version " ready.\r\nAccelerometers ";
 #pragma idata
 
 #pragma idata menuhelp
 const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
-	"A..Linear test\r\n"
-	"B..Boot\r\n"
+	"A..Accelerometer test\r\n"
+	"B..Load UAVX hex file\r\n"
 	"C..Compass test\r\n"
 	"D..Load default parameter set\r\n"
 	"G..GPS test (Use HyperTerm)\r\n"
-	"H..Baro. test\r\n"
+	"H..Barometer test\r\n"
 	"I..I2C bus scan\r\n"
-	"K..Calib. Compass\r\n"
+	"K..Calibrate Compass\r\n"
 //	"M..Modify parameters\r\n"
-	"P..RX test\r\n"
+	"P..Rx test\r\n"
 	"S..Setup\r\n"
-	"V..Analog ch.\r\n"
-	"X..Flight Stats\r\n"
-	"Y..Prog. YGE\r\n"
-	"1-8..Power output test\r\n"; // last line must be in this form for UAVPSet
+	"T..All LEDs and buzzer test\r\n"
+	"V..Analog input test\r\n"
+	"X..Flight stats\r\n"
+	"Y..Program YGE I2C ESC\r\n"
+	"1-8..Individual LED/buzzer test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
-
-
 
 void ShowPrompt(void)
 {
@@ -84,7 +82,7 @@ void ShowSetup(uint8 h)
 		CurrentParamSet = 1;	
 	}
 
-	TxString(SerSetup);	// send hello message
+	TxString("\r\nUAVX V" Version " ready.\r\nAccelerometers ");
 
 	if( _AccelerationsValid )
 		TxString("ONLINE\r\n");
@@ -93,11 +91,7 @@ void ShowSetup(uint8 h)
 
 	TxString("Compass ");
 	if( _CompassValid )
-	{
-		TxString("ONLINE (");
-		TxVal32(COMPASS_OFFSET_DEG,0,0);
-		TxString("deg. offset)\r\n");
-	}
+		TxString("ONLINE\r\n");
 	else
 		TxString("not available\r\n");
 
@@ -155,7 +149,8 @@ void ShowSetup(uint8 h)
 		case FutabaCh3_6_7: TxString("Futaba Th 2 Swap 6&7 {"); break;
 		case DX7AR6000:TxString("Spektrum DX7 & AR6000 {"); break; 
 		case GraupnerMX16s: TxString("Graupner MX16s {"); break;
-		}	
+		}
+	
 		if ( P[ConfigBits] & RxSerialPPMMask )
 			ShowRxSetup();
 		else
@@ -284,6 +279,7 @@ void ProcessCommand(void)
 				ShowPrompt();
 				break;
 			case 'N' :	// neutral values
+				GetNeutralAccelerations();
 				TxString("\r\nNeutral    R:");
 				TxValS(NeutralLR);
 		
@@ -300,11 +296,11 @@ void ProcessCommand(void)
 				break;
 			case 'R':	// receiver values
 				TxString("\r\nT:");TxValU(ToPercent(RC[ThrottleC], RC_MAXIMUM));
-				TxString(",R:");TxValS(ToPercent(RC[RollC]*2, RC_MAXIMUM));
-				TxString(",P:");TxValS(ToPercent(RC[PitchC]*2, RC_MAXIMUM));
-				TxString(",Y:");TxValS(ToPercent(RC[YawC]*2, RC_MAXIMUM));
+				TxString(",R:");TxValS(ToPercent((RC[RollC]- RC_NEUTRAL) * 2, RC_MAXIMUM));
+				TxString(",P:");TxValS(ToPercent((RC[PitchC]- RC_NEUTRAL) * 2, RC_MAXIMUM));
+				TxString(",Y:");TxValS(ToPercent((RC[YawC]- RC_NEUTRAL) * 2, RC_MAXIMUM));
 				TxString(",5:");TxValU(ToPercent(RC[RTHC], RC_MAXIMUM));
-				TxString(",6:");TxValU(ToPercent(RC[CamTiltC], RC_MAXIMUM));
+				TxString(",6:");TxValS(ToPercent((RC[CamPitchC] - RC_NEUTRAL) * 2, RC_MAXIMUM));
 				TxString(",7:");TxValU(ToPercent(RC[NavGainC], RC_MAXIMUM));
 				ShowPrompt();
 				break;
@@ -323,7 +319,6 @@ void ProcessCommand(void)
 				ConfigureESCs();
 				ShowPrompt();
 				break;
-
 			case '1':
 			case '2':
 			case '3':
@@ -348,6 +343,10 @@ void ProcessCommand(void)
 				}
 				TxNextLine();
 				PowerOutput(ch-'1');
+				ShowPrompt();
+				break;
+			case 'T':
+				LEDsAndBuzzer();
 				ShowPrompt();
 				break;
 			case 'Z':	// configure YGE30i EScs

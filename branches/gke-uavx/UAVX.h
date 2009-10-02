@@ -1,3 +1,17 @@
+// EXPERIMENTAL
+
+//#define FAKE_FLIGHT						// For testing Nav on the GROUND!
+//#define SIMPLE_POS_HOLD					// Proportional control ONLY 
+
+#define NAV_MAX_ROLL_PITCH 		20L		// Rx stick units ~= degrees max pitch/roll angle
+#define NAV_INT_LIMIT			10L		// Suggest half NAV_MAX_ROLL_PITCH 
+#define NAV_DIFF_LIMIT			10L		// Suggest half NAV_MAX_ROLL_PITCH 
+
+#define DAMP_HORIZ_LIMIT 		3L		// equivalent stick units - no larger than 5
+
+#define DAMP_VERT_LIMIT_LOW		-5L		// maximum throttle reduction
+#define DAMP_VERT_LIMIT_HIGH	20L		// maximum throttle increase
+
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
 // =               Copyright (c) 2008, 2009 by Prof. Greg Egan           =
@@ -39,9 +53,6 @@
 //________________________________________________________________________________________________
 
 // UAVX Extensions
-
-// Unroll selected loops on critical path
-#define UNROLL_LOOPS
 
 // Timeouts and Update Intervals
 
@@ -106,8 +117,8 @@
 
 #define	GPS_MIN_SATELLITES		7		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX				1		// must be 1 or 2 
-#define GPS_INITIAL_SENTENCES 	90		// Number of sentences needed with set HDilute
-#define GPS_MIN_HDILUTE			110L	// HDilute * 100	
+#define GPS_INITIAL_SENTENCES 	10L		// Number of sentences needed with set HDilute
+#define GPS_MIN_HDILUTE			130L	// HDilute * 100	
 
 #ifdef C90
 	#define COMPASS_OFFSET_DEG	90L		// North degrees CW from Front - older compass
@@ -116,9 +127,10 @@
 #endif // COMPASS_OFFSET_90
 
 #define	NAV_GAIN_THRESHOLD 		40L		// Navigation disabled if Ch7 is less than this
-#define NAV_GAIN_6CH			80L		// Low GPS gain for 6ch Rx 			
+#define NAV_GAIN_6CH			80L		// Low GPS gain for 6ch Rx
+
+//#define NAV_ZERO_INT 					// Zeros the integral when the sign is not the same as the error			
 	
-#define NAV_MAX_ANGLE 			20L		// Rx stick units ~= degrees
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
 
@@ -133,7 +145,7 @@
 
 // Throttle
 
-#define THROTTLE_SLEW_LIMIT		5		// limits the rate at which the throttle can change (=0 no slew limit)
+#define THROTTLE_SLEW_LIMIT		0		// limits the rate at which the throttle can change (=0 no slew limit, 5 OK)
 #define THROTTLE_MIDDLE			10  	// throttle stick dead zone for baro 
 #define THROTTLE_HOVER			75		// min throttle stick for altitude lock
 
@@ -182,8 +194,8 @@
 #define RADDEG 				(real32)(57.2957812)
 #define RADDEG1000000 		(real32)(57295781.2)
 
-#define MAXINT32 			0x7fffffff;
-#define	MAXINT16 			0x7fff;
+#define MAXINT32 			0x7fffffff
+#define	MAXINT16 			0x7fff
 
 // Additional Types
 typedef unsigned char 		uint8 ;
@@ -218,11 +230,11 @@ typedef union {
 
 #define Max(i,j) 			((i<j) ? j : i)
 #define Min(i,j) 			((i<j) ? i : j )
-#define Decay(i, l) 			((i <= l) ? i+l : ((i>=l) ? i-l : 0))
+#define Decay1(i) 			((i < 0) ? i+1 : ((i > 0) ? i-1 : 0))
 
 #define USE_LIMIT_MACRO
 #ifdef USE_LIMIT_MACRO
-	#define Limit(i,l,u) 	((i<l) ? l : ((i>u) ? u : i))
+	#define Limit(i,l,u) 	((i < l) ? l : ((i > u) ? u : i))
 #else
 	#define Limit			ProcLimit
 #endif
@@ -235,18 +247,18 @@ typedef union {
 #define ToPercent(n, m) (((n)*100)/m)
 
 // Simple filters using weighted averaging
-#ifdef SUPPRESSFILTERS
-  #define VerySoftFilter(O,N)		(N)
-  #define SoftFilter(O,N) 			(N)
-  #define MediumFilter(O,N) 		(N)
-  #define AccelerometerFilter(O,N) 	(N)
-#else
-  #define VerySoftFilter(O,N) 		(SRS16((O)+(N)*3, 2))
-  #define SoftFilter(O,N) 			(SRS16((O)+(N), 1))
-  #define MediumFilter(O,N) 		(SRS16((O)*3+(N), 2))
-  #define HardFilter(O,N) 			(SRS16((O)*7+(N), 3))
-#endif
-#define NoFilter(O,N)				(N)
+#define VerySoftFilter(O,N) 	(SRS16((O)+(N)*3, 2))
+#define SoftFilter(O,N) 		(SRS16((O)+(N), 1))
+#define MediumFilter(O,N) 		(SRS16((O)*3+(N), 2))
+#define HardFilter(O,N) 		(SRS16((O)*7+(N), 3))
+
+// Unsigned
+#define VerySoftFilterU(O,N)	(((O)+(N)*3+2)>>2)
+#define SoftFilterU(O,N) 		(((O)+(N)+1)>>1)
+#define MediumFilterU(O,N) 		(((O)*3+(N)+2)>>2)
+#define HardFilterU(O,N) 		(((O)*7+(N)+4)>>3)
+
+#define NoFilter(O,N)			(N)
 
 #define DisableInterrupts 	(INTCONbits.GIEH=0)
 #define EnableInterrupts 	(INTCONbits.GIEH=1)
@@ -304,6 +316,7 @@ typedef union {
 #define _ReturnHome			Flags[25]
 #define _TurnToHome			Flags[26]
 #define _Proximity			Flags[27]
+#define _CloseProximity		Flags[28]
 
 #define _ParametersValid	Flags[30]
 #define _GPSTestActive		Flags[31]
@@ -337,7 +350,7 @@ typedef union {
 #define LEDBlue_OFF		LEDsOff(BlueM)
 #define LEDGreen_OFF	LEDsOff(GreenM)
 #define LEDYellow_OFF	LEDsOff(YellowM)
-#define LEDYellow_TOG		if( (LEDShadow&YellowM) == 0 ) LEDsOn(YellowM); else LEDsOff(YellowM)
+#define LEDYellow_TOG	if( (LEDShadow&YellowM) == 0 ) LEDsOn(YellowM); else LEDsOff(YellowM)
 #define LEDRed_TOG		if( (LEDShadow&RedM) == 0 ) LEDsOn(RedM); else LEDsOff(RedM)
 #define LEDBlue_TOG		if( (LEDShadow&BlueM) == 0 ) LEDsOn(BlueM); else LEDsOff(BlueM)
 #define LEDGreen_TOG	if( (LEDShadow&GreenM) == 0 ) LEDsOn(GreenM); else LEDsOff(GreenM)
@@ -375,6 +388,10 @@ typedef union {
 #define ADCVREF3V3 			1
 
 // RC
+
+#define RxFilter					MediumFilterU
+//#define RxFilter					SoftFilterU
+//#define RxFilter					NoFilter
 
 #define	RC_GOOD_BUCKET_MAX	20
 #define RC_GOOD_RATIO		4
@@ -466,7 +483,9 @@ extern void Navigate(int16, int16);
 extern void AltitudeHold(int16);
 extern void Descend(void);
 extern void AcquireHoldPosition(void);
+extern void NavGainSchedule(int16);
 extern void DoNavigation(void);
+extern void FakeFlight(void); 
 extern void CheckThrottleMoved(void);
 extern void DoFailsafe(void);
 extern void InitNavigation(void);
@@ -489,8 +508,7 @@ extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
 extern void GetGyroValues(void);
 extern void ErectGyros(void);
-extern void VerticalDamping(void);
-extern void HorizontalDamping(void);
+extern void InertialDamping(void);
 extern void CalcGyroRates(void);
 extern void DoControl(void);
 
@@ -565,6 +583,7 @@ extern void TxVal32(int32, int8, uint8);
 extern void Delay1mS(int16);
 extern void Delay100mSWithOutput(int16);
 extern int16 ProcLimit(int16, int16, int16);
+extern int16 DecayX(int16, int16);
 extern int16 SRS16(int16, uint8);
 extern int32 SRS32(int32, uint8);
 extern void InitPorts(void);
@@ -621,6 +640,7 @@ extern void CompassRun(void);
 extern void CalibrateCompass(void);
 extern void BaroTest(void);
 extern void PowerOutput(int8);
+extern void LEDsAndBuzzer(void);
 extern void GPSTest(void);
 extern void AnalogTest(void);
 extern void ProgramSlaveAddress(uint8);
@@ -634,9 +654,9 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, LastDamping, LastGPS, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+      AbortTimeout, RTHTimeout, LastValidRx, LastGPS, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
-enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
+enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamPitchC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
 #define MAX_CONTROLS 12 // maximum Rx channels
 
@@ -649,7 +669,7 @@ enum GyroTypes { ADXRS300, ADXRS150, IDG300};
 enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, 
 				DX7AR7000, DX7AR6200, FutabaCh3_6_7, DX7AR6000, GraupnerMX16s, CustomTxRx };
 
-enum TraceTags {THE, TCurrentBaroPressure,
+enum TraceTags {THE, TCurrentRelBaroPressure,
 				TRollRate,TPitchRate,TYE,
 				TRollSum,TPitchSum,TYawSum,
 				TAx,TAz,TAy,
@@ -661,8 +681,7 @@ enum TraceTags {THE, TCurrentBaroPressure,
 				};
 #define TopTrace TMCamPitch
 
-//enum MotorTags {Front, Left, Right, Back};
-enum MotorTags {Front=0, Back, Right, Left}; // order is important for Holger ESCs
+enum MotorTags {Front=0, Back, Right, Left}; // order is important for X3D & Holger ESCs
 #define NoOfMotors 		4
 
 extern uint24 mS[];
@@ -704,30 +723,29 @@ extern int16	PitchSum, RollSum, YawSum;
 extern int16	RollRate, PitchRate, YawRate;
 extern int16	RollTrim, PitchTrim, YawTrim;
 extern int16	HoldYaw;
-extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256, NavIntLimit256;
+extern int16	RollIntLimit256, PitchIntLimit256, YawIntLimit256;
 extern int16	GyroMidRoll, GyroMidPitch, GyroMidYaw;
 extern int16	HoverThrottle, DesiredThrottle, IdleThrottle;
-extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, Heading;
+extern int16	DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim, Heading;
 extern i16u		Ax, Ay, Az;
 extern int8		LRIntKorr, FBIntKorr;
 extern int8		NeutralLR, NeutralFB, NeutralDU;
 extern int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
-extern int32	LRDisp, FBDisp;
 
 // GPS
 extern int16 	GPSLongitudeCorrection;
 extern uint8 	GPSNoOfSats;
 extern uint8 	GPSFix;
 extern int16 	GPSHDilute;
-extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
+extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold, GPSNorthP, GPSEastP, GPSVel;
 extern int16 	GPSRelAltitude;
 
-extern int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
+extern int16 	NavClosingRadius, NavNeutralRadius, NavCloseToNeutralRadius, CompassOffset;
 
 enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
 extern uint8 	NavState;
-extern uint8 	NavSensitivity;
-extern int16 	AltSum, AE;
+extern int16 	NavSensitivity;
+extern int16 	AltSum, AE, RangeP;
 
 // Waypoints
 
@@ -742,7 +760,7 @@ extern int16	ThrLow, ThrHigh, ThrNeutral;
 			
 // Variables for barometric sensor PD-controller
 extern int24	OriginBaroPressure;
-extern int16	DesiredBaroPressure, CurrentBaroPressure;
+extern int16	DesiredRelBaroPressure, CurrentRelBaroPressure;
 extern int16	BE, BEp;
 extern i16u		BaroVal;
 extern int8		BaroSample;
@@ -805,7 +823,7 @@ enum Params {
 	CompassKp,			// 27
 	BaroCompKd,			// 28c
 	NavRadius,			// 29
-	NavIntLimit,		// 30
+	NavKi,				// 30
 	
 	GPSAltKp,			// 31
 	GPSAltKi,			// 32
@@ -815,9 +833,12 @@ enum Params {
 	ESCType,			// 36c
 	TxRxType,			// 37c
 	NeutralRadius,		// 38
-	PercentNavSens6Ch,	// 39c
-	CamRollTrim			// 40c
-	// 41 - 64 unused currently
+	PercentNavSens6Ch,	// 39
+	CamRollTrim,		// 40c
+	NavKd,				// 41
+	VertDampDecay,		// 42c
+	HorizDampDecay		// 43c		
+	// 44 - 64 unused currently
 	};
 
 #define FlyXMode 				0
@@ -841,7 +862,7 @@ extern const rom int8 ComParms[];
 extern const rom int8 DefaultParams[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
 extern const rom uint8 RxChMnem[];
-extern const rom ESCLimits [];
+extern const rom uint8 ESCLimits [];
 extern const rom boolean PPMPosPolarity[];
 
 

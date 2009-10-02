@@ -157,7 +157,7 @@ void MixAndLimitCam(void)
 		Cp = (PitchSum * 4) / (int16)P[CamPitchKp];
 	else
 		Cp = OUT_NEUTRAL;
-	Cp += RC[CamTiltC]; 			
+	Cp += DesiredCamPitchTrim; 			
 
 	if( P[CamRollKp] != 0 )
 		Cr = (RollSum * 4) / (int16)P[CamRollKp];

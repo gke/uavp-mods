@@ -238,6 +238,13 @@ void ParseGPSSentence(void)
 			GPSInterval = mS[Clock] - mS[LastGPS];
 			mS[LastGPS] = mS[Clock];
 
+			if ( State == InFlight )
+				if ( GPSHDilute > Stats[MaxHDiluteS].i16 ) 
+					Stats[MaxHDiluteS].i16 = GPSHDilute; 
+				else 
+					if ( GPSHDilute < Stats[MinHDiluteS].i16 ) 
+						Stats[MinHDiluteS].i16 = GPSHDilute;
+
 			// all coordinates in 0.0001 Minutes or ~0.185M units relative to Origin
 			GPSNorth = GPSLatitude - GPSOriginLatitude;
 			GPSEast = GPSLongitude - GPSOriginLongitude;
@@ -261,12 +268,6 @@ void ParseGPSSentence(void)
 					Stats[GPSAltitudeS].i16 = GPSRelAltitude;
 				if ( GPSVel > Stats[GPSVelS].i16 )
 					Stats[GPSVelS].i16 = GPSVel;
-
-				if ( GPSHDilute > Stats[MaxHDiluteS].i16 ) 
-					Stats[MaxHDiluteS].i16 = GPSHDilute; 
-				else 
-					if ( GPSHDilute < Stats[MinHDiluteS].i16 ) 
-						Stats[MinHDiluteS].i16 = GPSHDilute;
 			}
 		}
 	}

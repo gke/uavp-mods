@@ -34,6 +34,7 @@ void CompassRun(void);
 void CalibrateCompass(void);
 void BaroTest(void);
 void PowerOutput(int8);
+void LEDsAndBuzzer(void);
 void GPSTest(void);
 void AnalogTest(void);
 void ProgramSlaveAddress(uint8);
@@ -58,26 +59,32 @@ void DoLEDs(void)
 void LinearTest(void)
 {
 	TxString("\r\nAccelerometer test:\r\n");
-
+	TxString("Read once - no averaging\r\n");
 	if( _AccelerationsValid )
 	{
 		ReadAccelerations();
 	
-		TxString("Left->Right: \t");
-		TxVal32(((int32)Ax.i16*1000+512)/1024, 3, 'G');	
+		TxString("\tL->R: \t");
+		TxVal32(((int32)Ax.i16*1000+512)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Ax.i16, 0 , ')');
 		if ( Abs((Ax.i16)) > 128 )
 			TxString(" fault?");
 		TxNextLine();
 
-		TxString("Front->Back: \t");	
+		TxString("\tF->B: \t");	
 		TxVal32(((int32)Az.i16*1000+512)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Az.i16, 0 , ')');
 		if ( Abs((Az.i16)) > 128 )
 			TxString(" fault?");	
 		TxNextLine();
 
-		TxString("Down->Up:    \t");
+		TxString("\tD->U:    \t");
 	
 		TxVal32(((int32)Ay.i16*1000+512)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Ay.i16 - 1024, 0 , ')');
 		if ( ( Ay.i16 < 896 ) || ( Ay.i16 > 1152 ) )
 			TxString(" fault?");	
 		TxNextLine();
@@ -404,11 +411,11 @@ void BaroTest(void)
 	
 	while ( mS[Clock] <= mS[BaroUpdate] );
 	ReadBaro();
-	CurrentBaroPressure = (int24)BaroVal.u16 - OriginBaroPressure;		
+	CurrentRelBaroPressure = (int24)BaroVal.u16 - OriginBaroPressure;		
 	TxString("Origin: \t");
 	TxVal32((int32)OriginBaroPressure,0,0);
 	TxString("\t Rel.: \t");	
-	TxVal32((int32)CurrentBaroPressure, 0, 0);
+	TxVal32((int32)CurrentRelBaroPressure, 0, 0);
 		
 	TxNextLine();
 
@@ -418,7 +425,6 @@ BAerror:
 	TxString("FAIL\r\n");
 } // BaroTest
 
-// flash output for a second, then return to its previous state
 void PowerOutput(int8 d)
 {
 	int8 s;
@@ -429,8 +435,49 @@ void PowerOutput(int8 d)
 	{
 		LEDShadow ^= m;
 		SendLEDs();
-		Delay1mS(200);
+		Delay1mS(50);
 	}		
+} // PowerOutput
+
+void LEDsAndBuzzer(void)
+{
+	uint8 s, m, mask, LEDSave;
+
+	LEDSave = LEDShadow;
+	LEDShadow  = 0;
+	SendLEDs();	
+
+	TxString("\r\nOutput test\r\n");
+	mask = 1;
+	for ( m = 1; m <= 8; m++ )		
+	{
+		TxChar(HT);
+		TxChar(m+'0');
+		TxString(":8 ");
+		switch( m ) {
+		case 1: TxString("Aux2   "); break;
+		case 2: TxString("Blue   "); break;
+		case 3: TxString("Red    "); break;
+		case 4: TxString("Green  "); break;
+		case 5: TxString("Aux1   "); break;
+		case 6: TxString("Yellow "); break;
+		case 7: TxString("Aux3   "); break;
+		case 8: TxString("Beeper "); break;
+		}
+		TxString("\tPress any key (x) to continue\r\n");	
+		while( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
+
+		for( s = 0; s < 10; s++ )	// 10 flashes (count MUST be even!)
+		{
+			LEDShadow ^= mask;
+			SendLEDs();
+			Delay1mS(50);
+		}
+		mask <<= 1;
+	}
+	LEDShadow  = LEDSave;
+	SendLEDs();	
+	TxString("Test Finished\r\n");		
 } // PowerOutput
 
 void GPSTest(void)
@@ -484,10 +531,10 @@ void GPSTest(void)
 			TxVal32(GPSRelAltitude, 1, 'M');
 
 			TxString(" re=");
-			TxVal32(((int32)GPSEast * 1855)/1000 , 1,'M'); 
+			TxVal32(((int32)GPSEast * 1855L)/1000L , 1,'M'); 
 
 			TxString(" rn=");
-			TxVal32(((int32)GPSNorth * 1855)/1000, 1,'M');
+			TxVal32(((int32)GPSNorth * 1855L)/1000L, 1,'M');
 
 			TxNextLine();
 		}	
