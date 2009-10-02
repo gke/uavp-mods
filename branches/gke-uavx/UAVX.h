@@ -3,7 +3,9 @@
 //#define FAKE_FLIGHT						// For testing Nav on the GROUND!
 //#define SIMPLE_POS_HOLD					// Proportional control ONLY 
 
-#define NAV_MAX_ROLL_PITCH 		20L		// Rx stick units ~= degrees max pitch/roll angle
+#define NAV_ACQUIRE_BEEPER
+
+#define NAV_MAX_ROLL_PITCH 		25L		// Rx stick units ~= degrees max pitch/roll angle
 #define NAV_INT_LIMIT			10L		// Suggest half NAV_MAX_ROLL_PITCH 
 #define NAV_DIFF_LIMIT			10L		// Suggest half NAV_MAX_ROLL_PITCH 
 
@@ -70,7 +72,7 @@
 
 // Baro
 
-#define BARO_SCRATCHY_BEEPER			// Scratchy beeper noise on hover
+//#define BARO_SCRATCHY_BEEPER			// Scratchy beeper noise on hover
 
 // Increase the severity of the filter when averaging barometer pressure readings
 // New=(Old*7+New)/8).
@@ -135,7 +137,7 @@
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
 
 #define ATTITUDE_HOLD_LIMIT 			15L		// dead zone for roll/pitch stick for position hold
-#define ATTITUDE_HOLD_RESET_INTERVAL	100		// number of impulse cycles before GPS position is re-acquired
+#define ATTITUDE_HOLD_RESET_INTERVAL	50L		// number of impulse cycles before GPS position is re-acquired
 
 #define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used
 

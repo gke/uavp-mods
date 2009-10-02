@@ -91,7 +91,11 @@ void ShowSetup(uint8 h)
 
 	TxString("Compass ");
 	if( _CompassValid )
-		TxString("ONLINE\r\n");
+	{
+		TxString("ONLINE (");
+		TxVal32(COMPASS_OFFSET_DEG,0,0);
+		TxString("deg. offset)\r\n");
+	}
 	else
 		TxString("not available\r\n");
 

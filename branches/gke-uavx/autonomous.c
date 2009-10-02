@@ -99,7 +99,7 @@ void AcquireHoldPosition(void)
 
 	GPSNorthHold = GPSNorth;
 	GPSEastHold = GPSEast;
-	_Proximity = _CloseProximity = true;
+	_Proximity = _CloseProximity = false;
 
 	NavState = HoldingStation;
 } // AcquireHoldPosition
@@ -310,9 +310,30 @@ void FakeFlight()
 	#endif // FAKE_FLIGHT
 } // FakeFlight
 
+#ifdef NAV_ACQUIRE_BEEPER
+int24 BeepTimer = 0;
+#endif
+
 void DoNavigation(void)
 {
-	if ( _GPSValid && _CompassValid  && ( NavSensitivity > 0 ) && ( mS[Clock] > mS[NavActiveTime]) )
+	if ( _GPSValid && _CompassValid  && ( NavSensitivity > NAV_GAIN_THRESHOLD ) && ( mS[Clock] > mS[NavActiveTime]) )
+	{
+		#ifdef NAV_ACQUIRE_BEEPER
+		if ( _AttitudeHold && (NavState == HoldingStation)  )
+		{
+			if ( mS[Clock] > BeepTimer )
+			{
+				Beeper_TOG;
+				BeepTimer = mS[Clock] + 750;
+			}	
+		}
+		else
+			if ( NavState == Descending )
+				Beeper_ON;
+			else
+				Beeper_OFF;
+		#endif // NAV_ACQUIRE_BEEPER
+
 		switch ( NavState ) {
 		case PIC:
 		case HoldingStation:
@@ -370,8 +391,12 @@ void DoNavigation(void)
 			// not implemented yet
 			break;
 		} // switch NavState
+	}
 	else // no Navigation
+	{
+		Beeper_OFF;
 		CheckForHover();
+	}
 } // DoNavigation
 
 void DoFailsafe(void)

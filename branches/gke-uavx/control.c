@@ -428,7 +428,7 @@ void UpdateControls(void)
 		DesiredCamPitchTrim = RC[CamPitchC] - RC_NEUTRAL;
 
 		#ifndef RX6CH
-		NavSensitivity = RC[NavGainC] - NAV_GAIN_THRESHOLD;
+		NavSensitivity = RC[NavGainC];
 		NavSensitivity = Limit(NavSensitivity, 0, RC_MAXIMUM);
 		#endif // !RX6CH
 
