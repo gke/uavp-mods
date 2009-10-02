@@ -48,6 +48,7 @@ int16 int16sin(int16);
 int16 int16cos(int16);
 int16 int16atan2(int16, int16);
 int16 int16sqrt(int16);
+int32 int32sqrt(int32);
 
 void SendLEDs(void);
 void LEDsOn(uint8);
@@ -239,10 +240,11 @@ void ReadParametersEE(void)
 		YawIntLimit256 = (int16)P[YawIntLimit] * 256L;
 	
 		NavIntLimit256 = P[NavIntLimit] * 256L; 
-		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
+
 		NavNeutralRadius = (int16)P[NeutralRadius] * METRES_TO_GPS;
-		NavClosingRadius = Limit(P[NavClosingRadius], 5, 40); // avoid divide by zero
-		SqrNavClosingRadius = P[NavClosingRadius] * P[NavClosingRadius];	
+		NavClosingRadius = (int16)P[NavRadius] * METRES_TO_GPS;
+		NavClosingRadius = Limit(NavClosingRadius, NavNeutralRadius+(int16)5L*METRES_TO_GPS, (int16)40L*METRES_TO_GPS); // avoid divide by zero
+
 		CompassOffset = (((COMPASS_OFFSET_DEG - P[NavMagVar])*MILLIPI)/180L);
 	
 		PIE1bits.CCP1IE = false;
@@ -304,7 +306,8 @@ void UseDefaultParameters(void)
 	WriteParametersEE(1);
 	WriteParametersEE(2);
 	CurrentParamSet = 1;
-	TxString("\r\nDefault Parameters Loaded\r\n");	
+	TxString("\r\nDefault Parameters Loaded\r\n");
+	TxString("Do a READ CONFIG to refresh the UAVPSet parameter display\r\n");		
 } // UseDefaultParameters
 
 void UpdateParamSetChoice(void)
@@ -539,6 +542,23 @@ int16 int16sqrt(int16 n)
   return(r);
 } // int16sqrt
 
+int32 int32sqrt(int32 n)
+// 32 bit numbers 
+{
+  static int32 r, b;
+
+  r = 0;
+  b = 65536;
+  while (b > 0) 
+    {
+    if ( r*r > n )
+      r -= b;
+    b >>= 1;
+    r += b;
+    }
+  return(r);
+} // int32sqrt
+
 void SendLEDs(void)
 {
 	static int8	i, s;
@@ -671,6 +691,9 @@ void ZeroStats(void)
 
 	for (s = 0 ; s < MaxStats ; s++ )
 		Stats[s].i16 = 0;
+
+	Stats[MinHDiluteS].i16 = 10000L;
+	Stats[MaxHDiluteS].i16 = 0;
 } // ZeroStats
 
 void ReadStatsEE(void)
@@ -696,7 +719,7 @@ void WriteStatsEE()
 	}
 
 	Temp = ToPercent(HoverThrottle, OUT_MAXIMUM);
-	WriteEE((CurrentParamSet-1) * MAX_PARAMETERS + PercentHoverThr, Temp);
+	WriteEE(PercentHoverThr, Temp);
 } // WriteStatsEE
 
 void ShowStats(void)
@@ -711,20 +734,32 @@ void ShowStats(void)
 			Scale = 1500;
 
 	TxString("\r\nFlight Statistics\r\n");
-	TxString("GPS:   \t");TxVal32(Stats[GPSAltitudeS].i16,1,' '); TxString("M\r\n"); 
-	TxString("Baro:  \t");TxVal32(Stats[BaroPressureS].i16,0,' '); TxString("counts\r\n"); 
-	TxNextLine();
-	TxString("Roll:  \t"); TxVal32(((int32)(Stats[RollRateS].i16 - Stats[GyroMidRollS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
-	TxString("Pitch: \t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10,1,' '); TxString("Deg/Sec\r\n");
-	TxString("Yaw:   \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>8,1,' '); TxString("Deg/Sec\r\n");
-	TxNextLine();
-	TxString("LRAcc: \t"); TxVal32(((int32)Stats[LRAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
-	TxString("FBAcc: \t"); TxVal32(((int32)Stats[FBAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine();
-	TxString("DUAcc: \t"); TxVal32(((int32)Stats[DUAccS].i16*1000+512)/1024, 3, 'G'); TxNextLine(); 
-    TxNextLine();
-	TxString("LRDrift:\t"); TxVal32((int32)Stats[LRDriftS].i16, 3, ' '); TxString("M\r\n");; 
-	TxString("FBDrift:\t"); TxVal32((int32)Stats[FBDriftS].i16, 3, ' '); TxString("M\r\n");;
+
+	TxString("Vel:    \t");TxVal32((Stats[GPSVelS].i16*10L)/METRES_TO_GPS,1,' '); TxString("M/S\r\n\r\n"); 
+
+	TxString("GPSAlt: \t");TxVal32(Stats[GPSAltitudeS].i16, 1,' '); TxString("M\r\n"); 
+	TxString("BaroAlt:\t");TxVal32((Stats[RelBaroPressureS].i16 * 256)/BARO_SCALE, 1, ' '); TxString("M (");
+	TxVal32(Stats[RelBaroPressureS].i16,0,' '); TxString(" clicks)\r\n\r\n"); 
+
+	TxString("Roll:   \t"); TxVal32(((int32)(Stats[RollRateS].i16 - Stats[GyroMidRollS].i16) * Scale)>>10, 1,' '); TxString("Deg/Sec\r\n");
+	TxString("Pitch:  \t"); TxVal32(((int32)(Stats[PitchRateS].i16 - Stats[GyroMidPitchS].i16) * Scale)>>10, 1,' '); TxString("Deg/Sec\r\n");
+	TxString("Yaw:    \t");TxVal32(((int32)(Stats[YawRateS].i16 - Stats[GyroMidYawS].i16) * 3000L)>>10, 1,' '); TxString("Deg/Sec\r\n\r\n");
+
+	TxString("LRAcc:  \t"); TxVal32(((int32)Stats[LRAccS].i16 * 1000)>>10, 3, 'G'); TxNextLine(); 
+	TxString("FBAcc:  \t"); TxVal32(((int32)Stats[FBAccS].i16 * 1000)>>10, 3, 'G'); TxNextLine();
+	TxString("DUAcc:  \t"); TxVal32(((int32)Stats[DUAccS].i16 * 1000)>>10, 3, 'G'); TxNextLine();
+
+	TxString("\r\nSensor Failures (Count)\r\n");
+	TxString("Acc:    \t");TxVal32((int32)Stats[AccFailS].i16,0 , 0); TxNextLine();
+	TxString("Compass:\t");TxVal32((int32)Stats[CompassFailS].i16,0 , 0); TxNextLine();
+	TxString("Baro:   \t");TxVal32((int32)Stats[BaroFailS].i16,0 , 0); TxNextLine(); 
+
+	TxString("\r\nGPS\r\n");
+	TxString("HDilute:\t");TxVal32((int32)Stats[MinHDiluteS].i16, 2, ' ');
+	TxVal32((int32)Stats[MaxHDiluteS].i16, 2, 0); TxNextLine();
+	TxString("Invalid:\t");TxVal32(((int32)Stats[GPSInvalidS].i16*10000)/Stats[GPSSentencesS].i16, 4, '%'); TxNextLine();
 } // ShowStats
+
 
 void DumpTrace(void)
 {

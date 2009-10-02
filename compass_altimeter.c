@@ -196,8 +196,8 @@ void GetBaroPressure(void)
 			if ( State == InFlight )
 			{
 				Temp = Abs(CurrentBaroPressure);
-				if ( Temp > Stats[BaroPressureS].i16 ) 
-					Stats[BaroPressureS].i16 = Temp;
+				if ( Temp > Stats[RelBaroPressureS].i16 ) 
+					Stats[RelBaroPressureS].i16 = Temp;
 			}
 			BaroSample = BaroAverage = 0;
 			_NewBaroValue = true;

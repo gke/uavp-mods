@@ -107,9 +107,13 @@
 #define	GPS_MIN_SATELLITES		7		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX				1		// must be 1 or 2 
 #define GPS_INITIAL_SENTENCES 	90		// Number of sentences needed with set HDilute
-#define GPS_MIN_HDILUTE			130L	// HDilute * 100	
+#define GPS_MIN_HDILUTE			110L	// HDilute * 100	
 
-#define COMPASS_OFFSET_DEG		270L	// North degrees CW from Front
+#ifdef C90
+	#define COMPASS_OFFSET_DEG	90L		// North degrees CW from Front - older compass
+#else
+	#define COMPASS_OFFSET_DEG	270L	// North degrees CW from Front
+#endif // COMPASS_OFFSET_90
 
 #define	NAV_GAIN_THRESHOLD 		40L		// Navigation disabled if Ch7 is less than this
 #define NAV_GAIN_6CH			80L		// Low GPS gain for 6ch Rx 			
@@ -585,6 +589,7 @@ extern int16 int16sin(int16);
 extern int16 int16cos(int16);
 extern int16 int16atan2(int16, int16);
 extern int16 int16sqrt(int16);
+extern int32 int32sqrt(int32);
 
 extern void SendLEDs(void);
 extern void LEDsOn(uint8);
@@ -629,7 +634,7 @@ extern const rom uint8 SerPrompt[];
 // External Variables
 
 enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
-      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, LastDamping, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
+      AbortTimeout, RTHTimeout, LastValidRx, AltHoldUpdate, LastDamping, LastGPS, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamTiltC, NavGainC}; 
 #define CONTROLS (NavGainC+1)
@@ -641,7 +646,8 @@ enum FailStates { Waiting, Aborting, Returning, Terminated };
 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum GyroTypes { ADXRS300, ADXRS150, IDG300};
-enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, DX7AR7000, DX7AR6200, CustomTxRx };
+enum TxRxTypes { FutabaCh3, FutabaCh2, FutabaDM8, JRPPM, JRDM9, JRDXS12, 
+				DX7AR7000, DX7AR6200, FutabaCh3_6_7, DX7AR6000, GraupnerMX16s, CustomTxRx };
 
 enum TraceTags {THE, TCurrentBaroPressure,
 				TRollRate,TPitchRate,TYE,
@@ -716,7 +722,7 @@ extern int16 	GPSHDilute;
 extern int16 	GPSNorth, GPSEast, GPSNorthHold, GPSEastHold;
 extern int16 	GPSRelAltitude;
 
-extern int16 	SqrNavClosingRadius, NavClosingRadius, NavNeutralRadius, CompassOffset;
+extern int16 	NavClosingRadius, NavNeutralRadius, CompassOffset;
 
 enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
 extern uint8 	NavState;
@@ -754,9 +760,9 @@ extern int16	AttitudeHoldResetCount;
 extern int8		BatteryVolts; 
 extern uint8	LEDShadow;		// shadow register
 
-enum Statistics { GPSAltitudeS, BaroPressureS, RollRateS, PitchRateS, YawRateS,
+enum Statistics { GPSAltitudeS, RelBaroPressureS, GPSVelS, RollRateS, PitchRateS, YawRateS,
 				LRAccS, FBAccS,DUAccS, GyroMidRollS, GyroMidPitchS, GyroMidYawS, 
-				LRDriftS, FBDriftS,
+				AccFailS, CompassFailS, BaroFailS, GPSInvalidS, GPSSentencesS, MinHDiluteS, MaxHDiluteS,
 				MaxStats};
 extern i16u Stats[];
 
@@ -809,23 +815,25 @@ enum Params {
 	ESCType,			// 36c
 	TxRxType,			// 37c
 	NeutralRadius,		// 38
-	PercentNavSens6Ch	// 39c
-	// 39 - 64 unused currently
+	PercentNavSens6Ch,	// 39c
+	CamRollTrim			// 40c
+	// 41 - 64 unused currently
 	};
 
 #define FlyXMode 				0
 #define FlyXModeMask 			0x01
 
+#define UseRTHDescend 			1
+#define	UseRTHDescendMask		0x02
+
 #define TxMode2 				2
 #define TxMode2Mask 			0x04
+
 #define RxSerialPPM 			3
 #define RxSerialPPMMask			0x08 
 
 #define UseGPSAlt 				5
 #define	UseGPSAltMask			0x20
-
-#define UseRTHDescend 			6
-#define	UseRTHDescendMask		0x40
 
 #define STATS_ADDR_EE	 	( MAX_PARAMETERS *2 )
 extern int8 P[];

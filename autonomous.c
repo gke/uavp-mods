@@ -131,7 +131,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			Range = Max(Abs(NorthDiff), Abs(EastDiff)); 
 			_Proximity = Range < NavClosingRadius;
 			if ( _Proximity )
-				Range = int16sqrt( NorthDiff*NorthDiff + EastDiff*EastDiff); 
+				Range = int32sqrt( (int32)NorthDiff*(int32)NorthDiff + (int32)EastDiff*(int32)EastDiff); 
 			else
 				Range = NavClosingRadius;
 

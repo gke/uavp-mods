@@ -83,6 +83,7 @@ void MapRC(void)
 	RC[RollC] -= RC_NEUTRAL;
 	RC[PitchC] -= RC_NEUTRAL;
 	RC[YawC] -= RC_NEUTRAL;
+	RC[CamTiltC] -= RC_NEUTRAL;
 
 	#endif // UNROLL_LOOPS
 

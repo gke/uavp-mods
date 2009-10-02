@@ -120,7 +120,11 @@ void MixAndLimitMotors(void)
 { 	// expensive ~400uSec @16MHz
     static int16 Temp, CurrThrottle;
 
-	CurrThrottle = DesiredThrottle + (DUComp + BaroComp); // vertical compensation not optional
+	if ( DesiredThrottle < IdleThrottle )
+		CurrThrottle = 0;
+	else
+		CurrThrottle = DesiredThrottle + (DUComp + BaroComp); // vertical compensation not optional
+
 	Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
 	CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
 
@@ -153,13 +157,13 @@ void MixAndLimitCam(void)
 		Cp = (PitchSum * 4) / (int16)P[CamPitchKp];
 	else
 		Cp = OUT_NEUTRAL;
-		
-	Cp += RC[CamTiltC];	
+	Cp += RC[CamTiltC]; 			
 
 	if( P[CamRollKp] != 0 )
 		Cr = (RollSum * 4) / (int16)P[CamRollKp];
 	else
 		Cr = OUT_NEUTRAL;
+	Cr += P[CamRollTrim];
 
 	MCamRoll = Limit(Cr, 1, OUT_MAXIMUM);
 	MCamPitch = Limit(Cp, 1, OUT_MAXIMUM);
@@ -302,8 +306,7 @@ OS006:
 			{
 				ESCI2CStart();
 				r = SendESCI2CByte(0x52 + ( m*2 ));		// one cmd, one data byte per motor
-				r |= SendESCI2CByte( Motor[m] );
-				ESCI2CFail[m] |= r;  
+				r = SendESCI2CByte( Motor[m] );
 				ESCI2CStop();
 			}
 		else
@@ -312,8 +315,7 @@ OS006:
 				{
 					ESCI2CStart();
 					r = SendESCI2CByte(0x62 + ( m*2) );	// one cmd, one data byte per motor
-					r |= SendESCI2CByte( Motor[m]>>1 );
-					ESCI2CFail[m] |= r; 
+					r = SendESCI2CByte( Motor[m]>>1 );
 					ESCI2CStop();
 				}
 			else
@@ -321,11 +323,10 @@ OS006:
 				{
 					ESCI2CStart();
 					r = SendESCI2CByte(0x10);			// one command, 4 data bytes
-					r |= SendESCI2CByte( Motor[Front] ); 
-					r |= SendESCI2CByte( Motor[Back] );
-					r |= SendESCI2CByte( Motor[Left] );
-					r |= SendESCI2CByte( Motor[Right] );
-					ESCI2CFail[0] |= r;
+					r = SendESCI2CByte( Motor[Front] ); 
+					r = SendESCI2CByte( Motor[Back] );
+					r = SendESCI2CByte( Motor[Left] );
+					r = SendESCI2CByte( Motor[Right] );
 					ESCI2CStop();
 				}
 	}
