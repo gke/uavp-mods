@@ -711,7 +711,7 @@ void ZeroStats(void)
 	for (s = 0 ; s < MaxStats ; s++ )
 		Stats[s].i16 = 0;
 
-	Stats[MinHDiluteS].i16 = MAXINT16;
+	Stats[MinHDiluteS].i16 = 10000L;
 	Stats[MaxHDiluteS].i16 = 0;
 } // ZeroStats
 
