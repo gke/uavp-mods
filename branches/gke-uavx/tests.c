@@ -463,7 +463,7 @@ void GPSTest(void)
 			GetHeading();
 
 			if ( _CompassValid)
-				TxVal32((int32)ConvertMPiToDDeg(Heading), 1, 0);
+				TxVal32((int32)ConvertMPiToDDeg(Heading), 1, 'D');
 			else
 				TxString("___");
 			if ( _CompassMissRead )
@@ -481,13 +481,13 @@ void GPSTest(void)
 			TxVal32(GPSHDilute, 2, ' ');
 	
 			TxString("ra=");
-			TxVal32(GPSRelAltitude, 1, ' ');
+			TxVal32(GPSRelAltitude, 1, 'M');
 
-			TxString("re=");
-			TxVal32(GPSEast,0,' ');
+			TxString(" re=");
+			TxVal32(((int32)GPSEast * 1855)/1000 , 1,'M'); 
 
-			TxString("rn=");
-			TxVal32(GPSNorth,0,' ');
+			TxString(" rn=");
+			TxVal32(((int32)GPSNorth * 1855)/1000, 1,'M');
 
 			TxNextLine();
 		}	

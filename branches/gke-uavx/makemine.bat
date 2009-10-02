@@ -14,7 +14,9 @@ rem Clock rate CLOCK_16MHZ (Only 16MHZ available for UAVP version)
 rem Type of PIC processor 18F2620 only
 rem DEBUG_SENSORS to generate trace files of all main program and sensor values which can be plotted
 rem using UAVPSet (blank option in menu below testsoftware).
-rem Configuration TRICOPTER for three motor and QUAD for 4.
+rem Configuration TRICOPTER for 3 motors and QUAD for 4.
+rem Older compasses have a different offset than the newer ones - use C90 if the front motor
+rem arm is not pointing North with a heading of 0 degrees.
 rem Motors are disabled for DEBUG_SENSORS for safety reasons.
 rem Prevous switches THC and CAM have been abandoned in favour of Tx based
 rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
@@ -26,6 +28,7 @@ rem set CLOCK=CLOCK_16MHZ
 rem set PROC=18F2620
 rem set DBG=NO_DEBUG DEBUG_SENSORS 
 rem set RX=RX7CH RX6CH
+rem set CDEG=C270
 rem set CFG=QUAD TRICOPTER
 
 rem Personal choice
@@ -33,6 +36,7 @@ set CLOCK=CLOCK_16MHZ
 set PROC=18F2620
 set DBG=NO_DEBUG
 set RX=RX7CH
+set CDEG=C270
 set CFG=QUAD
 
 rem Delete working files
@@ -46,7 +50,5 @@ del *.HEX
 echo Starting makeall uavp > gen.lst
 echo Starting makeall uavp > log.lst
 
-rem Parameters for makeallhelper.bat are VERSION BARO GYRO ESC DBG RX
-
-for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do call makeallhelper.bat %VERSION% %%x %%p %%d  %%r %%c
+for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do for %%o in (%CDEG%) do call makeallhelper.bat %%x %%p %%d  %%r %%c %%o
 
