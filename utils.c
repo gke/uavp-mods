@@ -50,6 +50,8 @@ int16 int16atan2(int16, int16);
 int16 int16sqrt(int16);
 int32 int32sqrt(int32);
 
+int16 SlewLimit(int16, int16, int16);
+
 void SendLEDs(void);
 void LEDsOn(uint8);
 void LEDsOff(uint8);
@@ -653,8 +655,9 @@ void CheckAlarms(void)
 	BatteryVolts = SoftFilter(BatteryVolts, NewBatteryVolts);
 	_LowBatt =  (BatteryVolts < (int16) P[LowVoltThres]) & 1;
 
+	_BeeperInUse = _LowBatt || _LostModel;
+
 	if( _LowBatt ) // repeating beep
-	{
 		if( ((int16)mS[Clock] & 0x0200) == 0 )
 		{
 			Beeper_ON;
@@ -665,7 +668,6 @@ void CheckAlarms(void)
 			Beeper_OFF;
 			LEDRed_OFF;
 		}	
-	}
 	else
 	if ( _LostModel ) // 2 beeps with interval
 		if( ((int16)mS[Clock] & 0x0400) == 0 )
@@ -679,10 +681,15 @@ void CheckAlarms(void)
 			LEDRed_OFF;
 		}	
 	else
-	{
-		Beeper_OFF;				
-		LEDRed_OFF;
-	}
+		#ifdef NAV_ACQUIRE_BEEPER
+		if ( (State == InFlight) && (!_HoldBeeperArmed) && (mS[Clock] > mS[BeeperTimeout]) )
+			Beeper_OFF;
+		#else 
+		{
+			Beeper_OFF;
+			LEDRed_OFF;
+		}
+		#endif // NAV_ACQUIRE_BEEPER 
 
 } // CheckAlarms
 

@@ -36,7 +36,7 @@ void DoFailsafe(void);
 void InitNavigation(void);
 
 // Variables
-int16 NavRCorr, SumNavRCorr, NavPCorr, SumNavPCorr, NavYCorr, SumNavYCorr;
+int16 NavRCorr, NavRCorrP, SumNavRCorr, NavPCorr, NavPCorrP, SumNavPCorr, NavYCorr, SumNavYCorr;
 int16 NavKp, NavVel, Range, RangeToNeutral;  
 int16 RWeight, PWeight, PSign, RSign, RollP, RollI, RollD, PitchP, PitchI, PitchD; 
 
@@ -202,8 +202,12 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 			NavRCorr = Limit(NavRCorr, -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH );
 			NavRCorr = SRS16(Abs(RWeight) * NavRCorr, 8);
+
+			NavRCorr = SlewLimit(NavRCorrP, NavRCorr, NAV_CORR_SLEW_LIMIT);
+			NavRCorrP = NavRCorr;
+
 			Temp = DesiredRoll + NavRCorr;
-			DesiredRoll = Limit(Temp , -RC_NEUTRAL, RC_NEUTRAL);
+			DesiredRoll = Limit(Temp , -RC_MAX_ROLL_PITCH, RC_MAX_ROLL_PITCH);
 
 			// Pitch
 			PWeight = -(int32)int16cos(RelHeading);
@@ -224,8 +228,12 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 			NavPCorr = Limit(NavPCorr, -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH );
 			NavPCorr = SRS16(Abs(PWeight) * NavPCorr, 8);
+
+			NavPCorr = SlewLimit(NavPCorrP, NavPCorr, NAV_CORR_SLEW_LIMIT);
+			NavPCorrP = NavPCorr;
+
 			Temp = DesiredPitch + NavPCorr;
-			DesiredPitch = Limit(Temp, -RC_NEUTRAL, RC_NEUTRAL);
+			DesiredPitch = Limit(Temp, -RC_MAX_ROLL_PITCH, RC_MAX_ROLL_PITCH);
 
 		#endif // SIMPLE_POS_HOLD
 
@@ -243,7 +251,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 		else
 		{
 			// Neutral Zone - no GPS influence
-			NavPCorr = NavRCorr = NavPCorr = SumNavRCorr = SumNavPCorr = NavYCorr =  0;
+			NavPCorr = NavPCorrP = NavRCorr = NavRCorrP = SumNavRCorr = SumNavPCorr = NavYCorr =  0;
 			_CloseProximity = true;
 		}
 
@@ -267,6 +275,7 @@ void FakeFlight()
 
 		RangeP = MAXINT16;	
 		GPSEast = 200L; GPSNorth = 200L;
+		InitNavigation();
 	
 		TxString("\r\n Sens Kp East North DRoll DPitch Range Vel ");
 		TxString("RP RI RD RSign RWt | PP PI PD PSign PWt\r\n");
@@ -310,36 +319,28 @@ void FakeFlight()
 	#endif // FAKE_FLIGHT
 } // FakeFlight
 
-#ifdef NAV_ACQUIRE_BEEPER
-int24 BeepTimer = 0;
-#endif
-
 void DoNavigation(void)
 {
 	if ( _GPSValid && _CompassValid  && ( NavSensitivity > NAV_GAIN_THRESHOLD ) && ( mS[Clock] > mS[NavActiveTime]) )
 	{
-		#ifdef NAV_ACQUIRE_BEEPER
-		if ( _AttitudeHold && (NavState == HoldingStation)  )
-		{
-			if ( mS[Clock] > BeepTimer )
-			{
-				Beeper_TOG;
-				BeepTimer = mS[Clock] + 750;
-			}	
-		}
-		else
-			if ( NavState == Descending )
-				Beeper_ON;
-			else
-				Beeper_OFF;
-		#endif // NAV_ACQUIRE_BEEPER
-
 		switch ( NavState ) {
-		case PIC:
 		case HoldingStation:
-
-			if ( !_AttitudeHold )
+			if ( _AttitudeHold )
+			{
+				#ifdef NAV_ACQUIRE_BEEPER
+				if ( _HoldBeeperArmed && !_BeeperInUse )
+				{
+					mS[BeeperTimeout] = mS[Clock] + 500;
+					Beeper_ON;
+					_HoldBeeperArmed = false;
+				} 
+				#endif // NAV_ACQUIRE_BEEPER
+			}
+			else
+			{
+				_HoldBeeperArmed = true;
 				AcquireHoldPosition();
+			}
 			
 			NavState = HoldingStation;			// Keep GPS hold active regardless
 			Navigate(GPSNorthHold, GPSEastHold);
@@ -504,12 +505,12 @@ void InitNavigation(void)
 	}
 
 	GPSNorthHold = GPSEastHold = 0;
-	NavPCorr = NavRCorr = NavPCorr = SumNavRCorr = SumNavPCorr = NavYCorr = 0;
+	NavPCorr = NavPCorrP = NavRCorr = NavRCorrP = SumNavRCorr = SumNavPCorr = NavYCorr = 0;
 
 	RollP, RollI = RollD = PitchP = PitchI = PitchD = 0;
 	RangeP = MAXINT16;
 
-	NavState = PIC;
+	NavState = HoldingStation;
 	AttitudeHoldResetCount = 0;
 	_Proximity = _CloseProximity = true;
 	_NavComputed = false;

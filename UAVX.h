@@ -135,9 +135,10 @@
 	
 #define	NAV_YAW_LIMIT			10L		// yaw slew rate for RTH
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
+#define NAV_CORR_SLEW_LIMIT		2L		// maximum change in roll or pitch correction per GPS update
 
-#define ATTITUDE_HOLD_LIMIT 			15L		// dead zone for roll/pitch stick for position hold
-#define ATTITUDE_HOLD_RESET_INTERVAL	50L		// number of impulse cycles before GPS position is re-acquired
+#define ATTITUDE_HOLD_LIMIT 			5L		// dead zone for roll/pitch stick for position hold
+#define ATTITUDE_HOLD_RESET_INTERVAL	25L		// number of impulse cycles before GPS position is re-acquired
 
 #define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used
 
@@ -290,7 +291,8 @@ typedef union {
 
 // Status 
 #define	_Signal				Flags[0]
-	
+
+#define	_BeeperInUse		Flags[1]	
 #define	_NewValues			Flags[2]	
 #define _FirstTimeout		Flags[3]
 
@@ -313,6 +315,7 @@ typedef union {
 #define _Hovering			Flags[20]
 #define _NavComputed 		Flags[21]
 #define _AttitudeHold		Flags[22]
+#define _HoldBeeperArmed	Flags[23]
 
 #define _RTHAltitudeHold	Flags[24]
 #define _ReturnHome			Flags[25]
@@ -401,6 +404,8 @@ typedef union {
 #define RC_MINIMUM			0
 #define RC_MAXIMUM			238
 #define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
+
+#define RC_MAX_ROLL_PITCH	(170)	
 
 #define RC_THRES_STOP		((6L*RC_MAXIMUM)/100)		
 #define RC_THRES_START		((10L*RC_MAXIMUM)/100)		
@@ -655,7 +660,7 @@ extern const rom uint8 SerPrompt[];
 
 // External Variables
 
-enum { Clock, UpdateTimeout, RCSignalTimeout, AlarmUpdate, ThrottleIdleTimeout, FailsafeTimeout, 
+enum { Clock, UpdateTimeout, RCSignalTimeout, BeeperTimeout, ThrottleIdleTimeout, FailsafeTimeout, 
       AbortTimeout, RTHTimeout, LastValidRx, LastGPS, AltHoldUpdate, GPSTimeout, NavActiveTime, ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 	
 enum RCControls {ThrottleC, RollC, PitchC, YawC, RTHC, CamPitchC, NavGainC}; 
@@ -744,7 +749,7 @@ extern int16 	GPSRelAltitude;
 
 extern int16 	NavClosingRadius, NavNeutralRadius, NavCloseToNeutralRadius, CompassOffset;
 
-enum NavStates { PIC, HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
+enum NavStates { HoldingStation, ReturningHome, AtHome, Descending, Navigating, Terminating };
 extern uint8 	NavState;
 extern int16 	NavSensitivity;
 extern int16 	AltSum, AE, RangeP;
