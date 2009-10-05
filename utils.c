@@ -657,39 +657,42 @@ void CheckAlarms(void)
 
 	_BeeperInUse = _LowBatt || _LostModel;
 
-	if( _LowBatt ) // repeating beep
-		if( ((int16)mS[Clock] & 0x0200) == 0 )
-		{
-			Beeper_ON;
-			LEDRed_ON;
-		}
+	if ( _BeeperInUse )
+	{
+		if( _LowBatt ) // repeating beep
+			if( ((int16)mS[Clock] & 0x0200) == 0 )
+			{
+				Beeper_ON;
+				LEDRed_ON;
+			}
+			else
+			{
+				Beeper_OFF;
+				LEDRed_OFF;
+			}	
 		else
-		{
-			Beeper_OFF;
-			LEDRed_OFF;
-		}	
+			if ( _LostModel ) // 2 beeps with interval
+				if( ((int16)mS[Clock] & 0x0400) == 0 )
+				{
+					Beeper_ON;
+					LEDRed_ON;
+				}
+				else
+				{
+					Beeper_OFF;
+					LEDRed_OFF;
+				}	
+			else
+				{
+					Beeper_OFF;
+					LEDRed_OFF;
+				}
+	}	
+	#ifdef NAV_ACQUIRE_BEEPER
 	else
-	if ( _LostModel ) // 2 beeps with interval
-		if( ((int16)mS[Clock] & 0x0400) == 0 )
-		{
-			Beeper_ON;
-			LEDRed_ON;
-		}
-		else
-		{
-			Beeper_OFF;
-			LEDRed_OFF;
-		}	
-	else
-		#ifdef NAV_ACQUIRE_BEEPER
 		if ( (State == InFlight) && (!_HoldBeeperArmed) && (mS[Clock] > mS[BeeperTimeout]) )
 			Beeper_OFF;
-		#else 
-		{
-			Beeper_OFF;
-			LEDRed_OFF;
-		}
-		#endif // NAV_ACQUIRE_BEEPER 
+	#endif // NAV_ACQUIRE_BEEPER 
 
 } // CheckAlarms
 
