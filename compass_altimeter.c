@@ -183,14 +183,14 @@ static int16 BaroAverage;
 
 void GetBaroPressure(void)
 {	
-	int16 Temp;
+	static int16 Temp;
 	// SMD500 9.5mS (T) 34mS (P)  
 	// BMP085 4.5mS (T) 25.5mS (P) OSRS=3, 7.5mS OSRS=1
 
 	if ( mS[Clock] > mS[BaroUpdate] )
 	{
 		ReadBaro();
-		BaroAverage += ( (int24)BaroVal.u16 - OriginBaroPressure );
+		BaroAverage += ( (int32)BaroVal.u16 - OriginBaroPressure );
 		BaroSample++;
 		if ( BaroSample == 8 )
 		{
@@ -213,7 +213,7 @@ void GetBaroPressure(void)
 
 void InitBarometer(void)
 {	
-	uint24 BaroAv;
+	uint32 BaroAv;
 	uint8 s;
 	uint8 r;
 
@@ -238,10 +238,10 @@ void InitBarometer(void)
 	{
 		while ( mS[Clock] < mS[BaroUpdate] );
 		ReadBaro();
-		BaroAv += BaroVal.u16;	
+		BaroAv += (int32)BaroVal.u16;	
 	}
 	
-	OriginBaroPressure = (int16)(BaroAv >> 5);
+	OriginBaroPressure = (uint24)(BaroAv >> 5);
 	CurrentRelBaroPressure = 0;
 	_NewBaroValue = false;
 	BaroSample = 0;
@@ -303,7 +303,7 @@ void BaroPressureHold(int16 DesiredRelBaroPressure)
 		BaroComp += SRS16(Delta * (int16)P[BaroCompKd], 2);
 		
 		BaroComp = Limit(BaroComp, BARO_LOW_THR_COMP, BARO_HIGH_THR_COMP);
-	
+
 		if ( !(  _RTHAltitudeHold && ( NavState == ReturningHome ) ) )
 		{
 			Temp = DesiredThrottle + BaroComp;

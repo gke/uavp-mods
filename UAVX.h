@@ -5,14 +5,14 @@
 
 #define NAV_ACQUIRE_BEEPER
 
-#define NAV_MAX_ROLL_PITCH 		25L		// Rx stick units ~= degrees max pitch/roll angle
-#define NAV_INT_LIMIT			10L		// Suggest half NAV_MAX_ROLL_PITCH 
-#define NAV_DIFF_LIMIT			10L		// Suggest half NAV_MAX_ROLL_PITCH 
-
 #define DAMP_HORIZ_LIMIT 		3L		// equivalent stick units - no larger than 5
 
 #define DAMP_VERT_LIMIT_LOW		-5L		// maximum throttle reduction
 #define DAMP_VERT_LIMIT_HIGH	20L		// maximum throttle increase
+
+#define NAV_MAX_ROLL_PITCH 		25L		// Rx stick units ~= degrees max pitch/roll angle
+#define NAV_INT_LIMIT			3L		// Suggest similar to DAMP_HORIZ_LIMIT 
+#define NAV_DIFF_LIMIT			5L		// Less than half NAV_MAX_ROLL_PITCH 
 
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
@@ -119,7 +119,7 @@
 
 #define	GPS_MIN_SATELLITES		7		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX				1		// must be 1 or 2 
-#define GPS_INITIAL_SENTENCES 	10L		// Number of sentences needed with set HDilute
+#define GPS_INITIAL_SENTENCES 	20L		// Number of sentences needed with set HDilute
 #define GPS_MIN_HDILUTE			130L	// HDilute * 100	
 
 #ifdef C90
@@ -137,7 +137,7 @@
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
 #define NAV_CORR_SLEW_LIMIT		2L		// maximum change in roll or pitch correction per GPS update
 
-#define ATTITUDE_HOLD_LIMIT 			5L		// dead zone for roll/pitch stick for position hold
+#define ATTITUDE_HOLD_LIMIT 			10L		// dead zone for roll/pitch stick for position hold
 #define ATTITUDE_HOLD_RESET_INTERVAL	25L		// number of impulse cycles before GPS position is re-acquired
 
 #define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used
@@ -848,20 +848,20 @@ enum Params {
 	// 44 - 64 unused currently
 	};
 
-#define FlyXMode 				0
-#define FlyXModeMask 			0x01
+#define FlyXMode 			0
+#define FlyXModeMask 		0x01
 
-#define UseRTHDescend 			1
-#define	UseRTHDescendMask		0x02
+#define UseRTHDescend 		1
+#define	UseRTHDescendMask	0x02
 
-#define TxMode2 				2
-#define TxMode2Mask 			0x04
+#define TxMode2 			2
+#define TxMode2Mask 		0x04
 
-#define RxSerialPPM 			3
-#define RxSerialPPMMask			0x08 
+#define RxSerialPPM 		3
+#define RxSerialPPMMask		0x08 
 
-#define UseGPSAlt 				5
-#define	UseGPSAltMask			0x20
+#define UseGPSAlt 			5
+#define	UseGPSAltMask		0x20
 
 #define STATS_ADDR_EE	 	( MAX_PARAMETERS *2 )
 extern int8 P[];

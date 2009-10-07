@@ -47,13 +47,13 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 	static int16 Temp;
 
 	if ( _RTHAltitudeHold )
-		if ( P[ConfigBits] & UseGPSAltMask || !_BaroAltitudeValid )
+		if ( (P[ConfigBits] & UseGPSAltMask) || !_BaroAltitudeValid )
 		{
 			AE = DesiredAltitude - GPSRelAltitude;
 			AE = Limit(AE, -GPS_ALT_BAND_DM, GPS_ALT_BAND_DM);
 			AltSum += AE;
 			AltSum = Limit(AltSum, -10, 10);	
-			Temp = SRS16(AE*P[GPSAltKp] + AltSum*P[GPSAltKi], 7);
+			Temp = SRS16(AE*(int16)P[GPSAltKp] + AltSum*(int16)P[GPSAltKi], 7);
 		
 			DesiredThrottle = HoverThrottle + Limit(Temp, GPS_ALT_LOW_THR_COMP, GPS_ALT_HIGH_THR_COMP);
 			DesiredThrottle = Limit(DesiredThrottle, 0, OUT_MAXIMUM);
@@ -61,7 +61,8 @@ void AltitudeHold(int16 DesiredAltitude) // Decimetres
 		else
 		{
 			DesiredThrottle = HoverThrottle;
-			BaroPressureHold(-SRS32( (int32)DesiredAltitude * BARO_SCALE, 8) );	
+			Temp = -SRS32( (int32)DesiredAltitude * BARO_SCALE, 8);
+			BaroPressureHold(Temp);	
 		}
 	else
 	{
@@ -501,7 +502,7 @@ void InitNavigation(void)
 	for (w = 0; w < NAV_MAX_WAYPOINTS; w++)
 	{
 		WP[w].N = WP[w].E = 0; 
-		WP[w].A = P[NavRTHAlt]*10L; // Decimetres
+		WP[w].A = (int16)P[NavRTHAlt]*10L; // Decimetres
 	}
 
 	GPSNorthHold = GPSEastHold = 0;

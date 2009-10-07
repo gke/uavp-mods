@@ -425,11 +425,13 @@ void UpdateControls(void)
 		DesiredPitch = RC[PitchC] - RC_NEUTRAL;
 		DesiredYaw = RC[YawC] - RC_NEUTRAL;
 
-		DesiredCamPitchTrim = RC[CamPitchC] - RC_NEUTRAL;
-
-		#ifndef RX6CH
-		NavSensitivity = RC[NavGainC];
-		NavSensitivity = Limit(NavSensitivity, 0, RC_MAXIMUM);
+		#ifdef RX6CH
+			DesiredCamPitchTrim = RC_NEUTRAL;
+			// NavSensitivity set in ReadParametersEE
+		#else
+			DesiredCamPitchTrim = RC[CamPitchC] - RC_NEUTRAL;
+			NavSensitivity = RC[NavGainC];
+			NavSensitivity = Limit(NavSensitivity, 0, RC_MAXIMUM);
 		#endif // !RX6CH
 
 		_ReturnHome = RC[RTHC] > RC_NEUTRAL;
