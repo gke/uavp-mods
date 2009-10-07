@@ -199,10 +199,10 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			RollD = SRS16(NavVel * P[NavKd] * RSign, 6);
 			RollD = Limit(RollD, -NAV_DIFF_LIMIT, NAV_DIFF_LIMIT);
 
-			NavRCorr = RollP + RollI + RollD;
+			NavRCorr = RollP + RollD;
 
+			NavRCorr = SRS16(Abs(RWeight) * NavRCorr, 8) + RollI;
 			NavRCorr = Limit(NavRCorr, -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH );
-			NavRCorr = SRS16(Abs(RWeight) * NavRCorr, 8);
 
 			NavRCorr = SlewLimit(NavRCorrP, NavRCorr, NAV_CORR_SLEW_LIMIT);
 			NavRCorrP = NavRCorr;
@@ -225,10 +225,10 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			PitchD = SRS16(NavVel * P[NavKd] * PSign, 6);
 			PitchD = Limit(PitchD, -NAV_DIFF_LIMIT, NAV_DIFF_LIMIT);
 
-			NavPCorr = PitchP + PitchI + PitchD;
+			NavPCorr = PitchP + PitchD;
 
+			NavPCorr = SRS16(Abs(PWeight) * NavPCorr, 8) + PitchI;
 			NavPCorr = Limit(NavPCorr, -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH );
-			NavPCorr = SRS16(Abs(PWeight) * NavPCorr, 8);
 
 			NavPCorr = SlewLimit(NavPCorrP, NavPCorr, NAV_CORR_SLEW_LIMIT);
 			NavPCorrP = NavPCorr;
