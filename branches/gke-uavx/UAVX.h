@@ -10,9 +10,9 @@
 #define DAMP_VERT_LIMIT_LOW		-5L		// maximum throttle reduction
 #define DAMP_VERT_LIMIT_HIGH	20L		// maximum throttle increase
 
-#define NAV_MAX_ROLL_PITCH 		25L		// Rx stick units ~= degrees max pitch/roll angle
+#define NAV_MAX_ROLL_PITCH 		18L		// Rx stick units ~= degrees max pitch/roll angle
 #define NAV_INT_LIMIT			3L		// Suggest similar to DAMP_HORIZ_LIMIT 
-#define NAV_DIFF_LIMIT			5L		// Less than half NAV_MAX_ROLL_PITCH 
+#define NAV_DIFF_LIMIT			3L		// Less than half NAV_MAX_ROLL_PITCH 
 
 // =======================================================================
 // =                     UAVX Quadrocopter Controller                    =
@@ -117,9 +117,9 @@
 
 // reads $GPGGA and $GPRMC sentences - all others discarded
 
-#define	GPS_MIN_SATELLITES		7		// preferably > 5 for 3D fix
+#define	GPS_MIN_SATELLITES		6		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX				1		// must be 1 or 2 
-#define GPS_INITIAL_SENTENCES 	20L		// Number of sentences needed with set HDilute
+#define GPS_INITIAL_SENTENCES 	30L		// Number of sentences needed with set HDilute
 #define GPS_MIN_HDILUTE			130L	// HDilute * 100	
 
 #ifdef C90
@@ -137,7 +137,7 @@
 #define NAV_MAX_TRIM			20L		// max trim offset for hover hold
 #define NAV_CORR_SLEW_LIMIT		2L		// maximum change in roll or pitch correction per GPS update
 
-#define ATTITUDE_HOLD_LIMIT 			10L		// dead zone for roll/pitch stick for position hold
+#define ATTITUDE_HOLD_LIMIT 			8L		// dead zone for roll/pitch stick for position hold
 #define ATTITUDE_HOLD_RESET_INTERVAL	25L		// number of impulse cycles before GPS position is re-acquired
 
 #define NAV_MAX_WAYPOINTS		16		// Only WP[0] or Origin used

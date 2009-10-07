@@ -190,7 +190,7 @@ void GetBaroPressure(void)
 	if ( mS[Clock] > mS[BaroUpdate] )
 	{
 		ReadBaro();
-		BaroAverage += ( (int32)BaroVal.u16 - OriginBaroPressure );
+		BaroAverage += (int16)( (int24)BaroVal.u16 - OriginBaroPressure );
 		BaroSample++;
 		if ( BaroSample == 8 )
 		{
@@ -213,7 +213,7 @@ void GetBaroPressure(void)
 
 void InitBarometer(void)
 {	
-	uint32 BaroAv;
+	int24 BaroAv;
 	uint8 s;
 	uint8 r;
 
@@ -238,10 +238,10 @@ void InitBarometer(void)
 	{
 		while ( mS[Clock] < mS[BaroUpdate] );
 		ReadBaro();
-		BaroAv += (int32)BaroVal.u16;	
+		BaroAv += (int24)BaroVal.u16;	
 	}
 	
-	OriginBaroPressure = (uint24)(BaroAv >> 5);
+	OriginBaroPressure = (int24)(BaroAv >> 5);
 	CurrentRelBaroPressure = 0;
 	_NewBaroValue = false;
 	BaroSample = 0;
