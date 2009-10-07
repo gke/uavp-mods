@@ -305,7 +305,7 @@ void main(void)
 	
 		State = Starting;
 
-		#ifdef FAKE_FLIGHT // zzz
+		#ifdef FAKE_FLIGHT 
 
 		FakeFlight();
 

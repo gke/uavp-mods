@@ -65,7 +65,7 @@ void MapRC(void)
 
 	LastThrottle = RC[ThrottleC];
 
-	for (c = 0 ; c < CONTROLS ; c++)
+	for (c = 0 ; c < RC_CONTROLS ; c++)
 	{
 		Temp = PPM[Map[P[TxRxType]][c]-1].low8;
 		RC[c] = RxFilter(RC[c], Temp);
@@ -98,13 +98,9 @@ void InitTimersAndInterrupts(void)
 	for (i = Clock; i<= CompassUpdate; i++)
 		mS[i] = 0;
 
-	for (i = 0; i < CONTROLS; i++)
+	for (i = 0; i < RC_CONTROLS; i++)
 		PPM[i].i16 = RC[i] = 0;
-	#ifdef RX6CH
-	PPM[CamPitchC].i16 = RC_NEUTRAL;
-	PPM[NavGainC].i16 = 0;
-	#endif // RX6CH	  
-
+	
 	RC[RollC] = RC[PitchC] = RC[YawC] = RC_NEUTRAL;
 
 	PPM_Index = PrevEdge = RCGlitches = RxCheckSum =  0;

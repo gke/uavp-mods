@@ -165,7 +165,7 @@ void ReceiverTest(void)
 	// Be wary as new RC frames are being received as this
 	// is being displayed so data may be from overlapping frames
 
-	for ( s = 0; s < CONTROLS ; s++ )
+	for ( s = 0; s < RC_CONTROLS ; s++ )
 	{
 		TxChar(s+'1');
 		TxString(": ");
