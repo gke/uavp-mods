@@ -114,7 +114,7 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 
 	#define OLD_NAVKI	2
 
-	static int16 Temp, Correction, SignedRange;
+	static int16 Temp, Correction, XP, XD;
 	static int16 EastDiff, NorthDiff, WayHeading, RelHeading, DiffHeading;
 
 	if ( _NavComputed ) // maintain previous corrections
@@ -183,27 +183,26 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 				Range = NavClosingRadius;
 
 			RangeToNeutral = Range - NavNeutralRadius;
+			XP = SRS16(RangeToNeutral * NavKp, 8);
+			XD = SRS16(NavVel * P[NavKd], 6);
 
 			// Roll
 			RWeight = int16sin(RelHeading);
-			RSign = Sign(RWeight);
-			SignedRange = RangeToNeutral * RSign;
 
-			RollP = SRS16(SignedRange * NavKp, 8);
+			RollP = SRS16(RWeight * XP, 8);
 
-			Temp = SumNavRCorr + RSign * 2;
+			Temp = SumNavRCorr + RollP;
 			SumNavRCorr = Limit (Temp, -NAV_INT_LIMIT, NAV_INT_LIMIT);
 			RollI = SRS16(SumNavRCorr * (int16)P[NavKi], 4);
 			SumNavRCorr = DecayX(SumNavRCorr, 1);
 
-			RollD = SRS16(NavVel * P[NavKd] * RSign, 6);
+			RollD = SRS16(RWeight * XD, 8);
 			RollD = Limit(RollD, -NAV_DIFF_LIMIT, NAV_DIFF_LIMIT);
 
-			NavRCorr = RollP + RollD;
+			NavRCorr = RollP + RollI + RollD;
 
-			NavRCorr = SRS16(Abs(RWeight) * NavRCorr, 8) + RollI;
 			NavRCorr = Limit(NavRCorr, -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH );
-
+	
 			NavRCorr = SlewLimit(NavRCorrP, NavRCorr, NAV_CORR_SLEW_LIMIT);
 			NavRCorrP = NavRCorr;
 
@@ -211,23 +210,20 @@ void Navigate(int16 GPSNorthWay, int16 GPSEastWay)
 			DesiredRoll = Limit(Temp , -RC_MAX_ROLL_PITCH, RC_MAX_ROLL_PITCH);
 
 			// Pitch
-			PWeight = -(int32)int16cos(RelHeading);
-			PSign = Sign(PWeight);	
-			SignedRange = RangeToNeutral * PSign;
+			PWeight = -(int32)int16cos(RelHeading);	
 
-			PitchP = SRS16(SignedRange * NavKp, 8);
+			PitchP = SRS16(PWeight * XP, 8);
 
-			Temp = SumNavPCorr + PSign * 2;
+			Temp = SumNavPCorr + PitchP;
 			SumNavPCorr = Limit (Temp, -NAV_INT_LIMIT, NAV_INT_LIMIT);
 			PitchI = SRS16(SumNavPCorr * (int16)P[NavKi], 4);
 			SumNavPCorr = DecayX(SumNavPCorr, 1);
 
-			PitchD = SRS16(NavVel * P[NavKd] * PSign, 6);
+			PitchD = SRS16(PWeight * XD, 8);
 			PitchD = Limit(PitchD, -NAV_DIFF_LIMIT, NAV_DIFF_LIMIT);
 
-			NavPCorr = PitchP + PitchD;
+			NavPCorr = PitchP + PitchI + PitchD;
 
-			NavPCorr = SRS16(Abs(PWeight) * NavPCorr, 8) + PitchI;
 			NavPCorr = Limit(NavPCorr, -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH );
 
 			NavPCorr = SlewLimit(NavPCorrP, NavPCorr, NAV_CORR_SLEW_LIMIT);
