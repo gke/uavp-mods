@@ -1,4 +1,4 @@
-#summary A build it yourself UAVPset hand terrminal by BA
+#summary A build it yourself UAVPset hand terrminal by Ta2cba
 #labels UAVPUAVX,PortableTerminal,UAVPset
 =UAVP/UAVX Portable Parameter setting terminal= 
 Hi All,
