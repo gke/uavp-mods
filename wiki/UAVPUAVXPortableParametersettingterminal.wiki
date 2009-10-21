@@ -1,0 +1,13 @@
+#labels UAVPUAVX,PortableTerminal,UAVPset
+=UAVP/UAVX Portable Parameter setting terminal= 
+Hi All,
+
+  I was working on a portable hand terminal for sometime to modify the flight parameters of UAVP/UAVX in the field while flight testing. I finished the unit and tested with UAVP and UAVX gkeware. 
+
+  I put together a manual for constructing and using it including the schematics for anyone who wants to build it.The latest version of source code and hex file for the PIC used in the terminal unit and the manual is included in the zip file attached. I hope this helps.
+Cheers,
+
+ba
+
+==Document download:==
+http://www.rcgroups.com/forums/showatt.php?attachmentid=2820210
