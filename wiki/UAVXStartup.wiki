@@ -34,6 +34,10 @@ It is assumed you:
    * Graupner MX16s use JR XP8103/R700-PPM
    * DX7/AR6000 use JR XP8103/R700-PPM
 
+  *If your Tx/Rx combination is not currently supported then you should check the following site (Logic Analyzer Displays of PPM Rx Channels). The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
+
+  http://www.rcgroups.com/forums/showthread.php?t=1171547
+
   * I have a Futaba and only Ch6 is connected to a Pot so how do I swap Ch6 and Ch7: Try the "Custom" Rx/Tx config in the UAVPSet pulldown. UAVX can map any input sequence order to any other order provided that the Rx pulses do not overlap and are emitted by the Rx with no gaps. You need to change the *custom* setting definition in the source program to achieve this (uavx.c). 
 
   * What does the Tx Mode checkbox do: This is used to tell the stick programming software (see below) which channels to use. It *does not swap* where your throttle etc. is on your Tx. Set it and do a Write if you are using a Tx with the throttle on the left hand.
