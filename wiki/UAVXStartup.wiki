@@ -93,18 +93,18 @@ It is assumed you:
 
   * Are there any adjustments for setting North: The Magnetic variation must be set correctly using UAVPSet. Look it up for your location. *Check that the front motor arm is pointing to True North* when the heading reads zero using Tools->Test Software->C (Compass test).
 
-  * The Compass seems to be offset by 180deg: Some earlier compasses had an offset of 90deg instead of the 270deg for more recent ones. If you can recompile the code with the correct offset for your compass but later releases of UAVX will have additional hex files with "90D" in the file name. 
+  * The Compass seems to be offset by 180deg: Some earlier compasses had an offset of 90deg instead of the 270deg for more recent ones. All releases of UAVX have additional hex files with "90D" in the file name. 
 
 ==== Barometer ====
   * Is a Barometers required: It is possible to fly a quadrocopter manually without a barometer but you will not have any automatic hover hold. You must have a barometer for GPS navigation as it is required for altitude hold(see below).
 
-  * The altitude seems to drift a lot when I look at it in TestSoftware->Barometer test: If it is cold then the barometer electronics, and other electronics including the gyros,  may take several minutes to reach a reasonably stable operating temperature. The origin altitude is recomputed just before flight so the main thing is to see a reasonably stable altitude in the barometer test. 
+  * The altitude seems to drift a lot when I look at it in Tools->Test Software->H barometer test: If it is cold then the barometer electronics, and other electronics including the gyros,  may take several minutes to reach a reasonably stable operating temperature. The origin altitude is recomputed just before flight so the main thing is to see a stable altitude in the barometer test when you do several readings. 
 
   * What is the recommended Barometer: The BMP085 is recommended but UAVX can use the SMD500. UAVX automatically senses which barometer you are using.
 
   * Do I need to calibrate the Barometer: No this is done automatically each flight.
  
-  * Does wind or light effect the Barometer: Yes it does. You need to wrap the Barometer in foam which does not have closed cells (the air has to get through not surprisingly)or use some other light and wind masking arrangement of your choosing. You must avoid strong light falling directly on the sensor inlet hole or water droplets from rain blocking this hole. 
+  * Does wind or light effect the Barometer: Yes it does. You need to wrap the Barometer in foam which does not have closed cells (the air has to get through not surprisingly) or use some other light and wind masking arrangement of your choosing. You must avoid strong light falling directly on the sensor inlet hole or water droplets from rain blocking this hole. 
 ==== Accelerometers ====
   * Is an Accelerometer required: While it is just possible to fly a quadrocopter without accelerometers you must have them for GPS navigation.
 
