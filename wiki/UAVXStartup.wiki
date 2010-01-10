@@ -34,7 +34,7 @@ It is assumed you:
    * Graupner MX16s use JR XP8103/R700-PPM
    * DX7/AR6000 use JR XP8103/R700-PPM
 
-  *If your Tx/Rx combination is not currently supported then you should check the following site (Logic Analyzer Displays of PPM Rx Channels). The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
+  * If your Tx/Rx combination is not currently supported then you should check the following site (Logic Analyzer Displays of PPM Rx Channels). The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
 
   http://www.rcgroups.com/forums/showthread.php?t=1171547
 
@@ -65,7 +65,7 @@ It is assumed you:
 
   * I have solid Green and Red LEDs and just heard three short beeps and one long beep: The quadrocopter is ready to fly but has not detected a GPS unit as being connected. It may be your GPS is not set to the correct configuration (See Compass FAQs).
 
-  * I have solid Green and Red LEDs and a flashing Blue LED: The GPS is online and is still acquiring a valid position fix. You can take off but your origin or launch location for RTH will be invalid.
+  * I have solid Green and Red LEDs and a flashing Blue LED: The GPS is online and is still acquiring a valid position fix. You can take off but all GPS navigation support will be disabled.
 
   * The Blue LED is flashing but both the Green and Red LEDs are still on solid after a long time: Yes it does seem like a long time when all we want to do is just fly!  It can take 2-3 minutes especially if your GPS does not have battery backup or if it is a new flying location.
 
@@ -95,7 +95,9 @@ It is assumed you:
   * The Compass seems to be offset by 180deg: Some earlier compasses had an offset of 90deg instead of the 270deg for more recent ones. If you can recompile the code with the correct offset for your compass but later releases of UAVX will have additional hex files with "90D" in the file name. 
 
 ==== Barometer ====
-  * Is a Barometers required: It is possible to fly a quadrocopter manually without a barometer but you will not have any automatic hover hold. You must have a barometer for GPS navigation as it is required for altitude hold(see below). 
+  * Is a Barometers required: It is possible to fly a quadrocopter manually without a barometer but you will not have any automatic hover hold. You must have a barometer for GPS navigation as it is required for altitude hold(see below).
+
+  * The altitude seems to drift a lot when I look at it in TestSoftware->Barometer test: If it is cold then the barometer electronics, and other electronics including the gyros,  may take several minutes to reach a reasonably stable operating temperature. The origin altitude is recomputed just before flight so the main thing is to see a reasonably stable altitude in the barometer test. 
 
   * What is the recommended Barometer: The BMP085 is recommended but UAVX can use the SMD500. UAVX automatically senses which barometer you are using.
 
