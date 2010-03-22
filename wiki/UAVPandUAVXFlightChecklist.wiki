@@ -28,7 +28,7 @@ For UAVX confirm channel 5 switch is in the manual/hover position. This appears 
 
 3. *Disarmed:* UAVP/UAVX Green LED and flickering Yellow LED will be on.
 
-4. *Armed:* UAVPgkeware/UAVX Green LED will be on when armed (UAVP-Wolf).  UAVPgkeware/UAVX: Red will blink as gyros initialize then go solid if GPS has not taken its first position fix.
+4. *Armed:* UAVPgkeware/UAVX Green LED will be on when armed (UAVP-Wolf).  UAVPgkeware/UAVX: Red will blink as gyros initialize then go solid if GPS has not taken its first position fix. It is IMPORTANT that the quadrocopter be level to within less than 10 degrees before arming.
 
 5. After gyro initialization (blinking Red LED) the Red LED and Green LED must be on solid. There will then be three short beeps and one long beep at which time the throttle is active. If GPS is installed the Blue LED will be blinking.  The Red LED will go out when UAVX has taken a good GPS fix.  This can be from seconds to minutes depending on how recent the GPS was powered on in the same location.
 
@@ -49,7 +49,7 @@ For UAVX confirm channel 5 switch is in the manual/hover position. This appears 
 
 3. *Disarmed:* Select yaw turn on/off for RTH using the throttle stick(UAVX).  *Throttle stick to left = RTH yaw turn off = default*, Throttle stick to right = RTH yaw turn on.  After RTH is engaged, if the UAVX is outside of the NAV radius set in UAVPset v3.0, the quad will yaw turn to the home position.
 
-4. *Armed:* Stand behind the UAVP, slightly increase throttle to get props spinning, insure proper nick, roll and yaw stick response. 
+4. *Armed:*  Stand behind the UAVP, slightly increase throttle to get props spinning, insure proper nick, roll and yaw stick response. Again it is IMPORTANT that the quadrocopter be level to within less than 10 degrees before arming.
 
 5. Bump throttle to 50% to get a low hover, note and accomplish any trimming required to get a stable hover.
 
