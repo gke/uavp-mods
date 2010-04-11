@@ -38,7 +38,7 @@
     <PublisherName>gke</PublisherName>
     <SuiteName>UAVX</SuiteName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>26</ApplicationRevision>
+    <ApplicationRevision>29</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -71,26 +71,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AvionicsInstrumentsControls\AirSpeedIndicatorInstrumentControl.cs">
+    <Compile Include="AVInstruments\AirSpeedIndicatorInstrumentControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AvionicsInstrumentsControls\AltimeterInstrumentControl.cs">
+    <Compile Include="AVInstruments\AltimeterInstrumentControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AvionicsInstrumentsControls\AttitudeIndicatorInstrumentControl.cs">
+    <Compile Include="AVInstruments\AttitudeIndicatorInstrumentControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AvionicsInstrumentsControls\AvionicsInstrumentsControls.Designer.cs" />
-    <Compile Include="AvionicsInstrumentsControls\HeadingIndicatorInstrumentControl.cs">
+    <Compile Include="AVInstruments\AVInstruments.Designer.cs" />
+    <Compile Include="AVInstruments\HeadingIndicatorInstrumentControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AvionicsInstrumentsControls\InstrumentControl.cs">
+    <Compile Include="AVInstruments\InstrumentControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AvionicsInstrumentsControls\TurnCoordinatorInstrumentControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="AvionicsInstrumentsControls\VerticalSpeedIndicatorInstrumentControl.cs">
+    <Compile Include="AVInstruments\TurnCoordinatorInstrumentControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Form1.cs">
@@ -101,7 +98,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AvionicsInstrumentsControls\AvionicsInstrumentsControlsResources.resx" />
+    <EmbeddedResource Include="AVInstruments\AVInstrumentsResources.resx" />
     <EmbeddedResource Include="Form1.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Form1.cs</DependentUpon>
