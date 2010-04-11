@@ -107,17 +107,17 @@ namespace UAVXGS
             this.TurnToWPBox = new System.Windows.Forms.TextBox();
             this.UseRTHAutoDescendBox = new System.Windows.Forms.TextBox();
             this.NavValidBox = new System.Windows.Forms.TextBox();
+            this.MotorsArmedBox = new System.Windows.Forms.TextBox();
             this.ThrottleMovingBox = new System.Windows.Forms.TextBox();
-            this.HoveringBox = new System.Windows.Forms.TextBox();
+            this.HoldingAltBox = new System.Windows.Forms.TextBox();
             this.AttitudeHoldBox = new System.Windows.Forms.TextBox();
+            this.NearLevelBox = new System.Windows.Forms.TextBox();
             this.NavigateBox = new System.Windows.Forms.TextBox();
             this.ReturnHomeBox = new System.Windows.Forms.TextBox();
             this.UsingRangefinderBox = new System.Windows.Forms.TextBox();
             this.CloseProximityBox = new System.Windows.Forms.TextBox();
             this.ProximityBox = new System.Windows.Forms.TextBox();
-            this.NearLevelBox = new System.Windows.Forms.TextBox();
             this.LostModelBox = new System.Windows.Forms.TextBox();
-            this.MotorsArmedBox = new System.Windows.Forms.TextBox();
             this.LowBatteryBox = new System.Windows.Forms.TextBox();
             this.CompassFailBox = new System.Windows.Forms.TextBox();
             this.BaroFailBox = new System.Windows.Forms.TextBox();
@@ -834,7 +834,7 @@ namespace UAVXGS
             this.flowLayoutPanel1.Controls.Add(this.NavValidBox);
             this.flowLayoutPanel1.Controls.Add(this.MotorsArmedBox);
             this.flowLayoutPanel1.Controls.Add(this.ThrottleMovingBox);
-            this.flowLayoutPanel1.Controls.Add(this.HoveringBox);
+            this.flowLayoutPanel1.Controls.Add(this.HoldingAltBox);
             this.flowLayoutPanel1.Controls.Add(this.AttitudeHoldBox);
             this.flowLayoutPanel1.Controls.Add(this.NearLevelBox);
             this.flowLayoutPanel1.Controls.Add(this.NavigateBox);
@@ -941,6 +941,17 @@ namespace UAVXGS
             this.NavValidBox.Text = "Navigation Enabled";
             this.NavValidBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // MotorsArmedBox
+            // 
+            this.MotorsArmedBox.BackColor = System.Drawing.SystemColors.Window;
+            this.MotorsArmedBox.Location = new System.Drawing.Point(3, 107);
+            this.MotorsArmedBox.Name = "MotorsArmedBox";
+            this.MotorsArmedBox.ReadOnly = true;
+            this.MotorsArmedBox.Size = new System.Drawing.Size(109, 20);
+            this.MotorsArmedBox.TabIndex = 102;
+            this.MotorsArmedBox.Text = "Motors Armed";
+            this.MotorsArmedBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // ThrottleMovingBox
             // 
             this.ThrottleMovingBox.BackColor = System.Drawing.SystemColors.Window;
@@ -952,16 +963,16 @@ namespace UAVXGS
             this.ThrottleMovingBox.Text = "Throttle Moving";
             this.ThrottleMovingBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // HoveringBox
+            // HoldingAltBox
             // 
-            this.HoveringBox.BackColor = System.Drawing.SystemColors.Window;
-            this.HoveringBox.Location = new System.Drawing.Point(3, 133);
-            this.HoveringBox.Name = "HoveringBox";
-            this.HoveringBox.ReadOnly = true;
-            this.HoveringBox.Size = new System.Drawing.Size(109, 20);
-            this.HoveringBox.TabIndex = 114;
-            this.HoveringBox.Text = "Hovering";
-            this.HoveringBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.HoldingAltBox.BackColor = System.Drawing.SystemColors.Window;
+            this.HoldingAltBox.Location = new System.Drawing.Point(3, 133);
+            this.HoldingAltBox.Name = "HoldingAltBox";
+            this.HoldingAltBox.ReadOnly = true;
+            this.HoldingAltBox.Size = new System.Drawing.Size(109, 20);
+            this.HoldingAltBox.TabIndex = 114;
+            this.HoldingAltBox.Text = "Holding Altitude";
+            this.HoldingAltBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AttitudeHoldBox
             // 
@@ -971,8 +982,19 @@ namespace UAVXGS
             this.AttitudeHoldBox.ReadOnly = true;
             this.AttitudeHoldBox.Size = new System.Drawing.Size(109, 20);
             this.AttitudeHoldBox.TabIndex = 112;
-            this.AttitudeHoldBox.Text = "Roll&Pitch Hold";
+            this.AttitudeHoldBox.Text = "Holding Roll&Pitch";
             this.AttitudeHoldBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // NearLevelBox
+            // 
+            this.NearLevelBox.BackColor = System.Drawing.SystemColors.Window;
+            this.NearLevelBox.Location = new System.Drawing.Point(3, 159);
+            this.NearLevelBox.Name = "NearLevelBox";
+            this.NearLevelBox.ReadOnly = true;
+            this.NearLevelBox.Size = new System.Drawing.Size(109, 20);
+            this.NearLevelBox.TabIndex = 104;
+            this.NearLevelBox.Text = "Near Level";
+            this.NearLevelBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // NavigateBox
             // 
@@ -1029,17 +1051,6 @@ namespace UAVXGS
             this.ProximityBox.Text = "WP Achieved";
             this.ProximityBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // NearLevelBox
-            // 
-            this.NearLevelBox.BackColor = System.Drawing.SystemColors.Window;
-            this.NearLevelBox.Location = new System.Drawing.Point(3, 159);
-            this.NearLevelBox.Name = "NearLevelBox";
-            this.NearLevelBox.ReadOnly = true;
-            this.NearLevelBox.Size = new System.Drawing.Size(109, 20);
-            this.NearLevelBox.TabIndex = 104;
-            this.NearLevelBox.Text = "Near Level";
-            this.NearLevelBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // LostModelBox
             // 
             this.LostModelBox.BackColor = System.Drawing.SystemColors.Window;
@@ -1050,17 +1061,6 @@ namespace UAVXGS
             this.LostModelBox.TabIndex = 103;
             this.LostModelBox.Text = "Lost Model";
             this.LostModelBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // MotorsArmedBox
-            // 
-            this.MotorsArmedBox.BackColor = System.Drawing.SystemColors.Window;
-            this.MotorsArmedBox.Location = new System.Drawing.Point(3, 107);
-            this.MotorsArmedBox.Name = "MotorsArmedBox";
-            this.MotorsArmedBox.ReadOnly = true;
-            this.MotorsArmedBox.Size = new System.Drawing.Size(109, 20);
-            this.MotorsArmedBox.TabIndex = 102;
-            this.MotorsArmedBox.Text = "Motors Armed";
-            this.MotorsArmedBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // LowBatteryBox
             // 
@@ -1640,7 +1640,7 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox GPSFailBox;
         private System.Windows.Forms.TextBox AttitudeHoldBox;
         private System.Windows.Forms.TextBox ThrottleMovingBox;
-        private System.Windows.Forms.TextBox HoveringBox;
+        private System.Windows.Forms.TextBox HoldingAltBox;
         private System.Windows.Forms.TextBox NavigateBox;
         private System.Windows.Forms.TextBox ReturnHomeBox;
         private System.Windows.Forms.TextBox ProximityBox;
