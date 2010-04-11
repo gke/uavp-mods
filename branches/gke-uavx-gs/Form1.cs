@@ -85,7 +85,7 @@ namespace UAVXGS
             GPSFailure
             AttitudeHold
             ThrottleMoving
-            Hovering
+            HoldingAlt
             Navigate
                 
         Flags[2]
@@ -527,9 +527,9 @@ namespace UAVXGS
                         else
                             ThrottleMovingBox.BackColor = FlagsGroupBox.BackColor;
                         if ((Flags[1] & 0x40) != 0)
-                            HoveringBox.BackColor = System.Drawing.Color.Green;
+                            HoldingAltBox.BackColor = System.Drawing.Color.Green;
                         else
-                            HoveringBox.BackColor = FlagsGroupBox.BackColor;
+                            HoldingAltBox.BackColor = FlagsGroupBox.BackColor;
                         if ((Flags[1] & 0x80) != 0)
                             NavigateBox.BackColor = System.Drawing.Color.Green;
                         else
