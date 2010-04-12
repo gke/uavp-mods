@@ -157,6 +157,16 @@ namespace UAVXGS
             this.WhereDistanceLabel = new System.Windows.Forms.Label();
             this.WhereDistance = new System.Windows.Forms.Label();
             this.WhereBearing = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.LRComp = new System.Windows.Forms.TextBox();
+            this.LRCompLabel = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.AltComp = new System.Windows.Forms.TextBox();
+            this.FBComp = new System.Windows.Forms.TextBox();
+            this.DUComp = new System.Windows.Forms.TextBox();
+            this.FBCompLabel = new System.Windows.Forms.Label();
+            this.DUCompLabel = new System.Windows.Forms.Label();
+            this.AltCompLabel = new System.Windows.Forms.Label();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
             this.GyroGroupBox.SuspendLayout();
@@ -172,6 +182,7 @@ namespace UAVXGS
             this.AltitudeGroupBox.SuspendLayout();
             this.NavGroupBox.SuspendLayout();
             this.LocationBox.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // FlyingButton
@@ -228,10 +239,10 @@ namespace UAVXGS
             // 
             // RCGlitches
             // 
-            this.RCGlitches.Location = new System.Drawing.Point(57, 18);
+            this.RCGlitches.Location = new System.Drawing.Point(79, 15);
             this.RCGlitches.Name = "RCGlitches";
             this.RCGlitches.ReadOnly = true;
-            this.RCGlitches.Size = new System.Drawing.Size(46, 20);
+            this.RCGlitches.Size = new System.Drawing.Size(51, 20);
             this.RCGlitches.TabIndex = 10;
             this.RCGlitches.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -409,7 +420,7 @@ namespace UAVXGS
             // RCGlitchesLabel
             // 
             this.RCGlitchesLabel.AutoSize = true;
-            this.RCGlitchesLabel.Location = new System.Drawing.Point(6, 21);
+            this.RCGlitchesLabel.Location = new System.Drawing.Point(6, 18);
             this.RCGlitchesLabel.Name = "RCGlitchesLabel";
             this.RCGlitchesLabel.Size = new System.Drawing.Size(45, 13);
             this.RCGlitchesLabel.TabIndex = 30;
@@ -489,7 +500,7 @@ namespace UAVXGS
             // 
             // FailState
             // 
-            this.FailState.Location = new System.Drawing.Point(239, 124);
+            this.FailState.Location = new System.Drawing.Point(650, 59);
             this.FailState.Name = "FailState";
             this.FailState.ReadOnly = true;
             this.FailState.Size = new System.Drawing.Size(73, 20);
@@ -571,7 +582,7 @@ namespace UAVXGS
             // FailStateLabel
             // 
             this.FailStateLabel.AutoSize = true;
-            this.FailStateLabel.Location = new System.Drawing.Point(184, 127);
+            this.FailStateLabel.Location = new System.Drawing.Point(595, 62);
             this.FailStateLabel.Name = "FailStateLabel";
             this.FailStateLabel.Size = new System.Drawing.Size(51, 13);
             this.FailStateLabel.TabIndex = 71;
@@ -705,7 +716,7 @@ namespace UAVXGS
             // 
             // FlightState
             // 
-            this.FlightState.Location = new System.Drawing.Point(239, 98);
+            this.FlightState.Location = new System.Drawing.Point(239, 55);
             this.FlightState.Name = "FlightState";
             this.FlightState.ReadOnly = true;
             this.FlightState.Size = new System.Drawing.Size(73, 20);
@@ -715,7 +726,7 @@ namespace UAVXGS
             // FlightStateLabel
             // 
             this.FlightStateLabel.AutoSize = true;
-            this.FlightStateLabel.Location = new System.Drawing.Point(184, 101);
+            this.FlightStateLabel.Location = new System.Drawing.Point(183, 60);
             this.FlightStateLabel.Name = "FlightStateLabel";
             this.FlightStateLabel.Size = new System.Drawing.Size(32, 13);
             this.FlightStateLabel.TabIndex = 90;
@@ -802,9 +813,9 @@ namespace UAVXGS
             // 
             this.RCGroupBox.Controls.Add(this.RCGlitches);
             this.RCGroupBox.Controls.Add(this.RCGlitchesLabel);
-            this.RCGroupBox.Location = new System.Drawing.Point(203, 48);
+            this.RCGroupBox.Location = new System.Drawing.Point(593, 9);
             this.RCGroupBox.Name = "RCGroupBox";
-            this.RCGroupBox.Size = new System.Drawing.Size(109, 44);
+            this.RCGroupBox.Size = new System.Drawing.Size(136, 44);
             this.RCGroupBox.TabIndex = 97;
             this.RCGroupBox.TabStop = false;
             this.RCGroupBox.Text = "RC Status";
@@ -971,7 +982,7 @@ namespace UAVXGS
             this.HoldingAltBox.ReadOnly = true;
             this.HoldingAltBox.Size = new System.Drawing.Size(109, 20);
             this.HoldingAltBox.TabIndex = 114;
-            this.HoldingAltBox.Text = "Holding Altitude";
+            this.HoldingAltBox.Text = "Holding Alt.";
             this.HoldingAltBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AttitudeHoldBox
@@ -1015,7 +1026,7 @@ namespace UAVXGS
             this.ReturnHomeBox.ReadOnly = true;
             this.ReturnHomeBox.Size = new System.Drawing.Size(109, 20);
             this.ReturnHomeBox.TabIndex = 116;
-            this.ReturnHomeBox.Text = "Return Home";
+            this.ReturnHomeBox.Text = "Returning Home";
             this.ReturnHomeBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // UsingRangefinderBox
@@ -1120,7 +1131,7 @@ namespace UAVXGS
             // FlagsGroupBox
             // 
             this.FlagsGroupBox.Controls.Add(this.flowLayoutPanel1);
-            this.FlagsGroupBox.Location = new System.Drawing.Point(587, 63);
+            this.FlagsGroupBox.Location = new System.Drawing.Point(587, 85);
             this.FlagsGroupBox.Name = "FlagsGroupBox";
             this.FlagsGroupBox.Size = new System.Drawing.Size(249, 342);
             this.FlagsGroupBox.TabIndex = 100;
@@ -1344,7 +1355,7 @@ namespace UAVXGS
             this.NavGroupBox.Controls.Add(this.GPSVel);
             this.NavGroupBox.Controls.Add(this.WayHeading);
             this.NavGroupBox.Controls.Add(this.WPAltitude);
-            this.NavGroupBox.Location = new System.Drawing.Point(179, 150);
+            this.NavGroupBox.Location = new System.Drawing.Point(178, 83);
             this.NavGroupBox.Name = "NavGroupBox";
             this.NavGroupBox.Size = new System.Drawing.Size(139, 257);
             this.NavGroupBox.TabIndex = 91;
@@ -1366,7 +1377,7 @@ namespace UAVXGS
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(635, 14);
+            this.label1.Location = new System.Drawing.Point(636, 504);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(200, 13);
             this.label1.TabIndex = 104;
@@ -1416,10 +1427,10 @@ namespace UAVXGS
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(587, 410);
+            this.textBox1.Location = new System.Drawing.Point(587, 433);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(248, 91);
+            this.textBox1.Size = new System.Drawing.Size(248, 68);
             this.textBox1.TabIndex = 110;
             // 
             // LocationBox
@@ -1428,9 +1439,9 @@ namespace UAVXGS
             this.LocationBox.Controls.Add(this.WhereDistanceLabel);
             this.LocationBox.Controls.Add(this.WhereDistance);
             this.LocationBox.Controls.Add(this.WhereBearing);
-            this.LocationBox.Location = new System.Drawing.Point(12, 362);
+            this.LocationBox.Location = new System.Drawing.Point(735, 9);
             this.LocationBox.Name = "LocationBox";
-            this.LocationBox.Size = new System.Drawing.Size(103, 57);
+            this.LocationBox.Size = new System.Drawing.Size(101, 57);
             this.LocationBox.TabIndex = 152;
             this.LocationBox.TabStop = false;
             this.LocationBox.Text = "Where?";
@@ -1447,7 +1458,7 @@ namespace UAVXGS
             // WhereDistanceLabel
             // 
             this.WhereDistanceLabel.AutoSize = true;
-            this.WhereDistanceLabel.Location = new System.Drawing.Point(6, 39);
+            this.WhereDistanceLabel.Location = new System.Drawing.Point(6, 36);
             this.WhereDistanceLabel.Name = "WhereDistanceLabel";
             this.WhereDistanceLabel.Size = new System.Drawing.Size(52, 13);
             this.WhereDistanceLabel.TabIndex = 53;
@@ -1455,21 +1466,119 @@ namespace UAVXGS
             // 
             // WhereDistance
             // 
-            this.WhereDistance.Location = new System.Drawing.Point(58, 39);
+            this.WhereDistance.Location = new System.Drawing.Point(58, 36);
             this.WhereDistance.Name = "WhereDistance";
-            this.WhereDistance.Size = new System.Drawing.Size(39, 13);
+            this.WhereDistance.Size = new System.Drawing.Size(37, 13);
             this.WhereDistance.TabIndex = 52;
             this.WhereDistance.Text = "0";
             this.WhereDistance.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // WhereBearing
             // 
-            this.WhereBearing.Location = new System.Drawing.Point(68, 18);
+            this.WhereBearing.Location = new System.Drawing.Point(66, 18);
             this.WhereBearing.Name = "WhereBearing";
             this.WhereBearing.Size = new System.Drawing.Size(29, 12);
             this.WhereBearing.TabIndex = 51;
             this.WhereBearing.Text = "0";
             this.WhereBearing.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.LRComp);
+            this.groupBox1.Controls.Add(this.LRCompLabel);
+            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Controls.Add(this.AltComp);
+            this.groupBox1.Controls.Add(this.FBComp);
+            this.groupBox1.Controls.Add(this.DUComp);
+            this.groupBox1.Controls.Add(this.FBCompLabel);
+            this.groupBox1.Controls.Add(this.DUCompLabel);
+            this.groupBox1.Controls.Add(this.AltCompLabel);
+            this.groupBox1.Location = new System.Drawing.Point(12, 362);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(160, 57);
+            this.groupBox1.TabIndex = 103;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Compensation";
+            // 
+            // LRComp
+            // 
+            this.LRComp.Location = new System.Drawing.Point(8, 29);
+            this.LRComp.Name = "LRComp";
+            this.LRComp.ReadOnly = true;
+            this.LRComp.Size = new System.Drawing.Size(32, 20);
+            this.LRComp.TabIndex = 59;
+            this.LRComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // LRCompLabel
+            // 
+            this.LRCompLabel.AutoSize = true;
+            this.LRCompLabel.Location = new System.Drawing.Point(7, 13);
+            this.LRCompLabel.Name = "LRCompLabel";
+            this.LRCompLabel.Size = new System.Drawing.Size(21, 13);
+            this.LRCompLabel.TabIndex = 65;
+            this.LRCompLabel.Text = "LR";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(9, 29);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(0, 13);
+            this.label3.TabIndex = 62;
+            // 
+            // AltComp
+            // 
+            this.AltComp.Location = new System.Drawing.Point(122, 29);
+            this.AltComp.Name = "AltComp";
+            this.AltComp.ReadOnly = true;
+            this.AltComp.Size = new System.Drawing.Size(32, 20);
+            this.AltComp.TabIndex = 43;
+            this.AltComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // FBComp
+            // 
+            this.FBComp.Location = new System.Drawing.Point(46, 29);
+            this.FBComp.Name = "FBComp";
+            this.FBComp.ReadOnly = true;
+            this.FBComp.Size = new System.Drawing.Size(32, 20);
+            this.FBComp.TabIndex = 58;
+            this.FBComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // DUComp
+            // 
+            this.DUComp.Location = new System.Drawing.Point(84, 29);
+            this.DUComp.Name = "DUComp";
+            this.DUComp.ReadOnly = true;
+            this.DUComp.Size = new System.Drawing.Size(32, 20);
+            this.DUComp.TabIndex = 46;
+            this.DUComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // FBCompLabel
+            // 
+            this.FBCompLabel.AutoSize = true;
+            this.FBCompLabel.Location = new System.Drawing.Point(48, 13);
+            this.FBCompLabel.Name = "FBCompLabel";
+            this.FBCompLabel.Size = new System.Drawing.Size(20, 13);
+            this.FBCompLabel.TabIndex = 74;
+            this.FBCompLabel.Text = "FB";
+            // 
+            // DUCompLabel
+            // 
+            this.DUCompLabel.AutoSize = true;
+            this.DUCompLabel.Location = new System.Drawing.Point(87, 13);
+            this.DUCompLabel.Name = "DUCompLabel";
+            this.DUCompLabel.Size = new System.Drawing.Size(23, 13);
+            this.DUCompLabel.TabIndex = 75;
+            this.DUCompLabel.Text = "DU";
+            // 
+            // AltCompLabel
+            // 
+            this.AltCompLabel.AutoSize = true;
+            this.AltCompLabel.Location = new System.Drawing.Point(132, 13);
+            this.AltCompLabel.Name = "AltCompLabel";
+            this.AltCompLabel.Size = new System.Drawing.Size(19, 13);
+            this.AltCompLabel.TabIndex = 67;
+            this.AltCompLabel.Text = "Alt";
             // 
             // headingIndicatorInstrumentControl1
             // 
@@ -1492,6 +1601,7 @@ namespace UAVXGS
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(845, 522);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.LocationBox);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.GoogleButton);
@@ -1548,6 +1658,8 @@ namespace UAVXGS
             this.NavGroupBox.PerformLayout();
             this.LocationBox.ResumeLayout(false);
             this.LocationBox.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1684,6 +1796,16 @@ namespace UAVXGS
         private System.Windows.Forms.Label WhereDistanceLabel;
         private System.Windows.Forms.Label WhereDistance;
         private System.Windows.Forms.Label WhereBearing;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox LRComp;
+        private System.Windows.Forms.Label LRCompLabel;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox AltComp;
+        private System.Windows.Forms.TextBox FBComp;
+        private System.Windows.Forms.TextBox DUComp;
+        private System.Windows.Forms.Label FBCompLabel;
+        private System.Windows.Forms.Label DUCompLabel;
+        private System.Windows.Forms.Label AltCompLabel;
     }
 }
 

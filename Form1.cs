@@ -85,7 +85,7 @@ namespace UAVXGS
             GPSFailure
             AttitudeHold
             ThrottleMoving
-            HoldingAlt
+            Hovering
             Navigate
                 
         Flags[2]
@@ -148,7 +148,11 @@ namespace UAVXGS
         short YawSumT;                  // 33
         short LRAccT;                   // 35
         short FBAccT;                   // 37
-        short DUAccT;                  // 39
+        short DUAccT;                   // 39
+        short LRCompT;                   // 41
+        short FBCompT;                   // 42
+        short DUCompT;                   // 43
+        short AltCompT;                  // 44
    
         // UAVXNavPacket
         //byte UAVXNavPacketTag;
@@ -348,7 +352,7 @@ namespace UAVXGS
                 RxPacketTag = ch;
                 switch ( RxPacketTag ) {
                 case UAVXFlightPacketTag: 
-                    PacketLength = 39; break;
+                    PacketLength = 43; break;
                 case UAVXNavPacketTag: PacketLength = 46; break;
                 default:
                     RxIllegalErrors++;
@@ -482,7 +486,7 @@ namespace UAVXGS
                         if ((Flags[0] & 0x10) != 0)
                             NearLevelBox.BackColor = System.Drawing.Color.Green;
                         else
-                            NearLevelBox.BackColor = FlagsGroupBox.BackColor;
+                            NearLevelBox.BackColor = System.Drawing.Color.LightSteelBlue;
                         if ((Flags[0] & 0x20) != 0)
                         {
                             LowBatteryBox.BackColor = System.Drawing.Color.Red;
@@ -601,7 +605,11 @@ namespace UAVXGS
                         YawSumT = ExtractShort(ref UAVXPacket, 33);
                         LRAccT = ExtractShort(ref UAVXPacket, 35);
                         FBAccT = ExtractShort(ref UAVXPacket, 37);
-                        DUAccT = ExtractShort(ref UAVXPacket, 39); 
+                        DUAccT = ExtractShort(ref UAVXPacket, 39);
+                        LRCompT = ExtractSignedByte(ref UAVXPacket, 41);
+                        FBCompT = ExtractSignedByte(ref UAVXPacket, 42);
+                        DUCompT = ExtractSignedByte(ref UAVXPacket, 43);
+                        AltCompT = ExtractSignedByte(ref UAVXPacket, 44);
 
                         BatteryVolts.Text = string.Format("{0:n1}", ((float)BatteryVoltsT / 37.95)); 
                         BatteryCurrent.Text = string.Format("{0:n1}", (float)BatteryCurrentT * 0.1); 
@@ -618,7 +626,11 @@ namespace UAVXGS
                         YawSum.Text = string.Format("{0:n0}", YawSumT / AttitudeToDegrees); 
                         LRAcc.Text = string.Format("{0:n2}", (float)LRAccT / 1024.0);
                         FBAcc.Text = string.Format("{0:n2}", (float)FBAccT / 1024.0);
-                        DUAcc.Text = string.Format("{0:n2}", (float)DUAccT / 1024.0); 
+                        DUAcc.Text = string.Format("{0:n2}", (float)DUAccT / 1024.0);
+                        LRComp.Text = string.Format("{0:n0}", LRCompT );
+                        FBComp.Text = string.Format("{0:n0}", FBCompT );
+                        DUComp.Text = string.Format("{0:n0}", DUCompT );
+                        AltComp.Text = string.Format("{0:n0}", AltCompT );
 
                         attitudeIndicatorInstrumentControl1.SetAttitudeIndicatorParameters(
                             -PitchSumT / AttitudeToDegrees,
@@ -727,6 +739,16 @@ namespace UAVXGS
 
                         BaroROC.Text = string.Format("{0:n2}", (float)BaroROCT * 0.01);
                         RelBaroAltitude.Text = string.Format("{0:n2}", (float)RelBaroAltitudeT * 0.01);
+
+                        if (RelBaroAltitudeT > ( MaximumAltitudeLimit*100) )
+                            RelBaroAltitude.BackColor = System.Drawing.Color.Orange;
+                        else
+                            RelBaroAltitude.BackColor = AltitudeGroupBox.BackColor;
+
+                        if ( BaroROCT < -100 ) // 1M/S
+                            BaroROC.BackColor = System.Drawing.Color.Orange;
+                        else
+                            BaroROC.BackColor = AltitudeGroupBox.BackColor;
 
                         RangefinderROC.Text = string.Format("{0:n1}", (float)RangefinderROCT * 0.01);
                         RangefinderAltitude.Text = string.Format("{0:n2}", (float)RangefinderAltitudeT * 0.01 );
@@ -912,6 +934,7 @@ namespace UAVXGS
 
         }
 
+      
     
     }
 }
