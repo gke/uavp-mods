@@ -55,7 +55,7 @@ void SendUAVXNav(void) // 800uS at 40MHz
 	case UAVXFlightPacketTag:
 
 		TxESCu8(UAVXFlightPacketTag);
-		TxESCu8(33 + FLAG_BYTES);
+		TxESCu8(35 + FLAG_BYTES);
 		for ( b = 0; b < FLAG_BYTES; b++ )
 			TxESCu8(F.AllFlags[b]); 
 		
@@ -77,6 +77,7 @@ void SendUAVXNav(void) // 800uS at 40MHz
 		TxESCi16(LRAcc);
 		TxESCi16(FBAcc);
 		TxESCi16(DUAcc);
+		TxESCi16(AltComp);
 		
 		UAVXCurrPacketTag = UAVXNavPacketTag;
 		break;
