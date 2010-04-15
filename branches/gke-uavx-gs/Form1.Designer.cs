@@ -98,6 +98,8 @@ namespace UAVXGS
             this.CommsGroupBox = new System.Windows.Forms.GroupBox();
             this.RCGroupBox = new System.Windows.Forms.GroupBox();
             this.BatteryGroupBox = new System.Windows.Forms.GroupBox();
+            this.BatteryCharge = new System.Windows.Forms.TextBox();
+            this.BatteryChargeLabel = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.BaroAltValidBox = new System.Windows.Forms.TextBox();
             this.RangefinderAltValidBox = new System.Windows.Forms.TextBox();
@@ -145,6 +147,8 @@ namespace UAVXGS
             this.WPDistanceLabel = new System.Windows.Forms.Label();
             this.DistanceToDesired = new System.Windows.Forms.TextBox();
             this.NavGroupBox = new System.Windows.Forms.GroupBox();
+            this.NavStateTimeoutLabel = new System.Windows.Forms.Label();
+            this.NavStateTimeout = new System.Windows.Forms.TextBox();
             this.CurrentAltitude = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.UserAttitudeToDegreesLabel = new System.Windows.Forms.Label();
@@ -822,16 +826,36 @@ namespace UAVXGS
             // 
             // BatteryGroupBox
             // 
+            this.BatteryGroupBox.Controls.Add(this.BatteryCharge);
+            this.BatteryGroupBox.Controls.Add(this.BatteryChargeLabel);
             this.BatteryGroupBox.Controls.Add(this.BatteryVolts);
             this.BatteryGroupBox.Controls.Add(this.BatteryCurrent);
             this.BatteryGroupBox.Controls.Add(this.VoltsLabel);
             this.BatteryGroupBox.Controls.Add(this.CurrentLabel);
             this.BatteryGroupBox.Location = new System.Drawing.Point(227, 426);
             this.BatteryGroupBox.Name = "BatteryGroupBox";
-            this.BatteryGroupBox.Size = new System.Drawing.Size(90, 75);
+            this.BatteryGroupBox.Size = new System.Drawing.Size(90, 97);
             this.BatteryGroupBox.TabIndex = 98;
             this.BatteryGroupBox.TabStop = false;
             this.BatteryGroupBox.Text = "Battery";
+            // 
+            // BatteryCharge
+            // 
+            this.BatteryCharge.Location = new System.Drawing.Point(53, 71);
+            this.BatteryCharge.Name = "BatteryCharge";
+            this.BatteryCharge.ReadOnly = true;
+            this.BatteryCharge.Size = new System.Drawing.Size(32, 20);
+            this.BatteryCharge.TabIndex = 30;
+            this.BatteryCharge.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // BatteryChargeLabel
+            // 
+            this.BatteryChargeLabel.AutoSize = true;
+            this.BatteryChargeLabel.Location = new System.Drawing.Point(6, 74);
+            this.BatteryChargeLabel.Name = "BatteryChargeLabel";
+            this.BatteryChargeLabel.Size = new System.Drawing.Size(30, 13);
+            this.BatteryChargeLabel.TabIndex = 31;
+            this.BatteryChargeLabel.Text = "mAH";
             // 
             // flowLayoutPanel1
             // 
@@ -927,7 +951,7 @@ namespace UAVXGS
             this.TurnToWPBox.ReadOnly = true;
             this.TurnToWPBox.Size = new System.Drawing.Size(109, 20);
             this.TurnToWPBox.TabIndex = 101;
-            this.TurnToWPBox.Text = "Turn to WP";
+            this.TurnToWPBox.Text = "Using Turn to WP";
             this.TurnToWPBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // UseRTHAutoDescendBox
@@ -1092,7 +1116,7 @@ namespace UAVXGS
             this.CompassFailBox.ReadOnly = true;
             this.CompassFailBox.Size = new System.Drawing.Size(109, 20);
             this.CompassFailBox.TabIndex = 110;
-            this.CompassFailBox.Text = "Compass Fail";
+            this.CompassFailBox.Text = "Compass Error";
             this.CompassFailBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // BaroFailBox
@@ -1103,7 +1127,7 @@ namespace UAVXGS
             this.BaroFailBox.ReadOnly = true;
             this.BaroFailBox.Size = new System.Drawing.Size(109, 20);
             this.BaroFailBox.TabIndex = 108;
-            this.BaroFailBox.Text = "Barometer Fail";
+            this.BaroFailBox.Text = "Barometer Error";
             this.BaroFailBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AccFailBox
@@ -1114,7 +1138,7 @@ namespace UAVXGS
             this.AccFailBox.ReadOnly = true;
             this.AccFailBox.Size = new System.Drawing.Size(109, 20);
             this.AccFailBox.TabIndex = 109;
-            this.AccFailBox.Text = "Accelerometer Fail";
+            this.AccFailBox.Text = "Accelerometer Error";
             this.AccFailBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // GPSFailBox
@@ -1125,7 +1149,7 @@ namespace UAVXGS
             this.GPSFailBox.ReadOnly = true;
             this.GPSFailBox.Size = new System.Drawing.Size(109, 20);
             this.GPSFailBox.TabIndex = 111;
-            this.GPSFailBox.Text = "GPS Fail";
+            this.GPSFailBox.Text = "GPS Error";
             this.GPSFailBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // FlagsGroupBox
@@ -1176,7 +1200,7 @@ namespace UAVXGS
             // WayHeadingLabel
             // 
             this.WayHeadingLabel.AutoSize = true;
-            this.WayHeadingLabel.Location = new System.Drawing.Point(5, 126);
+            this.WayHeadingLabel.Location = new System.Drawing.Point(5, 157);
             this.WayHeadingLabel.Name = "WayHeadingLabel";
             this.WayHeadingLabel.Size = new System.Drawing.Size(72, 13);
             this.WayHeadingLabel.TabIndex = 64;
@@ -1185,7 +1209,7 @@ namespace UAVXGS
             // GPSLongitudeLabel
             // 
             this.GPSLongitudeLabel.AutoSize = true;
-            this.GPSLongitudeLabel.Location = new System.Drawing.Point(5, 230);
+            this.GPSLongitudeLabel.Location = new System.Drawing.Point(5, 261);
             this.GPSLongitudeLabel.Name = "GPSLongitudeLabel";
             this.GPSLongitudeLabel.Size = new System.Drawing.Size(54, 13);
             this.GPSLongitudeLabel.TabIndex = 63;
@@ -1194,7 +1218,7 @@ namespace UAVXGS
             // GPSLatitudeLabel
             // 
             this.GPSLatitudeLabel.AutoSize = true;
-            this.GPSLatitudeLabel.Location = new System.Drawing.Point(5, 204);
+            this.GPSLatitudeLabel.Location = new System.Drawing.Point(5, 235);
             this.GPSLatitudeLabel.Name = "GPSLatitudeLabel";
             this.GPSLatitudeLabel.Size = new System.Drawing.Size(45, 13);
             this.GPSLatitudeLabel.TabIndex = 61;
@@ -1212,7 +1236,7 @@ namespace UAVXGS
             // GPSVelLabel
             // 
             this.GPSVelLabel.AutoSize = true;
-            this.GPSVelLabel.Location = new System.Drawing.Point(5, 100);
+            this.GPSVelLabel.Location = new System.Drawing.Point(5, 131);
             this.GPSVelLabel.Name = "GPSVelLabel";
             this.GPSVelLabel.Size = new System.Drawing.Size(47, 13);
             this.GPSVelLabel.TabIndex = 60;
@@ -1221,7 +1245,7 @@ namespace UAVXGS
             // CurrWPLabel
             // 
             this.CurrWPLabel.AutoSize = true;
-            this.CurrWPLabel.Location = new System.Drawing.Point(5, 74);
+            this.CurrWPLabel.Location = new System.Drawing.Point(5, 105);
             this.CurrWPLabel.Name = "CurrWPLabel";
             this.CurrWPLabel.Size = new System.Drawing.Size(32, 13);
             this.CurrWPLabel.TabIndex = 73;
@@ -1229,7 +1253,7 @@ namespace UAVXGS
             // 
             // GPSLatitude
             // 
-            this.GPSLatitude.Location = new System.Drawing.Point(60, 201);
+            this.GPSLatitude.Location = new System.Drawing.Point(60, 232);
             this.GPSLatitude.Name = "GPSLatitude";
             this.GPSLatitude.ReadOnly = true;
             this.GPSLatitude.Size = new System.Drawing.Size(73, 20);
@@ -1238,7 +1262,7 @@ namespace UAVXGS
             // 
             // GPSLongitude
             // 
-            this.GPSLongitude.Location = new System.Drawing.Point(60, 227);
+            this.GPSLongitude.Location = new System.Drawing.Point(60, 258);
             this.GPSLongitude.Name = "GPSLongitude";
             this.GPSLongitude.ReadOnly = true;
             this.GPSLongitude.Size = new System.Drawing.Size(73, 20);
@@ -1256,7 +1280,7 @@ namespace UAVXGS
             // 
             // CurrWP
             // 
-            this.CurrWP.Location = new System.Drawing.Point(96, 71);
+            this.CurrWP.Location = new System.Drawing.Point(96, 102);
             this.CurrWP.Name = "CurrWP";
             this.CurrWP.ReadOnly = true;
             this.CurrWP.Size = new System.Drawing.Size(37, 20);
@@ -1265,7 +1289,7 @@ namespace UAVXGS
             // 
             // WayHeading
             // 
-            this.WayHeading.Location = new System.Drawing.Point(96, 123);
+            this.WayHeading.Location = new System.Drawing.Point(96, 154);
             this.WayHeading.Name = "WayHeading";
             this.WayHeading.ReadOnly = true;
             this.WayHeading.Size = new System.Drawing.Size(37, 20);
@@ -1275,7 +1299,7 @@ namespace UAVXGS
             // WPAltitude
             // 
             this.WPAltitude.AutoSize = true;
-            this.WPAltitude.Location = new System.Drawing.Point(5, 178);
+            this.WPAltitude.Location = new System.Drawing.Point(5, 209);
             this.WPAltitude.Name = "WPAltitude";
             this.WPAltitude.Size = new System.Drawing.Size(47, 13);
             this.WPAltitude.TabIndex = 77;
@@ -1283,7 +1307,7 @@ namespace UAVXGS
             // 
             // GPSVel
             // 
-            this.GPSVel.Location = new System.Drawing.Point(96, 97);
+            this.GPSVel.Location = new System.Drawing.Point(96, 128);
             this.GPSVel.Name = "GPSVel";
             this.GPSVel.ReadOnly = true;
             this.GPSVel.Size = new System.Drawing.Size(37, 20);
@@ -1293,7 +1317,7 @@ namespace UAVXGS
             // HeadingLabel
             // 
             this.HeadingLabel.AutoSize = true;
-            this.HeadingLabel.Location = new System.Drawing.Point(5, 48);
+            this.HeadingLabel.Location = new System.Drawing.Point(5, 79);
             this.HeadingLabel.Name = "HeadingLabel";
             this.HeadingLabel.Size = new System.Drawing.Size(82, 13);
             this.HeadingLabel.TabIndex = 41;
@@ -1301,7 +1325,7 @@ namespace UAVXGS
             // 
             // AltitudeError
             // 
-            this.AltitudeError.Location = new System.Drawing.Point(96, 175);
+            this.AltitudeError.Location = new System.Drawing.Point(96, 206);
             this.AltitudeError.Name = "AltitudeError";
             this.AltitudeError.ReadOnly = true;
             this.AltitudeError.Size = new System.Drawing.Size(37, 20);
@@ -1310,7 +1334,7 @@ namespace UAVXGS
             // 
             // Heading
             // 
-            this.Heading.Location = new System.Drawing.Point(96, 45);
+            this.Heading.Location = new System.Drawing.Point(96, 76);
             this.Heading.Name = "Heading";
             this.Heading.ReadOnly = true;
             this.Heading.Size = new System.Drawing.Size(37, 20);
@@ -1320,7 +1344,7 @@ namespace UAVXGS
             // WPDistanceLabel
             // 
             this.WPDistanceLabel.AutoSize = true;
-            this.WPDistanceLabel.Location = new System.Drawing.Point(5, 152);
+            this.WPDistanceLabel.Location = new System.Drawing.Point(5, 183);
             this.WPDistanceLabel.Name = "WPDistanceLabel";
             this.WPDistanceLabel.Size = new System.Drawing.Size(49, 13);
             this.WPDistanceLabel.TabIndex = 75;
@@ -1328,7 +1352,7 @@ namespace UAVXGS
             // 
             // DistanceToDesired
             // 
-            this.DistanceToDesired.Location = new System.Drawing.Point(96, 149);
+            this.DistanceToDesired.Location = new System.Drawing.Point(96, 180);
             this.DistanceToDesired.Name = "DistanceToDesired";
             this.DistanceToDesired.ReadOnly = true;
             this.DistanceToDesired.Size = new System.Drawing.Size(37, 20);
@@ -1337,6 +1361,8 @@ namespace UAVXGS
             // 
             // NavGroupBox
             // 
+            this.NavGroupBox.Controls.Add(this.NavStateTimeoutLabel);
+            this.NavGroupBox.Controls.Add(this.NavStateTimeout);
             this.NavGroupBox.Controls.Add(this.DistanceToDesired);
             this.NavGroupBox.Controls.Add(this.NavState);
             this.NavGroupBox.Controls.Add(this.WayHeadingLabel);
@@ -1357,10 +1383,28 @@ namespace UAVXGS
             this.NavGroupBox.Controls.Add(this.WPAltitude);
             this.NavGroupBox.Location = new System.Drawing.Point(178, 83);
             this.NavGroupBox.Name = "NavGroupBox";
-            this.NavGroupBox.Size = new System.Drawing.Size(139, 257);
+            this.NavGroupBox.Size = new System.Drawing.Size(139, 304);
             this.NavGroupBox.TabIndex = 91;
             this.NavGroupBox.TabStop = false;
             this.NavGroupBox.Text = "Nav";
+            // 
+            // NavStateTimeoutLabel
+            // 
+            this.NavStateTimeoutLabel.AutoSize = true;
+            this.NavStateTimeoutLabel.Location = new System.Drawing.Point(5, 48);
+            this.NavStateTimeoutLabel.Name = "NavStateTimeoutLabel";
+            this.NavStateTimeoutLabel.Size = new System.Drawing.Size(60, 13);
+            this.NavStateTimeoutLabel.TabIndex = 153;
+            this.NavStateTimeoutLabel.Text = "Delay Time";
+            // 
+            // NavStateTimeout
+            // 
+            this.NavStateTimeout.Location = new System.Drawing.Point(96, 45);
+            this.NavStateTimeout.Name = "NavStateTimeout";
+            this.NavStateTimeout.ReadOnly = true;
+            this.NavStateTimeout.Size = new System.Drawing.Size(37, 20);
+            this.NavStateTimeout.TabIndex = 153;
+            this.NavStateTimeout.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // CurrentAltitude
             // 
@@ -1377,7 +1421,7 @@ namespace UAVXGS
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(636, 504);
+            this.label1.Location = new System.Drawing.Point(636, 510);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(200, 13);
             this.label1.TabIndex = 104;
@@ -1600,7 +1644,7 @@ namespace UAVXGS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(845, 522);
+            this.ClientSize = new System.Drawing.Size(845, 528);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.LocationBox);
             this.Controls.Add(this.textBox1);
@@ -1631,7 +1675,6 @@ namespace UAVXGS
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Altitude";
             this.Text = "UAVXGS";
-            this.Load += new System.EventHandler(this.Altitude_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.GyroGroupBox.ResumeLayout(false);
             this.GyroGroupBox.PerformLayout();
@@ -1806,6 +1849,10 @@ namespace UAVXGS
         private System.Windows.Forms.Label FBCompLabel;
         private System.Windows.Forms.Label DUCompLabel;
         private System.Windows.Forms.Label AltCompLabel;
+        private System.Windows.Forms.Label NavStateTimeoutLabel;
+        private System.Windows.Forms.TextBox NavStateTimeout;
+        private System.Windows.Forms.TextBox BatteryCharge;
+        private System.Windows.Forms.Label BatteryChargeLabel;
     }
 }
 

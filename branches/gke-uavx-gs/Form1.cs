@@ -64,6 +64,8 @@ namespace UAVXGS
         const int MaximumRangeLimit = 250; // You carry total responsibility if you increase this value
         const int MaximumAltitudeLimit = 121; // You carry total responsibility if you increase this value 
 
+        const double BatteryChargeScale = 1; // depends on current ADC used - possible needs calibration box?
+
         /*
         UAVXFlightPacket
         
@@ -135,24 +137,25 @@ namespace UAVXGS
         byte StateT;                    // 8
         short BatteryVoltsT;            // 9
         short BatteryCurrentT;          // 11
-        short RCGlitchesT;              // 13
-        short DesiredThrottleT;         // 15
-        short DesiredRollT;             // 17
-        short DesiredPitchT;            // 19
-        short DesiredYawT;              // 21
-        short RollRateT;                // 23
-        short PitchRateT;               // 25
-        short YawRateT;                 // 27
-        short RollSumT;                 // 29
-        short PitchSumT;                // 31
-        short YawSumT;                  // 33
-        short LRAccT;                   // 35
-        short FBAccT;                   // 37
-        short DUAccT;                   // 39
-        short LRCompT;                   // 41
-        short FBCompT;                   // 42
-        short DUCompT;                   // 43
-        short AltCompT;                  // 44
+ 		short BatteryChargeT;           // 13
+        short RCGlitchesT;              // 15
+        short DesiredThrottleT;         // 17
+        short DesiredRollT;             // 19
+        short DesiredPitchT;            // 21
+        short DesiredYawT;              // 23
+        short RollRateT;                // 25
+        short PitchRateT;               // 27
+        short YawRateT;                 // 29
+        short RollSumT;                 // 31
+        short PitchSumT;                // 33
+        short YawSumT;                  // 35
+        short LRAccT;                   // 37
+        short FBAccT;                   // 39
+        short DUAccT;                   // 41
+        short LRCompT;                  // 43
+        short FBCompT;                  // 44
+        short DUCompT;                  // 45
+        short AltCompT;                 // 46
    
         // UAVXNavPacket
         //byte UAVXNavPacketTag;
@@ -182,6 +185,7 @@ namespace UAVXGS
         int DesiredAltitudeT;           // 37
         int DesiredLatitudeT;           // 40
         int DesiredLongitudeT;          // 44
+        int NavStateTimeoutT;          // 48;
 
         double Distance, LongitudeCorrection, WhereDirection;
         bool FirstGPSCoordinates = true;
@@ -352,8 +356,8 @@ namespace UAVXGS
                 RxPacketTag = ch;
                 switch ( RxPacketTag ) {
                 case UAVXFlightPacketTag: 
-                    PacketLength = 43; break;
-                case UAVXNavPacketTag: PacketLength = 46; break;
+                    PacketLength = 45; break;
+                case UAVXNavPacketTag: PacketLength = 49; break;
                 default:
                     RxIllegalErrors++;
                     RxPacketTag=UnknownPacketTag;  
@@ -592,27 +596,29 @@ namespace UAVXGS
 
                         BatteryVoltsT =  ExtractShort(ref UAVXPacket, 9);
                         BatteryCurrentT = ExtractShort(ref UAVXPacket, 11);
-                        RCGlitchesT = ExtractShort(ref UAVXPacket, 13);
-                        DesiredThrottleT = ExtractShort(ref UAVXPacket, 15);
-                        DesiredRollT = ExtractShort(ref UAVXPacket, 17);
-                        DesiredPitchT = ExtractShort(ref UAVXPacket, 19);
-                        DesiredYawT = ExtractShort(ref UAVXPacket, 21);
-                        RollRateT = ExtractShort(ref UAVXPacket, 23);
-                        PitchRateT = ExtractShort(ref UAVXPacket, 25);
-                        YawRateT = ExtractShort(ref UAVXPacket, 27);
-                        RollSumT = ExtractShort(ref UAVXPacket, 29);
-                        PitchSumT = ExtractShort(ref UAVXPacket, 31);
-                        YawSumT = ExtractShort(ref UAVXPacket, 33);
-                        LRAccT = ExtractShort(ref UAVXPacket, 35);
-                        FBAccT = ExtractShort(ref UAVXPacket, 37);
-                        DUAccT = ExtractShort(ref UAVXPacket, 39);
-                        LRCompT = ExtractSignedByte(ref UAVXPacket, 41);
-                        FBCompT = ExtractSignedByte(ref UAVXPacket, 42);
-                        DUCompT = ExtractSignedByte(ref UAVXPacket, 43);
-                        AltCompT = ExtractSignedByte(ref UAVXPacket, 44);
+                        BatteryChargeT = ExtractShort(ref UAVXPacket, 13);
+                        RCGlitchesT = ExtractShort(ref UAVXPacket, 15);
+                        DesiredThrottleT = ExtractShort(ref UAVXPacket, 17);
+                        DesiredRollT = ExtractShort(ref UAVXPacket, 19);
+                        DesiredPitchT = ExtractShort(ref UAVXPacket, 21);
+                        DesiredYawT = ExtractShort(ref UAVXPacket, 23);
+                        RollRateT = ExtractShort(ref UAVXPacket, 25);
+                        PitchRateT = ExtractShort(ref UAVXPacket, 27);
+                        YawRateT = ExtractShort(ref UAVXPacket, 29);
+                        RollSumT = ExtractShort(ref UAVXPacket, 31);
+                        PitchSumT = ExtractShort(ref UAVXPacket, 33);
+                        YawSumT = ExtractShort(ref UAVXPacket, 35);
+                        LRAccT = ExtractShort(ref UAVXPacket, 37);
+                        FBAccT = ExtractShort(ref UAVXPacket, 39);
+                        DUAccT = ExtractShort(ref UAVXPacket, 41);
+                        LRCompT = ExtractSignedByte(ref UAVXPacket, 43);
+                        FBCompT = ExtractSignedByte(ref UAVXPacket, 44);
+                        DUCompT = ExtractSignedByte(ref UAVXPacket, 45);
+                        AltCompT = ExtractSignedByte(ref UAVXPacket, 46);
 
                         BatteryVolts.Text = string.Format("{0:n1}", ((float)BatteryVoltsT / 37.95)); 
-                        BatteryCurrent.Text = string.Format("{0:n1}", (float)BatteryCurrentT * 0.1); 
+                        BatteryCurrent.Text = string.Format("{0:n1}", (float)BatteryCurrentT * 0.1);
+                        BatteryCharge.Text = string.Format("{0:n0}", (float)BatteryChargeT * BatteryChargeScale);
                         RCGlitches.Text = string.Format("{0:n0}", RCGlitchesT); 
                         DesiredThrottle.Text = string.Format("{0:n0}", ((float)DesiredThrottleT * 100.0)/ RCMaximum);
                         DesiredRoll.Text = string.Format("{0:n0}", ((float)DesiredRollT * 200.0)/ RCMaximum); 
@@ -697,13 +703,15 @@ namespace UAVXGS
                         GPSHDiluteT = ExtractShort(ref UAVXPacket, 16);
                         HeadingT = ExtractShort(ref UAVXPacket, 18);
                         DesiredCourseT = ExtractShort(ref UAVXPacket, 20);
-
                         GPSVelT = ExtractShort(ref UAVXPacket, 22);
-                        GPSROCT = ExtractShort(ref UAVXPacket, 24);
-                       
+                        GPSROCT = ExtractShort(ref UAVXPacket, 24);                 
                         GPSRelAltitudeT = ExtractInt24(ref UAVXPacket, 26); 
                         GPSLatitudeT = ExtractInt(ref UAVXPacket, 29);
                         GPSLongitudeT = ExtractInt(ref UAVXPacket, 33);
+                        DesiredAltitudeT = ExtractInt24(ref UAVXPacket, 37);
+                        DesiredLatitudeT = ExtractInt(ref UAVXPacket, 40);
+                        DesiredLongitudeT = ExtractInt(ref UAVXPacket, 44);
+                        NavStateTimeoutT = ExtractInt24(ref UAVXPacket, 48);
 
                         if ( FirstGPSCoordinates && ((Flags[0] & 0x80) != 0))
                         {
@@ -711,10 +719,6 @@ namespace UAVXGS
                             OriginLatitude = GPSLatitudeT;
                             OriginLongitude = GPSLongitudeT;
                         }
-
-                        DesiredAltitudeT = ExtractInt24(ref UAVXPacket, 37);
-                        DesiredLatitudeT = ExtractInt(ref UAVXPacket, 40);
-                        DesiredLongitudeT = ExtractInt(ref UAVXPacket, 44);  
 
                         GPSNoOfSats.Text = string.Format("{0:n0}", GPSNoOfSatsT);
                         if ( GPSNoOfSatsT < 6 )
@@ -852,6 +856,11 @@ namespace UAVXGS
                             WhereDistance.Text = "?";
                         }
 
+                        if (NavStateTimeoutT >= 0)
+                            NavStateTimeout.Text = string.Format("{0:n0}", NavStateTimeoutT / 1000);
+                        else
+                            NavStateTimeout.Text = " ";
+
                         headingIndicatorInstrumentControl1.SetHeadingIndicatorParameters(
                             ((HeadingT * 180) / 3142));
  
@@ -929,11 +938,7 @@ namespace UAVXGS
             return (c * 0.018553257183);
         }
 
-        private void Altitude_Load(object sender, EventArgs e)
-        {
-
-        }
-
+     
       
     
     }
