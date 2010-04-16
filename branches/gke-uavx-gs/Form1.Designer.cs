@@ -859,13 +859,13 @@ namespace UAVXGS
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.Controls.Add(this.BaroAltValidBox);
-            this.flowLayoutPanel1.Controls.Add(this.RangefinderAltValidBox);
-            this.flowLayoutPanel1.Controls.Add(this.GPSValidBox);
             this.flowLayoutPanel1.Controls.Add(this.UsingGPSAltBox);
             this.flowLayoutPanel1.Controls.Add(this.RTHAltHoldBox);
             this.flowLayoutPanel1.Controls.Add(this.TurnToWPBox);
             this.flowLayoutPanel1.Controls.Add(this.UseRTHAutoDescendBox);
+            this.flowLayoutPanel1.Controls.Add(this.BaroAltValidBox);
+            this.flowLayoutPanel1.Controls.Add(this.RangefinderAltValidBox);
+            this.flowLayoutPanel1.Controls.Add(this.GPSValidBox);
             this.flowLayoutPanel1.Controls.Add(this.NavValidBox);
             this.flowLayoutPanel1.Controls.Add(this.MotorsArmedBox);
             this.flowLayoutPanel1.Controls.Add(this.ThrottleMovingBox);
@@ -891,7 +891,7 @@ namespace UAVXGS
             // BaroAltValidBox
             // 
             this.BaroAltValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.BaroAltValidBox.Location = new System.Drawing.Point(3, 3);
+            this.BaroAltValidBox.Location = new System.Drawing.Point(3, 55);
             this.BaroAltValidBox.Name = "BaroAltValidBox";
             this.BaroAltValidBox.ReadOnly = true;
             this.BaroAltValidBox.Size = new System.Drawing.Size(109, 20);
@@ -902,7 +902,7 @@ namespace UAVXGS
             // RangefinderAltValidBox
             // 
             this.RangefinderAltValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.RangefinderAltValidBox.Location = new System.Drawing.Point(118, 3);
+            this.RangefinderAltValidBox.Location = new System.Drawing.Point(118, 55);
             this.RangefinderAltValidBox.Name = "RangefinderAltValidBox";
             this.RangefinderAltValidBox.ReadOnly = true;
             this.RangefinderAltValidBox.Size = new System.Drawing.Size(109, 20);
@@ -913,7 +913,7 @@ namespace UAVXGS
             // GPSValidBox
             // 
             this.GPSValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.GPSValidBox.Location = new System.Drawing.Point(3, 29);
+            this.GPSValidBox.Location = new System.Drawing.Point(3, 81);
             this.GPSValidBox.Name = "GPSValidBox";
             this.GPSValidBox.ReadOnly = true;
             this.GPSValidBox.Size = new System.Drawing.Size(109, 20);
@@ -924,7 +924,7 @@ namespace UAVXGS
             // UsingGPSAltBox
             // 
             this.UsingGPSAltBox.BackColor = System.Drawing.SystemColors.Window;
-            this.UsingGPSAltBox.Location = new System.Drawing.Point(118, 29);
+            this.UsingGPSAltBox.Location = new System.Drawing.Point(3, 3);
             this.UsingGPSAltBox.Name = "UsingGPSAltBox";
             this.UsingGPSAltBox.ReadOnly = true;
             this.UsingGPSAltBox.Size = new System.Drawing.Size(109, 20);
@@ -935,18 +935,18 @@ namespace UAVXGS
             // RTHAltHoldBox
             // 
             this.RTHAltHoldBox.BackColor = System.Drawing.SystemColors.Window;
-            this.RTHAltHoldBox.Location = new System.Drawing.Point(3, 55);
+            this.RTHAltHoldBox.Location = new System.Drawing.Point(118, 3);
             this.RTHAltHoldBox.Name = "RTHAltHoldBox";
             this.RTHAltHoldBox.ReadOnly = true;
             this.RTHAltHoldBox.Size = new System.Drawing.Size(109, 20);
             this.RTHAltHoldBox.TabIndex = 100;
-            this.RTHAltHoldBox.Text = "RTH Altitude Hold";
+            this.RTHAltHoldBox.Text = "Using RTH Alt Hold";
             this.RTHAltHoldBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TurnToWPBox
             // 
             this.TurnToWPBox.BackColor = System.Drawing.SystemColors.Window;
-            this.TurnToWPBox.Location = new System.Drawing.Point(118, 55);
+            this.TurnToWPBox.Location = new System.Drawing.Point(3, 29);
             this.TurnToWPBox.Name = "TurnToWPBox";
             this.TurnToWPBox.ReadOnly = true;
             this.TurnToWPBox.Size = new System.Drawing.Size(109, 20);
@@ -957,12 +957,12 @@ namespace UAVXGS
             // UseRTHAutoDescendBox
             // 
             this.UseRTHAutoDescendBox.BackColor = System.Drawing.SystemColors.Window;
-            this.UseRTHAutoDescendBox.Location = new System.Drawing.Point(3, 81);
+            this.UseRTHAutoDescendBox.Location = new System.Drawing.Point(118, 29);
             this.UseRTHAutoDescendBox.Name = "UseRTHAutoDescendBox";
             this.UseRTHAutoDescendBox.ReadOnly = true;
             this.UseRTHAutoDescendBox.Size = new System.Drawing.Size(109, 20);
             this.UseRTHAutoDescendBox.TabIndex = 120;
-            this.UseRTHAutoDescendBox.Text = "Auto Land Enabled";
+            this.UseRTHAutoDescendBox.Text = "Using Auto Land";
             this.UseRTHAutoDescendBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // NavValidBox
@@ -973,7 +973,7 @@ namespace UAVXGS
             this.NavValidBox.ReadOnly = true;
             this.NavValidBox.Size = new System.Drawing.Size(109, 20);
             this.NavValidBox.TabIndex = 107;
-            this.NavValidBox.Text = "Navigation Enabled";
+            this.NavValidBox.Text = "Origin Recorded";
             this.NavValidBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // MotorsArmedBox
@@ -1006,7 +1006,7 @@ namespace UAVXGS
             this.HoldingAltBox.ReadOnly = true;
             this.HoldingAltBox.Size = new System.Drawing.Size(109, 20);
             this.HoldingAltBox.TabIndex = 114;
-            this.HoldingAltBox.Text = "Holding Alt.";
+            this.HoldingAltBox.Text = "Holding Altitude";
             this.HoldingAltBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AttitudeHoldBox
@@ -1383,7 +1383,7 @@ namespace UAVXGS
             this.NavGroupBox.Controls.Add(this.WPAltitude);
             this.NavGroupBox.Location = new System.Drawing.Point(178, 83);
             this.NavGroupBox.Name = "NavGroupBox";
-            this.NavGroupBox.Size = new System.Drawing.Size(139, 304);
+            this.NavGroupBox.Size = new System.Drawing.Size(139, 287);
             this.NavGroupBox.TabIndex = 91;
             this.NavGroupBox.TabStop = false;
             this.NavGroupBox.Text = "Nav";
