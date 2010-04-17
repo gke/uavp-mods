@@ -73,7 +73,7 @@ It is assumed you:
   * I have solid Green and a flashing Blue LED: You are ready to fly as the GPS has recorded your origin location.
 
 ==== Setting Parameters ====
-  * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. 
+  * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. To go to parm 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read.
 
   * Can I use my old UAVP parameter files: Yes but there are more parameters in UAVX than UAVP so if you are a reading an old parameter file you should first load the defaults using the D command (see above). This will ensure the additional parameters of UAVX are given sensible values. You may then save the full parameter set back to a file if you wish.
 
@@ -128,6 +128,10 @@ It is assumed you:
 ==== UAVPset General ====
   * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed. 
   * Do I need to do a Write after I change any of the box values in UAVPSet: Yes.
+
+  *  To go to parm 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read. 
+
+  *  Always do a read after you do a write for parameter changes.
 
   * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and as we seem to act like engineers (usually a good thing) and learning by doing, without reading, there seems little point to writing a description of what each does. Play with each test as they are all harmless except Compass Calibration. The tools are also accessible using HyperTerm (@38.4KBaud) which is required for the GPS test.
   
