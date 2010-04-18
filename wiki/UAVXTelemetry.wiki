@@ -28,15 +28,18 @@ Telemetry is sent in binary packets formatted as follows:
 
   * preamble & sync: for telemetry links with a dc chopper one or more 0x55h characters followed by a 0xffh character to synchronise the receiver.
   * ASCII SOH
-  * Length: length of the packet in bytes.
-  * Type: UAVXFlightPacketTag or UAVXNavPacketTag.
-  * Data: ~50 bytes.
+  * Length (1): length of the packet in bytes.
+  * Type (1): UAVXFlightPacketTag or UAVXNavPacketTag.
+  * Data (~50): packet data.
   * Checksum: a simple parity checksum over the packet fields including Length, Type and data.
   * ASCII EOT 
+  * trailing characters including ASCII CR/LF not byte stuffed.
+
+The () indicates the size of the field in bytes. 
 
 == UAVXFlightPacket ==
 
-This packet type contains the main airframe control and attitude parameters.  The () indicates the size of the field in bytes. Most integers are signed with the exception of those relating to state. The packet length is 45 bytes.
+This packet type contains the main airframe control and attitude parameters. Most integers are signed with the exception of those relating to state. The packet length is 45 bytes.
  
   * Flags (6): status flags with one bit per flag (see below).		
   * State (1): 	
