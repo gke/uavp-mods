@@ -1,16 +1,16 @@
 #summary UAVX is able to send telemetry in several formats. This is a brief summary.
 #labels Featured,UAVX,Telemetry,UAVXGS,UAVPSet,gke,jesolins,UAVP
 
-= UAVX Telemetry =
+= UAVX Telemetry DRAFT =
 
 The telemetry formats supported are:
 
   * none
   * GPS
   * UAVX
-  * Ardupilot
+  * ArduStation
 
-The desired format is selected in the telemetry pulldown in UAVPSet.
+The desired format is selected in the telemetry pull-down in UAVPSet.
 
 = GPS =
 
@@ -164,6 +164,6 @@ enum NavStates { HoldingStation, ReturningHome, AtHome, Descending, Touchdown, N
 
 enum FailStates { MonitoringRx, Aborting, Returning, Terminated };
 
-== Ardupilot ==
+== ArduStation ==
 
 This simple text based telemetry used by the Ardupilot's handheld ArduStation. See DIYDrones pages.
