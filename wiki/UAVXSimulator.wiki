@@ -1,0 +1,17 @@
+#labels Featured,UAVX,UAVXGS,gke,jesolins
+UAVX from revision R9xx onwards has simple simulation mode to check navigation behaviour including response to stick input, position hold, RTH and altitude hold. 
+
+= UAVXSimulator =
+
+UAVX from revision R9xx onwards has simple simulation mode to check navigation behaviour including response to stick input, position hold, RTH and altitude hold. The simulator versions of UAVX carry the designation "SIMULATOR" in their hex filename.
+
+The UAVX simple ground-station (UAVXGS) is used to view the response of the aircraft to stick and Nav control.
+
+The compass and altimeter values are simulated. The GPS coordinates are also simulated and are computed using the desired roll and pitch stick inputs. These desired values have the navigation offset values added to them exactly as in the flight versions.
+
+While the full flight dynamics are not computed the behaviour is very similar to what may be expected when in flight.
+
+We seek volunteers to add Google Earth for visualisation.
+
+
+......  
