@@ -1,5 +1,5 @@
+#summary UAVX from revision R9xx onwards has simple simulation mode to check navigation behaviour including response to stick input, position hold, RTH and altitude hold.
 #labels Featured,UAVX,UAVXGS,gke,jesolins
-UAVX from revision R9xx onwards has simple simulation mode to check navigation behaviour including response to stick input, position hold, RTH and altitude hold. 
 
 = UAVXSimulator =
 
