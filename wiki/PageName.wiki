@@ -57,6 +57,73 @@ This packet type contains the main airframe control and attitude parameters.  Th
   * FBComp (1):
   * DUComp (1):
   * AltComp (1):
+
+=== Flags ===
+
+typedef union {
+	uint8 AllFlags[FLAG_BYTES];
+	struct { // Order of these flags subject to change
+		uint8
+		NavAltitudeHold:1,	// stick programmed
+		TurnToWP:1,			// stick programmed
+		MotorsArmed:1,
+		LostModel:1,
+		NearLevel:1,
+		LowBatt:1,
+		GPSValid:1,
+		NavValid:1,
+
+		BaroFailure:1,
+		AccFailure:1,
+		CompassFailure:1,
+		GPSFailure:1,
+		AttitudeHold:1,
+		ThrottleMoving:1,
+		HoldingAlt:1,
+		Navigate:1,
+
+		ReturnHome:1,
+		WayPointAchieved:1,
+		WayPointCentred:1,
+		UsingGPSAlt:1,
+		UsingRTHAutoDescend:1,
+		BaroAltitudeValid:1,
+		RangefinderAltitudeValid:1,
+		UsingRangefinderAlt:1,
+
+		// internal flags not really useful externally
+		Signal:1,
+		RCFrameOK:1, 
+		ParametersValid:1,
+		RCNewValues:1,
+		NewCommands:1,
+		AccelerationsValid:1,
+		CompassValid:1,
+		CompassMissRead:1,
+
+		GyrosErected:1,
+		ReceivingGPS:1,
+		GPSSentenceReceived:1,
+		NavComputed:1,
+		CheckThrottleMoved:1,		
+		UsingSerialPPM:1,
+		UsingTxMode2:1,
+		UsingXMode:1,
+
+		UsingTelemetry:1,
+		TxToBuffer:1,
+		NewBaroValue:1,
+		BeeperInUse:1, 
+		AcquireNewPosition:1, 
+		GPSTestActive:1,
+		unused1:1,
+		unused2:1;
+		};
+} Flags;
+
+=== State ===
+
+enum FlightStates { Starting, Landing, Landed, InFlight};
 	
 == UAVXNavPacket ==
 
@@ -65,8 +132,8 @@ The packet length is 49 bytes.
   * NavState (1):
   * FailState (1):
   * GPSNoOfSats (1):
-  * GPSFix (1):
-  * CurrWP (1):	
+  * GPSFix (1): 
+  * CurrWP (1):	The number of the current waypoint. Zero is the launch point.
   * BaroROC(2): rate of climb using barometer in cm/S.
   * RelBaroAltitude (3): altitude using barometer in cm.
   * RangefinderROC (2); // cm/S 
@@ -83,4 +150,12 @@ The packet length is 49 bytes.
   * DesiredLatitude (4): latitude of the next way point in deg * 6000000. 
   * DesiredLongitude (4): latitude of the next way point in deg * 6000000.
   * NavStateTimeout (3): remaining loitering time or hold time before auto-land in mS.
- 
+
+=== NavState ===
+
+enum NavStates { HoldingStation, ReturningHome, AtHome, Descending, Touchdown, Navigating, Loitering,
+	Terminating };
+
+=== FailState ===
+
+enum FailStates { MonitoringRx, Aborting, Returning, Terminated };
