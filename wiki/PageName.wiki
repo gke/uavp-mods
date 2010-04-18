@@ -1,0 +1,86 @@
+#summary UAVX is able to send telemetry in several formats. This is a brief summary.
+#labels Featured,UAVX,Telemetry,UAVPSet,gke,jesolins,UAVP
+
+= UAVX Telemetry =
+
+The telemetry formats supported are:
+
+  * none
+  * GPS
+  * UAVX
+  * Ardupilot
+
+The desired format is selected in the telemetry pulldown in UAVPSet.
+
+= GPS =
+
+This format simply echoes the characters as they are received from the GPS.
+
+= UAVX =
+
+This format is specific to the UAVX groundstation programs including UAVXGS.
+
+Telemetry is sent in binary packets formatted as follows:
+
+  * preamble & sync: for telemetry links with a dc chopper one or more 0x55h characters followed by a 0xffh character to synchronise the receiver.
+  * ASCII SOH
+  * Length: length of the packet in bytes.
+  * Type: UAVXFlightPacketTag or UAVXNavPacketTag.
+  * Data: ~50 bytes.
+  * Checksum: a simple parity checksum over the packet fields including Length, Type and data.
+  * ASCII EOT 
+
+== UAVXFlightPacket ==
+
+This packet type contains the main airframe control and attitude parameters.  The () indicates the size of the field in bytes. Most integers are signed with the exception of those relating to state.
+ 
+  * Flags (6): status flags with one bit per flag (see below).		
+  * State (1): 	
+  * BatteryVoltsADC (2):
+  * BatteryCurrentADC (2):
+  * BatteryCharge (2):
+  * RCGlitches (2):			
+  * DesiredThrottle (2):
+  * DesiredRoll (2):
+  * DesiredPitch (2):
+  * DesiredYaw (2):
+  * RollRate (2):
+  * PitchRate (2):
+  * YawRate (2):
+  * RollSum (2):
+  * PitchSum (2):
+  * YawSum (2):
+  * LRAcc (2):
+  * FBAcc (2):
+  * DUAcc (2):
+  * LRComp (1):
+  * FBComp (1):
+  * DUComp (1):
+  * AltComp (1):
+	
+== UAVXNavPacket ==
+
+The packet length is 49 bytes.
+	
+  * NavState (1):
+  * FailState (1):
+  * GPSNoOfSats (1):
+  * GPSFix (1):
+  * CurrWP (1):	
+  * BaroROC(2): rate of climb using barometer in cm/S.
+  * RelBaroAltitude (3): altitude using barometer in cm.
+  * RangefinderROC (2); // cm/S 
+  * RangefinderAltitude (2): rate of climb using rangefinder in cm/S.
+  * GPSHDilute (2): GPS horizontal dilution in cm.
+  * Heading (2): Compass heading in milliradian.
+  * WayHeading (2): direction to next way point in milliradian. 
+  * GPSVel (2): ground velocity in cm/S.
+  * GPSROC (2): rate of climb using GPS in cm/S.
+  * GPSRelAltitude (3): height above the launch point in cm.
+  * GPSLatitude (4): latitude of aircraft in deg * 6000000;
+  * GPSLongitude (4: longitude of aircraft in deg * 6000000; 
+  * DesiredAltitude (3): desired altitude above the launch point in cm.
+  * DesiredLatitude (4): latitude of the next way point in deg * 6000000. 
+  * DesiredLongitude (4): latitude of the next way point in deg * 6000000.
+  * NavStateTimeout (3): remaining loitering time or hold time before auto-land in mS.
+ 
