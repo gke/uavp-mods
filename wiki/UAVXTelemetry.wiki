@@ -18,7 +18,11 @@ This format simply echoes the characters as they are received from the GPS.
 
 = UAVX =
 
-This format is specific to the UAVX ground-station programs including UAVXGS.
+This format is specific to the UAVX ground-station programs including UAVXGS. 
+
+UAVX must be armed and receiving valid GPS packets before any telemetry is sent.
+
+Packets are transmitted overlapped with GPS data one telemetry byte for every GPS byte received until the telemetry packet is sent.  There are two telemetry packet types which are sent alternatively at the GPS packet sentence rate. If the GPS is sending sentences other than the $GPGGA type then the telemetry packet rate may not be the same as the GPS packet sentence rate if the GPS sentences are smaller than a telemetry packet. 
 
 Telemetry is sent in binary packets formatted as follows:
 
@@ -32,7 +36,7 @@ Telemetry is sent in binary packets formatted as follows:
 
 == UAVXFlightPacket ==
 
-This packet type contains the main airframe control and attitude parameters.  The () indicates the size of the field in bytes. Most integers are signed with the exception of those relating to state.
+This packet type contains the main airframe control and attitude parameters.  The () indicates the size of the field in bytes. Most integers are signed with the exception of those relating to state. The packet length is 45 bytes.
  
   * Flags (6): status flags with one bit per flag (see below).		
   * State (1): 	
@@ -127,7 +131,7 @@ enum FlightStates { Starting, Landing, Landed, InFlight};
 	
 == UAVXNavPacket ==
 
-The packet length is 49 bytes.
+This packet contains most of the navigation parameters. The packet length is 49 bytes.
 	
   * NavState (1):
   * FailState (1):
@@ -139,8 +143,8 @@ The packet length is 49 bytes.
   * RangefinderROC (2); // cm/S 
   * RangefinderAltitude (2): rate of climb using rangefinder in cm/S.
   * GPSHDilute (2): GPS horizontal dilution in cm.
-  * Heading (2): Compass heading in milliradian.
-  * WayHeading (2): direction to next way point in milliradian. 
+  * Heading (2): Compass heading in milli-radian.
+  * WayHeading (2): direction to next way point in milli-radian. 
   * GPSVel (2): ground velocity in cm/S.
   * GPSROC (2): rate of climb using GPS in cm/S.
   * GPSRelAltitude (3): height above the launch point in cm.
