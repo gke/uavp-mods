@@ -18,7 +18,7 @@ This format simply echoes the characters as they are received from the GPS.
 
 = UAVX =
 
-This format is specific to the UAVX groundstation programs including UAVXGS.
+This format is specific to the UAVX ground-station programs including UAVXGS.
 
 Telemetry is sent in binary packets formatted as follows:
 
@@ -36,27 +36,27 @@ This packet type contains the main airframe control and attitude parameters.  Th
  
   * Flags (6): status flags with one bit per flag (see below).		
   * State (1): 	
-  * BatteryVoltsADC (2):
-  * BatteryCurrentADC (2):
-  * BatteryCharge (2):
-  * RCGlitches (2):			
-  * DesiredThrottle (2):
-  * DesiredRoll (2):
-  * DesiredPitch (2):
-  * DesiredYaw (2):
-  * RollRate (2):
-  * PitchRate (2):
-  * YawRate (2):
-  * RollSum (2):
-  * PitchSum (2):
-  * YawSum (2):
-  * LRAcc (2):
-  * FBAcc (2):
-  * DUAcc (2):
-  * LRComp (1):
-  * FBComp (1):
-  * DUComp (1):
-  * AltComp (1):
+  * BatteryVoltsADC (2): Resistive divder dependent!
+  * BatteryCurrentADC (2): ADC current dependent!
+  * BatteryCharge (2): ADC current dependent!
+  * RCGlitches (2): the number of bad Rx frames received.			
+  * DesiredThrottle (2): desired throttle including Nav compensation in stick units.
+  * DesiredRoll (2): desired roll including Nav compensation in stick units.
+  * DesiredPitch (2): desired roll.
+  * DesiredYaw (2):desired yaw.
+  * RollRate (2): scaled roll gyro value.
+  * PitchRate (2): scaled roll gyro value.
+  * YawRate (2): scaled roll gyro value.
+  * RollSum (2): roll angle in internal UAVX units ~35/deg.
+  * PitchSum (2): pitch angle.
+  * YawSum (2): yaw angle - this is not the heading.
+  * LRAcc (2): left to right acceleration in G/1024.
+  * FBAcc (2): front to back acceleration in G/1024.
+  * DUAcc (2): down to up acceleration in G/1024.
+  * LRComp (1): left to right inertial compensation in roll stick units.
+  * FBComp (1): front to back inertial compensation in pitch stick units.
+  * DUComp (1): down to up inertial damping in throttle stick units.
+  * AltComp (1): throttle compensation to maintain cruise/hover altitude.
 
 === Flags ===
 
@@ -65,7 +65,7 @@ typedef union {
 	struct { // Order of these flags subject to change
 		uint8
 		NavAltitudeHold:1,	// stick programmed
-		TurnToWP:1,			// stick programmed
+		TurnToWP:1,		// stick programmed
 		MotorsArmed:1,
 		LostModel:1,
 		NearLevel:1,
@@ -144,8 +144,8 @@ The packet length is 49 bytes.
   * GPSVel (2): ground velocity in cm/S.
   * GPSROC (2): rate of climb using GPS in cm/S.
   * GPSRelAltitude (3): height above the launch point in cm.
-  * GPSLatitude (4): latitude of aircraft in deg * 6000000;
-  * GPSLongitude (4: longitude of aircraft in deg * 6000000; 
+  * GPSLatitude (4): latitude of aircraft in deg x 6000000.
+  * GPSLongitude (4): longitude of aircraft in deg x 6000000. 
   * DesiredAltitude (3): desired altitude above the launch point in cm.
   * DesiredLatitude (4): latitude of the next way point in deg * 6000000. 
   * DesiredLongitude (4): latitude of the next way point in deg * 6000000.
