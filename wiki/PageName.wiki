@@ -159,3 +159,7 @@ enum NavStates { HoldingStation, ReturningHome, AtHome, Descending, Touchdown, N
 === FailState ===
 
 enum FailStates { MonitoringRx, Aborting, Returning, Terminated };
+
+== Ardupilot ==
+
+This simple text based telemetry used by the Ardupilot's handheld ArduStation. See DIYDrones pages.
