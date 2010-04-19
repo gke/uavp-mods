@@ -32,7 +32,7 @@ It is assumed you:
 === Obtaining UAVX ===
   * How do get UAVX: The latest version of UAVX may be obtained under the downloads tab on the uavp-mods pages or you may obtain it preloaded from quadroufo.com.
 
-  * Which version of UAVX do I sue: See File Versions below. 
+  * Which version of UAVX do I Use: See File Versions below. 
  
   * I have my own PIC: UAVX has its own bootloader which is not compatible with the original UAVP bootloader. You will need to use a PIC programmer to write a copy of UAVX to the PIC.
 
