@@ -43,7 +43,7 @@ It is assumed you:
   * Which hex file do I use: Tags within the UAVX hex file names tells you what it contains:
     * QUAD: four motor quadrocopter.
     * TRI: three motor tricopter.
-    * 90D: some older compasses have a 90 deg offset from the package mounting alignment. Check using the Compass test in UAVPSet.
+    * 90D: some older compasses have a 90 deg offset from the package mounting alignment. Check using the Compass test in UAVPSet (See CompassTest Wiki).
     * 6CH: for use with 6ch Rx. The navigation sensitivity (below) must be set using UAVPSet rather than the Ch7 pot.
     * DEBUG: for use with the sensor trace (see SensorTest Wiki).
     * SIMULATOR: from R9xx onwards (See Wiki).
