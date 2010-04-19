@@ -18,7 +18,7 @@ It is assumed you:
 
   * Are familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
 
-  * You have previously flown your quadrocopter/tricopter using UAVP flight software.
+  * You have previously flown your quadrocopter/tricopter using UAVP flight software. As this is less likely now you need to do some reading of the UAVX thread and ask questions.
 
   * You have read and understood the contents of this document.
 
@@ -29,11 +29,16 @@ It is assumed you:
 
   * Is there a Pre-flight Safety Checklist: There *IS* a safety checklist which you should use (see below).
 
+=== Obtaining UAVX ===
   * How do get UAVX: The latest version of UAVX may be obtained under the downloads tab on the uavp-mods pages or you may obtain it preloaded from quadroufo.com.
  
   * I have my own PIC: UAVX has its own bootloader which is not compatible with the original UAVP bootloader. You will need to use a PIC programmer to write a copy of UAVX to the PIC.
 
-  * Can I just load the bootloader onto the PIC first: The bootloader is integrated with all versions of UAVX. Once loaded onto the PIC the bootloader will not allow itself to be overwritten by UAVPSet.
+  * Can I just load the bootloader onto the PIC first: The bootloader is integrated with all versions of UAVX. Once loaded onto the PIC the bootloader will not allow itself to be overwritten but can be used to load later versions of UAVX using UAVPSet.
+
+  * Can the bootloader for the 16MHz version of UAVX load the 40MHz version of UAVX: Unfortunately no. You will have to use a PIC programmer to write the 40MHz version for the first time.
+
+  * What modifications do I need to make to the board for 40MHz: Replace the Crystal with a 10MHz version.
  
 ==== Tx/Rx ====
   * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
@@ -80,7 +85,7 @@ It is assumed you:
   * I have solid Green and a flashing Blue LED: You are ready to fly as the GPS has recorded your origin location.
 
 ==== Setting Parameters ====
-  * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. To go to parm 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read.
+  * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. To go to param 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read.
 
   * Can I use my old UAVP parameter files: Yes but there are more parameters in UAVX than UAVP so if you are a reading an old parameter file you should first load the defaults using the D command (see above). This will ensure the additional parameters of UAVX are given sensible values. You may then save the full parameter set back to a file if you wish.
 
