@@ -140,7 +140,8 @@ It is assumed you:
   * What else do I need to consider: The GPS connection to the quadrocopter must occur at the same time as the quadrocopter is armed and disconnected as the quadrocopter is disarmed. You will need a dual switch for this.
 
 ==== UAVPset General ====
-  * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed. 
+  * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed.
+ 
   * Do I need to do a Write after I change any of the box values in UAVPSet: Yes.
 
   *  To go to parm 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read. 
