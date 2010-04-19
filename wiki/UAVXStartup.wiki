@@ -31,6 +31,8 @@ It is assumed you:
 
 === Obtaining UAVX ===
   * How do get UAVX: The latest version of UAVX may be obtained under the downloads tab on the uavp-mods pages or you may obtain it preloaded from quadroufo.com.
+
+  * Which version of UAVX do I sue: See File Versions below. 
  
   * I have my own PIC: UAVX has its own bootloader which is not compatible with the original UAVP bootloader. You will need to use a PIC programmer to write a copy of UAVX to the PIC.
 
@@ -39,14 +41,6 @@ It is assumed you:
   * Can the bootloader for the 16MHz version of UAVX load the 40MHz version of UAVX: Unfortunately no. You will have to use a PIC programmer to write the 40MHz version for the first time.
 
   * What modifications do I need to make to the board for 40MHz: Replace the Crystal with a 10MHz version.
-
-  * Which hex file do I use: Tags within the UAVX hex file names tells you what it contains:
-    * QUAD: four motor quadrocopter.
-    * TRI: three motor tricopter.
-    * 90D: some older compasses have a 90 deg offset from the package mounting alignment. Check using the Compass test in UAVPSet (See CompassSensor Wiki).
-    * 6CH: for use with 6ch Rx. The navigation sensitivity (below) must be set using UAVPSet rather than the Ch7 pot.
-    * DEBUG: for use with the sensor trace (see SensorTest Wiki).
-    * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
  
 ==== Tx/Rx ====
   * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
@@ -165,11 +159,14 @@ It is assumed you:
   * ...... more to follow.
 
 ==== File Versions ====
-  * UAVX Debug Versions: These HEX files include Debug_SENSORS in their name. These are NOT flight software and are used to debug sensors and most importantly for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
 
-==== Other ====
-  * Tricopters: Use the files with TRI in the names.
-
+  * Which hex file do I use: Tags within the UAVX hex file names tells you what it contains:
+    * QUAD: four motor quadrocopter.
+    * TRI: three motor tricopter.
+    * 90D: some older compasses have a 90 deg offset from the package mounting alignment. Check using the Compass test in UAVPSet (See CompassSensor Wiki).
+    * 6CH: for use with 6ch Rx. The navigation sensitivity (below) must be set using UAVPSet rather than the Ch7 pot.
+    * DEBUG: for use with the sensor trace (see SensorTest Wiki). These are NOT flight software and are used to debug sensors and for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
+    * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
 
 ===Tx/Rx Setup===
 
