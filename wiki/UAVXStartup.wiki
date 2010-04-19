@@ -26,7 +26,14 @@ It is assumed you:
 
 
 === Notes/FAQs ===
-  * Is there a Pre-flight Safety Checklist: There *IS* a safety checklist which you should use (see below). 
+
+  * Is there a Pre-flight Safety Checklist: There *IS* a safety checklist which you should use (see below).
+
+  * How do get UAVX: The latest version of UAVX may be obtained under the downloads tab on the uavp-mods pages or you may obtain it preloaded from quadroufo.com.
+ 
+  * I have my own PIC: UAVX has its own bootloader which is not compatible with the original UAVP bootloader. You will need to use a PIC programmer to write a copy of UAVX to the PIC.
+
+  * Can I just load the bootloader onto the PIC first: The bootloader is integrated with all versions of UAVX. Once loaded onto the PIC the bootloader will not allow itself to be overwritten by UAVPSet.
  
 ==== Tx/Rx ====
   * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
