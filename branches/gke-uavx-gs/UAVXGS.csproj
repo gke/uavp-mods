@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UAVXGS</RootNamespace>
-    <AssemblyName>UAVXGS</AssemblyName>
+    <AssemblyName>UAVXGS 1.0</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>

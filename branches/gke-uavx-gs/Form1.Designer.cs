@@ -1,6 +1,6 @@
 namespace UAVXGS
 {
-    partial class Altitude
+    partial class FormMain
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@ namespace UAVXGS
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Altitude));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.FlyingButton = new System.Windows.Forms.Button();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.RollSum = new System.Windows.Forms.TextBox();
@@ -101,13 +101,13 @@ namespace UAVXGS
             this.BatteryCharge = new System.Windows.Forms.TextBox();
             this.BatteryChargeLabel = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.BaroAltValidBox = new System.Windows.Forms.TextBox();
-            this.RangefinderAltValidBox = new System.Windows.Forms.TextBox();
-            this.GPSValidBox = new System.Windows.Forms.TextBox();
             this.UsingGPSAltBox = new System.Windows.Forms.TextBox();
             this.RTHAltHoldBox = new System.Windows.Forms.TextBox();
             this.TurnToWPBox = new System.Windows.Forms.TextBox();
             this.UseRTHAutoDescendBox = new System.Windows.Forms.TextBox();
+            this.BaroAltValidBox = new System.Windows.Forms.TextBox();
+            this.RangefinderAltValidBox = new System.Windows.Forms.TextBox();
+            this.GPSValidBox = new System.Windows.Forms.TextBox();
             this.NavValidBox = new System.Windows.Forms.TextBox();
             this.MotorsArmedBox = new System.Windows.Forms.TextBox();
             this.ThrottleMovingBox = new System.Windows.Forms.TextBox();
@@ -888,39 +888,6 @@ namespace UAVXGS
             this.flowLayoutPanel1.Size = new System.Drawing.Size(237, 317);
             this.flowLayoutPanel1.TabIndex = 99;
             // 
-            // BaroAltValidBox
-            // 
-            this.BaroAltValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.BaroAltValidBox.Location = new System.Drawing.Point(3, 55);
-            this.BaroAltValidBox.Name = "BaroAltValidBox";
-            this.BaroAltValidBox.ReadOnly = true;
-            this.BaroAltValidBox.Size = new System.Drawing.Size(109, 20);
-            this.BaroAltValidBox.TabIndex = 121;
-            this.BaroAltValidBox.Text = "Baro Alt Valid";
-            this.BaroAltValidBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // RangefinderAltValidBox
-            // 
-            this.RangefinderAltValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.RangefinderAltValidBox.Location = new System.Drawing.Point(118, 55);
-            this.RangefinderAltValidBox.Name = "RangefinderAltValidBox";
-            this.RangefinderAltValidBox.ReadOnly = true;
-            this.RangefinderAltValidBox.Size = new System.Drawing.Size(109, 20);
-            this.RangefinderAltValidBox.TabIndex = 122;
-            this.RangefinderAltValidBox.Text = "Rangefinder Valid";
-            this.RangefinderAltValidBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // GPSValidBox
-            // 
-            this.GPSValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.GPSValidBox.Location = new System.Drawing.Point(3, 81);
-            this.GPSValidBox.Name = "GPSValidBox";
-            this.GPSValidBox.ReadOnly = true;
-            this.GPSValidBox.Size = new System.Drawing.Size(109, 20);
-            this.GPSValidBox.TabIndex = 105;
-            this.GPSValidBox.Text = "GPS Valid";
-            this.GPSValidBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // UsingGPSAltBox
             // 
             this.UsingGPSAltBox.BackColor = System.Drawing.SystemColors.Window;
@@ -964,6 +931,39 @@ namespace UAVXGS
             this.UseRTHAutoDescendBox.TabIndex = 120;
             this.UseRTHAutoDescendBox.Text = "Using Auto Land";
             this.UseRTHAutoDescendBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // BaroAltValidBox
+            // 
+            this.BaroAltValidBox.BackColor = System.Drawing.SystemColors.Window;
+            this.BaroAltValidBox.Location = new System.Drawing.Point(3, 55);
+            this.BaroAltValidBox.Name = "BaroAltValidBox";
+            this.BaroAltValidBox.ReadOnly = true;
+            this.BaroAltValidBox.Size = new System.Drawing.Size(109, 20);
+            this.BaroAltValidBox.TabIndex = 121;
+            this.BaroAltValidBox.Text = "Baro Alt Valid";
+            this.BaroAltValidBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // RangefinderAltValidBox
+            // 
+            this.RangefinderAltValidBox.BackColor = System.Drawing.SystemColors.Window;
+            this.RangefinderAltValidBox.Location = new System.Drawing.Point(118, 55);
+            this.RangefinderAltValidBox.Name = "RangefinderAltValidBox";
+            this.RangefinderAltValidBox.ReadOnly = true;
+            this.RangefinderAltValidBox.Size = new System.Drawing.Size(109, 20);
+            this.RangefinderAltValidBox.TabIndex = 122;
+            this.RangefinderAltValidBox.Text = "Rangefinder Valid";
+            this.RangefinderAltValidBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // GPSValidBox
+            // 
+            this.GPSValidBox.BackColor = System.Drawing.SystemColors.Window;
+            this.GPSValidBox.Location = new System.Drawing.Point(3, 81);
+            this.GPSValidBox.Name = "GPSValidBox";
+            this.GPSValidBox.ReadOnly = true;
+            this.GPSValidBox.Size = new System.Drawing.Size(109, 20);
+            this.GPSValidBox.TabIndex = 105;
+            this.GPSValidBox.Text = "GPS Valid";
+            this.GPSValidBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // NavValidBox
             // 
@@ -1640,7 +1640,7 @@ namespace UAVXGS
             this.attitudeIndicatorInstrumentControl1.TabIndex = 3;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
             // 
-            // Altitude
+            // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -1673,8 +1673,9 @@ namespace UAVXGS
             this.Controls.Add(this.FailStateLabel);
             this.Controls.Add(this.FlyingButton);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "Altitude";
+            this.Name = "FormMain";
             this.Text = "UAVXGS";
+            this.Load += new System.EventHandler(this.FormMain_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.GyroGroupBox.ResumeLayout(false);
             this.GyroGroupBox.PerformLayout();

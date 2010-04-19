@@ -28,7 +28,7 @@ using System.Windows.Forms;
 
 namespace UAVXGS
 {
-    public partial class Altitude : Form
+    public partial class FormMain : Form
     {
         // ASCII Constants
         const byte NUL = 0;
@@ -214,7 +214,7 @@ namespace UAVXGS
 
         bool InFlight = false;
 
-        public Altitude()
+        public FormMain()
         {
             InitializeComponent();
         }
@@ -243,7 +243,7 @@ namespace UAVXGS
             if (serialPort1.IsOpen) serialPort1.Close();
         }
 
-        private void zzztextBox1_KeyPress(object sender, KeyPressEventArgs e)
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             // If the port is closed, don't try to send a character.
             if (!serialPort1.IsOpen) return;
@@ -938,9 +938,6 @@ namespace UAVXGS
             return (c * 0.018553257183);
         }
 
-      
-     
-      
     
     }
 }
