@@ -46,7 +46,7 @@ It is assumed you:
     * 90D: some older compasses have a 90 deg offset from the package mounting alignment. Check using the Compass test in UAVPSet (See CompassSensor Wiki).
     * 6CH: for use with 6ch Rx. The navigation sensitivity (below) must be set using UAVPSet rather than the Ch7 pot.
     * DEBUG: for use with the sensor trace (see SensorTest Wiki).
-    * SIMULATOR: from R9xx onwards (See Wiki).
+    * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
  
 ==== Tx/Rx ====
   * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
