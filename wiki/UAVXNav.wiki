@@ -5,8 +5,10 @@
 
 UAVXNav is a navigation mission planner with an inbuilt ground-station.
 
+== First Release ==
 
+Northern Summer 2010.
 
-== Acknowledgements ==
+=== Acknowledgements ===
 
 The Google Maps interface is based on code samples due to Wolfgang Pichler. The Avionics instruments were developed by "Chootair" Code Project. The waypoint data entry was originally based on the ArduPilotConfigTool written by Jordi Muñoz and HappyKillmore; thank you Jordi for permission to use. 
