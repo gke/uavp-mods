@@ -1,7 +1,7 @@
 #summary UAVXGS is a simple PC based ground-station GUI which is a intended as a base for other ground-station development.
 #labels Featured,UAVXGS,UAVX,UAVPSet,gke,jesolins,UAVP,quadrocopter
 
-= UAVX Groundstation DRAFT  =
+= UAVX Ground-station (UAVXGS =
 
 UAVXGS is a simple PC based ground-station GUI which is a intended as a base for other ground-station development. It is written in Visual C#.
 
