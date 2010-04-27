@@ -11,7 +11,7 @@ After the flight statistics may be read showing any sensor failures along with R
 
 == Video ==
 
-The video shows entry of a simple mission, upload, partial flight and read of inflight stats. Unfortunately weather was wet and overcast not permitting autonomous flight ;).
+Video shows UAVXNav waypoint navigation and auto-land. Setting of last of 4 waypoints. Manual takeoff with climb to 35M and 5 Sec loiter at waypoint 2 before returning to land after 10 sec hold at the launch point. Note altitude and position error display along with aircraft location relative to launch. Finally read of in flight stats showing GPS and sensor performance with any Rx failures. Uses UAVX simulation mode. Google maps track to follow in next version of UAVXNav but only for simulate mode (Google conditions of use).
 
 <wiki:video url="http://www.youtube.com/watch?v=TBcIJREsCyY&layer_token=127391f3f62840b6"/>
 
