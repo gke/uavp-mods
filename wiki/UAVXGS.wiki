@@ -5,7 +5,8 @@
 
 UAVXGS is a simple PC based ground-station GUI which is a intended as a base for other ground-station development. It is written in Visual C#.
 
-http://www.youtube.com/v/9x-pWB9t21Q&hl=en&fs=1
+
+<wiki:video url="http://www.youtube.com/v/9x-pWB9t21Q&hl=en&fs=1"/>
 
 Description of ground-station to follow.
 
