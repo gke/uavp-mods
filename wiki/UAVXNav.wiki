@@ -3,9 +3,17 @@
 
 = UAVXNav =
 
-UAVXNav is a navigation mission planner with an inbuilt ground-station.
+UAVXNav is a navigation mission planner with an inbuilt ground-station. It allows the entry of waypoints comprising a mission. The desired altitude and loiter time at each waypoint may be set along with the accuracy of waypoint closure.  Waypoints are checked to see whether they are in reasonable line of sight.
 
-http://www.youtube.com/watch?v=TBcIJREsCyY&layer_token=127391f3f62840b6
+GPS, altimeter, waypoint coordinates, aircraft coordinates and position and altitude errors are displayed in flight along with other information including the position of the aircraft relative to the launch point.
+
+After flight flight statistics may be read showing any sensor failures along with Rx errors etc.
+
+== Video ==
+
+Video shows entry of a simple mission, upload, partial flight and read of inflight stats. Unfortunately weather was wet and overcast;).
+
+<wiki:video url="http://www.youtube.com/watch?v=TBcIJREsCyY&layer_token=127391f3f62840b6"/>
 
 == First Release ==
 
