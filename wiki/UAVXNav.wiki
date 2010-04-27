@@ -5,6 +5,8 @@
 
 UAVXNav is a navigation mission planner with an inbuilt ground-station.
 
+http://www.youtube.com/watch?v=TBcIJREsCyY&layer_token=127391f3f62840b6
+
 == First Release ==
 
 Northern Summer 2010.
