@@ -7,11 +7,11 @@ UAVXNav is a navigation mission planner with an inbuilt ground-station. It allow
 
 GPS, altimeter, waypoint coordinates, aircraft coordinates and position and altitude errors are displayed in flight along with other information including the position of the aircraft relative to the launch point.
 
-After flight flight statistics may be read showing any sensor failures along with Rx errors etc.
+After the flight statistics may be read showing any sensor failures along with Rx errors etc.
 
 == Video ==
 
-Video shows entry of a simple mission, upload, partial flight and read of inflight stats. Unfortunately weather was wet and overcast;).
+The video shows entry of a simple mission, upload, partial flight and read of inflight stats. Unfortunately weather was wet and overcast not permitting autonomous flight ;).
 
 <wiki:video url="http://www.youtube.com/watch?v=TBcIJREsCyY&layer_token=127391f3f62840b6"/>
 
