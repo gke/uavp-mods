@@ -1,4 +1,4 @@
-#summary The non-ARM way forward -but never say never!
+#summary The non-ARM way forward - but never say never!
 #labels gke,jesolins
 
 The essential simplicity of the original UAVP is very attractive. 
