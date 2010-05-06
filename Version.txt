@@ -1,0 +1,16 @@
+- UAVP/UAVX PID Parameter Terminal Firmware version history and release info 
+
+-14_10_2009 Version 2.120
+UAVP_X_TERM_ta2cba_18F4520_V2_120.*
+
+-28_10_2009 Version 2.120
+UAVP_X_TERM_ta2cba_18F4520_V2_120.*
+UAVP_X_TERM_ta2cba_18F2520_V2_120.*
+UAVP_X_TERM_ta2cba_18F2620_V2_120.*
+
+Same firmware revision as 14_10_2009 version release with the addition of 
+- PCB layouts and files
+- 2.120 Firmware for PIC18F2520 and PIC18F2620 in addition to PIC18F4520
+- Schematics for 28 pin PIC's
+- Manual rev.2.1 with the addition of the above in the text description
+

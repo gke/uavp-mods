@@ -1,0 +1,1180 @@
+'-------------------------------------------------------------------------------
+'                     UAVP/UAVX PID SETTING TERMINAL
+'                              VERSION 2
+'                       BARBAROS ASUROGLU (TA2CBA)
+'                              27/10/2009
+'                           PIC18F2620-20 Mhz
+' RS232 data speed : 38400 bps             Firmware Version: Ver.2.120
+'-------------------------------------------------------------------------------
+'  This program is a free software; you can redistribute it and/or modify
+'  it under the terms of the GNU General Public License as published by
+'  the Free Software Foundation; either version 2 of the License, or
+'  (at your option) any later version.
+'
+'  This program is distributed in the hope that it will be useful,
+'  but WITHOUT ANY WARRANTY; without even the implied warranty of
+'  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+'  GNU General Public License for more details.
+'
+'  You should have received a copy of the GNU General Public License along
+'  with this program; if not, write to the Free Software Foundation, Inc.,
+'  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+'  
+'  This software is released under GNU GPL license.
+'===============================================================================
+'--------------------------[ DEFINE's and Variables ]---------------------------
+' Define LCD connections
+
+Define  LCD_DREG        PORTC
+Define  LCD_DBIT        0
+Define  LCD_RSREG       PORTC
+Define  LCD_RSBIT       5         'pin 4
+Define  LCD_EREG        PORTC
+Define  LCD_EBIT        4         'pin 6
+Define  LCD_DATAUS      100        
+Define  LCD_COMMANDUS   4000
+Define OSC 20
+DEFINE HSER_TXSTA 20h
+DEFINE HSER_BAUD 38400
+DEFINE HSER_SPRG 25
+DEFINE HSER_CLROERR 1
+
+'-------------------------[ PORT Definitions ]----------------------------------
+SWUP      VAR PORTB.2       'Up Button
+SWDOWN    VAR PORTB.3       'Down Button
+SWSET     VAR PORTB.1       'Save Button
+SWSELECT  VAR PORTB.0       'Select Button
+
+SER_OUT   VAR PORTC.6
+SER_IN    VAR PORTC.7
+'-----------------------[ VARIABLE Definitions ]--------------------------------
+index     VAR BYTE
+V1        Var BYTE [64]
+V2        VAR BYTE [64]
+Parmset   VAR Byte
+Regadr    VAR BYTE
+Sign      VAR BYTE
+Value     VAR BYTE
+Lim_min   VAR BYTE
+Lim_max   VAR BYTE
+keyval    VAR BYTE
+Signlim   VAR BYTE
+Soft_type VAR BYTE
+Volt      VAR WORD
+Volt1     VAR Byte
+Volt2     VAR BYTE
+Volt3     VAR Byte
+temp1     VAR byte
+temp2     VAR byte
+Sign_R    VAR Byte
+Sign_P    VAR BYTE
+Sign_V    VAR BYTE
+R         VAR Byte
+P         Var BYTE
+V         Var BYTE
+
+INCLUDE "modedefs.bas"
+'------------------[ INITIALIZATION Of Variables ]------------------------------           
+           ADCON1 = 7      
+           TRISA = 0
+           PORTA = 0
+          
+           TRISB = %00001111     
+           PORTB = 0
+           
+           TRISC = %11000000         
+           PORTC = 0
+                      
+           Clear
+           Pause 100
+         
+'-------------------------------------------------------------------------------           
+'--------------------------[ MAIN PROGRAM ]-------------------------------------
+'-------------------------------------------------------------------------------
+         
+Main:                
+           Lcdout $fe, 1,  "UAVP/X  TERMINAL" 'Greeting message
+           Lcdout $fe, $C0,"TA2CBA Ver.2.120"
+           Pause 2000
+           GOSUB Soft_Status
+           Gosub Get_Reg_Data
+         
+'--------------------[ Menu Selection Subroutines ]--------------------
+Menu_1:
+         Lcdout $fe, 1,  "ROLL  Parameters"         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Menu_1
+         If keyval = 13 then              ' SELECT
+         Goto ROLL
+         Endif
+         
+         If keyval = 15 then Menu_7        ' UP
+         If keyval = 14 then Menu_2        ' DOWN
+
+Menu_2:
+         Lcdout $fe, 1,  "PITCH Parameters"         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Menu_2
+         If keyval = 13 then              ' SELECT
+         Goto PITCH
+         Endif
+         
+         If keyval = 15 then Menu_1        ' UP
+         If keyval = 14 then Menu_3        ' DOWN
+
+Menu_3:
+         Lcdout $fe, 1,  "YAW  Parameters "         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Menu_3
+         If keyval = 13 then              ' SELECT
+         Goto YAW
+         Endif
+         
+         If keyval = 15 then Menu_2        ' UP
+         If keyval = 14 then Menu_4        ' DOWN
+
+Menu_4:
+         Lcdout $fe, 1,  "ACC. Parameters "        
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Menu_4
+         If keyval = 13 then              ' SELECT
+         Goto ACC
+         Endif
+         
+         If keyval = 15 then Menu_3        ' UP
+         If keyval = 14 then Menu_5        ' DOWN
+        
+Menu_5:                                                    ' All for UAVX
+         If Soft_type = 100 AND keyval = 15 then Menu_4    ' UP for UAVP
+         If Soft_type = 100 AND keyval = 14 then Menu_6    ' Down for UAVP
+                  
+         Lcdout $fe, 1,  "NAV. Parameters "         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Menu_5
+         If keyval = 13 then              ' SELECT
+         Goto NAV
+         Endif
+         
+         If keyval = 15 then Menu_4        ' UP
+         If keyval = 14 then Menu_6        ' DOWN
+
+Menu_6:
+         Lcdout $fe, 1,  "GENERAL Paramtrs"         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Menu_6
+         If keyval = 13 then              ' SELECT
+         Goto GEN 
+         Endif
+         
+         If keyval = 15 then Menu_5        ' UP
+         If keyval = 14 then Menu_7        ' DOWN
+         
+Menu_7:
+         Lcdout $fe, 1,  "NEUTRAL Paramtrs"         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Menu_7
+         If keyval = 13 then              ' SELECT
+         Goto NEUTRAL
+         Endif
+         
+         If keyval = 15 then Menu_6        ' UP
+         If keyval = 14 then Menu_1        ' DOWN
+         
+         Goto Menu_1
+         
+'-----------------[ ROLL Parameter Menus Subroutine]-------------------
+ROLL:
+
+         Signlim = "0"
+Roll_1:
+         Lcdout $fe, 1,  "ROLL PROP.      "         
+         Lcdout $fe, $C0,"Parm= ",V1[0],DEC V2[0],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Roll_1
+         If keyval = 13 then
+         Lim_Min = 99  : Lim_Max = 99  : index = 0 : Regadr = 1  : Signlim = 0
+         Gosub Change_Data : Goto Roll_1
+         Endif
+         
+         If keyval = 15 then Roll_5                  
+         If keyval = 14 then Roll_2
+         
+Roll_2:
+         Lcdout $fe, 1,  "ROLL INTEGRAL   "
+         Lcdout $fe, $C0,"Parm= ",V1[1],DEC V2[1],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Roll_2
+         If keyval = 13 then
+         Lim_Min = 99  : Lim_Max = 99  : index = 1 : Regadr = 2  : Signlim = 0
+         Gosub Change_Data  : GOTO Roll_2
+         Endif
+         
+         If keyval = 15 then Roll_1
+         If keyval = 14 then Roll_3
+         
+Roll_3:
+         Lcdout $fe, 1,  "ROLL DIFF.      "
+         Lcdout $fe, $C0,"Parm= ",V1[2],DEC V2[2],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Roll_3
+         If keyval = 13 then
+         Lim_Min = 99  : Lim_Max = 99  : index = 2 : Regadr = 3 : Signlim = 0
+         Gosub Change_Data : GOTO Roll_3
+         Endif
+         
+         If keyval = 15 then Roll_2
+         If keyval = 14 then Roll_4
+         
+Roll_4:
+         Lcdout $fe, 1,  "ROLL INTEG.LIM. "
+         Lcdout $fe, $C0,"Parm= ",V1[4],DEC V2[4],"      ",Parmset 
+         Gosub Pbkey
+         IF keyval = 12 then Roll_4
+         If keyval = 13 then                  
+         temp1 = V2[1] : Gosub ILimit         
+         Lim_Min = 1 : Lim_Max = temp2 : index = 4 : Regadr = 5 : Signlim = "+"
+         Gosub Change_Data  : GOTO Roll_4
+         Endif 
+         
+         If keyval = 15 then Roll_3
+         If keyval = 14 then Roll_5
+
+Roll_5:
+         Lcdout $fe, 1,  "      EXIT      "         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Roll_5
+         If keyval = 13 then              ' SELECT
+         Goto Menu_1
+         Endif
+         
+         If keyval = 15 then Roll_4        ' UP
+         If keyval = 14 then Roll_1        ' DOWN
+
+         Goto ROLL
+'------------------[ PITCH Parameters Menus Subroutine ]------------------------         
+PITCH:
+          Signlim = 0
+Pitch_1:           
+         Lcdout $fe, 1,  "PITCH PROP.     "
+         Lcdout $fe, $C0,"Parm= ",V1[5],DEC V2[5],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Pitch_1
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 5 : Regadr = 6  : Signlim = 0
+         Gosub Change_Data  : GOTO Pitch_1
+         Endif
+         
+         If keyval = 15 then Pitch_5
+         If keyval = 14 then Pitch_2
+         
+Pitch_2:
+         Lcdout $fe, 1,  "PITCH INTEGRAL  "
+         Lcdout $fe, $C0,"Parm= ",V1[6],DEC V2[6],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Pitch_2 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 6 : Regadr = 7  : Signlim = 0
+         Gosub Change_Data : GOTO Pitch_2
+         Endif
+         
+         If keyval = 15 then Pitch_1
+         If keyval = 14 then Pitch_3
+         
+
+Pitch_3:
+         Lcdout $fe, 1,  "PITCH DIFF.     "
+         Lcdout $fe, $C0,"Parm= ",V1[7],DEC V2[7],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Pitch_3 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 7 : Regadr = 8  : Signlim = 0
+         Gosub Change_Data  : GOTO Pitch_3
+         Endif
+         
+         If keyval = 15 then Pitch_2
+         If keyval = 14 then Pitch_4
+         
+
+Pitch_4:
+         Lcdout $fe, 1,  "PITCH INTEG.LIM."
+         Lcdout $fe, $C0,"Parm= ",V1[9],DEC V2[9],"      ",Parmset    
+         Gosub Pbkey
+         IF keyval = 12 then Pitch_4 
+         If keyval = 13 then
+         temp1 = V2[6] : Gosub ILimit  
+         Lim_Min = 1 : Lim_Max = temp2 : index = 9 : Regadr = 10 : Signlim = "+"
+         Gosub Change_Data  : GOTO Pitch_4
+         Endif
+         
+         If keyval = 15 then Pitch_3
+         If keyval = 14 then Pitch_5
+
+Pitch_5:                                     
+         Lcdout $fe, 1,  "      EXIT      "         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Pitch_5
+         If keyval = 13 then              ' SELECT
+         Goto Menu_2
+         Endif
+         
+         If keyval = 15 then Pitch_4        ' UP
+         If keyval = 14 then Pitch_1        ' DOWN
+
+         Goto PITCH
+         
+'------------------[ YAW Parameters Menus Subroutine ]--------------------------         
+YAW:
+         Signlim = 0
+Yaw_1:
+         Lcdout $fe, 1,  "YAW PROP.       "
+         Lcdout $fe, $C0,"Parm= ",V1[10],DEC V2[10],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Yaw_1 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 10 : Regadr = 11   : Signlim = 0
+         Gosub Change_Data  : GOTO Yaw_1
+         Endif
+         
+         If keyval = 15 then Yaw_6
+         If keyval = 14 then Yaw_2
+         
+Yaw_2:
+         Lcdout $fe, 1,  "YAW INTEGRAL    "
+         Lcdout $fe, $C0,"Parm= ",V1[11],DEC V2[11],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Yaw_2
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 11 : Regadr = 12  : Signlim = 0
+         Gosub Change_Data  : GOTO Yaw_2
+         Endif
+         
+         If keyval = 15 then Yaw_1
+         If keyval = 14 then Yaw_3
+         
+Yaw_3:
+         Lcdout $fe, 1,  "YAW DIFF.       "
+         Lcdout $fe, $C0,"Parm= ",V1[12],DEC V2[12],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Yaw_3
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 12 : Regadr = 13  : Signlim = 0
+         Gosub Change_Data  : GOTO Yaw_3
+         Endif
+         
+         If keyval = 15 then Yaw_2
+         If keyval = 14 then Yaw_4
+         
+Yaw_4:
+         Lcdout $fe, 1,  "YAW LIMITER     "
+         Lcdout $fe, $C0,"Parm= ",V1[13],DEC V2[13],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Yaw_4 
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 99 : index = 13 : Regadr = 14  : Signlim = "+"
+         Gosub Change_Data  : Goto Yaw_4
+         Endif
+         
+         If keyval = 15 then Yaw_3
+         If keyval = 14 then Yaw_5
+ 
+Yaw_5:
+         Lcdout $fe, 1,  "YAW INTEG.LIM.  "
+         Lcdout $fe, $C0,"Parm= ",V1[14],DEC V2[14],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Yaw_5 
+         If keyval = 13 then
+         temp1 = V2[11] : Gosub ILimit  
+         Lim_Min = 1 : Lim_Max = temp2 : index = 14 : Regadr = 15  : Signlim = "+"
+         Gosub Change_Data  : GOTO Yaw_5
+         Endif
+         
+         If keyval = 15 then Yaw_4
+         If keyval = 14 then Yaw_6        
+        
+ Yaw_6:
+         Lcdout $fe, 1,  "      EXIT      "         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Yaw_6
+         If keyval = 13 then              ' SELECT
+         Goto Menu_3
+         Endif
+         
+         If keyval = 15 then Yaw_5        ' UP
+         If keyval = 14 then Yaw_1        ' DOWN
+
+         Goto YAW
+
+'----------------[ACCELEROMETER PARAMETERS MENUS SUBROUTINE ]-------------------         
+ACC:     Signlim = 0
+Acc_1:
+         Lcdout $fe, 1,  "ACC ROLL AXIS   "
+         Lcdout $fe, $C0,"Parm= ",V1[23],DEC V2[23],"      ",Parmset
+              
+         Gosub Pbkey
+         IF keyval = 12 then Acc_1 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 23 : Regadr = 24 : Signlim = 0
+         Gosub Change_Data   : goto Acc_1
+         Endif
+                  
+         If keyval = 15 then Acc_8
+         If keyval = 14 then Acc_2  
+         
+Acc_2:
+         Lcdout $fe, 1,  "ACC PITCH AXIS  "
+         Lcdout $fe, $C0,"Parm= ",V1[24],DEC V2[24],"      ",Parmset        
+
+         Gosub Pbkey
+         IF keyval = 12 then Acc_2 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 24 : Regadr = 25  : Signlim = 0
+         Gosub Change_Data    : goto Acc_2
+         Endif
+         
+         If keyval = 15 then Acc_1
+         If keyval = 14 then Acc_3  
+         
+
+Acc_3:
+         Lcdout $fe, 1,  "ACC VERT.AXIS   "
+         Lcdout $fe, $C0,"Parm= ",V1[21],DEC V2[21],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Acc_3 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 21 : Regadr = 22  : Signlim = 0
+         Gosub Change_Data  : goto Acc_3
+         Endif
+         
+         If keyval = 15 then Acc_2
+         If keyval = 14 then Acc_4  
+         
+Acc_4:
+         
+         Lcdout $fe, 1,  "ACC VERT.DAMPING"
+         Lcdout $fe, $C0,"Parm= ",V1[20],DEC V2[20],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Acc_4 
+         If keyval = 13 then
+         Lim_Min = 32 : Lim_Max = 0 : index = 20 : Regadr = 21 : Signlim = 0
+         Gosub Change_Data : goto Acc_4
+         Endif                                           
+         If keyval = 15 then Acc_3         
+         If keyval = 14 then Acc_5
+         
+
+Acc_5:
+         If Soft_type = 100 AND keyval = 15 then Acc_4     ' UP for UAVP
+         If Soft_type = 100 AND keyval = 14 then Acc_8     ' Down for UAVP
+         
+         Lcdout $fe, 1,  "ACC VERT.DECAY  "                             ' UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[41],DEC V2[41],"      ",Parmset        
+
+         Gosub Pbkey
+         IF keyval = 12 then Acc_5
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 32 : index = 41 : Regadr = 42 : Signlim = "+"
+         Gosub Change_Data    : goto Acc_5
+         Endif
+         
+         If keyval = 15 then Acc_4
+         If keyval = 14 then Acc_6  
+         
+
+Acc_6:                  
+        
+         
+         Lcdout $fe, 1,  "ACC HORZ.DAMPING"
+         Lcdout $fe, $C0,"Parm= ",V1[3],DEC V2[3],"      ",Parmset      'UAVX
+         
+         Gosub Pbkey
+         IF keyval = 12 then Acc_6
+         If keyval = 13 then
+         Lim_Min = 32 : Lim_Max = 0 : index = 3 : Regadr = 4 : Signlim = 0
+         Gosub Change_Data  : goto Acc_6
+         Endif
+         
+         If keyval = 15 then Acc_5
+         If keyval = 14 then Acc_7 
+         
+ Acc_7:
+         
+         If Soft_type = 100 AND keyval = 15 then Acc_4     ' UP for UAVP
+         If Soft_type = 100 AND keyval = 14 then Acc_8     ' Down for UAVP
+         
+         Lcdout $fe, 1,  "ACC HORZ.DECAY  "                             'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[42],DEC V2[42],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Acc_7
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 16 : index = 42 : Regadr = 43 : Signlim = "+"
+         Gosub Change_Data  : goto Acc_7
+         Endif
+         
+         If keyval = 15 then Acc_6
+         If keyval = 14 then Acc_8  
+ 
+Acc_8:
+                  
+         Lcdout $fe, 1,  "      EXIT      "         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Acc_8
+         If keyval = 13 then              ' SELECT
+         Goto Menu_4
+         Endif
+         
+         If keyval = 15 then Acc_7        ' UP
+         If keyval = 14 then Acc_1        ' DOWN
+
+         Goto ACC
+'--------------[ NAVIGATION PARAMETER MENUS SUBROUTINE ]-----------------------
+NAV:     Signlim = 0
+Nav_1:
+         Lcdout $fe, 1,  "RTH. ALT. (M)   "                               'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[32],DEC V2[32],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Nav_1 
+         If keyval = 13 then                                   
+         Lim_Min = 0 : Lim_Max = 99 : index = 32 : Regadr = 33 : Signlim = "+"
+         Gosub Change_Data  : GOTO Nav_1
+         Endif
+         
+         If keyval = 15 then Nav_10
+         If keyval = 14 then Nav_2  
+         
+Nav_2:
+         Lcdout $fe, 1,  "RADIUS (M)      "                               'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[28],DEC V2[28],"      ",Parmset
+              
+         Gosub Pbkey
+         IF keyval = 12 then Nav_2 
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 40 : index = 28 : Regadr = 29 : Signlim = "+"
+         Gosub Change_Data   : Goto Nav_2
+         Endif
+         
+         If keyval = 15 then Nav_1
+         If keyval = 14 then Nav_3  
+         
+Nav_3:
+         Lcdout $fe, 1,  "NEUTRAL RADIUS  "
+         Lcdout $fe, $C0,"Parm= ",V1[37],DEC V2[37],"      ",Parmset      'UAVX
+              
+         Gosub Pbkey
+         IF keyval = 12 then Nav_3
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 5 : index = 37 : Regadr = 38 : SignLim = "+"
+         Gosub Change_Data  : goto Nav_3
+         Endif
+         
+         If keyval = 15 then Nav_2
+         If keyval = 14 then Nav_4  
+
+ Nav_4:
+         Lcdout $fe, 1,  "WIND COMP.      "                               'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[29],DEC V2[29],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Nav_4 
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 16 : index = 29 : Regadr = 30 : Signlim = "+"
+         Gosub Change_Data   : goto Nav_4
+         Endif
+         
+         If keyval = 15 then Nav_3
+         If keyval = 14 then Nav_5  
+         
+ Nav_5:
+         Lcdout $fe, 1,  "VELOCITY COMP.  "                              'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[40],DEC V2[40],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Nav_5 
+         If keyval = 13 then
+         Lim_Min = 64 : Lim_Max = 64 : index = 40 : Regadr = 41 : Signlim = 0
+         Gosub Change_Data   : goto Nav_5
+         Endif
+         
+         If keyval = 15 then Nav_4
+         If keyval = 14 then Nav_6 
+ 
+Nav_6:
+         Lcdout $fe, 1,  "GPS SENSE 6Ch(%)"                              'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[38],DEC V2[38],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Nav_6 
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 99 : index = 38 : Regadr = 39 : Signlim = "+"
+         Gosub Change_Data   : goto Nav_6
+         Endif
+         
+         If keyval = 15 then Nav_5
+         If keyval = 14 then Nav_7  
+ 
+Nav_7:
+         Lcdout $fe, 1,  "GPS ALT PROP    "                              'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[30],DEC V2[30],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Nav_7 
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 48 : index = 30 : Regadr = 31 : Signlim = "+"
+         Gosub Change_Data  : goto Nav_7
+         Endif
+         
+         If keyval = 15 then Nav_6
+         If keyval = 14 then Nav_8  
+         
+
+Nav_8:
+         Lcdout $fe, 1,  "GPS ALT INTEGRAL"                               'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[31],DEC V2[31],"      ",Parmset
+              
+         Gosub Pbkey
+         IF keyval = 12 then Nav_8 
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 48 : index = 31 : Regadr = 32  : Signlim = "+"
+         Gosub Change_Data   : goto Nav_8
+         Endif
+         
+         If keyval = 15 then Nav_7
+         If keyval = 14 then Nav_9  
+         
+Nav_9:
+         Lcdout $fe, 1,  "MAG.VAR.(+E Deg)"                                'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[33],DEC V2[33],"      ",Parmset        
+
+         Gosub Pbkey
+         IF keyval = 12 then Nav_9 
+         If keyval = 13 then
+         Lim_Min = 30 : Lim_Max = 30 : index = 33 : Regadr = 34  : Signlim = 0
+         Gosub Change_Data    : goto Nav_9
+         Endif
+         
+         If keyval = 15 then Nav_8
+         If keyval = 14 then Nav_10                  
+ 
+Nav_10:
+         Lcdout $fe, 1,  "      EXIT      "         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Nav_10
+         If keyval = 13 then              ' SELECT
+         Goto Menu_5
+         Endif
+         
+         If keyval = 15 then Nav_9        ' UP
+         If keyval = 14 then Nav_1        ' DOWN
+
+         Goto NAV
+  
+'---------------------[ GENERAL PARAMETER MENUS SUBROUTINE ]------------------ 
+GEN:     Signlim = 0
+ 
+Gen_1:
+         Lcdout $fe, 1,  "BARO.ALT PROP.  "
+         Lcdout $fe, $C0,"Parm= ",V1[8],DEC V2[8],"      ",Parmset            
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Gen_1
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 32 : index = 8 : Regadr = 9 : Signlim = "+"
+         Gosub Change_Data : GOTO Gen_1
+         Endif
+         
+         If keyval = 15 then Gen_11
+         If keyval = 14 then Gen_2
+         
+Gen_2:
+         Lcdout $fe, 1,  "BARO.ALT DIFF.  "
+         Lcdout $fe, $C0,"Parm= ",V1[27],DEC V2[27],"      ",Parmset
+         Gosub Pbkey
+         IF keyval = 12 then Gen_2 
+         If keyval = 13 then
+         Lim_Min = 0 : Lim_Max = 32 : index = 27 : Regadr = 28 :Signlim = "+"
+         Gosub Change_Data : GOTO Gen_2
+         Endif
+         
+         If keyval = 15 then Gen_1
+         If keyval = 14 then Gen_3
+         
+Gen_3:
+         Lcdout $fe, 1,  "COMPASS         "
+         Lcdout $fe, $C0,"Parm= ",V1[26],DEC V2[26],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Gen_3 
+         If keyval = 13 then
+         Lim_Min = 32 : Lim_Max = 32 : index = 26 : Regadr = 27 : Signlim = 0
+         Gosub Change_Data  : GOTO Gen_3
+         ENDIF
+         
+         If keyval = 15 then Gen_2         
+         If keyval = 14 then Gen_4
+         
+Gen_4:
+         Lcdout $fe, 1,  "CAMERA ROLL     "
+         Lcdout $fe, $C0,"Parm= ",V1[18],DEC V2[18],"      ",Parmset
+              
+         Gosub Pbkey
+         IF keyval = 12 then Gen_4 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 18 : Regadr = 19 : Signlim = 0
+         Gosub Change_Data   : Goto Gen_4
+         Endif
+         
+         If keyval = 15 then Gen_3
+         If keyval = 14 then Gen_5  
+         
+Gen_5:
+         If Soft_type = 100 AND keyval = 15 then Gen_4    ' UP for UAVP
+         If Soft_type = 100 AND keyval = 14 then Gen_6    ' Down for UAVP
+         
+         Lcdout $fe, 1,  "CAM.ROLL.TRIM   "                             'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[39],DEC V2[39],"      ",Parmset        
+
+         Gosub Pbkey
+         IF keyval = 12 then Gen_5 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 39 : Regadr = 40 : Signlim = 0
+         Gosub Change_Data    : goto Gen_5
+         Endif
+         
+         If keyval = 15 then Gen_4
+         If keyval = 14 then Gen_6                     
+
+
+Gen_6:
+         Lcdout $fe, 1,  "CAMERA PITCH    "
+         Lcdout $fe, $C0,"Parm= ",V1[25],DEC V2[25],"      ",Parmset
+              
+         Gosub Pbkey
+         IF keyval = 12 then Gen_6 
+         If keyval = 13 then
+         Lim_Min = 99 : Lim_Max = 99 : index = 25 : Regadr = 26  : Signlim = 0
+         Gosub Change_Data  : goto Gen_6
+         Endif
+         
+         If keyval = 15 then Gen_5
+         If keyval = 14 then Gen_7  
+   
+Gen_7:
+         
+         Lcdout $fe, 1,  "PULSE CYCLE(mS) "
+         Lcdout $fe, $C0,"Parm= ",V1[16],DEC V2[16],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Gen_7 
+         If keyval = 13 then
+         Lim_Min = 4 : Lim_Max = 99 : index = 16 : Regadr = 17 : Signlim = "+"
+         Gosub Change_Data   : goto Gen_7
+         Endif
+         
+         If keyval = 15 then Gen_6
+         If keyval = 14 then Gen_8       
+         
+Gen_8:
+         Lcdout $fe, 1,  "THROTTLE IDLE(%)"
+         Lcdout $fe, $C0,"Parm= ",V1[22],DEC V2[22],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Gen_8 
+         If keyval = 13 then
+         Lim_Min = 5 : Lim_Max = 99 : index = 22 : Regadr = 23 : Signlim = "+"
+         Gosub Change_Data  : goto Gen_8
+         Endif
+         
+         If keyval = 15 then Gen_7
+         If keyval = 14 then Gen_9           
+                           
+Gen_9:
+         Volt = V2[17] * 218
+         Volt1 = Volt DIG 4 : Volt2 = Volt DIG 3 : Volt3 = Volt DIG 2
+         
+         Lcdout $fe, 1,  "LOW BATT.WARNING"
+         IF Volt1 = 0 then
+         Lcdout $fe, $C0,"Parm=",DEC V2[17],"   ",#Volt2,".",#Volt3,"V ",Parmset
+         Goto Gen_loop
+         Endif
+         
+         Lcdout $fe, $C0,"Parm=",DEC V2[17],"  ",#Volt1,#Volt2,".",#Volt3,"V ",Parmset
+
+Gen_loop:Gosub Pbkey
+         IF keyval = 12 then Gen_9 
+         If keyval = 13 then
+         Lim_Min = 0  : Lim_Max = 99 : index = 17 : Regadr = 18 : Signlim = "+"
+         Gosub Change_Data  : goto Gen_9
+         Endif         
+                                                             
+         If keyval = 15 then Gen_8
+         If keyval = 14 then Gen_10
+         
+Gen_10:
+         If Soft_type = 100 AND keyval = 15 then Gen_9    ' UP for UAVP
+         If Soft_type = 100 AND keyval = 14 then Gen_11    ' Down for UAVP
+         
+         Lcdout $fe, 1,  "EST.HOVER THROT%"                             'UAVX
+         Lcdout $fe, $C0,"Parm= ",V1[19],DEC V2[19],"      ",Parmset
+         
+         Gosub Pbkey
+         IF keyval = 12 then Gen_10 
+         If keyval = 13 then
+         Lim_Min = 30 : Lim_Max = 99 : index = 19 : Regadr = 20  : Signlim = "+"
+         Gosub Change_Data  : GOTO Gen_10
+         Endif
+         
+         If keyval = 15 then Gen_9
+         If keyval = 14 then Gen_11  
+
+Gen_11:
+         Lcdout $fe, 1,  "      EXIT      "         
+         Lcdout $fe, $C0,"                "
+         
+         Gosub Pbkey         
+         IF keyval = 12 then Gen_11
+         If keyval = 13 then              ' SELECT
+         Goto Menu_6
+         Endif
+         
+         If keyval = 15 then Gen_10        ' UP
+         If keyval = 14 then Gen_1        ' DOWN
+
+         Goto GEN
+         
+'------------------------[ ACC NEUTRAL VALUES ]---------------------------------
+NEUTRAL:
+          Sign_R = 0 : Sign_P = 0 : Sign_V = 0 : R = 0 : P = 0 : V = 0
+          
+          IF Soft_type = 100 then UAVP_N          
+          
+UAVX_N:   Gosub Check_Conn_2
+          HSEROUT ["N",13]                 
+          HSERIN [WAIT("R:"),Sign_R,DEC R]
+          HSERIN [WAIT("P:"),Sign_P,DEC P]
+          HSERIN [WAIT("V:"),Sign_V,DEC V]
+          Goto LCD_N
+          
+UAVP_N:   Gosub Check_Conn_2
+          HSEROUT ["N",13]                 
+          HSERIN [WAIT("Roll:"),Sign_R,DEC R]
+          HSERIN [WAIT("Ptch:"),Sign_P,DEC P]
+          HSERIN [WAIT("Yaw:"),Sign_V,DEC V]
+          
+          
+LCD_N:    
+          IF R > 99 or P > 99 or V > 99 then
+          Lcdout $fe, 1,  "  ERROR! Values "                             
+          Lcdout $fe, $C0,"  Exceed limits "
+          Pause 2000
+          Goto Menu_7
+          ENDIF
+
+          Lcdout $fe, 1,  " NEUTRAL VALUES "                             
+          Lcdout $fe, $C0,"R",Sign_R,DEC R," P",Sign_P,DEC P," V",Sign_V,DEC V
+         
+Loop_N:   Gosub Pbkey
+          IF keyval = 12 then Save_N 
+          If keyval = 13 then Menu_7
+          IF keyval = 14 then Loop_N
+          IF keyval = 15 then Loop_N
+Save_N:   
+          Lcdout $fe, 1,  " SAVING NEUTRAL "                             
+          Lcdout $fe, $C0,"    VALUES!     "
+          
+          Regadr = 24 : Sign = Sign_R : Value = R : Gosub Send_data2          
+          Regadr = 25 : Sign = Sign_P : Value = P : Gosub Send_data2
+          Regadr = 22 : Sign = Sign_V : Value = V : Gosub Send_data2
+ 
+          Goto Menu_7
+'------------------------[ Get Register Data ]----------------------------------
+Get_Reg_Data:
+                 Gosub Check_Conn_2
+                 
+                 HSEROUT [108,13]
+                 
+                 HSERIN [WAIT("Parameter list for set #"),Parmset]       ' UAVX+UAVP Common Registers
+                 HSERIN [WAIT("001 = "),V1[0],DEC V2[0]]                 
+                 HSERIN [WAIT("002 = "),V1[1],DEC V2[1]]
+                 HSERIN [WAIT("003 = "),V1[2],DEC V2[2]]
+                 HSERIN [WAIT("004 = "),V1[3],DEC V2[3]]
+                 HSERIN [WAIT("005 = "),V1[4],DEC V2[4]]
+                 HSERIN [WAIT("006 = "),V1[5],DEC V2[5]]                 
+                 HSERIN [WAIT("007 = "),V1[6],DEC V2[6]]
+                 HSERIN [WAIT("008 = "),V1[7],DEC V2[7]]
+                 HSERIN [WAIT("009 = "),V1[8],DEC V2[8]]
+                 HSERIN [WAIT("010 = "),V1[9],DEC V2[9]]
+                 HSERIN [WAIT("011 = "),V1[10],DEC V2[10]]                 
+                 HSERIN [WAIT("012 = "),V1[11],DEC V2[11]]
+                 HSERIN [WAIT("013 = "),V1[12],DEC V2[12]]
+                 HSERIN [WAIT("014 = "),V1[13],DEC V2[13]]
+                 HSERIN [WAIT("015 = "),V1[14],DEC V2[14]]
+                 HSERIN [WAIT("016 = "),V1[15],DEC V2[15]]
+                 HSERIN [WAIT("017 = "),V1[16],DEC V2[16]]
+                 HSERIN [WAIT("018 = "),V1[17],DEC V2[17]]                                  
+                 HSERIN [WAIT("019 = "),V1[18],DEC V2[18]]                 
+                 HSERIN [WAIT("020 = "),V1[19],DEC V2[19]]
+                 HSERIN [WAIT("021 = "),V1[20],DEC V2[20]]
+                 HSERIN [WAIT("022 = "),V1[21],DEC V2[21]]
+                 HSERIN [WAIT("023 = "),V1[22],DEC V2[22]]
+                 HSERIN [WAIT("024 = "),V1[23],DEC V2[23]]                 
+                 HSERIN [WAIT("025 = "),V1[24],DEC V2[24]]
+                 HSERIN [WAIT("026 = "),V1[25],DEC V2[25]]
+                 HSERIN [WAIT("027 = "),V1[26],DEC V2[26]]
+                 HSERIN [WAIT("028 = "),V1[27],DEC V2[27]]
+                 
+                 IF Soft_type = 100 then Son100                       ' UAVP firmware
+                                                                      ' UAVX ADDITIONAL REGISTERS
+                 HSERIN [WAIT("029 = "),V1[28],DEC V2[28]]                 
+                 HSERIN [WAIT("030 = "),V1[29],DEC V2[29]]
+                 HSERIN [WAIT("031 = "),V1[30],DEC V2[30]]
+                 HSERIN [WAIT("032 = "),V1[31],DEC V2[31]]
+                 HSERIN [WAIT("033 = "),V1[32],DEC V2[32]]
+                 HSERIN [WAIT("034 = "),V1[33],DEC V2[33]]                 
+                 HSERIN [WAIT("035 = "),V1[34],DEC V2[34]]
+                 HSERIN [WAIT("036 = "),V1[35],DEC V2[35]]
+                 HSERIN [WAIT("037 = "),V1[36],DEC V2[36]]
+                 HSERIN [WAIT("038 = "),V1[37],DEC V2[37]]
+                 HSERIN [WAIT("039 = "),V1[38],DEC V2[38]]                 
+                 HSERIN [WAIT("040 = "),V1[39],DEC V2[39]]
+                 HSERIN [WAIT("041 = "),V1[40],DEC V2[40]]
+                 HSERIN [WAIT("042 = "),V1[41],DEC V2[41]]
+                 HSERIN [WAIT("043 = "),V1[42],DEC V2[42]]
+                 HSERIN [WAIT("044 = "),V1[43],DEC V2[43]]
+                 HSERIN [WAIT("045 = "),V1[44],DEC V2[44]]
+                 HSERIN [WAIT("046 = "),V1[45],DEC V2[45]]                                  
+                 HSERIN [WAIT("047 = "),V1[46],DEC V2[46]]                 
+                 HSERIN [WAIT("048 = "),V1[47],DEC V2[47]]
+                 HSERIN [WAIT("049 = "),V1[48],DEC V2[48]]
+                 HSERIN [WAIT("050 = "),V1[49],DEC V2[49]]
+                 HSERIN [WAIT("051 = "),V1[50],DEC V2[50]]
+                 HSERIN [WAIT("052 = "),V1[51],DEC V2[51]]                 
+                 HSERIN [WAIT("053 = "),V1[52],DEC V2[52]]
+                 HSERIN [WAIT("054 = "),V1[53],DEC V2[53]]
+                 HSERIN [WAIT("055 = "),V1[54],DEC V2[54]]
+                 HSERIN [WAIT("056 = "),V1[55],DEC V2[55]]
+                 HSERIN [WAIT("057 = "),V1[56],DEC V2[56]]
+                 HSERIN [WAIT("058 = "),V1[57],DEC V2[57]]
+                 HSERIN [WAIT("059 = "),V1[58],DEC V2[58]]
+                 HSERIN [WAIT("060 = "),V1[59],DEC V2[59]]
+                 HSERIN [WAIT("061 = "),V1[60],DEC V2[60]]
+                 HSERIN [WAIT("062 = "),V1[61],DEC V2[61]]
+                 HSERIN [WAIT("063 = "),V1[62],DEC V2[62]]                                  
+                 HSERIN [WAIT("064 = "),V1[63],DEC V2[63]]                 
+                 
+Son100:          Return
+                 
+'-----------------------------[Change Register Data ]---------------------------
+Change_Data:
+                Value = V2[index] : Sign = V1[index]
+
+Loop100:                               
+                If index = 17 then                
+                Volt = Value * 218
+                Volt1 = Volt DIG 4 : Volt2 = Volt DIG 3 : Volt3 = Volt DIG 2                         
+                     IF Volt1 = 0 then
+                     Lcdout $fe, $C0,"Parm?",DEC Value,"   ",#Volt2,".",#Volt3,"V ",Parmset
+                     Goto Loop300
+                     Endif
+                Lcdout $fe, $C0,"Parm?",DEC Value,"  ",#Volt1,#Volt2,".",#Volt3,"V ",Parmset
+                Goto Loop300
+                Endif
+                
+                IF Value < 10 then
+                Lcdout $fe, $C0,"Parm ? ",Sign,DEC Value,"      ",Parmset                  
+                Endif
+                
+                IF Value >= 10 then
+                Lcdout $fe, $C0,"Parm ? ",Sign,DEC Value,"     ",Parmset 
+                Endif    
+                                
+Loop300:             Gosub Pbkey
+                     If keyval = 15 then Count_up
+                     If keyval = 14 then Count_down
+                     If keyval = 12 then Send_data 
+                     If keyval = 13 then Son1  
+                      
+'--------------Up Count                
+Count_up:
+               IF Value = Lim_max AND Sign = "+" Then End_up
+                                            
+               IF Sign = "-" AND Value > 0 Then
+               Value = Value - 1
+               Endif
+               
+               IF Sign = "+" AND Value >= 0 Then
+               Value = Value + 1
+               Endif
+               
+               IF Sign = "-" AND Value = 0 Then Sign = "+"                                           
+
+End_up:        Goto Loop100             
+
+'--------------Down Count                             
+Count_down:     
+                IF Value = Lim_min AND Signlim = "+" Then End_down
+                
+                IF Value = Lim_min AND Sign = "-" Then End_down
+                                              
+                IF Value = 0 AND Sign = "+" then Sign = "-" 
+                
+                IF Sign = "-" AND Value >= 0 Then
+                Value = Value + 1
+                Endif              
+             
+                IF Sign = "+" AND Value > 0 Then
+                Value = Value - 1
+                Endif
+                                                                           
+End_down:       Goto Loop100
+
+                
+Send_data:      
+                                
+                Lcdout $fe, 1,  "  SAVING PARM ! "
+                Lcdout $fe, $C0,"                "
+                
+Send_data2:     Gosub Check_Conn_2       
+                HSEROUT ["m",13] : Pause 400
+                
+                IF Regadr < 10 then
+                HSEROUT ["0",DEC Regadr,13] : Pause 400
+                Goto Cont_1
+                Endif
+                
+                IF Regadr >= 10 then
+                HSEROUT [DEC Regadr,13] : Pause 400
+                Endif
+                
+Cont_1:         
+                IF Value < 10 then
+                HSEROUT [Sign,"0",DEC Value,13] : Pause 400
+                Goto Cont_2
+                Endif
+                
+                IF Value >= 10 then
+                HSEROUT [Sign,DEC Value,13] : Pause 600
+                Endif
+                
+Cont_2:         Gosub Get_Reg_Data
+Son1:           Return
+                
+'-----------------------[Check RS232 Connection 1]---------------------------
+Check_Conn_1:
+           HSEROUT [108,13]                                
+           HSERIN 100,Conn_err,[WAIT("Parameter list")] 
+           Lcdout $fe, 1,  "   CONNECTED !  " 'Greeting message
+           Lcdout $fe, $C0,"                "         
+           Pause 1000
+           GOTO Son
+           
+Conn_err:  
+           Lcdout $fe, 1,  " DISCONNECTED ! " 'Greeting message
+           Lcdout $fe, $C0,"                "         
+           Pause 1000
+           Goto Check_Conn_1  
+                 
+Son:       pause 100 : Return   
+'-----------------------[Check RS232 Connection 2]---------------------------
+Check_Conn_2:
+           HSEROUT [108,13]                                
+           HSERIN 100,Conn_err1,[WAIT("Parameter list")] 
+           GOTO Son2
+           
+Conn_err1:  
+           Lcdout $fe, 1,  " DISCONNECTED ! " 'Greeting message
+           Lcdout $fe, $C0,"                "         
+           Pause 1000
+           Goto Check_Conn_2  
+                 
+Son2:      Pause 100 : Return   
+'----------------[ Subroutine to get a key from pbkeys ]---------------------
+Pbkey:    keyval = 0
+          TRISB = %00001111
+          PORTB = %00001111
+
+          IF SWSET = 0 Then
+          Pause 50
+Loop2:    IF SWSET = 0 Then keyval = 12
+          Endif
+
+          IF SWUP = 0 Then
+          Pause 50
+Loop3:    IF SWUP = 0 Then keyval = 15
+          Endif
+
+          IF SWDOWN = 0 Then
+          Pause 50
+Loop4:    IF SWDOWN = 0 Then keyval = 14
+          Endif
+
+          IF SWSELECT = 0 Then
+          Pause 50
+Loop5:    IF SWSELECT = 0 Then keyval = 13
+          Endif
+
+          IF keyval = 0 Then Pbkey
+          Pause 200
+          Return    
+'------------------------[ Get Register Data ]----------------------------------
+Soft_Status:
+                 Gosub Check_Conn_1                 
+                 HSEROUT [108,13]                                
+                 HSERIN 100,UAVP,[WAIT("Register 029")] 
+                 
+                 Soft_type = 200 ' UAVX = 200
+                 Goto Son3
+                                  
+UAVP:            Soft_type = 100 ' UAVP = 100                   
+
+Son3:          
+                 IF Soft_type = 100 Then
+                 Lcdout $fe, 1,  "   UAVP Flight  " 'Greeting message
+                 Lcdout $fe, $C0,"    Software    "
+                 Pause 1000
+                 Endif
+                  
+                 IF Soft_type = 200 Then
+                 Lcdout $fe, 1,  "   UAVX Flight  " 'Greeting message
+                 Lcdout $fe, $C0,"    Software    "
+                 Pause 1000
+                 Endif
+                 
+                 Return
+
+'-----------------------------[ Integral Limit Lookup Table ]-------------------
+
+ILimit:
+
+      Lookup temp1,[99,99,63,42,31,25,21,18,15,14,12,11,10,9,9,8,7,7,7,6,6,6,_
+                    5,5,5,5,4,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,_
+                    2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,_
+                    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],temp2
+       
+Return                                     
