@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace UAVXGS
@@ -64,7 +65,9 @@ namespace UAVXGS
         const int MaximumRangeLimit = 250; // You carry total responsibility if you increase this value
         const int MaximumAltitudeLimit = 121; // You carry total responsibility if you increase this value 
 
-        const double BatteryChargeScale = 1; // depends on current ADC used - possible needs calibration box?
+        const double CurrentSensorMax = 50.0; // depends on current ADC used - needs calibration box?
+        const double YawGyroRate = 400.0;
+        const double RollPitchGyroRate = 400.0;
 
         /*
         UAVXFlightPacket
@@ -217,6 +220,50 @@ namespace UAVXGS
         public FormMain()
         {
             InitializeComponent();
+
+            COMSelectComboBox.Items.Add("Select COM Port");
+            string[] AvailableCOMPorts = ComPorts.readPorts();
+            foreach (string AvailableCOMPort in AvailableCOMPorts)
+                COMSelectComboBox.Items.Add(AvailableCOMPort);
+            COMSelectComboBox.Text = UAVXGS.Properties.Settings.Default.COMPort;
+        }
+
+        public static class ComPorts
+        {
+            public static string[] readPorts()
+            {
+                string[] ComPorts = System.IO.Ports.SerialPort.GetPortNames();
+                Array.Sort(ComPorts);
+                return ComPorts;
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (serialPort1.IsOpen)
+            {
+                e.Cancel = true; //cancel the fom closing
+                Thread CloseDown = new Thread(new ThreadStart(CloseSerialOnExit)); //close port in new thread to avoid hang
+                CloseDown.Start(); //close port in new thread to avoid hang
+            }
+        }
+
+        private void CloseSerialOnExit()
+        {
+            try
+            {
+                serialPort1.Close(); //close the serial port
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message); //catch any serial port closing error messages
+            }
+            this.Invoke(new EventHandler(NowClose)); //now close back in the main thread
+        }
+
+        private void NowClose(object sender, EventArgs e)
+        {
+            this.Close(); //now close the form
         }
 
         public void SetSerialPort(string portSelected, int speed, ref string errorMessage)
@@ -238,9 +285,16 @@ namespace UAVXGS
             }
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+
+       // private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+       // {
+       //     if (serialPort1.IsOpen) serialPort1.Close();
+       // }
+
+        private void COMSelectComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (serialPort1.IsOpen) serialPort1.Close();
+            UAVXGS.Properties.Settings.Default.COMPort = COMSelectComboBox.Text;
+            UAVXGS.Properties.Settings.Default.Save();
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
@@ -289,9 +343,7 @@ namespace UAVXGS
         {
             string sError = "";
 
-            InitPollPacket();
-
-            SetSerialPort("COM1", 9600, ref sError);
+            SetSerialPort(UAVXGS.Properties.Settings.Default.COMPort, 9600, ref sError);
             if (sError != "")
             {
                 //statusLabel.Text = sError;
@@ -325,13 +377,17 @@ namespace UAVXGS
 
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            while (serialPort1.BytesToRead != 0)
+            if (serialPort1.IsOpen) // flakey serial drivers hence heroics
             {
-                RxTail++;
-                RxTail &= RxQueueMask;
-                RxQueue[RxTail] = (byte)serialPort1.ReadByte();
+                while ( serialPort1.IsOpen && (serialPort1.BytesToRead != 0))
+                {
+                    RxTail++;
+                    RxTail &= RxQueueMask;
+                    RxQueue[RxTail] = (byte)serialPort1.ReadByte();
+                }
+                if (serialPort1.IsOpen) 
+                    this.Invoke(new EventHandler(UAVXReadTelemetry));
             }
-            this.Invoke(new EventHandler(UAVXReadTelemetry));
         }
 
         void InitPollPacket()
@@ -506,9 +562,18 @@ namespace UAVXGS
                         else
                             GPSValidBox.BackColor = System.Drawing.Color.Red;
                         if ((Flags[0] & 0x80) != 0)
+                        {
                             NavValidBox.BackColor = System.Drawing.Color.Green;
+                            GPSROC.BackColor = AltitudeGroupBox.BackColor;
+                            GPSRelAltitude.BackColor = AltitudeGroupBox.BackColor;
+                        }
                         else
+                        {
                             NavValidBox.BackColor = System.Drawing.Color.Red;
+                            GPSROC.BackColor = System.Drawing.Color.Red;
+                            GPSRelAltitude.BackColor = System.Drawing.Color.Red;
+
+                        }
 
                         if ((Flags[1] & 0x01) != 0)
                             BaroFailBox.BackColor = System.Drawing.Color.Red;
@@ -573,24 +638,32 @@ namespace UAVXGS
                             RangefinderAltValidBox.BackColor = System.Drawing.Color.Green;
                             RangefinderAltitude.BackColor = AltitudeGroupBox.BackColor;
                             RangefinderROC.BackColor = AltitudeGroupBox.BackColor;
+                            BaroRFError.BackColor = BaroCalibrationGroupBox.BackColor;
                         }
                         else
                         {
                             RangefinderAltValidBox.BackColor = FlagsGroupBox.BackColor;
                             RangefinderAltitude.BackColor = System.Drawing.Color.Orange;
                             RangefinderROC.BackColor = System.Drawing.Color.Orange;
+                            BaroRFError.BackColor = System.Drawing.Color.Orange;
                         }
                         if ((Flags[2] & 0x80) != 0)
                             UsingRangefinderBox.BackColor = System.Drawing.Color.Green;
                         else
                             UsingRangefinderBox.BackColor = FlagsGroupBox.BackColor;
+
+                        if ((Flags[5] & 0x80) != 0)
+                            SimulationTextBox.Text = "Simulation";
+                        else
+                            SimulationTextBox.Text = " ";
     
                         StateT = ExtractByte(ref UAVXPacket, 8);
                         switch ( StateT ){
                             case 0: FlightState.Text = "Starting"; break;
                             case 1: FlightState.Text = "Landing"; break;
                             case 2: FlightState.Text = "Landed"; break;
-                            case 3: FlightState.Text = "Flying"; break;
+                            case 3: FlightState.Text = "Shutdown"; break;
+                            case 4: FlightState.Text = "Flying"; break;
                             default: FlightState.Text = "Unknown"; break;
                         } // switch
 
@@ -616,10 +689,16 @@ namespace UAVXGS
                         DUCompT = ExtractSignedByte(ref UAVXPacket, 45);
                         AltCompT = ExtractSignedByte(ref UAVXPacket, 46);
 
-                        BatteryVolts.Text = string.Format("{0:n1}", ((float)BatteryVoltsT / 37.95)); 
-                        BatteryCurrent.Text = string.Format("{0:n1}", (float)BatteryCurrentT * 0.1);
-                        BatteryCharge.Text = string.Format("{0:n0}", (float)BatteryChargeT * BatteryChargeScale);
+                        BatteryVolts.Text = string.Format("{0:n1}", (float)BatteryVoltsT * 27.73 / 1024.0); // ADC units 5V * (10K+2K2)/2K2.
+                        BatteryCurrent.Text = string.Format("{0:n1}", ((float)BatteryCurrentT * CurrentSensorMax) / 1024.0 ); // ADC units sent
+                        BatteryCharge.Text = string.Format("{0:n0}", (float)BatteryChargeT); // mAH // converted as it is used on board
+
                         RCGlitches.Text = string.Format("{0:n0}", RCGlitchesT); 
+                        if ( RCGlitchesT > 20 )
+                            RCGlitches.BackColor = System.Drawing.Color.Orange;
+                        else
+                            RCGlitches.BackColor = RCGroupBox.BackColor;
+
                         DesiredThrottle.Text = string.Format("{0:n0}", ((float)DesiredThrottleT * 100.0)/ RCMaximum);
                         DesiredRoll.Text = string.Format("{0:n0}", ((float)DesiredRollT * 200.0)/ RCMaximum); 
                         DesiredPitch.Text = string.Format("{0:n0}", ((float)DesiredPitchT * 200.0)/ RCMaximum);
@@ -654,7 +733,7 @@ namespace UAVXGS
                             case 1: NavState.Text = "Returning";
                                 NavState.BackColor = System.Drawing.Color.Lime;
                                 break;
-                            case 2: NavState.Text = "Home";
+                            case 2: NavState.Text = "@Home";
                                 NavState.BackColor = System.Drawing.Color.Green;
                                 break;
                             case 3: NavState.Text = "Descending";
@@ -669,9 +748,6 @@ namespace UAVXGS
                             case 6: NavState.Text = "Loitering";
                                 NavState.BackColor = System.Drawing.Color.Gold;
                                 break;
-                            case 7: NavState.Text = "Terminating";
-                                NavState.BackColor = System.Drawing.Color.Red;
-                                break;
                             default: NavState.Text = "Unknown"; break;
                         } // switch
 
@@ -684,10 +760,10 @@ namespace UAVXGS
                             case 1: FailState.Text = "Aborting";
                                 FailState.BackColor = System.Drawing.Color.Orange;
                                 break;
-                            case 2: FailState.Text = "Returning";
+                            case 2: FailState.Text = "Terminating";
                                 FailState.BackColor = System.Drawing.Color.Orange;
                                 break;
-                            case 3: FailState.Text = "Terminating";
+                            case 3: FailState.Text = "Terminated";
                                 FailState.BackColor = System.Drawing.Color.Red;
                                 break;
                             default: FailState.Text = "Unknown"; break;
@@ -765,7 +841,7 @@ namespace UAVXGS
                             AltitudeSource.Text = "Rangefinder";
                         }
                         else
-                            if ((Flags[2] & 0x08) != 0)
+                            if (((Flags[2] & 0x08) != 0) && ((Flags[0] & 0x80) != 0))
                             {
                                 CurrAlt = GPSRelAltitudeT;
                                 AltitudeSource.Text = "GPS";
@@ -784,6 +860,12 @@ namespace UAVXGS
 
                         AltError = CurrAlt - DesiredAltitudeT;
                         AltitudeError.Text = string.Format("{0:n1}", (float)AltError * 0.01);
+
+                        BaroGPSError.Text = string.Format("{0:n2}", ((double)RelBaroAltitudeT - (double)GPSRelAltitudeT) / (double)RelBaroAltitudeT * 100.0);
+                        if ((Flags[2] & 0x80) != 0)
+                            BaroRFError.Text = string.Format("{0:n2}", ((double)RelBaroAltitudeT - (double)RangefinderAltitudeT) / (double)RelBaroAltitudeT * 100.0);
+                        else
+                            BaroRFError.Text = " ";
 
                         GPSVel.Text = string.Format("{0:n1}", (double)GPSVelT * 0.1); // dM/Sec
                         GPSROC.Text = string.Format("{0:n1}", (float)GPSROCT * 0.01);
@@ -836,7 +918,7 @@ namespace UAVXGS
                             LongitudeCorrection = Math.Cos(Math.PI / 180.0 * (GPSLatitudeT + OriginLatitude) / 12000000.0);
 
                             EastDiff = (GPSLongitudeT - OriginLongitude) * LongitudeCorrection;
-                            WhereDirection = Math.Atan2(-EastDiff, NorthDiff) * 180.0 / Math.PI;
+                            WhereDirection = Math.Atan2(EastDiff, NorthDiff) * 180.0 / Math.PI;
                             while (WhereDirection < 0)
                                 WhereDirection += 360.0;
                             WhereBearing.Text = string.Format("{0:n0}", WhereDirection);
