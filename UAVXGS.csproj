@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,8 +14,8 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <ManifestCertificateThumbprint>8A7068F7F9F0536BE8D86B9055D1ECFB5C4EEA32</ManifestCertificateThumbprint>
     <ManifestKeyFile>UAVXGS_TemporaryKey.pfx</ManifestKeyFile>
@@ -38,7 +39,7 @@
     <PublisherName>gke</PublisherName>
     <SuiteName>UAVX</SuiteName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>47</ApplicationRevision>
+    <ApplicationRevision>56</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -93,16 +94,16 @@
     <Compile Include="AvionicsInstrumentsControls\VerticalSpeedIndicatorInstrumentControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AvionicsInstrumentsControls\Form1.cs">
+    <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AvionicsInstrumentsControls\Form1.Designer.cs">
+    <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AvionicsInstrumentsControls\AvionicsInstrumentsControlsResources.resx" />
-    <EmbeddedResource Include="AvionicsInstrumentsControls\Form1.resx">
+    <EmbeddedResource Include="Form1.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -155,7 +156,7 @@
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
-      <ProductName>.NET Framework Client Profile</ProductName>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
