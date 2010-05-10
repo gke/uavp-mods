@@ -33,7 +33,7 @@ UAVX V1.1020 Onwards (all 16 bits)
   * 1 Heading
   * 2 Baro Relative Altitude
   * 3 Rangefinder Altitude
-  * 4 GPS Relative Altitude			
+  * 4 unused		
   * 5 Desired Throttle
   * 6 Desired Roll
   * 7 Desired Pitch
