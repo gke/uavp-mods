@@ -1,4 +1,4 @@
-#labels UAVXTERM,Handheld,tachaba,UAVX,UAVPset
+#labels UAVXTERM,Handheld,ta2cba,UAVX,UAVPset
 #UAVXTERM is a handheld portable Parameter setting and diagnostic terminal for changing the UAVX software parameters while flight testing and trimming the Quad in the field without the need for a full fledged PC and UAVPSET software.
 = Introduction =
 
