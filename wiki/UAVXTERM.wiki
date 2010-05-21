@@ -1,0 +1,13 @@
+#labels UAVXTERM,Handheld,tachaba,UAVX,UAVPset
+#UAVXTERM is a handheld portable Parameter setting and diagnostic terminal for changing the UAVX software parameters while flight testing and trimming the Quad in the field without the need for a full fledged PC and UAVPSET software.
+= Introduction =
+
+UAVX Parameters can be saved to hand held Terminal from UAVX and uploaded from  hand Terminal to UAVX Quad. With this Save/Upload feature 7 different sets of parameters can be kept in Terminal’s memory for future upload for testing. Also field test changes can be saved into memory for future reference. It can also be used to transfer parameter set to another UAVX quad.
+
+The flight LIPO battery voltage can be measured at the field with the unit to see the battery voltage condition before or after a flight.
+
+After Flight Statistics like Altitude, Rate Of Climb, Velocity, GPS Hdilute and Barometer/GPS Scale can be viewed by UAVXTERM.
+ 
+The unit a keeps track of it’s own battery health and shows the battery voltage at power on. A red led will warn a low battery status comparing to a set threshold value by the user depending on battery type being used.
+
+However this terminal is not  a replacement for UAVPSET. The default parameter loading, TX/RX setup etc has to be done with the UAVPSET and the quad must be tested for all of it’s functions before using this Terminal. 
