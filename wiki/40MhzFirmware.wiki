@@ -1,0 +1,7 @@
+=Utilizing 40MHz Firmware=
+
+==-In order to use the 40Mhz UAVX firmware, you must remove the 10MHz crystal and replace it with a 16MHz crystal.  Doing this allows the PIC processor to run faster which enhances flight performance due to the faster control loop.==
+
+==- The required crystal can be added to the board if ordered from www.quadroufo.com for about 50 cents.==
+==- The crystal is one similar to: http://www.mouser.com/Search/ProductDetail.aspx?R=ABL-10.000MHZ-B2virtualkey52750000virtualkey815-ABL-10-B2==
+==- The 40MHz firmware in the downloads area is identified by having a "40" in the firmware name.==
