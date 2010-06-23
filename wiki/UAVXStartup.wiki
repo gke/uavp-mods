@@ -48,6 +48,7 @@ It is assumed you:
   * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pulldown box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx. Some substitutions follow:
    * Graupner MX16s use JR XP8103/R700-PPM
    * DX7/AR6000 use JR XP8103/R700-PPM
+   * JR8103 with a Spektrum module /AR7000 use Futaba 9C DM8/AR7000
 
   * If your Tx/Rx combination is not currently supported then you should check the following site (Logic Analyzer Displays of PPM Rx Channels). The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
 
