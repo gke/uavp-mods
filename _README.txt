@@ -1,20 +1,12 @@
-==============================================
-=   U    U      AA     V     V   PPPPP       =
-=   U    U     A  A    V     V   P    P      =
-=   U    U    A    A   V     V   P    P      =
-=   U    U    AAAAAA    V   V    PPPPP       =
-=   U    U    A    A     V V     P           =
-=    UUUU  U  A    A A    V  V   P    P      =
-=                                            =
-=  Universal  Airial   Video     Platform    =
-=                                            =
-=      U.A.V.P Brushless UFO Controller      =
-=           Professional Version             =
-= Copyright (c) 2007 Ing. Wolfgang Mahringer =
-=                                            =
-=      Modified by others (see below)        =
-=                                            =
-==============================================
+=========================================================================
+
+  UAVX - Experimental Quadrocopter Flight Software
+
+  Based partially on UAVP (c) 2007 Ing. Wolfgang Mahringer
+
+  Rewritten as UAVX (c) 2008 Prof. Greg Egan
+
+=========================================================================
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,9 +22,9 @@
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-==============================================
-=  Reference Sites                           =
-==============================================
+=========================================================================
+  Reference Sites                           
+=========================================================================
 
 The original project may be found at:
 
@@ -50,75 +42,49 @@ The related RCGroups thread is at:
 Disclaimer: The project at the Google Site is not endorsed by 
 nor is it part of the official UAVP project.
 
-==============================================
-= The GNU GENERAL PUBLIC LICENSE             =
-==============================================
+=========================================================================
+ The GNU GENERAL PUBLIC LICENSE             
+=========================================================================
 
 This software is released under GNU GPL license.
 The GPL license is contained in the files
 gpl-en.txt (in English) and gpl-de.txt (in German).
 
-==============================================
-= Pre-compiled Firmware                      =
-==============================================
+=========================================================================
+ How to setup the Compilation Software      
+=========================================================================
 
-Firmware HEX files for most configurations are available at
-the project sites if you wish to use them rather than going
-through the following procedures. If you choose to do this you
-should download an appropriate HEX file and skip to:
+    * This version is for the 18F2620 PIC
+    * Obtain MPLab and the C18 compiler from Microchip 
 
-    * Transferring firmware to the PIC (below). 
+=========================================================================
+ Transferring Firmware to the PIC           
+=========================================================================
 
-==============================================
-= How to setup the Compilation Software      =
-==============================================
+    * Use a PIC programmer to burn a version
+      to the PIC - this will include the bootloader.
+    * Once the bootloader is loaded once UAVPSet 
+      may be used to load future versions of the
+      flight and TestSoftware
 
-    * Download the cc5x compiler (http://www.bknd.com/cc5xfree.exe).
-    * Run the executable to install the compiler. 
-      Install it into c:\program files\microchip\cc5x.
-    * Download MPLAB (http://ww1.microchip.com/downloads/...eDoc/mp810.zip).
-    * Unzip mp810.zip into a temp directory. Run Install_MPLAB_v810.exe.
-    * Unzip the uavp source into a newly created directory.
-    * Launch a command prompt and cd into that directory.
-    * If not using mod2 or later: Run "copy c:\program files\microchip\cc5x\reloc.inc ."
+=========================================================================
+ VERSION HISTORY                            
+=========================================================================
 
-==============================================
-= How to Build Versions of UAVP              =
-==============================================
+22.06.2010
+- Draft version of a universal Rx decoder
 
-    * Download the latest release source from the Downloads section
-      (http://code.google.com/p/uavp-mods/). See various Disclaimers.
+=========================================================================
+ SAFETY FIRST!                              
+=========================================================================
 
-    * Edit "makeall.bat". There are sets of parameters including 
-      those for all possible versions of UAVP. 
-      Change the "personal" sets to cover the range of 
-      versions you are interest in.
-    * Run makeall.bat (this does not delete old hex files 
-      so check the creation dates)
-    * Done! 
-
-==============================================
-= Transferring Firmware to the PIC           =
-==============================================
-
-If you already have a PIC with at least software version 3.05,
-You can upload your new version using the bootloader.
-Use UAVPset.exe to do that.
-
-But be careful: If you mock up things completely, you can lock
-yourself out. Then you would need a PIC programmer to get things 
-working again.
-
-==============================================
-= SAFETY FIRST!                              =
-==============================================
-
-If you work on your ufo model, PLEASE TAKE CARE!
+If you work on your Quadrocopter, PLEASE TAKE CARE!
 
 Nowadays, extremely powerful motors and accumulators
-can pose a serious threat to your and others safety.
+can pose a serious threat to your safety.
 
 Safety measures:
+
 - Remove the propellers before you test parameter or firmware modifications
 - Work with a good bench power supply instead of an accupack.
   A short circuit will then not be able to destroy your hardware too easily
@@ -128,17 +94,18 @@ Safety measures:
 - When using your transmitter, be sure to use the correct model memory on it.
 - Be sure to have no other transmitters on your channel on air.
 
-The original author and those modifying the program based on
-the original V3.15 will NOT BE RESPONSIBLE FOR ANY ACCIDENTS 
-OR INJURIES IN ANY WAY!
+The authors will NOT BE RESPONSABLE FOR ANY ACCIDENTS OR
+INJURIES IN ANY WAY!
 
-PLEASE do yourself a favour and get an insurance which covers risks by doing model flight!
-Imaging what happens if you only damage someone elses car or something....
+PLEASE do yourself a favour and get an insurance which covers risks by doing 
+model flight!
+
+Imagine what happens if you only damage someone else's car or something....
 
 
-==============================================
-= Questions?                                 =
-==============================================
+=========================================================================
+ Questions?                                
+=========================================================================
 
 BUT PLEASE, BEFORE YOU ASK, READ THE MANUAL. It is all in there, really! 
 The manual may be found at the original project site.
@@ -162,13 +129,8 @@ or the original project site at:
 
 	http://www.uavp.org 
 
-There are a lot of people that will happily help you,
-including the original author (his nickname is "Wolferl").
-
 However, a registration is required to gain access to the forum.
+
 
 Make sure you have the most recent version of the firmware!
 
-==============================================
-= End of README file                         =
-==============================================

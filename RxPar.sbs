@@ -1,0 +1,54 @@
+## SCL Builder Setup File: Do not edit!!
+
+## VERSION: 3.60.00.00
+## FORMAT:  v2.00.01
+## DEVICE:  PIC18F2620
+
+## PINREGACTIONS
+us
+20000
+0
+PORTB
+--
+0
+F0
+--
+1000
+E0
+--
+1001
+C0
+--
+1002
+80
+--
+1003
+00
+--
+&
+## ADVPINREGACTIONS
+--
+&
+--
+COND1
+Any
+
+
+
+
+
+
+--
+&
+## CLOCK
+&
+## STIMULUSFILE
+&
+## RESPONSEFILE
+&
+## ASYNCH
+&
+## ADVANCEDSCL
+
+1
+&

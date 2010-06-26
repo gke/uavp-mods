@@ -4,48 +4,57 @@ rem http://www.robvanderwoude.com/variableexpansion.html
 rem http://www.robvanderwoude.com/ntset.html
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-rem Batch compiles various possibilities of the UFO software
+rem Batch compiles various possibilities of the UFO software for the Microchip 18F2xxx series
 rem
-rem Greg Egan 2008
+rem Greg Egan 2008-2010
 rem
 rem Uses: makeallhelper.bat and makeclean.bat
-rem 
-rem Version of the board. May be 3_0 or 3_1.
-rem Type of gyros in use. May be OPT_ADXRS300, OPT_ADXRS150, or IDG300.
-rem Type of ESC in use. May be ESC_PPM,  ESC_YGEI2C, ESC_HOLGER.
-rem Type of Rx. May be RX_DSM2 for for reference DX7/AR7000 combination, 
-rem RX_PPM for serial PPM frame, or RX_DEFAULT for default PPM Graupner/JR etc Rx.
-rem Type of debugging to use. May be DEBUG_MOTORS (3.1 only) or DEBUG_SENSORS.
-rem Motors are disabled for DEBUG_SENSORS as there is not enough program space
-rem in the 876 PIC.
-rem Prevous switches THC and CAM have been abandoned in favour of Tx based
-rem throttle shaping and X-mode to orient the camera forward set under UAVPSet.
-
-set VERSION=3_15m3
+rem
+rem Clock rate CLOCK_16MHZ (Only 16MHZ available for UAVP version)
+rem Type of PIC processor 18F2620 only
+rem SIMULATE to generate a simple flight simulator (no dynamics) for use with UAVXGS - no motors.
+rem using UAVPSet (blank option in menu below testsoftware).
+rem Configuration TRICOPTER for 3 motors and QUAD for 4.
+rem TESTING for checking out sensors Motors are disabled for safety reasons.
+rem UAVPBLACK original UAVP board
+rem EXPERIMENTAL - USE WITH GREAT CAUTION - EXPERIMENTAL CONTROLS SEVERAL OTHER
+rem DEFINES CONTAINED IN THE BLOCK TOWARDS THE TOP OF UAVX.H
 
 rem Add/Delete required combinations to these sets
-set BOARDS= 3_0 3_1
-set GYROS=OPT_IDG OPT_ADXRS150 OPT_ADXRS300
-set ESCS=ESC_PPM ESC_HOLGER ESC_YGEI2C
-set DBGS=NO_DEBUG DEBUG_SENSORS DEBUG_MOTORS 
-set RXS=RX_DEFAULT RX_DSM2 RX_PPM
+set CLOCK=CLOCK_16MHZ CLOCK_40MHZ
+set PROC=18F2620
+set DBG=NO_DEBUG
+set RX=RX7CH RX6CH
+set CFG=QUADROCOPTER TRICOPTER HEXACOPTER HELICOPTER AILERON ELEVON
+set EXP=NO_EXP
+set BRD=UAVPBLACK
 
 rem Personal choice
-set BOARDS= 3_1
-set GYROS=OPT_IDG
-set ESCS=ESC_PPM
-set DBGS=NO_DEBUG DEBUG_SENSORS
-set RXS=RX_DEFAULT RX_DSM2
+rem set CLOCK=CLOCK_16MHZ
+rem set PROC=18F2620
+rem set DBG=NO_DEBUG
+rem set RX=RX7CH
+rem set CFG=QUADROCOPTER TRICOPTER	
+rem set EXP=NO_EXP EXPERIMENTAL
+rem set BRD=UAVPBLACK
 
 rem Delete working files
 call makeclean.bat
+
+rem Requires Tortoise SVN 
+call makerev.bat
+
+del *.HEX
+
 echo Starting makeall uavp > gen.lst
 echo Starting makeall uavp > log.lst
 
-rem Parameters for makeallhelper.bat are VERSION BOARD GYRO ESC DBG RX
+for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do for %%e in (%EXP%) do for %%b in (%BRD%) do call makeallhelper.bat %%x %%p %%d %%r %%c %%e %%b 
 
-for %%b in (%BOARDS%) do for %%g in (%GYROS%) do for %%e in (%ESCS%) do for %%d in (%DBGS%) do for %%r in (%RXS%) do call makeallhelper.bat %VERSION% %%b %%g %%e %%d %%r 
+set PROC=18F2620
+set DBG=TESTING SIMULATE 
+set RX=RX7CH RX6CH
+set CFG=QUADROCOPTER
+set BRD=UAVPBLACK
 
-
-
-
+for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do for %%e in (%EXP%) do for %%b in (%BRD%) do call makeallhelper.bat %%x %%p %%d %%r %%c %%e %%b 
