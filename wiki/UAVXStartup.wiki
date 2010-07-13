@@ -166,7 +166,7 @@ It is assumed you:
   * Which hex file do I use: Tags within the UAVX hex file names tells you what it contains:
     
     * 16: 16Mhz firmware for the orignal boards with a 16Mhz crystal installed.
-    * 40: 40Mhz firmware for boards that have replaced the 16Mhz crystal with a 10hz crystal. *Warning: Do not install this 40Mhz firmware if you have the 16Hz crystal.  If you do you will then need a separate PIC programmer to reprogram it for the 16Hz firmware!*
+    * 40: 40Mhz firmware for boards that have replaced the 16Mhz crystal with a 10hz crystal. Using this firmware requires a PIC programmer for the first time load. *Warning: Do not install this 40Mhz firmware if you have the 16Hz crystal.  If you do you will then need a separate PIC programmer to reprogram it for the 16Hz firmware!*
     * QUAD: four motor quadrocopter.
     * TRI: three motor tricopter.
     * Heli: for helicopter IMU usage.
