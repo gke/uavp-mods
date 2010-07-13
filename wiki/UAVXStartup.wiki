@@ -51,6 +51,7 @@ It is assumed you:
    * JR8103 with a Spektrum module /AR7000 use Futaba 9C DM8/AR7000
 
   * If your Tx/Rx combination is not currently supported then you should check the following site (Logic Analyzer Displays of PPM Rx Channels). The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
+  * If your Tx/Rx is not listed then you can always use a separate PPM adapter board and then select the "all channels" box in the UAVPset.
 
   http://www.rcgroups.com/forums/showthread.php?t=1171547
 
@@ -163,10 +164,14 @@ It is assumed you:
 ==== File Versions ====
 
   * Which hex file do I use: Tags within the UAVX hex file names tells you what it contains:
+    
+    * 16: 16Mhz firmware for the orignal boards with a 16Mhz crystal installed.
+    * 40: 40Mhz firmware for boards that have replaced the 16Mhz crystal with a 10hz crystal. *Warning: Do not install this 40Mhz firmware if you have the 16Hz crystal.  If you do you will then need a separate PIC programmer to reprogram it for the 16Hz firmware!*
     * QUAD: four motor quadrocopter.
     * TRI: three motor tricopter.
-    * 90D: some older compasses have a 90 deg offset from the package mounting alignment. Check using the Compass test in UAVPSet (See CompassSensor Wiki).
+    * Heli: for helicopter IMU usage.
     * 6CH: for use with 6ch Rx. The navigation sensitivity (below) must be set using UAVPSet rather than the Ch7 pot.
+    * TEST: for UAVX v1.1049 and above to load for the initial setup for Tx/Rx and compass and any follow on testing.
     * DEBUG: for use with the sensor trace (see SensorTest Wiki). These are NOT flight software and are used to debug sensors and for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
     * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
 
@@ -178,9 +183,9 @@ As with the UAVP, a proper Tx/Rx setup is extremely important for both safety an
 
 The setup procedure:
 
-  * First make sure that the UAVP is not armed! Set your Tx to its default values to start fresh.  You must use ACRO mode on your Tx.  Set your trims and sub-trims to zero.  Using UAVPset V3.0 pull down menus select the correct Tx/Rx combination and Rx to Quad and TX mode for your kit.  Write this to the UAVP.
+  * First make sure that the UAVP is not armed! Set your Tx to its default values to start fresh.  You must use ACRO mode on your Tx.  Set your trims and sub-trims to zero.  Using UAVPset V3.0 or above pull down menus select the correct Tx/Rx combination and Rx to Quad and TX mode for your kit.  Write this to the UAVP. Note that for UAVX firmware v1.1049 and above, you must first load the correct TEST firmware for your model and do the initial compass and Tx/Rx setup.  See above in the *File Versions* paragraph for help in identifying the proper firmware you must use.
 
-  * Go to the Tool->Testsoftware and do the Rx test and see that all channels pass.  If not then the Tx EPAs (End Point Adjustment) must be adjusted here first.  Note that the Rx Test displays the channels in the order they are received by UAVX. Each channel is marked with the control function corresponding to the Tx/Rx combination you have selected. You should expect the channels corresponding to pitch, roll and yaw to have a value of approximately 0%. If you do not see this pattern then you may have the wrong Tx/Rx combination selected. For most cases, simply setting channel 5 lower EPA to 80% and upper EPA to 80% will get a pass on all channels that the Tx/Rx combination allows, i.e., either 5 or 7.  The next channels to adjust if you still do not get a pass are setting channels 6 and 7 to 80% upper and lower.  If you still cannot get the channels to pass, then post in the forum for additional help. Here: [http://www.rcgroups.com/forums/showthread.php?t=1093510]
+  * Go to the Tool->Testsoftware and do the Rx test and see that all channels pass.  If not then the Tx EPAs (End Point Adjustment) must be adjusted here first.  Note that the Rx Test displays the channels in the order they are received by UAVX. Each channel is marked with the control function corresponding to the Tx/Rx combination you have selected. You should expect the channels corresponding to pitch, roll and yaw to have a value of approximately 0%. If you do not see this pattern then you may have the wrong Tx/Rx combination selected. For most cases, simply setting channel 5 lower EPA to 80% and upper EPA to 75% will get a pass on all channels that the Tx/Rx combination allows, i.e., either 5 or 7.  The next channels to adjust if you still do not get a pass are setting channels 6 and 7 to 75% upper and lower.  If you still cannot get the channels to pass, then post in the forum for additional help. Here: [http://www.rcgroups.com/forums/showthread.php?t=1093510]
 
   * After you get the channels to pass, go to the Tx/Rx graphic. Now set the channels which are represented in the graphic as "Roll, Pitch, Yaw" for EPA's of about 90 upper and lower per the values on the graphic which is in percent. Try to make the EPA for "CamTrim" symetrical around 0% as it is the Flap trim on some Txs and may have a limited range. Set channels "Throttle, NavS" for lower EPA of 4% and upper EPA of 90%. Set "RTH" for lower 10% and upper 85%. Now set your sub-trims to make the graphic read 4% for channels "Throttle,  and NavS" and 0% for channels "Roll, Pitch, Yaw, CamTrim". "RTH" should be left with the lower value of 10% that you set up using the EPA's. *NOTE*: the RTH, CamTrim and NavS - correspond to Ch 5,6 and 7 in UAVPSet releases earlier than 3.03. 
 
