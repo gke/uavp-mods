@@ -309,7 +309,9 @@ The auto descend feature is the logical extension of using RTH primarily as fail
 
 === Camera Pitch and Roll ===
 
-The UAVP also has servo connections for channel 6 and 7 to control gryo asssited pitch and roll.  Channel 6 is for pitch and 7 is for roll.  You can adjust responiveness by setting values in the fields in the UAVPset.
+The UAVP also has servo connections for channel 6 and 7 to control gryo asssited pitch and roll.  Channel 6 is for pitch and 7 is for roll.  You can adjust responiveness by setting values in the fields in the UAVPset.  In the UAVPset under the roll and pitch columns the cam roll adjusts the servo response to the model.  A value of zero is off.  The cam trim adjusts how far it will be allowed to correct for roll.  The cam pitch value adjusts the servo response to pitch.  A value of zero is no camera pitch gyro compensation.  You can still adjust the cam pitch tilt with your ch 6 variable poti.  These values must be initially setup in a hand test with the UAVX in the armed position so take extreme care and disable the motors by either removing the motors servo connections or two of the three motor wires.
+Note that the cam servos are powered by the ESC's from K3 for servo power to K6 and K4 for servo power to K5.  Note also that the servo connectors are not numbered sequentially so they are K1, K2, K3, K4, *K6 and K5*.
+*Warning: Do not attempt to provide power to the servos from the Rx pins by using an unused channel.  There is not enough power provided by the board's 5v source to power the servos.  A digital servo will have higher power requirements and if it is directly connected to the Rx will cause the board to lose enough power to function and result in a crash. Do not power any servo directly from the Rx if the Rx is powered from the board as it normally is.*
 
 === Other Stuff === 
 
