@@ -59,6 +59,8 @@ For UAVX confirm channel 5 switch is in the manual/hover position. This appears 
 
 8. *Disarm* then remove power from UAVP, then turn Tx off.  *Warning!:  Never turn the Tx off first!
 
+9. Do a post flight inspection!  After landing and removing power, check the temperature of all motors and ESCs.  Higher temps on one or more indicate possible neutral stability or motor or ESC issues.  Correct them before the next fight.
+
 Have fun and safe flying! 
 Cheers, 
 Jim 
