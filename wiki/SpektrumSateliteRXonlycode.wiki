@@ -1,4 +1,5 @@
 #summary Proposal to use the Spektrum satellite Receivers directly.
+#labels SpektrumSatellite,UAVX
 
 == Introduction ==
 The Mikrokopter has developed code for using only the satellite Rx with a DX6, DX7 and the Futaba and JR TX modules.  We should be able to do the same.
@@ -8,4 +9,7 @@ Benefits:  Lighter Rx.  Cost $29. Diversityy 2.4Ghz Rx.
 
 The composite PPM signal would hook up to a pin on the K12 connector.
 
-How to modify the irq.c file: TBD
+How to modify the irq.c file: This has been determined not to be a good path due to processing requirements.
+
+Building an add on board using a PIC and code for Spektrum satellite only to PPM provided by ReM:
+http://code.google.com/p/uavp-mods/issues/detail?id=4
