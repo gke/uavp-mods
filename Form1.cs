@@ -74,8 +74,7 @@ namespace UAVXGS
         const double RollPitchGyroRate = 400.0;
 
         /*
-        UAVXStatsPacket
-         
+        UAVXStatsPacket      
         */
 
         short I2CFailsT;
@@ -266,14 +265,14 @@ namespace UAVXGS
         bool InFlight = false;
 
         System.IO.FileStream SaveLogFileStream;
-        System.IO.BinaryWriter SaveLogFileBinaryWriter;
-
+        System.IO.BinaryWriter SaveLogFileBinaryWriter; 
         System.IO.FileStream SaveTextLogFileStream;
         System.IO.StreamWriter SaveTextLogFileStreamWriter;
 
         System.IO.FileStream OpenLogFileStream;
-        System.IO.BinaryReader OpenLogFileBinaryReader;
+        System.IO.BinaryReader OpenLogFileBinaryReader; 
         bool DoingLogfileReplay = false;
+        bool ReadingTelemetry = false;
 
         public FormMain()
         {
@@ -402,8 +401,7 @@ namespace UAVXGS
                     DoingLogfileReplay = true;
 
                     ReplayProgressBar.Value = 0;
-                    while (DoingLogfileReplay)
-                        ReadReplayLogFile();
+                    ReadReplayLogFile();
                 }
             }
             else
@@ -430,7 +428,7 @@ namespace UAVXGS
                 DateTime.Now.Minute;
 
             SaveLogFileStream = new System.IO.FileStream(FileName + ".log", System.IO.FileMode.Create);
-            SaveLogFileBinaryWriter = new System.IO.BinaryWriter(SaveLogFileStream);
+            SaveLogFileBinaryWriter = new System.IO.BinaryWriter(SaveLogFileStream); 
             SaveTextLogFileStream = new System.IO.FileStream(FileName + ".csv", System.IO.FileMode.Create);
             SaveTextLogFileStreamWriter = new System.IO.StreamWriter(SaveTextLogFileStream, System.Text.Encoding.ASCII);
             WriteTextLogFileHeader();
@@ -443,12 +441,38 @@ namespace UAVXGS
         {
             short i;
 
-            SaveTextLogFileStreamWriter.Write("Flight,");
-            for (i = 0; i < NoOfFlagBytes; i++)
+            SaveTextLogFileStreamWriter.Write("Flight,"+
+            "NavAlt," +	
+            "TurnWP," +			
+            "GyroF," +
+            "Lost," +
+            "Level," +
+            "LowBatt," +
+            "GPSVal," +
+            "NavVal," +
+            "BaroF," +
+            "AccF," +
+            "CompF," +
+            "GPSF," +
+            "AltHEn," +
+            "ThrMov," +
+            "Hov," +
+            "Nav," +            
+            "RTH," +
+            "Prox," +
+            "CloseProx," +
+            "UseGPSAlt," +
+            "UseRTHDes," +
+            "BaroVal," +
+            "RFValid," +
+            "UseRFAlt,");
+
+            for (i = 3; i < NoOfFlagBytes; i++)
                 SaveTextLogFileStreamWriter.Write("F[" + i + "],");
+
             SaveTextLogFileStreamWriter.Write("StateT," +
             "BattV," +
-            "BattC," +
+            "BattI," +
             "BattCh," +
             "RCGlitches," +
             "DesThr," +
@@ -519,7 +543,7 @@ namespace UAVXGS
             "BaroMaxROC," +
             "MinTemp," +
             "MaxTemp," +
-            "Bad," +
+            "BadReferGKE," +
             "Unused1, Unused2");
         }  
 
@@ -589,23 +613,31 @@ namespace UAVXGS
             long p;
             short NewRxTail;
 
-            NewRxTail = RxTail;
-            NewRxTail++;
-            NewRxTail &= RxQueueMask;
-
-            while ((NewRxTail != RxHead) && (OpenLogFileStream.Position < OpenLogFileStream.Length)) // inefficient?
+            while ( OpenLogFileStream.Position < OpenLogFileStream.Length )
             {
-                RxTail = NewRxTail;
-                b = OpenLogFileBinaryReader.ReadByte();
-                RxQueue[RxTail] = b;
-
                 NewRxTail = RxTail;
                 NewRxTail++;
                 NewRxTail &= RxQueueMask;
+
+                while (NewRxTail != RxHead && (OpenLogFileStream.Position < OpenLogFileStream.Length) ) // inefficient?
+                {
+                    RxTail = NewRxTail;
+                    b = OpenLogFileBinaryReader.ReadByte();
+                    RxQueue[RxTail] = b;
+                    NewRxTail = RxTail;
+                    NewRxTail++;
+                    NewRxTail &= RxQueueMask;
+                }
+
+                // brute force - needs to be a little more elegant:)
+                // also need some control of replay speed?
+                ReadingTelemetry = true;
+                this.Invoke(new EventHandler(UAVXReadTelemetry));
+                while (ReadingTelemetry) { };
+                p = (int) (100 * OpenLogFileStream.Position) / OpenLogFileStream.Length;
+                ReplayProgressBar.Value = (int)p;
             }
-            this.Invoke(new EventHandler(UAVXReadTelemetry));
-            p = (int) (100 * OpenLogFileStream.Position) / OpenLogFileStream.Length;
-            ReplayProgressBar.Value = (int)p;
+
             if (OpenLogFileStream.Position == OpenLogFileStream.Length)
             {
                 DoingLogfileReplay = false;
@@ -630,11 +662,13 @@ namespace UAVXGS
                         RxTail = NewRxTail;
                         b = (byte)serialPort1.ReadByte();
                         RxQueue[RxTail] = b;
-                        SaveLogFileBinaryWriter.Write((byte) b);
+                        SaveLogFileBinaryWriter.Write(b);
                     }
                     else
+                    {
                         b = (byte)serialPort1.ReadByte(); // processing overflow - discard
-                    SaveLogFileBinaryWriter.Write(b);
+                        SaveLogFileBinaryWriter.Write(b);
+                    }
                 }
                 if (serialPort1.IsOpen) 
                     this.Invoke(new EventHandler(UAVXReadTelemetry));
@@ -1280,15 +1314,45 @@ namespace UAVXGS
                   WriteTextLogFile();
                 }
             }
+            ReadingTelemetry = false;
         }
 
         void WriteTextLogFile()
         {
             short i;
 
-            SaveTextLogFileStreamWriter.Write("Flight,");
-            for (i = 0; i < NoOfFlagBytes; i++)
+            SaveTextLogFileStreamWriter.Write("Flight," +
+
+            (Flags[0] & 0x01)        + "," + //NavAltitudeHold	
+            ((Flags[0] & 0x02) >> 1) + "," + //TurnToWP			
+            ((Flags[0] & 0x04) >> 2) + "," + //GyroFailure
+            ((Flags[0] & 0x08) >> 3) + "," + //LostModel
+            ((Flags[0] & 0x10) >> 4) + "," + //NearLevel
+            ((Flags[0] & 0x20) >> 5) + "," + //LowBatt
+            ((Flags[0] & 0x40) >> 6) + "," + //GPSValid
+            ((Flags[0] & 0x80) >> 7) + "," + //NavValid
+
+            (Flags[1] & 0x01)        + "," + //BaroFailure
+            ((Flags[1] & 0x02) >> 1) + "," + //AccFailure
+            ((Flags[1] & 0x04) >> 2) + "," + //CompassFailure
+            ((Flags[1] & 0x08) >> 3) + "," + //GPSFailure
+            ((Flags[1] & 0x10) >> 4) + "," + //AttitudeHold
+            ((Flags[1] & 0x20) >> 5) + "," + //ThrottleMoving
+            ((Flags[1] & 0x40) >> 6) + "," + // Hovering
+            ((Flags[1] & 0x80) >> 7) + "," + //Navigate
+                
+            (Flags[2] & 0x01)+ ","   + //ReturnHome
+            ((Flags[2] & 0x02) >> 1) + "," + //Proximity
+            ((Flags[2] & 0x04) >> 2) + "," + //CloseProximity
+            ((Flags[2] & 0x08) >> 3) + "," + //UsingGPSAlt
+            ((Flags[2] & 0x10) >> 4) + "," + //UsingRTHAutoDescend
+            ((Flags[2] & 0x20) >> 5) + "," + //BaroAltitudeValid
+            ((Flags[2] & 0x40) >> 6) + "," + //RangefinderAltitudeValid
+            ((Flags[2] & 0x80) >> 7) + ","); //UsingRangefinderAlt
+
+            for (i = 3; i < NoOfFlagBytes; i++)
                 SaveTextLogFileStreamWriter.Write(Flags[i] + ",");
+
             SaveTextLogFileStreamWriter.Write(StateT + "," +
             BatteryVoltsT + "," +
             BatteryCurrentT + "," +
