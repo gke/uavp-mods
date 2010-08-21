@@ -14,6 +14,9 @@ How to modify the irq.c file: This has been determined not to be a good path due
 Building an add on board using a PIC and code for Spektrum satellite only to PPM provided by ReM:
 http://code.google.com/p/uavp-mods/issues/detail?id=4
 
+_________________________________________________
 Other info links for Spektrum Satellite only mods: 
+
 --http://diydrones.ning.com/profiles/blog/show?id=705844%3ABlogPost%3A64228
+
 --http://www.rcgroups.com/forums/showthread.php?t=922566
