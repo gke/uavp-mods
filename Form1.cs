@@ -1,5 +1,5 @@
 // =================================================================================================
-// =                                  UAVX Quadrocopter Controller                                 =
+// =                                  UAVX Quadrocopter Groundstation                                 =
 // =                             Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                         Instruments Copyright (c) 2008 Guillaume Choutea                      =                                        */
 // =                               http://code.google.com/p/uavp-mods/                             =
@@ -101,16 +101,17 @@ namespace UAVXGS
         short MaxTempT;
 
         short BadT;
-        short Unused1T;
-        short Unused2T;
+        short AirframeT;
+        short OrientT;
+        short BadNumT;
 
         /*
         UAVXFlightPacket
         
         Flags bit values
         Flags[0]
-            NavAltitudeHold	
-            TurnToWP			
+            AltHoldEnabled	// stick programmed	
+            TurnToWP	    // stick programmed		
             GyroFailure
             LostModel
             NearLevel
@@ -137,36 +138,37 @@ namespace UAVXGS
             BaroAltitudeValid
             RangefinderAltitudeValid
             UsingRangefinderAlt
-      
-        // internal flags not really useful externally
-        Flags[3..5]
-            Signal
-            RCFrameOK
-            ParametersValid
-            RCNewValues
-            NewCommands
-            AccelerationsValid
-            CompassValid
-            CompassMissRead
-
-            GyrosErected
-            ReceivingGPS
-            GPSSentenceReceived
-            NavComputed
-            CheckThrottleMoved		
-            WayPointsChanged
-            UsingSerialPPM
-            UsingTxMode2
-
-		    UsingTelemetry
-		    TxToBuffer
-		    NewBaroValue
-		    BeeperInUse 
-		    AcquireNewPosition
-		    MotorsArmed
-		    RFInInches
+         
+        Flags[3]
+		    AllowNavAltitudeHold	// stick programmed
+		    UsingPositionHoldLock
+		    LockHoldPosition
 		    Simulation
-            */
+		    AcquireNewPosition 
+		    MotorsArmed
+		    u1
+		    u2
+
+         Flags[4]
+		    Signal
+		    RCFrameOK
+		    ParametersValid
+		    RCNewValues
+		    NewCommands
+		    AccelerationsValid
+		    CompassValid
+		    CompassMissRead
+       
+        Flags[5]
+		    UsingFlatAcc
+		    ReceivingGPS
+		    GPSSentenceReceived
+		    NavComputed
+		    AltitudeValid		
+		    UsingSerialPPM
+		    UsingTxMode2
+		    UsingAltOrientation
+         */
 
         // byte UAVXFlightPacketTag;   
         // byte Length;  
@@ -252,6 +254,8 @@ namespace UAVXGS
         byte RxPacketTag, RxPacketLength, PacketLength, PacketRxState;
         byte ReceivedPacketTag;
         bool PacketReceived = false;
+        long ReplayProgress = 0;
+        int ReplayDelay = 1;
 
         bool CheckSumError;
         short RxLengthErrors = 0, RxCheckSumErrors = 0, RxIllegalErrors = 0;
@@ -288,6 +292,7 @@ namespace UAVXGS
             Version vrs = new Version(Application.ProductVersion);
             this.Text = this.Text + " v" + vrs.Major + "." + vrs.Minor + "." + vrs.Build;
 
+            ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
         }
 
         public static class ComPorts
@@ -389,19 +394,25 @@ namespace UAVXGS
             if (!DoingLogfileReplay)
             {
                 OpenLogFileDialog.Filter = "UAVX Log File (*.log)|*.log";
-                OpenLogFileDialog.InitialDirectory = UAVXGS.Properties.Settings.Default.LogFileFolder;
+                OpenLogFileDialog.InitialDirectory = UAVXGS.Properties.Settings.Default.LogFileDirectory;
+      
                 if (OpenLogFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    UAVXGS.Properties.Settings.Default.LogFileFolder = OpenLogFileDialog.InitialDirectory;
+                    UAVXGS.Properties.Settings.Default.LogFileDirectory = OpenLogFileDialog.InitialDirectory;
                     OpenLogFileStream = new System.IO.FileStream(OpenLogFileDialog.FileName, System.IO.FileMode.Open);
                     OpenLogFileBinaryReader = new System.IO.BinaryReader(OpenLogFileStream);
+
+                    UAVXGS.Properties.Settings.Default.LogFileDirectory = System.IO.Directory.GetCurrentDirectory();
+                    
                     SaveTextLogFileStream = new System.IO.FileStream("UAVX_Replay.csv", System.IO.FileMode.Create);
                     SaveTextLogFileStreamWriter = new System.IO.StreamWriter(SaveTextLogFileStream, System.Text.Encoding.ASCII);
                     WriteTextLogFileHeader();
                     DoingLogfileReplay = true;
 
                     ReplayProgressBar.Value = 0;
-                    ReadReplayLogFile();
+                    ReplayProgress = 0;
+                    Thread Replay = new Thread(new ThreadStart(ReadReplayLogFile)); 
+                    Replay.Start(); 
                 }
             }
             else
@@ -420,11 +431,11 @@ namespace UAVXGS
         {
             string FileName;
 
-            FileName = "C:/Documents and Settings/All Users/Desktop/UAVX_" +
-                DateTime.Now.Year +
-                DateTime.Now.Month +
+            FileName = UAVXGS.Properties.Settings.Default.LogFileDirectory + "\\UAVX_" + 
+                DateTime.Now.Year + "_" +
+                DateTime.Now.Month + "_" +
                 DateTime.Now.Day + "_" +
-                DateTime.Now.Hour +
+                DateTime.Now.Hour + "_" +
                 DateTime.Now.Minute;
 
             SaveLogFileStream = new System.IO.FileStream(FileName + ".log", System.IO.FileMode.Create);
@@ -442,32 +453,43 @@ namespace UAVXGS
             short i;
 
             SaveTextLogFileStreamWriter.Write("Flight,"+
-            "NavAlt," +	
-            "TurnWP," +			
-            "GyroF," +
+            "AltHEn," +	
+            "TurnToPosEn," + // stick programmed
+            "GyroFail," +
             "Lost," +
             "Level," +
             "LowBatt," +
             "GPSVal," +
             "NavVal," +
-            "BaroF," +
-            "AccF," +
-            "CompF," +
-            "GPSF," +
-            "AltHEn," +
+
+            "BaroFail," +
+            "AccFail," +
+            "CompFail," +
+            "GPSFail," +
+            "AttitudeH," +
             "ThrMov," +
-            "Hov," +
-            "Nav," +            
+            "AltH," +
+            "Nav," +   
+         
             "RTH," +
             "Prox," +
             "CloseProx," +
             "UseGPSAlt," +
             "UseRTHDes," +
             "BaroVal," +
-            "RFValid," +
-            "UseRFAlt,");
+            "RFVal," +
+            "UseRFAlt," +
 
-            for (i = 3; i < NoOfFlagBytes; i++)
+            "NavAltHEn," +   // stick programmed
+            "POFEn," +
+            "POF," +
+            "Sim," +
+            "AcqPos," +
+            "Armed," +
+            "unused1," +
+            "unused2,");
+
+            for (i = 4; i < NoOfFlagBytes; i++)
                 SaveTextLogFileStreamWriter.Write("F[" + i + "],");
 
             SaveTextLogFileStreamWriter.Write("StateT," +
@@ -544,7 +566,7 @@ namespace UAVXGS
             "MinTemp," +
             "MaxTemp," +
             "BadReferGKE," +
-            "Unused1, Unused2");
+            "AFType, Orient, BadNum");
         }  
 
         private void FlyingButton_Click(object sender, EventArgs e)
@@ -610,32 +632,21 @@ namespace UAVXGS
         private void ReadReplayLogFile()
         {
             byte b;
-            long p;
-            short NewRxTail;
 
             while ( OpenLogFileStream.Position < OpenLogFileStream.Length )
             {
-                NewRxTail = RxTail;
-                NewRxTail++;
-                NewRxTail &= RxQueueMask;
+                RxTail++;
+                RxTail &= RxQueueMask;
+                b = OpenLogFileBinaryReader.ReadByte();
+                RxQueue[RxTail] = b;
 
-                while (NewRxTail != RxHead && (OpenLogFileStream.Position < OpenLogFileStream.Length) ) // inefficient?
-                {
-                    RxTail = NewRxTail;
-                    b = OpenLogFileBinaryReader.ReadByte();
-                    RxQueue[RxTail] = b;
-                    NewRxTail = RxTail;
-                    NewRxTail++;
-                    NewRxTail &= RxQueueMask;
-                }
-
-                // brute force - needs to be a little more elegant:)
-                // also need some control of replay speed?
                 ReadingTelemetry = true;
                 this.Invoke(new EventHandler(UAVXReadTelemetry));
                 while (ReadingTelemetry) { };
-                p = (int) (100 * OpenLogFileStream.Position) / OpenLogFileStream.Length;
-                ReplayProgressBar.Value = (int)p;
+
+                ReplayProgress = (int) (100 * OpenLogFileStream.Position) / OpenLogFileStream.Length;
+
+                Thread.Sleep(ReplayDelay);
             }
 
             if (OpenLogFileStream.Position == OpenLogFileStream.Length)
@@ -643,6 +654,12 @@ namespace UAVXGS
                 DoingLogfileReplay = false;
                 CloseReplayLogFile();
             }
+             //this.Invoke(new EventHandler(NowCloseReplay)); //now close back in the main thread
+        }
+
+        private void NowCloseReplay(object sender, EventArgs e)
+        {
+            this.Close(); 
         }
 
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
@@ -802,6 +819,9 @@ namespace UAVXGS
                 {
                     PacketReceived = false;
 
+                    if ( DoingLogfileReplay )
+                        ReplayProgressBar.Value = (int)ReplayProgress; 
+
                     AttitudeToDegrees = Convert.ToByte(UserAttitudeToDegrees.Text);
 
                     switch ( RxPacketTag ) {
@@ -832,6 +852,9 @@ namespace UAVXGS
                             MaxTempT = ExtractShort(ref UAVXPacket, 38);
 
                             BadT = ExtractShort(ref UAVXPacket, 40);
+                            AirframeT = ExtractByte(ref UAVXPacket, 42);
+                            OrientT = ExtractByte(ref UAVXPacket, 43);
+                            BadNumT = ExtractShort(ref UAVXPacket, 44);
 
                             I2CFailS.Text = string.Format("{0:n0}", I2CFailsT);
                             GPSFailS.Text = string.Format("{0:n0}", GPSFailsT);
@@ -856,8 +879,19 @@ namespace UAVXGS
                             MaxTempS.Text = string.Format("{0:n1}", (float)MaxTempT*0.1);
 
                             BadS.Text = string.Format("{0:n0}", BadT);
-                            
-                            // 2 unused 16bit stat
+
+                            switch (AirframeT)
+                            {
+                                case 0: Airframe.Text = "Quadrocopter"; break;
+                                case 1: Airframe.Text = "Tricopter"; break;
+                                case 2: Airframe.Text = "Hexacopter"; break;
+                                case 3: Airframe.Text = "Helicopter"; break;
+                                case 4: Airframe.Text = "Flying Wing"; break;
+                                case 5: Airframe.Text = "Conventional"; break;
+                            }
+   
+                           // OrientT 
+                           // BadNumT 
                      
                             break;
                     case UAVXFlightPacketTag:
@@ -990,10 +1024,21 @@ namespace UAVXGS
                         else
                             UsingRangefinderBox.BackColor = FlagsGroupBox.BackColor;
 
-                        if ((Flags[5] & 0x80) != 0)
+                        if ((Flags[3] & 0x10) != 0)
                             SimulationTextBox.Text = "Simulation";
                         else
                             SimulationTextBox.Text = " ";
+
+                        if ((Flags[3] & 0x02) != 0)
+                            PHLockEnBox.BackColor = System.Drawing.Color.Green;
+                        else
+                            PHLockEnBox.BackColor = FlagsGroupBox.BackColor;
+
+                        if ((Flags[3] & 0x04) != 0)
+                            FocusLockedBox.BackColor = System.Drawing.Color.Green;
+                        else
+                            FocusLockedBox.BackColor = System.Drawing.Color.LightSteelBlue;
+
     
                         StateT = ExtractByte(ref UAVXPacket, 8);
                         switch ( StateT ){
@@ -1348,9 +1393,18 @@ namespace UAVXGS
             ((Flags[2] & 0x10) >> 4) + "," + //UsingRTHAutoDescend
             ((Flags[2] & 0x20) >> 5) + "," + //BaroAltitudeValid
             ((Flags[2] & 0x40) >> 6) + "," + //RangefinderAltitudeValid
-            ((Flags[2] & 0x80) >> 7) + ","); //UsingRangefinderAlt
+            ((Flags[2] & 0x80) >> 7) + "," + //UsingRangefinderAlt
 
-            for (i = 3; i < NoOfFlagBytes; i++)
+            (Flags[3] & 0x01)+ ","   + // AllowNavAltitudeHold
+            ((Flags[3] & 0x02) >> 1) + "," + // UsingPositionHoldLock
+            ((Flags[3] & 0x04) >> 2) + "," + // LockHoldPosition
+            ((Flags[3] & 0x08) >> 3) + "," + // Simulation
+            ((Flags[3] & 0x10) >> 4) + "," + // AcquireNewPosition
+            ((Flags[3] & 0x20) >> 5) + "," + // MotorsArmed
+            ((Flags[3] & 0x40) >> 6) + "," + //
+            ((Flags[3] & 0x80) >> 7) + ","); //
+
+            for (i = 4; i < NoOfFlagBytes; i++)
                 SaveTextLogFileStreamWriter.Write(Flags[i] + ",");
 
             SaveTextLogFileStreamWriter.Write(StateT + "," +
@@ -1431,8 +1485,9 @@ namespace UAVXGS
             MaxTempT + "," +
 
             BadT + "," +
-            Unused1T + "," +
-            Unused2T);
+            AirframeT + "," +
+            OrientT + "," +
+            BadNumT);
 
         } 
 
@@ -1512,6 +1567,14 @@ namespace UAVXGS
             // conversion max is 21Km
             return (c * 0.018553257183);
         }
+
+        private void ReplayNumericUpDown_Changed(object sender, EventArgs e)
+        {
+            ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
+        }
+
+      
+       
     
     }
 }

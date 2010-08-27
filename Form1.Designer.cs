@@ -90,6 +90,9 @@ namespace UAVXGS
             this.GyroGroupBox = new System.Windows.Forms.GroupBox();
             this.ControlsGroupBox = new System.Windows.Forms.GroupBox();
             this.AttitudeGroupBox = new System.Windows.Forms.GroupBox();
+            this.YawLabel = new System.Windows.Forms.Label();
+            this.PitchLabel = new System.Windows.Forms.Label();
+            this.RollLabel = new System.Windows.Forms.Label();
             this.UserAttitudeToDegreesLabel = new System.Windows.Forms.Label();
             this.UserAttitudeToDegrees = new System.Windows.Forms.TextBox();
             this.AccelerationsGroupBox = new System.Windows.Forms.GroupBox();
@@ -106,6 +109,7 @@ namespace UAVXGS
             this.UsingGPSAltBox = new System.Windows.Forms.TextBox();
             this.AltHoldBox = new System.Windows.Forms.TextBox();
             this.TurnToWPBox = new System.Windows.Forms.TextBox();
+            this.PHLockEnBox = new System.Windows.Forms.TextBox();
             this.UseRTHAutoDescendBox = new System.Windows.Forms.TextBox();
             this.BaroAltValidBox = new System.Windows.Forms.TextBox();
             this.RangefinderAltValidBox = new System.Windows.Forms.TextBox();
@@ -116,6 +120,7 @@ namespace UAVXGS
             this.HoldingAltBox = new System.Windows.Forms.TextBox();
             this.AttitudeHoldBox = new System.Windows.Forms.TextBox();
             this.NearLevelBox = new System.Windows.Forms.TextBox();
+            this.FocusLockedBox = new System.Windows.Forms.TextBox();
             this.NavigateBox = new System.Windows.Forms.TextBox();
             this.ReturnHomeBox = new System.Windows.Forms.TextBox();
             this.UsingRangefinderBox = new System.Windows.Forms.TextBox();
@@ -231,11 +236,10 @@ namespace UAVXGS
             this.COMBaudRateComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.ReplayButton = new System.Windows.Forms.Button();
             this.ReplayProgressBar = new System.Windows.Forms.ProgressBar();
+            this.Airframe = new System.Windows.Forms.TextBox();
+            this.ReplayNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
-            this.RollLabel = new System.Windows.Forms.Label();
-            this.PitchLabel = new System.Windows.Forms.Label();
-            this.YawLabel = new System.Windows.Forms.Label();
             this.GyroGroupBox.SuspendLayout();
             this.ControlsGroupBox.SuspendLayout();
             this.AttitudeGroupBox.SuspendLayout();
@@ -256,6 +260,7 @@ namespace UAVXGS
             this.ErrorStatsGroupBox.SuspendLayout();
             this.GPSStatsGroupBox.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReplayNumericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // FlyingButton
@@ -826,6 +831,33 @@ namespace UAVXGS
             this.AttitudeGroupBox.TabStop = false;
             this.AttitudeGroupBox.Text = "Attitude";
             // 
+            // YawLabel
+            // 
+            this.YawLabel.AutoSize = true;
+            this.YawLabel.Location = new System.Drawing.Point(6, 101);
+            this.YawLabel.Name = "YawLabel";
+            this.YawLabel.Size = new System.Drawing.Size(28, 13);
+            this.YawLabel.TabIndex = 109;
+            this.YawLabel.Text = "Yaw";
+            // 
+            // PitchLabel
+            // 
+            this.PitchLabel.AutoSize = true;
+            this.PitchLabel.Location = new System.Drawing.Point(6, 75);
+            this.PitchLabel.Name = "PitchLabel";
+            this.PitchLabel.Size = new System.Drawing.Size(31, 13);
+            this.PitchLabel.TabIndex = 108;
+            this.PitchLabel.Text = "Pitch";
+            // 
+            // RollLabel
+            // 
+            this.RollLabel.AutoSize = true;
+            this.RollLabel.Location = new System.Drawing.Point(6, 49);
+            this.RollLabel.Name = "RollLabel";
+            this.RollLabel.Size = new System.Drawing.Size(25, 13);
+            this.RollLabel.TabIndex = 107;
+            this.RollLabel.Text = "Roll";
+            // 
             // UserAttitudeToDegreesLabel
             // 
             this.UserAttitudeToDegreesLabel.AutoSize = true;
@@ -963,6 +995,7 @@ namespace UAVXGS
             this.flowLayoutPanel1.Controls.Add(this.UsingGPSAltBox);
             this.flowLayoutPanel1.Controls.Add(this.AltHoldBox);
             this.flowLayoutPanel1.Controls.Add(this.TurnToWPBox);
+            this.flowLayoutPanel1.Controls.Add(this.PHLockEnBox);
             this.flowLayoutPanel1.Controls.Add(this.UseRTHAutoDescendBox);
             this.flowLayoutPanel1.Controls.Add(this.BaroAltValidBox);
             this.flowLayoutPanel1.Controls.Add(this.RangefinderAltValidBox);
@@ -973,6 +1006,7 @@ namespace UAVXGS
             this.flowLayoutPanel1.Controls.Add(this.HoldingAltBox);
             this.flowLayoutPanel1.Controls.Add(this.AttitudeHoldBox);
             this.flowLayoutPanel1.Controls.Add(this.NearLevelBox);
+            this.flowLayoutPanel1.Controls.Add(this.FocusLockedBox);
             this.flowLayoutPanel1.Controls.Add(this.NavigateBox);
             this.flowLayoutPanel1.Controls.Add(this.ReturnHomeBox);
             this.flowLayoutPanel1.Controls.Add(this.UsingRangefinderBox);
@@ -986,7 +1020,7 @@ namespace UAVXGS
             this.flowLayoutPanel1.Controls.Add(this.GPSFailBox);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(6, 19);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(237, 317);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(237, 366);
             this.flowLayoutPanel1.TabIndex = 99;
             // 
             // UsingGPSAltBox
@@ -1020,13 +1054,24 @@ namespace UAVXGS
             this.TurnToWPBox.ReadOnly = true;
             this.TurnToWPBox.Size = new System.Drawing.Size(109, 20);
             this.TurnToWPBox.TabIndex = 101;
-            this.TurnToWPBox.Text = "Using Turn to WP";
+            this.TurnToWPBox.Text = "Using Turn to Pos.";
             this.TurnToWPBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // PHLockEnBox
+            // 
+            this.PHLockEnBox.BackColor = System.Drawing.SystemColors.Window;
+            this.PHLockEnBox.Location = new System.Drawing.Point(118, 29);
+            this.PHLockEnBox.Name = "PHLockEnBox";
+            this.PHLockEnBox.ReadOnly = true;
+            this.PHLockEnBox.Size = new System.Drawing.Size(109, 20);
+            this.PHLockEnBox.TabIndex = 124;
+            this.PHLockEnBox.Text = "Pt. of Focus Enabled";
+            this.PHLockEnBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // UseRTHAutoDescendBox
             // 
             this.UseRTHAutoDescendBox.BackColor = System.Drawing.SystemColors.Window;
-            this.UseRTHAutoDescendBox.Location = new System.Drawing.Point(118, 29);
+            this.UseRTHAutoDescendBox.Location = new System.Drawing.Point(3, 55);
             this.UseRTHAutoDescendBox.Name = "UseRTHAutoDescendBox";
             this.UseRTHAutoDescendBox.ReadOnly = true;
             this.UseRTHAutoDescendBox.Size = new System.Drawing.Size(109, 20);
@@ -1037,7 +1082,7 @@ namespace UAVXGS
             // BaroAltValidBox
             // 
             this.BaroAltValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.BaroAltValidBox.Location = new System.Drawing.Point(3, 55);
+            this.BaroAltValidBox.Location = new System.Drawing.Point(118, 55);
             this.BaroAltValidBox.Name = "BaroAltValidBox";
             this.BaroAltValidBox.ReadOnly = true;
             this.BaroAltValidBox.Size = new System.Drawing.Size(109, 20);
@@ -1048,7 +1093,7 @@ namespace UAVXGS
             // RangefinderAltValidBox
             // 
             this.RangefinderAltValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.RangefinderAltValidBox.Location = new System.Drawing.Point(118, 55);
+            this.RangefinderAltValidBox.Location = new System.Drawing.Point(3, 81);
             this.RangefinderAltValidBox.Name = "RangefinderAltValidBox";
             this.RangefinderAltValidBox.ReadOnly = true;
             this.RangefinderAltValidBox.Size = new System.Drawing.Size(109, 20);
@@ -1059,7 +1104,7 @@ namespace UAVXGS
             // GPSValidBox
             // 
             this.GPSValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.GPSValidBox.Location = new System.Drawing.Point(3, 81);
+            this.GPSValidBox.Location = new System.Drawing.Point(118, 81);
             this.GPSValidBox.Name = "GPSValidBox";
             this.GPSValidBox.ReadOnly = true;
             this.GPSValidBox.Size = new System.Drawing.Size(109, 20);
@@ -1070,7 +1115,7 @@ namespace UAVXGS
             // NavValidBox
             // 
             this.NavValidBox.BackColor = System.Drawing.SystemColors.Window;
-            this.NavValidBox.Location = new System.Drawing.Point(118, 81);
+            this.NavValidBox.Location = new System.Drawing.Point(3, 107);
             this.NavValidBox.Name = "NavValidBox";
             this.NavValidBox.ReadOnly = true;
             this.NavValidBox.Size = new System.Drawing.Size(109, 20);
@@ -1081,7 +1126,7 @@ namespace UAVXGS
             // LowBatteryBox
             // 
             this.LowBatteryBox.BackColor = System.Drawing.SystemColors.Window;
-            this.LowBatteryBox.Location = new System.Drawing.Point(3, 107);
+            this.LowBatteryBox.Location = new System.Drawing.Point(118, 107);
             this.LowBatteryBox.Name = "LowBatteryBox";
             this.LowBatteryBox.ReadOnly = true;
             this.LowBatteryBox.Size = new System.Drawing.Size(109, 20);
@@ -1092,7 +1137,7 @@ namespace UAVXGS
             // ThrottleMovingBox
             // 
             this.ThrottleMovingBox.BackColor = System.Drawing.SystemColors.Window;
-            this.ThrottleMovingBox.Location = new System.Drawing.Point(118, 107);
+            this.ThrottleMovingBox.Location = new System.Drawing.Point(3, 133);
             this.ThrottleMovingBox.Name = "ThrottleMovingBox";
             this.ThrottleMovingBox.ReadOnly = true;
             this.ThrottleMovingBox.Size = new System.Drawing.Size(109, 20);
@@ -1103,7 +1148,7 @@ namespace UAVXGS
             // HoldingAltBox
             // 
             this.HoldingAltBox.BackColor = System.Drawing.SystemColors.Window;
-            this.HoldingAltBox.Location = new System.Drawing.Point(3, 133);
+            this.HoldingAltBox.Location = new System.Drawing.Point(118, 133);
             this.HoldingAltBox.Name = "HoldingAltBox";
             this.HoldingAltBox.ReadOnly = true;
             this.HoldingAltBox.Size = new System.Drawing.Size(109, 20);
@@ -1114,7 +1159,7 @@ namespace UAVXGS
             // AttitudeHoldBox
             // 
             this.AttitudeHoldBox.BackColor = System.Drawing.SystemColors.Window;
-            this.AttitudeHoldBox.Location = new System.Drawing.Point(118, 133);
+            this.AttitudeHoldBox.Location = new System.Drawing.Point(3, 159);
             this.AttitudeHoldBox.Name = "AttitudeHoldBox";
             this.AttitudeHoldBox.ReadOnly = true;
             this.AttitudeHoldBox.Size = new System.Drawing.Size(109, 20);
@@ -1125,7 +1170,7 @@ namespace UAVXGS
             // NearLevelBox
             // 
             this.NearLevelBox.BackColor = System.Drawing.SystemColors.Window;
-            this.NearLevelBox.Location = new System.Drawing.Point(3, 159);
+            this.NearLevelBox.Location = new System.Drawing.Point(118, 159);
             this.NearLevelBox.Name = "NearLevelBox";
             this.NearLevelBox.ReadOnly = true;
             this.NearLevelBox.Size = new System.Drawing.Size(109, 20);
@@ -1133,10 +1178,21 @@ namespace UAVXGS
             this.NearLevelBox.Text = "Near Level";
             this.NearLevelBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // FocusLockedBox
+            // 
+            this.FocusLockedBox.BackColor = System.Drawing.SystemColors.Window;
+            this.FocusLockedBox.Location = new System.Drawing.Point(3, 185);
+            this.FocusLockedBox.Name = "FocusLockedBox";
+            this.FocusLockedBox.ReadOnly = true;
+            this.FocusLockedBox.Size = new System.Drawing.Size(109, 20);
+            this.FocusLockedBox.TabIndex = 125;
+            this.FocusLockedBox.Text = "Focus Locked";
+            this.FocusLockedBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // NavigateBox
             // 
             this.NavigateBox.BackColor = System.Drawing.SystemColors.Window;
-            this.NavigateBox.Location = new System.Drawing.Point(118, 159);
+            this.NavigateBox.Location = new System.Drawing.Point(118, 185);
             this.NavigateBox.Name = "NavigateBox";
             this.NavigateBox.ReadOnly = true;
             this.NavigateBox.Size = new System.Drawing.Size(109, 20);
@@ -1147,7 +1203,7 @@ namespace UAVXGS
             // ReturnHomeBox
             // 
             this.ReturnHomeBox.BackColor = System.Drawing.SystemColors.Window;
-            this.ReturnHomeBox.Location = new System.Drawing.Point(3, 185);
+            this.ReturnHomeBox.Location = new System.Drawing.Point(3, 211);
             this.ReturnHomeBox.Name = "ReturnHomeBox";
             this.ReturnHomeBox.ReadOnly = true;
             this.ReturnHomeBox.Size = new System.Drawing.Size(109, 20);
@@ -1158,7 +1214,7 @@ namespace UAVXGS
             // UsingRangefinderBox
             // 
             this.UsingRangefinderBox.BackColor = System.Drawing.SystemColors.Window;
-            this.UsingRangefinderBox.Location = new System.Drawing.Point(118, 185);
+            this.UsingRangefinderBox.Location = new System.Drawing.Point(118, 211);
             this.UsingRangefinderBox.Name = "UsingRangefinderBox";
             this.UsingRangefinderBox.ReadOnly = true;
             this.UsingRangefinderBox.Size = new System.Drawing.Size(109, 20);
@@ -1169,7 +1225,7 @@ namespace UAVXGS
             // CloseProximityBox
             // 
             this.CloseProximityBox.BackColor = System.Drawing.SystemColors.Window;
-            this.CloseProximityBox.Location = new System.Drawing.Point(3, 211);
+            this.CloseProximityBox.Location = new System.Drawing.Point(3, 237);
             this.CloseProximityBox.Name = "CloseProximityBox";
             this.CloseProximityBox.ReadOnly = true;
             this.CloseProximityBox.Size = new System.Drawing.Size(109, 20);
@@ -1180,7 +1236,7 @@ namespace UAVXGS
             // ProximityBox
             // 
             this.ProximityBox.BackColor = System.Drawing.SystemColors.Window;
-            this.ProximityBox.Location = new System.Drawing.Point(118, 211);
+            this.ProximityBox.Location = new System.Drawing.Point(118, 237);
             this.ProximityBox.Name = "ProximityBox";
             this.ProximityBox.ReadOnly = true;
             this.ProximityBox.Size = new System.Drawing.Size(109, 20);
@@ -1191,7 +1247,7 @@ namespace UAVXGS
             // LostModelBox
             // 
             this.LostModelBox.BackColor = System.Drawing.SystemColors.Window;
-            this.LostModelBox.Location = new System.Drawing.Point(3, 237);
+            this.LostModelBox.Location = new System.Drawing.Point(3, 263);
             this.LostModelBox.Name = "LostModelBox";
             this.LostModelBox.ReadOnly = true;
             this.LostModelBox.Size = new System.Drawing.Size(109, 20);
@@ -1202,7 +1258,7 @@ namespace UAVXGS
             // CompassFailBox
             // 
             this.CompassFailBox.BackColor = System.Drawing.SystemColors.Window;
-            this.CompassFailBox.Location = new System.Drawing.Point(118, 237);
+            this.CompassFailBox.Location = new System.Drawing.Point(118, 263);
             this.CompassFailBox.Name = "CompassFailBox";
             this.CompassFailBox.ReadOnly = true;
             this.CompassFailBox.Size = new System.Drawing.Size(109, 20);
@@ -1213,7 +1269,7 @@ namespace UAVXGS
             // GyroFailureBox
             // 
             this.GyroFailureBox.BackColor = System.Drawing.SystemColors.Window;
-            this.GyroFailureBox.Location = new System.Drawing.Point(3, 263);
+            this.GyroFailureBox.Location = new System.Drawing.Point(3, 289);
             this.GyroFailureBox.Name = "GyroFailureBox";
             this.GyroFailureBox.ReadOnly = true;
             this.GyroFailureBox.Size = new System.Drawing.Size(109, 20);
@@ -1224,7 +1280,7 @@ namespace UAVXGS
             // BaroFailBox
             // 
             this.BaroFailBox.BackColor = System.Drawing.SystemColors.Window;
-            this.BaroFailBox.Location = new System.Drawing.Point(118, 263);
+            this.BaroFailBox.Location = new System.Drawing.Point(118, 289);
             this.BaroFailBox.Name = "BaroFailBox";
             this.BaroFailBox.ReadOnly = true;
             this.BaroFailBox.Size = new System.Drawing.Size(109, 20);
@@ -1235,7 +1291,7 @@ namespace UAVXGS
             // AccFailBox
             // 
             this.AccFailBox.BackColor = System.Drawing.SystemColors.Window;
-            this.AccFailBox.Location = new System.Drawing.Point(3, 289);
+            this.AccFailBox.Location = new System.Drawing.Point(3, 315);
             this.AccFailBox.Name = "AccFailBox";
             this.AccFailBox.ReadOnly = true;
             this.AccFailBox.Size = new System.Drawing.Size(109, 20);
@@ -1246,7 +1302,7 @@ namespace UAVXGS
             // GPSFailBox
             // 
             this.GPSFailBox.BackColor = System.Drawing.SystemColors.Window;
-            this.GPSFailBox.Location = new System.Drawing.Point(118, 289);
+            this.GPSFailBox.Location = new System.Drawing.Point(118, 315);
             this.GPSFailBox.Name = "GPSFailBox";
             this.GPSFailBox.ReadOnly = true;
             this.GPSFailBox.Size = new System.Drawing.Size(109, 20);
@@ -1259,7 +1315,7 @@ namespace UAVXGS
             this.FlagsGroupBox.Controls.Add(this.flowLayoutPanel1);
             this.FlagsGroupBox.Location = new System.Drawing.Point(587, 104);
             this.FlagsGroupBox.Name = "FlagsGroupBox";
-            this.FlagsGroupBox.Size = new System.Drawing.Size(249, 342);
+            this.FlagsGroupBox.Size = new System.Drawing.Size(249, 391);
             this.FlagsGroupBox.TabIndex = 100;
             this.FlagsGroupBox.TabStop = false;
             this.FlagsGroupBox.Text = "Flags";
@@ -1554,10 +1610,10 @@ namespace UAVXGS
             // 
             // MessageTextBox
             // 
-            this.MessageTextBox.Location = new System.Drawing.Point(587, 493);
+            this.MessageTextBox.Location = new System.Drawing.Point(587, 549);
             this.MessageTextBox.Multiline = true;
             this.MessageTextBox.Name = "MessageTextBox";
-            this.MessageTextBox.Size = new System.Drawing.Size(249, 133);
+            this.MessageTextBox.Size = new System.Drawing.Size(249, 77);
             this.MessageTextBox.TabIndex = 110;
             // 
             // LocationBox
@@ -1722,6 +1778,7 @@ namespace UAVXGS
             this.SimulationTextBox.ReadOnly = true;
             this.SimulationTextBox.Size = new System.Drawing.Size(121, 13);
             this.SimulationTextBox.TabIndex = 154;
+            this.SimulationTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // BaroCalibrationGroupBox
             // 
@@ -1789,7 +1846,7 @@ namespace UAVXGS
             this.OutputGroupBox.Controls.Add(this.OutputT2);
             this.OutputGroupBox.Controls.Add(this.OutputT1);
             this.OutputGroupBox.Controls.Add(this.OutputT0);
-            this.OutputGroupBox.Location = new System.Drawing.Point(587, 446);
+            this.OutputGroupBox.Location = new System.Drawing.Point(587, 501);
             this.OutputGroupBox.Name = "OutputGroupBox";
             this.OutputGroupBox.Size = new System.Drawing.Size(249, 41);
             this.OutputGroupBox.TabIndex = 156;
@@ -2292,6 +2349,37 @@ namespace UAVXGS
             this.ReplayProgressBar.Size = new System.Drawing.Size(130, 23);
             this.ReplayProgressBar.TabIndex = 165;
             // 
+            // Airframe
+            // 
+            this.Airframe.BackColor = System.Drawing.SystemColors.Control;
+            this.Airframe.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Airframe.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Airframe.Location = new System.Drawing.Point(596, 82);
+            this.Airframe.Name = "Airframe";
+            this.Airframe.Size = new System.Drawing.Size(100, 13);
+            this.Airframe.TabIndex = 166;
+            this.Airframe.Text = "Quadrocopter";
+            this.Airframe.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // ReplayNumericUpDown
+            // 
+            this.ReplayNumericUpDown.Location = new System.Drawing.Point(380, 3);
+            this.ReplayNumericUpDown.Maximum = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            this.ReplayNumericUpDown.Name = "ReplayNumericUpDown";
+            this.ReplayNumericUpDown.Size = new System.Drawing.Size(41, 20);
+            this.ReplayNumericUpDown.TabIndex = 167;
+            this.ReplayNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ReplayNumericUpDown.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.ReplayNumericUpDown.ValueChanged += new System.EventHandler(this.ReplayNumericUpDown_Changed);
+            // 
             // headingIndicatorInstrumentControl1
             // 
             this.headingIndicatorInstrumentControl1.Location = new System.Drawing.Point(369, 368);
@@ -2308,38 +2396,13 @@ namespace UAVXGS
             this.attitudeIndicatorInstrumentControl1.TabIndex = 3;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
             // 
-            // RollLabel
-            // 
-            this.RollLabel.AutoSize = true;
-            this.RollLabel.Location = new System.Drawing.Point(6, 49);
-            this.RollLabel.Name = "RollLabel";
-            this.RollLabel.Size = new System.Drawing.Size(25, 13);
-            this.RollLabel.TabIndex = 107;
-            this.RollLabel.Text = "Roll";
-            // 
-            // PitchLabel
-            // 
-            this.PitchLabel.AutoSize = true;
-            this.PitchLabel.Location = new System.Drawing.Point(6, 75);
-            this.PitchLabel.Name = "PitchLabel";
-            this.PitchLabel.Size = new System.Drawing.Size(31, 13);
-            this.PitchLabel.TabIndex = 108;
-            this.PitchLabel.Text = "Pitch";
-            // 
-            // YawLabel
-            // 
-            this.YawLabel.AutoSize = true;
-            this.YawLabel.Location = new System.Drawing.Point(6, 101);
-            this.YawLabel.Name = "YawLabel";
-            this.YawLabel.Size = new System.Drawing.Size(28, 13);
-            this.YawLabel.TabIndex = 109;
-            this.YawLabel.Text = "Yaw";
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(848, 633);
+            this.Controls.Add(this.ReplayNumericUpDown);
+            this.Controls.Add(this.Airframe);
             this.Controls.Add(this.ReplayProgressBar);
             this.Controls.Add(this.ReplayButton);
             this.Controls.Add(this.MissionTimeSec);
@@ -2420,6 +2483,7 @@ namespace UAVXGS
             this.GPSStatsGroupBox.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReplayNumericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2629,10 +2693,14 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox WhereDistance;
         private System.Windows.Forms.TextBox WhereBearing;
         private System.Windows.Forms.Button ReplayButton;
-        private System.Windows.Forms.ProgressBar ReplayProgressBar;
+        public System.Windows.Forms.ProgressBar ReplayProgressBar;
         private System.Windows.Forms.Label YawLabel;
         private System.Windows.Forms.Label PitchLabel;
         private System.Windows.Forms.Label RollLabel;
+        private System.Windows.Forms.TextBox PHLockEnBox;
+        private System.Windows.Forms.TextBox FocusLockedBox;
+        private System.Windows.Forms.TextBox Airframe;
+        private System.Windows.Forms.NumericUpDown ReplayNumericUpDown;
     }
 }
 
