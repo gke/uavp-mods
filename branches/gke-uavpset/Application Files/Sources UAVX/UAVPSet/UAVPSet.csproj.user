@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <PublishUrlHistory>C:\Program Files\UAVPSet 4.07 UAVX\|C:\Program Files\UAVPSet 4.06 UAVX\|C:\Program Files\UAVPSet 4.05 UAVX\|C:\Program Files\UAVPSet UAVX 4.05\|C:\Program Files\UAVPSet UAVX\</PublishUrlHistory>
+    <PublishUrlHistory>C:\Program Files\UAVPSet 4.09 UAVX\|C:\Program Files\UAVPSet 4.08 UAVX\|C:\Program Files\UAVPSet 4.07 UAVX\|C:\Program Files\UAVPSet 4.06 UAVX\|C:\Program Files\UAVPSet 4.05 UAVX\</PublishUrlHistory>
     <InstallUrlHistory>
     </InstallUrlHistory>
     <SupportUrlHistory>http://www.uavp.de</SupportUrlHistory>

@@ -2,15 +2,8 @@
 {
     partial class FormMain
     {
-        /// <summary>
-        /// Erforderliche Designervariable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+          private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Verwendete Ressourcen bereinigen.
-        /// </summary>
-        /// <param name="disposing">True, wenn verwaltete Ressourcen gelöscht werden sollen; andernfalls False.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -40,6 +33,12 @@
             this.logTextBox = new System.Windows.Forms.TextBox();
             this.tabControlParameter = new System.Windows.Forms.TabControl();
             this.tabPageParameterSet1 = new System.Windows.Forms.TabPage();
+            this.BatteryBox = new System.Windows.Forms.GroupBox();
+            this.BatteryCapacity1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.BatteryValue1Label = new System.Windows.Forms.Label();
+            this.Battery1Label = new System.Windows.Forms.Label();
+            this.Battery1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.BatteryCapacity1Label = new System.Windows.Forms.Label();
             this.groupBoxAltitude1 = new System.Windows.Forms.GroupBox();
             this.DescentRate1Label = new System.Windows.Forms.Label();
             this.DescentRate1NumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -55,17 +54,14 @@
             this.labelNavRTHAlt1 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.General1GroupBox = new System.Windows.Forms.GroupBox();
+            this.Orientation1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.Orientation1Label = new System.Windows.Forms.Label();
             this.labelGyroYaw1 = new System.Windows.Forms.Label();
             this.GyroYawComboBox1 = new System.Windows.Forms.ComboBox();
-            this.BatteryCapacity1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.BatteryCapacity1Label = new System.Windows.Forms.Label();
             this.CompassOffset1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.Sense51Button = new System.Windows.Forms.Button();
             this.CompassOffset1Label = new System.Windows.Forms.Label();
             this.Sense41Button = new System.Windows.Forms.Button();
-            this.Battery1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.Battery1Label = new System.Windows.Forms.Label();
-            this.BatteryValue1Label = new System.Windows.Forms.Label();
             this.Sense21Button = new System.Windows.Forms.Button();
             this.Sense31Button = new System.Windows.Forms.Button();
             this.Sense11Button = new System.Windows.Forms.Button();
@@ -119,10 +115,6 @@
             this.NavRadius1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.labelNavRadius1 = new System.Windows.Forms.Label();
             this.linear1GroupBox = new System.Windows.Forms.GroupBox();
-            this.CompSteps1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.CompSteps1Label = new System.Windows.Forms.Label();
-            this.GravComp1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.GravComp1Label = new System.Windows.Forms.Label();
             this.HorizDampingDecay1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.HorizDampingDecay1Label = new System.Windows.Forms.Label();
             this.VertDampingDecay1NumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -237,6 +229,9 @@
             this.RollProp2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.RollProp2Label = new System.Windows.Forms.Label();
             this.CameraRoll2Label = new System.Windows.Forms.Label();
+            this.configToolStrip = new System.Windows.Forms.ToolStrip();
+            this.comPortToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
+            this.versionToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
@@ -244,10 +239,6 @@
             this.BurnPICToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
             this.set1Set2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.set2Set1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.configToolStrip = new System.Windows.Forms.ToolStrip();
-            this.comPortToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
-            this.versionToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.statusStripMainWindow = new System.Windows.Forms.StatusStrip();
             this.infoleisteToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
@@ -289,6 +280,9 @@
             this.tabPageLog.SuspendLayout();
             this.tabControlParameter.SuspendLayout();
             this.tabPageParameterSet1.SuspendLayout();
+            this.BatteryBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BatteryCapacity1NumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Battery1NumericUpDown)).BeginInit();
             this.groupBoxAltitude1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DescentRate1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltIntLimit1NumericUpDown)).BeginInit();
@@ -297,9 +291,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.AltInt1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavRTHAlt1NumericUpDown)).BeginInit();
             this.General1GroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.BatteryCapacity1NumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Orientation1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CompassOffset1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Battery1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DescDelay1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BaroScale1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.GPSGain1NumericUpDown)).BeginInit();
@@ -314,8 +307,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.NavNeutralRadius1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavRadius1NumericUpDown)).BeginInit();
             this.linear1GroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.CompSteps1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.GravComp1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.HorizDampingDecay1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.VertDampingDecay1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.HorizDamping1NumericUpDown)).BeginInit();
@@ -377,8 +368,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.RollDiff2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollInt2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollProp2NumericUpDown)).BeginInit();
-            this.toolStripMain.SuspendLayout();
             this.configToolStrip.SuspendLayout();
+            this.toolStripMain.SuspendLayout();
             this.statusStripMainWindow.SuspendLayout();
             this.menuStripMainWindow.SuspendLayout();
             this.SuspendLayout();
@@ -503,6 +494,7 @@
             // tabPageParameterSet1
             // 
             this.tabPageParameterSet1.BackColor = System.Drawing.Color.Wheat;
+            this.tabPageParameterSet1.Controls.Add(this.BatteryBox);
             this.tabPageParameterSet1.Controls.Add(this.groupBoxAltitude1);
             this.tabPageParameterSet1.Controls.Add(this.label6);
             this.tabPageParameterSet1.Controls.Add(this.General1GroupBox);
@@ -515,6 +507,68 @@
             resources.ApplyResources(this.tabPageParameterSet1, "tabPageParameterSet1");
             this.tabPageParameterSet1.Name = "tabPageParameterSet1";
             this.tabPageParameterSet1.UseVisualStyleBackColor = true;
+            // 
+            // BatteryBox
+            // 
+            this.BatteryBox.Controls.Add(this.BatteryCapacity1NumericUpDown);
+            this.BatteryBox.Controls.Add(this.BatteryValue1Label);
+            this.BatteryBox.Controls.Add(this.Battery1Label);
+            this.BatteryBox.Controls.Add(this.Battery1NumericUpDown);
+            this.BatteryBox.Controls.Add(this.BatteryCapacity1Label);
+            resources.ApplyResources(this.BatteryBox, "BatteryBox");
+            this.BatteryBox.Name = "BatteryBox";
+            this.BatteryBox.TabStop = false;
+            // 
+            // BatteryCapacity1NumericUpDown
+            // 
+            resources.ApplyResources(this.BatteryCapacity1NumericUpDown, "BatteryCapacity1NumericUpDown");
+            this.BatteryCapacity1NumericUpDown.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.BatteryCapacity1NumericUpDown.Name = "BatteryCapacity1NumericUpDown";
+            this.BatteryCapacity1NumericUpDown.Tag = "54";
+            this.BatteryCapacity1NumericUpDown.Value = new decimal(new int[] {
+            49,
+            0,
+            0,
+            0});
+            this.BatteryCapacity1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.BatteryCapacity1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.BatteryCapacity1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // BatteryValue1Label
+            // 
+            this.BatteryValue1Label.BackColor = System.Drawing.SystemColors.Window;
+            this.BatteryValue1Label.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            resources.ApplyResources(this.BatteryValue1Label, "BatteryValue1Label");
+            this.BatteryValue1Label.ForeColor = System.Drawing.Color.OrangeRed;
+            this.BatteryValue1Label.Name = "BatteryValue1Label";
+            // 
+            // Battery1Label
+            // 
+            resources.ApplyResources(this.Battery1Label, "Battery1Label");
+            this.Battery1Label.Name = "Battery1Label";
+            // 
+            // Battery1NumericUpDown
+            // 
+            resources.ApplyResources(this.Battery1NumericUpDown, "Battery1NumericUpDown");
+            this.Battery1NumericUpDown.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.Battery1NumericUpDown.Name = "Battery1NumericUpDown";
+            this.Battery1NumericUpDown.Tag = "18";
+            this.Battery1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.Battery1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.Battery1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // BatteryCapacity1Label
+            // 
+            resources.ApplyResources(this.BatteryCapacity1Label, "BatteryCapacity1Label");
+            this.BatteryCapacity1Label.Name = "BatteryCapacity1Label";
             // 
             // groupBoxAltitude1
             // 
@@ -665,17 +719,14 @@
             // 
             // General1GroupBox
             // 
+            this.General1GroupBox.Controls.Add(this.Orientation1NumericUpDown);
+            this.General1GroupBox.Controls.Add(this.Orientation1Label);
             this.General1GroupBox.Controls.Add(this.labelGyroYaw1);
             this.General1GroupBox.Controls.Add(this.GyroYawComboBox1);
-            this.General1GroupBox.Controls.Add(this.BatteryCapacity1NumericUpDown);
-            this.General1GroupBox.Controls.Add(this.BatteryCapacity1Label);
             this.General1GroupBox.Controls.Add(this.CompassOffset1NumericUpDown);
             this.General1GroupBox.Controls.Add(this.Sense51Button);
             this.General1GroupBox.Controls.Add(this.CompassOffset1Label);
             this.General1GroupBox.Controls.Add(this.Sense41Button);
-            this.General1GroupBox.Controls.Add(this.Battery1NumericUpDown);
-            this.General1GroupBox.Controls.Add(this.Battery1Label);
-            this.General1GroupBox.Controls.Add(this.BatteryValue1Label);
             this.General1GroupBox.Controls.Add(this.Sense21Button);
             this.General1GroupBox.Controls.Add(this.Sense31Button);
             this.General1GroupBox.Controls.Add(this.Sense11Button);
@@ -721,6 +772,26 @@
             this.General1GroupBox.Name = "General1GroupBox";
             this.General1GroupBox.TabStop = false;
             // 
+            // Orientation1NumericUpDown
+            // 
+            this.Orientation1NumericUpDown.AllowDrop = true;
+            resources.ApplyResources(this.Orientation1NumericUpDown, "Orientation1NumericUpDown");
+            this.Orientation1NumericUpDown.Maximum = new decimal(new int[] {
+            47,
+            0,
+            0,
+            0});
+            this.Orientation1NumericUpDown.Name = "Orientation1NumericUpDown";
+            this.Orientation1NumericUpDown.Tag = "57";
+            this.Orientation1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.Orientation1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.Orientation1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // Orientation1Label
+            // 
+            resources.ApplyResources(this.Orientation1Label, "Orientation1Label");
+            this.Orientation1Label.Name = "Orientation1Label";
+            // 
             // labelGyroYaw1
             // 
             resources.ApplyResources(this.labelGyroYaw1, "labelGyroYaw1");
@@ -741,30 +812,6 @@
             this.GyroYawComboBox1.Tag = "55";
             this.GyroYawComboBox1.SelectedIndexChanged += new System.EventHandler(this.GyroYawComboBox1_SelectedIndexChanged);
             this.GyroYawComboBox1.Enter += new System.EventHandler(this.infoGetFocus);
-            // 
-            // BatteryCapacity1NumericUpDown
-            // 
-            resources.ApplyResources(this.BatteryCapacity1NumericUpDown, "BatteryCapacity1NumericUpDown");
-            this.BatteryCapacity1NumericUpDown.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.BatteryCapacity1NumericUpDown.Name = "BatteryCapacity1NumericUpDown";
-            this.BatteryCapacity1NumericUpDown.Tag = "54";
-            this.BatteryCapacity1NumericUpDown.Value = new decimal(new int[] {
-            49,
-            0,
-            0,
-            0});
-            this.BatteryCapacity1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.BatteryCapacity1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.BatteryCapacity1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // BatteryCapacity1Label
-            // 
-            resources.ApplyResources(this.BatteryCapacity1Label, "BatteryCapacity1Label");
-            this.BatteryCapacity1Label.Name = "BatteryCapacity1Label";
             // 
             // CompassOffset1NumericUpDown
             // 
@@ -800,33 +847,6 @@
             this.Sense41Button.Name = "Sense41Button";
             this.Sense41Button.UseVisualStyleBackColor = false;
             this.Sense41Button.Click += new System.EventHandler(this.SenseButton4_Click);
-            // 
-            // Battery1NumericUpDown
-            // 
-            resources.ApplyResources(this.Battery1NumericUpDown, "Battery1NumericUpDown");
-            this.Battery1NumericUpDown.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.Battery1NumericUpDown.Name = "Battery1NumericUpDown";
-            this.Battery1NumericUpDown.Tag = "18";
-            this.Battery1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.Battery1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.Battery1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // Battery1Label
-            // 
-            resources.ApplyResources(this.Battery1Label, "Battery1Label");
-            this.Battery1Label.Name = "Battery1Label";
-            // 
-            // BatteryValue1Label
-            // 
-            this.BatteryValue1Label.BackColor = System.Drawing.SystemColors.Window;
-            this.BatteryValue1Label.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            resources.ApplyResources(this.BatteryValue1Label, "BatteryValue1Label");
-            this.BatteryValue1Label.ForeColor = System.Drawing.Color.OrangeRed;
-            this.BatteryValue1Label.Name = "BatteryValue1Label";
             // 
             // Sense21Button
             // 
@@ -1044,7 +1064,8 @@
             resources.GetString("TxRxComboBox1.Items9"),
             resources.GetString("TxRxComboBox1.Items10"),
             resources.GetString("TxRxComboBox1.Items11"),
-            resources.GetString("TxRxComboBox1.Items12")});
+            resources.GetString("TxRxComboBox1.Items12"),
+            resources.GetString("TxRxComboBox1.Items13")});
             this.TxRxComboBox1.Name = "TxRxComboBox1";
             this.TxRxComboBox1.Tag = "37";
             this.TxRxComboBox1.SelectedIndexChanged += new System.EventHandler(this.TxRxComboBox1_SelectedIndexChanged);
@@ -1356,10 +1377,6 @@
             // 
             // linear1GroupBox
             // 
-            this.linear1GroupBox.Controls.Add(this.CompSteps1NumericUpDown);
-            this.linear1GroupBox.Controls.Add(this.CompSteps1Label);
-            this.linear1GroupBox.Controls.Add(this.GravComp1NumericUpDown);
-            this.linear1GroupBox.Controls.Add(this.GravComp1Label);
             this.linear1GroupBox.Controls.Add(this.HorizDampingDecay1NumericUpDown);
             this.linear1GroupBox.Controls.Add(this.HorizDampingDecay1Label);
             this.linear1GroupBox.Controls.Add(this.VertDampingDecay1NumericUpDown);
@@ -1377,58 +1394,6 @@
             resources.ApplyResources(this.linear1GroupBox, "linear1GroupBox");
             this.linear1GroupBox.Name = "linear1GroupBox";
             this.linear1GroupBox.TabStop = false;
-            // 
-            // CompSteps1NumericUpDown
-            // 
-            this.CompSteps1NumericUpDown.BackColor = System.Drawing.SystemColors.Window;
-            resources.ApplyResources(this.CompSteps1NumericUpDown, "CompSteps1NumericUpDown");
-            this.CompSteps1NumericUpDown.Maximum = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
-            this.CompSteps1NumericUpDown.Name = "CompSteps1NumericUpDown";
-            this.CompSteps1NumericUpDown.Tag = "51";
-            this.CompSteps1NumericUpDown.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.CompSteps1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.CompSteps1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.CompSteps1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // CompSteps1Label
-            // 
-            resources.ApplyResources(this.CompSteps1Label, "CompSteps1Label");
-            this.CompSteps1Label.ForeColor = System.Drawing.Color.Firebrick;
-            this.CompSteps1Label.Name = "CompSteps1Label";
-            // 
-            // GravComp1NumericUpDown
-            // 
-            this.GravComp1NumericUpDown.BackColor = System.Drawing.SystemColors.Window;
-            resources.ApplyResources(this.GravComp1NumericUpDown, "GravComp1NumericUpDown");
-            this.GravComp1NumericUpDown.Maximum = new decimal(new int[] {
-            15,
-            0,
-            0,
-            0});
-            this.GravComp1NumericUpDown.Name = "GravComp1NumericUpDown";
-            this.GravComp1NumericUpDown.Tag = "50";
-            this.GravComp1NumericUpDown.Value = new decimal(new int[] {
-            11,
-            0,
-            0,
-            0});
-            this.GravComp1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.GravComp1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.GravComp1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // GravComp1Label
-            // 
-            resources.ApplyResources(this.GravComp1Label, "GravComp1Label");
-            this.GravComp1Label.ForeColor = System.Drawing.Color.Firebrick;
-            this.GravComp1Label.Name = "GravComp1Label";
             // 
             // HorizDampingDecay1NumericUpDown
             // 
@@ -2067,7 +2032,6 @@
             // 
             resources.ApplyResources(this.RollProp1Label, "RollProp1Label");
             this.RollProp1Label.Name = "RollProp1Label";
-            this.RollProp1Label.Click += new System.EventHandler(this.RollProp1Label_Click);
             // 
             // tabPageParameterSet2
             // 
@@ -2827,6 +2791,32 @@
             resources.ApplyResources(this.CameraRoll2Label, "CameraRoll2Label");
             this.CameraRoll2Label.Name = "CameraRoll2Label";
             // 
+            // configToolStrip
+            // 
+            resources.ApplyResources(this.configToolStrip, "configToolStrip");
+            this.configToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.comPortToolStripComboBox,
+            this.versionToolStripComboBox});
+            this.configToolStrip.Name = "configToolStrip";
+            // 
+            // comPortToolStripComboBox
+            // 
+            this.comPortToolStripComboBox.Name = "comPortToolStripComboBox";
+            resources.ApplyResources(this.comPortToolStripComboBox, "comPortToolStripComboBox");
+            this.comPortToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.comPortToolStripComboBox_SelectedIndexChanged);
+            // 
+            // versionToolStripComboBox
+            // 
+            this.versionToolStripComboBox.AutoCompleteCustomSource.AddRange(new string[] {
+            resources.GetString("versionToolStripComboBox.AutoCompleteCustomSource"),
+            resources.GetString("versionToolStripComboBox.AutoCompleteCustomSource1")});
+            this.versionToolStripComboBox.Items.AddRange(new object[] {
+            resources.GetString("versionToolStripComboBox.Items"),
+            resources.GetString("versionToolStripComboBox.Items1")});
+            this.versionToolStripComboBox.Name = "versionToolStripComboBox";
+            resources.ApplyResources(this.versionToolStripComboBox, "versionToolStripComboBox");
+            this.versionToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.versionToolStripComboBox_SelectedIndexChanged);
+            // 
             // toolStripMain
             // 
             resources.ApplyResources(this.toolStripMain, "toolStripMain");
@@ -2874,8 +2864,7 @@
             // 
             this.toolStripSplitButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripSplitButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.set1Set2ToolStripMenuItem,
-            this.set2Set1ToolStripMenuItem});
+            this.set1Set2ToolStripMenuItem});
             resources.ApplyResources(this.toolStripSplitButton1, "toolStripSplitButton1");
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
             // 
@@ -2884,38 +2873,6 @@
             this.set1Set2ToolStripMenuItem.Name = "set1Set2ToolStripMenuItem";
             resources.ApplyResources(this.set1Set2ToolStripMenuItem, "set1Set2ToolStripMenuItem");
             this.set1Set2ToolStripMenuItem.Click += new System.EventHandler(this.set1Set2ToolStripMenuItem_Click);
-            // 
-            // set2Set1ToolStripMenuItem
-            // 
-            this.set2Set1ToolStripMenuItem.Name = "set2Set1ToolStripMenuItem";
-            resources.ApplyResources(this.set2Set1ToolStripMenuItem, "set2Set1ToolStripMenuItem");
-            this.set2Set1ToolStripMenuItem.Click += new System.EventHandler(this.set2Set1ToolStripMenuItem_Click);
-            // 
-            // configToolStrip
-            // 
-            resources.ApplyResources(this.configToolStrip, "configToolStrip");
-            this.configToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.comPortToolStripComboBox,
-            this.versionToolStripComboBox});
-            this.configToolStrip.Name = "configToolStrip";
-            // 
-            // comPortToolStripComboBox
-            // 
-            this.comPortToolStripComboBox.Name = "comPortToolStripComboBox";
-            resources.ApplyResources(this.comPortToolStripComboBox, "comPortToolStripComboBox");
-            this.comPortToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.comPortToolStripComboBox_SelectedIndexChanged);
-            // 
-            // versionToolStripComboBox
-            // 
-            this.versionToolStripComboBox.AutoCompleteCustomSource.AddRange(new string[] {
-            resources.GetString("versionToolStripComboBox.AutoCompleteCustomSource"),
-            resources.GetString("versionToolStripComboBox.AutoCompleteCustomSource1")});
-            this.versionToolStripComboBox.Items.AddRange(new object[] {
-            resources.GetString("versionToolStripComboBox.Items"),
-            resources.GetString("versionToolStripComboBox.Items1")});
-            this.versionToolStripComboBox.Name = "versionToolStripComboBox";
-            resources.ApplyResources(this.versionToolStripComboBox, "versionToolStripComboBox");
-            this.versionToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.versionToolStripComboBox_SelectedIndexChanged);
             // 
             // statusStripMainWindow
             // 
@@ -3123,6 +3080,10 @@
             this.tabControlParameter.ResumeLayout(false);
             this.tabPageParameterSet1.ResumeLayout(false);
             this.tabPageParameterSet1.PerformLayout();
+            this.BatteryBox.ResumeLayout(false);
+            this.BatteryBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BatteryCapacity1NumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Battery1NumericUpDown)).EndInit();
             this.groupBoxAltitude1.ResumeLayout(false);
             this.groupBoxAltitude1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DescentRate1NumericUpDown)).EndInit();
@@ -3133,9 +3094,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.NavRTHAlt1NumericUpDown)).EndInit();
             this.General1GroupBox.ResumeLayout(false);
             this.General1GroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.BatteryCapacity1NumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Orientation1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CompassOffset1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Battery1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DescDelay1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.BaroScale1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.GPSGain1NumericUpDown)).EndInit();
@@ -3152,8 +3112,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.NavRadius1NumericUpDown)).EndInit();
             this.linear1GroupBox.ResumeLayout(false);
             this.linear1GroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.CompSteps1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.GravComp1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.HorizDampingDecay1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.VertDampingDecay1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.HorizDamping1NumericUpDown)).EndInit();
@@ -3224,10 +3182,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.RollDiff2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollInt2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollProp2NumericUpDown)).EndInit();
-            this.toolStripMain.ResumeLayout(false);
-            this.toolStripMain.PerformLayout();
             this.configToolStrip.ResumeLayout(false);
             this.configToolStrip.PerformLayout();
+            this.toolStripMain.ResumeLayout(false);
+            this.toolStripMain.PerformLayout();
             this.statusStripMainWindow.ResumeLayout(false);
             this.statusStripMainWindow.PerformLayout();
             this.menuStripMainWindow.ResumeLayout(false);
@@ -3285,7 +3243,6 @@
         private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
         private System.Windows.Forms.ToolStripMenuItem set1Set2ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem set2Set1ToolStripMenuItem;
 
         private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.ImageList imageList1;
@@ -3468,10 +3425,6 @@
         public System.Windows.Forms.NumericUpDown AltIntLimit1NumericUpDown;
         private System.Windows.Forms.Label AltIntLimit2Label;
         public System.Windows.Forms.NumericUpDown AltIntLimit2NumericUpDown;
-        public System.Windows.Forms.NumericUpDown GravComp1NumericUpDown;
-        private System.Windows.Forms.Label GravComp1Label;
-        public System.Windows.Forms.NumericUpDown CompSteps1NumericUpDown;
-        private System.Windows.Forms.Label CompSteps1Label;
         private System.Windows.Forms.Label PWMSenseLabel;
         public System.Windows.Forms.Button Sense01Button;
         public System.Windows.Forms.Button Sense21Button;
@@ -3490,6 +3443,9 @@
         private System.Windows.Forms.Label DescentRate2Label;
         public System.Windows.Forms.NumericUpDown DescentRate2NumericUpDown;
         private System.Windows.Forms.ToolStripComboBox versionToolStripComboBox;
+        public System.Windows.Forms.NumericUpDown Orientation1NumericUpDown;
+        private System.Windows.Forms.Label Orientation1Label;
+        private System.Windows.Forms.GroupBox BatteryBox;
 
     }
 }

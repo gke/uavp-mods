@@ -62,7 +62,7 @@ namespace UAVP.UAVPSet
             paritaetComboBox.Text = Properties.Settings.Default.parity; // parität
             stopBitsComboBox.Text = Properties.Settings.Default.stopBits; // stopbits
             flussComboBox.Text = Properties.Settings.Default.handshake; //flusssteuerung
-            languageComboBox.Text = Properties.Settings.Default.language; //sprachsteuerung
+
             autoDisCheckBox.Checked = Properties.Settings.Default.focus; //auto disconnect bei Focusverlust
         }
 
@@ -140,11 +140,6 @@ namespace UAVP.UAVPSet
         private void flussComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.handshake = flussComboBox.Text;
-        }
-
-        private void languageComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.language = languageComboBox.Text;
         }
 
         private void readSleepMaskedText_TextChanged(object sender, EventArgs e)

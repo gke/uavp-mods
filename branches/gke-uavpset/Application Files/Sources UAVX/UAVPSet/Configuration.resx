@@ -684,66 +684,6 @@
   <data name="&gt;&gt;ReadSleepLabel.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="languageComboBox.Items" xml:space="preserve">
-    <value>auto</value>
-  </data>
-  <data name="languageComboBox.Items1" xml:space="preserve">
-    <value>english</value>
-  </data>
-  <data name="languageComboBox.Items2" xml:space="preserve">
-    <value>german</value>
-  </data>
-  <data name="languageComboBox.Items3" xml:space="preserve">
-    <value>french</value>
-  </data>
-  <data name="languageComboBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>98, 121</value>
-  </data>
-  <data name="languageComboBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>98, 21</value>
-  </data>
-  <data name="languageComboBox.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;languageComboBox.Name" xml:space="preserve">
-    <value>languageComboBox</value>
-  </data>
-  <data name="&gt;&gt;languageComboBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;languageComboBox.Parent" xml:space="preserve">
-    <value>divTabPage</value>
-  </data>
-  <data name="&gt;&gt;languageComboBox.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="languageLabel.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="languageLabel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>5, 124</value>
-  </data>
-  <data name="languageLabel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>55, 13</value>
-  </data>
-  <data name="languageLabel.TabIndex" type="System.Int32, mscorlib">
-    <value>5</value>
-  </data>
-  <data name="languageLabel.Text" xml:space="preserve">
-    <value>Language</value>
-  </data>
-  <data name="&gt;&gt;languageLabel.Name" xml:space="preserve">
-    <value>languageLabel</value>
-  </data>
-  <data name="&gt;&gt;languageLabel.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;languageLabel.Parent" xml:space="preserve">
-    <value>divTabPage</value>
-  </data>
-  <data name="&gt;&gt;languageLabel.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
   <data name="AskBurnPICCheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -769,7 +709,7 @@
     <value>divTabPage</value>
   </data>
   <data name="&gt;&gt;AskBurnPICCheckBox.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>3</value>
   </data>
   <data name="writeSleepMaskedTextBox.Location" type="System.Drawing.Point, System.Drawing">
     <value>98, 40</value>
@@ -793,7 +733,7 @@
     <value>divTabPage</value>
   </data>
   <data name="&gt;&gt;writeSleepMaskedTextBox.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>4</value>
   </data>
   <data name="writeSleepLabel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -820,7 +760,7 @@
     <value>divTabPage</value>
   </data>
   <data name="&gt;&gt;writeSleepLabel.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>5</value>
   </data>
   <data name="splashCheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -847,7 +787,7 @@
     <value>divTabPage</value>
   </data>
   <data name="&gt;&gt;splashCheckBox.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>6</value>
   </data>
   <data name="divTabPage.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>

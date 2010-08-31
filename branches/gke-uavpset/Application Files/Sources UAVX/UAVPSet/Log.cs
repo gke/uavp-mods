@@ -28,15 +28,8 @@ using System.Reflection;
 
 namespace UAVP.UAVPSet
 {
-    /// <summary>
-    /// statische Klasse um Logmeldungen auszugeben
-    /// </summary>
-    static class Log
+     static class Log
     {
-
-        /// <summary>
-        /// neue Logdatei erstellen
-        /// </summary>
         public static void newLog(FormMain mainForm)
         {
             // Dateiname ermitteln
@@ -63,10 +56,6 @@ namespace UAVP.UAVPSet
             sw.Close();
         }
 
-        /// <summary>
-        /// Logausgabe wenn Haupt-Try auf Fehler läuft
-        /// </summary>
-        /// <param name="logtext"></param>
         public static void errorMain(string logtext)
         {
             // Dateiname ermitteln
@@ -93,13 +82,6 @@ namespace UAVP.UAVPSet
             sw.Close();
         }
 
-        
-        /// <summary>
-        /// Funtkion um Logtext zu schreiben
-        /// </summary>
-        /// <param name="mainForm"></param>
-        /// <param name="logtext"></param>
-        /// <param name="level"></param>
         public static void write(FormMain mainForm, string logtext, int level)
         {
 

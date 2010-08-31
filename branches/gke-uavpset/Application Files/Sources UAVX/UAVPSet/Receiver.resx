@@ -622,13 +622,13 @@
     <value>251, 9</value>
   </data>
   <data name="CamPitchTrimLabel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>48, 13</value>
+    <value>54, 13</value>
   </data>
   <data name="CamPitchTrimLabel.TabIndex" type="System.Int32, mscorlib">
     <value>19</value>
   </data>
   <data name="CamPitchTrimLabel.Text" xml:space="preserve">
-    <value>CamTrim</value>
+    <value>Cam/POF</value>
   </data>
   <data name="&gt;&gt;CamPitchTrimLabel.Name" xml:space="preserve">
     <value>CamPitchTrimLabel</value>

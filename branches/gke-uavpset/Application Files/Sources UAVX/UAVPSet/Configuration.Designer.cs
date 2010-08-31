@@ -50,8 +50,6 @@
             this.autoDisCheckBox = new System.Windows.Forms.CheckBox();
             this.readSleepMaskedText = new System.Windows.Forms.MaskedTextBox();
             this.ReadSleepLabel = new System.Windows.Forms.Label();
-            this.languageComboBox = new System.Windows.Forms.ComboBox();
-            this.languageLabel = new System.Windows.Forms.Label();
             this.AskBurnPICCheckBox = new System.Windows.Forms.CheckBox();
             this.writeSleepMaskedTextBox = new System.Windows.Forms.MaskedTextBox();
             this.writeSleepLabel = new System.Windows.Forms.Label();
@@ -219,8 +217,6 @@
             this.divTabPage.Controls.Add(this.autoDisCheckBox);
             this.divTabPage.Controls.Add(this.readSleepMaskedText);
             this.divTabPage.Controls.Add(this.ReadSleepLabel);
-            this.divTabPage.Controls.Add(this.languageComboBox);
-            this.divTabPage.Controls.Add(this.languageLabel);
             this.divTabPage.Controls.Add(this.AskBurnPICCheckBox);
             this.divTabPage.Controls.Add(this.writeSleepMaskedTextBox);
             this.divTabPage.Controls.Add(this.writeSleepLabel);
@@ -249,23 +245,6 @@
             // 
             resources.ApplyResources(this.ReadSleepLabel, "ReadSleepLabel");
             this.ReadSleepLabel.Name = "ReadSleepLabel";
-            // 
-            // languageComboBox
-            // 
-            this.languageComboBox.FormattingEnabled = true;
-            this.languageComboBox.Items.AddRange(new object[] {
-            resources.GetString("languageComboBox.Items"),
-            resources.GetString("languageComboBox.Items1"),
-            resources.GetString("languageComboBox.Items2"),
-            resources.GetString("languageComboBox.Items3")});
-            resources.ApplyResources(this.languageComboBox, "languageComboBox");
-            this.languageComboBox.Name = "languageComboBox";
-            this.languageComboBox.SelectedIndexChanged += new System.EventHandler(this.languageComboBox_SelectedIndexChanged);
-            // 
-            // languageLabel
-            // 
-            resources.ApplyResources(this.languageLabel, "languageLabel");
-            this.languageLabel.Name = "languageLabel";
             // 
             // AskBurnPICCheckBox
             // 
@@ -353,8 +332,6 @@
         private System.Windows.Forms.MaskedTextBox timeOutMaskedTextBox;
         private System.Windows.Forms.CheckBox AskBurnPICCheckBox;
         private System.Windows.Forms.Button okButton;
-        private System.Windows.Forms.ComboBox languageComboBox;
-        private System.Windows.Forms.Label languageLabel;
         private System.Windows.Forms.CheckBox autoDisCheckBox;
         private System.Windows.Forms.Label ReadSleepLabel;
         private System.Windows.Forms.MaskedTextBox readSleepMaskedText;

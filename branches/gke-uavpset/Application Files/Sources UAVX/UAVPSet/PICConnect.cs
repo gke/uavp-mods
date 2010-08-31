@@ -31,9 +31,7 @@ using UAVP.UAVPSet.Debug;
 
 namespace UAVP.UAVPSet
 {
-    /// <summary>
-    /// Klasse die die gesamte Kommunikation mit dem PIC abbildet 
-    /// </summary>
+
     public class PICConnect
     {
         public PICConnect()
@@ -43,17 +41,10 @@ namespace UAVP.UAVPSet
             errorLabels = new ResourceManager("UAVP.UAVPSet.Resources.error", this.GetType().Assembly);
         }
         
-        // Texte für Mehrsprachigkeit
         ResourceManager labels;
         ResourceManager errorLabels;
-        // Serielle Schnittstelle initialisieren
         public SerialPort sp = new SerialPort();
 
-
-        /// <summary>
-        /// verbinden mit PIC
-        /// </summary>
-        /// <param name="mainForm"></param>
         public bool connect(FormMain mainForm, bool testSoftware, bool connectionTesten)
         {
 
@@ -169,11 +160,6 @@ namespace UAVP.UAVPSet
             return true;
         }
 
-
-        /// <summary>
-        /// Klasse um verbindung zu schließen und infos in Mainform umzustellen
-        /// </summary>
-        /// <param name="mainForm"></param>
         public void closeConnection(FormMain mainForm)
         {
             // wenn bereits verbunden dann info und Verbindung trennen
@@ -186,12 +172,6 @@ namespace UAVP.UAVPSet
             sp.Close();
         }
 
-
-        /// <summary>
-        /// lesen der Parameter
-        /// </summary>
-        /// <param name="mainForm"></param>
-        /// <param name="parameter"></param>
         public void readParameters(FormMain mainForm, ParameterSets parameter)
         {
 
@@ -214,7 +194,7 @@ namespace UAVP.UAVPSet
                         Log.write(mainForm, para[1].ToString(), 0);
                     }
                     catch {
-                        Log.write(mainForm, "Fehler beim schreiben Para.Count - PICConnect.cs line 223", 1);
+                        Log.write(mainForm, "Fehler beim schreiben Para.Count - PICConnect.cs line 197", 1);
                     }
                 }
 
@@ -287,7 +267,7 @@ namespace UAVP.UAVPSet
                 for (int i = 0; i < para.Count-2; i++)
                 {
 
-                    Log.write(mainForm, para[i].ToString(), 0);
+                    // Log.write(mainForm, para[i].ToString(), 0);
                     // + in den Parametern ausschneiden
                     if (para[i + 2].ToString().Substring(15, 1) == "+")
                         para[i + 2] = Convert.ToInt16(para[i + 2].ToString().Substring(16, 3));
@@ -309,14 +289,9 @@ namespace UAVP.UAVPSet
             
         }
 
-        /// <summary>
-        /// werte an Pic schreiben
-        /// </summary>
-        /// <param name="mainForm"></param>
-        /// <param name="parameter"></param>
         public void writeParameters(FormMain mainForm, ParameterSets parameter)
         {
-            int noofparams = 34;
+            int noofparams = 64;
             bool err = true;
             mainForm.writeUpdate = true;
             // Verbindung öffnen wenn noch nicht verbunden
@@ -326,8 +301,6 @@ namespace UAVP.UAVPSet
             // wenn fehler
             if (err == false) 
                 return;
-
-            noofparams = 64; 
  
             // Progressbar einblenden und Cursor auf wait setzen
             mainForm.toolStripProgressBar.Visible = true;
@@ -371,20 +344,13 @@ namespace UAVP.UAVPSet
 
         }
 
-        /// <summary>
-        /// SChreiben der Parameter für Funktion writeParameter
-        /// </summary>
-        /// <param name="mainForm"></param>
-        /// <param name="value"></param>
         private bool parameterWrite(FormMain mainForm, ParameterSets.ParameterSetsStruc value)
         {
             mainForm.Cursor = Cursors.WaitCursor;
             try 
             {
                 string temp;
-                //sp.Write("M");
-                // nur ein Write hatte nicht zuverlässig funktioniert
-                // für ein write müsste das readline durch read ersetzt und anders ausgewertet werden
+
                 sp.WriteLine("M");
                 // log über sendekey
                 if (Properties.Settings.Default.logLevel > 0) 
@@ -394,10 +360,6 @@ namespace UAVP.UAVPSet
                 Thread.Sleep(Properties.Settings.Default.iReadSleep);  
                 temp = sp.ReadLine();
                 
-                
-                // alle inputs durchgehen
-                //while (temp != ">M\r")
-                // hier auf Parameter warten - es ist sonst immer zu einem timeout gekommen
                 while (temp != "Register ") 
                 {
                     Thread.Sleep(Properties.Settings.Default.iReadSleep);  
@@ -460,10 +422,6 @@ namespace UAVP.UAVPSet
             }
         }
 
-        /// <summary>
-        /// lesen welches SET aktiv am PIC ist 
-        /// </summary>
-        /// <param name="mainForm"></param>
         public void parameterSet(FormMain mainForm)
         {
 
@@ -505,11 +463,6 @@ namespace UAVP.UAVPSet
             }
         }
 
-        /// <summary>
-        /// Verbindung mit PIC über ? testen
-        /// </summary>
-        /// <param name="mainForm"></param>
-        /// <returns></returns>
         public ArrayList testComm(FormMain mainForm)
         {
             ArrayList ret = askPic(mainForm, "S");
@@ -523,11 +476,6 @@ namespace UAVP.UAVPSet
             return ret;
         }
 
-        /// <summary>
-        /// senden einer Anfrage an den PIC und Ergebnis zurückgeben
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public ArrayList askPic(FormMain mainForm, string key)
         {
             bool con = true;
@@ -557,11 +505,7 @@ namespace UAVP.UAVPSet
 
                 Thread.Sleep(Properties.Settings.Default.iReadSleep);  
                 temp = sp.ReadLine();
-                // > kommt wenn nichts mehr kommt - aber nur bei writeLine!
-                // für was war T: ???
 
-
-                // auf ERR abfragen wenn der PIC sich im B status befindet
                 if (temp == "ERR\r") 
                 {
                     Log.write(mainForm, "Board is in Bootloader Status!", 1);
@@ -571,9 +515,7 @@ namespace UAVP.UAVPSet
                         MessageBoxIcon.Warning);
                     return ret;
                 }
-
-
-                
+     
                 while (temp != ">") // T wird nur für Receiver benötigt wenn nur write und nicht writeline 
                                     // || temp.Substring(0,1) == "T")
                                     
@@ -601,10 +543,6 @@ namespace UAVP.UAVPSet
             return ret;
         }
 
-        /// <summary>
-        /// funktion um die Neutralwerte aus pic zu lesen
-        /// </summary>
-        /// <param name="mainForm"></param>
         public void neutral(FormMain mainForm)
         {
             ArrayList ret = askPic(mainForm, "N");
@@ -617,10 +555,15 @@ namespace UAVP.UAVPSet
             }
         }
 
-        /// <summary>
-        /// Receiver Werte lesen
-        /// </summary>
-        /// <param name="mainForm"></param>
+        public void setparamset(FormMain mainForm)
+        {
+            ArrayList ret = askPic(mainForm, "Z");
+            if ( mainForm.tabControlParameter.SelectedIndex == 0 )
+                sp.Write(" 01");  
+            else
+                sp.Write(" 02");
+        }
+
         public void receiver(FormMain mainForm)
         {
             //ArrayList ret = askPic(mainForm, "R");
@@ -631,11 +574,6 @@ namespace UAVP.UAVPSet
             receiverWindow.ShowDialog();
         }
 
-
-        /// <summary>
-        /// Starten der Testabfragen
-        /// </summary>
-        /// <param name="mainForm"></param>
         public void testSoftware(FormMain mainForm)
         {
             //sp.Close();   // übergabe der Connection klasse
@@ -644,10 +582,7 @@ namespace UAVP.UAVPSet
                 testSoftware.ShowDialog();
 
         }
-        /// <summary>
-        /// Starten der Debugsoftware
-        /// </summary>
-        /// <param name="mainForm"></param>
+
         public void debugSoftware(FormMain mainForm)
         {
             //sp.Close();   // übergabe der Connection klasse
@@ -807,11 +742,6 @@ namespace UAVP.UAVPSet
             
         }
 
-        /// <summary>
-        /// Sendet ein x an den Pic 
-        /// für Testprogramm um weiter zu kommen
-        /// </summary>
-        /// <param name="mainForm"></param>
         public ArrayList anyKey (FormMain mainForm)
         {
             string key = "x";
@@ -859,8 +789,6 @@ namespace UAVP.UAVPSet
                         MessageBoxIcon.Warning);
                     return ret;
                 }
-
-
 
                 while (temp != ">") // T wird nur für Receiver benötigt wenn nur write und nicht writeline 
                 // || temp.Substring(0,1) == "T")

@@ -25,15 +25,8 @@ using System.Resources;
 
 namespace UAVP.UAVPSet
 {
-    /// <summary>
-    /// hilfeklasse für die Infos der Steuerelemente
-    /// </summary>
     static class Hilfe
     {
-        /// <summary>
-        /// allgemeine Funktion die von jedem Steuerelement aufgerufen werden kann
-        /// </summary>
-        /// <param name="mainForm"></param>
         static public void info(FormMain mainForm)
         {
                 // Roll     
@@ -84,7 +77,7 @@ namespace UAVP.UAVPSet
 
             // General
                 if (mainForm.bit01CheckBox.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("XModus");
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("AuxMode");
                 if (mainForm.bit61CheckBox.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("AccOrientation");
                 if (mainForm.bit21CheckBox.Focused )
@@ -121,10 +114,9 @@ namespace UAVP.UAVPSet
                     mainForm.infoTextBox.Text = mainForm.help.GetString("AltInt");
                 if (mainForm.AltIntLimit1NumericUpDown.Focused || mainForm.AltIntLimit2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("AltIntLimit");
-                if (mainForm.GravComp1NumericUpDown.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("GravComp");
-                if (mainForm.CompSteps1NumericUpDown.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("CompSteps");
+                
+                if (mainForm.Orientation1NumericUpDown.Focused)
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("XModus");
 
                 if (mainForm.BatteryCapacity1NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("BatteryCapacity");
