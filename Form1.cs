@@ -1024,7 +1024,7 @@ namespace UAVXGS
                         else
                             UsingRangefinderBox.BackColor = FlagsGroupBox.BackColor;
 
-                        if ((Flags[3] & 0x10) != 0)
+                        if ((Flags[3] & 0x08) != 0)
                             SimulationTextBox.Text = "Simulation";
                         else
                             SimulationTextBox.Text = " ";
