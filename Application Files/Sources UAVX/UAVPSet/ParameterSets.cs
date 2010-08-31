@@ -26,14 +26,9 @@ using System.Reflection;
 
 namespace UAVP.UAVPSet
 {
-    /// <summary>
-    /// zentrale klasse um alle Prameter zu speichern
-    /// </summary>
     public class ParameterSets
     {
-        /// <summary>
-        /// initialisierung der Parameter
-        /// </summary>
+
         public ParameterSets()
         {
             // alle Parameter werden vorbereitet
@@ -88,9 +83,6 @@ namespace UAVP.UAVPSet
         // farben um die Felder bei update zu markieren
         public enum Farbe {black, green, orange, red};
 
-        /// <summary>
-        /// allgemeine Struktur um die Parameter aufzunehmen
-        /// </summary>
         public struct ParameterSetsStruc
         {
             public string Command;
@@ -104,7 +96,7 @@ namespace UAVP.UAVPSet
         public ParameterSetsStruc[] parameterForm1 = new ParameterSetsStruc[64];
         public ParameterSetsStruc[] parameterForm2 = new ParameterSetsStruc[64];
         // für PIC Register 1 und 2
-        public ParameterSetsStruc[] parameterPic1 = new ParameterSetsStruc[64];
+        public ParameterSetsStruc[] parameterPic1 = new ParameterSetsStruc[64]; //zzz
         public ParameterSetsStruc[] parameterPic2 = new ParameterSetsStruc[64];
 
         //namen der Parameter für kurz-Ausgabe
@@ -121,11 +113,7 @@ namespace UAVP.UAVPSet
                                     "u50","u51","u52","u53","u54","u55","u56","u57","u58","u59",
                                     "u60","u61","u62","u63","u64"};
   
-        /// <summary>
-        /// Laden einer Konfigurationsdatei
-        /// </summary>
-        /// <param name="pfad"></param>
-        /// <param name="mainForm"></param>
+ 
         public void laden(string pfad, FormMain mainForm)
         {
             // try / catch wenn fehler beim öffnen oder interpretieren der datei
@@ -145,14 +133,8 @@ namespace UAVP.UAVPSet
             }
         }
 
-        /// <summary>
-        /// speichern der Parameter in eine Datei
-        /// </summary>
-        /// <param name="pfad"></param>
-        /// <param name="mainForm"></param>
         public void speichern(string pfad, FormMain mainForm)
         {
-
             StreamWriter sw = new StreamWriter(pfad, false, Encoding.GetEncoding("windows-1252")); 
             try 
             {
@@ -186,11 +168,6 @@ namespace UAVP.UAVPSet
             Log.write(mainForm, "Write Parameterset: " + pfad, 1);
         }
 
-        /// <summary>
-        /// ein einzelnes Feld updaten
-        /// </summary>
-        /// <param name="objekt"></param>
-        /// <param name="mainForm"></param>
         public void feldUpdaten(Object objekt, FormMain mainForm)
         {
             // wenn es sich um ein Parameter feld handelt
@@ -1311,14 +1288,10 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.AltIntLimit1NumericUpDown, mainForm);
                             break;
                         case 50:
-                            parameterForm1[49].Value = register.Value;
-                            mainForm.GravComp1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.GravComp1NumericUpDown, mainForm);
+                            parameterForm1[49].Value = "11"; // GravComp
                             break;
                         case 51:
-                            parameterForm1[50].Value = register.Value;
-                            mainForm.CompSteps1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.CompSteps1NumericUpDown, mainForm);
+                            parameterForm1[50].Value = "01"; // GravSteps
                             break;
                         case 52:
                             parameterForm1[51].Value = register.Value;
@@ -1357,6 +1330,11 @@ namespace UAVP.UAVPSet
                             parameterForm1[55].Value = register.Value;
                             mainForm.AltKd1NumericUpDown.Value = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.AltKd1NumericUpDown, mainForm);
+                            break;
+                        case 57:
+                            parameterForm1[56].Value = register.Value;
+                            mainForm.Orientation1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Orientation1NumericUpDown, mainForm);
                             break;
                         
                         default: break; // up to case 64 available
@@ -1554,12 +1532,6 @@ namespace UAVP.UAVPSet
             }
         }
 
-
-        /// <summary>
-        /// fabe bei allen Feldern setzen
-        /// </summary>
-        /// <param name="mainForm"></param>
-        /// <param name="farbe"></param>
         public void farbenSetzen(FormMain mainForm, Farbe farbe)
         { 
             

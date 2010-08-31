@@ -75,16 +75,7 @@ namespace UAVP.UAVPSet
             public string kommentar;
             public string abschnitt;
             public string text;
-        }
-
-        //Verwenden der ParameterSets.Struc
-        //public struct Return
-        //{
-        //    public string Command;
-        //    public string Value;
-        //    public string Comment;
-        //    public string Chapter;
-        //}
+        }  
 
         public ParameterSets.ParameterSetsStruc Get(string befehl)
         {

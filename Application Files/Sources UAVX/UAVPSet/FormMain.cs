@@ -71,6 +71,9 @@ namespace UAVP.UAVPSet
            }
 
             InitializeComponent();
+
+            Properties.Settings.Default.language = "English";
+
             //com Ports zuweisen zu pull-down
             string [] aviableComPorts = ComPorts.readPorts();
             foreach (string aviableComPort in aviableComPorts)
@@ -213,6 +216,9 @@ namespace UAVP.UAVPSet
 
                     BatteryCapacity1Label.Visible = true;
                     BatteryCapacity1NumericUpDown.Visible = true;
+
+                    Orientation1Label.Visible = true;
+                    Orientation1NumericUpDown.Visible = true;
 
                     break;
                 case "UAVXLight":
@@ -781,15 +787,9 @@ namespace UAVP.UAVPSet
             parameterSets.feldUpdaten(sender, this);
         }
 
-
-        private void RollProp1Label_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void tabControlParameter_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            picConnect.setparamset(this);
         }
 
         private void General2GroupBox_Enter(object sender, EventArgs e)
@@ -841,8 +841,7 @@ namespace UAVP.UAVPSet
             parameterSets.feldUpdaten(sender, this);
         }
 
-       
-       
+     
     
     }
 }
