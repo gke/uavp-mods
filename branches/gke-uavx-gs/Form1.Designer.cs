@@ -238,6 +238,7 @@ namespace UAVXGS
             this.ReplayProgressBar = new System.Windows.Forms.ProgressBar();
             this.Airframe = new System.Windows.Forms.TextBox();
             this.ReplayNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.PolarBox = new System.Windows.Forms.TextBox();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
             this.GyroGroupBox.SuspendLayout();
@@ -1001,6 +1002,7 @@ namespace UAVXGS
             this.flowLayoutPanel1.Controls.Add(this.RangefinderAltValidBox);
             this.flowLayoutPanel1.Controls.Add(this.GPSValidBox);
             this.flowLayoutPanel1.Controls.Add(this.NavValidBox);
+            this.flowLayoutPanel1.Controls.Add(this.PolarBox);
             this.flowLayoutPanel1.Controls.Add(this.LowBatteryBox);
             this.flowLayoutPanel1.Controls.Add(this.ThrottleMovingBox);
             this.flowLayoutPanel1.Controls.Add(this.HoldingAltBox);
@@ -1126,7 +1128,7 @@ namespace UAVXGS
             // LowBatteryBox
             // 
             this.LowBatteryBox.BackColor = System.Drawing.SystemColors.Window;
-            this.LowBatteryBox.Location = new System.Drawing.Point(118, 107);
+            this.LowBatteryBox.Location = new System.Drawing.Point(3, 133);
             this.LowBatteryBox.Name = "LowBatteryBox";
             this.LowBatteryBox.ReadOnly = true;
             this.LowBatteryBox.Size = new System.Drawing.Size(109, 20);
@@ -1137,7 +1139,7 @@ namespace UAVXGS
             // ThrottleMovingBox
             // 
             this.ThrottleMovingBox.BackColor = System.Drawing.SystemColors.Window;
-            this.ThrottleMovingBox.Location = new System.Drawing.Point(3, 133);
+            this.ThrottleMovingBox.Location = new System.Drawing.Point(118, 133);
             this.ThrottleMovingBox.Name = "ThrottleMovingBox";
             this.ThrottleMovingBox.ReadOnly = true;
             this.ThrottleMovingBox.Size = new System.Drawing.Size(109, 20);
@@ -1148,7 +1150,7 @@ namespace UAVXGS
             // HoldingAltBox
             // 
             this.HoldingAltBox.BackColor = System.Drawing.SystemColors.Window;
-            this.HoldingAltBox.Location = new System.Drawing.Point(118, 133);
+            this.HoldingAltBox.Location = new System.Drawing.Point(3, 159);
             this.HoldingAltBox.Name = "HoldingAltBox";
             this.HoldingAltBox.ReadOnly = true;
             this.HoldingAltBox.Size = new System.Drawing.Size(109, 20);
@@ -1159,7 +1161,7 @@ namespace UAVXGS
             // AttitudeHoldBox
             // 
             this.AttitudeHoldBox.BackColor = System.Drawing.SystemColors.Window;
-            this.AttitudeHoldBox.Location = new System.Drawing.Point(3, 159);
+            this.AttitudeHoldBox.Location = new System.Drawing.Point(118, 159);
             this.AttitudeHoldBox.Name = "AttitudeHoldBox";
             this.AttitudeHoldBox.ReadOnly = true;
             this.AttitudeHoldBox.Size = new System.Drawing.Size(109, 20);
@@ -1170,7 +1172,7 @@ namespace UAVXGS
             // NearLevelBox
             // 
             this.NearLevelBox.BackColor = System.Drawing.SystemColors.Window;
-            this.NearLevelBox.Location = new System.Drawing.Point(118, 159);
+            this.NearLevelBox.Location = new System.Drawing.Point(3, 185);
             this.NearLevelBox.Name = "NearLevelBox";
             this.NearLevelBox.ReadOnly = true;
             this.NearLevelBox.Size = new System.Drawing.Size(109, 20);
@@ -1181,7 +1183,7 @@ namespace UAVXGS
             // FocusLockedBox
             // 
             this.FocusLockedBox.BackColor = System.Drawing.SystemColors.Window;
-            this.FocusLockedBox.Location = new System.Drawing.Point(3, 185);
+            this.FocusLockedBox.Location = new System.Drawing.Point(118, 185);
             this.FocusLockedBox.Name = "FocusLockedBox";
             this.FocusLockedBox.ReadOnly = true;
             this.FocusLockedBox.Size = new System.Drawing.Size(109, 20);
@@ -1192,7 +1194,7 @@ namespace UAVXGS
             // NavigateBox
             // 
             this.NavigateBox.BackColor = System.Drawing.SystemColors.Window;
-            this.NavigateBox.Location = new System.Drawing.Point(118, 185);
+            this.NavigateBox.Location = new System.Drawing.Point(3, 211);
             this.NavigateBox.Name = "NavigateBox";
             this.NavigateBox.ReadOnly = true;
             this.NavigateBox.Size = new System.Drawing.Size(109, 20);
@@ -1203,18 +1205,18 @@ namespace UAVXGS
             // ReturnHomeBox
             // 
             this.ReturnHomeBox.BackColor = System.Drawing.SystemColors.Window;
-            this.ReturnHomeBox.Location = new System.Drawing.Point(3, 211);
+            this.ReturnHomeBox.Location = new System.Drawing.Point(118, 211);
             this.ReturnHomeBox.Name = "ReturnHomeBox";
             this.ReturnHomeBox.ReadOnly = true;
             this.ReturnHomeBox.Size = new System.Drawing.Size(109, 20);
             this.ReturnHomeBox.TabIndex = 116;
-            this.ReturnHomeBox.Text = "Returning Home";
+            this.ReturnHomeBox.Text = "Ch5 Active";
             this.ReturnHomeBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // UsingRangefinderBox
             // 
             this.UsingRangefinderBox.BackColor = System.Drawing.SystemColors.Window;
-            this.UsingRangefinderBox.Location = new System.Drawing.Point(118, 211);
+            this.UsingRangefinderBox.Location = new System.Drawing.Point(3, 237);
             this.UsingRangefinderBox.Name = "UsingRangefinderBox";
             this.UsingRangefinderBox.ReadOnly = true;
             this.UsingRangefinderBox.Size = new System.Drawing.Size(109, 20);
@@ -1225,7 +1227,7 @@ namespace UAVXGS
             // CloseProximityBox
             // 
             this.CloseProximityBox.BackColor = System.Drawing.SystemColors.Window;
-            this.CloseProximityBox.Location = new System.Drawing.Point(3, 237);
+            this.CloseProximityBox.Location = new System.Drawing.Point(118, 237);
             this.CloseProximityBox.Name = "CloseProximityBox";
             this.CloseProximityBox.ReadOnly = true;
             this.CloseProximityBox.Size = new System.Drawing.Size(109, 20);
@@ -1236,7 +1238,7 @@ namespace UAVXGS
             // ProximityBox
             // 
             this.ProximityBox.BackColor = System.Drawing.SystemColors.Window;
-            this.ProximityBox.Location = new System.Drawing.Point(118, 237);
+            this.ProximityBox.Location = new System.Drawing.Point(3, 263);
             this.ProximityBox.Name = "ProximityBox";
             this.ProximityBox.ReadOnly = true;
             this.ProximityBox.Size = new System.Drawing.Size(109, 20);
@@ -1247,7 +1249,7 @@ namespace UAVXGS
             // LostModelBox
             // 
             this.LostModelBox.BackColor = System.Drawing.SystemColors.Window;
-            this.LostModelBox.Location = new System.Drawing.Point(3, 263);
+            this.LostModelBox.Location = new System.Drawing.Point(118, 263);
             this.LostModelBox.Name = "LostModelBox";
             this.LostModelBox.ReadOnly = true;
             this.LostModelBox.Size = new System.Drawing.Size(109, 20);
@@ -1258,7 +1260,7 @@ namespace UAVXGS
             // CompassFailBox
             // 
             this.CompassFailBox.BackColor = System.Drawing.SystemColors.Window;
-            this.CompassFailBox.Location = new System.Drawing.Point(118, 263);
+            this.CompassFailBox.Location = new System.Drawing.Point(3, 289);
             this.CompassFailBox.Name = "CompassFailBox";
             this.CompassFailBox.ReadOnly = true;
             this.CompassFailBox.Size = new System.Drawing.Size(109, 20);
@@ -1269,7 +1271,7 @@ namespace UAVXGS
             // GyroFailureBox
             // 
             this.GyroFailureBox.BackColor = System.Drawing.SystemColors.Window;
-            this.GyroFailureBox.Location = new System.Drawing.Point(3, 289);
+            this.GyroFailureBox.Location = new System.Drawing.Point(118, 289);
             this.GyroFailureBox.Name = "GyroFailureBox";
             this.GyroFailureBox.ReadOnly = true;
             this.GyroFailureBox.Size = new System.Drawing.Size(109, 20);
@@ -1280,7 +1282,7 @@ namespace UAVXGS
             // BaroFailBox
             // 
             this.BaroFailBox.BackColor = System.Drawing.SystemColors.Window;
-            this.BaroFailBox.Location = new System.Drawing.Point(118, 289);
+            this.BaroFailBox.Location = new System.Drawing.Point(3, 315);
             this.BaroFailBox.Name = "BaroFailBox";
             this.BaroFailBox.ReadOnly = true;
             this.BaroFailBox.Size = new System.Drawing.Size(109, 20);
@@ -1291,7 +1293,7 @@ namespace UAVXGS
             // AccFailBox
             // 
             this.AccFailBox.BackColor = System.Drawing.SystemColors.Window;
-            this.AccFailBox.Location = new System.Drawing.Point(3, 315);
+            this.AccFailBox.Location = new System.Drawing.Point(118, 315);
             this.AccFailBox.Name = "AccFailBox";
             this.AccFailBox.ReadOnly = true;
             this.AccFailBox.Size = new System.Drawing.Size(109, 20);
@@ -1302,7 +1304,7 @@ namespace UAVXGS
             // GPSFailBox
             // 
             this.GPSFailBox.BackColor = System.Drawing.SystemColors.Window;
-            this.GPSFailBox.Location = new System.Drawing.Point(118, 315);
+            this.GPSFailBox.Location = new System.Drawing.Point(3, 341);
             this.GPSFailBox.Name = "GPSFailBox";
             this.GPSFailBox.ReadOnly = true;
             this.GPSFailBox.Size = new System.Drawing.Size(109, 20);
@@ -2380,6 +2382,17 @@ namespace UAVXGS
             0});
             this.ReplayNumericUpDown.ValueChanged += new System.EventHandler(this.ReplayNumericUpDown_Changed);
             // 
+            // PolarBox
+            // 
+            this.PolarBox.BackColor = System.Drawing.SystemColors.Window;
+            this.PolarBox.Location = new System.Drawing.Point(118, 107);
+            this.PolarBox.Name = "PolarBox";
+            this.PolarBox.ReadOnly = true;
+            this.PolarBox.Size = new System.Drawing.Size(109, 20);
+            this.PolarBox.TabIndex = 126;
+            this.PolarBox.Text = "Polar Active";
+            this.PolarBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // headingIndicatorInstrumentControl1
             // 
             this.headingIndicatorInstrumentControl1.Location = new System.Drawing.Point(369, 368);
@@ -2701,6 +2714,7 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox FocusLockedBox;
         private System.Windows.Forms.TextBox Airframe;
         private System.Windows.Forms.NumericUpDown ReplayNumericUpDown;
+        private System.Windows.Forms.TextBox PolarBox;
     }
 }
 

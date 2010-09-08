@@ -142,12 +142,12 @@ namespace UAVXGS
         Flags[3]
 		    AllowNavAltitudeHold	// stick programmed
 		    UsingPositionHoldLock
-		    LockHoldPosition
+		    Ch5Active
 		    Simulation
 		    AcquireNewPosition 
 		    MotorsArmed
-		    u1
-		    u2
+			NavigationActive
+		    UsingPolar
 
          Flags[4]
 		    Signal
@@ -160,7 +160,7 @@ namespace UAVXGS
 		    CompassMissRead
        
         Flags[5]
-		    UsingFlatAcc
+		    UsingPolarCoordinates
 		    ReceivingGPS
 		    GPSSentenceReceived
 		    NavComputed
@@ -232,7 +232,6 @@ namespace UAVXGS
         int NavStateTimeoutT;           // 48
         short AmbientTempT;             // 51
         int GPSMissionTimeT;            // 53
-
 
         double Distance, LongitudeCorrection, WhereDirection;
         bool FirstGPSCoordinates = true;
@@ -454,7 +453,7 @@ namespace UAVXGS
 
             SaveTextLogFileStreamWriter.Write("Flight,"+
             "AltHEn," +	
-            "TurnToPosEn," + // stick programmed
+            "TTPosEn," + // stick programmed
             "GyroFail," +
             "Lost," +
             "Level," +
@@ -466,7 +465,7 @@ namespace UAVXGS
             "AccFail," +
             "CompFail," +
             "GPSFail," +
-            "AttitudeH," +
+            "AttH," +
             "ThrMov," +
             "AltH," +
             "Nav," +   
@@ -486,8 +485,8 @@ namespace UAVXGS
             "Sim," +
             "AcqPos," +
             "Armed," +
-            "unused1," +
-            "unused2,");
+            "NavActive," +
+            "Polar,");
 
             for (i = 4; i < NoOfFlagBytes; i++)
                 SaveTextLogFileStreamWriter.Write("F[" + i + "],");
@@ -531,17 +530,17 @@ namespace UAVXGS
             "RFROC," +
             "RFAlt," +
             "GPSHD," +
-            "HeadingT," +
+            "Heading," +
             "DesCourse," +
-            "GPSVelT," +
-            "GPSROCT," +
+            "GPSVel," +
+            "GPSROC," +
             "GPSRelAlt," +
             "GPSLat," +
             "GPSLon," +
             "DesAlt," +
             "DesLat," +
             "DesLon," +
-            "NavStateTimeoutT," +
+            "NavStateTimeout," +
             "AmbTemp," +
             "GPSTime,");
 
@@ -1039,6 +1038,10 @@ namespace UAVXGS
                         else
                             FocusLockedBox.BackColor = System.Drawing.Color.LightSteelBlue;
 
+                        if ((Flags[3] & 0x80) != 0)
+                            PolarBox.BackColor = System.Drawing.Color.Orange;
+                        else
+                            PolarBox.BackColor = FlagsGroupBox.BackColor;
     
                         StateT = ExtractByte(ref UAVXPacket, 8);
                         switch ( StateT ){
@@ -1397,12 +1400,12 @@ namespace UAVXGS
 
             (Flags[3] & 0x01)+ ","   + // AllowNavAltitudeHold
             ((Flags[3] & 0x02) >> 1) + "," + // UsingPositionHoldLock
-            ((Flags[3] & 0x04) >> 2) + "," + // LockHoldPosition
+            ((Flags[3] & 0x04) >> 2) + "," + // Ch5Active
             ((Flags[3] & 0x08) >> 3) + "," + // Simulation
             ((Flags[3] & 0x10) >> 4) + "," + // AcquireNewPosition
             ((Flags[3] & 0x20) >> 5) + "," + // MotorsArmed
-            ((Flags[3] & 0x40) >> 6) + "," + //
-            ((Flags[3] & 0x80) >> 7) + ","); //
+            ((Flags[3] & 0x40) >> 6) + "," + // NavigationActive
+            ((Flags[3] & 0x80) >> 7) + ","); // UsingPolar
 
             for (i = 4; i < NoOfFlagBytes; i++)
                 SaveTextLogFileStreamWriter.Write(Flags[i] + ",");
