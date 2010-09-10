@@ -95,6 +95,8 @@ It is assumed you:
 
   * Setting your own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming (See below). Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
 ==== ESCs ====
+  * Also read the ESC Setup paragraph.
+  
   * YGE I2C ESCs: The YGE i2C ESC must be programmed to respond to particular addresses on the I2C bus. Use the Tools->Test Software->Y command and follow the instructions.
 
   * I am using I2C ESCs (Holger, X3D, YGE) and the motors don't start: Make sure you ground the signal lead of the ESC's PPM connection otherwise the electrical noise may cause the ESC to believe it is talking to a PPM signal rather than a digital I2C signal.
@@ -175,6 +177,55 @@ It is assumed you:
     * DEBUG: for use with the sensor trace (see SensorTest Wiki). These are NOT flight software and are used to debug sensors and for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
     * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
 
+===ESC Setup===
+*Note 1:* This checklist only needs to be accomplished for new ESC's 
+during the initial setup.
+
+*Note 2:* Some ESC's do not have the ability to calibrate the throttle 
+range.  Some ESC's automatically calibrate the throttle range.  It is 
+not recommended to use the ESC's that automatically adjust the throttle 
+range as this is not compatable with multicopter boards.
+
+*Note 3:* Many of these ESC's can be modified for I2c communications 
+which the UAVP board can also use if desired.  If you have the skills 
+and are interested in doing this please see the ESC conversion 
+paragraph in the [http://www.rcgroups.com/forums/showthread.php?t=1097355 Quadrocopter 
+and Tricopter Mega Link Index]
+
+
+*1. Recommended ESC's:
+
+  * 10A and higher as required for your motors
+  * [http://www.quadroufo.com Quadroufo.com] 30A
+  * HKSS 
+  * Turnigy Plush 
+  * Mystery 
+  * TowerPro
+  * YGE for I2c or PWM
+ 
+*2. Program the 4 ESCs with these settings if available: 
+
+ * Brake OFF
+ * Battery type: NiMh (even if you use LiPo)
+ * Cut Off Type: soft cut
+ * Cut Off Voltage: Low
+ * Timing Mode: Middle (unless experiencing timing problems and then choose Low or high depending on motor. If clicking noise, change timing)
+ * Music: your preference if available
+ * Governor Mode: Off
+
+*3. Calibrate each ESC for your radio:
+
+ * See Note 2 above
+ * Disconnect all ESCs servo cables from the board
+ * Connect ESCs one after the other directly to Rx you will be using throttle channel
+ * Move Tx throttle stick to the full up position
+ * Turn TX on
+ * Power the ESC wait for initialization beeps + 2 beeps
+ * After 2 beeps, move throttle stick to minimum
+ * Wait for beeps (generaly 3 + 1 or 1 + 1)
+ * Unpower ESC and disconnect
+ * Repeat until all 4 are calibrated and you're done 
+
 ===Tx/Rx Setup===
 
 *WARNING:*  *It is strongly advised that you remove props or disable the motors by removing one or two of the three wires before proceeding with the Tx/Rx setup!*
@@ -216,7 +267,7 @@ Tx (Mode 2) labeled with Stick and channel options:
 http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2774700-93-UAVP%20stick%20commands%20jesolins.jpg 
 
 ===Pre-Flight Safety Checklist===
-  * Please review the checklist found in our WIKI and note all warnings prior to flight: [http://code.google.com/p/uavp-mods/wiki/UAVPandUAVXFlightChecklist]  
+  * Please review the checklist found in our WIKI and note all warnings prior to flight: [http://code.google.com/p/uavp-mods/wiki/UAVPandUAVXFlightChecklist UAVX Flight Checklist]  
 
 === Stage 1: without GPS ===
 
