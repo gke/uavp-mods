@@ -143,6 +143,21 @@ It is assumed you:
 
   * What else do I need to consider: The GPS connection to the quadrocopter must occur at the same time as the quadrocopter is armed and disconnected as the quadrocopter is disarmed. You will need a dual switch for this.
 
+  * The required switch is *Double Pole-Double Throw (DPDT) ON-NONE-ON* Example or similar: http://www.mouser.com/ProductDetail/...2fGbGLJhevQ%3d and http://www.nkkswitches.com/pdf/MtogglesBushing.pdf
+
+  * DPDT ON-NONE-ON: There are two independent SPDT in one switch. It allows true bypass switching (6 pins).  The UAVX requires that the GPS signal be set via the MiniGPS application to 9600bps, GGA, WAAS enabled and 3-5Hz (4hz recommended).  The DPDT switch disarms the UAVX by shorting K8 pins 1 and 3 which allows the UAVPset to communicate at 38400bps. 
+
+http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2710360-248-UAVX%20DPST%20switch%20jesolins.jpg?d=1250963358
+
+  * UAVP board GPS pins:
+http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GPS%20connections%20for%20flight%20jesolins.jpg?d=1252275212
+  
+ * More info on wiring it with GPS here: http://www.rcgroups.com/forums/showt...6#post12936706 UAVX GPS Wiring 101] and [http://www.rcgroups.com/forums/showpost.php?p=13927790&postcount=1070 UAVX GPS programming 101]
+
+ * *Note:* The GPS from www.quadroufo.com does not require a level converter and has provisions for USB serial TTL communication to a PC.  See here fo more info: http://www.quadroufo.com/download/gps-uavx.zip You must also install a 3v battery backup for changes to the GPS setup to hold.  Use the MiniGPS application to setup the GPS. Here: http://www.dpcav.com/data_sheets/gps_mini.zip
+
+
+
 ==== UAVPset General ====
   * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed.
  
