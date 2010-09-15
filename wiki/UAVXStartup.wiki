@@ -45,6 +45,8 @@ It is assumed you:
 ==== Tx/Rx ====
   * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
 
+*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's peformance and decrease PPM signal quality and model safety.*
+
   * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pulldown box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx. Some substitutions follow:
    * Graupner MX16s use JR XP8103/R700-PPM
    * DX7/AR6000 use JR XP8103/R700-PPM
@@ -145,7 +147,7 @@ It is assumed you:
 
   * The required switch is *Double Pole-Double Throw (DPDT) ON-NONE-ON* Example or similar: http://www.mouser.com/ProductDetail/...2fGbGLJhevQ%3d and http://www.nkkswitches.com/pdf/MtogglesBushing.pdf
 
-  * DPDT ON-NONE-ON: There are two independent SPDT in one switch. It allows true bypass switching (6 pins).  The UAVX requires that the GPS signal be set via the MiniGPS application to 9600bps, GGA, WAAS enabled and 3-5Hz (4hz recommended).  The DPDT switch disarms the UAVX by shorting K8 pins 1 and 3 which allows the UAVPset to communicate at 38400bps. 
+  * DPDT ON-NONE-ON: There are two independent SPDT in one switch. It allows true bypass switching (6 pins).  The UAVX requires that the GPS signal be set via the MiniGPS application to 9600bps, GGA, WAAS enabled and 3-5Hz (4hz recommended).  The DPDT switch disarms the UAVX by shorting K8 pins 1 and 2 or 1 and 3 (pins 2 and 3 share continuity)which allows the UAVPset to communicate at 38400bps. 
 
 http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2710360-248-UAVX%20DPST%20switch%20jesolins.jpg?d=1250963358
 
@@ -193,6 +195,8 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
     * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
 
 ===ESC Setup===
+*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's peformance and decrease PPM signal quality and model safety.*
+
 *Note 1:* This checklist only needs to be accomplished for new ESC's 
 during the initial setup.
 
@@ -245,7 +249,9 @@ and Tricopter Mega Link Index]
 
 *WARNING:*  *It is strongly advised that you remove props or disable the motors by removing one or two of the three wires before proceeding with the Tx/Rx setup!*
 
-As with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three motor wires on each motor.
+*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's peformance and decrease PPM signal quality and model safety.*
+
+As it was with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three motor wires on each motor.
 
 The setup procedure:
 
@@ -253,7 +259,7 @@ The setup procedure:
 
   * Go to the Tool->Testsoftware and do the Rx test and see that all channels pass.  If not then the Tx EPAs (End Point Adjustment) must be adjusted here first.  Note that the Rx Test displays the channels in the order they are received by UAVX. Each channel is marked with the control function corresponding to the Tx/Rx combination you have selected. You should expect the channels corresponding to pitch, roll and yaw to have a value of approximately 0%. If you do not see this pattern then you may have the wrong Tx/Rx combination selected. For most cases, simply setting channel 5 lower EPA to 80% and upper EPA to 75% will get a pass on all channels that the Tx/Rx combination allows, i.e., either 5 or 7.  The next channels to adjust if you still do not get a pass are setting channels 6 and 7 to 75% upper and lower.  Note that the first indication of all channels passing while you adjust your EPA's will be the illumination of the UAVP board's green LED.  If you still cannot get the channels to pass, then post in the forum for additional help. Here: [http://www.rcgroups.com/forums/showthread.php?t=1093510]
 
-  * After you get the channels to pass, go to the Tx/Rx graphic. Now set the channels which are represented in the graphic as "Roll, Pitch, Yaw" for EPA's of about 90 upper and lower per the values on the graphic which is in percent. Try to make the EPA for "CamTrim" symetrical around 0% as it is the Flap trim on some Txs and may have a limited range. Set channels "Throttle, NavS" for lower EPA of 4% and upper EPA of 90%. Set "RTH" for lower 10% and upper 85%. Now set your sub-trims to make the graphic read 4% for channels "Throttle,  and NavS" and 0% for channels "Roll, Pitch, Yaw, CamTrim". "RTH" should be left with the lower value of 10% that you set up using the EPA's. *NOTE*: the RTH, CamTrim and NavS - correspond to Ch 5,6 and 7 in UAVPSet releases earlier than 3.03. 
+  * After you get the channels to pass, go to the Tx/Rx graphic. Now set the channels which are represented in the graphic as "Roll, Pitch, Yaw" for EPA's of about 90 upper and lower *_using the values on the graphic_* which is in percent. Try to make the EPA for "CamTrim" symetrical around 0% as it is the Flap trim on some Txs and may have a limited range. Set channels "Throttle, NavS" for lower EPA of 4% and upper EPA of 90%. Set "RTH" for lower 10% and upper 85%. Now set your sub-trims to make the graphic read 4% for channels "Throttle,  and NavS" and 0% for channels "Roll, Pitch, Yaw, CamTrim". "RTH" should be left with the lower value of 10% that you set up using the EPA's. *NOTE*: The RTH, CamTrim and NavS - correspond to Ch 5,6 and 7 in the UAVPSet. 
 
   * Test your set still having the quadrocopter disarmed then cycling the sticks and channel 5, 6 and 7 pots/switches through the full combination of ranges.  The graphic should respond correctly and not freeze or disappear.  If it does, then the EPA's and sub-trims are still not correct, so go back and check the values. Adjust if necessary up or down 2-5% on upper and lower and or sub-trims to see if you can get the graphic to respond correctly as these values could vary a bit with different models of Tx/Rx.
 
@@ -326,7 +332,7 @@ Using the UAVX capable version of UAVPSet:
 
   * Set the GPS related parameters (notes below to follow).
 
-  * Turn the Pot/Knob connected to Channel 7 to minimum (this will disable GPS support). 
+  * Turn the Pot/Knob connected to Channel 7 to minimum Tthis will disable GPS support and in firmwares since UAVX v1.1174 when below 10% it will turn off the baro hover/altitude hold. 
  
   * Select off/minimum using your Gear switch on Channel 5 (this turns RTH off). If you fail to do this a beeper alarm will sound.
 
@@ -373,6 +379,8 @@ If you enable RTH Descend in UAVPSet then thirty seconds after you have arrived 
 
 The auto descend feature is the logical extension of using RTH primarily as failsafe support. We suggest RTH altitude enabled (the default) be adopted with you Rx failsafes set appropriately to advantage of this. 
 
+There are now provisions on the latest UAVX boards and in the firmware and UAVPset to add an ultrasonic rangefinder, a Maxbotix XL-EZ3 to make the auto descent and altitude hovers below 20 feet more precise.
+
 === Camera Pitch and Roll ===
 
 The UAVP also has servo connections for channel 6 and 7 to control gryo asssited pitch and roll.  Channel 6 is for pitch and 7 is for roll.  You can adjust responiveness by setting values in the fields in the UAVPset.  In the UAVPset under the roll and pitch columns the cam roll adjusts the servo response to the model.  A value of zero is off.  The cam trim adjusts how far it will be allowed to correct for roll.  The cam pitch value adjusts the servo response to pitch.  A value of zero is no camera pitch gyro compensation.  You can still adjust the cam pitch tilt with your ch 6 variable poti.  These values must be initially setup in a hand test with the UAVX in the armed position so take extreme care and disable the motors by either removing the motors servo connections or two of the three motor wires.
@@ -386,6 +394,10 @@ There are many other things we can try/abandon including:
   * Ground proximity using a simple switch to kill throttle (its in the software) or an ultrasonic rangefinder. Not useful for tree encounters or landing upside down.
 
   * Altitude and distance from Origin containment i.e. not too high and not too far.
+
+  * Camera Point of focus
+
+  * Polar steering mode
 
   * etc....
 
