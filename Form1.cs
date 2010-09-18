@@ -31,7 +31,11 @@ namespace UAVXGS
 {
     public partial class FormMain : Form
     {
-        // ASCII Constants
+        private static Mutex mutPlayback = new Mutex();
+        bool bPausePlayback = false;
+        int iPlaybackSpeed = 0;
+
+      // ASCII Constants
         const byte NUL = 0;
         const byte SOH = 1;
         const byte EOT = 4;
@@ -52,6 +56,7 @@ namespace UAVXGS
         const byte UAVXFlightPacketTag = 13;
         const byte UAVXNavPacketTag = 14;
         const byte UAVXStatsPacketTag = 15;
+        const byte UAVXControlPacketTag = 16;
 
         const byte WaitRxSentinel = 0;
         const byte WaitRxBody = 1;
@@ -101,7 +106,7 @@ namespace UAVXGS
         short MaxTempT;
 
         short BadT;
-        short AirframeT;
+        short AirframeT = 0;
         short OrientT;
         short BadNumT;
 
@@ -200,6 +205,8 @@ namespace UAVXGS
         byte[] OutputT = new byte[6];   // 47
         int MissionTimeMilliSecT;       // 53
 
+        // UAVXControlPacket is an abbreviated Flight Packet
+
    
         // UAVXNavPacket
         //byte UAVXNavPacketTag;
@@ -232,6 +239,10 @@ namespace UAVXGS
         int NavStateTimeoutT;           // 48
         short AmbientTempT;             // 51
         int GPSMissionTimeT;            // 53
+        short NavSensitivityT;          // 56
+        short NavRCorrT;                // 57
+        short NavPCorrT;                // 58
+        short NavYCorrT;                // 59
 
         double Distance, LongitudeCorrection, WhereDirection;
         bool FirstGPSCoordinates = true;
@@ -247,6 +258,7 @@ namespace UAVXGS
         short RxHead = 0;
         int NavPacketsReceived = 0;
         int FlightPacketsReceived = 0;
+        int ControlPacketsReceived = 0;
         int StatsPacketsReceived = 0;
 
         short RxPacketByteCount;
@@ -291,7 +303,7 @@ namespace UAVXGS
             Version vrs = new Version(Application.ProductVersion);
             this.Text = this.Text + " v" + vrs.Major + "." + vrs.Minor + "." + vrs.Build;
 
-            ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
+//            ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
         }
 
         public static class ComPorts
@@ -514,8 +526,17 @@ namespace UAVXGS
             "DUComp," +
             "AltComp,");
 
-            for (i = 0; i < NoOfOutputs; i++)
-                SaveTextLogFileStreamWriter.Write("Out[" + i + "],");
+            switch (AirframeT)
+            {
+                case 0: SaveTextLogFileStreamWriter.Write("MFront, MBack, MRight, MLeft,"); break;// Quadrocopter
+                case 1: SaveTextLogFileStreamWriter.Write("MFront, Steering, MRight, MLeft,"); break;// Tricopter
+                case 2: SaveTextLogFileStreamWriter.Write("M0, M1, M2, M3,"); break;// Hexacopter
+                case 3: SaveTextLogFileStreamWriter.Write("Throttle, Roll, Pitch, Tail,"); break;// Helicopter
+                case 4: SaveTextLogFileStreamWriter.Write("Throttle, RElevon, LEelevon, Rudder,"); break;// Flying Wing
+                case 5: SaveTextLogFileStreamWriter.Write("Throttle, Aileron, Elevator, Rudder,"); break;// Conventional
+            }
+
+            SaveTextLogFileStreamWriter.Write("CamRoll, CamPitch,");
 
             SaveTextLogFileStreamWriter.Write("TimemS,");
 
@@ -542,7 +563,11 @@ namespace UAVXGS
             "DesLon," +
             "NavStateTimeout," +
             "AmbTemp," +
-            "GPSTime,");
+            "GPSTime," +
+            "Sens," +
+            "RCorr," +
+            "PCorr," +
+            "YCorr,");
 
             SaveTextLogFileStreamWriter.WriteLine("Stats," +
             "I2CFails," +
@@ -631,21 +656,55 @@ namespace UAVXGS
         private void ReadReplayLogFile()
         {
             byte b;
+            int iCurrentTime = 0;
+            int iSleepTime = 0;
+            int iSpeedSelect = 0;
+            bool bIsPaused = false;
 
             while ( OpenLogFileStream.Position < OpenLogFileStream.Length )
             {
-                RxTail++;
-                RxTail &= RxQueueMask;
-                b = OpenLogFileBinaryReader.ReadByte();
-                RxQueue[RxTail] = b;
+                // Use  mutex for checking main thread data
+                mutPlayback.WaitOne();
+                bIsPaused = bPausePlayback;
+                if (bIsPaused) {
+                  if (btnPause.BackColor == Color.Yellow) {
+                    btnPause.BackColor = SystemColors.Control;     
+                  } else {
+                    btnPause.BackColor = Color.Yellow;  
+                  }
+                }
+                
+                iSpeedSelect = iPlaybackSpeed;
+                mutPlayback.ReleaseMutex();
 
-                ReadingTelemetry = true;
-                this.Invoke(new EventHandler(UAVXReadTelemetry));
-                while (ReadingTelemetry) { };
+                if (bIsPaused) {
+                  // Wait a moment if in a paused state (from UI) before checking again
+                  Thread.Sleep(200);
+                } else {
+                  RxTail++;
+                  RxTail &= RxQueueMask;
+                  b = OpenLogFileBinaryReader.ReadByte();
+                  RxQueue[RxTail] = b;
 
-                ReplayProgress = (int) (100 * OpenLogFileStream.Position) / OpenLogFileStream.Length;
-
-                Thread.Sleep(ReplayDelay);
+                  ReadingTelemetry = true;
+                  this.Invoke(new EventHandler(UAVXReadTelemetry));
+                  while (ReadingTelemetry) { }; // ??
+                  ReplayProgress = (int)(100 * OpenLogFileStream.Position) / OpenLogFileStream.Length;
+                  // Calculate time to wait before processing next in queue
+                  iSleepTime = MissionTimeMilliSecT - iCurrentTime;
+                  // factor in speed setting from UI
+                  if (iSpeedSelect == 1)
+                    iSleepTime *= 2;
+                  if (iSpeedSelect == 2)
+                    iSleepTime /= 2;
+                  //guestimate for constant calc time
+                  iSleepTime -= 50; 
+                  iCurrentTime = MissionTimeMilliSecT; // Get mission time from data packet
+                  if (iSleepTime > 0)
+                    Thread.Sleep(iSleepTime);
+                  this.Invalidate(); // redraw window - needed?
+                  //Thread.Sleep(ReplayDelay);
+                }
             }
 
             if (OpenLogFileStream.Position == OpenLogFileStream.Length)
@@ -713,7 +772,8 @@ namespace UAVXGS
                 RxPacketTag = ch;
                 switch ( RxPacketTag ) {
                 case UAVXFlightPacketTag: PacketLength = 54; break;
-                case UAVXNavPacketTag: PacketLength = 55; break;
+                case UAVXNavPacketTag: PacketLength = 59; break;
+                case UAVXControlPacketTag: PacketLength = 33; break;
                 case UAVXStatsPacketTag: PacketLength = 44; break;
                 default:
                     RxIllegalErrors++;
@@ -1009,14 +1069,12 @@ namespace UAVXGS
                             RangefinderAltValidBox.BackColor = System.Drawing.Color.Green;
                             RangefinderAltitude.BackColor = AltitudeGroupBox.BackColor;
                             RangefinderROC.BackColor = AltitudeGroupBox.BackColor;
-                            BaroRFError.BackColor = BaroCalibrationGroupBox.BackColor;
                         }
                         else
                         {
                             RangefinderAltValidBox.BackColor = FlagsGroupBox.BackColor;
                             RangefinderAltitude.BackColor = System.Drawing.Color.Orange;
                             RangefinderROC.BackColor = System.Drawing.Color.Orange;
-                            BaroRFError.BackColor = System.Drawing.Color.Orange;
                         }
                         if ((Flags[2] & 0x80) != 0)
                             UsingRangefinderBox.BackColor = System.Drawing.Color.Green;
@@ -1108,6 +1166,40 @@ namespace UAVXGS
                         DUComp.Text = string.Format("{0:n0}", DUCompT * OUTMaximumScale);
                         AltComp.Text = string.Format("{0:n0}", AltCompT * OUTMaximumScale);
 
+                        switch (AirframeT)
+                        {
+                            case 0: Output0Label.Text = "F";
+                                Output1Label.Text = "B";
+                                Output2Label.Text = "R";
+                                Output3Label.Text = "L";
+                                break;// Quadrocopter
+                            case 1: Output0Label.Text = "F";
+                                Output1Label.Text = "S";
+                                Output2Label.Text = "R";
+                                Output3Label.Text = "L";
+                                break;// Tricopter
+                            case 2: Output0Label.Text = "0";
+                                Output1Label.Text = "1";
+                                Output2Label.Text = "2";
+                                Output3Label.Text = "3";
+                                break;// Hexacopter
+                            case 3: Output0Label.Text = "Th";
+                                Output1Label.Text = "R";
+                                Output2Label.Text = "P";
+                                Output3Label.Text = "Y";
+                                break;// Helicopter
+                            case 4: Output0Label.Text = "Th";
+                                Output1Label.Text = "RE";
+                                Output2Label.Text = "LE";
+                                Output3Label.Text = "R";
+                                break;// Flying Wing
+                            case 5: Output0Label.Text = "Th";
+                                Output1Label.Text = "A";
+                                Output2Label.Text = "E";
+                                Output3Label.Text = "R";
+                                break;// Conventional
+                        }
+
                         OutputT0.Text = string.Format("{0:n0}", OutputT[0] * OUTMaximumScale);
                         OutputT1.Text = string.Format("{0:n0}", OutputT[1] * OUTMaximumScale);
                         OutputT2.Text = string.Format("{0:n0}", OutputT[2] * OUTMaximumScale);
@@ -1122,6 +1214,93 @@ namespace UAVXGS
                             RollSumT / AttitudeToDegrees
                             );
                            
+                        break;
+                    case UAVXControlPacketTag:
+                        ControlPacketsReceived++;
+  
+                        DesiredThrottleT = ExtractShort(ref UAVXPacket, 2);
+                        DesiredRollT = ExtractShort(ref UAVXPacket, 4);
+                        DesiredPitchT = ExtractShort(ref UAVXPacket, 6);
+                        DesiredYawT = ExtractShort(ref UAVXPacket, 8);
+                        RollRateT = ExtractShort(ref UAVXPacket, 10);
+                        PitchRateT = ExtractShort(ref UAVXPacket, 12);
+                        YawRateT = ExtractShort(ref UAVXPacket, 14);
+                        RollSumT = ExtractShort(ref UAVXPacket, 16);
+                        PitchSumT = ExtractShort(ref UAVXPacket,18);
+                        YawSumT = ExtractShort(ref UAVXPacket, 20);
+                        LRAccT = ExtractShort(ref UAVXPacket, 22);
+                        FBAccT = ExtractShort(ref UAVXPacket, 24);
+                        DUAccT = ExtractShort(ref UAVXPacket, 26);
+
+                        for (m = 28; m < (28 + 4); m++)
+                            OutputT[m - 28] = ExtractByte(ref UAVXPacket, m);
+
+                        MissionTimeMilliSecT = ExtractInt24(ref UAVXPacket, 32);
+  
+                        DesiredThrottle.Text = string.Format("{0:n0}", ((float)DesiredThrottleT * 100.0) / RCMaximum);
+                        DesiredRoll.Text = string.Format("{0:n0}", ((float)DesiredRollT * 200.0) / RCMaximum);
+                        DesiredPitch.Text = string.Format("{0:n0}", ((float)DesiredPitchT * 200.0) / RCMaximum);
+                        DesiredYaw.Text = string.Format("{0:n0}", ((float)DesiredYawT * 200.0) / RCMaximum);
+                        RollRate.Text = string.Format("{0:n0}", RollRateT);
+                        PitchRate.Text = string.Format("{0:n0}", PitchRateT);
+                        YawRate.Text = string.Format("{0:n0}", YawRateT);
+                        RollSum.Text = string.Format("{0:n0}", RollSumT / AttitudeToDegrees);
+                        PitchSum.Text = string.Format("{0:n0}", PitchSumT / AttitudeToDegrees);
+                        YawSum.Text = string.Format("{0:n0}", YawSumT / AttitudeToDegrees);
+                        LRAcc.Text = string.Format("{0:n2}", (float)LRAccT / 1024.0);
+                        FBAcc.Text = string.Format("{0:n2}", (float)FBAccT / 1024.0);
+                        DUAcc.Text = string.Format("{0:n2}", (float)DUAccT / 1024.0);
+                        LRComp.Text = string.Format("{0:n0}", LRCompT * OUTMaximumScale);
+                        FBComp.Text = string.Format("{0:n0}", FBCompT * OUTMaximumScale);
+                        DUComp.Text = string.Format("{0:n0}", DUCompT * OUTMaximumScale);
+                        AltComp.Text = string.Format("{0:n0}", AltCompT * OUTMaximumScale);
+
+                        switch (AirframeT)
+                        {
+                            case 0: Output0Label.Text = "F";
+                                Output1Label.Text = "B";
+                                Output2Label.Text = "R";
+                                Output3Label.Text = "L";
+                                break;// Quadrocopter
+                            case 1: Output0Label.Text = "F";
+                                Output1Label.Text = "S";
+                                Output2Label.Text = "R";
+                                Output3Label.Text = "L";
+                                break;// Tricopter
+                            case 2: Output0Label.Text = "0";
+                                Output1Label.Text = "1";
+                                Output2Label.Text = "2";
+                                Output3Label.Text = "3";
+                                break;// Hexacopter
+                            case 3: Output0Label.Text = "Th";
+                                Output1Label.Text = "R";
+                                Output2Label.Text = "P";
+                                Output3Label.Text = "Y";
+                                break;// Helicopter
+                            case 4: Output0Label.Text = "Th";
+                                Output1Label.Text = "RE";
+                                Output2Label.Text = "LE";
+                                Output3Label.Text = "R";
+                                break;// Flying Wing
+                            case 5: Output0Label.Text = "Th";
+                                Output1Label.Text = "A";
+                                Output2Label.Text = "E";
+                                Output3Label.Text = "R";
+                                break;// Conventional
+                            }
+
+                        OutputT0.Text = string.Format("{0:n0}", OutputT[0] * OUTMaximumScale);
+                        OutputT1.Text = string.Format("{0:n0}", OutputT[1] * OUTMaximumScale);
+                        OutputT2.Text = string.Format("{0:n0}", OutputT[2] * OUTMaximumScale);
+                        OutputT3.Text = string.Format("{0:n0}", OutputT[3] * OUTMaximumScale);
+ 
+                        MissionTimeSec.Text = string.Format("{0:n3}", MissionTimeMilliSecT * 0.001);
+
+                        attitudeIndicatorInstrumentControl1.SetAttitudeIndicatorParameters(
+                            -PitchSumT / AttitudeToDegrees,
+                            RollSumT / AttitudeToDegrees
+                            );
+
                         break;
                     case UAVXNavPacketTag:
                         NavPacketsReceived++;
@@ -1192,6 +1371,11 @@ namespace UAVXGS
 
                         AmbientTempT = ExtractShort(ref UAVXPacket, 51);
                         GPSMissionTimeT = ExtractInt(ref UAVXPacket, 53);
+
+                        NavSensitivityT = ExtractByte(ref UAVXPacket, 57);
+                        NavRCorrT = ExtractSignedByte(ref UAVXPacket, 58);
+                        NavPCorrT = ExtractSignedByte(ref UAVXPacket, 59);
+                        NavYCorrT = ExtractSignedByte(ref UAVXPacket, 60);
 
                         if ( FirstGPSCoordinates && ((Flags[0] & 0x80) != 0))
                         {
@@ -1264,12 +1448,6 @@ namespace UAVXGS
 
                         AltError = CurrAlt - DesiredAltitudeT;
                         AltitudeError.Text = string.Format("{0:n1}", (float)AltError * 0.1);
-
-                        BaroGPSError.Text = string.Format("{0:n1}", (((double)RelBaroAltitudeT - (double)GPSRelAltitudeT))/ (double)RelBaroAltitudeT * 100.0);
-                        if ((Flags[2] & 0x80) != 0)
-                            BaroRFError.Text = string.Format("{0:n1}", (((double)RelBaroAltitudeT -(double)RangefinderAltitudeT) * 0.1) / (double)RelBaroAltitudeT * 100.0);
-                        else
-                            BaroRFError.Text = " ";
 
                         GPSVel.Text = string.Format("{0:n1}", (double)GPSVelT * 0.1); // dM/Sec
                         GPSROC.Text = string.Format("{0:n1}", (float)GPSROCT * 0.1);
@@ -1348,6 +1526,12 @@ namespace UAVXGS
                             NavStateTimeout.Text = " ";
 
                         AmbientTemp.Text = string.Format("{0:n1}", AmbientTempT * 0.1);
+
+                        NavSensitivity.Text = string.Format("{0:n0}", NavSensitivityT * OUTMaximumScale);
+                        NavRCorr.Text = string.Format("{0:n0}", NavRCorrT * OUTMaximumScale);
+                        NavPCorr.Text = string.Format("{0:n0}", NavPCorrT * OUTMaximumScale);
+                        NavYCorr.Text = string.Format("{0:n0}", NavYCorrT * OUTMaximumScale);
+
                         if (AmbientTempT < 0.0)
                             AmbientTemp.BackColor = System.Drawing.Color.LightSteelBlue;
                         else
@@ -1461,7 +1645,11 @@ namespace UAVXGS
             DesiredLongitudeT + "," +
             NavStateTimeoutT + "," +
             AmbientTempT + "," +
-            GPSMissionTimeT + ",");
+            GPSMissionTimeT + "," +
+            NavSensitivityT + "," +
+            NavRCorrT + "," +
+            NavPCorrT + "," +
+            NavYCorrT + ",");
 
             SaveTextLogFileStreamWriter.WriteLine("Stats," +
             I2CFailsT + "," +
@@ -1573,11 +1761,28 @@ namespace UAVXGS
 
         private void ReplayNumericUpDown_Changed(object sender, EventArgs e)
         {
-            ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
+//            ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
+        }
+
+        private void FormMain_Load(object sender, EventArgs e) {
+          cbReplaySpeed.SelectedIndex = 0;
+        }
+
+        private void btnPause_Click(object sender, EventArgs e) {
+          bPausePlayback = !bPausePlayback;
+
+          if (bPausePlayback)
+            btnPause.BackColor = Color.Yellow;
+          else
+            btnPause.BackColor = SystemColors.Control;
+        }
+
+        private void cbReplaySpeed_SelectedIndexChanged(object sender, EventArgs e) {
+          iPlaybackSpeed = cbReplaySpeed.SelectedIndex;
         }
 
       
-       
+        
     
     }
 }
