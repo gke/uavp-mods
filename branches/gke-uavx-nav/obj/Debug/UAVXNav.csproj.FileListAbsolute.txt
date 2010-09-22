@@ -1,0 +1,18 @@
+C:\Flight\Code\UAVXNav\obj\Debug\ResolveAssemblyReference.cache
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav.Form1.resources
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav.options_form.resources
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav.Properties.Resources.resources
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav.csproj.GenerateResource.Cache
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav.AvionicsInstrumentsControls.AvionicsInstrumentsControlsResources.resources
+C:\Flight\Code\UAVXNav\bin\Debug\Interop.EARTHLib.dll
+C:\Flight\Code\UAVXNav\obj\Debug\Interop.EARTHLib.dll
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav.csproj.ResolveComReference.cache
+C:\Flight\Code\UAVXNav\bin\Debug\UAVXNav 1.02.exe.config
+C:\Flight\Code\UAVXNav\bin\Debug\UAVXNav 1.02.exe.manifest
+C:\Flight\Code\UAVXNav\bin\Debug\UAVXNav 1.02.application
+C:\Flight\Code\UAVXNav\bin\Debug\UAVXNav 1.02.exe
+C:\Flight\Code\UAVXNav\bin\Debug\UAVXNav 1.02.pdb
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav 1.02.exe.manifest
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav 1.02.application
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav 1.02.exe
+C:\Flight\Code\UAVXNav\obj\Debug\UAVXNav 1.02.pdb
