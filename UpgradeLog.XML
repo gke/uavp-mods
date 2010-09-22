@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="UAVXNav">
+</Property><Property Name="Solution File" Value="C:\Flight\Code\UAVXNav\UAVXNav.sln">
+</Property><Property Name="User Options File" Value="C:\Flight\Code\UAVXNav\UAVXNav.suo">
+</Property><Property Name="Date" Value="Monday, May 03, 2010">
+</Property><Property Name="Time" Value="10:55 AM">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="UAVXNav.sln" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\UAVXNav.sln">
+</Event><Event ErrorLevel="0" Project="" Source="UAVXNav.suo" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\UAVXNav.suo">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="UAVXNav.csproj" Description="Project file successfully backed up as C:\Flight\Code\UAVXNav\Backup1\UAVXNav.csproj">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="UAVXNav.csproj.user" Description="Project user file successfully backed up as C:\Flight\Code\UAVXNav\Backup1\UAVXNav.csproj.user">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\AirSpeedIndicatorInstrumentControl.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\AirSpeedIndicatorInstrumentControl.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\AltimeterInstrumentControl.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\AltimeterInstrumentControl.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\AttitudeIndicatorInstrumentControl.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\AttitudeIndicatorInstrumentControl.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\AvionicsInstrumentsControlsResources.Designer.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\AvionicsInstrumentsControlsResources.Designer.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\HeadingIndicatorInstrumentControl.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\HeadingIndicatorInstrumentControl.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\InstrumentControl.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\InstrumentControl.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\TurnCoordinatorInstrumentControl.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\TurnCoordinatorInstrumentControl.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\VerticalSpeedIndicatorInstrumentControl.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\VerticalSpeedIndicatorInstrumentControl.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Form1.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Form1.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Form1.Designer.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Form1.Designer.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="ModifyRegistry.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\ModifyRegistry.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="options_form.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\options_form.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="options_form.Designer.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\options_form.Designer.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Program.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Program.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Properties\AssemblyInfo.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Properties\Resources.Designer.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Properties\Resources.Designer.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Properties\Settings.Designer.cs" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Properties\Settings.Designer.cs">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="app.config" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\app.config">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="ClassDiagram1.cd" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\ClassDiagram1.cd">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Properties\Settings.settings" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Properties\Settings.settings">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Maps.html" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Maps.html">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\AirSpeedIndicator_Background.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\AirSpeedIndicator_Background.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\AirSpeedNeedle.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\AirSpeedNeedle.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\Altimeter_Background.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\Altimeter_Background.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\Bandeau_Dérouleur.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\Bandeau_Dérouleur.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\HeadingIndicator_Aircraft.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\HeadingIndicator_Aircraft.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\HeadingIndicator_Background.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\HeadingIndicator_Background.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\HeadingWeel.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\HeadingWeel.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\Horizon_Background.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\Horizon_Background.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\Horizon_GroundSky.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\Horizon_GroundSky.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\Indicator_Background.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\Indicator_Background.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\LongNeedleAltimeter.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\LongNeedleAltimeter.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\Maquette_Avion.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\Maquette_Avion.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\SmallNeedleAltimeter.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\SmallNeedleAltimeter.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\TurnCoordinatorAircraft.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\TurnCoordinatorAircraft.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\TurnCoordinatorBall.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\TurnCoordinatorBall.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\TurnCoordinatorMarks.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\TurnCoordinatorMarks.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\TurnCoordinator_Background.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\TurnCoordinator_Background.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\VerticalSpeedIndicator_Background.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\VerticalSpeedIndicator_Background.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Resources\VerticalSpeedNeedle.bmp" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Resources\VerticalSpeedNeedle.bmp">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="uavpset.ico" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\uavpset.ico">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="AvionicsInstrumentsControls\AvionicsInstrumentsControlsResources.resx" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\AvionicsInstrumentsControls\AvionicsInstrumentsControlsResources.resx">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Form1.resx" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Form1.resx">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="options_form.resx" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\options_form.resx">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="Properties\Resources.resx" Description="File successfully backed up as C:\Flight\Code\UAVXNav\Backup1\Properties\Resources.resx">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="UAVXNav.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="UAVXNav" Source="UAVXNav.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="UAVXNav.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="UAVXNav.sln" Description="Converted">
+</Event><Event ErrorLevel="0" Project="UAVXNav" Source="UAVXNav.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>
