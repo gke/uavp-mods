@@ -1213,7 +1213,7 @@ namespace UAVXGS
                             -PitchSumT / AttitudeToDegrees,
                             RollSumT / AttitudeToDegrees
                             );
-                           
+                        WriteTextLogFile();
                         break;
                     case UAVXControlPacketTag:
                         ControlPacketsReceived++;
@@ -1301,6 +1301,7 @@ namespace UAVXGS
                             RollSumT / AttitudeToDegrees
                             );
 
+                        WriteTextLogFile();
                         break;
                     case UAVXNavPacketTag:
                         NavPacketsReceived++;
@@ -1543,7 +1544,7 @@ namespace UAVXGS
                         break;
                     default: break;
                     } // switch
-                  WriteTextLogFile();
+                  
                 }
             }
             ReadingTelemetry = false;
