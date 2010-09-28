@@ -44,7 +44,8 @@ It is assumed you:
 
 === Board Diagram ===
   *  Board connections:
-http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3492589-226-UAVP%20top%20board%20jesolins.jpg?d=1285235835
+
+http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20top%20board%20jesolins.jpg?d=1285275448
  
 === Tx/Rx ===
   * Also read the Tx/Rx Setup paragraph.
