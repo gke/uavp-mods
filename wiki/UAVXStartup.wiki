@@ -27,7 +27,7 @@ It is assumed you:
 
 === Notes/FAQs ===
 
-  * Is there a Pre-flight Safety Checklist: There *IS* a safety checklist which you should use (see below).
+  * Is there a Pre-flight Safety Checklist: There *IS* a safety checklist which you should use [http://code.google.com/p/uavp-mods/wiki/UAVPandUAVXFlightChecklist UAVX Flight Checklist] 
 
 === Obtaining UAVX ===
   * How do get UAVX: The latest version of UAVX may be obtained under the downloads tab on the uavp-mods pages or you may obtain it preloaded from quadroufo.com.
