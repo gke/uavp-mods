@@ -8,7 +8,9 @@ The second was recommended by jesolins on rcgroup. It is quoted here:
 
 {{{
 All,
-Here is a good way to test your compass. Put a 10 in the compass parameter window. Make changes to the Yaw parameters: P=0, I=-25(* use plus if F&R are CW rotation), D=0, L=25, IL=2. If it is working correctly, it will hold heading with a little bit of searching with no yaw gyro input. Because of this test, I now use (-20 to -25) in my Yaw "I" and (-25 to -30) in yaw "P" and the heading holds very well.
+Here is a good way to test your compass. Put a 10 in the compass parameter window. Make
+changes to the Yaw parameters: P=0, I=-25(* use plus if F&R are CW rotation), D=0, L=25,
+IL=2. Now *safely* do a hand test with hover power.  If it is working correctly, it will hold heading with a little bit of searching with no yaw gyro input. Because of this test, I now use (-20 to -25) in my Yaw "I" and (-25 to -30) in yaw "P" and the heading holds very well.
 Cheers,
 Jim 
 }}}
