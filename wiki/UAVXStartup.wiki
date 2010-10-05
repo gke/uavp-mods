@@ -212,7 +212,7 @@ range.  Some ESC's automatically calibrate the throttle range.  It is
 not recommended to use the ESC's that automatically adjust the throttle 
 range as this is not compatable with multicopter boards.
 
-*Note 3:* Many of these ESC's can be modified for I2c communications 
+*Note 3:* Many of these ESC's can be modified for I2c communications or fast PWM 
 which the UAVP board can also use if desired.  If you have the skills 
 and are interested in doing this please see the ESC conversion 
 paragraph in the [http://www.rcgroups.com/forums/showthread.php?t=1097355 Quadrocopter 
@@ -222,7 +222,7 @@ and Tricopter Mega Link Index]
 *1. Recommended ESC's:
 
   * 10A and higher as required for your motors
-  * [http://www.quadroufo.com Quadroufo.com] 30A
+  * [http://www.quadroufo.com Quadroufo.com] 30A (note that Quadroufo ESC's that have the fast PWM modified firmware do not require throttle calibration)
   * HKSS 
   * Turnigy Plush 
   * Mystery 
