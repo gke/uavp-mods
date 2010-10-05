@@ -222,7 +222,7 @@ and Tricopter Mega Link Index]
 *1. Recommended ESC's:
 
   * 10A and higher as required for your motors
-  * [http://www.quadroufo.com Quadroufo.com] 30A (note that Quadroufo ESC's that have the fast PWM modified firmware do not require throttle calibration)
+  * [http://www.quadroufo.com Quadroufo.com] Standard 30A ESCs (note that if you requested from Quadroufo to have the fast PWM modified firmware installed on the ESC's, then they do not require throttle calibration)
   * HKSS 
   * Turnigy Plush 
   * Mystery 
