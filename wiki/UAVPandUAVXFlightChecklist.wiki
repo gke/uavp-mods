@@ -55,7 +55,7 @@ For UAVX confirm channel 5 switch is in the manual/hover position. This appears 
 
 6. Fly! Keep several feet from walls and ceilings, or trees and buildings when outside as there will be a tendency for the quad to get sucked into them by the air currents it generates. 
 
-7. Land as soon as the lipo voltage alarm sounds.  Recommended setting is to 48=10.43v in order to allow at least a 1 minute pad for completing a landing with reserve power. The red LED will blink and the beeper will sound steadily when the lipo is below the minimum set voltage.
+7. Land as soon as the lipo voltage alarm sounds.  Recommended setting is to 48=10.43v in order to allow at least a 1 minute pad for completing a landing with reserve power. The red LED will blink and the beeper will sound steadily when the lipo is below the minimum set voltage.  *Warning!:  If you used the auto land feature make certain that you put the throttle to minimum immediately after landing.  If you forget to do so and then put the RTH ch5 switch in PH, the model will immediately launch!*
 
 8. *Disarm* then remove power from UAVX, then turn Tx off.  *Warning!:  Never turn the Tx off first!
 
