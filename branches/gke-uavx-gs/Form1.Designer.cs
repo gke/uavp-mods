@@ -179,24 +179,13 @@ namespace UAVXGS
             this.AltCompLabel = new System.Windows.Forms.Label();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.SimulationTextBox = new System.Windows.Forms.TextBox();
-            this.BaroCalibrationGroupBox = new System.Windows.Forms.GroupBox();
-            this.NavSensitivity = new System.Windows.Forms.TextBox();
-            this.NavSensitivtyLabel = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.NavRCorr = new System.Windows.Forms.TextBox();
-            this.NavPCorr = new System.Windows.Forms.TextBox();
-            this.NavYCorr = new System.Windows.Forms.TextBox();
-            this.RollCorrLabel = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.NavPCorrLabel = new System.Windows.Forms.Label();
             this.OutputGroupBox = new System.Windows.Forms.GroupBox();
-            this.Output0Label = new System.Windows.Forms.Label();
+            this.Output2Label = new System.Windows.Forms.Label();
+            this.Output3Label = new System.Windows.Forms.Label();
+            this.Output1Label = new System.Windows.Forms.Label();
             this.Output5Label = new System.Windows.Forms.Label();
             this.Output4Label = new System.Windows.Forms.Label();
-            this.Output3Label = new System.Windows.Forms.Label();
-            this.Output2Label = new System.Windows.Forms.Label();
-            this.Output1Label = new System.Windows.Forms.Label();
-            this.PWM0Label = new System.Windows.Forms.Label();
+            this.Output0Label = new System.Windows.Forms.Label();
             this.OutputT5 = new System.Windows.Forms.TextBox();
             this.OutputT4 = new System.Windows.Forms.TextBox();
             this.OutputT3 = new System.Windows.Forms.TextBox();
@@ -249,8 +238,17 @@ namespace UAVXGS
             this.ReplayButton = new System.Windows.Forms.Button();
             this.ReplayProgressBar = new System.Windows.Forms.ProgressBar();
             this.Airframe = new System.Windows.Forms.TextBox();
-            this.btnPause = new System.Windows.Forms.Button();
-            this.cbReplaySpeed = new System.Windows.Forms.ComboBox();
+            this.ReplayNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.NavCompBox = new System.Windows.Forms.GroupBox();
+            this.NavSensitivity = new System.Windows.Forms.TextBox();
+            this.NavSensitivityLabel = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.NavYCorr = new System.Windows.Forms.TextBox();
+            this.NavRCorr = new System.Windows.Forms.TextBox();
+            this.NavPCorr = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
             this.GyroGroupBox.SuspendLayout();
@@ -267,12 +265,13 @@ namespace UAVXGS
             this.NavGroupBox.SuspendLayout();
             this.LocationBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.BaroCalibrationGroupBox.SuspendLayout();
             this.OutputGroupBox.SuspendLayout();
             this.BaroStatsGroupBox.SuspendLayout();
             this.ErrorStatsGroupBox.SuspendLayout();
             this.GPSStatsGroupBox.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReplayNumericUpDown)).BeginInit();
+            this.NavCompBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // FlyingButton
@@ -444,7 +443,7 @@ namespace UAVXGS
             // LRAccLabel
             // 
             this.LRAccLabel.AutoSize = true;
-            this.LRAccLabel.Location = new System.Drawing.Point(5, 25);
+            this.LRAccLabel.Location = new System.Drawing.Point(6, 20);
             this.LRAccLabel.Name = "LRAccLabel";
             this.LRAccLabel.Size = new System.Drawing.Size(21, 13);
             this.LRAccLabel.TabIndex = 26;
@@ -453,7 +452,7 @@ namespace UAVXGS
             // FBAccLabel
             // 
             this.FBAccLabel.AutoSize = true;
-            this.FBAccLabel.Location = new System.Drawing.Point(5, 51);
+            this.FBAccLabel.Location = new System.Drawing.Point(5, 48);
             this.FBAccLabel.Name = "FBAccLabel";
             this.FBAccLabel.Size = new System.Drawing.Size(20, 13);
             this.FBAccLabel.TabIndex = 27;
@@ -462,7 +461,7 @@ namespace UAVXGS
             // DUAccLabel
             // 
             this.DUAccLabel.AutoSize = true;
-            this.DUAccLabel.Location = new System.Drawing.Point(5, 72);
+            this.DUAccLabel.Location = new System.Drawing.Point(6, 74);
             this.DUAccLabel.Name = "DUAccLabel";
             this.DUAccLabel.Size = new System.Drawing.Size(23, 13);
             this.DUAccLabel.TabIndex = 28;
@@ -1634,10 +1633,10 @@ namespace UAVXGS
             // 
             // MessageTextBox
             // 
-            this.MessageTextBox.Location = new System.Drawing.Point(587, 567);
+            this.MessageTextBox.Location = new System.Drawing.Point(587, 563);
             this.MessageTextBox.Multiline = true;
             this.MessageTextBox.Name = "MessageTextBox";
-            this.MessageTextBox.Size = new System.Drawing.Size(249, 59);
+            this.MessageTextBox.Size = new System.Drawing.Size(249, 63);
             this.MessageTextBox.TabIndex = 110;
             // 
             // LocationBox
@@ -1711,17 +1710,17 @@ namespace UAVXGS
             // 
             // LRComp
             // 
-            this.LRComp.Location = new System.Drawing.Point(6, 29);
+            this.LRComp.Location = new System.Drawing.Point(8, 29);
             this.LRComp.Name = "LRComp";
             this.LRComp.ReadOnly = true;
-            this.LRComp.Size = new System.Drawing.Size(25, 20);
+            this.LRComp.Size = new System.Drawing.Size(26, 20);
             this.LRComp.TabIndex = 59;
             this.LRComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // LRCompLabel
             // 
             this.LRCompLabel.AutoSize = true;
-            this.LRCompLabel.Location = new System.Drawing.Point(9, 14);
+            this.LRCompLabel.Location = new System.Drawing.Point(9, 13);
             this.LRCompLabel.Name = "LRCompLabel";
             this.LRCompLabel.Size = new System.Drawing.Size(21, 13);
             this.LRCompLabel.TabIndex = 65;
@@ -1737,35 +1736,35 @@ namespace UAVXGS
             // 
             // AltComp
             // 
-            this.AltComp.Location = new System.Drawing.Point(102, 29);
+            this.AltComp.Location = new System.Drawing.Point(105, 29);
             this.AltComp.Name = "AltComp";
             this.AltComp.ReadOnly = true;
-            this.AltComp.Size = new System.Drawing.Size(28, 20);
+            this.AltComp.Size = new System.Drawing.Size(26, 20);
             this.AltComp.TabIndex = 43;
             this.AltComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // FBComp
             // 
-            this.FBComp.Location = new System.Drawing.Point(37, 29);
+            this.FBComp.Location = new System.Drawing.Point(40, 29);
             this.FBComp.Name = "FBComp";
             this.FBComp.ReadOnly = true;
-            this.FBComp.Size = new System.Drawing.Size(28, 20);
+            this.FBComp.Size = new System.Drawing.Size(26, 20);
             this.FBComp.TabIndex = 58;
             this.FBComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // DUComp
             // 
-            this.DUComp.Location = new System.Drawing.Point(71, 29);
+            this.DUComp.Location = new System.Drawing.Point(72, 29);
             this.DUComp.Name = "DUComp";
             this.DUComp.ReadOnly = true;
-            this.DUComp.Size = new System.Drawing.Size(25, 20);
+            this.DUComp.Size = new System.Drawing.Size(27, 20);
             this.DUComp.TabIndex = 46;
             this.DUComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // FBCompLabel
             // 
             this.FBCompLabel.AutoSize = true;
-            this.FBCompLabel.Location = new System.Drawing.Point(41, 14);
+            this.FBCompLabel.Location = new System.Drawing.Point(41, 13);
             this.FBCompLabel.Name = "FBCompLabel";
             this.FBCompLabel.Size = new System.Drawing.Size(20, 13);
             this.FBCompLabel.TabIndex = 74;
@@ -1774,7 +1773,7 @@ namespace UAVXGS
             // DUCompLabel
             // 
             this.DUCompLabel.AutoSize = true;
-            this.DUCompLabel.Location = new System.Drawing.Point(73, 14);
+            this.DUCompLabel.Location = new System.Drawing.Point(76, 13);
             this.DUCompLabel.Name = "DUCompLabel";
             this.DUCompLabel.Size = new System.Drawing.Size(23, 13);
             this.DUCompLabel.TabIndex = 75;
@@ -1783,7 +1782,7 @@ namespace UAVXGS
             // AltCompLabel
             // 
             this.AltCompLabel.AutoSize = true;
-            this.AltCompLabel.Location = new System.Drawing.Point(109, 14);
+            this.AltCompLabel.Location = new System.Drawing.Point(109, 13);
             this.AltCompLabel.Name = "AltCompLabel";
             this.AltCompLabel.Size = new System.Drawing.Size(19, 13);
             this.AltCompLabel.TabIndex = 67;
@@ -1804,113 +1803,14 @@ namespace UAVXGS
             this.SimulationTextBox.TabIndex = 154;
             this.SimulationTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // BaroCalibrationGroupBox
-            // 
-            this.BaroCalibrationGroupBox.Controls.Add(this.NavSensitivity);
-            this.BaroCalibrationGroupBox.Controls.Add(this.NavSensitivtyLabel);
-            this.BaroCalibrationGroupBox.Controls.Add(this.label5);
-            this.BaroCalibrationGroupBox.Controls.Add(this.NavRCorr);
-            this.BaroCalibrationGroupBox.Controls.Add(this.NavPCorr);
-            this.BaroCalibrationGroupBox.Controls.Add(this.NavYCorr);
-            this.BaroCalibrationGroupBox.Controls.Add(this.RollCorrLabel);
-            this.BaroCalibrationGroupBox.Controls.Add(this.label4);
-            this.BaroCalibrationGroupBox.Controls.Add(this.NavPCorrLabel);
-            this.BaroCalibrationGroupBox.Location = new System.Drawing.Point(12, 381);
-            this.BaroCalibrationGroupBox.Name = "BaroCalibrationGroupBox";
-            this.BaroCalibrationGroupBox.Size = new System.Drawing.Size(160, 57);
-            this.BaroCalibrationGroupBox.TabIndex = 155;
-            this.BaroCalibrationGroupBox.TabStop = false;
-            this.BaroCalibrationGroupBox.Text = "Nav Correction (%)";
-            // 
-            // NavSensitivity
-            // 
-            this.NavSensitivity.Location = new System.Drawing.Point(6, 29);
-            this.NavSensitivity.Name = "NavSensitivity";
-            this.NavSensitivity.ReadOnly = true;
-            this.NavSensitivity.Size = new System.Drawing.Size(34, 20);
-            this.NavSensitivity.TabIndex = 80;
-            this.NavSensitivity.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // NavSensitivtyLabel
-            // 
-            this.NavSensitivtyLabel.AutoSize = true;
-            this.NavSensitivtyLabel.Location = new System.Drawing.Point(9, 14);
-            this.NavSensitivtyLabel.Name = "NavSensitivtyLabel";
-            this.NavSensitivtyLabel.Size = new System.Drawing.Size(34, 13);
-            this.NavSensitivtyLabel.TabIndex = 79;
-            this.NavSensitivtyLabel.Text = "Sens.";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(126, 14);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(28, 13);
-            this.label5.TabIndex = 78;
-            this.label5.Text = "Yaw";
-            // 
-            // NavRCorr
-            // 
-            this.NavRCorr.Location = new System.Drawing.Point(46, 29);
-            this.NavRCorr.Name = "NavRCorr";
-            this.NavRCorr.ReadOnly = true;
-            this.NavRCorr.Size = new System.Drawing.Size(34, 20);
-            this.NavRCorr.TabIndex = 77;
-            this.NavRCorr.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // NavPCorr
-            // 
-            this.NavPCorr.Location = new System.Drawing.Point(86, 29);
-            this.NavPCorr.Name = "NavPCorr";
-            this.NavPCorr.ReadOnly = true;
-            this.NavPCorr.Size = new System.Drawing.Size(32, 20);
-            this.NavPCorr.TabIndex = 76;
-            this.NavPCorr.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // NavYCorr
-            // 
-            this.NavYCorr.Location = new System.Drawing.Point(125, 29);
-            this.NavYCorr.Name = "NavYCorr";
-            this.NavYCorr.ReadOnly = true;
-            this.NavYCorr.Size = new System.Drawing.Size(29, 20);
-            this.NavYCorr.TabIndex = 75;
-            this.NavYCorr.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // RollCorrLabel
-            // 
-            this.RollCorrLabel.AutoSize = true;
-            this.RollCorrLabel.Location = new System.Drawing.Point(51, 14);
-            this.RollCorrLabel.Name = "RollCorrLabel";
-            this.RollCorrLabel.Size = new System.Drawing.Size(25, 13);
-            this.RollCorrLabel.TabIndex = 65;
-            this.RollCorrLabel.Text = "Roll";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 29);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(0, 13);
-            this.label4.TabIndex = 62;
-            // 
-            // NavPCorrLabel
-            // 
-            this.NavPCorrLabel.AutoSize = true;
-            this.NavPCorrLabel.Location = new System.Drawing.Point(86, 14);
-            this.NavPCorrLabel.Name = "NavPCorrLabel";
-            this.NavPCorrLabel.Size = new System.Drawing.Size(31, 13);
-            this.NavPCorrLabel.TabIndex = 74;
-            this.NavPCorrLabel.Text = "Pitch";
-            // 
             // OutputGroupBox
             // 
-            this.OutputGroupBox.Controls.Add(this.Output0Label);
+            this.OutputGroupBox.Controls.Add(this.Output2Label);
+            this.OutputGroupBox.Controls.Add(this.Output3Label);
+            this.OutputGroupBox.Controls.Add(this.Output1Label);
             this.OutputGroupBox.Controls.Add(this.Output5Label);
             this.OutputGroupBox.Controls.Add(this.Output4Label);
-            this.OutputGroupBox.Controls.Add(this.Output3Label);
-            this.OutputGroupBox.Controls.Add(this.Output2Label);
-            this.OutputGroupBox.Controls.Add(this.Output1Label);
-            this.OutputGroupBox.Controls.Add(this.PWM0Label);
+            this.OutputGroupBox.Controls.Add(this.Output0Label);
             this.OutputGroupBox.Controls.Add(this.OutputT5);
             this.OutputGroupBox.Controls.Add(this.OutputT4);
             this.OutputGroupBox.Controls.Add(this.OutputT3);
@@ -1919,76 +1819,68 @@ namespace UAVXGS
             this.OutputGroupBox.Controls.Add(this.OutputT0);
             this.OutputGroupBox.Location = new System.Drawing.Point(587, 501);
             this.OutputGroupBox.Name = "OutputGroupBox";
-            this.OutputGroupBox.Size = new System.Drawing.Size(249, 60);
+            this.OutputGroupBox.Size = new System.Drawing.Size(249, 56);
             this.OutputGroupBox.TabIndex = 156;
             this.OutputGroupBox.TabStop = false;
             this.OutputGroupBox.Text = "Outputs (%)";
             // 
-            // Output0Label
+            // Output2Label
             // 
-            this.Output0Label.AutoSize = true;
-            this.Output0Label.Location = new System.Drawing.Point(19, 16);
-            this.Output0Label.Name = "Output0Label";
-            this.Output0Label.Size = new System.Drawing.Size(13, 13);
-            this.Output0Label.TabIndex = 85;
-            this.Output0Label.Text = "0";
+            this.Output2Label.AutoSize = true;
+            this.Output2Label.Location = new System.Drawing.Point(96, 13);
+            this.Output2Label.Name = "Output2Label";
+            this.Output2Label.Size = new System.Drawing.Size(13, 13);
+            this.Output2Label.TabIndex = 73;
+            this.Output2Label.Text = "2";
+            // 
+            // Output3Label
+            // 
+            this.Output3Label.AutoSize = true;
+            this.Output3Label.Location = new System.Drawing.Point(128, 13);
+            this.Output3Label.Name = "Output3Label";
+            this.Output3Label.Size = new System.Drawing.Size(13, 13);
+            this.Output3Label.TabIndex = 72;
+            this.Output3Label.Text = "3";
+            // 
+            // Output1Label
+            // 
+            this.Output1Label.AutoSize = true;
+            this.Output1Label.Location = new System.Drawing.Point(56, 13);
+            this.Output1Label.Name = "Output1Label";
+            this.Output1Label.Size = new System.Drawing.Size(13, 13);
+            this.Output1Label.TabIndex = 71;
+            this.Output1Label.Text = "1";
             // 
             // Output5Label
             // 
             this.Output5Label.AutoSize = true;
-            this.Output5Label.Location = new System.Drawing.Point(208, 16);
+            this.Output5Label.Location = new System.Drawing.Point(208, 13);
             this.Output5Label.Name = "Output5Label";
             this.Output5Label.Size = new System.Drawing.Size(35, 13);
-            this.Output5Label.TabIndex = 84;
+            this.Output5Label.TabIndex = 70;
             this.Output5Label.Text = "CamP";
             // 
             // Output4Label
             // 
             this.Output4Label.AutoSize = true;
-            this.Output4Label.Location = new System.Drawing.Point(169, 16);
+            this.Output4Label.Location = new System.Drawing.Point(169, 13);
             this.Output4Label.Name = "Output4Label";
             this.Output4Label.Size = new System.Drawing.Size(36, 13);
-            this.Output4Label.TabIndex = 83;
+            this.Output4Label.TabIndex = 69;
             this.Output4Label.Text = "CamR";
             // 
-            // Output3Label
+            // Output0Label
             // 
-            this.Output3Label.AutoSize = true;
-            this.Output3Label.Location = new System.Drawing.Point(133, 16);
-            this.Output3Label.Name = "Output3Label";
-            this.Output3Label.Size = new System.Drawing.Size(13, 13);
-            this.Output3Label.TabIndex = 82;
-            this.Output3Label.Text = "3";
-            // 
-            // Output2Label
-            // 
-            this.Output2Label.AutoSize = true;
-            this.Output2Label.Location = new System.Drawing.Point(97, 16);
-            this.Output2Label.Name = "Output2Label";
-            this.Output2Label.Size = new System.Drawing.Size(13, 13);
-            this.Output2Label.TabIndex = 81;
-            this.Output2Label.Text = "2";
-            // 
-            // Output1Label
-            // 
-            this.Output1Label.AutoSize = true;
-            this.Output1Label.Location = new System.Drawing.Point(57, 16);
-            this.Output1Label.Name = "Output1Label";
-            this.Output1Label.Size = new System.Drawing.Size(13, 13);
-            this.Output1Label.TabIndex = 80;
-            this.Output1Label.Text = "1";
-            // 
-            // PWM0Label
-            // 
-            this.PWM0Label.AutoSize = true;
-            this.PWM0Label.Location = new System.Drawing.Point(12, 16);
-            this.PWM0Label.Name = "PWM0Label";
-            this.PWM0Label.Size = new System.Drawing.Size(0, 13);
-            this.PWM0Label.TabIndex = 79;
+            this.Output0Label.AutoSize = true;
+            this.Output0Label.Location = new System.Drawing.Point(18, 13);
+            this.Output0Label.Name = "Output0Label";
+            this.Output0Label.Size = new System.Drawing.Size(13, 13);
+            this.Output0Label.TabIndex = 68;
+            this.Output0Label.Text = "0";
             // 
             // OutputT5
             // 
-            this.OutputT5.Location = new System.Drawing.Point(210, 32);
+            this.OutputT5.Location = new System.Drawing.Point(210, 30);
             this.OutputT5.Name = "OutputT5";
             this.OutputT5.ReadOnly = true;
             this.OutputT5.Size = new System.Drawing.Size(32, 20);
@@ -1997,7 +1889,7 @@ namespace UAVXGS
             // 
             // OutputT4
             // 
-            this.OutputT4.Location = new System.Drawing.Point(172, 32);
+            this.OutputT4.Location = new System.Drawing.Point(172, 30);
             this.OutputT4.Name = "OutputT4";
             this.OutputT4.ReadOnly = true;
             this.OutputT4.Size = new System.Drawing.Size(32, 20);
@@ -2006,7 +1898,7 @@ namespace UAVXGS
             // 
             // OutputT3
             // 
-            this.OutputT3.Location = new System.Drawing.Point(123, 32);
+            this.OutputT3.Location = new System.Drawing.Point(122, 30);
             this.OutputT3.Name = "OutputT3";
             this.OutputT3.ReadOnly = true;
             this.OutputT3.Size = new System.Drawing.Size(32, 20);
@@ -2015,7 +1907,7 @@ namespace UAVXGS
             // 
             // OutputT2
             // 
-            this.OutputT2.Location = new System.Drawing.Point(85, 32);
+            this.OutputT2.Location = new System.Drawing.Point(84, 30);
             this.OutputT2.Name = "OutputT2";
             this.OutputT2.ReadOnly = true;
             this.OutputT2.Size = new System.Drawing.Size(32, 20);
@@ -2024,7 +1916,7 @@ namespace UAVXGS
             // 
             // OutputT1
             // 
-            this.OutputT1.Location = new System.Drawing.Point(47, 32);
+            this.OutputT1.Location = new System.Drawing.Point(46, 30);
             this.OutputT1.Name = "OutputT1";
             this.OutputT1.ReadOnly = true;
             this.OutputT1.Size = new System.Drawing.Size(32, 20);
@@ -2033,7 +1925,7 @@ namespace UAVXGS
             // 
             // OutputT0
             // 
-            this.OutputT0.Location = new System.Drawing.Point(9, 32);
+            this.OutputT0.Location = new System.Drawing.Point(8, 30);
             this.OutputT0.Name = "OutputT0";
             this.OutputT0.ReadOnly = true;
             this.OutputT0.Size = new System.Drawing.Size(32, 20);
@@ -2494,30 +2386,122 @@ namespace UAVXGS
             this.Airframe.Text = "Quadrocopter";
             this.Airframe.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // btnPause
+            // ReplayNumericUpDown
             // 
-            this.btnPause.Location = new System.Drawing.Point(381, 1);
-            this.btnPause.Name = "btnPause";
-            this.btnPause.Size = new System.Drawing.Size(75, 23);
-            this.btnPause.TabIndex = 167;
-            this.btnPause.Text = "Pause";
-            this.btnPause.UseVisualStyleBackColor = true;
-            this.btnPause.Click += new System.EventHandler(this.btnPause_Click);
+            this.ReplayNumericUpDown.Location = new System.Drawing.Point(380, 3);
+            this.ReplayNumericUpDown.Maximum = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            this.ReplayNumericUpDown.Name = "ReplayNumericUpDown";
+            this.ReplayNumericUpDown.Size = new System.Drawing.Size(41, 20);
+            this.ReplayNumericUpDown.TabIndex = 167;
+            this.ReplayNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ReplayNumericUpDown.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.ReplayNumericUpDown.ValueChanged += new System.EventHandler(this.ReplayNumericUpDown_Changed);
             // 
-            // cbReplaySpeed
+            // NavCompBox
             // 
-            this.cbReplaySpeed.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbReplaySpeed.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.cbReplaySpeed.FormattingEnabled = true;
-            this.cbReplaySpeed.Items.AddRange(new object[] {
-            "Normal Speed",
-            "Half Speed",
-            "Double Speed"});
-            this.cbReplaySpeed.Location = new System.Drawing.Point(464, 1);
-            this.cbReplaySpeed.Name = "cbReplaySpeed";
-            this.cbReplaySpeed.Size = new System.Drawing.Size(121, 21);
-            this.cbReplaySpeed.TabIndex = 168;
-            this.cbReplaySpeed.SelectedIndexChanged += new System.EventHandler(this.cbReplaySpeed_SelectedIndexChanged);
+            this.NavCompBox.Controls.Add(this.NavSensitivity);
+            this.NavCompBox.Controls.Add(this.NavSensitivityLabel);
+            this.NavCompBox.Controls.Add(this.label5);
+            this.NavCompBox.Controls.Add(this.NavYCorr);
+            this.NavCompBox.Controls.Add(this.NavRCorr);
+            this.NavCompBox.Controls.Add(this.NavPCorr);
+            this.NavCompBox.Controls.Add(this.label6);
+            this.NavCompBox.Controls.Add(this.label7);
+            this.NavCompBox.Controls.Add(this.label8);
+            this.NavCompBox.Location = new System.Drawing.Point(12, 381);
+            this.NavCompBox.Name = "NavCompBox";
+            this.NavCompBox.Size = new System.Drawing.Size(160, 57);
+            this.NavCompBox.TabIndex = 104;
+            this.NavCompBox.TabStop = false;
+            this.NavCompBox.Text = "Nav (%)";
+            // 
+            // NavSensitivity
+            // 
+            this.NavSensitivity.Location = new System.Drawing.Point(6, 29);
+            this.NavSensitivity.Name = "NavSensitivity";
+            this.NavSensitivity.ReadOnly = true;
+            this.NavSensitivity.Size = new System.Drawing.Size(34, 20);
+            this.NavSensitivity.TabIndex = 59;
+            this.NavSensitivity.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // NavSensitivityLabel
+            // 
+            this.NavSensitivityLabel.AutoSize = true;
+            this.NavSensitivityLabel.Location = new System.Drawing.Point(9, 13);
+            this.NavSensitivityLabel.Name = "NavSensitivityLabel";
+            this.NavSensitivityLabel.Size = new System.Drawing.Size(34, 13);
+            this.NavSensitivityLabel.TabIndex = 65;
+            this.NavSensitivityLabel.Text = "Sens.";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(9, 29);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(0, 13);
+            this.label5.TabIndex = 62;
+            // 
+            // NavYCorr
+            // 
+            this.NavYCorr.Location = new System.Drawing.Point(124, 29);
+            this.NavYCorr.Name = "NavYCorr";
+            this.NavYCorr.ReadOnly = true;
+            this.NavYCorr.Size = new System.Drawing.Size(30, 20);
+            this.NavYCorr.TabIndex = 43;
+            this.NavYCorr.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // NavRCorr
+            // 
+            this.NavRCorr.Location = new System.Drawing.Point(47, 29);
+            this.NavRCorr.Name = "NavRCorr";
+            this.NavRCorr.ReadOnly = true;
+            this.NavRCorr.Size = new System.Drawing.Size(34, 20);
+            this.NavRCorr.TabIndex = 58;
+            this.NavRCorr.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // NavPCorr
+            // 
+            this.NavPCorr.Location = new System.Drawing.Point(87, 29);
+            this.NavPCorr.Name = "NavPCorr";
+            this.NavPCorr.ReadOnly = true;
+            this.NavPCorr.Size = new System.Drawing.Size(31, 20);
+            this.NavPCorr.TabIndex = 46;
+            this.NavPCorr.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(51, 13);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(25, 13);
+            this.label6.TabIndex = 74;
+            this.label6.Text = "Roll";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(87, 13);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(31, 13);
+            this.label7.TabIndex = 75;
+            this.label7.Text = "Pitch";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(125, 13);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(28, 13);
+            this.label8.TabIndex = 67;
+            this.label8.Text = "Yaw";
             // 
             // headingIndicatorInstrumentControl1
             // 
@@ -2540,8 +2524,8 @@ namespace UAVXGS
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(848, 633);
-            this.Controls.Add(this.cbReplaySpeed);
-            this.Controls.Add(this.btnPause);
+            this.Controls.Add(this.NavCompBox);
+            this.Controls.Add(this.ReplayNumericUpDown);
             this.Controls.Add(this.Airframe);
             this.Controls.Add(this.ReplayProgressBar);
             this.Controls.Add(this.ReplayButton);
@@ -2555,7 +2539,6 @@ namespace UAVXGS
             this.Controls.Add(this.LocationBox);
             this.Controls.Add(this.GPSStatsGroupBox);
             this.Controls.Add(this.OutputGroupBox);
-            this.Controls.Add(this.BaroCalibrationGroupBox);
             this.Controls.Add(this.SimulationTextBox);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.MessageTextBox);
@@ -2583,7 +2566,6 @@ namespace UAVXGS
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormMain";
             this.Text = "UAVXGS";
-            this.Load += new System.EventHandler(this.FormMain_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.GyroGroupBox.ResumeLayout(false);
             this.GyroGroupBox.PerformLayout();
@@ -2612,8 +2594,6 @@ namespace UAVXGS
             this.LocationBox.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.BaroCalibrationGroupBox.ResumeLayout(false);
-            this.BaroCalibrationGroupBox.PerformLayout();
             this.OutputGroupBox.ResumeLayout(false);
             this.OutputGroupBox.PerformLayout();
             this.BaroStatsGroupBox.ResumeLayout(false);
@@ -2624,6 +2604,9 @@ namespace UAVXGS
             this.GPSStatsGroupBox.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReplayNumericUpDown)).EndInit();
+            this.NavCompBox.ResumeLayout(false);
+            this.NavCompBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2770,10 +2753,6 @@ namespace UAVXGS
         private System.Windows.Forms.Label BatteryChargeLabel;
         private System.IO.Ports.SerialPort serialPort1;
         private System.Windows.Forms.TextBox SimulationTextBox;
-        private System.Windows.Forms.GroupBox BaroCalibrationGroupBox;
-        private System.Windows.Forms.Label RollCorrLabel;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label NavPCorrLabel;
         private System.Windows.Forms.GroupBox OutputGroupBox;
         private System.Windows.Forms.TextBox OutputT5;
         private System.Windows.Forms.TextBox OutputT4;
@@ -2838,21 +2817,23 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox PHLockEnBox;
         private System.Windows.Forms.TextBox FocusLockedBox;
         private System.Windows.Forms.TextBox Airframe;
+        private System.Windows.Forms.NumericUpDown ReplayNumericUpDown;
         private System.Windows.Forms.TextBox PolarBox;
-        private System.Windows.Forms.Button btnPause;
-        private System.Windows.Forms.ComboBox cbReplaySpeed;
+        private System.Windows.Forms.GroupBox NavCompBox;
+        private System.Windows.Forms.TextBox NavSensitivity;
+        private System.Windows.Forms.Label NavSensitivityLabel;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox NavYCorr;
         private System.Windows.Forms.TextBox NavRCorr;
         private System.Windows.Forms.TextBox NavPCorr;
-        private System.Windows.Forms.TextBox NavYCorr;
-        private System.Windows.Forms.TextBox NavSensitivity;
-        private System.Windows.Forms.Label NavSensitivtyLabel;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label Output2Label;
+        private System.Windows.Forms.Label Output3Label;
+        private System.Windows.Forms.Label Output1Label;
         private System.Windows.Forms.Label Output5Label;
         private System.Windows.Forms.Label Output4Label;
-        private System.Windows.Forms.Label Output3Label;
-        private System.Windows.Forms.Label Output2Label;
-        private System.Windows.Forms.Label Output1Label;
-        private System.Windows.Forms.Label PWM0Label;
         private System.Windows.Forms.Label Output0Label;
     }
 }
