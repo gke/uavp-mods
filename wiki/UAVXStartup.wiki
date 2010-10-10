@@ -69,7 +69,7 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20to
 
   * I have a Rx which uses a single connection to the UAVP: Select the Rx to Quad checkbox in UAVPSet and do a Write.
 
-  * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will need to set the GPS Navigation sensitivity using UAVPSet and will not be able to change it when in flight. You may have to mix Aux1 to Rudder to obtain Yaw control.
+  * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will need to set the GPS Navigation sensitivity using UAVPSet and will not be able to change it when in flight. You may have to mix Aux1 to Rudder to obtain Yaw control. Be sure to ground the remaining UAVX Rx wire to a ground on your Rx.
 
 === Lights and Sirens! ===
   * All of the LEDs are on: Your PIC has no parameters loaded yet. Use Tools->Test Software->D command in UAVPSet to load a default set of parameters. 
@@ -271,6 +271,8 @@ and Tricopter Mega Link Index]
 *WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's peformance and decrease PPM signal quality and model safety.*
 
 As it was with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled by removing two of the three motor wires on each motor.
+
+*Note:* If using a 6ch Tx, and only the odd channels 1, 3 and 5 on your Rx, then you should ground the remaining UAVX Rx wire to an Rx ground pin.
 
 The setup procedure:
 
