@@ -111,6 +111,7 @@ void ShowStats(void)
 							TxVal32((int32)Stats[MaxTempS], 1, ' '); TxString("C\r\n");
 	}
 
+/*
 	TxString("\r\nGPS\r\n");
 	TxString("Alt:      \t");TxVal32((int32)Stats[GPSAltitudeS], 1, ' '); TxString("M\r\n");
 	#ifdef GPS_INC_GROUNDSPEED 
@@ -133,6 +134,9 @@ void ShowStats(void)
 		TxString("Navigation ENABLED\r\n");	
 	else
 		TxString("Navigation DISABLED (No fix at launch)\r\n");
+*/
+
+	TxString("Razor 9DOF test - GPS not being used.\r\n");
 } // ShowStats
 
 

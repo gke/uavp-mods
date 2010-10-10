@@ -554,24 +554,6 @@ enum FlightStates { Starting, Landing, Landed, Shutdown, InFlight};
 extern Flags F;
 extern near int8 State;
 
-// accel.c
-
-extern void SendCommand(int8);
-extern uint8 ReadLISL(uint8);
-extern uint8 ReadLISLNext(void);
-extern void WriteLISL(uint8, uint8);
-extern void IsLISLActive(void);
-
-extern void ReadAccelerations(void);
-extern void GetNeutralAccelerations(void);
-extern void AccelerometerTest(void);
-extern void InitAccelerometers(void);
-
-extern i16u Ax, Ay, Az;
-extern int8 LRIntCorr, FBIntCorr;
-extern int8 NeutralLR, NeutralFB, NeutralDU;
-extern int16 DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
-
 //______________________________________________________________________________________________
 
 // adc.c
@@ -596,53 +578,39 @@ extern uint8 ADCChannel;
 
 //______________________________________________________________________________________________
 
-// autonomous.c
+// attitude.c
 
-extern void FailsafeHoldPosition(void);
-extern void DoPolarOrientation(void);
-extern void Navigate(int32, int32);
-extern void SetDesiredAltitude(int16);
-extern void DoFailsafeLanding(void);
-extern void AcquireHoldPosition(void);
-extern void NavGainSchedule(int16);
-extern void DoNavigation(void);
-extern void FakeFlight(void); 
-extern void DoPPMFailsafe(void);
-extern void WriteWayPointEE(uint8, int32, int32, int16, uint8);
-extern void UAVXNavCommand(void);
-extern void GetWayPointEE(int8);
-extern void InitNavigation(void);
+extern void GetAttitude(void);
+extern void GetNeutralAccelerations(void);
+extern void SetNeutralAccelerations(void);
+extern void ErectGyros(void);
+extern void InitAttitude(void); // set neutrals
+extern void AttitudeTest(void);
 
-typedef struct { int32 E, N; int16 A; uint8 L; } WayPoint;
+#define RX_BUFF_MASK 64
 
-enum NavStates { HoldingStation, ReturningHome, AtHome, Descending, Touchdown, Navigating, Loitering};
-enum FailStates { MonitoringRx, Aborting, Terminating, Terminated };
+typedef union {
+		struct {
+			int16 RollAngle, PitchAngle, YawAngle;
+			int16 RollRate, PitchRate, YawRate; 
+			int16 DUAcc, LRAcc, FBAcc;
+			int16 Heading;
+		};
+		struct {
+			int8 NeutralLR, NeutralFB, NeutralDU;
+		};
+		uint8 B[40];
+} AttitudeRxRec;
 
-extern int16 NavRCorr, NavPCorr;
+extern uint8 RxHead, RxTail;
 
-#ifdef SIMULATE
-extern int16 FakeDesiredPitch, FakeDesiredRoll, FakeDesiredYaw, FakeHeading;
-#endif // SIMULATE
+extern AttitudeRxRec Attitude, AttitudeP;
 
-extern near int8 FailState;
-extern WayPoint WP;
-extern int8 CurrWP;
-extern int8 NoOfWayPoints;
-extern int16 WPAltitude;
-extern int32 WPLatitude, WPLongitude;
-extern int16 WayHeading;
-extern int16 NavClosingRadius, NavNeutralRadius, NavCloseToNeutralRadius, NavProximityRadius, NavProximityAltitude; 
-extern int16 CompassOffset;
-extern int24 NavRTHTimeoutmS;
-extern int8 NavState;
-extern int16 NavSensitivity, RollPitchMax;
-extern int16 AltSum;
+extern i32u YawRateF;
+extern int16 YawFilterA;
+extern int16 MagneticDeviation;
 
-extern int16 NavRCorr, NavRCorrP, NavPCorr, NavPCorrP, NavYCorr, SumNavYCorr;
-extern int8 NavYCorrLimit;
-extern int16 EffNavSensitivity;
-extern int16 EastP, EastDiffSum, EastI, EastCorr, NorthP, NorthDiffSum, NorthI, NorthCorr;
-extern int24 EastD, EastDiffP, NorthD, NorthDiffP;
+extern int16 NavSensitivity;
 
 //______________________________________________________________________________________________
 
@@ -691,27 +659,6 @@ extern int24 FakeBaroRelAltitude;
 
 //______________________________________________________________________________________________
 
-// compass.c
-
-#define COMPASS_I2C_ID		0x42		// I2C slave address
-#define COMPASS_MAXDEV		30			// maximum yaw compensation of compass heading 
-#define COMPASS_MIDDLE		10			// yaw stick neutral dead zone
-#define COMPASS_TIME_MS		50			// 20Hz
-
-extern int16 GetCompass(void);
-extern void GetHeading(void);
-extern void GetCompassParameters(void);
-extern void DoCompassTest(void);
-extern void CalibrateCompass(void);
-extern void InitHeading(void);
-extern void InitCompass(void);
-
-extern i24u Compass;
-extern int16 HeadingFilterA;
-extern i32u HeadingValF;
-
-//______________________________________________________________________________________________
-
 // control.c
 
 extern void DoAltitudeHold(int24, int16);
@@ -731,10 +678,8 @@ extern void InitControl(void);
 extern int16 RE, PE, YE, HE;					// gyro rate error	
 extern int16 REp, PEp, YEp;				// previous error for derivative
 extern int16 Rl, Pl, Yl, Ylp;							// PID output values
-extern int16 RollSum, PitchSum, YawSum;			// integral/angle	
 extern int16 RollTrim, PitchTrim, YawTrim;
 extern int16 HoldYaw, YawSlewLimit;
-extern int16 YawFilterA;
 extern int16 RollIntLimit256, PitchIntLimit256, YawIntLimit256;
 extern int16 CruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
 extern int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim, Heading;
@@ -745,6 +690,7 @@ extern int16 AltComp, AltDiffSum, AltD, AltDSum;
 extern int16 AttitudeHoldResetCount;
 extern int24 DesiredAltitude, Altitude;
 extern int16 ROC;
+extern int16 DUComp, DUVel, LRVel, LRComp, FBVel, FBComp;
 extern boolean FirstPass;
 
 //______________________________________________________________________________________________
@@ -757,77 +703,6 @@ extern int32 Read32EE(uint16);
 extern void WriteEE(uint16, int8);
 extern void Write16EE(uint16, int16);
 extern void Write32EE(uint16, int32);
-
-//______________________________________________________________________________________________
-
-// gps.c
-
-extern void UpdateField(void);
-extern int32 ConvertGPSToM(int32);
-extern int32 ConvertMToGPS(int32);
-extern int24 ConvertInt(uint8, uint8);
-extern int32 ConvertLatLonM(uint8, uint8);
-extern int32 ConvertUTime(uint8, uint8);
-extern void ParseGPRMCSentence(void);
-extern void ParseGPGGASentence(void);
-extern void SetGPSOrigin(void);
-extern void ParseGPSSentence(void);
-extern void GPSTest(void);
-extern void UpdateGPS(void);
-extern void InitGPS(void);
-
-#define MAXTAGINDEX 		4
-#define GPSRXBUFFLENGTH 	80
-extern struct {
-		uint8 	s[GPSRXBUFFLENGTH];
-		uint8 	length;
-	} NMEA;
-
-extern const rom uint8 NMEATag[];
-
-extern int32 GPSMissionTime, GPSStartTime;
-extern int32 GPSLatitude, GPSLongitude;
-extern int32 OriginLatitude, OriginLongitude;
-extern int24 GPSAltitude, GPSRelAltitude, GPSOriginAltitude;
-extern int32 DesiredLatitude, DesiredLongitude;
-extern int32 LatitudeP, LongitudeP, HoldLatitude, HoldLongitude;
-extern int16 GPSLongitudeCorrection;
-extern int16 GPSVel, GPSROC;
-extern int8 GPSNoOfSats;
-extern int8 GPSFix;
-extern int16 GPSHDilute;
-extern uint8 nll, cc, lo, hi;
-extern boolean EmptyField;
-extern int16 ValidGPSSentences;
-extern int32 SumGPSRelAltitude, SumBaroRelAltitude;
-
-#ifdef SIMULATE
-extern int32 FakeGPSLongitude, FakeGPSLatitude;
-#endif // SIMULATE
-
-//______________________________________________________________________________________________
-
-// gyro.c
-
-extern void ShowGyroType(uint8);
-extern void CompensateRollPitchGyros(void);
-extern void GetGyroValues(void);
-extern void CalculateGyroRates(void);
-extern void CheckGyroFault(uint8, uint8, uint8);
-extern void ErectGyros(void);
-extern void GyroTest(void);
-extern void InitGyros(void);
-
-extern void ITG3200ViewRegisters(void);
-extern void BlockReadITG3200(void);
-extern uint8 ReadByteITG3200(uint8);
-extern void WriteByteITG3200(uint8, uint8);
-extern void InitITG3200(void);
-
-extern int16 GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern int16 RollRate, PitchRate, YawRate;
-extern i32u YawRateF;
-extern int16 RollRateADC, PitchRateADC, YawRateADC;
 
 //______________________________________________________________________________________________
 
@@ -870,10 +745,9 @@ extern int16 RollRateADC, PitchRateADC, YawRateADC;
 	#define RC_CONTROLS CONTROLS
 #endif //RX6CH
 
+extern void ReceivingRazorOnly(boolean);
 extern void SyncToTimer0AndDisableInterrupts(void);
-extern void ReceivingGPSOnly(uint8);
 extern void InitTimersAndInterrupts(void);
-extern void ReceivingGPSOnly(uint8);
 extern int24 mSClock(void);
 
 enum { Clock, GeneralCountdown, UpdateTimeout, RCSignalTimeout, BeeperTimeout, ThrottleIdleTimeout, 
@@ -892,9 +766,8 @@ extern near int24 PrevEdge, CurrEdge;
 extern near uint8 Intersection, PrevPattern, CurrPattern;
 extern near i16u Width, Timer0;
 extern near int24 PauseTime; // for tests
-extern near uint8 GPSRxState;
-extern near uint8 ll, tt, gps_ch;
-extern near uint8 RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+extern near uint8 ll, tt, RxCh;
+extern near uint8 RxCheckSum;
 extern near boolean WaitingForSync;
 
 extern int8	SignalCount;
