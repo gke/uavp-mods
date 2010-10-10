@@ -69,17 +69,17 @@ void ShowAttitude(void)
 	TxESCi16(DesiredPitch);
 	TxESCi16(DesiredYaw);
 
-	TxESCi16(RollRateADC - GyroMidRoll);
-	TxESCi16(PitchRateADC - GyroMidPitch);
-	TxESCi16(YawRateADC - GyroMidYaw);
+	TxESCi16(Attitude.RollRate);
+	TxESCi16(Attitude.PitchRate);
+	TxESCi16(Attitude.YawRate);
 
-	TxESCi16(RollSum);
-	TxESCi16(PitchSum);
-	TxESCi16(YawSum);
+	TxESCi16(-Attitude.RollAngle);
+	TxESCi16(-Attitude.PitchAngle);
+	TxESCi16(-Attitude.YawAngle);
 
-	TxESCi16(LRAcc);
-	TxESCi16(FBAcc);
-	TxESCi16(DUAcc);
+	TxESCi16(Attitude.LRAcc);
+	TxESCi16(Attitude.FBAcc);
+	TxESCi16(Attitude.DUAcc);
 } // ShowAttitude
 
 void SendFlightPacket(void)
@@ -133,12 +133,12 @@ void SendNavPacket(void)
 	TxESCu8(UAVXNavPacketTag);
 	TxESCu8(59);
 		
-	TxESCu8(NavState);
-	TxESCu8(FailState);
-	TxESCu8(GPSNoOfSats);
-	TxESCu8(GPSFix);
+	TxESCu8(0);
+	TxESCu8(0);
+	TxESCu8(0);
+	TxESCu8(0);
 	
-	TxESCu8(CurrWP);	
+	TxESCu8(0);	
 	
 	TxESCi16(BaroROC); 							// dm/S
 	TxESCi24(BaroRelAltitude);
@@ -146,30 +146,30 @@ void SendNavPacket(void)
 	TxESCi16(RangefinderROC); 					// dm/S 
 	TxESCi16(RangefinderAltitude); 				// dm
 	
-	TxESCi16(GPSHDilute);
+	TxESCi16(0);
 	TxESCi16(Heading);
-	TxESCi16(WayHeading);
+	TxESCi16(0);
 	
-	TxESCi16(GPSVel);
-	TxESCi16(GPSROC); 							// dm/S
+	TxESCi16(0);
+	TxESCi16(0); 							// dm/S
 	
-	TxESCi24(GPSRelAltitude); 					// dm
-	TxESCi32(GPSLatitude); 						// 5 decimal minute units
-	TxESCi32(GPSLongitude); 
+	TxESCi24(0); 					// dm
+	TxESCi32(0); 						// 5 decimal minute units
+	TxESCi32(0); 
 	
 	TxESCi24(DesiredAltitude);
-	TxESCi32(DesiredLatitude); 
-	TxESCi32(DesiredLongitude);
+	TxESCi32(0); 
+	TxESCi32(0);
 	
 	TxESCi24(mS[NavStateTimeout] - mSClock());	// mS
 	
 	TxESCi16(AmbientTemperature.i16);			// 0.1C
-	TxESCi32(GPSMissionTime);
+	TxESCi32(0);
 
 	TxESCu8(NavSensitivity);
-	TxESCi8(NavRCorr);
-	TxESCi8(NavPCorr);
-	TxESCi8(NavYCorr);
+	TxESCi8(0);
+	TxESCi8(0);
+	TxESCi8(0);
 } // SendNavPacket
 
 void SendStatsPacket(void) 
@@ -288,69 +288,8 @@ void SendUAVXControl(void) // 0.516mS at 40MHz?
 
 void SendArduStation(void)
 {
-	// This form of telemetry using the flight controller to convert 
-	// to readable text is FAR to EXPENSIVE in computation time.
 
-	static int8 Count = 0;
-	/*      
-	Definitions of the low rate telemetry (1Hz):
-    LAT: Latitude
-    LON: Longitude
-    SPD: Speed over ground from GPS
-    CRT: Climb Rate in M/S
-    ALT: Altitude in meters
-    ALH: The altitude is trying to hold
-    CRS: Course over ground in degrees.
-    BER: Bearing is the heading you want to go
-    WPN: Waypoint number, where WP0 is home.
-    DST: Distance from Waypoint
-    BTV: Battery Voltage.
-    RSP: Roll setpoint used to debug, (not displayed here).
-    
-    Definitions of the high rate telemetry (~4Hz):
-    ASP: Airspeed, right now is the raw data.
-    TTH: Throttle in 100% the autopilot is applying.
-    RLL: Roll in degrees + is right - is left
-    PCH: Pitch in degrees
-    SST: Switch Status, used for debugging, but is disabled in the current version.
-	*/
-
-	#ifdef CLOCK_40MHZ	// ArdStation required scaling etc. too slow for 16MHz
-
-	F.TxToBuffer = true;
-
-	if ( ++Count == 4 ) // ~2.5mS @ 40MHz?
-	{
-		TxString("!!!");
-		TxString("LAT:"); TxVal32(GPSLatitude / 6000, 3, 0);
-		TxString(",LON:"); TxVal32(GPSLongitude / 6000, 3, 0);
-		TxString(",ALT:"); TxVal32(Altitude / 10,0,0);
-		TxString(",ALH:"); TxVal32(DesiredAltitude / 10, 0, 0);
-		TxString(",CRT:"); TxVal32(ROC / 100, 0, 0);
-		TxString(",CRS:"); TxVal32(((int24)Heading * 180) / MILLIPI, 0, 0); // scaling to degrees?
-		TxString(",BER:"); TxVal32(((int24)WayHeading * 180) / MILLIPI, 0, 0);
-		TxString(",SPD:"); TxVal32(GPSVel, 0, 0);
-		TxString(",WPN:"); TxVal32(CurrWP,0,0);
-		TxString(",DST:"); TxVal32(0, 0, 0); // distance to WP
-		TxString(",BTV:"); TxVal32((BatteryVoltsADC * 61)/205, 1, 0);
-		TxString(",RSP:"); TxVal32(DesiredRoll, 0, 0);
-
-		Count = 0;
-	}
-	else // ~1.1mS @ 40MHz
-	{
-	   	TxString("+++");
-		TxString("ASP:"); TxVal32(GPSVel / 100, 0, 0);
-		TxString(",RLL:"); TxVal32(RollSum / 35, 0, 0); // scale to degrees?
-		TxString(",PCH:"); TxVal32(PitchSum / 35, 0, 0);
-		TxString(",THH:"); TxVal32( ((int24)DesiredThrottle * 100L) / RC_MAXIMUM, 0, 0);
-	}
-
-	TxString(",***\r\n");
-
-	F.TxToBuffer = false;
-
-	#endif // CLOCK_40MHZ
+	// junked
 
 } // SendArduStation
 
@@ -382,7 +321,7 @@ void SendCustom(void) // 1.2mS @ 40MHz
 
 	TxVal32(SRS32(AltComp,1), 1, HT);		// ~% throttle compensation
 
-	TxVal32(GPSRelAltitude, 1, HT);
+	TxVal32(0, 1, HT);
 	TxVal32(BaroRelAltitude, 1, HT);
 	TxVal32(RangefinderAltitude, 2, HT);
 
@@ -421,9 +360,9 @@ void SensorTrace(void)
 		TxValH16(PitchRateADC - GyroMidPitch); TxChar(';');
 		TxValH16(YawRateADC - GyroMidYaw); TxChar(';');
 
-		TxValH16(RollSum); TxChar(';');
-		TxValH16(PitchSum); TxChar(';');
-		TxValH16(YawSum); TxChar(';');
+		TxValH16(RollAngle); TxChar(';');
+		TxValH16(PitchAngle); TxChar(';');
+		TxValH16(YawAngle); TxChar(';');
 
 		TxValH16(LRAcc); TxChar(';');
 		TxValH16(FBAcc); TxChar(';');

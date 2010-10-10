@@ -50,13 +50,8 @@ void main(void)
 	LEDYellow_ON;
 	Delay100mSWithOutput(5);	// let all the sensors startup
 
-	InitAccelerometers();
-	InitGyros();
-	InitCompass();
-	InitHeading();
+	InitAttitude();
 	InitRangefinder();
-	InitGPS();
-	InitNavigation();
 	InitTemperature();
 	InitBarometer();
 
@@ -68,7 +63,7 @@ void main(void)
 	{
 		StopMotors();
 
-		ReceivingGPSOnly(false);
+		ReceivingRazorOnly(false);
 		EnableInterrupts;
 
 		LightsAndSirens();	// Check for Rx signal, disarmed on power up, throttle closed, gyros ONLINE
@@ -78,14 +73,12 @@ void main(void)
 
 		while ( Armed )
 		{ // no command processing while the Quadrocopter is armed
-	
-			ReceivingGPSOnly(true); 
+			ReceivingRazorOnly(true);
 
-			UpdateGPS();
 			if ( F.RCNewValues )
 				UpdateControls();
 
-			if ( ( F.Signal ) && ( FailState == MonitoringRx ) )
+			if ( F.Signal )
 			{
 				switch ( State  ) {
 				case Starting:	// this state executed once only after arming
@@ -100,8 +93,6 @@ void main(void)
 
 					InitControl();
 					CaptureTrims();
-					InitGPS();
-					InitNavigation();
 
 					DesiredThrottle = 0;
 					ErectGyros();				// DO NOT MOVE AIRCRAFT!
@@ -114,8 +105,8 @@ void main(void)
 					if ( StickThrottle < IdleThrottle )
 					{
 						DesiredThrottle = 0;
-						SetGPSOrigin();
-						GetHeading();
+						//SetGPSOrigin();
+						//GetHeading();
 					}
 					else
 					{
@@ -154,8 +145,7 @@ void main(void)
 					StopMotors();
 					break;
 				case InFlight:
-					F.MotorsArmed = true;
-					DoNavigation();		
+					F.MotorsArmed = true;	
 					LEDChaser();
 
 					DesiredThrottle = SlewLimit(DesiredThrottle, StickThrottle, 1);
@@ -169,28 +159,21 @@ void main(void)
 					break;
 				} // Switch State
 				F.LostModel = false;
-				mS[FailsafeTimeout] = mSClock() + FAILSAFE_TIMEOUT_MS;
-				FailState = MonitoringRx;
 			}
 			else
-			#ifdef USE_PPM_FAILSAFE
-				DoPPMFailsafe();
-			#else
 			{
 				Stats[RCFailsafesS]++;
 				DesiredRoll = DesiredPitch = DesiredYaw = 0;
 			    DesiredThrottle = CruiseThrottle; 
 			}
-			#endif // USE_PPM_FAILSAFE
 
-			GetHeading();
 			AltitudeHold();
 
 			while ( WaitingForSync ) {};
 
 			mS[UpdateTimeout] += (int24)P[TimeSlots];
 
-			GetGyroValues();
+			GetAttitude(); // Razor 9DOF
 			
 			DoControl();
 

@@ -24,9 +24,9 @@ void DoAltitudeHold(int24, int16);
 void UpdateAltitudeSource(void);
 void AltitudeHold(void);
 void InertialDamping(void);
-void LimitRollSum(void);
-void LimitPitchSum(void);
-void LimitYawSum(void);
+void LimitRollAngle(void);
+void LimitPitchAngle(void);
+void LimitYawAngle(void);
 void DoOrientationTransform(void);
 void DoControl(void);
 
@@ -38,10 +38,7 @@ int16 RC[CONTROLS];
 
 int16 RE, PE, YE, HE;					// gyro rate error	
 int16 REp, PEp, YEp;				// previous error for derivative
-int16 RollSum, PitchSum, YawSum;		// integral
 int16 Rl, Pl, Yl, Ylp;						// PID output values 	
-
-int16 YawFilterA;
 
 int16 RollTrim, PitchTrim, YawTrim;
 int16 HoldYaw;
@@ -58,6 +55,8 @@ int16 AttitudeHoldResetCount;
 int16 AltComp, AltDiffSum, AltD, AltDSum;
 int24 DesiredAltitude, Altitude;
 int16 ROC;
+
+int16 DUComp, DUVel, LRVel, LRComp, FBVel, FBComp;
 
 boolean	FirstPass;
 int8 BeepTick = 0;
@@ -118,16 +117,10 @@ void UpdateAltitudeSource(void)
 		ROC = RangefinderROC / 10; 				// Decimetres/Sec.
 	}
 	else
-		if ( F.UsingGPSAlt && F.NavValid )
-		{
-			Altitude = GPSRelAltitude;
-			ROC = GPSROC;
-		}
-		else
-		{
-			Altitude = BaroRelAltitude;
-			ROC = BaroROC;
-		}
+	{
+		Altitude = BaroRelAltitude;
+		ROC = BaroROC;
+	}
 } // UpdateAltitudeSource
 
 void AltitudeHold()
@@ -146,28 +139,22 @@ void AltitudeHold()
 
 			UpdateAltitudeSource();
 
-			if ( ( NavState != HoldingStation ) && F.AllowNavAltitudeHold ) 
-			{  // Navigating - using CruiseThrottle
+			if ( F.ThrottleMoving )
+			{
+				F.HoldingAlt = false;
+				DesiredAltitude = Altitude;
+				AltComp = Decay1(AltComp);
+			}
+			else
+			{
 				F.HoldingAlt = true;
+				if ( Abs(BaroROC) < ALT_HOLD_MAX_ROC_DMPS  ) // Use Baro NOT GPS
+				{
+					NewCruiseThrottle = DesiredThrottle + AltComp;
+					CruiseThrottle = HardFilter(CruiseThrottle, NewCruiseThrottle);
+				}
 				DoAltitudeHold(Altitude, ROC);
 			}	
-			else
-				if ( F.ThrottleMoving )
-				{
-					F.HoldingAlt = false;
-					DesiredAltitude = Altitude;
-					AltComp = Decay1(AltComp);
-				}
-				else
-				{
-					F.HoldingAlt = true;
-					if ( Abs(BaroROC) < ALT_HOLD_MAX_ROC_DMPS  ) // Use Baro NOT GPS
-					{
-						NewCruiseThrottle = DesiredThrottle + AltComp;
-						CruiseThrottle = HardFilter(CruiseThrottle, NewCruiseThrottle);
-					}
-					DoAltitudeHold(Altitude, ROC);
-				}	
 		}
 	}
 	else
@@ -184,8 +171,8 @@ void InertialDamping(void)
 	if ( F.AccelerationsValid ) 
 	{
 		// Down - Up
-		// Empirical - acceleration changes at ~approx Sum/8 for small angles
-		DUVel += DUAcc + SRS16( Abs(RollSum) + Abs(PitchSum), 3);		
+		// Empirical - acceleration changes at ~approx Angle/8 for small angles
+		DUVel += Attitude.DUAcc + SRS16( Abs(Attitude.RollAngle) + Abs(Attitude.PitchAngle), 3);		
 		DUVel = Limit(DUVel , -16384, 16383); 			
 		Temp = SRS32(SRS16(DUVel, 4) * (int32)P[VertDampKp], 13);
 		if( Temp > DUComp ) 
@@ -202,7 +189,7 @@ void InertialDamping(void)
 	 		if ( F.WayPointCentred )
 			{
 				// Left - Right
-				LRVel += LRAcc;
+				LRVel += Attitude.LRAcc;
 				LRVel = Limit(LRVel , -16384, 16383);  	
 				Temp = SRS32(SRS16(LRVel, 4) * (int32)P[HorizDampKp], 13);
 				if( Temp > LRComp ) 
@@ -214,7 +201,7 @@ void InertialDamping(void)
 				LRVel = DecayX(LRVel, (int16)P[HorizDampDecay]);
 		
 				// Front - Back
-				FBVel += FBAcc;
+				FBVel += Attitude.FBAcc;
 				FBVel = Limit(FBVel , -16384, 16383);  
 				Temp = SRS32(SRS16(FBVel, 4) * (int32)P[HorizDampKp], 13);
 				if( Temp > FBComp ) 
@@ -245,29 +232,10 @@ void InertialDamping(void)
 
 } // InertialDamping	
 
-void LimitRollSum(void)
-{
-	// Caution: RollSum is positive left which is the opposite sense to the roll angle
-	RollSum += RollRate;
-	RollSum = Limit(RollSum, -RollIntLimit256, RollIntLimit256);
-	#ifdef ATTITUDE_ENABLE_DECAY
-	RollSum = Decay1(RollSum);			// damps to zero even if still rolled
-	#endif // ATTITUDE_ENABLE_DECAY
-	RollSum += LRIntCorr;				// last for accelerometer compensation
-} // LimitRollSum
+#define COMPASS_MIDDLE 10
+#define COMPASS_MAXDEV 30
 
-void LimitPitchSum(void)
-{
-	// Caution: PitchSum is positive down which is the opposite sense to the pitch angle
-	PitchSum += PitchRate;
-	PitchSum = Limit(PitchSum, -PitchIntLimit256, PitchIntLimit256);
-	#ifdef ATTITUDE_ENABLE_DECAY
-	PitchSum = Decay1(PitchSum); 
-	#endif // ATTITUDE_ENABLE_DECAY
-	PitchSum += FBIntCorr;
-} // LimitPitchSum
-
-void LimitYawSum(void)
+void LimitYawAngle(void)
 {
 	static int16 Temp;
 
@@ -289,12 +257,9 @@ void LimitYawSum(void)
 		}
 	}
 
-	YawSum += YE;
-	YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
+	Attitude.YawAngle = Limit(Attitude.YawAngle, -YawIntLimit256, YawIntLimit256);
 
-	YawSum = DecayX(YawSum, 2); 				// GKE added to kill gyro drift
-
-} // LimitYawSum
+} // LimitYawAngle
 
 void DoOrientationTransform(void)
 {
@@ -312,16 +277,13 @@ void DoOrientationTransform(void)
 		OCO = OCos[Orientation];
 	}
 
-	if ( !F.NavigationActive )
-		NavRCorr = NavPCorr = NavYCorr = 0;
-
 	// -PS+RC
 	Temp.i24 = -DesiredPitch * OSO + DesiredRoll * OCO;
-	ControlRoll = Temp.i2_1 + NavRCorr - LRComp;
+	ControlRoll = Temp.i2_1 - LRComp;
 		
 	// PC+RS
 	Temp.i24 = DesiredPitch * OCO + DesiredRoll * OSO;
-	ControlPitch = Temp.i2_1 + NavPCorr - FBComp; 
+	ControlPitch = Temp.i2_1 - FBComp; 
 
 } // DoOrientationTransform
 
@@ -329,18 +291,16 @@ void DoControl(void)
 {
 	static i24u Temp;
 
-	CalculateGyroRates();
-	CompensateRollPitchGyros();	
     InertialDamping();
 
 	#ifdef SIMULATE
 
-	FakeDesiredRoll = DesiredRoll + NavRCorr;
-	FakeDesiredPitch = DesiredPitch + NavPCorr;
-	FakeDesiredYaw =  DesiredYaw + NavYCorr;
-	RollSum = SlewLimit(RollSum, -FakeDesiredRoll * 16, 4);
-	PitchSum = SlewLimit(PitchSum, -FakeDesiredPitch * 16, 4);
-	YawSum = SlewLimit(YawSum, FakeDesiredYaw, 4);
+	FakeDesiredRoll = DesiredRoll;
+	FakeDesiredPitch = DesiredPitch;
+	FakeDesiredYaw =  DesiredYaw;
+	Attitude.RollAngle = SlewLimit(Attitude.RollAngle, -FakeDesiredRoll * 16, 4);
+	Attitude.PitchAngle = SlewLimit(Attitude.PitchAngle, -FakeDesiredPitch * 16, 4);
+	Attitude.YawAngle = SlewLimit(Attitude.YawAngle, FakeDesiredYaw, 4);
 	Rl = -FakeDesiredRoll;
 	Pl = -FakeDesiredPitch;
 	Yl = DesiredYaw;
@@ -351,33 +311,33 @@ void DoControl(void)
 
 	// Roll
 				
-	RE = SRS16(RollRate, 1); // discard 1 bit of resolution!
-	LimitRollSum();
+	RE = Attitude.RollRate;
+	Attitude.RollAngle = Limit(Attitude.RollAngle, -RollIntLimit256, RollIntLimit256);
  
 	Rl  = SRS16(RE *(int16)P[RollKp] + (REp-RE) * (int16)P[RollKd], 4);
-	Rl += SRS16(RollSum * (int16)P[RollKi], 9); 
+	Rl -= SRS16(Attitude.RollAngle * (int16)P[RollKi], 9); 
 	Rl -= ControlRoll + SRS16((ControlRoll - ControlRollP) * ATTITUDE_FF_DIFF, 4);
 	ControlRollP = ControlRoll;
 
 	// Pitch
 
-	PE = SRS16(PitchRate, 1); // discard 1 bit of resolution!
-	LimitPitchSum();
+	PE = Attitude.PitchRate;
+	Attitude.PitchAngle = Limit(Attitude.PitchAngle, -PitchIntLimit256, PitchIntLimit256);
 
 	Pl  = SRS16(PE *(int16)P[PitchKp] + (PEp-PE) * (int16)P[PitchKd], 4);
-	Pl += SRS16(PitchSum * (int16)P[PitchKi], 9);
+	Pl -= SRS16(Attitude.PitchAngle * (int16)P[PitchKi], 9);
 	Pl -= ControlPitch + SRS16((ControlPitch - ControlPitchP) * ATTITUDE_FF_DIFF, 4);
 	ControlPitchP = ControlPitch;
 
 	// Yaw
 	
-	YE = YawRate;
-	LimitYawSum();
+	YE = Attitude.YawRate;
+	LimitYawAngle();
 
-	YE += DesiredYaw + NavYCorr;
+	YE += DesiredYaw;
 
 	Yl  = SRS16(YE *(int16)P[YawKp] + (YEp-YE) * (int16)P[YawKd], 4);
-	Yl += SRS16(YawSum * (int16)P[YawKi], 8);
+	Yl += SRS16(Attitude.YawAngle * (int16)P[YawKi], 8);
 
 	#ifdef TRICOPTER
 		Yl = SlewLimit(Ylp, Yl, 1);
@@ -392,7 +352,7 @@ void DoControl(void)
 
 	#endif // SIMULATE		
 
-	F.NearLevel = Max(Abs(RollSum), Abs(PitchSum)) < NAV_RTH_LOCKOUT;
+	F.NearLevel = Max(Abs(Attitude.RollAngle), Abs(Attitude.PitchAngle)) < NAV_RTH_LOCKOUT;
 
 } // DoControl
 
@@ -446,19 +406,9 @@ void LightsAndSirens(void)
 			LEDRed_ON;
 			LEDGreen_OFF;
 		}	
-		ReadParametersEE();
-		
-		if ( !F.AccelerationsValid && ( mSClock() > AccTimeout ) )
-		{
-			InitAccelerometers();
-			LEDYellow_TOG;
-			AccTimeout += 400;
-		}	
+		ReadParametersEE();		
 	}
 	while( (!F.Signal) || (Armed && FirstPass) || F.Ch5Active || F.GyroFailure || 
-	#ifndef GKE
-	(!F.AccelerationsValid) ||
-	#endif // !GKE
 		( InitialThrottle >= RC_THRES_START ) || (!F.ParametersValid)  );
 				
 	FirstPass = false;
@@ -469,23 +419,19 @@ void LightsAndSirens(void)
 	LEDYellow_ON;
 
 	mS[LastBattery] = mSClock();
-	mS[FailsafeTimeout] = mSClock() + FAILSAFE_TIMEOUT_MS;
 	mS[UpdateTimeout] = mSClock() + (uint24)P[TimeSlots];
 
 	F.LostModel = false;
-	FailState = MonitoringRx;
 
 } // LightsAndSirens
 
 void InitControl(void)
 {
-	RollRate = PitchRate = 0;
 	RollTrim = PitchTrim = YawTrim = 0;
 	ControlRollP = ControlPitchP = 0;
 	Ylp = 0;
 	AltComp = 0;
-	DUComp = DUVel = LRVel = LRComp = FBVel = FBComp = YawRateF.i32 = 0;	
-	AltSum = 0;
+	DUComp = DUVel = LRVel = LRComp = FBVel = FBComp = 0;	
 } // InitControl
 
 
