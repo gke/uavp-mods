@@ -1,25 +1,32 @@
 
-// Local magnetic declination
-// I use this web : http://www.ngdc.noaa.gov/geomagmodels/Declination.jsp
-#define MAGNETIC_DECLINATION -6.0    // not used now -> magnetic bearing
+// Sparkfun 9DOF Razor IMU AHRS
+// 9 Degree of Freedom Attitude and Heading Reference System
+// Firmware v1.0
+//
+// Released under Creative Commons License
+// Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
+// Substantially rewritten by Prof. G.K.  Egan 2010
 
-void Compass_Heading()
+// Local magnetic declination not included
+// http://www.ngdc.noaa.gov/geomagmodels/Declination.jsp
+
+void ComputeHeading(void)
 {
-  float MAG_X;
-  float MAG_Y;
-  float cos_roll;
-  float sin_roll;
-  float cos_pitch;
-  float sin_pitch;
+  static float MX, MY;
+  static float Cos_Roll, Sin_Roll, Cos_Pitch, Sin_Pitch;
+    
+  Cos_Roll = cos(Roll);
+  Sin_Roll = sin(Roll);
+  Cos_Pitch = cos(Pitch);
+  Sin_Pitch = sin(Pitch);
   
-  cos_roll = cos(roll);
-  sin_roll = sin(roll);
-  cos_pitch = cos(pitch);
-  sin_pitch = sin(pitch);
-  // Tilt compensated Magnetic filed X:
-  MAG_X = magnetom_x*cos_pitch+magnetom_y*sin_roll*sin_pitch+magnetom_z*cos_roll*sin_pitch;
-  // Tilt compensated Magnetic filed Y:
-  MAG_Y = magnetom_y*cos_roll-magnetom_z*sin_roll;
+  // Tilt compensated Magnetic field X:
+  MX = MagX * Cos_Pitch + MagY * Sin_Roll * Sin_Pitch + MagZ * Cos_Roll * Sin_Pitch;
+  	
+  // Tilt compensated Magnetic field Y:
+  MY = MagY * Cos_Roll - MagZ * Sin_Roll;
+  
   // Magnetic Heading
-  MAG_Heading = atan2(-MAG_Y,MAG_X);
-}
+  MagHeading = atan2( -MY, MX );
+
+} // ComputeHeading

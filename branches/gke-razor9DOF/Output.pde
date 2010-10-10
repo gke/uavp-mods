@@ -1,59 +1,51 @@
 
-void printdata(void)
-{    
-      Serial.print("!");
+// Sparkfun 9DOF Razor IMU AHRS
+// 9 Degree of Freedom Attitude and Heading Reference System
+// Firmware v1.0
+//
+// Released under Creative Commons License
+// Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
+// Substantially rewritten by Prof. G.K.  Egan 2010
 
-      #if PRINT_EULER == 1
-      Serial.print("ANG:");
-      Serial.print(ToDeg(roll));
+void PrintData(void)
+{   
+   static byte i, j, c;
+   
+  // Serial.print("!");
+
+  #if PRINT_EULER == 1
+    Serial.print(ToDeg(Roll));
+    Serial.print(",");
+    Serial.print(ToDeg(Pitch));
+    Serial.print(",");
+    Serial.print(ToDeg(Yaw));
+  #endif      
+  #if PRINT_ANALOGS == 1
+    Serial.print(ClockmS);
+    Serial.print(",");
+    for ( c = 0; c < 6; c++ )
+    {
+      Serial.print(Sensor[c] - SensorNeutral[c]); 
       Serial.print(",");
-      Serial.print(ToDeg(pitch));
-      Serial.print(",");
-      Serial.print(ToDeg(yaw));
-      #endif      
-      #if PRINT_ANALOGS==1
-      Serial.print(",AN:");
-      Serial.print(AN[sensors[0]]);  //(int)read_adc(0)
-      Serial.print(",");
-      Serial.print(AN[sensors[1]]);
-      Serial.print(",");
-      Serial.print(AN[sensors[2]]);  
-      Serial.print(",");
-      Serial.print(ACC[0]);
-      Serial.print (",");
-      Serial.print(ACC[1]);
-      Serial.print (",");
-      Serial.print(ACC[2]);
-      Serial.print(",");
-      Serial.print(magnetom_x);
-      Serial.print (",");
-      Serial.print(magnetom_y);
-      Serial.print (",");
-      Serial.print(magnetom_z);      
-      #endif
-      /*#if PRINT_DCM == 1
-      Serial.print (",DCM:");
-      Serial.print(convert_to_dec(DCM_Matrix[0][0]));
-      Serial.print (",");
-      Serial.print(convert_to_dec(DCM_Matrix[0][1]));
-      Serial.print (",");
-      Serial.print(convert_to_dec(DCM_Matrix[0][2]));
-      Serial.print (",");
-      Serial.print(convert_to_dec(DCM_Matrix[1][0]));
-      Serial.print (",");
-      Serial.print(convert_to_dec(DCM_Matrix[1][1]));
-      Serial.print (",");
-      Serial.print(convert_to_dec(DCM_Matrix[1][2]));
-      Serial.print (",");
-      Serial.print(convert_to_dec(DCM_Matrix[2][0]));
-      Serial.print (",");
-      Serial.print(convert_to_dec(DCM_Matrix[2][1]));
-      Serial.print (",");
-      Serial.print(convert_to_dec(DCM_Matrix[2][2]));
-      #endif*/
-      Serial.println();    
+    }
+    Serial.print(MagX);
+    Serial.print (",");
+    Serial.print(MagY);
+    Serial.print (",");
+    Serial.print(MagZ);  
+  #endif
+  #if PRINT_DCM == 1
+    Serial.print (",DCM:");
+    for ( i = 0; i < 3; i++ )
+      for ( j = 0; j < 3; j++ )
+      {
+        Serial.print(DCM_M[i][j]);
+        Serial.print (",");
+      }
+  #endif
+  Serial.println();    
       
-}
+} // PrintData
 
 long convert_to_dec(float x)
 {

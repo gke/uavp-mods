@@ -1,67 +1,97 @@
-// We are using an oversampling and averaging method to increase the ADC resolution
-// Now we store the ADC readings in float format
-void Read_adc_raw(void)
-{
-  int i;
-  uint16_t temp1;    
-  uint8_t temp2;    
-  
-  // ADC readings...
-  for (i=0;i<3;i++)
-    {
-      do{
-        temp1= analog_buffer[sensors[i]];             // sensors[] maps sensors to correct order 
-        temp2= analog_count[sensors[i]];
-        } while(temp1 != analog_buffer[sensors[i]]);  // Check if there was an ADC interrupt during readings...
-      
-      if (temp2>0) AN[i] = (float)temp1/(float)temp2;     // Check for divide by zero 
-            
-    }
-  // Initialization for the next readings...
-  for (int i=0;i<3;i++){
-    do{
-      analog_buffer[i]=0;
-      analog_count[i]=0;
-      } while(analog_buffer[i]!=0); // Check if there was an ADC interrupt during initialization...
-  }
-}
 
-float read_adc(int select)
-{
-  if (SENSOR_SIGN[select]<0)
-    return(AN_OFFSET[select]-AN[select]);
-  else
-    return(AN[select]-AN_OFFSET[select]); 
-}
-
-//Activating the ADC interrupts. 
-void Analog_Init(void)
-{
- ADCSRA|=(1<<ADIE)|(1<<ADEN);
- ADCSRA|= (1<<ADSC);
-}
-
+// Sparkfun 9DOF Razor IMU AHRS
+// 9 Degree of Freedom Attitude and Heading Reference System
+// Firmware v1.0
 //
-void Analog_Reference(uint8_t mode)
-{
-  analog_reference = mode;
-}
+// Released under Creative Commons License
+// Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
+// Substantially rewritten by Prof. G.K.  Egan 2010
 
-//ADC interrupt vector, this piece of code
-//is executed everytime a convertion is done. 
+// use oversampling and averaging method to increase the ADC resolution
+
+byte MuxSel = 0;
+byte ADCRef;
+word ADCBuff[6];
+byte ADCCount[6];
+
+void InitADCBuffers(void)
+{
+  static byte c;
+
+  for ( c = 0; c < 3; c++ )
+  {
+    noInterrupts();
+    ADCBuff[c] = ADCCount[c] = 0;
+    interrupts();
+  }
+} // InitADCBuffers 
+
+void GetGyroRaw(void)
+{
+  word s;    
+  byte c, samples, m;    
+
+  for ( c = 0 ; c < 3 ; c++ )
+  {
+    m = Map[c];
+    noInterrupts();
+    s = ADCBuff[m];              
+    samples = ADCCount[m];
+    interrupts(); 
+
+    if ( samples > 0 ) // Check for divide by zero  
+      Sensor[c] = (float)s / (float)samples;              
+  }
+
+  InitADCBuffers();
+
+} // GetGyroRaw
+
+float GetSensor(int s)
+{
+  if ( SensorSign[s] < 0 )
+    return ( SensorNeutral[s] - Sensor[s] );
+  else
+    return ( Sensor[s]- SensorNeutral[s]); 
+} // GetSensor
+
+void ADCReference(byte m)
+{ // why a call?
+  ADCRef = m;
+} // ADCReference
+
+void InitADC(void)
+{
+  ADCSRA |= ( 1 << ADIE )|( 1 << ADEN );
+  ADCSRA |= ( 1 << ADSC );
+  delay(100);  // let ADC cycle a few times
+} // InitADC
+
+// cycle through gyro ADC channels at maximum conversion rate 
 ISR(ADC_vect)
 {
-  volatile uint8_t low, high;
+  volatile byte low, high;
+
   low = ADCL;
   high = ADCH;
 
-  if(analog_count[MuxSel]<63) {
-        analog_buffer[MuxSel] += (high << 8) | low;   // cumulate analog values
-        analog_count[MuxSel]++;
+  if ( ADCCount[MuxSel] < 63) 
+  {
+    ADCBuff[MuxSel] += word( high << 8 ) | low;   // accumulate analog values
+    ADCCount[MuxSel]++;
   }
-  MuxSel++;
-  MuxSel &= 0x03;   //if(MuxSel >=4) MuxSel=0;
-  ADMUX = (analog_reference << 6) | MuxSel;
-  // start the conversion
-  ADCSRA|= (1<<ADSC);
-}
+
+  MuxSel = (MuxSel + 1) & 3; 
+  ADMUX = ( ADCRef << 6) | MuxSel;
+  ADCSRA |= ( 1 << ADSC );   // start the conversion
+
+} // ISR
+
+
+
+
+
+
+
+
+

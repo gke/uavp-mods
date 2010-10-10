@@ -1,134 +1,180 @@
-/**************************************************/
+
+// Sparkfun 9DOF Razor IMU AHRS
+// 9 Degree of Freedom Attitude and Heading Reference System
+// Firmware v1.0
+//
+// Released under Creative Commons License
+// Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
+// Substantially rewritten by Prof. G.K.  Egan 2010
+
+float   Accel_V[3] = {
+  0,0,0}; 		
+float   Gyro_V[3] = {
+  0,0,0};
+float   Omega_V[3] = {
+  0,0,0}; 		// corrected Gyro data
+float   Omega_P[3] = {
+  0,0,0};		// proportional correction
+float   Omega_I[3] = {
+  0,0,0};		// integral correction
+float   Omega[3] = {
+  0,0,0};
+float   DCM_M[3][3] = {
+   {
+    1,0,0  }
+  ,{
+    0,1,0  }
+  ,{
+    0,0,1  }
+}; 
+float   Update_M[3][3] = {
+  {
+    0,1,2    }
+  ,{
+    3,4,5    }
+  ,{
+    6,7,8    }
+}; //Gyros here
+float   Temp_M[3][3] = {
+  {
+    0,0,0    }
+  ,{ 
+    0,0,0    }
+  ,{
+    0,0,0    }
+};
+
 void Normalize(void)
 {
-  float error=0;
-  float temporary[3][3];
-  float renorm=0;
-  
-  error= -Vector_Dot_Product(&DCM_Matrix[0][0],&DCM_Matrix[1][0])*.5; //eq.19
+  static float Error = 0.0;
+  static float Temp[3][3];
+  static float Renorm = 0.0;
 
-  Vector_Scale(&temporary[0][0], &DCM_Matrix[1][0], error); //eq.19
-  Vector_Scale(&temporary[1][0], &DCM_Matrix[0][0], error); //eq.19
-  
-  Vector_Add(&temporary[0][0], &temporary[0][0], &DCM_Matrix[0][0]);//eq.19
-  Vector_Add(&temporary[1][0], &temporary[1][0], &DCM_Matrix[1][0]);//eq.19
-  
-  Vector_Cross_Product(&temporary[2][0],&temporary[0][0],&temporary[1][0]); // c= a x b //eq.20
-  
-  renorm= .5 *(3 - Vector_Dot_Product(&temporary[0][0],&temporary[0][0])); //eq.21
-  Vector_Scale(&DCM_Matrix[0][0], &temporary[0][0], renorm);
-  
-  renorm= .5 *(3 - Vector_Dot_Product(&temporary[1][0],&temporary[1][0])); //eq.21
-  Vector_Scale(&DCM_Matrix[1][0], &temporary[1][0], renorm);
-  
-  renorm= .5 *(3 - Vector_Dot_Product(&temporary[2][0],&temporary[2][0])); //eq.21
-  Vector_Scale(&DCM_Matrix[2][0], &temporary[2][0], renorm);
-}
+  Error= -VDot(&DCM_M[0][0], &DCM_M[1][0]) * 0.5; 		//eq.19
 
-/**************************************************/
-void Drift_correction(void)
+  VScale(&Temp[0][0], &DCM_M[1][0], Error); 			//eq.19
+  VScale(&Temp[1][0], &DCM_M[0][0], Error); 			//eq.19
+
+  VAdd(&Temp[0][0], &Temp[0][0], &DCM_M[0][0]);			//eq.19
+  VAdd(&Temp[1][0], &Temp[1][0], &DCM_M[1][0]);			//eq.19
+
+  VCross(&Temp[2][0],&Temp[0][0], &Temp[1][0]); // c= a * b eq.20
+
+  Renorm = 0.5 * (3.0 - VDot(&Temp[0][0], &Temp[0][0])); 	//eq.21
+  VScale(&DCM_M[0][0], &Temp[0][0], Renorm);
+
+  Renorm = 0.5 * (3.0 - VDot(&Temp[1][0], &Temp[1][0])); 	//eq.21
+  VScale(&DCM_M[1][0], &Temp[1][0], Renorm);
+
+  Renorm = 0.5 * (3.0 - VDot(&Temp[2][0], &Temp[2][0])); 	//eq.21
+  VScale(&DCM_M[2][0], &Temp[2][0], Renorm);
+} // Normalize
+
+void DriftCorrection(void)
 {
-  float mag_heading_x;
-  float mag_heading_y;
-  float errorCourse;
-  //Compensation the Roll, Pitch and Yaw drift. 
-  static float Scaled_Omega_P[3];
-  static float Scaled_Omega_I[3];
-  float Accel_magnitude;
-  float Accel_weight;
-  
-  
-  //*****Roll and Pitch***************
+  static float MagHeadingX, MagHeadingY;
+  static float ErrorCourse; 
+  static float Scaled_Omega_P[3], Scaled_Omega_I[3];
+  static float Accel_Magnitude, Accel_Weight;
 
-  // Calculate the magnitude of the accelerometer vector
-  Accel_magnitude = sqrt(Accel_Vector[0]*Accel_Vector[0] + Accel_Vector[1]*Accel_Vector[1] + Accel_Vector[2]*Accel_Vector[2]);
-  Accel_magnitude = Accel_magnitude / GRAVITY; // Scale to gravity.
-  // Dynamic weighting of accelerometer info (reliability filter)
-  // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
-  Accel_weight = constrain(1 - 2*abs(1 - Accel_magnitude),0,1);  //  
+  // Roll and Pitch
 
-  Vector_Cross_Product(&errorRollPitch[0],&Accel_Vector[0],&DCM_Matrix[2][0]); //adjust the ground of reference
-  Vector_Scale(&Omega_P[0],&errorRollPitch[0],Kp_ROLLPITCH*Accel_weight);
-  
-  Vector_Scale(&Scaled_Omega_I[0],&errorRollPitch[0],Ki_ROLLPITCH*Accel_weight);
-  Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);     
-  
-  //*****YAW***************
-  // We make the gyro YAW drift correction based on compass magnetic heading
- 
-  mag_heading_x = cos(MAG_Heading);
-  mag_heading_y = sin(MAG_Heading);
-  errorCourse=(DCM_Matrix[0][0]*mag_heading_y) - (DCM_Matrix[1][0]*mag_heading_x);  //Calculating YAW error
-  Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
-  
-  Vector_Scale(&Scaled_Omega_P[0],&errorYaw[0],Kp_YAW);//.01proportional of YAW.
-  Vector_Add(Omega_P,Omega_P,Scaled_Omega_P);//Adding  Proportional.
-  
-  Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);//.00001Integrator
-  Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
-}
-/**************************************************/
+  Accel_Magnitude = sqrt(Accel_V[0]*Accel_V[0] + Accel_V[1]*Accel_V[1] + Accel_V[2]*Accel_V[2]);
+  Accel_Magnitude = Accel_Magnitude / GRAVITY; // Scale to gravity.
+
+  // Dynamic Weighting of accelerometer info (reliability filter)
+  // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0) 
+  Accel_Weight = constrain(1 - 2 * abs(1 - Accel_Magnitude), 0, 1); 
+
+  VCross(&RollPitchError[0], &Accel_V[0], &DCM_M[2][0]); //adjust the ground of reference
+  VScale(&Omega_P[0], &RollPitchError[0], Kp_RollPitch * Accel_Weight);
+
+  VScale(&Scaled_Omega_I[0], &RollPitchError[0], Ki_RollPitch * Accel_Weight);
+  VAdd(Omega_I,Omega_I, Scaled_Omega_I);     
+
+  // Yaw - make the gyro Yaw drift correction based on compass magnetic heading
+
+  MagHeadingX = cos(MagHeading);
+  MagHeadingY = sin(MagHeading);
+  ErrorCourse = (DCM_M[0][0] * MagHeadingY) - (DCM_M[1][0] * MagHeadingX);  //Calculating Yaw Error
+  VScale(YawError,&DCM_M[2][0], ErrorCourse); // Apply the yaw correction to the XYZ rotation of the aircraft, depeding the position.
+
+  VScale(&Scaled_Omega_P[0], &YawError[0], Kp_Yaw); //.01 proportional of Yaw.
+  VAdd(Omega_P, Omega_P, Scaled_Omega_P);	// Adding Proportional.
+
+  VScale(&Scaled_Omega_I[0], &YawError[0], Ki_Yaw); // .00001 Integrator
+  VAdd(Omega_I,Omega_I, Scaled_Omega_I); // adding integrator to the Omega_I
+} // DriftCorrection
+
 /*
-void Accel_adjust(void)
+void AccelAdjust(void)
+ {
+ Accel_V[1] += Accel_Scale(speed_3d*Omega[2]);  	// Centrifugal force on Acc_y = GPS_speed*GyroZ
+ Accel_V[2] -= Accel_Scale(speed_3d*Omega[1]);  	// Centrifugal force on Acc_z = GPS_speed*GyroY 
+ } // AccelAdjust
+ */
+
+void MUpdate(void)
 {
- Accel_Vector[1] += Accel_Scale(speed_3d*Omega[2]);  // Centrifugal force on Acc_y = GPS_speed*GyroZ
- Accel_Vector[2] -= Accel_Scale(speed_3d*Omega[1]);  // Centrifugal force on Acc_z = GPS_speed*GyroY 
-}
-*/
-/**************************************************/
+  static byte i, j, k;
+  static float op[3];
 
-void Matrix_update(void)
-{
-  Gyro_Vector[0]=Gyro_Scaled_X(read_adc(0)); //gyro x roll
-  Gyro_Vector[1]=Gyro_Scaled_Y(read_adc(1)); //gyro y pitch
-  Gyro_Vector[2]=Gyro_Scaled_Z(read_adc(2)); //gyro Z yaw
-  
-  Accel_Vector[0]=accel_x;
-  Accel_Vector[1]=accel_y;
-  Accel_Vector[2]=accel_z;
-    
-  Vector_Add(&Omega[0], &Gyro_Vector[0], &Omega_I[0]);  //adding proportional term
-  Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
+  Gyro_V[0] = Gyro_Scaled_X(GetSensor(0)); // roll
+  Gyro_V[1] = Gyro_Scaled_Y(GetSensor(1)); // pitch
+  Gyro_V[2] = Gyro_Scaled_Z(GetSensor(2)); // yaw
 
-  //Accel_adjust();    //Remove centrifugal acceleration.   We are not using this function in this version - we have no speed measurement
-  
- #if OUTPUTMODE==1         
-  Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-G_Dt*Omega_Vector[2];//-z
-  Update_Matrix[0][2]=G_Dt*Omega_Vector[1];//y
-  Update_Matrix[1][0]=G_Dt*Omega_Vector[2];//z
-  Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-G_Dt*Omega_Vector[0];//-x
-  Update_Matrix[2][0]=-G_Dt*Omega_Vector[1];//-y
-  Update_Matrix[2][1]=G_Dt*Omega_Vector[0];//x
-  Update_Matrix[2][2]=0;
- #else                    // Uncorrected data (no drift correction)
-  Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-G_Dt*Gyro_Vector[2];//-z
-  Update_Matrix[0][2]=G_Dt*Gyro_Vector[1];//y
-  Update_Matrix[1][0]=G_Dt*Gyro_Vector[2];//z
-  Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-G_Dt*Gyro_Vector[0];
-  Update_Matrix[2][0]=-G_Dt*Gyro_Vector[1];
-  Update_Matrix[2][1]=G_Dt*Gyro_Vector[0];
-  Update_Matrix[2][2]=0;
- #endif
+  Accel_V[0] = AccX;
+  Accel_V[1] = AccY;
+  Accel_V[2] = AccZ;
 
-  Matrix_Multiply(DCM_Matrix,Update_Matrix,Temporary_Matrix); //a*b=c
+  VAdd(&Omega[0], &Gyro_V[0], &Omega_I[0]);  //adding proportional term
+  VAdd(&Omega_V[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
-  for(int x=0; x<3; x++) //Matrix Addition (update)
-  {
-    for(int y=0; y<3; y++)
+  //Accel_adjust();    //remove centrifugal acceleration.   We are not using this function in this version - we have no speed measureme
+
+#if OUTPUTMODE==1         
+  Update_M[0][0] = 0;
+  Update_M[0][1] = -G_Dt * Omega_V[2];	//-z
+  Update_M[0][2] = G_Dt * Omega_V[1];		//y
+  Update_M[1][0] = G_Dt * Omega_V[2];		//z
+  Update_M[1][1] = 0;
+  Update_M[1][2] = -G_Dt * Omega_V[0];	//-x
+  Update_M[2][0] = -G_Dt * Omega_V[1];	//-y
+  Update_M[2][1] = G_Dt * Omega_V[0];		//x
+  Update_M[2][2] = 0;
+#else                    // Uncorrected data (no drift correction)
+  Update_M[0][0] = 0;
+  Update_M[0][1] = -G_Dt * Gyro_V[2];		//-z
+  Update_M[0][2] = G_Dt * Gyro_V[1];		//y
+  Update_M[1][0] = G_Dt * Gyro_V[2];		//z
+  Update_M[1][1] = 0;
+  Update_M[1][2] = -G_Dt * Gyro_V[0];
+  Update_M[2][0] = -G_Dt * Gyro_V[1];
+  Update_M[2][1] = G_Dt * Gyro_V[0];
+  Update_M[2][2] = 0;
+#endif
+
+  for( i = 0; i < 3; i++ )
+    for ( j = 0; j < 3; j++ )
     {
-      DCM_Matrix[x][y]+=Temporary_Matrix[x][y];
-    } 
-  }
-}
+      for ( k = 0; k < 3; k++ )
+        op[k] = DCM_M[i][k] * Update_M[k][j];
 
-void Euler_angles(void)
+      Temp_M[i][j] = op[0] + op[1] + op[2];
+    }
+
+  for ( i = 0; i < 3; i++ ) // M Addition (update)
+    for (j = 0; j < 3; j++ )
+      DCM_M[i][j] += Temp_M[i][j];
+
+} // MUpdate
+
+void EulerAngles(void)
 {
-  pitch = -asin(DCM_Matrix[2][0]);
-  roll = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-  yaw = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-}
+  Pitch = -asin( DCM_M[2][0] );
+  Roll = atan2( DCM_M[2][1], DCM_M[2][2] );
+  Yaw = atan2( DCM_M[1][0], DCM_M[0][0] );
+} // EulerAngles
+
+
 
