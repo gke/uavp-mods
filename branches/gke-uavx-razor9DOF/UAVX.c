@@ -103,18 +103,13 @@ void main(void)
 					break;
 				case Landed:
 					if ( StickThrottle < IdleThrottle )
-					{
 						DesiredThrottle = 0;
-						//SetGPSOrigin();
-						//GetHeading();
-					}
 					else
 					{
 						#ifdef SIMULATE
 						FakeBaroRelAltitude = 0;
 						#endif // SIMULATE						
 						LEDPattern = 0;
-						mS[NavActiveTime] = mSClock() + NAV_ACTIVE_DELAY_MS;
 						Stats[RCGlitchesS] = RCGlitches; // start of flight
 						SaveLEDs = LEDShadow;
 						if ( ParameterSanityCheck() )
@@ -173,13 +168,15 @@ void main(void)
 
 			mS[UpdateTimeout] += (int24)P[TimeSlots];
 
-			GetAttitude(); // Razor 9DOF
+			GetAttitude(10); // Razor 9DOF
 			
 			DoControl();
 
 			MixAndLimitMotors();
 			MixAndLimitCam();
 			OutSignals();							// some jitter because sync precedes this
+
+			Razor('?');		// start after output routine which locks interrupts
 
 			GetTemperature(); 
 			CheckAlarms();			CheckTelemetry();

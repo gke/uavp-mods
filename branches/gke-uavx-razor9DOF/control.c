@@ -24,9 +24,7 @@ void DoAltitudeHold(int24, int16);
 void UpdateAltitudeSource(void);
 void AltitudeHold(void);
 void InertialDamping(void);
-void LimitRollAngle(void);
-void LimitPitchAngle(void);
-void LimitYawAngle(void);
+void DoHeadingLock(void);
 void DoOrientationTransform(void);
 void DoControl(void);
 
@@ -235,7 +233,7 @@ void InertialDamping(void)
 #define COMPASS_MIDDLE 10
 #define COMPASS_MAXDEV 30
 
-void LimitYawAngle(void)
+void DoHeadingLock(void)
 {
 	static int16 Temp;
 
@@ -259,7 +257,7 @@ void LimitYawAngle(void)
 
 	Attitude.YawAngle = Limit(Attitude.YawAngle, -YawIntLimit256, YawIntLimit256);
 
-} // LimitYawAngle
+} // DoHeadingLock
 
 void DoOrientationTransform(void)
 {
@@ -332,7 +330,7 @@ void DoControl(void)
 	// Yaw
 	
 	YE = Attitude.YawRate;
-	LimitYawAngle();
+	DoHeadingLock();
 
 	YE += DesiredYaw;
 
@@ -406,7 +404,15 @@ void LightsAndSirens(void)
 			LEDRed_ON;
 			LEDGreen_OFF;
 		}	
-		ReadParametersEE();		
+		ReadParametersEE();
+
+
+		if ( RazorReady() )
+		{
+			GetAttitude(0);
+			Razor('?');
+		}
+		
 	}
 	while( (!F.Signal) || (Armed && FirstPass) || F.Ch5Active || F.GyroFailure || 
 		( InitialThrottle >= RC_THRES_START ) || (!F.ParametersValid)  );

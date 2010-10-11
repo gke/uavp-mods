@@ -335,7 +335,6 @@ void ProcessCommand(void)
 				ShowPrompt();
 				break;
 			case 'N' :	// neutral values
-				GetNeutralAccelerations();
 				TxString("\r\nNeutral    R:");
 				TxValS(Attitude.NeutralLR);
 		
@@ -390,10 +389,6 @@ void ProcessCommand(void)
 				TxString("\r\nI2C devices ...\r\n");
 				TxVal32(ScanI2CBus(),0,0);
 				TxString(" device(s) found\r\n");
-				ShowPrompt();
-				break;	
-			case 'K':
-				CalibrateCompass();
 				ShowPrompt();
 				break;			
 			case 'P'  :	// Receiver test			

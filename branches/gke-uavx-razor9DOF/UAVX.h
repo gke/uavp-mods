@@ -28,7 +28,7 @@
 	#define GKE
 	//#define RX6CH
 	//#define EXPERIMENTAL
-	//#define TESTING						
+	#define TESTING						
 	//#define RX6CH 					// 6ch Receivers
 	//#define SIMULATE
 	//#define HEXACOPTER
@@ -342,7 +342,7 @@ typedef struct {
 	uint8 dt;
 	} SensorStruct;
 
-typedef struct { // Tx
+typedef struct { // Tx/Rx
 	uint8 Head, Tail;
 	uint8 B[128];
 	} uint8x128Q;
@@ -580,31 +580,29 @@ extern uint8 ADCChannel;
 
 // attitude.c
 
-extern void GetAttitude(void);
-extern void GetNeutralAccelerations(void);
+enum RazorCom { Restart, SetNeutrals, RequestAttitude };
+
+extern void Razor(uint8);
+extern boolean RazorReady(void);
+extern void GetAttitude(int16);
 extern void SetNeutralAccelerations(void);
 extern void ErectGyros(void);
 extern void InitAttitude(void); // set neutrals
 extern void AttitudeTest(void);
 
-#define RX_BUFF_MASK 64
-
 typedef union {
-		struct {
-			int16 RollAngle, PitchAngle, YawAngle;
-			int16 RollRate, PitchRate, YawRate; 
-			int16 DUAcc, LRAcc, FBAcc;
-			int16 Heading;
-		};
-		struct {
-			int8 NeutralLR, NeutralFB, NeutralDU;
-		};
-		uint8 B[40];
+	struct {
+		int16 RollAngle, PitchAngle, YawAngle;
+		int16 RollRate, PitchRate, YawRate; 
+		int16 DUAcc, LRAcc, FBAcc;
+		int16 Heading;
+		int8 NeutralLR, NeutralFB, NeutralDU;
+		uint8 CheckSum;
+	};
+	uint8 B[24];
 } AttitudeRxRec;
 
-extern uint8 RxHead, RxTail;
-
-extern AttitudeRxRec Attitude, AttitudeP;
+extern AttitudeRxRec Attitude;
 
 extern i32u YawRateF;
 extern int16 YawFilterA;
@@ -665,9 +663,7 @@ extern void DoAltitudeHold(int24, int16);
 extern void UpdateAltitudeSource(void);
 extern void AltitudeHold(void);
 
-extern void LimitRollSum(void);
-extern void LimitPitchSum(void);
-extern void LimitYawSum(void);
+extern void DoHeadingLock(void);
 extern void InertialDamping(void);
 extern void DoOrientationTransform(void);
 extern void DoControl(void);
@@ -767,7 +763,6 @@ extern near uint8 Intersection, PrevPattern, CurrPattern;
 extern near i16u Width, Timer0;
 extern near int24 PauseTime; // for tests
 extern near uint8 ll, tt, RxCh;
-extern near uint8 RxCheckSum;
 extern near boolean WaitingForSync;
 
 extern int8	SignalCount;
@@ -1105,8 +1100,9 @@ extern void TxESCi32(int32);
 extern void SendPacket(uint8, uint8, uint8 *, boolean);
 
 #define TX_BUFF_MASK	127
-extern uint8 	TxCheckSum;
-extern uint8x128Q 	TxQ;
+#define RX_BUFF_MASK	127
+extern uint8 TxCheckSum, RxCheckSum;
+extern uint8x128Q TxQ, RxQ;
 
 //______________________________________________________________________________________________
 

@@ -50,6 +50,11 @@ uint8 TxCheckSum;
 uint8x128Q TxQ;
 #pragma udata
 
+#pragma udata rxbuffer
+uint8 RxCheckSum;
+uint8x128Q RxQ;
+#pragma udata
+
 void TxString(const rom uint8 *pch)
 {
 	while( *pch != '\0' )

@@ -20,8 +20,9 @@
 
 #include "uavx.h"
 
-void GetAttitude(void);
-void GetNeutralAccelerations(void);
+void Razor(uint8);
+boolean RazorReady(void);
+void GetAttitude(int16);
 void SetNeutralAccelerations(void);
 void ErectGyros(void);
 void InitAttitude(void); // set neutrals
@@ -29,24 +30,19 @@ void AttitudeTest(void);
 
 /*
 typedef union {
-		struct {
-			int16 RollAngle, PitchAngle, YawAngle;
-			int16 RollRate, PitchRate, YawRate; 
-			int16 DUAcc, LRAcc, FBAcc;
-			int16 Heading;
-		};
-		struct {
-			int8 NeutralLR, NeutralFB, NeutralDU;
-		};
-		uint8 B[40];
+	struct {
+		int16 RollAngle, PitchAngle, YawAngle;
+		int16 RollRate, PitchRate, YawRate; 
+		int16 DUAcc, LRAcc, FBAcc;
+		int16 Heading;
+		int8 NeutralLR, NeutralFB, NeutralDU;
+		uint8 CheckSum;
+	};
+	uint8 B[24];
 } AttitudeRxRec;
-
-
 */
 
-uint8 RxHead, RxTail;
-
-AttitudeRxRec Attitude, AttitudeP;
+AttitudeRxRec Attitude;
 
 i32u YawRateF;
 int16 YawFilterA;
@@ -54,23 +50,61 @@ int16 MagneticDeviation;
 
 int16 NavSensitivity;
 
-void GetAttitude(void)
+void Razor(uint8 c)
 {
-	DisableInterrupts;
-	TxString("#2");
+	TxChar(c);
+} // RazorCommand
 
-// read it into , AttitudeP
+boolean RazorReady(void)
+{
+	return ( RxQ.Tail >= sizeof(Attitude.B) );
+} // RazorReady
 
-	EnableInterrupts;
-} // GetAttitude
-
-void GetNeutralAccelerations(void)
+void GetAttitude(int16 dt)
 {
 	static uint8 i;
+	static int24 Timeout;
 
+	// attitude request occured after previous output PWM generation
+	Timeout = mSClock() + dt;
 
+	while ( ( !RazorReady() ) && ( Timeout > mSClock() ) ) Delay1mS(1); // wait until data has arrived
+	if ( !RazorReady() ) goto RazorError;
 
-} // GetNeutralAccelerations
+	RxCheckSum = 0;
+	for ( i = 0; i < sizeof(Attitude.B); i++ )
+		RxCheckSum ^= RxQ.B[i+1];
+
+	if ( RxCheckSum == (uint8)0 )
+	{
+		F.CompassValid = F.AccelerationsValid = true;
+		F.GyroFailure = false;
+		//DisableInterrupts;
+		for ( i = 0; i < sizeof(Attitude.B); i++ )
+			Attitude.B[i] = RxQ.B[i+1];
+		RxQ.Tail = 0;
+		//EnableInterrupts;
+	
+		Attitude.Heading += MagneticDeviation;
+		LPFilter16(&Attitude.YawRate, &YawRateF, YawFilterA);
+		
+		// scale other attitude variables
+	}
+	else
+		goto RazorError;
+
+	return;
+
+RazorError:
+
+	Razor('!'); // worth a try
+	F.CompassValid = F.AccelerationsValid = false;
+	F.GyroFailure = true;
+	Stats[AccFailS]++;
+	Stats[GyroFailS]++;
+	Stats[CompassFailS]++; 
+
+} // GetAttitude
 
 void SetNeutralAccelerations(void)
 {
@@ -80,7 +114,7 @@ void SetNeutralAccelerations(void)
 	Attitude.NeutralFB = P[MiddleFB];
 	Attitude.NeutralDU = P[MiddleDU];
 
-	TxString("#3");
+	Razor('N');
 	TxValS(Attitude.NeutralLR);
 	TxValS(Attitude.NeutralFB);
 	TxValS(Attitude.NeutralDU);
@@ -91,7 +125,7 @@ void ErectGyros(void)
 {
 	static uint8 i;		
 	
-	TxString("#1");
+	Razor(Restart);
 	for ( i = 0; i < (uint8)5; i++)
 	{
 		LEDRed_TOG;
@@ -103,33 +137,55 @@ void ErectGyros(void)
 
 void InitAttitude(void)
 {
-
 	static uint8 i;
 
-	for ( i = 0; i < (uint8)40; i++ )
+	RxQ.Tail = 0;
+
+	for ( i = 0; i < sizeof(Attitude.B); i++ )
 		Attitude.B[i] = 0;
 
-	TxString("#0");
+	F.CompassValid = F.AccelerationsValid = false;
+	F.GyroFailure = true;
 
-// get neutrals
-	Attitude.NeutralLR = 0;
-	Attitude.NeutralFB = 0;
-	Attitude.NeutralDU = 0;
-
-	// write the Neutral Acc values
-
-	F.CompassValid = true;
-	F.AccelerationsValid = true;
+	Razor('!');
+	Razor('?');
 
 } // InitAttitude
 
+#ifdef TESTING
+
 void AttitudeTest(void)
 {
+	TxString("\r\nAttitude Test\r\n");
+	
+	TxString("Rates\r\n");
+	TxString("\tRoll: "); TxVal32((Attitude.RollRate * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("\tPitch: "); TxVal32((Attitude.PitchRate * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("\tYaw: "); TxVal32((Attitude.YawRate * 180)/MILLIPI, 0, 0); TxNextLine();
 
+	TxString("Angles\r\n");
+	TxString("\tRoll: "); TxVal32((Attitude.RollAngle * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("\tPitch: "); TxVal32((Attitude.PitchAngle * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("\tYaw: "); TxVal32((Attitude.YawAngle * 180)/MILLIPI, 0, 0); TxNextLine();
+
+	TxString("Acc\r\n");
+	TxString("\tLR: "); TxVal32(Attitude.LRAcc, 0, 0); TxNextLine();
+	TxString("\tFB: "); TxVal32(Attitude.FBAcc, 0, 0); TxNextLine();
+	TxString("\tDU: "); TxVal32(Attitude.DUAcc, 0, 0); TxNextLine();
+
+	TxString("Acc Neutrals\r\n");
+	TxString("\tLR: "); TxVal32(Attitude.NeutralLR, 0, 0); TxNextLine();
+	TxString("\tFB: "); TxVal32(Attitude.NeutralFB, 0, 0); TxNextLine();
+	TxString("\tDU: "); TxVal32(Attitude.NeutralDU, 0, 0); TxNextLine();
+
+	TxString("Heading: "); TxVal32((Attitude.Heading * 180)/MILLIPI, 0, 0); TxNextLine();
+
+	if ( !( F.CompassValid && F.AccelerationsValid && !F.GyroFailure) )
+		TxString("FAILED\r\n");
 
 } // AttitudeTest
 
-
+#endif // TESTING
 
 
 
