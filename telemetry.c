@@ -356,17 +356,17 @@ void SensorTrace(void)
 		TxValH16(DesiredPitch); TxChar(';');
 		TxValH16(DesiredYaw); TxChar(';');
 
-		TxValH16(RollRateADC - GyroMidRoll); TxChar(';');
-		TxValH16(PitchRateADC - GyroMidPitch); TxChar(';');
-		TxValH16(YawRateADC - GyroMidYaw); TxChar(';');
+		TxValH16(Attitude.RollRate); TxChar(';');
+		TxValH16(Attitude.PitchRate); TxChar(';');
+		TxValH16(Attitude.YawRate); TxChar(';');
 
-		TxValH16(RollAngle); TxChar(';');
-		TxValH16(PitchAngle); TxChar(';');
-		TxValH16(YawAngle); TxChar(';');
+		TxValH16(Attitude.RollAngle); TxChar(';');
+		TxValH16(Attitude.PitchAngle); TxChar(';');
+		TxValH16(Attitude.YawAngle); TxChar(';');
 
-		TxValH16(LRAcc); TxChar(';');
-		TxValH16(FBAcc); TxChar(';');
-		TxValH16(DUAcc); TxChar(';');
+		TxValH16(0); TxChar(';');// LRAcc
+		TxValH16(0); TxChar(';'); // FBAcc
+		TxValH16(0); TxChar(';'); // DUAcc
 
 		TxValH16(LRComp); TxChar(';');
 		TxValH16(FBComp); TxChar(';');

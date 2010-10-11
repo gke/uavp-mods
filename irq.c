@@ -48,7 +48,6 @@ near i16u 	PPM[MAX_CONTROLS];
 near int8 	PPM_Index;
 near int24 	PauseTime;
 near uint8 	RxCh;
-near uint8 	RxCheckSum;
 near int8	State, FailState;
 near boolean WaitingForSync;
 near i24u 	ADCValue, Temp;
@@ -68,10 +67,10 @@ void ReceivingRazorOnly(boolean r)
 		if ( F.ReceivingGPS )			
 			#ifdef CLOCK_16MHZ
 			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
-				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
+				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B9600);
 			#else // CLOCK_40MHZ
 			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
-				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_LOW, _B38400);
+				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_LOW, _B9600);
 			#endif // CLOCK_16MHZ
 		else
 		#endif // !TESTING
@@ -105,8 +104,8 @@ void InitTimersAndInterrupts(void)
 	OpenTimer1(T1_16BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 
-	TxQ.Head = TxQ.Tail = RxCheckSum = 0;
-	RxHead = RxTail = 0;
+	TxQ.Head = TxQ.Tail = 0;
+	RxQ.Head = RxQ.Tail = RxCheckSum = 0;
 
 	for (i = Clock; i<= CompassUpdate; i++)
 		mS[i] = 0;
@@ -211,8 +210,8 @@ void high_isr_handler(void)
 		}
 		else
 		{
-			RxHead = (RxTail + 1) & RX_BUFF_MASK;
-			Attitude.B[RxTail] = RxCh;
+			RxQ.Tail = (RxQ.Tail + 1) & RX_BUFF_MASK;
+			RxQ.B[RxQ.Tail] = RxCh;
 		}
 	
 		PIR1bits.RCIF = false;
