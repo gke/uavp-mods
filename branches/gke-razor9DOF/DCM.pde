@@ -135,18 +135,18 @@ void MUpdate(void)
 #if OUTPUTMODE==1         
   Update_M[0][0] = 0;
   Update_M[0][1] = -G_Dt * Omega_V[2];	//-z
-  Update_M[0][2] = G_Dt * Omega_V[1];		//y
-  Update_M[1][0] = G_Dt * Omega_V[2];		//z
+  Update_M[0][2] = G_Dt * Omega_V[1];	//y
+  Update_M[1][0] = G_Dt * Omega_V[2];	//z
   Update_M[1][1] = 0;
   Update_M[1][2] = -G_Dt * Omega_V[0];	//-x
   Update_M[2][0] = -G_Dt * Omega_V[1];	//-y
-  Update_M[2][1] = G_Dt * Omega_V[0];		//x
+  Update_M[2][1] = G_Dt * Omega_V[0];	//x
   Update_M[2][2] = 0;
 #else                    // Uncorrected data (no drift correction)
   Update_M[0][0] = 0;
-  Update_M[0][1] = -G_Dt * Gyro_V[2];		//-z
-  Update_M[0][2] = G_Dt * Gyro_V[1];		//y
-  Update_M[1][0] = G_Dt * Gyro_V[2];		//z
+  Update_M[0][1] = -G_Dt * Gyro_V[2];	//-z
+  Update_M[0][2] = G_Dt * Gyro_V[1];	//y
+  Update_M[1][0] = G_Dt * Gyro_V[2];	//z
   Update_M[1][1] = 0;
   Update_M[1][2] = -G_Dt * Gyro_V[0];
   Update_M[2][0] = -G_Dt * Gyro_V[1];
@@ -163,7 +163,7 @@ void MUpdate(void)
       Temp_M[i][j] = op[0] + op[1] + op[2];
     }
 
-  for ( i = 0; i < 3; i++ ) // M Addition (update)
+  for ( i = 0; i < 3; i++ )
     for (j = 0; j < 3; j++ )
       DCM_M[i][j] += Temp_M[i][j];
 
@@ -171,9 +171,9 @@ void MUpdate(void)
 
 void EulerAngles(void)
 {
-  Pitch = -asin( DCM_M[2][0] );
-  Roll = atan2( DCM_M[2][1], DCM_M[2][2] );
-  Yaw = atan2( DCM_M[1][0], DCM_M[0][0] );
+  PitchAngle = -asin( DCM_M[2][0] );
+  RollAngle = atan2( DCM_M[2][1], DCM_M[2][2] );
+  YawAngle = atan2( DCM_M[1][0], DCM_M[0][0] );
 } // EulerAngles
 
 

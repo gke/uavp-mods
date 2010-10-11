@@ -57,20 +57,15 @@ void GetAccelerometer()
 
   Wire.endTransmission(); 
 
-  if ( i==6 ) 
-  {
-    Acc[1] = ( (int)buff[1] << 8) | buff[0];    // Y axis (internal sensor x axis)
-    Acc[0] = ( (int)buff[3] << 8) | buff[2];    // X axis (internal sensor y axis)
-    Acc[2] = ( (int)buff[5] << 8) | buff[4];    // Z axis
-    Sensor[3] = Acc[0];
-    Sensor[4] = Acc[1];
-    Sensor[5] = Acc[2];
-    AccX = SensorSign[3] * (Acc[0] - SensorNeutral[3]);
-    AccY = SensorSign[4] * (Acc[1] - SensorNeutral[4]);
-    AccZ = SensorSign[5] * (Acc[2] - SensorNeutral[5]);
-  }
-  else
-    Serial.println("!ERR: Acc data");
+  Acc[1] = ( (int)buff[1] << 8) | buff[0];    // Y axis (internal sensor x axis)
+  Acc[0] = ( (int)buff[3] << 8) | buff[2];    // X axis (internal sensor y axis)
+  Acc[2] = ( (int)buff[5] << 8) | buff[4];    // Z axis
+  Sensor[3] = Acc[0];
+  Sensor[4] = Acc[1];
+  Sensor[5] = Acc[2];
+  AccX = SensorSign[3] * (Acc[0] - SensorNeutral[3]);
+  AccY = SensorSign[4] * (Acc[1] - SensorNeutral[4]);
+  AccZ = SensorSign[5] * (Acc[2] - SensorNeutral[5]);
 } // GetAccelerometer
 
 //_____________________________________________________________________
@@ -102,16 +97,12 @@ void GetMagnetometer(void)
 
   Wire.endTransmission(); //end transmission
 
-    if ( i==6 )  
-  {
-    // MSB byte first, then LSB, X,Y,Z
-    MagX = SensorSign[6] * (((int)buff[2]) << 8) | buff[3];    // X axis (internal sensor y axis)
-    MagY = SensorSign[7] * (((int)buff[0]) << 8) | buff[1];    // Y axis (internal sensor x axis)
-    MagZ = SensorSign[8] * (((int)buff[4]) << 8) | buff[5];    // Z axis
-  }
-  else
-    Serial.println("!ERR: Mag data");
+  MagX = SensorSign[6] * (((int)buff[2]) << 8) | buff[3];    // X axis (internal sensor y axis)
+  MagY = SensorSign[7] * (((int)buff[0]) << 8) | buff[1];    // Y axis (internal sensor x axis)
+  MagZ = SensorSign[8] * (((int)buff[4]) << 8) | buff[5];    // Z axis
 
 } // GetMagnetometer
+
+
 
 

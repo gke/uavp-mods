@@ -15,10 +15,10 @@ void ComputeHeading(void)
   static float MX, MY;
   static float Cos_Roll, Sin_Roll, Cos_Pitch, Sin_Pitch;
     
-  Cos_Roll = cos(Roll);
-  Sin_Roll = sin(Roll);
-  Cos_Pitch = cos(Pitch);
-  Sin_Pitch = sin(Pitch);
+  Cos_Roll = cos(RollAngle);
+  Sin_Roll = sin(RollAngle);
+  Cos_Pitch = cos(PitchAngle);
+  Sin_Pitch = sin(PitchAngle);
   
   // Tilt compensated Magnetic field X:
   MX = MagX * Cos_Pitch + MagY * Sin_Roll * Sin_Pitch + MagZ * Cos_Roll * Sin_Pitch;

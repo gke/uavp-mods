@@ -8,32 +8,32 @@
 // Substantially rewritten by Prof. G.K.  Egan 2010
 
 // Axis definition: 
-   // X axis pointing forward (to the FTDI connector)
-   // Y axis pointing to the right 
-   // and Z axis pointing down.
-   // Pitch : positive up
-   // Roll : positive right
-   // Yaw : positive clockwise
+// X axis pointing forward (to the FTDI connector)
+// Y axis pointing to the right 
+// and Z axis pointing down.
+// Pitch : positive up
+// Roll : positive right
+// Yaw : positive clockwise
 
 /* 
-  Hardware version - v13
-	
-  ATMega328@3.3V w/ external 8MHz resonator
-  High Fuse DA
-  Low Fuse FF
-  	
-  ADXL345: Accelerometer
-  HMC5843: Magnetometer
-  LY530:	Yaw Gyro
-  LPR530:	Pitch and Roll Gyro
-  
-  Programmer : 3.3v FTDI
-  Arduino IDE : Select board  "Arduino Duemilanove w/ATmega328"
-  This code works also on ATMega168 Hardware
-*/
+ Hardware version - v13
+ 	
+ ATMega328@3.3V w/ external 8MHz resonator
+ High Fuse DA
+ Low Fuse FF
+ 	
+ ADXL345: Accelerometer
+ HMC5843: Magnetometer
+ LY530:	Yaw Gyro
+ LPR530:	Pitch and Roll Gyro
+ 
+ Programmer : 3.3v FTDI
+ Arduino IDE : Select board  "Arduino Duemilanove w/ATmega328"
+ This code works also on ATMega168 Hardware
+ */
 
 #include <Wire.h>
-	
+
 // Useful Constants
 #define NUL 	0
 #define SOH 	1
@@ -56,12 +56,9 @@
 #define CENTIRAD 		2
 
 // ADXL345 Sensitivity(from datasheet) => 4mg/LSB   1G => 1000mg/4mg = 256 steps
-// Tested value : 248
-#define GRAVITY 248  //this equivalent to 1G in the raw data coming from the accelerometer 
-#define Accel_Scale(x) x*(GRAVITY/9.81)//Scaling the raw data of the accel to actual acceleration in meters for seconds square
+#define GRAVITY 256
 
 #define ToRad(x) (x*0.01745329252)  // *pi/180
-#define ToDeg(x) (x*57.2957795131)  // *180/pi
 
 // LPR530 & LY530 Sensitivity (from datasheet) => (3.3mv at 3v)at 3.3v: 3mV/º/s, 3.22mV/ADC step => 0.93
 // Tested values : 0.92
@@ -77,19 +74,18 @@
 #define Kp_Yaw 1.2
 #define Ki_Yaw 0.00002
 
-#define ADC_WARM_CYCLES 50
-#define STATUS_LED 13 
-
-// Debug
-
 #define OUTPUTMODE 1
-#define PRINT_EULER 1
+#define PRINT_EULER 0
 #define PRINT_ANALOGS 0
 #define PRINT_DCM 0
+
+#define PRINT_UAVX 1
 //_____________________________________________________________________
 
-const byte Map[3] = {1,2,0};  			// Map the ADC channels gyro x,y,z
-const int SensorSign[9] = {-1,1,-1,1,1,1,-1,-1,-1};  //Correct directions x,y,z - gyros, accels, magnetometer
+const byte Map[3] = {
+  1,2,0};  			// Map the ADC channels gyro x,y,z
+const int SensorSign[9] = {
+  -1,1,-1,1,1,1,-1,-1,-1};  //Correct directions x,y,z - gyros, accels, magnetometer
 
 float   G_Dt = 0.01;    			// DCM integration time 100Hz if possible
 
@@ -98,8 +94,10 @@ long    PeriodmS;
 long    ClockmS;
 byte    CompassInterval = 0;				//general purpuse timer
 
-float   Sensor[6] = {0,0,0,0,0,0}; 				// gyros filtered data
-float   SensorNeutral[6] = {0,0,0,0,0,0};       // sensor neutral values
+float   Sensor[6] = {
+  0,0,0,0,0,0}; // gyros filtered data
+float   SensorNeutral[6] = {
+  0,0,0,0,0,0}; // sensor neutral values
 int     Acc[3];          			// accelerometers data
 
 int     AccX, AccY, AccZ;
@@ -107,29 +105,19 @@ int     MagX, MagY, MagZ;
 float   MagHeading;
 
 // Euler angles
-float   Roll, Pitch, Yaw;
+float   RollAngle, PitchAngle, YawAngle;
+float   RollAngleP, PitchAngleP, YawAngleP;
+float   RollRate, PitchRate, YawRate;
 
-float   RollPitchError[3] = {0,0,0}; 
-float   YawError[3] = {0,0,0};
+float   RollPitchError[3] = {
+  0,0,0}; 
+float   YawError[3] = {
+  0,0,0};
 
-void setup()
+void Initialise()
 {
   static byte i, c;
 
-  Serial.begin(115200);
-  pinMode (STATUS_LED,OUTPUT);  // Status LED
-  
-  Serial.print("Start");
-  Serial.println();
-  
-  ADCReference(DEFAULT); 
-  InitADCBuffers();
-  InitADC();
-  InitI2C();
-  InitAccelerometers();
-  GetAccelerometer();
-  InitMagnetometer();  
- 
   for( i = 0; i < 32; i++ )
   {
     GetGyroRaw();
@@ -138,53 +126,85 @@ void setup()
       SensorNeutral[c] += Sensor[c];
     delay(20);
   }
-      
+
   for( c = 0; c < 6; c++ )
     SensorNeutral[c] /= 32.0;
-      
+
   SensorNeutral[5] -= GRAVITY * (float)SensorSign[5];
-  
-  // need to capture acc neutrals at setup as for UAVX
-  SensorNeutral[3] = -13.31;
-  SensorNeutral[4] = 0.81;
-  SensorNeutral[5] = -18.06;
-    
-  Serial.println("Offset:");
-  for( c = 0; c < 6; c++ )
-    Serial.println(SensorNeutral[c]);
-    
-  delay(2000);
-  digitalWrite(STATUS_LED, HIGH);
-      
+
+  RollAngleP = PitchAngleP = YawAngleP = 0.0;
+
   ClockmSp = millis();
-  delay(20);
-}
+
+} // Initialise
+
+void setup()
+{
+  Serial.begin(115200);
+  ADCReference(DEFAULT); 
+
+  InitADCBuffers();
+  InitADC();
+  InitI2C();
+  InitAccelerometers();
+  GetAccelerometer();
+  InitMagnetometer();
+
+  Initialise();
+} // setup
+
+char ch;
 
 void loop()
 {
-  ClockmS = millis();
-  PeriodmS = ClockmS - ClockmSp;
-  if( PeriodmS >= 10 )  // Main loop runs at 50Hz
-  {
-    ClockmSp = ClockmS;
-    G_Dt = (float)PeriodmS / 1000.0;
-  	    
-    GetGyroRaw(); 
-    GetAccelerometer();   
-	    
-    if ( ++CompassInterval > 5) // compass 1/5 rate
-    {
-      CompassInterval = 0;
-      GetMagnetometer();
-      ComputeHeading();
-    }
-	    
-    MUpdate(); 
-    Normalize();
-    DriftCorrection();
-    EulerAngles(); 
- 
-    PrintData();  
-  }
+  if ( Serial.available() > 0 );
+  {  
+    ch = Serial.read();
 
+    switch ( ch ) {
+    case '?': 
+      ClockmS = millis();
+      PeriodmS = ClockmS - ClockmSp;
+
+      ClockmSp = ClockmS;
+      G_Dt = (float)PeriodmS / 1000.0;
+
+      GetGyroRaw(); 
+      GetAccelerometer();   
+
+      if ( ++CompassInterval > 5) // compass 1/5 rate
+      {
+        CompassInterval = 0;
+        GetMagnetometer();
+        ComputeHeading();
+      }
+
+      MUpdate(); 
+      Normalize();
+      DriftCorrection();
+      EulerAngles(); 
+      SendAttitude(); 
+      
+      break; 
+    case '!':
+      Initialise();
+      
+      break;
+    case 'N':
+      // SensorNeutral[3] = (float)RxNumS();
+      // SensorNeutral[4] = (float)RxNumS();
+      // SensorNeutral[5] = (float)RxNumS();
+ 
+      break;
+    default:;
+    } // switch
+  }
 } // Main
+
+
+
+
+
+
+
+
