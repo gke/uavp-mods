@@ -20,28 +20,28 @@ float   Omega_I[3] = {
 float   Omega[3] = {
   0,0,0};
 float   DCM_M[3][3] = {
-   {
-    1,0,0  }
+  {
+    1,0,0    }
   ,{
-    0,1,0  }
+    0,1,0    }
   ,{
-    0,0,1  }
+    0,0,1    }
 }; 
 float   Update_M[3][3] = {
   {
-    0,1,2    }
+    0,1,2      }
   ,{
-    3,4,5    }
+    3,4,5      }
   ,{
-    6,7,8    }
+    6,7,8      }
 }; //Gyros here
 float   Temp_M[3][3] = {
   {
-    0,0,0    }
+    0,0,0      }
   ,{ 
-    0,0,0    }
+    0,0,0      }
   ,{
-    0,0,0    }
+    0,0,0      }
 };
 
 void Normalize(void)
@@ -109,8 +109,8 @@ void DriftCorrection(void)
 /*
 void AccelAdjust(void)
  {
- Accel_V[1] += Accel_Scale(speed_3d*Omega[2]);  	// Centrifugal force on Acc_y = GPS_speed*GyroZ
- Accel_V[2] -= Accel_Scale(speed_3d*Omega[1]);  	// Centrifugal force on Acc_z = GPS_speed*GyroY 
+ Accel_V[1] += Accel_Scale(speed_3d*Omega[2]); // Centrifugal force on Acc_y = GPS_speed*GyroZ
+ Accel_V[2] -= Accel_Scale(speed_3d*Omega[1]); // Centrifugal force on Acc_z = GPS_speed*GyroY 
  } // AccelAdjust
  */
 
@@ -119,13 +119,11 @@ void MUpdate(void)
   static byte i, j, k;
   static float op[3];
 
-  Gyro_V[0] = Gyro_Scaled_X(GetSensor(0)); // roll
-  Gyro_V[1] = Gyro_Scaled_Y(GetSensor(1)); // pitch
-  Gyro_V[2] = Gyro_Scaled_Z(GetSensor(2)); // yaw
-
-  Accel_V[0] = AccX;
-  Accel_V[1] = AccY;
-  Accel_V[2] = AccZ;
+  for ( i = 0; i < 3 ; i++)
+  {
+    Gyro_V[i] = (float)Gyro[i] * GyroToRadianSec; 
+    Accel_V[i] = (float)Acc[i];
+  }
 
   VAdd(&Omega[0], &Gyro_V[0], &Omega_I[0]);  //adding proportional term
   VAdd(&Omega_V[0], &Omega[0], &Omega_P[0]); //adding Integrator term
@@ -175,6 +173,7 @@ void EulerAngles(void)
   RollAngle = atan2( DCM_M[2][1], DCM_M[2][2] );
   YawAngle = atan2( DCM_M[1][0], DCM_M[0][0] );
 } // EulerAngles
+
 
 
 

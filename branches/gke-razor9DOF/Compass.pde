@@ -21,10 +21,10 @@ void ComputeHeading(void)
   Sin_Pitch = sin(PitchAngle);
   
   // Tilt compensated Magnetic field X:
-  MX = MagX * Cos_Pitch + MagY * Sin_Roll * Sin_Pitch + MagZ * Cos_Roll * Sin_Pitch;
+  MX = (float)Mag[0] * Cos_Pitch + (float)Mag[1] * Sin_Roll * Sin_Pitch + (float)Mag[2] * Cos_Roll * Sin_Pitch;
   	
   // Tilt compensated Magnetic field Y:
-  MY = MagY * Cos_Roll - MagZ * Sin_Roll;
+  MY = (float)Mag[1] * Cos_Roll - (float)Mag[2] * Sin_Roll;
   
   // Magnetic Heading
   MagHeading = atan2( -MY, MX );

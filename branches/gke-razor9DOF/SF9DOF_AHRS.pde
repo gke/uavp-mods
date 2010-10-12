@@ -33,41 +33,17 @@
  */
 
 #include <Wire.h>
+#include <EEPROM.h>
 
-// Useful Constants
-#define NUL 	0
-#define SOH 	1
-#define EOT 	4
-#define ACK	6
-#define HT 	9
-#define LF 	10
-#define CR 	13
-#define NAK 	21
-#define ESC 	27
-
-#define MILLIPI 		3142 
-#define CENTIPI 		314 
-#define HALFMILLIPI 		1571 
-#define QUARTERMILLIPI		785
-#define SIXTHMILLIPI		524
-#define TWOMILLIPI 		6284
-
-#define MILLIRAD 		18 
-#define CENTIRAD 		2
+#define EEPROMBase 128  // keep clear of location zero
 
 // ADXL345 Sensitivity(from datasheet) => 4mg/LSB   1G => 1000mg/4mg = 256 steps
 #define GRAVITY 256
 
-#define ToRad(x) (x*0.01745329252)  // *pi/180
-
 // LPR530 & LY530 Sensitivity (from datasheet) => (3.3mv at 3v)at 3.3v: 3mV/º/s, 3.22mV/ADC step => 0.93
 // Tested values : 0.92
-#define Gyro_Gain_X 0.92 //X axis Gyro gain
-#define Gyro_Gain_Y 0.92 //Y axis Gyro gain
-#define Gyro_Gain_Z 0.92 //Z axis Gyro gain
-#define Gyro_Scaled_X(x) x*ToRad(Gyro_Gain_X) //Return the scaled ADC raw data of the gyro in radians for second
-#define Gyro_Scaled_Y(x) x*ToRad(Gyro_Gain_Y) //Return the scaled ADC raw data of the gyro in radians for second
-#define Gyro_Scaled_Z(x) x*ToRad(Gyro_Gain_Z) //Return the scaled ADC raw data of the gyro in radians for second
+#define GyroToDegreesSec 0.92 // deg/sec
+#define GyroToRadianSec 0.016057 // radian/sec 
 
 #define Kp_RollPitch 0.02
 #define Ki_RollPitch 0.00002
@@ -84,24 +60,25 @@
 
 const byte Map[3] = {
   1,2,0};  			// Map the ADC channels gyro x,y,z
-const int SensorSign[9] = {
-  -1,1,-1,1,1,1,-1,-1,-1};  //Correct directions x,y,z - gyros, accels, magnetometer
+const int GyroSign[3] = {
+  -1,1,-1 };
+const int AccSign[3] = {
+  1,1,1};
+const int MagSign[3] = {
+  -1,-1,-1};  
 
-float   G_Dt = 0.01;    			// DCM integration time 100Hz if possible
+float   G_Dt = 0.01; // DCM integration time 100Hz if possible
 
 long    ClockmSp;
 long    PeriodmS;
 long    ClockmS;
-byte    CompassInterval = 0;				//general purpuse timer
+byte    CompassInterval = 0;
 
-float   Sensor[6] = {
-  0,0,0,0,0,0}; // gyros filtered data
-float   SensorNeutral[6] = {
-  0,0,0,0,0,0}; // sensor neutral values
-int     Acc[3];          			// accelerometers data
+int     Gyro[3], GyroADC[3], GyroNeutral[3];
+int     Acc[3], AccADC[3], AccNeutral[3];
+char    AccNeutralEE[3];   
 
-int     AccX, AccY, AccZ;
-int     MagX, MagY, MagZ;
+int     Mag[3], MagADC[3];
 float   MagHeading;
 
 // Euler angles
@@ -114,23 +91,34 @@ float   RollPitchError[3] = {
 float   YawError[3] = {
   0,0,0};
 
+byte i;
+
 void Initialise()
 {
   static byte i, c;
+
+  for ( i = 0 ; i < 3 ; i++)
+    AccNeutralEE[i] = char(EEPROM.read(EEPROMBase+i)); // probably 0xff or -1 if uninitialised OK
 
   for( i = 0; i < 32; i++ )
   {
     GetGyroRaw();
     GetAccelerometer();
-    for( c = 0; c < 6; c++ )
-      SensorNeutral[c] += Sensor[c];
+    for( c = 0; c < 3; c++ )
+    {
+      GyroNeutral[c] += GyroADC[c];
+      AccNeutral[c] += AccADC[c];
+    }
     delay(20);
   }
 
-  for( c = 0; c < 6; c++ )
-    SensorNeutral[c] /= 32.0;
+  for( c = 0; c < 3; c++ )
+  {
+    GyroNeutral[c] >>= 5;
+    AccNeutral[c] >>= 5;
+  }
 
-  SensorNeutral[5] -= GRAVITY * (float)SensorSign[5];
+  AccNeutral[3] -= GRAVITY * AccSign[3];
 
   RollAngleP = PitchAngleP = YawAngleP = 0.0;
 
@@ -157,49 +145,59 @@ char ch;
 
 void loop()
 {
-  if ( Serial.available() > 0 );
+  if ( Serial.available() > 1 )
   {  
     ch = Serial.read();
+    if ( ch == '$' )
+    {
+      ch = char(Serial.read());
+      switch ( ch ) {
+      case '?': 
+        ClockmS = millis();
+        PeriodmS = ClockmS - ClockmSp;
 
-    switch ( ch ) {
-    case '?': 
-      ClockmS = millis();
-      PeriodmS = ClockmS - ClockmSp;
+        ClockmSp = ClockmS;
+        G_Dt = (float)PeriodmS / 1000.0;
 
-      ClockmSp = ClockmS;
-      G_Dt = (float)PeriodmS / 1000.0;
+        GetGyroRaw(); 
+        GetAccelerometer();   
 
-      GetGyroRaw(); 
-      GetAccelerometer();   
+        if ( ++CompassInterval > 5) // compass 1/5 rate
+        {
+          CompassInterval = 0;
+          GetMagnetometer();
+          ComputeHeading();
+        }
 
-      if ( ++CompassInterval > 5) // compass 1/5 rate
-      {
-        CompassInterval = 0;
-        GetMagnetometer();
-        ComputeHeading();
-      }
+        MUpdate(); 
+        Normalize();
+        DriftCorrection();
+        EulerAngles(); 
+        SendAttitude(); 
 
-      MUpdate(); 
-      Normalize();
-      DriftCorrection();
-      EulerAngles(); 
-      SendAttitude(); 
-      
-      break; 
-    case '!':
-      Initialise();
-      
-      break;
-    case 'N':
-      // SensorNeutral[3] = (float)RxNumS();
-      // SensorNeutral[4] = (float)RxNumS();
-      // SensorNeutral[5] = (float)RxNumS();
- 
-      break;
-    default:;
-    } // switch
+        break; 
+      case '!':
+        Initialise();
+
+        break;
+      case 'N':
+        while ( Serial.available() < 3 );
+        for ( i = 0; i < 3; i++ )
+        {
+          AccNeutralEE[i] = char(Serial.read());
+          EEPROM.write(EEPROMBase+i, AccNeutral[i]);
+        }
+
+        break;
+      default:;
+      } // switch
+    }
   }
 } // Main
+
+
+
+
 
 
 

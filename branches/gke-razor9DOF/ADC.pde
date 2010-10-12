@@ -40,20 +40,13 @@ void GetGyroRaw(void)
     interrupts(); 
 
     if ( samples > 0 ) // Check for divide by zero  
-      Sensor[c] = (float)s / (float)samples;              
+      GyroADC[c] = s / samples;
+    Gyro[c] = GyroSign[c] * (GyroADC[c] - GyroNeutral[c]);      
   }
-
+  
   InitADCBuffers();
 
 } // GetGyroRaw
-
-float GetSensor(int s)
-{
-  if ( SensorSign[s] < 0 )
-    return ( SensorNeutral[s] - Sensor[s] );
-  else
-    return ( Sensor[s]- SensorNeutral[s]); 
-} // GetSensor
 
 void ADCReference(byte m)
 { // why a call?

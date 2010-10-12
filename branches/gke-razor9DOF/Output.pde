@@ -7,9 +7,9 @@
 // Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
 // Substantially rewritten by Prof. G.K.  Egan 2010
 
-byte TxCheckSum = 0;
+byte TxCheckSum;
 
-void TxByte(byte b)
+void TxByte(char b)
 {
   Serial.write(b);
   TxCheckSum ^= b;
@@ -31,8 +31,8 @@ void TxWord(word w)
 
 void SendAttitude(void)
 {
-
   TxCheckSum = 0;
+  Serial.write('$'); // sentinel not included in checksum
 
   // rescale angles and rates to milliradian
   TxWord((int)(RollAngle * 1000.0));
@@ -51,60 +51,19 @@ void SendAttitude(void)
   PitchAngleP = PitchAngle;
   YawAngleP = YawAngle;
 
-  // 1G is 256 - UAVX is scaled to 1024
-  TxWord((int)AccX); // FBAcc
-  TxWord((int)AccY); // LRAcc
-  TxWord((int)AccZ); // DUAcc
+  // 1G is 256
+  for ( i = 0 ; i < 3 ; i++ )
+    TxWord(Acc[i]); 
 
+  for ( i = 0 ; i < 3 ; i++ )
+    TxWord(AccNeutral[i]); 
+    
   TxWord((int)(MagHeading * 1000.0));
-
-  TxWord((int)SensorNeutral[3]); // NeutralFB
-  TxWord((int)SensorNeutral[3]); // NeutralLR
-  TxWord((int)SensorNeutral[5]); // NeutralDU
 
   TxByte(TxCheckSum);
   Serial.println();
 
 } // SendAttitude
-
-char PollRxChar(void)
-{
-  if ( Serial.available() < 1 )
-    return (0);
-  else
-    return(Serial.read());
-} // PollRxChar
-
-signed char RxNumS(void)
-{
-  // UAVPSet sends sign and 2 digits
-  byte ch;
-  signed char n;
-  byte Neg;
-  n = 0;
-
-  Neg = false;
-  do
-    ch = PollRxChar();
-  while( ((ch < '0') || (ch > '9')) && (ch != '-') );
-  if( ch == '-' )
-  {
-    Neg = true;
-    do
-      ch = PollRxChar();
-    while( (ch < '0') || (ch > '9') );
-  }
-  n = (ch - '0') * 10;
-
-  do
-    ch = PollRxChar();
-  while( (ch < '0') || (ch > '9') );
-  n += ch - '0';
-  if( Neg )
-    n = -n;
-  return(n);
-} // RxNumS
-
 
 
 
