@@ -30,3 +30,4 @@ void ComputeHeading(void)
   MagHeading = atan2( -MY, MX );
 
 } // ComputeHeading
+

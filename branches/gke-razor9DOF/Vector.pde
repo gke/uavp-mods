@@ -43,7 +43,3 @@ void VAdd(float VOut[3],float v1[3], float v2[3])
 } // VAdd
 
 
-
-
-
-

@@ -51,15 +51,17 @@
 #define Ki_Yaw 0.00002
 
 #define OUTPUTMODE 1
-#define PRINT_EULER 0
+#define PRINT_EULER 1
 #define PRINT_ANALOGS 0
 #define PRINT_DCM 0
 
-#define PRINT_UAVX 1
+#define PRINT_READABLE 1
+#define USING_UAVX 0
+#define FREE_RUNNING 1
 //_____________________________________________________________________
 
 const byte Map[3] = {
-  1,2,0};  			// Map the ADC channels gyro x,y,z
+  1,2,0}; // Map the ADC channels gyro x,y,z
 const int GyroSign[3] = {
   -1,1,-1 };
 const int AccSign[3] = {
@@ -97,8 +99,18 @@ void Initialise()
 {
   static byte i, c;
 
+#if FREE_RUNNING == 1
+
+  AccNeutralEE[0] = 0;
+  AccNeutralEE[1] = 0;
+  AccNeutralEE[2] = 0;
+
+#else
+
   for ( i = 0 ; i < 3 ; i++)
     AccNeutralEE[i] = char(EEPROM.read(EEPROMBase+i)); // probably 0xff or -1 if uninitialised OK
+    
+#endif // FREE_RUNNING
 
   for( i = 0; i < 32; i++ )
   {
@@ -118,7 +130,7 @@ void Initialise()
     AccNeutral[c] >>= 5;
   }
 
-  AccNeutral[3] -= GRAVITY * AccSign[3];
+ // AccNeutral[3] -= GRAVITY * AccSign[3];
 
   RollAngleP = PitchAngleP = YawAngleP = 0.0;
 
@@ -145,6 +157,35 @@ char ch;
 
 void loop()
 {
+
+#if FREE_RUNNING == 1
+  ClockmS = millis();
+  PeriodmS = ClockmS - ClockmSp;
+  if  ( PeriodmS >= 20 )
+  {
+    ClockmSp = ClockmS;
+    G_Dt = (float)PeriodmS / 1000.0;
+
+    GetGyroRaw(); 
+    GetAccelerometer();   
+
+    if ( ++CompassInterval > 5) // compass 1/5 rate
+    {
+      CompassInterval = 0;
+      GetMagnetometer();
+      ComputeHeading();
+    }
+
+    MUpdate(); 
+    Normalize();
+    DriftCorrection();
+    EulerAngles(); 
+    
+    SendAttitude(); 
+  }
+
+#else
+
   if ( Serial.available() > 1 )
   {  
     ch = Serial.read();
@@ -173,6 +214,7 @@ void loop()
         Normalize();
         DriftCorrection();
         EulerAngles(); 
+        
         SendAttitude(); 
 
         break; 
@@ -193,16 +235,7 @@ void loop()
       } // switch
     }
   }
+
+#endif // FREE_RUNNING
 } // Main
-
-
-
-
-
-
-
-
-
-
-
 

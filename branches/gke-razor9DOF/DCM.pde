@@ -1,7 +1,7 @@
 
 // Sparkfun 9DOF Razor IMU AHRS
 // 9 Degree of Freedom Attitude and Heading Reference System
-// Firmware v1.0
+// Firmware v1.1gke
 //
 // Released under Creative Commons License
 // Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
@@ -12,36 +12,36 @@ float   Accel_V[3] = {
 float   Gyro_V[3] = {
   0,0,0};
 float   Omega_V[3] = {
-  0,0,0}; 		// corrected Gyro data
+  0,0,0}; // corrected gyro data
 float   Omega_P[3] = {
-  0,0,0};		// proportional correction
+  0,0,0}; // proportional correction
 float   Omega_I[3] = {
-  0,0,0};		// integral correction
+  0,0,0}; // integral correction
 float   Omega[3] = {
   0,0,0};
 float   DCM_M[3][3] = {
   {
-    1,0,0    }
+    1,0,0      }
   ,{
-    0,1,0    }
+    0,1,0      }
   ,{
-    0,0,1    }
+    0,0,1      }
 }; 
 float   Update_M[3][3] = {
   {
-    0,1,2      }
+    0,1,2        }
   ,{
-    3,4,5      }
+    3,4,5        }
   ,{
-    6,7,8      }
+    6,7,8        }
 }; //Gyros here
 float   Temp_M[3][3] = {
   {
-    0,0,0      }
+    0,0,0        }
   ,{ 
-    0,0,0      }
+    0,0,0        }
   ,{
-    0,0,0      }
+    0,0,0        }
 };
 
 void Normalize(void)
@@ -58,7 +58,7 @@ void Normalize(void)
   VAdd(&Temp[0][0], &Temp[0][0], &DCM_M[0][0]);			//eq.19
   VAdd(&Temp[1][0], &Temp[1][0], &DCM_M[1][0]);			//eq.19
 
-  VCross(&Temp[2][0],&Temp[0][0], &Temp[1][0]); // c= a * b eq.20
+  VCross(&Temp[2][0],&Temp[0][0], &Temp[1][0]);                 // c= a * b eq.20
 
   Renorm = 0.5 * (3.0 - VDot(&Temp[0][0], &Temp[0][0])); 	//eq.21
   VScale(&DCM_M[0][0], &Temp[0][0], Renorm);
@@ -82,8 +82,8 @@ void DriftCorrection(void)
   Accel_Magnitude = sqrt(Accel_V[0]*Accel_V[0] + Accel_V[1]*Accel_V[1] + Accel_V[2]*Accel_V[2]);
   Accel_Magnitude = Accel_Magnitude / GRAVITY; // Scale to gravity.
 
-  // Dynamic Weighting of accelerometer info (reliability filter)
-  // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0) 
+  // dynamic weighting of accelerometer info (reliability filter)
+  // weight for accelerometer info ( < 0.5G = 0.0, 1G = 1.0 , > 1.5G = 0.0) 
   Accel_Weight = constrain(1 - 2 * abs(1 - Accel_Magnitude), 0, 1); 
 
   VCross(&RollPitchError[0], &Accel_V[0], &DCM_M[2][0]); //adjust the ground of reference
@@ -92,27 +92,28 @@ void DriftCorrection(void)
   VScale(&Scaled_Omega_I[0], &RollPitchError[0], Ki_RollPitch * Accel_Weight);
   VAdd(Omega_I,Omega_I, Scaled_Omega_I);     
 
-  // Yaw - make the gyro Yaw drift correction based on compass magnetic heading
+  // Yaw - drift correction based on compass magnetic heading
 
   MagHeadingX = cos(MagHeading);
   MagHeadingY = sin(MagHeading);
-  ErrorCourse = (DCM_M[0][0] * MagHeadingY) - (DCM_M[1][0] * MagHeadingX);  //Calculating Yaw Error
-  VScale(YawError,&DCM_M[2][0], ErrorCourse); // Apply the yaw correction to the XYZ rotation of the aircraft, depeding the position.
+  ErrorCourse = (DCM_M[0][0] * MagHeadingY) - (DCM_M[1][0] * MagHeadingX);  
+  VScale(YawError,&DCM_M[2][0], ErrorCourse); 
 
-  VScale(&Scaled_Omega_P[0], &YawError[0], Kp_Yaw); //.01 proportional of Yaw.
-  VAdd(Omega_P, Omega_P, Scaled_Omega_P);	// Adding Proportional.
+  VScale(&Scaled_Omega_P[0], &YawError[0], Kp_Yaw); 
+  VAdd(Omega_P, Omega_P, Scaled_Omega_P);
 
-  VScale(&Scaled_Omega_I[0], &YawError[0], Ki_Yaw); // .00001 Integrator
-  VAdd(Omega_I,Omega_I, Scaled_Omega_I); // adding integrator to the Omega_I
+  VScale(&Scaled_Omega_I[0], &YawError[0], Ki_Yaw); 
+  VAdd(Omega_I,Omega_I, Scaled_Omega_I); 
 } // DriftCorrection
 
-/*
 void AccelAdjust(void)
- {
- Accel_V[1] += Accel_Scale(speed_3d*Omega[2]); // Centrifugal force on Acc_y = GPS_speed*GyroZ
- Accel_V[2] -= Accel_Scale(speed_3d*Omega[1]); // Centrifugal force on Acc_z = GPS_speed*GyroY 
- } // AccelAdjust
- */
+{
+  float GPS_3D = 0.0;
+
+  // Is this code wrong? 
+  //Accel_V[1] += GPS_3D * Omega[2] * (GRAVITY/9.81); //  AccY = GPS_Velocity*GyroZ
+  //Accel_V[2] -= GPS_3D * Omega[1] * (GRAVITY/9.81); //  AccZ = GPS_Velocity*GyroY 
+} // AccelAdjust
 
 void MUpdate(void)
 {
@@ -125,10 +126,10 @@ void MUpdate(void)
     Accel_V[i] = (float)Acc[i];
   }
 
-  VAdd(&Omega[0], &Gyro_V[0], &Omega_I[0]);  //adding proportional term
-  VAdd(&Omega_V[0], &Omega[0], &Omega_P[0]); //adding Integrator term
+  VAdd(&Omega[0], &Gyro_V[0], &Omega_I[0]);
+  VAdd(&Omega_V[0], &Omega[0], &Omega_P[0]);
 
-  //Accel_adjust();    //remove centrifugal acceleration.   We are not using this function in this version - we have no speed measureme
+  AccelAdjust(); // remove centrifugal accelerations. 
 
 #if OUTPUTMODE==1         
   Update_M[0][0] = 0;
@@ -173,7 +174,5 @@ void EulerAngles(void)
   RollAngle = atan2( DCM_M[2][1], DCM_M[2][2] );
   YawAngle = atan2( DCM_M[1][0], DCM_M[0][0] );
 } // EulerAngles
-
-
 
 

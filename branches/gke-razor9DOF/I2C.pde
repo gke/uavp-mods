@@ -31,7 +31,6 @@ void InitAccelerometers()
   Wire.endTransmission();
   delay(5);
 
-  // Because our main loop runs at 50Hz we adjust the output data rate to 50Hz (25Hz bandwidth)
   Wire.beginTransmission(I2C_ACC_ID);
   Wire.send(0x2C);  // Rate
   Wire.send(0x09);  // set to 50Hz, normal operation
@@ -42,7 +41,7 @@ void InitAccelerometers()
 void GetAccelerometer()
 {
   static int i;
-  static byte buff[6];
+  static byte b[6];
 
   Wire.beginTransmission(I2C_ACC_ID); 
   Wire.send(0x32);     
@@ -53,13 +52,13 @@ void GetAccelerometer()
 
   i = 0; 
   while(Wire.available()) 
-    buff[i++] = Wire.receive();  
+    b[i++] = Wire.receive();  
 
   Wire.endTransmission(); 
 
-  AccADC[0] = ( (int)buff[1] << 8) | buff[0];    // Y axis (internal sensor x axis)
-  AccADC[1] = ( (int)buff[3] << 8) | buff[2];    // X axis (internal sensor y axis)
-  AccADC[2] = ( (int)buff[5] << 8) | buff[4];    // Z axis
+  AccADC[0] = ( (int)b[1] << 8) | b[0];    // Y axis (internal sensor x axis)
+  AccADC[1] = ( (int)b[3] << 8) | b[2];    // X axis (internal sensor y axis)
+  AccADC[2] = ( (int)b[5] << 8) | b[4];    // Z axis
 
   for ( i = 0; i < 3 ; i++ )
     Acc[i] = AccSign[i] * (AccADC[i] - AccNeutralEE[i]);
@@ -80,7 +79,7 @@ void InitMagnetometer()
 void GetMagnetometer(void)
 {
   static int i;
-  static byte buff[6];
+  static byte b[6];
 
   Wire.beginTransmission(I2C_COMPASS_ID); 
   Wire.send(0x03);
@@ -91,16 +90,14 @@ void GetMagnetometer(void)
 
   i = 0;
   while(Wire.available())
-    buff[i++] = Wire.receive();  
+    b[i++] = Wire.receive();  
 
   Wire.endTransmission(); //end transmission
 
-  Mag[0] = MagSign[0] * (((int)buff[2]) << 8) | buff[3];    // X axis (internal sensor y axis)
-  Mag[1] = MagSign[1] * (((int)buff[0]) << 8) | buff[1];    // Y axis (internal sensor x axis)
-  Mag[2] = MagSign[2] * (((int)buff[4]) << 8) | buff[5];    // Z axis
+  Mag[0] = MagSign[0] * (((int)b[2]) << 8) | b[3];    // X axis (internal sensor y axis)
+  Mag[1] = MagSign[1] * (((int)b[0]) << 8) | b[1];    // Y axis (internal sensor x axis)
+  Mag[2] = MagSign[2] * (((int)b[4]) << 8) | b[5];    // Z axis
 
 } // GetMagnetometer
-
-
 
 

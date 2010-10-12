@@ -8,6 +8,7 @@
 // Substantially rewritten by Prof. G.K.  Egan 2010
 
 // use oversampling and averaging method to increase the ADC resolution
+// do not bother with storing Gyro values as floats
 
 byte MuxSel = 0;
 byte ADCRef;
@@ -40,7 +41,7 @@ void GetGyroRaw(void)
     interrupts(); 
 
     if ( samples > 0 ) // Check for divide by zero  
-      GyroADC[c] = s / samples;
+      GyroADC[c] = ( s + samples ) / samples;
     Gyro[c] = GyroSign[c] * (GyroADC[c] - GyroNeutral[c]);      
   }
   
@@ -70,7 +71,7 @@ ISR(ADC_vect)
 
   if ( ADCCount[MuxSel] < 63) 
   {
-    ADCBuff[MuxSel] += word( high << 8 ) | low;   // accumulate analog values
+    ADCBuff[MuxSel] += word( high << 8 ) | low; // accumulate samples
     ADCCount[MuxSel]++;
   }
 
@@ -79,12 +80,5 @@ ISR(ADC_vect)
   ADCSRA |= ( 1 << ADSC );   // start the conversion
 
 } // ISR
-
-
-
-
-
-
-
 
 
