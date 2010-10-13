@@ -54,9 +54,9 @@ void SendAttitude(void)
   static byte i;
 
   TxCheckSum = 0;
- // Serial.write('$'); // sentinel not included in checksum
+  Serial.write('$'); // sentinel not included in checksum
 
-  // rescale angles and rates to milliradian
+  // angles in milliradian
   TxWord((int)(Roll * 1000.0));
   TxWord((int)(Pitch * 1000.0));
   TxWord((int)(Yaw * 1000.0));
@@ -83,7 +83,7 @@ void SendAttitude(void)
   Serial.print("!");
 
 #if PRINT_EULER == 1
-  Serial.print("ANG:,");
+  Serial.print("ANG:");
   Serial.print(Roll * 57.2957795131);
   Serial.print(",");
   Serial.print(Pitch * 57.2957795131);
@@ -94,10 +94,10 @@ void SendAttitude(void)
 
 #if PRINT_ANALOGS == 1
 
-  Serial.print("AN:,");
+  Serial.print("AN:");
   for ( i = 0; i < 3 ; i++ )
   {
-    Serial.print(GyroADC[i]); 
+    Serial.print(GyroADC[Map[i]]); 
     Serial.print(",");
   }
   for ( i = 0; i < 3 ; i++ )

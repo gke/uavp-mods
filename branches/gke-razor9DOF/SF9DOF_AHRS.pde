@@ -35,6 +35,9 @@
 #include <Wire.h>
 #include <EEPROM.h>
 
+#define TRUE 1
+#define FALSE 0
+
 #define EEPROMBase 128  // keep clear of location zero
 
 // ADXL345 Sensitivity(from datasheet) => 4mg/LSB   1G => 1000mg/4mg = 256 steps
@@ -50,13 +53,11 @@
 #define Kp_Yaw 1.2
 #define Ki_Yaw 0.00002
 
-#define CyclemS 20
+#define CyclemS 10
 #define Freq ((1000/CyclemS)/2)
 #define FilterA	((long)CyclemS*256)/(1000/(6*Freq)+CyclemS)
 
-#define FREE_RUNNING 1 // original form
-
-#define OUTPUTMODE 1
+#define CORRECT_DRIFT 1
 #define PRINT_EULER 1
 #define PRINT_ANALOGS 1
 #define PRINT_DCM 0
@@ -65,10 +66,14 @@
 #define USING_UAVX 0
 #define FORCE_ACC_NEUTRALS 0
 
+#define EXTENDED 1 // includes renormalisation recovery from V1.0
+
 //_____________________________________________________________________
 
 const  char  AccNeutralForced[3] = { 
   0,0,0 }; // determine neutrals in aircraft setup and load here 
+const byte Map[3] = {
+  1,2,0}; // Map the ADC channels gyro from z,x,y to x,y,z
 const int AccSign[3] = {
   1,1,1};
 const int MagSign[3] = {
@@ -88,10 +93,7 @@ char    AccNeutralUse[3];
 int     Mag[3], MagADC[3];
 float   MagHeading;
 
-// Euler angles
 float   Roll, Pitch, Yaw;
-float   RollP, PitchP, YawP;
-float   RollRate, PitchRate, YawRate;
 
 float   RollPitchError[3] = {
   0,0,0}; 
@@ -99,6 +101,7 @@ float   YawError[3] = {
   0,0,0};
 
 byte i;
+char ch;
 
 void Initialise()
 {
@@ -118,7 +121,7 @@ void Initialise()
 
   for( c = 0; c < 3; c++ )
   {
-    GyroNeutral[c] = ( GyroNeutral[c] + 16 ) >> 5;
+    GyroNeutral[c] = GyroNeutral[c]/32.0;
     AccNeutral[c] = ( AccNeutral[c] + 16 ) >> 5;
   }
 
@@ -137,8 +140,6 @@ void Initialise()
 #else
   AccNeutralUse[i] = AccNeutral[i];  
 #endif // FORCE_ACC_NEUTRALS
-
-  RollP = PitchP = YawP = 0.0;
 
   ClockmSp = millis();
 
@@ -163,92 +164,39 @@ void setup()
   Initialise();
 } // setup
 
-char ch;
+void DoIteration(void)
+{
+  ClockmSp = ClockmS;
+  G_Dt = (float)PeriodmS / 1000.0;
+
+  GetGyro(); 
+  GetAccelerometer();   
+
+  if ( ++CompassInterval > 5) // compass 1/5 rate
+  {
+    CompassInterval = 0;
+    GetMagnetometer();
+    ComputeHeading();
+  }
+
+  MUpdate(); 
+  Normalize();
+  DriftCorrection();
+  EulerAngles(); 
+
+  SendAttitude();  
+} // DoIteration
 
 void loop()
 {
 
-#if FREE_RUNNING == 1
   ClockmS = millis();
   PeriodmS = ClockmS - ClockmSp;
   if  ( PeriodmS >= CyclemS )
-  {
-    ClockmSp = ClockmS;
-    G_Dt = (float)PeriodmS / 1000.0;
+    DoIteration();
 
-    GetGyro(); 
-    GetAccelerometer();   
-
-    if ( ++CompassInterval > 5) // compass 1/5 rate
-    {
-      CompassInterval = 0;
-      GetMagnetometer();
-      ComputeHeading();
-    }
-
-    MUpdate(); 
-    Normalize();
-    DriftCorrection();
-    EulerAngles(); 
-
-    SendAttitude(); 
-  }
-
-#else
-
-    if ( Serial.available() > 1 )
-  {  
-    ch = Serial.read();
-    if ( ch == '$' )
-    {
-      ch = char(Serial.read());
-      switch ( ch ) {
-      case '?': 
-        ClockmS = millis();
-        PeriodmS = ClockmS - ClockmSp;
-
-        ClockmSp = ClockmS;
-        G_Dt = (float)PeriodmS / 1000.0;
-
-        GetGyro(); 
-        GetAccelerometer();   
-
-        if ( ++CompassInterval > 5) // compass 1/5 rate
-        {
-          CompassInterval = 0;
-          GetMagnetometer();
-          ComputeHeading();
-        }
-
-        MUpdate(); 
-        Normalize();
-        DriftCorrection();
-        EulerAngles(); 
-
-        SendAttitude(); 
-
-        break; 
-      case '!':
-        Initialise();
-
-        break;
-      case 'N':
-        while ( Serial.available() < 3 );
-        for ( i = 0; i < 3; i++ )
-        {
-          AccNeutralEE[i] = int(Serial.read());
-          EEPROM.write(EEPROMBase+i, AccNeutral[i]);
-        }
-        AccNeutralEE[3] += GRAVITY * AccSign[3];
-
-        break;
-      default:;
-      } // switch
-    }
-  }
-
-#endif // FREE_RUNNING
 } // Main
+
 
 
 

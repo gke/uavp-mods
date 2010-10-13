@@ -15,8 +15,6 @@ byte ADCRefSHL6;
 word ADCBuff[3];
 byte ADCCount[3];
 
-const byte Map[3] = {
-  1,2,0}; // Map the ADC channels gyro from z,x,y to x,y,z
 const int GyroSign[3] = {
   -1,1,-1 };
 
@@ -47,12 +45,30 @@ void GetGyro(void)
 
     if ( samples > 0 ) // Check for divide by zero  
       GyroADC[c] = ( s + ( samples >> 1 ) ) / samples;
-    Gyro[c] = GyroSign[c] * (GyroADC[c] - GyroNeutral[c]);    
+    Gyro[c] = GyroSign[c] * (GyroADC[c] - GyroNeutral[c]);
+
+    // add a filter here?
+    
   }
  
   InitADCBuffers();
 
 } // GetGyro
+
+/*
+float read_adc(int select)
+{
+  float temp;
+  if (SENSOR_SIGN[select]<0){
+    temp = (AN_OFFSET[select]-AN[select]);
+
+    return constrain(temp,-900,900);             //Throw out nonsensical values
+  } else {
+    temp = (AN[select]-AN_OFFSET[select]); 
+    return constrain(temp,-900,900);
+  }
+}
+*/
 
 void ADCReference(byte m)
 { // why a call?
