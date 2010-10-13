@@ -5,7 +5,8 @@
 //
 // Released under Creative Commons License
 // Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
-// Substantially rewritten by Prof. G.K.  Egan 2010
+// Substantially rewritten by Prof. G.K. Egan 2010
+
 
 float   Accel_V[3] = {
   0,0,0}; 		
@@ -80,7 +81,7 @@ void DriftCorrection(void)
   // Roll and Pitch
 
   Accel_Magnitude = sqrt(Accel_V[0]*Accel_V[0] + Accel_V[1]*Accel_V[1] + Accel_V[2]*Accel_V[2]);
-  Accel_Magnitude = Accel_Magnitude / GRAVITY; // Scale to gravity.
+  Accel_Magnitude = Accel_Magnitude / (float)GRAVITY; // Scale to gravity.
 
   // dynamic weighting of accelerometer info (reliability filter)
   // weight for accelerometer info ( < 0.5G = 0.0, 1G = 1.0 , > 1.5G = 0.0) 
@@ -170,9 +171,9 @@ void MUpdate(void)
 
 void EulerAngles(void)
 {
-  PitchAngle = -asin( DCM_M[2][0] );
-  RollAngle = atan2( DCM_M[2][1], DCM_M[2][2] );
-  YawAngle = atan2( DCM_M[1][0], DCM_M[0][0] );
+  Pitch = -asin( DCM_M[2][0] );
+  Roll = atan2( DCM_M[2][1], DCM_M[2][2] );
+  Yaw = atan2( DCM_M[1][0], DCM_M[0][0] );
 } // EulerAngles
 
 

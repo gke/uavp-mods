@@ -1,13 +1,13 @@
 // Sparkfun 9DOF Razor IMU AHRS
 // 9 Degree of Freedom Attitude and Heading Reference System
-// Firmware v1.0
+// Firmware v1.1gke
 //
 // Released under Creative Commons License
 // Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
-// Substantially rewritten by Prof. G.K.  Egan 2010
+// Substantially rewritten by Prof. G.K. Egan 2010
 
 // I2C code for ADXL345 accelerometer and HMC5843 magnetometer 
-
+ 
 #define I2C_ACC_ID 0x53
 #define I2C_COMPASS_ID 0x1E //0x3C //0x3D;  //(0x42>>1);
 
@@ -56,12 +56,12 @@ void GetAccelerometer()
 
   Wire.endTransmission(); 
 
-  AccADC[0] = ( (int)b[1] << 8) | b[0];    // Y axis (internal sensor x axis)
-  AccADC[1] = ( (int)b[3] << 8) | b[2];    // X axis (internal sensor y axis)
-  AccADC[2] = ( (int)b[5] << 8) | b[4];    // Z axis
+  AccADC[0] = int(b[3]) << 8 | b[2];    // X axis (internal sensor y axis)
+  AccADC[1] = int(b[1]) << 8 | b[0];    // Y axis (internal sensor x axis)
+  AccADC[2] = int(b[5]) << 8 | b[4];    // Z axis
 
   for ( i = 0; i < 3 ; i++ )
-    Acc[i] = AccSign[i] * (AccADC[i] - AccNeutralEE[i]);
+    Acc[i] = AccSign[i] * (AccADC[i] - AccNeutralUse[i]);
 
 } // GetAccelerometer
 
@@ -94,9 +94,9 @@ void GetMagnetometer(void)
 
   Wire.endTransmission(); //end transmission
 
-  Mag[0] = MagSign[0] * (((int)b[2]) << 8) | b[3];    // X axis (internal sensor y axis)
-  Mag[1] = MagSign[1] * (((int)b[0]) << 8) | b[1];    // Y axis (internal sensor x axis)
-  Mag[2] = MagSign[2] * (((int)b[4]) << 8) | b[5];    // Z axis
+  Mag[0] = MagSign[0] * (int(b[2]) << 8 | b[3]);    // X axis (internal sensor y axis)
+  Mag[1] = MagSign[1] * (int(b[0]) << 8 | b[1]);    // Y axis (internal sensor x axis)
+  Mag[2] = MagSign[2] * (int(b[4]) << 8 | b[5]);    // Z axis
 
 } // GetMagnetometer
 

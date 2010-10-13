@@ -1,11 +1,11 @@
 
 // Sparkfun 9DOF Razor IMU AHRS
 // 9 Degree of Freedom Attitude and Heading Reference System
-// Firmware v1.0
+// Firmware v1.1gke
 //
 // Released under Creative Commons License
 // Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
-// Substantially rewritten by Prof. G.K.  Egan 2010
+// Substantially rewritten by Prof. G.K. Egan 2010
 
 // Local magnetic declination not included
 // http://www.ngdc.noaa.gov/geomagmodels/Declination.jsp
@@ -13,18 +13,18 @@
 void ComputeHeading(void)
 {
   static float MX, MY;
-  static float Cos_Roll, Sin_Roll, Cos_Pitch, Sin_Pitch;
+  static float CosRoll, SinRoll, CosPitch, SinPitch;
     
-  Cos_Roll = cos(RollAngle);
-  Sin_Roll = sin(RollAngle);
-  Cos_Pitch = cos(PitchAngle);
-  Sin_Pitch = sin(PitchAngle);
+  CosRoll = cos(Roll);
+  SinRoll = sin(Roll);
+  CosPitch = cos(Pitch);
+  SinPitch = sin(Pitch);
   
   // Tilt compensated Magnetic field X:
-  MX = (float)Mag[0] * Cos_Pitch + (float)Mag[1] * Sin_Roll * Sin_Pitch + (float)Mag[2] * Cos_Roll * Sin_Pitch;
+  MX = (float)Mag[0] * CosPitch + (float)Mag[1] * SinRoll * SinPitch + (float)Mag[2] * CosRoll * SinPitch;
   	
   // Tilt compensated Magnetic field Y:
-  MY = (float)Mag[1] * Cos_Roll - (float)Mag[2] * Sin_Roll;
+  MY = (float)Mag[1] * CosRoll - (float)Mag[2] * SinRoll;
   
   // Magnetic Heading
   MagHeading = atan2( -MY, MX );

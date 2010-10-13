@@ -1,11 +1,11 @@
 
 // Sparkfun 9DOF Razor IMU AHRS
 // 9 Degree of Freedom Attitude and Heading Reference System
-// Firmware v1.0
+// Firmware v1.1gke
 //
 // Released under Creative Commons License
 // Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
-// Substantially rewritten by Prof. G.K.  Egan 2010
+// Substantially rewritten by Prof. G.K. Egan 2010
 
 float VDot(float v1[3], float v2[3])
 {

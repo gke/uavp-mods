@@ -1,19 +1,24 @@
 
 // Sparkfun 9DOF Razor IMU AHRS
 // 9 Degree of Freedom Attitude and Heading Reference System
-// Firmware v1.0
+// Firmware v1.1gke
 //
 // Released under Creative Commons License
 // Based on ArduIMU v1.5 by Jordi Munoz and William Premerlani, Jose Julio and Doug Weibel
-// Substantially rewritten by Prof. G.K.  Egan 2010
+// Substantially rewritten by Prof. G.K. Egan 2010
 
 // use oversampling and averaging method to increase the ADC resolution
 // do not bother with storing Gyro values as floats
 
 byte MuxSel = 0;
-byte ADCRef;
-word ADCBuff[6];
-byte ADCCount[6];
+byte ADCRefSHL6;
+word ADCBuff[3];
+byte ADCCount[3];
+
+const byte Map[3] = {
+  1,2,0}; // Map the ADC channels gyro from z,x,y to x,y,z
+const int GyroSign[3] = {
+  -1,1,-1 };
 
 void InitADCBuffers(void)
 {
@@ -27,7 +32,7 @@ void InitADCBuffers(void)
   }
 } // InitADCBuffers 
 
-void GetGyroRaw(void)
+void GetGyro(void)
 {
   word s;    
   byte c, samples, m;    
@@ -41,17 +46,17 @@ void GetGyroRaw(void)
     interrupts(); 
 
     if ( samples > 0 ) // Check for divide by zero  
-      GyroADC[c] = ( s + samples ) / samples;
-    Gyro[c] = GyroSign[c] * (GyroADC[c] - GyroNeutral[c]);      
+      GyroADC[c] = ( s + ( samples >> 1 ) ) / samples;
+    Gyro[c] = GyroSign[c] * (GyroADC[c] - GyroNeutral[c]);    
   }
-  
+ 
   InitADCBuffers();
 
-} // GetGyroRaw
+} // GetGyro
 
 void ADCReference(byte m)
 { // why a call?
-  ADCRef = m;
+  ADCRefSHL6 = m << 6;
 } // ADCReference
 
 void InitADC(void)
@@ -64,21 +69,22 @@ void InitADC(void)
 // cycle through gyro ADC channels at maximum conversion rate 
 ISR(ADC_vect)
 {
-  volatile byte low, high;
+  static byte low, high;
 
   low = ADCL;
   high = ADCH;
 
-  if ( ADCCount[MuxSel] < 63) 
+  if ( ADCCount[MuxSel] < 64 ) // 1023*64 < 65K
   {
-    ADCBuff[MuxSel] += word( high << 8 ) | low; // accumulate samples
+    ADCBuff[MuxSel] += int( high << 8 ) | low; // accumulate samples
     ADCCount[MuxSel]++;
   }
 
-  MuxSel = (MuxSel + 1) & 3; 
-  ADMUX = ( ADCRef << 6) | MuxSel;
+  if ( ++MuxSel > 2 ) MuxSel = 0; 
+  ADMUX = ADCRefSHL6 | MuxSel;
   ADCSRA |= ( 1 << ADSC );   // start the conversion
 
 } // ISR
+
 
 
