@@ -59,10 +59,10 @@
 
 #define CORRECT_DRIFT 1
 #define PRINT_EULER 1
-#define PRINT_ANALOGS 1
+#define PRINT_ANALOGS 0
 #define PRINT_DCM 0
 
-#define PRINT_UAVX_READABLE 1
+#define PRINT_UAVX_READABLE 0
 #define USING_UAVX 0
 #define FORCE_ACC_NEUTRALS 0
 
@@ -189,7 +189,7 @@ void DoIteration(void)
 
 void loop()
 {
-
+  // free runs at ~160Hz
   ClockmS = millis();
   PeriodmS = ClockmS - ClockmSp;
   if  ( PeriodmS >= CyclemS )

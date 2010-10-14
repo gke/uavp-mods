@@ -46,29 +46,14 @@ void GetGyro(void)
     if ( samples > 0 ) // Check for divide by zero  
       GyroADC[c] = ( s + ( samples >> 1 ) ) / samples;
     Gyro[c] = GyroSign[c] * (GyroADC[c] - GyroNeutral[c]);
-
-    // add a filter here?
     
+    Gyro[c] = constrain(Gyro[c],-900,900);
+   
   }
  
   InitADCBuffers();
 
 } // GetGyro
-
-/*
-float read_adc(int select)
-{
-  float temp;
-  if (SENSOR_SIGN[select]<0){
-    temp = (AN_OFFSET[select]-AN[select]);
-
-    return constrain(temp,-900,900);             //Throw out nonsensical values
-  } else {
-    temp = (AN[select]-AN_OFFSET[select]); 
-    return constrain(temp,-900,900);
-  }
-}
-*/
 
 void ADCReference(byte m)
 { // why a call?

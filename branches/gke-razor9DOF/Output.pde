@@ -83,6 +83,7 @@ void SendAttitude(void)
   Serial.print("!");
 
 #if PRINT_EULER == 1
+
   Serial.print("ANG:");
   Serial.print(Roll * 57.2957795131);
   Serial.print(",");
@@ -90,6 +91,7 @@ void SendAttitude(void)
   Serial.print(",");
   Serial.print(Yaw * 57.2957795131);
   Serial.print(",");
+ 
 #endif // PRINT_EULER
 
 #if PRINT_ANALOGS == 1
