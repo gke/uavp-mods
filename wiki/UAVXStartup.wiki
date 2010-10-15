@@ -17,7 +17,7 @@ It is assumed you:
   * You have read and understood the UAVP manual as it applies to safety and setting up a UAVP quadrocopter.
 
   * Are familiar with the use of UAVPSet to setup parameters for UAVP, UAVX's predecessor.
-
+  
   * You have previously flown your quadrocopter/tricopter using UAVP flight software. As this is less likely now you need to do some reading of the UAVX thread and ask questions.
 
   * You have read and understood the contents of this document.
@@ -46,6 +46,20 @@ It is assumed you:
   *  Board connections:
 
 http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20top%20board%20jesolins.jpg?d=1285275448
+
+  * *Notes:*
+  * K1, K2, K3, K4 refers to motor connection.  
+  * The control board "front" must ALWAYS point TOWARDS the K1 motor(s).
+  * Motors are always in the same relative position which is K2, K1, K3, K4 with K4 being replaced by the steering servo for tricopters.
+  * The UAVPset FWD (x7.5 Deg) value sets the forward flight orientation CW relative to the motor, or pair of motors, connected to K1 in increments of 7.5 deg. For CW use +x. for CCW use -x.
+  * For a quad UAVPset FWD (x7.5 Deg) = 0.
+  * For a quad X-mode UAVPset FWD (x7.5 Deg) = 6.
+  * For a tri UAVPset FWD (x7.5 Deg) = 24.
+  * For a hexa UAVPset FWD (x7.5 Deg) = 8.  
+  * For an octo UAVPset FWD (x7.5 Deg) = 3.
+  * You DO NOT have to adjust the compass offset as this is always relative to K1.
+  * Tricopter:  The UAVPset FWD (x7.5 Deg) value of 24 (180deg) is Y mode with steering servo motor arm to the rear and a value of 0 is steering arm forward.
+  * For the Tricopter I2C is not currently supported. The yaw servo is updated at the same rate as the motors and so greater Pulse Cycle times may be required.  Different modes may require changes to P, I and D parameters. 
  
 === Tx/Rx ===
   * Also read the Tx/Rx Setup paragraph.
@@ -144,7 +158,9 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20to
 === GPS ===
   * Should I connect both the GPS Rx and Tx line: No you should connect only the GPS Tx signal. If you connected the GPS Rx line the signals that UAVX sends to UAVPSet will also be received by the GPS and may change the GPS settings. 
 
-  * What Settings should I use with my GPS: Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update rate. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing load; yes it takes processing time to throw away stuff! Read [http://code.google.com/p/uavp-mods/wiki/GpsNavigation].
+  * What Settings should I use with my GPS: Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update rate. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing load; yes it takes processing time to throw away stuff! MiniGPS dwonload: http://www.dpcav.com/data_sheets/gps_mini.zip Read [http://code.google.com/p/uavp-mods/wiki/GpsNavigation] and [http://www.rcgroups.com/forums/showpost.php?p=13927790&postcount=1070 Programming GPS's 101].
+
+http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3536269-132-minigps_uavx_setup_jesolins.png?d=1287141967
 
   * Can I connect my GPS directly to the UAVP Board: The PIC requires 5V TTL signalling and so you will need a 3.3V to 5V level converter for most GPS units which use 3.3V signalling even if the say they are compatible with 5V.
 
@@ -163,7 +179,7 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
   
  * More info on wiring it with GPS here: http://www.rcgroups.com/forums/showt...6#post12936706 UAVX GPS Wiring 101] and [http://www.rcgroups.com/forums/showpost.php?p=13927790&postcount=1070 UAVX GPS programming 101]
 
- * *Note:* The GPS from www.quadroufo.com does not require a level converter and has provisions for USB serial TTL communication to a PC.  See here fo more info: http://www.quadroufo.com/download/gps-uavx.zip You must also install a 3v battery backup for changes to the GPS setup to hold.  Use the MiniGPS application to setup the GPS. Here: http://www.dpcav.com/data_sheets/gps_mini.zip
+ * *Note:* The GPS from www.quadroufo.com does not require a level converter and has provisions for USB serial TTL communication to a PC.  See here for more info: http://www.quadroufo.com/download/gps-uavx.zip You must also install a 3v battery backup for changes to the GPS setup to hold.  Use the MiniGPS application to setup the GPS. Here: http://www.dpcav.com/data_sheets/gps_mini.zip
 
 
 
