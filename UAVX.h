@@ -1,3 +1,4 @@
+#define RAZOR9DOF
 
 //#define JIM_MPX_INVERT
 
@@ -26,7 +27,7 @@
 
 #ifndef BATCHMODE
 	#define GKE
-	#define RAZOR9DOF
+
 	//#define RX6CH
 	//#define EXPERIMENTAL
 	//#define TESTING						

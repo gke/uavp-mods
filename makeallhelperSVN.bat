@@ -24,7 +24,7 @@ for /f "tokens=2 delims=: " %%m in ('time /T') do set minutes=%%m
 for /f "tokens=3 delims=: " %%a in ('time /T') do set ampm=%%a
 set NOW=%hour%%minutes%%ampm%
 
-set CSRC=leds stats eeprom math params attitude adc uavx irq menu control  baro tests serial rc utils rangefinder telemetry temperature i2c outputs
+set CSRC=leds stats eeprom math params attitude adc uavx irq menu control  autonomous gps baro tests serial rc utils rangefinder telemetry temperature i2c outputs
 set ASRC=bootl18f
 
 rem Set all the name tokens for the HEX files
