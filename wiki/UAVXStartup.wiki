@@ -47,9 +47,40 @@ It is assumed you:
 
 http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20top%20board%20jesolins.jpg?d=1285275448
 
+  * *Quadrocopter:*
+  * Use quad firmware.
+  * Use standard CCW tractor props on the front and rear arms and CW pusher props on the left and right arms.
+  * Front of board is oriented to K1.
+  * For +-mode the UAVPset FWD (x7.5 Deg) = 0.
+  * For X-mode the UAVPset FWD (x7.5 Deg) = 6.
+  
+  * *Octocopter:*
+  * Use quad firmware.
+  * Use standard CCW tractor props on the front and rear arms and CW pusher props on the left and right arms.
+  * Use a y-cable to connect a second ESC and motor to each servo axis for redundancy.
+  * Either orient the board's front between the two axis motors, or use the UAVPset FWD (x7.5 Deg) offset of 3.  Use =3 for CW or -3 for CCW.
+  * Can be configured in a flat/star or coax model.
+  * The motor/prop rotation is the same on each axis
+
+  * *Tricopter:*
+  * Use tri firmware.
+  * Use either all standard CCW or CW props on all axis, or CW and CCW on either left and right and either CCW or CW on the tail/front.
+  * Front of board is oriented to K1.
+  * For servo on back arm or tail use UAVPset FWD (x7.5 Deg) = 24.
+  * For servo on back arm or front use UAVPset FWD (x7.5 Deg) = 0.
+  * Currently I2c ESCs can not be used for the tricopter configuration.
+  
+  * *Hexacopter:*
+  * Use tri firmware.
+  * Use the same CW or CCW props on each axis.
+  * You can use y-connectors and either one or two servo to tilt one or two motors.
+  * For servo on back arms or tail use UAVPset FWD (x7.5 Deg) = 20.
+  * For servo on back arms or front use UAVPset FWD (x7.5 Deg) = 4.
+  * Can be configured in a flat/star or Y-coax model.
+
   * *Notes:*
   * K1, K2, K3, K4 refers to motor connection.  
-  * The control board "front" must ALWAYS point TOWARDS the K1 motor(s).
+  * The control board "front" must ALWAYS point TOWARD the K1 motor(s).
   * Motors are always in the same relative position which is K2, K1, K3, K4 with K4 being replaced by the steering servo for tricopters.
   * The UAVPset FWD (x7.5 Deg) value sets the forward flight orientation CW relative to the motor, or pair of motors, connected to K1 in increments of 7.5 deg. For CW use +x. for CCW use -x.
   * For a quad UAVPset FWD (x7.5 Deg) = 0.
@@ -58,7 +89,7 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20to
   * For a hexa UAVPset FWD (x7.5 Deg) = 8.  
   * For an octo UAVPset FWD (x7.5 Deg) = 3.
   * You DO NOT have to adjust the compass offset as this is always relative to K1.
-  * Tricopter:  The UAVPset FWD (x7.5 Deg) value of 24 (180deg) is Y mode with steering servo motor arm to the rear and a value of 0 is steering arm forward.
+  * Tricopter:  The UAVPset FWD (x7.5 Deg) value of 24 (180 deg) is Y mode with steering servo motor arm to the rear and a value of 0 is steering arm forward.
   * For the Tricopter I2C is not currently supported. The yaw servo is updated at the same rate as the motors and so greater Pulse Cycle times may be required.  Different modes may require changes to P, I and D parameters. 
  
 === Tx/Rx ===
