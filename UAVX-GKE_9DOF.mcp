@@ -49,6 +49,8 @@ file_021=.
 file_022=.
 file_023=.
 file_024=.
+file_025=.
+file_026=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -75,6 +77,8 @@ file_021=no
 file_022=no
 file_023=no
 file_024=no
+file_025=no
+file_026=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -101,6 +105,8 @@ file_021=no
 file_022=no
 file_023=no
 file_024=no
+file_025=no
+file_026=no
 [FILE_INFO]
 file_000=utils.c
 file_001=adc.c
@@ -124,9 +130,11 @@ file_018=telemetry.c
 file_019=temperature.c
 file_020=rc.c
 file_021=attitude.c
-file_022=UAVX.h
-file_023=uavx_multicopter.h
-file_024=outputs_copter.h
+file_022=gps.c
+file_023=autonomous.c
+file_024=UAVX.h
+file_025=uavx_multicopter.h
+file_026=outputs_copter.h
 [SUITE_INFO]
 suite_guid={5B7D72DD-9861-47BD-9F60-2BE967BF8416}
 suite_state=
