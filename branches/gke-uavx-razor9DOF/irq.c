@@ -29,8 +29,8 @@
 #endif //  CLOCK_16MHZ
 // no less than 1500
 
-void ReceivingRazorOnly(boolean);
 void SyncToTimer0AndDisableInterrupts(void);
+void ReceivingGPSOnly(uint8);
 void InitTimersAndInterrupts(void);
 int24 mSClock(void);
 void low_isr_handler(void);
@@ -47,7 +47,9 @@ near i16u 	Width, Timer0;
 near i16u 	PPM[MAX_CONTROLS];
 near int8 	PPM_Index;
 near int24 	PauseTime;
-near uint8 	RxCh;
+near uint8 	RxState;
+near uint8 	ll, tt, RxCh;
+near uint8 	GPSCheckSumChar, GPSTxCheckSum;
 near int8	State, FailState;
 near boolean WaitingForSync;
 near i24u 	ADCValue, Temp;
@@ -56,7 +58,18 @@ near i24u 	ADCValue, Temp;
 int8	SignalCount;
 uint16	RCGlitches;
 
-void ReceivingRazorOnly(boolean r)
+void SyncToTimer0AndDisableInterrupts(void)
+{
+	do { GetTimer0; } while ( Timer0.u16 < INT_LATENCY ); 
+	// one interrupt service which may occur between the check and the disable! 	
+	DisableInterrupts;
+
+	while( !INTCONbits.TMR0IF ) ;		// now wait overflow
+	FastWriteTimer0(TMR0_1MS);	
+	INTCONbits.TMR0IF = false;			// quit TMR0 interrupt
+} // SyncToTimer0AndDisableInterrupts
+
+void ReceivingGPSOnly(boolean r)
 {
 	if ( r != F.ReceivingGPS )
 	{
@@ -78,18 +91,7 @@ void ReceivingRazorOnly(boolean r)
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
    		PIE1bits.RCIE = r;
 	}
-} // ReceivingRazorOnly
-
-void SyncToTimer0AndDisableInterrupts(void)
-{
-	do { GetTimer0; } while ( Timer0.u16 < INT_LATENCY ); 
-	// one interrupt service which may occur between the check and the disable! 	
-	DisableInterrupts;
-
-	while( !INTCONbits.TMR0IF ) ;		// now wait overflow
-	FastWriteTimer0(TMR0_1MS);	
-	INTCONbits.TMR0IF = false;			// quit TMR0 interrupt
-} // SyncToTimer0AndDisableInterrupts
+} // ReceivingGPSOnly
 
 void InitTimersAndInterrupts(void)
 {
@@ -104,8 +106,8 @@ void InitTimersAndInterrupts(void)
 	OpenTimer1(T1_16BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 
-	TxQ.Head = TxQ.Tail = 0;
-	RxQ.Head = RxQ.Tail = RxCheckSum = 0;
+	TxQ.Head = TxQ.Tail = RxCheckSum = 0;
+	RxQ.Head = RxQ.Tail = RxQ.Entries = 0;
 
 	for (i = Clock; i<= CompassUpdate; i++)
 		mS[i] = 0;
@@ -113,7 +115,7 @@ void InitTimersAndInterrupts(void)
 	INTCONbits.PEIE = true;	
 	INTCONbits.TMR0IE = true; 
 
-	ReceivingRazorOnly(false);
+   	ReceivingGPSOnly(false);
 } // InitTimersAndInterrupts
 
 int24 mSClock(void)
@@ -202,6 +204,7 @@ void high_isr_handler(void)
 
 	if ( PIR1bits.RCIF & PIE1bits.RCIE )			// RCIE enabled for GPS
 	{
+		#ifdef RAZOR9DOF
 		if ( RCSTAbits.OERR | RCSTAbits.FERR )
 		{
 			RxCh = RCREG; // flush
@@ -210,9 +213,118 @@ void high_isr_handler(void)
 		}
 		else
 		{
-			RxQ.Tail = (RxQ.Tail + 1) & RX_BUFF_MASK;
-			RxQ.B[RxQ.Tail] = RxCh;
+			RxCh = RCREG;
+			switch ( RxState ) {
+			case WaitBody:        
+				if ( RxCh == '$' ) // abort partial Sentence 
+				{
+					ll = tt = RxCheckSum = 0;
+					RxState = WaitTag;
+				}
+				else
+				{
+					RxCheckSum ^= RxCh;
+					Razor.B[ll++] = RxCh;
+					if ( ll == sizeof(Razor.B) ) 
+					{
+						F.PacketReceived = RxCheckSum == (uint8)0;
+						if ( !F.PacketReceived ) Stats[BadS]++;
+						RxState = WaitSentinel;
+					}
+				}
+							
+				break;
+			case WaitTag:
+				RxCheckSum ^= RxCh;
+				Razor.B[ll++] = RxCh;
+				if ( RxCh == UAVXRazorPacketTag )
+					RxState = WaitBody;
+				else
+			        RxState = WaitSentinel;
+				break;
+			case WaitSentinel: 
+				if ( RxCh == '$' )
+				{
+					ll = tt = RxCheckSum = 0;
+					RxState = WaitTag;
+				}
+				break;	
+		    } // switch
 		}
+		#else
+		if ( RCSTAbits.OERR | RCSTAbits.FERR )
+		{
+			RxCh = RCREG; // flush
+			RCSTAbits.CREN = false;
+			RCSTAbits.CREN = true;
+		}
+		else
+		{ // PollGPS in-lined to avoid EXPENSIVE context save and restore within irq
+			RxCh = RCREG;
+			switch ( RxState ) {
+			case WaitCheckSum:
+				if (GPSCheckSumChar < (uint8)2)
+				{
+					GPSTxCheckSum *= 16;
+					if ( RxCh >= 'A' )
+						GPSTxCheckSum += ( RxCh - ('A' - 10) );
+					else
+						GPSTxCheckSum += ( RxCh - '0' );
+		
+					GPSCheckSumChar++;
+				}
+				else
+				{
+					NMEA.length = ll;	
+					F.PacketReceived = GPSTxCheckSum == RxCheckSum;
+					RxState = WaitSentinel;
+				}
+				break;
+			case WaitBody: 
+				if ( RxCh == '*' )      
+				{
+					GPSCheckSumChar = GPSTxCheckSum = 0;
+					GPSRxState = WaitCheckSum;
+				}
+				else         
+					if ( RxCh == '$' ) // abort partial Sentence 
+					{
+						ll = tt = RxCheckSum = 0;
+						RxState = WaitTag;
+					}
+					else
+					{
+						RxCheckSum ^= RxCh;
+						NMEA.s[ll++] = RxCh; 
+						if ( ll > (uint8)( GPSRXBUFFLENGTH-1 ) )
+							RxState = WaitSentinel;
+					}
+							
+				break;
+			case WaitTag:
+				RxCheckSum ^= RxCh;
+				if ( RxCh == NMEATag[tt] ) 
+					if ( tt == (uint8)MAXTAGINDEX )
+						RxState = WaitBody;
+			        else
+						tt++;
+				else
+			        RxState = WaitSentinel;
+				break;
+			case WaitGPSSentinel: // highest priority skipping unused sentence types
+				if ( RxCh == '$' )
+				{
+					ll = tt = RxCheckSum = 0;
+					RxState = WaitNMEATag;
+				}
+				break;	
+		    } 
+		}
+		#ifndef TESTING // not used for testing - make space!
+		if ( Armed && ( P[TelemetryType] == GPSTelemetry) ) // piggyback GPS telemetry on GPS Rx
+			TXREG = RxCh;
+		#endif // TESTING
+		#endif // RAZOR9DOF
 	
 		PIR1bits.RCIF = false;
 	}
@@ -265,7 +377,12 @@ void high_isr_handler(void)
 			ADCValue.b1 = ADRESL;
 			ADCValue.b0 = 0;
 			
-			ADCVal[ADCChannel].v.w1 = ADCValue.i2_1;
+			#ifdef USE_IRQ_ADC_FILTERS // ~17uS @ 40MHz
+				ADCVal[ADCChannel].v.i32 += ((int32)ADCValue.i24 - ADCVal[ADCChannel].v.i3_1) * ADCVal[ADCChannel].a;
+			#else
+			//	ADCVal[ADCChannel].v.w0 = 0;
+				ADCVal[ADCChannel].v.w1 = ADCValue.i2_1;
+			#endif // USE_IRQ_ADC_FILTERS
 
 			if ( ++ADCChannel > ADC_TOP_CHANNEL )
 				ADCChannel = 0;

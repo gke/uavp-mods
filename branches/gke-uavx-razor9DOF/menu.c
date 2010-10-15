@@ -43,13 +43,18 @@ const rom uint8 SerHello[] = "UAVX " Version
 #pragma idata menuhelp
 const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	#ifdef TESTING
-	"A..Attitude test\r\n"
+	"A..Accelerometer test\r\n"
 	#endif // TESTING
 	"B..Load UAVX hex file\r\n"
+	#ifdef TESTING
+	"C..Compass test\r\n"
+	#endif // TESTING
 	"D..Load default parameter set\r\n"
 	#ifdef TESTING
+	"G..Gyro test\r\n"
 	"H..Barometer/Rangefinder test\r\n"
 	"I..I2C bus scan\r\n"
+	"K..Calibrate Compass\r\n"
 //	"M..Modify parameters\r\n"
 	"P..Rx test\r\n"
 	#endif // TESTING
@@ -130,8 +135,19 @@ void ShowSetup(boolean h)
 		TxString("deg CW from K1 motor(s)\r\n");
 	#endif // MULTICOPTER
 	
-	TxString("Roll/Pitch Gyros: SparkFun Razor 9DOF\r\n");
-		
+	TxString("Roll/Pitch Gyros: ");
+	#ifdef GYRO_ITG3200
+		TxString("ITG-3200 3-axis I2C ");
+		if (F.GyroFailure )
+			TxString("FAILED\r\n");
+		else
+			TxString("ONLINE\r\n");
+	#else 
+		ShowGyroType(GyroRollPitchType);		
+		TxString("Yaw Gyro: ");
+		ShowGyroType(GyroYawType);
+	#endif // GYRO_ITG3200
+
 	TxString("Motor ESCs: ");	
 	switch ( P[ESCType] ) {
 	case ESCPPM:TxString("PPM "); break;
@@ -245,6 +261,13 @@ void ShowSetup(boolean h)
 	if ( F.GyroFailure )
 		TxString("\tGyro: FAILURE\r\n");
 
+	if ( !F.AccelerationsValid )
+	#ifdef USE_FLAT_ACC
+		TxString("\tAccelerometers: OFFLINE (horiz.)\r\n");
+	#else
+		TxString("\tAccelerometers: OFFLINE\r\n");
+	#endif // USE_FLAT_ACC
+
 	if ( !F.CompassValid )
 		TxString("\tCompass: OFFLINE\r\n");
 
@@ -335,14 +358,15 @@ void ProcessCommand(void)
 				ShowPrompt();
 				break;
 			case 'N' :	// neutral values
+				GetNeutralAccelerations();
 				TxString("\r\nNeutral    R:");
-				TxValS(Attitude.NeutralLR);
+				TxValS(NeutralLR);
 		
 				TxString("    P:");
-				TxValS(Attitude.NeutralFB);
+				TxValS(NeutralFB);
 		
 				TxString("   V:");	
-				TxValS(Attitude.NeutralDU);
+				TxValS(NeutralDU);
 				ShowPrompt();
 				break;
 			case 'Z' : // set Paramset
@@ -355,7 +379,7 @@ void ProcessCommand(void)
 				}
 				break;
 			case 'W' :	// comms with UAVXNav utility NOT UAVPSet
-				//UAVXNavCommand();
+				UAVXNavCommand();
 				//ShowPrompt();
 				break;
 			case 'R':	// receiver values
@@ -377,18 +401,30 @@ void ProcessCommand(void)
 				break;
 
 			#ifdef TESTING
-			case 'A' :	// Razor 9DOF
-				AttitudeTest();
+			case 'A' :	// linear sensor
+				AccelerometerTest();
 				ShowPrompt();
-				break;			
+				break;
+			case 'C':
+				DoCompassTest();
+				ShowPrompt();
+				break;		
 			case 'H':	// barometer
 				BaroTest();
+				ShowPrompt();
+				break;
+			case 'G':	// gyro
+				GyroTest();
 				ShowPrompt();
 				break;
 			case 'I':
 				TxString("\r\nI2C devices ...\r\n");
 				TxVal32(ScanI2CBus(),0,0);
 				TxString(" device(s) found\r\n");
+				ShowPrompt();
+				break;	
+			case 'K':
+				CalibrateCompass();
 				ShowPrompt();
 				break;			
 			case 'P'  :	// Receiver test			

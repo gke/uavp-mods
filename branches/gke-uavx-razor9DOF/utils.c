@@ -31,7 +31,7 @@ int32 SlewLimit(int32, int32, int32);
 int32 ProcLimit(int32, int32, int32);
 int16 DecayX(int16, int16);
 void LPFilter16(int16*, i32u*, int16);
-void LPFilter24(int24*, i32u*, int16);
+void LPFilter24(int24* i, i32u* iF, int16 FilterA);
 
 int8 BatteryVolts;
 int16 BatteryVoltsADC, BatteryCurrentADC, BatteryVoltsLimitADC, BatteryCurrentADCEstimated, BatteryChargeUsedmAH;

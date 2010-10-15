@@ -20,137 +20,92 @@
 
 #include "uavx.h"
 
-void Razor(uint8);
+void GetGyroValues(void);
 boolean RazorReady(void);
-void GetAttitude(int16);
-void SetNeutralAccelerations(void);
-void ErectGyros(void);
-void InitAttitude(void); // set neutrals
+void RazorTest(void);
+void InitRazor(void);
+void GetNeutralAccelerations(void);
 void AttitudeTest(void);
+
+void CompensateRollPitchGyros(void);
 
 /*
 typedef union {
 	struct {
-		int16 RollAngle, PitchAngle, YawAngle;
-		int16 RollRate, PitchRate, YawRate; 
-		int16 DUAcc, LRAcc, FBAcc;
+		uint8 Sentinel;
+		int16 Roll, Pitch, Yaw;
 		int16 Heading;
-		int8 NeutralLR, NeutralFB, NeutralDU;
 		uint8 CheckSum;
 	};
-	uint8 B[24];
-} AttitudeRxRec;
+	uint8 B[25];
+} RazorRec;
 */
 
-AttitudeRxRec Attitude;
+RazorRec Razor;
+
+int16 LRAcc, FBAcc, DUAcc;
+int8 NeutralLR, NeutralFB, NeutralDU;
+int16 Roll, Pitch, Yaw;
+
+int16 GyroMidRoll, GyroMidPitch, GyroMidYaw;
+int16 RollRate, PitchRate, YawRate;
+i32u YawRateF;
+int16 RollRateADC, PitchRateADC, YawRateADC;
+
+int16 DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
+int8 LRIntCorr, FBIntCorr;
 
 i32u YawRateF;
-int16 YawFilterA;
+
 int16 MagneticDeviation;
-
-int16 NavSensitivity;
-
-void Razor(uint8 c)
-{
-	TxChar(c);
-} // RazorCommand
 
 boolean RazorReady(void)
 {
-	return ( RxQ.Tail >= sizeof(Attitude.B) );
+	static boolean b;
+
+	DisableInterrupts;
+		b = RxQ.Entries >= sizeof(Razor.B);
+	EnableInterrupts;
+	
+	return ( b );
 } // RazorReady
 
-void GetAttitude(int16 dt)
+void GetGyroValues(void)
 {
-	static uint8 i;
-	static int24 Timeout;
+	static uint8 i, b;
 
-	// attitude request occured after previous output PWM generation
-	Timeout = mSClock() + dt;
-
-	while ( ( !RazorReady() ) && ( Timeout > mSClock() ) ) Delay1mS(1); // wait until data has arrived
-	if ( !RazorReady() ) goto RazorError;
-
-	RxCheckSum = 0;
-	for ( i = 0; i < sizeof(Attitude.B); i++ )
-		RxCheckSum ^= RxQ.B[i+1];
-
-	if ( RxCheckSum == (uint8)0 )
+	if ( F.PacketReceived )
 	{
+		F.PacketReceived = false;
+		mS[RazorUpdate] = mSClock() + 20;
 		F.CompassValid = F.AccelerationsValid = true;
 		F.GyroFailure = false;
-		//DisableInterrupts;
-		for ( i = 0; i < sizeof(Attitude.B); i++ )
-			Attitude.B[i] = RxQ.B[i+1];
-		RxQ.Tail = 0;
-		//EnableInterrupts;
+
+		Razor.Roll = - Razor.Roll;
+		Razor.Pitch = - Razor.Pitch;
+
+		RollRate = SRS16(Roll - Razor.Roll, 4);
+		PitchRate = SRS16(Pitch - Razor.Pitch, 4);
+		YawRate = SRS16(YawRate - Razor.Yaw, 4);
 	
-		Attitude.Heading += MagneticDeviation;
-		LPFilter16(&Attitude.YawRate, &YawRateF, YawFilterA);
-		
-		// scale other attitude variables
+		RollSum = Razor.Roll;
+		PitchSum = Razor.Pitch;
+		YawSum = Razor.Yaw;
+
+		Heading = Make2Pi(Razor.Heading + MagneticDeviation);
 	}
 	else
-		goto RazorError;
+		if ( mSClock() > mS[RazorUpdate] )
+		{
+			mS[RazorUpdate] = mSClock() + 20;
+			F.CompassValid = F.AccelerationsValid = false;
+			F.GyroFailure = true;
+			Stats[AccFailS]++;
+			Stats[GyroFailS]++;
+			Stats[CompassFailS]++; 
+		}
 
-	return;
-
-RazorError:
-
-	Razor('!'); // worth a try
-	F.CompassValid = F.AccelerationsValid = false;
-	F.GyroFailure = true;
-	Stats[AccFailS]++;
-	Stats[GyroFailS]++;
-	Stats[CompassFailS]++; 
-
-} // GetAttitude
-
-void SetNeutralAccelerations(void)
-{
-	static uint8 i;
-
-	Attitude.NeutralLR = P[MiddleLR];
-	Attitude.NeutralFB = P[MiddleFB];
-	Attitude.NeutralDU = P[MiddleDU];
-
-	Razor('N');
-	TxValS(Attitude.NeutralLR);
-	TxValS(Attitude.NeutralFB);
-	TxValS(Attitude.NeutralDU);
-
-} // SetNeutralAccelerations
-
-void ErectGyros(void)
-{
-	static uint8 i;		
-	
-	Razor(Restart);
-	for ( i = 0; i < (uint8)5; i++)
-	{
-		LEDRed_TOG;
-		Delay100mSWithOutput(2);
-	}
-	LEDRed_OFF;
-
-} // ErectGyros
-
-void InitAttitude(void)
-{
-	static uint8 i;
-
-	RxQ.Tail = 0;
-
-	for ( i = 0; i < sizeof(Attitude.B); i++ )
-		Attitude.B[i] = 0;
-
-	F.CompassValid = F.AccelerationsValid = false;
-	F.GyroFailure = true;
-
-	Razor('!');
-	Razor('?');
-
-} // InitAttitude
+} // GetRazor
 
 #ifdef TESTING
 
@@ -158,27 +113,12 @@ void AttitudeTest(void)
 {
 	TxString("\r\nAttitude Test\r\n");
 	
-	TxString("Rates\r\n");
-	TxString("\tRoll: "); TxVal32((Attitude.RollRate * 180)/MILLIPI, 0, 0); TxNextLine();
-	TxString("\tPitch: "); TxVal32((Attitude.PitchRate * 180)/MILLIPI, 0, 0); TxNextLine();
-	TxString("\tYaw: "); TxVal32((Attitude.YawRate * 180)/MILLIPI, 0, 0); TxNextLine();
-
 	TxString("Angles\r\n");
-	TxString("\tRoll: "); TxVal32((Attitude.RollAngle * 180)/MILLIPI, 0, 0); TxNextLine();
-	TxString("\tPitch: "); TxVal32((Attitude.PitchAngle * 180)/MILLIPI, 0, 0); TxNextLine();
-	TxString("\tYaw: "); TxVal32((Attitude.YawAngle * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("\tRoll: "); TxVal32((Razor.Roll * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("\tPitch: "); TxVal32((Razor.Pitch * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("\tYaw: "); TxVal32((Razor.Yaw * 180)/MILLIPI, 0, 0); TxNextLine();
 
-	TxString("Acc\r\n");
-	TxString("\tLR: "); TxVal32(Attitude.LRAcc, 0, 0); TxNextLine();
-	TxString("\tFB: "); TxVal32(Attitude.FBAcc, 0, 0); TxNextLine();
-	TxString("\tDU: "); TxVal32(Attitude.DUAcc, 0, 0); TxNextLine();
-
-	TxString("Acc Neutrals\r\n");
-	TxString("\tLR: "); TxVal32(Attitude.NeutralLR, 0, 0); TxNextLine();
-	TxString("\tFB: "); TxVal32(Attitude.NeutralFB, 0, 0); TxNextLine();
-	TxString("\tDU: "); TxVal32(Attitude.NeutralDU, 0, 0); TxNextLine();
-
-	TxString("Heading: "); TxVal32((Attitude.Heading * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("Heading: "); TxVal32((Razor.Heading * 180)/MILLIPI, 0, 0); TxNextLine();
 
 	if ( !( F.CompassValid && F.AccelerationsValid && !F.GyroFailure) )
 		TxString("FAILED\r\n");
@@ -187,5 +127,69 @@ void AttitudeTest(void)
 
 #endif // TESTING
 
+void GetNeutralAccelerations(void)
+{
+	NeutralLR = NeutralFB = NeutralDU = 0;
+	LRAcc = FBAcc = DUAcc = 0;
+} // GetNeutralAccelerations
 
+void InitGyros(void)
+{
+	static uint8 i;
+
+	RxQ.Tail = 0;
+
+	for ( i = 0; i < sizeof(Razor.B); i++ )
+		Razor.B[i] = 0;
+
+	F.CompassValid = F.AccelerationsValid = false;
+	F.GyroFailure = true;
+
+	NeutralLR = NeutralFB = NeutralDU = 0;
+	RollRate = PitchRate = YawRate = Roll = Pitch = Yaw = RollSum = PitchSum = YawSum = 0;
+} // InitRazor
+
+// ----------------------------------------
+
+void InitHeading(void)
+{
+
+} // InitHeading
+
+void GetHeading(void)
+{
+
+
+} // GetHeading
+
+void InitCompass(void)
+{
+
+} // InitCompass
+
+void CompensateRollPitchGyros(void)
+{
+
+} // CompensateRollPitchGyros
+
+void CalculateGyroRates(void)
+{
+
+} // CalculateGyroRates
+
+void ErectGyros(void)
+{
+
+} // ErectGyros
+
+void InitAccelerometers(void)
+{
+	NeutralLR = NeutralFB = NeutralDU = 0;
+	LRAcc = FBAcc = DUAcc = 0;
+} //InitAccelerometers
+
+void ShowGyroType(uint8 g)
+{
+	TxString("SparkFun Razor 9DOF\r\n");
+} // ShowGyroType
 

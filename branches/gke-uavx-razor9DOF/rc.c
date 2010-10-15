@@ -120,7 +120,7 @@ void InitRC(void)
 	PPMQ.Head = 0;
 
 	DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = StickThrottle = 0;
-	Attitude.RollRate = Attitude.PitchRate = Attitude.YawRate = 0;
+	RollRate = PitchRate = YawRate = 0;
 	ControlRollP = ControlPitchP = 0;
 	RollTrim = PitchTrim = YawTrim = 0;
 
@@ -209,10 +209,16 @@ void UpdateControls(void)
 	
 	F.AltHoldEnabled = NavSensitivity > NAV_SENS_ALTHOLD_THRESHOLD;
 
-	if ( StickThrottle < RC_THRES_STOP )	// to deal with usual non-zero EPA
-		StickThrottle = 0;
+	if ( NavState == HoldingStation )
+	{ // Manual
+		if ( StickThrottle < RC_THRES_STOP )	// to deal with usual non-zero EPA
+			StickThrottle = 0;
+	}
+	else // Autonomous
+		if ( F.AllowNavAltitudeHold &&  F.AltHoldEnabled )
+			StickThrottle = CruiseThrottle;
 
-	if ( ! F.HoldingAlt ) // cancel any current altitude hold setting 
+	if ( (! F.HoldingAlt) && (!(F.Navigate || F.ReturnHome )) ) // cancel any current altitude hold setting 
 		DesiredAltitude = Altitude;	
 
 	//_________________________________________________________________________________________
