@@ -53,7 +53,7 @@
 #define Kp_Yaw 1.2
 #define Ki_Yaw 0.00002
 
-#define CyclemS 10
+#define CyclemS 8    // standard for 16MHz UAVX
 #define Freq ((1000/CyclemS)/2)
 #define FilterA	((long)CyclemS*256)/(1000/(6*Freq)+CyclemS)
 
@@ -63,10 +63,11 @@
 #define PRINT_DCM 0
 
 #define PRINT_UAVX_READABLE 0
-#define USING_UAVX 0
+#define USING_UAVX 1
 #define FORCE_ACC_NEUTRALS 0
+#define UAVXRazorPacketTag 17
 
-#define EXTENDED 1 // includes renormalisation recovery from V1.0
+#define EXTENDED 0 // includes renormalisation recovery from V1.0
 
 //_____________________________________________________________________
 
@@ -147,7 +148,7 @@ void Initialise()
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(19200);
   ADCReference(DEFAULT); 
 
   InitADCBuffers();
