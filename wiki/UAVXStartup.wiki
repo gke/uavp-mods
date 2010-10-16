@@ -182,7 +182,12 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20to
 
   * Do I need to calibrate the Accelerometers: YES and it is *EXTREMELY* important to do this correctly as the quadrocopter's ability to achieve and maintain level flight depends *ABSOLUTELY* on your accuracy. Make sure the the motor axes are parallel (all pointing in the same direction) and that the quadrocoptor is *perfectly level* (at right angles to the motor shafts which is the plane or planes of the propellors) because this this is the way it will fly relative to the Centre of the Earth. Use a spirit level to ensure this and once it is level make sure you *do not move the quadrocopter*. Select the Accelerometer Neutrals Icon in UAVPset and then click the *Set* button. The numbers will then appear in the relevant offset boxes in UAVPSet. Do NOT change the vertical axis offset to zero as was the case for UAVP. Do the initial calibration of the neutral testing the values at least 3 ties to make sure they are not varying more than a point or two due to some movement of the quad.  You should only need to do this initial accelerometer calibration once as the offsets will not change unless you crash or move the accelerometer board relative to the rest of the quadrocopter. Make a note of the offsets so you can restore them should you accidentally overwrite the values in the field.
 
-  * Do the Accelerometer offsets need to be zero: No but you should mechanically align the Accelerometer as close as possible to achieving this. 
+  * It is recommended to do the initial accelerometer calibration by placing the model in a large bowl that has been first checked and shimmed for level edges and then resting the models arms on the edges of that bowl and then calibrating the accelerometer. Using just your landing gear during the accelerometer calibration might not be perfectly level with the prop plane and it will skew level off a bit causing drift.  It is the prop plane is what you are actually trying to level with the accelerometer calibration. Turn the model on the bowl and test the accelerometer calibration numbers several times to make sure they remain within 1-2 points of being the same before writing them to the UAVX. This shows that it is properly leveled. 
+
+  * Generally the pitch and roll "I" will be most effective for AVP at about half the "P" value.   So a quick test is if you can get it to level nicely with 10-20 seconds of hands off flight with zeros in the pitch and roll "I". After that then add the pitch and roll "I" value back in after properly calibrating the accelerometer. That should get you a good self-level where you should be able to hold it in place easily with very minor stick inputs. A blip of the sticks with the correct amount of pitch and roll "I" will cause it to immediately come back to level. Higher angles than 10 degrees will take up to several seconds to come back to level unless you limit your rates on those channels. This is so the accelerometer influence does not adversely affect fast forward flight. So with the proper neutral stability and setup you should have longer hands off performance needing only minor stick corrections without GPS.
+
+
+  * Do the Accelerometer offsets need to be zero: No but you should mechanically align the Accelerometer as close as possible to achieving this. The pitch accelerometer axis can be gently tilted in hair like movements forward for decreasing and back for increasing the test number to achieve a zero reading.  Then it is suggested to permanently bridge the accelerometer to keep it from vibrating.
 
   * Is fastening the Accelerometer firmly important: The Accelerometer needs to be fastened firmly (glued or mechanically fixed) to the main board so that it does not move. If you do use glue make it is temperature stable as if it expands or contracts then the offsets may change.
 
@@ -215,13 +220,17 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
 
 
 === UAVPset General ===
+  * Check your PC's baud rate for the com port you are using for the UAVPset. If it is at the default of 9600bps for that com port, then set it to 115.2Kbps. Go to: My Computer/Properties/Hardware/Device Manager/Ports, then "your com device name"/Port settings and set Bits per second at 115200, 8, none, 1, and flow control none. This is your PC's com port setting. Note: If your com port is set to 9600bps there will be connection and parameter write problems. Only set the UAVPset com port to the one your PC is using and leave the rest of the UAVPset com port settings at their defaults. 
+  
   * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed.
  
+  * The procedure to change values in the UAVPset is to first select the parm table you want to change with the Tx sticks, then do a read on the UAVPset, make your changes, do a write, then again a read to confirm the changes.
+
   * Do I need to do a Write after I change any of the box values in UAVPSet: Yes.
 
-  *  To go to parm 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read. 
+  * To go to parm 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read. 
 
-  *  Always do a read after you do a write for parameter changes.
+  * Always do a read after you do a write for parameter changes.
 
   * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and as we seem to act like engineers (usually a good thing) and learning by doing, without reading, there seems little point to writing a description of what each does. Play with each test as they are all harmless except Compass Calibration. The tools are also accessible using HyperTerm (@38.4KBaud) which is required for the GPS test.
   
@@ -231,8 +240,6 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
 
   * I am using a Notebook and UAVPSet does not fit on the screen: You may need to change the screen resolution and pan so the UAVPSet window fits. 
    * For the ASUS eee set the display to 1024x768.
-
-  * You must check and change your PC's com port speed to make sure the com port that is being used by the UAVPset, UAVXGS and UAVXNav is set to a minimum speed of 38400bps. A com port speed of 115000bps is usually OK for the PC com port setting.  Some USB to serial conectors when initially setup default to 9600bps.  If your com port is set to 9600bps there will be connection and parameter write problems. *Do not change the UAVPset's com port setttings in the UAVPset communications Tab.*
 
 === File Versions ===
 
