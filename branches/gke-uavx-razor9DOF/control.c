@@ -271,9 +271,6 @@ void LimitYawSum(void)
 {
 	static int16 Temp;
 
-	#ifdef RAZOR9DOF
-		// no compass for now
-	#else
 	if ( F.CompassValid )
 	{
 		// + CCW
@@ -292,10 +289,14 @@ void LimitYawSum(void)
 		}
 	}
 
-	YawSum += YE;
-	YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
+	#ifdef RAZOR9DOF
+		YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
+	#else
 
-	YawSum = DecayX(YawSum, 2); 				// GKE added to kill gyro drift
+		YawSum += YE;
+		YawSum = Limit(YawSum, -YawIntLimit256, YawIntLimit256);
+	
+		YawSum = DecayX(YawSum, 2); 				// GKE added to kill gyro drift
 
 	#endif //RAZOR9DOF
 

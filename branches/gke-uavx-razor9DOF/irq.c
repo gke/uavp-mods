@@ -216,21 +216,13 @@ void high_isr_handler(void)
 			RxCh = RCREG;
 			switch ( RxState ) {
 			case WaitBody:        
-				if ( RxCh == '$' ) // abort partial Sentence 
+				RxCheckSum ^= RxCh;
+				Razor.B[ll++] = RxCh;
+				if ( ll == sizeof(Razor.B) ) 
 				{
-					ll = tt = RxCheckSum = 0;
-					RxState = WaitTag;
-				}
-				else
-				{
-					RxCheckSum ^= RxCh;
-					Razor.B[ll++] = RxCh;
-					if ( ll == sizeof(Razor.B) ) 
-					{
-						F.PacketReceived = RxCheckSum == (uint8)0;
-						if ( !F.PacketReceived ) Stats[BadS]++;
-						RxState = WaitSentinel;
-					}
+					F.PacketReceived = RxCheckSum == (uint8)0;
+					if ( !F.PacketReceived ) Stats[BadS]++;
+					RxState = WaitSentinel;
 				}
 							
 				break;

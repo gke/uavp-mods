@@ -80,24 +80,25 @@ void GetGyroValues(void)
 		mS[RazorUpdate] = mSClock() + 20;
 		F.CompassValid = F.AccelerationsValid = true;
 		F.GyroFailure = false;
-
-		Razor.Roll = - Razor.Roll;
-		Razor.Pitch = - Razor.Pitch;
-
-		RollRate = SRS16(Roll - Razor.Roll, 4);
-		PitchRate = SRS16(Pitch - Razor.Pitch, 4);
-		YawRate = SRS16(YawRate - Razor.Yaw, 4);
 	
-		RollSum = Razor.Roll;
-		PitchSum = Razor.Pitch;
+		RollSum = -Razor.Roll;
+		PitchSum = -Razor.Pitch;
 		YawSum = Razor.Yaw;
+
+		RollRate = -Razor.RollRate/48; // (5/3.3) * (0.01657*1000) * 2 (~48)
+		PitchRate = -Razor.PitchRate/48;
+		YawRate = Razor.YawRate/24;
+
+		LRAcc = Razor.LRAcc; // MilliG - close enough
+		FBAcc = -Razor.BFAcc;
+		DUAcc = -Razor.UDAcc;
 
 		Heading = Make2Pi(Razor.Heading + MagneticDeviation);
 	}
 	else
 		if ( mSClock() > mS[RazorUpdate] )
 		{
-			mS[RazorUpdate] = mSClock() + 20;
+			mS[RazorUpdate] = mSClock() + 30;
 			F.CompassValid = F.AccelerationsValid = false;
 			F.GyroFailure = true;
 			Stats[AccFailS]++;

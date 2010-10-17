@@ -425,11 +425,13 @@ typedef struct { // GPS
 
 // Parameters for UART port ClockHz/(16*(BaudRate+1))
 #ifdef CLOCK_16MHZ
-#define _B9600			104
+#define _B9600			16 //104
 #define _B38400			26 
+#define _B57600			17 
 #else // CLOCK_40MHZ
 #define _B9600			65
 #define _B38400			65
+#define _B57600			43 // zzz??? 
 #endif // CLOCK_16MHZ
 
 // This is messy - trial and error to determine worst case interrupt latency!
@@ -612,10 +614,12 @@ typedef union {
 	struct {
 		uint8 Tag, Length;
 		int16 Roll, Pitch, Yaw;
+		int16 RollRate, PitchRate, YawRate;
+		int16 BFAcc, LRAcc, UDAcc;
 		int16 Heading;
 		uint8 CheckSum;
 	};
-	uint8 B[11];
+	uint8 B[23];
 } RazorRec;
 
 extern RazorRec Razor;
