@@ -70,13 +70,13 @@ void ShowAttitude(void)
 	TxESCi16(DesiredYaw);
 
 	#ifdef RAZOR9DOF
-	TxESCi16(RollRate);
-	TxESCi16(PitchRate);
-	TxESCi16(YawRate);
+		TxESCi16(RollRate);
+		TxESCi16(PitchRate);
+		TxESCi16(YawRate);
 	#else
-	TxESCi16(RollRateADC - GyroMidRoll);
-	TxESCi16(PitchRateADC - GyroMidPitch);
-	TxESCi16(YawRateADC - GyroMidYaw);
+		TxESCi16(RollRateADC - GyroMidRoll);
+		TxESCi16(PitchRateADC - GyroMidPitch);
+		TxESCi16(YawRateADC - GyroMidYaw);
 	#endif // RAZOR9DOF
 
 	TxESCi16(RollSum);
