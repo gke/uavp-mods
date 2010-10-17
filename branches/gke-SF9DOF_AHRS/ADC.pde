@@ -47,8 +47,7 @@ void GetGyro(void)
       GyroADC[c] = ( s + ( samples >> 1 ) ) / samples;
     Gyro[c] = GyroSign[c] * (GyroADC[c] - GyroNeutral[c]);
     
-    Gyro[c] = constrain(Gyro[c],-900,900);
-   
+    //Gyro[c] = constrain(Gyro[c],-900,900); 
   }
  
   InitADCBuffers();

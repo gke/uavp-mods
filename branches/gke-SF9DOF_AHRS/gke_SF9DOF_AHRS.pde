@@ -45,8 +45,10 @@
 
 // LPR530 & LY530 Sensitivity (from datasheet) => (3.3mv at 3v) at 3.3v: 3mV/º/s, 3.22mV/ADC step => 0.93
 // Tested values : 0.92
-#define GyroToDegreesSec 0.92 // deg/sec
-#define GyroToRadianSec 0.016057 // radian/sec 
+#define GyroToDegrees 0.92 // deg/sec
+#define GyroToRadian 0.016057 // radian
+#define RadianToGyro 62.2781 // gyro clicks
+#define AccToMilliG (1000.0/(float)GRAVITY)
 
 #define Kp_RollPitch 0.02
 #define Ki_RollPitch 0.00002
@@ -58,6 +60,7 @@
 #define FilterA	((long)CyclemS*256)/(1000/(6*Freq)+CyclemS)
 
 #define CORRECT_DRIFT 1
+
 #define PRINT_EULER 1
 #define PRINT_ANALOGS 0
 #define PRINT_DCM 0
@@ -66,6 +69,10 @@
 #define USING_UAVX 1
 #define FORCE_ACC_NEUTRALS 0
 #define UAVXRazorPacketTag 17
+
+#define SERIAL_INTERRUPT_OUTPUT
+
+#define FREE_RUN 1
 
 #define EXTENDED 0 // includes renormalisation recovery from V1.0
 
@@ -85,6 +92,7 @@ float   G_Dt = 0.01; // DCM integration time 100Hz if possible
 long    ClockmSp;
 long    PeriodmS;
 long    ClockmS;
+long    CompassmS = 0;
 byte    CompassInterval = 0;
 
 int     Gyro[3], GyroADC[3], GyroNeutral[3];
@@ -143,12 +151,13 @@ void Initialise()
 #endif // FORCE_ACC_NEUTRALS
 
   ClockmSp = millis();
+  CompassmS = ClockmSp + 20; // 50Hz
 
 } // Initialise
 
 void setup()
 {
-  Serial.begin(19200);
+  Serial.begin(115200);
   ADCReference(DEFAULT); 
 
   InitADCBuffers();
@@ -165,7 +174,14 @@ void setup()
   Initialise();
 } // setup
 
-void DoIteration(void)
+void DoCompass(void)
+{
+    CompassmS = ClockmS + 20;
+    GetMagnetometer();
+    ComputeHeading();
+} // DoCompass
+  
+void DoAttitude(void)
 {
   ClockmSp = ClockmS;
   G_Dt = (float)PeriodmS / 1000.0;
@@ -173,28 +189,30 @@ void DoIteration(void)
   GetGyro(); 
   GetAccelerometer();   
 
-  if ( ++CompassInterval > 5) // compass 1/5 rate
-  {
-    CompassInterval = 0;
-    GetMagnetometer();
-    ComputeHeading();
-  }
-
   MUpdate(); 
   Normalize();
   DriftCorrection();
   EulerAngles(); 
 
-  SendAttitude();  
+  SendAttitude();
+#ifdef USING_UAVX == 1
+//  Serial.print("      ");
+//  SendAttitude(); 
+#endif //USING_UAVX
 } // DoIteration
 
 void loop()
 {
   // free runs at ~160Hz
   ClockmS = millis();
+  if ( ClockmS > CompassmS )
+    DoCompass();
+    
   PeriodmS = ClockmS - ClockmSp;
+  #if FREE_RUN == 0
   if  ( PeriodmS >= CyclemS )
-    DoIteration();
+  #endif // FREE_RUN
+    DoAttitude();
 
 } // Main
 

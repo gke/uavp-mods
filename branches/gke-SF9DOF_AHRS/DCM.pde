@@ -156,7 +156,7 @@ void MUpdate(void)
 
   for ( i = 0; i < 3 ; i++)
   {
-    Gyro_V[i] = (float)Gyro[i] * GyroToRadianSec; 
+    Gyro_V[i] = (float)Gyro[i] * GyroToRadian; 
     Acc_V[i] = (float)Acc[i];
   }
 
