@@ -35,17 +35,8 @@ void TxByte(char b)
 
 void TxWord(int w)
 {
-  static byte h,l;
-
-  h = highByte(w);
-  l = lowByte(w);
-
-  TxCheckSum ^= h;
-  TxCheckSum ^= l;
-
-  Serial.write(lowByte(w));
-  Serial.write(highByte(w));
-
+  TxByte(lowByte(w));
+  TxByte(highByte(w));
 } // TxWord
 
 #endif // PRINT_UAVX_READABLE
@@ -54,15 +45,24 @@ void SendAttitude(void)
 {
   static byte i;
 
+  TxByte(byte('$')); // sentinel not included in checksum
   TxCheckSum = 0;
-  Serial.write('$'); // sentinel not included in checksum
   TxByte(UAVXRazorPacketTag);
-  TxByte(11);
+  TxByte(23);
 
   // angles in milliradian
-  TxWord((int)(Roll * 1000.0));
-  TxWord((int)(Pitch * 1000.0));
-  TxWord((int)(Yaw * 1000.0)); 
+  TxWord((int)(Roll * 1000.0 ));
+  TxWord((int)(Pitch * 1000.0 ));
+  TxWord((int)(Yaw * 1000.0 )); 
+
+  TxWord((int)(Omega_V[0] * 1000.0 ));
+  TxWord((int)(Omega_V[1] * 1000.0 ));
+  TxWord((int)(Omega_V[2] * 1000.0 ));
+ 
+  TxWord((int)(Acc_V[0] * AccToMilliG));
+  TxWord((int)(Acc_V[1] * AccToMilliG));
+  TxWord((int)((Acc_V[2] - GRAVITY) * AccToMilliG));
+  
   TxWord((int)(MagHeading * 1000.0));
 
   TxByte(TxCheckSum);
