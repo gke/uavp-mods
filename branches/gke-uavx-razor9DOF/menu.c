@@ -258,18 +258,22 @@ void ShowSetup(boolean h)
 		else
 			TxString("\tRangefinder: OFFLINE\r\n");
 
-	if ( F.GyroFailure )
-		TxString("\tGyro: FAILURE\r\n");
-
-	if ( !F.AccelerationsValid )
-	#ifdef USE_FLAT_ACC
-		TxString("\tAccelerometers: OFFLINE (horiz.)\r\n");
+	#ifdef RAZOR9DOF
+		TxString("\tRazor 9DOF: state of gyros, accs and compass unknown - use UAVXGS\r\n");
 	#else
-		TxString("\tAccelerometers: OFFLINE\r\n");
-	#endif // USE_FLAT_ACC
+		if ( F.GyroFailure )
+			TxString("\tGyro: FAILURE\r\n");
+	
+		if ( !F.AccelerationsValid )
+		#ifdef USE_FLAT_ACC
+			TxString("\tAccelerometers: OFFLINE (horiz.)\r\n");
+		#else
+			TxString("\tAccelerometers: OFFLINE\r\n");
+		#endif // USE_FLAT_ACC
 
-	if ( !F.CompassValid )
-		TxString("\tCompass: OFFLINE\r\n");
+		if ( !F.CompassValid )
+			TxString("\tCompass: OFFLINE\r\n");
+	#endif // RAZOR9DOF
 
 	if ( !F.Signal )
 		TxString("\tRC signal invalid - bad EPAs or Tx may be switched off?\r\n");
