@@ -471,11 +471,12 @@ void LightsAndSirens(void)
 			AccTimeout += 400;
 		}	
 	}
-	while( (!F.Signal) || (Armed && FirstPass) || F.Ch5Active || 
-	#ifndef GKE
-	F.GyroFailure || 
-(!F.AccelerationsValid) ||
-	#endif // !GKE
+	while( (!F.Signal) || (Armed && FirstPass) || F.Ch5Active ||
+	#ifndef RAZOR9DOF 
+		#ifndef GKE
+			F.GyroFailure || (!F.AccelerationsValid) ||
+		#endif // !GKE
+	#endif // !RAZOR9DOF
 		( InitialThrottle >= RC_THRES_START ) || (!F.ParametersValid)  );
 				
 	FirstPass = false;

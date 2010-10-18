@@ -34,6 +34,7 @@ typedef union {
 	struct {
 		uint8 Sentinel;
 		int16 Roll, Pitch, Yaw;
+		int16 RollRate, PitchRate, YawRate;
 		int16 Heading;
 		uint8 CheckSum;
 	};
@@ -110,21 +111,31 @@ void GetGyroValues(void)
 
 #ifdef TESTING
 
-void AttitudeTest(void)
+void AccelerometerTest(void)
 {
-	TxString("\r\nAttitude Test\r\n");
+	TxString("\r\nAcceleromter Test\r\n");
 	
-	TxString("Angles\r\n");
-	TxString("\tRoll: "); TxVal32((Razor.Roll * 180)/MILLIPI, 0, 0); TxNextLine();
-	TxString("\tPitch: "); TxVal32((Razor.Pitch * 180)/MILLIPI, 0, 0); TxNextLine();
-	TxString("\tYaw: "); TxVal32((Razor.Yaw * 180)/MILLIPI, 0, 0); TxNextLine();
+	TxString("Razor9DOF: not available - use UAVXGS.\r\n");
+} // AccelerometerTest
 
-	TxString("Heading: "); TxVal32((Razor.Heading * 180)/MILLIPI, 0, 0); TxNextLine();
+void CalibrateCompass(void)
+{
+	TxString("\r\nCalibrate Compass\r\n");
+	TxString("Razor9DOF: not needed.\r\n");
+} // CalibrateCompass
 
-	if ( !( F.CompassValid && F.AccelerationsValid && !F.GyroFailure) )
-		TxString("FAILED\r\n");
+void GyroTest(void)
+{
+	TxString("\r\nGyro Test\r\n");
+	TxString("Razor9DOF: not available - use UAVXGS.\r\n");
+} // GyroTest
 
-} // AttitudeTest
+
+void DoCompassTest(void)
+{
+	TxString("\r\nCompass Test\r\n");
+	TxString("Razor9DOF: not available - use UAVXGS.\r\n");
+} // DoCompassTest
 
 #endif // TESTING
 
@@ -150,6 +161,8 @@ void InitGyros(void)
 	RollRate = PitchRate = YawRate = Roll = Pitch = Yaw = RollSum = PitchSum = YawSum = 0;
 } // InitRazor
 
+
+
 // ----------------------------------------
 
 void InitHeading(void)
@@ -167,6 +180,7 @@ void InitCompass(void)
 {
 
 } // InitCompass
+
 
 void CompensateRollPitchGyros(void)
 {
