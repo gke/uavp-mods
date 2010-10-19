@@ -61,7 +61,7 @@ void SendAttitude(void)
  
   TxWord((int)(Acc_V[0] * AccToMilliG));
   TxWord((int)(Acc_V[1] * AccToMilliG));
-  TxWord((int)((Acc_V[2] - GRAVITY) * AccToMilliG));
+  TxWord((int)(Acc_V[2] * AccToMilliG));
   
   TxWord((int)(MagHeading * 1000.0));
 
