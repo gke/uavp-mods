@@ -75,19 +75,19 @@ for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -
 
 for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVXRazor%L%-V1.665gke-%E%%PROC%%X%%R%%C%%D%%T%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVXRazor%L%-V1.670gke-%E%%PROC%%X%%R%%C%%D%%T%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - UAVXRazor%L%-V1.665gke-%E%%PROC%%X%%R%%C%%D%%T%.hex
-echo compiled - UAVXRazor%L%-V1.665gke-%E%%X%%R%%C%%D%%T%.hex >> gen.lst
+echo compiled - UAVXRazor%L%-V1.670gke-%E%%PROC%%X%%R%%C%%D%%T%.hex
+echo compiled - UAVXRazor%L%-V1.670gke-%E%%X%%R%%C%%D%%T%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - UAVXRazor%L%-V1.665gke-%E%%PROC%%X%%R%%C%%D%%T%.hex
-echo failed - UAVXRazor%L%-V1.665gke-%E%%PROC%%X%%R%%C%%D%%T%.hex >> gen.lst
+echo failed - UAVXRazor%L%-V1.670gke-%E%%PROC%%X%%R%%C%%D%%T%.hex
+echo failed - UAVXRazor%L%-V1.670gke-%E%%PROC%%X%%R%%C%%D%%T%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH

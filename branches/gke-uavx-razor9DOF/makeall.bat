@@ -61,7 +61,7 @@ for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%r in 
 
 rm *.zip
 
-"C:\Program Files\7-Zip\7z" a -tzip UAVXRazor-gke-16MHz.zip *-16-*.hex
-
-
-del *.HEX
+if exist "C:\Program Files\7-Zip\7z.exe" ( 
+  "C:\Program Files\7-Zip\7z" a -tzip UAVXRazor-gke-16MHz.zip *-16-*.hex
+  del *.hex
+) else ( )
