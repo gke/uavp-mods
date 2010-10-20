@@ -90,9 +90,9 @@ void GetGyroValues(void)
 		PitchRate = -Razor.PitchRate/48;
 		YawRate = Razor.YawRate/24;
 
-		LRAcc = Razor.LRAcc; // MilliG - close enough
-		FBAcc = -Razor.BFAcc;
-		DUAcc = -Razor.UDAcc;
+		LRAcc = -Razor.LRAcc; // MilliG - close enough
+		FBAcc = Razor.BFAcc;
+		DUAcc = Razor.UDAcc;
 
 		Heading = Make2Pi(Razor.Heading + MagneticDeviation);
 	}

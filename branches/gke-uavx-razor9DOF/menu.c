@@ -119,12 +119,14 @@ void ShowSetup(boolean h)
 		default: TxString("UNKNOWN\r\n");
 	}
 
+	#ifndef RAZOR9DOF
 	if( F.CompassValid )
 	{
 		TxString("Compass Offset: ");
 		TxVal32((int16)P[CompassOffsetQtr] * 90,0,0);
 		TxString("deg.\r\n");
 	}
+	#endif // !RAZOR_9DOF
 
 	TxString("Baro: ");
 	ShowBaroType();
