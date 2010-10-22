@@ -264,7 +264,7 @@ during the initial setup.
 *Note 2:* Some ESC's do not have the ability to calibrate the throttle 
 range.  Some ESC's automatically calibrate the throttle range.  It is 
 not recommended to use the ESC's that automatically adjust the throttle 
-range as this is not compatable with multicopter boards.
+range as this is not compatible with multicopter boards.
 
 *Note 3:* Many of these ESC's can be modified for I2c communications or fast PWM 
 which the UAVP board can also use if desired.  If you have the skills 
@@ -278,21 +278,23 @@ and Tricopter Mega Link Index]
   * 10A and higher as required for your motors
   * [http://www.quadroufo.com Quadroufo.com] Standard 30A ESCs (note that if you requested from Quadroufo to have the fast PWM modified firmware installed on the ESC's, then they do not require throttle calibration)
   * HKSS 
-  * Turnigy Plush 
-  * Mystery 
-  * TowerPro
-  * YGE for I2c or PWM
   * Holger I2c
+  * Mystery 
+  * RCTimer
+  * TowerPro
+  * Turnigy Plush 
   * X-BLC I2c
-  * Modified standard to I2c and fast PWM ESCs: http://www.rcgroups.com/forums/showthread.php?t=766589
+  * YGE for I2c or PWM
+  * Modified standard to I2c and to fast PWM ESCs: http://www.rcgroups.com/forums/showthread.php?t=766589
  
 *2. Program the 4 ESCs with these settings if available: 
 
  * Brake OFF
- * Battery type: NiMh (even if you use LiPo)
+ * Battery type: NiMh (yes even if you use LiPo)
+ * Startup: Normal 
  * Cut Off Type: soft cut
- * Cut Off Voltage: Low
- * Timing Mode: Middle (unless experiencing timing problems and then choose Low or high depending on motor. If clicking noise, change timing)
+ * Cut Off Voltage: Low (or even better turn the ESC LVC completely off is that option is available)
+ * Timing Mode: Low to Middle 
  * Music: your preference if available
  * Governor Mode: Off
 
@@ -305,7 +307,7 @@ and Tricopter Mega Link Index]
  * Turn TX on
  * Power the ESC wait for initialization beeps + 2 beeps
  * After 2 beeps, move throttle stick to minimum
- * Wait for beeps (generaly 3 + 1 or 1 + 1)
+ * Wait for beeps (generally 3 + 1 or 1 + 1)
  * Unpower ESC and disconnect
  * Repeat until all 4 are calibrated and you're done 
 
