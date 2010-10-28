@@ -45,14 +45,14 @@ It is assumed you:
 === Board Diagram ===
   *  Board connections:
 
-http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20top%20board%20jesolins.jpg?d=1285275448
+http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top%20board%20jesolins.jpg?d=1288234002
 
   * *Quadrocopter:*
   * Use quad firmware.
   * Use standard CCW tractor props on the front and rear arms and CW pusher props on the left and right arms.
   * Front of board is oriented to K1.
   * For +-mode the UAVPset FWD (x7.5 Deg) = 0.
-  * For X-mode the UAVPset FWD (x7.5 Deg) = 6.
+  * For X-mode the UAVPset FWD (x7.5 Deg) = 6. Use =6 for CW or -6 for CCW.
   
   * *Octocopter:*
   * Use quad firmware.
@@ -313,7 +313,7 @@ and Tricopter Mega Link Index]
  * Unpower ESC and disconnect
  * Repeat until all 4 are calibrated and you're done 
 
-  * ESC servo connections: (also see Board Diagram above)
+  * ESC servo connections: (see Board Diagram above and note the S, +, - connections)
      * K1 ESC front motor 
      * K2 ESC left motor 
      * K3 ESC right motor 
