@@ -3,9 +3,9 @@
 
 === Introduction ===
 
-UAVX was released for Beta testing on the 15 August 2009 Australian EST. The normal caveats apply in that use of UAVX and these instructions is entirely at your own risk - see the GNU Licence. 
+UAVX was released for Beta testing on the 15 August 2009 Australian EST. The normal caveats apply in that use of UAVX and these instructions is entirely at your own risk - see the GNU License. 
 
-This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software. UAVX also combines test and flight software. Despite the internal differences a significant amount of effort has made to render the transition from UAVP to UAVX as painless as possible by preserving the validity of most parameter values and a familiar user interface. UAVPSet (V3.0 onwards also in this repository) has been extended to include the new features supported by UAVX.
+This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software. UAVX also combines test and flight software. Despite the internal differences a significant amount of effort has made to render the transition from UAVP to UAVX as painless as possible by preserving the validity of most parameter values and a familiar user interface. UAVPSet (V3.0 on-wards also in this repository) has been extended to include the new features supported by UAVX.
 
 You should NOT use GPS for your first test flights of UAVX regardless of how tempting it may be to do so. UAVX only requires GPS for navigation functions and may be flown without GPS if desired.
 
@@ -96,9 +96,9 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20to
   * Also read the Tx/Rx Setup paragraph.
   * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
 
-*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's peformance and decrease PPM signal quality and model safety.*
+*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's performance and decrease PPM signal quality and model safety.*
 
-  * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pulldown box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx. Some substitutions follow:
+  * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pull-down box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx. Some substitutions follow:
    * Graupner MX16s use JR XP8103/R700-PPM
    * DX7/AR6000 use JR XP8103/R700-PPM
    * JR8103 with a Spektrum module /AR7000 use Futaba 9C DM8/AR7000
@@ -142,7 +142,7 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a3493339-255-UAVP%20to
   * I have solid Green and a flashing Blue LED: You are ready to fly as the GPS has recorded your origin location.
 
 === Setting Parameters ===
-  * Setting Default Parameter Values: Use Tools->Test Software->D command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. To go to param 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read.
+  * Setting Default Parameter Values: Use Tools->Test Software->"Shift D" command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. To go to param 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read.
 
   * Can I use my old UAVP parameter files: Yes but there are more parameters in UAVX than UAVP so if you are a reading an old parameter file you should first load the defaults using the D command (see above). This will ensure the additional parameters of UAVX are given sensible values. You may then save the full parameter set back to a file if you wish.
 
@@ -221,24 +221,26 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
 
 === UAVPset General ===
   * Check your PC's baud rate for the com port you are using for the UAVPset. If it is at the default of 9600bps for that com port, then set it to 115.2Kbps. Go to: My Computer/Properties/Hardware/Device Manager/Ports, then "your com device name"/Port settings and set Bits per second at 115200, 8, none, 1, and flow control none. This is your PC's com port setting. Note: If your com port is set to 9600bps there will be connection and parameter write problems. Only set the UAVPset com port to the one your PC is using and leave the rest of the UAVPset com port settings at their defaults. 
+
+  * Download and install the latest UAVPset and UAVX firmware from: http://code.google.com/p/uavp-mods/downloads/list. The Beta firmware has been flight tested.  Tha Alpha UAVX firmware is in the process of being flight tested and may contain bugs so if interested in helping with flight testing, then take care!  
+
+  * Download the latest Beta UAVX v1.xxxx and save to a directory you can find again. Unzip the files. Then unzip the folder with the 16hz firmware. Using the latest UAVPset v4.xx. Either press the burn icon, or go to the menu Commands/Burn PIC and load the test quad hex. Use the 16 hex if you have not changed the UAVP board's original 16Hz crystal and the 40Hz if you changed the board's crystal to a 10Hz.
+
+  * You must first load the testfirmware and use the UAVPset to do the initial setup. Make absolutely sure you select the firmware for your set that you will be loading. Pay attention to the number 16 and 40 in the firmware name. The "16"Mhz is the firmware for a board that has not had the original 16Mhz crystal replaced with a 10MHz crystal which is necessary to use the "40"Mhz firmware. So, for example, if you are loading a quad firmware and will use a 7 channel Tx/Rx, you will load: UAVX-V1.xxxgke-18F2620-16-TEST.hex for the test firmware and UAVX-V1.xxxgke-18F2620-16-QUAD.hex for the flight firmware. Then open UAVPset and the menu Tools/Testfirmware/Rx test to get all the channels to pass with low or no glitch count. You must first set your Tx/Rx set type and mode and Rx to eithe "odd channels" for connecting the odd Rx channels per the order in the info window of the UAVPset for your model of Tx/Rx, or use the "All channels" for a Rx that outputs a standard PPM composite signal or a PPM adapter board that can do so.  With a PPM adapter board, you might have to rearange the signal pins from th Rx to the adapter board to get the UAVPset Tx/Rx test graphic to move the correct sliders for the proper channel order for yours Tx/Rx.  After you select the correect values make sure you do a write with the UAVPset. Follow the instructions in the Tx/Rx setup to complete the initial setup. 
+
+  *  After loading the testfirmware or a updated flight firmware, go to the UAVPset/Tools/Testfirmware and do a "Shift D" to load the default parameters.  Then do a read to check parm 1 values and then put the Tx pitch and roll stick to the bottom right to select parm 2 and do a read to check that those parameters are all populated.
+
   
-  * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed.
- 
-  * The procedure to change values in the UAVPset is to first select the parm table you want to change with the Tx sticks, then do a read on the UAVPset, make your changes, do a write, then again a read to confirm the changes.
-
-  * Do I need to do a Write after I change any of the box values in UAVPSet: Yes.
-
-  * To go to parm 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read. 
-
-  * Always do a read after you do a write for parameter changes.
-
-  * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and as we seem to act like engineers (usually a good thing) and learning by doing, without reading, there seems little point to writing a description of what each does. Play with each test as they are all harmless except Compass Calibration. The tools are also accessible using HyperTerm (@38.4KBaud) which is required for the GPS test.
-  
-  * How do I know if UAVX understands what is connected and whether it is working: Use the Tools->Test Software->S command and check the setup information displayed.
-
-  * The arrangement of the screen seems incorrect for my language: You will need to use the English version until the other translations are completed. Use the Configuration->Miscellaneous pulldown and select English under language. 
-
-  * I am using a Notebook and UAVPSet does not fit on the screen: You may need to change the screen resolution and pan so the UAVPSet window fits. 
+  * *Notes*
+    * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed.
+    * The procedure to change values in the UAVPset is to first select the parm table you want to change with the Tx sticks, then do a read on the UAVPset, make your changes, do a write, then again a read to confirm the changes.
+   * Do I need to do a Write after I change any of the box values in UAVPSet: Yes.
+   * To go to parm 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read. 
+   * Always do a read after you do a write for parameter changes.
+   * Are there any Test Tools: Use Tools->Test Software. Their purpose is fairly obvious and as we seem to act like engineers (usually a good thing) and learning by doing, without reading, there seems little point to writing a description of what each does. Play with each test as they are all harmless except Compass Calibration. The tools are also accessible using HyperTerm (@38.4KBaud) which is required for the GPS test.
+   * How do I know if UAVX understands what is connected and whether it is working: Use the Tools->Test Software->S command and check the setup information displayed.
+   * The arrangement of the screen seems incorrect for my language: You will need to use the English version until the other translations are completed. Use the Configuration->Miscellaneous pulldown and select English under language. 
+   * I am using a Notebook and UAVPSet does not fit on the screen: You may need to change the screen resolution and pan so the UAVPSet window fits. 
    * For the ASUS eee set the display to 1024x768.
 
 === File Versions ===
