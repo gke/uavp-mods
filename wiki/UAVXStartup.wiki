@@ -111,10 +111,9 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
    * DX7/AR6000 use JR XP8103/R700-PPM
    * JR8103 with a Spektrum module /AR7000 use Futaba 9C DM8/AR7000
 
-  * If your Tx/Rx combination is not currently supported then you should check the following site (Logic Analyzer Displays of PPM Rx Channels). The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
+  * If your Tx/Rx combination is not currently supported then you should check the following site [http://www.rcgroups.com/forums/showthread.php?t=1171547 Logic Analyzer Displays of PPM Rx Channels]. The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
   * If your Tx/Rx is not listed then you can always use a separate PPM adapter board and then select the "all channels" box in the UAVPset.
 
-  http://www.rcgroups.com/forums/showthread.php?t=1171547
 
   * I have a Futaba and only Ch6 is connected to a Pot so how do I swap Ch6 and Ch7: Try the "Custom" Rx/Tx config in the UAVPSet pulldown. UAVX can map any input sequence order to any other order provided that the Rx pulses do not overlap and are emitted by the Rx with no gaps. You need to change the *custom* setting definition in the source program to achieve this (uavx.c). 
 
@@ -148,6 +147,10 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
   * The Blue LED is flashing but both the Green and Red LEDs are still on solid after a long time: Yes it does seem like a long time when all we want to do is just fly!  It can take 2-3 minutes especially if your GPS does not have battery backup or if it is a new flying location.
 
   * I have solid Green and a flashing Blue LED: You are ready to fly as the GPS has recorded your origin location.
+
+  * From UAVX v1.1247 onward the aircraft will not arm unless the accelerometer is ONLINE. The LED indication for failed Acc is both Yellow and Red LEDs flashing. 
+
+
 
 === Setting Parameters ===
   * Setting Default Parameter Values: Use Tools->Test Software->"Shift D" command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. To go to param 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read.
@@ -188,6 +191,8 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 === Accelerometers ===
   * Is an Accelerometer required: While it is just possible to fly a quadrocopter without accelerometers you must have them for GPS navigation.
 
+  * From UAVX v1.1247 onward the aircraft will not arm unless the accelerometer is ONLINE. The LED indication for failed Acc is both Yellow and Red LEDs flashing.
+
   * Do I need to calibrate the Accelerometers: YES and it is *EXTREMELY* important to do this correctly as the quadrocopter's ability to achieve and maintain level flight depends *ABSOLUTELY* on your accuracy. Make sure the the motor axes are parallel (all pointing in the same direction) and that the quadrocoptor is *perfectly level* (at right angles to the motor shafts which is the plane or planes of the propellors) because this this is the way it will fly relative to the Centre of the Earth. Use a spirit level to ensure this and once it is level make sure you *do not move the quadrocopter*. Select the Accelerometer Neutrals Icon in UAVPset and then click the *Set* button. The numbers will then appear in the relevant offset boxes in UAVPSet. Do NOT change the vertical axis offset to zero as was the case for UAVP. Do the initial calibration of the neutral testing the values at least 3 ties to make sure they are not varying more than a point or two due to some movement of the quad.  You should only need to do this initial accelerometer calibration once as the offsets will not change unless you crash or move the accelerometer board relative to the rest of the quadrocopter. Make a note of the offsets so you can restore them should you accidentally overwrite the values in the field. Note that from UAVX V1.1247 and up the UAVX will not arm unless the accelerometer is on-line and with no faults.
 
   * It is recommended to do the initial accelerometer calibration by placing the model in a large bowl that has been first checked and shimmed for level edges and then resting the models arms on the edges of that bowl and then calibrating the accelerometer. Using just your landing gear during the accelerometer calibration might not be perfectly level with the prop plane and it will skew level off a bit causing drift.  It is the prop plane is what you are actually trying to level with the accelerometer calibration. Turn the model on the bowl and test the accelerometer calibration numbers several times to make sure they remain within 1-2 points of being the same before writing them to the UAVX. This shows that it is properly leveled. 
@@ -202,7 +207,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 === GPS ===
   * Should I connect both the GPS Rx and Tx line: No you should connect only the GPS Tx signal. If you connected the GPS Rx line the signals that UAVX sends to UAVPSet will also be received by the GPS and may change the GPS settings. 
 
-  * What Settings should I use with my GPS: Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update rate. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing load; yes it takes processing time to throw away stuff! MiniGPS dwonload: http://www.dpcav.com/data_sheets/gps_mini.zip Read [http://code.google.com/p/uavp-mods/wiki/GpsNavigation] and [http://www.rcgroups.com/forums/showpost.php?p=13927790&postcount=1070 Programming GPS's 101].
+  * What Settings should I use with my GPS: Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update rate. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing load; yes it takes processing time to throw away stuff! MiniGPS dwonload: http://www.dpcav.com/data_sheets/gps_mini.zip Read [http://code.google.com/p/uavp-mods/wiki/GpsNavigation GpsNavigation] and [http://www.rcgroups.com/forums/showpost.php?p=13927790&postcount=1070 Programming GPS's 101].
 
 http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3536269-132-minigps_uavx_setup_jesolins.png?d=1287141967
 
