@@ -47,21 +47,6 @@ It is assumed you:
 
 http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top%20board%20jesolins.jpg?d=1288234002
 
-  * *Quadrocopter:*
-  * Use quad firmware.
-  * Use standard CCW tractor props on the front and rear arms and CW pusher props on the left and right arms.
-  * Front of board is oriented to K1.
-  * For +-mode the UAVPset FWD (x7.5 Deg) = 0.
-  * For X-mode the UAVPset FWD (x7.5 Deg) = 6. Use =6 for CW or -6 for CCW.
-  
-  * *Octocopter:*
-  * Use quad firmware.
-  * Use standard CCW tractor props on the front and rear arms and CW pusher props on the left and right arms.
-  * Use a y-cable to connect a second ESC and motor to each servo axis for redundancy.
-  * Either orient the board's front between the two axis motors, or use the UAVPset FWD (x7.5 Deg) offset of 3.  Use =3 for CW or -3 for CCW.
-  * Can be configured in a flat/star or coax model.
-  * The motor/prop rotation is the same on each axis
-
   * *Tricopter:*
   * Use tri firmware.
   * Use either all standard CCW or CW props on all axis, or CW and CCW on either left and right and either CCW or CW on the tail/front.
@@ -69,6 +54,15 @@ http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top
   * For servo on back arm or tail use UAVPset FWD (x7.5 Deg) = 24.
   * For servo on back arm or front use UAVPset FWD (x7.5 Deg) = 0.
   * Currently I2c ESCs can not be used for the tricopter configuration.
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_tri_options_jesolins.png
+  
+  * *Quadrocopter:*
+  * Use quad firmware.
+  * Use standard CCW tractor props on the front and rear arms and CW pusher props on the left and right arms.
+  * Front of board is oriented to K1.
+  * For +-mode the UAVPset FWD (x7.5 Deg) = 0.
+  * For X-mode the UAVPset FWD (x7.5 Deg) = 6. Use =6 for CW or -6 for CCW.
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_quad_options_jesolins.png
   
   * *Hexacopter:*
   * Use tri firmware.
@@ -77,6 +71,18 @@ http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top
   * For servo on back arms or tail use UAVPset FWD (x7.5 Deg) = 20.
   * For servo on back arms or front use UAVPset FWD (x7.5 Deg) = 4.
   * Can be configured in a flat/star or Y-coax model.
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_hexa_options_jesolins.png
+
+  * *Octocopter:*
+  * Use quad firmware.
+  * Use standard CCW tractor props on the front and rear arms and CW pusher props on the left and right arms.
+  * Use a y-cable to connect a second ESC and motor to each servo axis for redundancy.
+  * Either orient the board's front between the two axis motors, or use the UAVPset FWD (x7.5 Deg) offset of 3.  Use =3 for CW or -3 for CCW.
+  * Can be configured in a flat/star or coax model.
+  * The motor/prop rotation is the same on each axis
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options1_jesolins.png
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options2_jesolins.png
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_jesolins.png
 
   * *Notes:*
   * K1, K2, K3, K4 refers to motor connection.  
