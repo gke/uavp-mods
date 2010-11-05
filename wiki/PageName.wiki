@@ -17,7 +17,7 @@ With older PPM style receivers the signal from the Rx becomes just noise if the 
 
 == What Happens ==
 
-If four out of 5 Rx frames are bad then the following sequence with recovery to normal flight if you have only gone as far as step 2). 
+If UAVX determines less than 4 out of 5 Rx frames are bad then the following sequence with recovery to normal flight if you have only gone as far as step 2) and 4 or more out of 5 Rx frames are good. 
 
 1) MonitoringRx: the signal has failed so monitor the signal for 1Sec maintaining the last Rx settings. If the the signal recovers resume otherwise 2).
 
@@ -27,7 +27,7 @@ If four out of 5 Rx frames are bad then the following sequence with recovery to 
 
 5) Terminated: complete the landing and switch off the motors.  Motors are disabled and will not restart until a re-arm is done.
 
-For those who are inclide the following code is pretty much self explanatory. It comes from autonomous.c in the release. If you see any obvious bugs let me know:).
+For those who are inclined the following code is pretty much self explanatory. It comes from autonomous.c in the release. If you see any obvious bugs let me know:).
 
 
 void DoPPMFailsafe(void)
@@ -85,7 +85,7 @@ void DoPPMFailsafe(void)
 			
 } // DoPPMFailsafe
 
-#define FAILSAFE_TIMEOUT_MS 1000L // mS. hold last "good" settings and then restore flight or abort
-#define ABORT_TIMEOUT_GPS_MS 5000L // mS. go to descend on position hold if GPS valid.
-#define ABORT_TIMEOUT_NO_GPS_MS 0L // mS. go to descend on position hold if GPS valid.  
-#define ABORT_UPDATE_MS 1000L	// mS. retry period for RC Signal and restore Pilot in Control
+FAILSAFE_TIMEOUT_MS 1000L // mS. hold last "good" settings and then restore flight or abort
+ABORT_TIMEOUT_GPS_MS 5000L // mS. go to descend on position hold if GPS valid.
+ABORT_TIMEOUT_NO_GPS_MS 0L // mS. go to descend on position hold if GPS valid.  
+ABORT_UPDATE_MS 1000L	// mS. retry period for RC Signal and restore Pilot in Control
