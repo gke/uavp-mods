@@ -1,0 +1,91 @@
+#summary UAVX monitors the signals from the Rx to UAVX NOT from the Tx to the Rx. This describes briefly how UAVX attempts to provide failsafe operation when the signal from the Rx indicates failure.
+#labels Featured,gke
+
+= UAVX Failsafe Operation =
+
+UAVX requires the signals from the Rx to meet minimum and maximum pulse width requirements which mean the endpoint adjustments (EPAs) for each channel must be adjusted properly - see the Setup Wiki. The Rx sends all of the channels together in one packet or frame. If UAVX receives less than four good packets in every five it decides the signal is bad and will start failsafe proceedings. 
+
+== Modern Receivers with Failsafe ==
+
+Modern receivers usually maintain sensible channel values when the link between the Tx and the Rx fail for some reason. You must set failsafe values for the Rx so they too pass the Rx test in UAVPSet.
+
+If you have adjusted the failsafes correctly then UAVX will not detect a failure. It will do exactly what you have programmed so if you have programmed hold last setting then that is what UAVX will do - all the way into the ground.  You should consider setting the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover and Channel 5 goes to RTH. Nav sensitivity should be what you have determined to be good for position hold and the camera trim should be so your camera is titlted to a safe position.
+
+== Older Receivers ==
+
+With older PPM style receivers the signal from the Rx becomes just noise if the Tx link fails. UAVX will detect this.
+
+== What Happens ==
+
+If four out of 5 Rx frames are bad then the following sequence with recovery to normal flight if you have only gone as far as step 2). 
+
+1) MonitoringRx: the signal has failed so monitor the signal for 1Sec maintaining the last Rx settings. If the the signal recovers resume otherwise 2).
+
+2) Aborting: Climb to the RTH altitude setting (stick programming of no altitude hold on RTH is overriden). If you have GPS hold then position for 5Sec still monitoring the signal. If you don't have GPS only wait for a further 1Sec. If signal returns then resume otherwise 3). 
+
+3)  Terminating: You now have no control and UAVX will do an autoland (auto land disable is overriden). Start an auto-land continuing at the Maximum descent rate until the you get down to ~1M above the launch altitude.
+
+5) Terminated: complete the landing and switch off the motors.  Motors are disabled and will not restart until a re-arm is done.
+
+For those who are inclide the following code is pretty much self explanatory. It comes from autonomous.c in the release. If you see any obvious bugs let me know:).
+
+
+void DoPPMFailsafe(void)
+{ // only relevant to PPM Rx or Quad NOT synchronising with Rx
+
+  if ( State == InFlight )
+    switch ( FailState ) { // FailStates { MonitoringRx, Aborting, Terminating, Terminated }
+    case Terminated: // Basic assumption is that aircraft is being flown over a safe area!
+      FailsafeHoldPosition();
+      DoFailsafeLanding();	
+      break;
+    case Terminating:
+      FailsafeHoldPosition();
+      if ( Altitude < LAND_DM )
+      {
+        mS[NavStateTimeout] = mSClock() + NAV_RTH_LAND_TIMEOUT_MS;
+        NavState = Touchdown;
+        FailState = Terminated;
+      }
+      DoFailsafeLanding();
+      break;
+    case Aborting:
+      FailsafeHoldPosition();
+      F.AltHoldEnabled = true;
+      SetDesiredAltitude((int16)P[NavRTHAlt]);
+      if( mSClock() > mS[NavStateTimeout] )
+      {
+        F.LostModel = true;
+        LEDGreen_OFF;
+        LEDRed_ON;
+	
+        mS[NavStateTimeout] = mSClock() + NAV_RTH_LAND_TIMEOUT_MS;
+        NavState = Descending;
+        FailState = Terminating;
+      }
+      else
+        CheckFailsafeAbort();		
+      break;
+    case MonitoringRx:
+      if ( mSClock() > mS[FailsafeTimeout] ) 
+      {
+        // use last "good" throttle
+        Stats[RCFailsafesS]++;
+        if ( F.GPSValid && F.CompassValid )
+          mS[NavStateTimeout] = mSClock() + ABORT_TIMEOUT_GPS_MS;
+        else
+          mS[NavStateTimeout] = mSClock() + ABORT_TIMEOUT_NO_GPS_MS;
+        mS[AbortTimeout] = mSClock() + ABORT_UPDATE_MS;
+        FailState = Aborting; 
+      }
+      break;
+    } // Switch FailState
+    else
+     DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = 0;
+			
+} // DoPPMFailsafe
+
+#define FAILSAFE_TIMEOUT_MS 1000L // mS. hold last "good" settings and then restore flight or abort
+#define ABORT_TIMEOUT_GPS_MS 5000L // mS. go to descend on position hold if GPS valid.
+#define ABORT_TIMEOUT_NO_GPS_MS 0L // mS. go to descend on position hold if GPS valid.  
+#define ABORT_UPDATE_MS 1000L	// mS. retry period for RC Signal and restore Pilot in Control
