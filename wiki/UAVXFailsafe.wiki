@@ -17,11 +17,11 @@ With older PPM style receivers the signal from the Rx becomes just noise if the 
 
 == What Happens ==
 
-If UAVX determines less than 4 out of 5 Rx frames are bad then the following sequence with recovery to normal flight if you have only gone as far as step 2) and 4 or more out of 5 Rx frames are good. 
+If UAVX determines less than 4 out of 5 Rx frames are good then the following sequence happens. You ONLY have recovery as far as step 2) and then only if 4 or more out of 5 Rx frames are good. 
 
 1) MonitoringRx: the signal has failed so monitor the signal for 1Sec maintaining the last Rx settings. If the the signal recovers resume otherwise 2).
 
-2) Aborting: Climb to the RTH altitude setting (stick programming of no altitude hold on RTH is overriden). If you have GPS hold then position for 5Sec still monitoring the signal. If you don't have GPS only wait for a further 1Sec. If signal returns then resume otherwise 3). 
+2) Aborting: Climb to the RTH altitude setting (stick programming of no altitude hold on RTH is overriden). If you have GPS hold then position for 5Sec still monitoring the signal every second but if you don't have GPS only wait for a further 1Sec. If signal returns then resume otherwise 3). 
 
 3)  Terminating: You now have no control and UAVX will do an autoland (auto land disable is overriden). Start an auto-land continuing at the Maximum descent rate until the you get down to ~1M above the launch altitude.
 
