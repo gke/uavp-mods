@@ -3,7 +3,7 @@
 
 = UAVX Failsafe Operation =
 
-UAVX requires the signals from the Rx to meet minimum and maximum pulse width requirements which mean the endpoint adjustments (EPAs) for each channel must be adjusted properly - see the Setup Wiki. The Rx sends all of the channels together in one packet or frame. If UAVX receives less than four good packets in every five it decides the signal is bad and will start failsafe proceedings. 
+UAVX requires the signals from the Rx to meet minimum and maximum pulse width requirements which mean the endpoint adjustments (EPAs) for each channel must be adjusted properly - see the UAVXSetup Wiki. The Rx sends all of the channels together in one packet or frame. If UAVX receives less than four good packets in every five it decides the signal is bad and will start failsafe proceedings. 
 
 == Modern Receivers with Failsafe ==
 
@@ -27,8 +27,17 @@ If UAVX determines less than 4 out of 5 Rx frames are bad then the following seq
 
 5) Terminated: complete the landing and switch off the motors.  Motors are disabled and will not restart until a re-arm is done.
 
-For those who are inclined the following code is pretty much self explanatory. It comes from autonomous.c in the release. If you see any obvious bugs let me know:).
+== Two Seconds Seems Short ==
 
+In a strong wind or if you are travelling at maximum speed then you can move a long way in 2 seconds. If you have signal outages of more than 2 seconds then you should not have flown. 
+
+== Flight Statistics ==
+
+Routinely check your flight (X stats test) after flights to see if there have been more than a handful of glitches or whether there have been any other sensor failures. The stats are kept from when you disarm to when re-arm even if the battery is unplugged so you can check this at home if that is where your computer is as long as you do not re-arm.
+
+== The Code == 
+
+For those who are inclined the following code ( circa 5 Nov 2010) is pretty much self explanatory. It comes from autonomous.c in the release. If you see any obvious bugs let me know:).
 
 void DoPPMFailsafe(void)
 { // only relevant to PPM Rx or Quad NOT synchronising with Rx
