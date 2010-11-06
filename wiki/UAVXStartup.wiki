@@ -217,11 +217,11 @@ http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3536269-132-minigps_u
 
   * What else do I need to consider: The GPS connection to the quadrocopter must occur at the same time as the quadrocopter is armed and disconnected as the quadrocopter is disarmed. You will need a dual switch for this.
 
-  * The required switch is *Double Pole-Double Throw (DPDT) ON-NONE-ON* Example or similar: http://www.mouser.com/ProductDetail/...2fGbGLJhevQ%3d and http://www.nkkswitches.com/pdf/MtogglesBushing.pdf
+  * The required switch is *Double Pole-Double Throw (DPDT) ON-NONE-ON* (That means a two position switch) Example or similar: http://www.mouser.com/ProductDetail/...2fGbGLJhevQ%3d and http://www.nkkswitches.com/pdf/MtogglesBushing.pdf
 
   * DPDT ON-NONE-ON: There are two independent SPDT in one switch. It allows true bypass switching (6 pins).  The UAVX requires that the GPS signal be set via the MiniGPS application to 9600bps, GGA, WAAS enabled and 3-5Hz (4hz recommended).  The DPDT switch disarms the UAVX by shorting K8 pins 1 and 2 or 1 and 3 (pins 2 and 3 share continuity)which allows the UAVPset to communicate at 38400bps. 
 
-http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2710360-248-UAVX%20DPST%20switch%20jesolins.jpg?d=1250963358
+http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3580453-31-UAVX%20DPST%20switch%20jesolins.jpg?d=1289087212
 
   * UAVP board GPS pins:
 http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GPS%20connections%20for%20flight%20jesolins.jpg?d=1252275212
