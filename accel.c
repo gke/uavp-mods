@@ -1,229 +1,333 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// ==============================================
-//
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// =               http://www.mahringer.co.at   =
-// ==============================================
+// ===============================================================================================
+// =                                UAVX Quadrocopter Controller                                 =
+// =                           Copyright (c) 2008 by Prof. Greg Egan                             =
+// =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
+// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// ===============================================================================================
 
-// Accelerator sensor routine
+//    This is part of UAVX.
 
-#pragma codepage=2
-#include "c-ufo.h"
-#include "bits.h"
+//    UAVX is free software: you can redistribute it and/or modify it under the terms of the GNU 
+//    General Public License as published by the Free Software Foundation, either version 3 of the 
+//    License, or (at your option) any later version.
 
-// Math Library
-#include "mymath16.h"
+//    UAVX is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without
+//    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+//    See the GNU General Public License for more details.
 
-// read all acceleration values from LISL sensor
-// and compute correction adders (Rp, Np, Vud)
-void CheckLISL(void)
+//    You should have received a copy of the GNU General Public License along with this program.  
+//    If not, see http://www.gnu.org/licenses/
+
+// Accelerator 400KHz I2C or SPI
+
+#include "uavx.h"
+
+void SendCommand(int8);
+uint8 ReadLISL(uint8);
+uint8 ReadLISLNext(void);
+void WriteLISL(uint8, uint8);
+void IsLISLActive(void);
+
+void ReadAccelerations(void);
+void GetNeutralAccelerations(void);
+void AccelerometerTest(void);
+void InitAccelerometers(void);
+
+#pragma udata accs
+i16u	Ax, Ay, Az;
+int8	LRIntCorr, FBIntCorr;
+int8	NeutralLR, NeutralFB, NeutralDU;
+int16	DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
+#pragma udata
+
+#ifdef UAVX_HW
+
+void ReadAccelerations(void)
 {
-	long nila1@nilarg1;
+ 	// I2C Acc not implemented yet - not used in UAVXLight
+} // ReadAccelerations
 
-	ReadLISL(LISL_STATUS + LISL_READ);
-	// the LISL registers are in order here!!
-	Rp.low8  = (int)ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
-	Rp.high8 = (int)ReadLISLNext();
-	Tp.low8  = (int)ReadLISLNext();
-	Tp.high8 = (int)ReadLISLNext();
-	Np.low8  = (int)ReadLISLNext();
-	Np.high8 = (int)ReadLISLNext();
-	LISL_CS = 1;	// end transmission
-	
-#ifdef DEBUG_SENSORS
-	if( IntegralCount == 0 )
+void GetNeutralAccelerations(void)
+{
+	// I2C Acc not implemented yet - not used in UAVXLight
+	NeutralLR = NeutralFB = NeutralDU = 0;
+} // GetNeutralAccelerations
+
+#ifdef TESTING
+
+void AccelerometerTest(void)
+{
+	TxString("\r\nAccelerometer test:\r\n");
+	TxString("\r\n(Acc. not active for UAVXLight)\r\n");
+} // AccelerometerTest
+
+#endif // TESTING
+
+void InitAccelerometers(void)
+{
+	F.AccelerationsValid = false;
+	F.AccFailure = true;
+} // InitAccelerometers
+
+#else
+
+#ifdef CLOCK_16MHZ
+	#define SPI_HI_DELAY Delay10TCY()
+	#define SPI_LO_DELAY Delay10TCY()
+#else // CLOCK_40MHZ
+	#define SPI_HI_DELAY Delay10TCYx(2)
+	#define SPI_LO_DELAY Delay10TCYx(2)
+#endif // CLOCK_16MHZ
+
+// LISL-Register mapping
+
+#define	LISL_WHOAMI		(uint8)(0x0f)
+#define	LISL_OFFSET_X	(uint8)(0x16)
+#define	LISL_OFFSET_Y	(uint8)(0x17)
+#define	LISL_OFFSET_Z	(uint8)(0x18)
+#define	LISL_GAIN_X		(uint8)(0x19)
+#define	LISL_GAIN_Y		(uint8)(0x1A)
+#define	LISL_GAIN_Z		(uint8)(0x1B)
+#define	LISL_CTRLREG_1	(uint8)(0x20)
+#define	LISL_CTRLREG_2	(uint8)(0x21)
+#define	LISL_CTRLREG_3	(uint8)(0x22)
+#define	LISL_STATUS		(uint8)(0x27)
+#define LISL_OUTX_L		(uint8)(0x28)
+#define LISL_OUTX_H		(uint8)(0x29)
+#define LISL_OUTY_L		(uint8)(0x2A)
+#define LISL_OUTY_H		(uint8)(0x2B)
+#define LISL_OUTZ_L		(uint8)(0x2C)
+#define LISL_OUTZ_H		(uint8)(0x2D)
+#define LISL_FF_CFG		(uint8)(0x30)
+#define LISL_FF_SRC		(uint8)(0x31)
+#define LISL_FF_ACK		(uint8)(0x32)
+#define LISL_FF_THS_L	(uint8)(0x34)
+#define LISL_FF_THS_H	(uint8)(0x35)
+#define LISL_FF_DUR		(uint8)(0x36)
+#define LISL_DD_CFG		(uint8)(0x38)
+#define LISL_INCR_ADDR	(uint8)(0x40)
+#define LISL_READ		(uint8)(0x80)
+
+void SendCommand(int8 c)
+{
+	static int8 s;
+
+	SPI_IO = WR_SPI;	
+	SPI_CS = SEL_LISL;	
+	for( s = 8; s; s-- )
 	{
-		SendComValH(Rp.high8);
-		SendComValH(Rp.low8);
-		SendComChar(';');
-		SendComValH(Np.high8);
-		SendComValH(Np.low8);
-		SendComChar(';');
-		SendComValH(Tp.high8);
-		SendComValH(Tp.low8);
-		SendComChar(';');
+		SPI_SCL = 0;
+		if( c & 0x80 )
+			SPI_SDA = 1;
+		else
+			SPI_SDA = 0;
+		c <<= 1;
+		SPI_LO_DELAY;
+		SPI_SCL = 1;
+		SPI_HI_DELAY;
 	}
-#endif
-// 1 unit is 1/4096 of 2g = 1/2048g
-	Rp -= MiddleLR;
-	Np -= MiddleFB;
-	Tp -= MiddleUD;
+} // SendCommand
 
-#if 0
-// calc the angles for roll matrices
-// rw = arctan( x*16/z/4 )
-	niltemp = Tp * 16;
-	niltemp1 = niltemp / Rp;
-	niltemp1 >>= 2;
-	nila1 = niltemp1;
-	Rw = Arctan();
-#ifdef BOARD_3_1
-SendComValS(Rw);
-SendComChar(';');
-#endif
+uint8 ReadLISL(uint8 c)
+{
+	static uint8 d;
+
+	//SPI_SDA = 1;	// very important!! really!! LIS3L likes it
+	SendCommand(c);
+	SPI_IO = RD_SPI;	// SDA is input
+	d=ReadLISLNext();
 	
-	niltemp1 = niltemp / Np;
-	niltemp1 >>= 2;
-	nila1 = niltemp1;
-	Nw = Arctan();
-#ifdef BOARD_3_1
-SendComValS(Nw);
-SendComChar(0x13);
-SendComChar(0x10);
-#endif
-#endif
-	
-	Tp -= 1024;	// subtract 1g
+	if( (c & LISL_INCR_ADDR) == (uint8)0 )
+		SPI_CS = DSEL_LISL;
+	return(d);
+} // ReadLISL
 
-#ifdef NADA
-// UDSum rises if ufo climbs
-	UDSum += Tp;
+uint8 ReadLISLNext(void)
+{
+	static int8 s;
+	static uint8 d;
 
-	Tp = UDSum;
-	Tp += 8;
-	Tp >>= 4;
-	Tp *= LinUDIntFactor;
-	Tp += 128;
-
-	if( (BlinkCount & 0x03) == 0 )	
+	for( s = 8; s; s-- )
 	{
-		if( (int)Tp.high8 > Vud )
-			Vud++;
-		if( (int)Tp.high8 < Vud )
-			Vud--;
-		if( Vud >  20 ) Vud =  20;
-		if( Vud < -20 ) Vud = -20;
+		SPI_SCL = 0;
+		SPI_LO_DELAY;
+		d <<= 1;
+		if( SPI_SDA == (uint8)1 )
+			d |= 1;	
+		SPI_SCL = 1;
+		SPI_HI_DELAY;
 	}
-	if( UDSum >  10 ) UDSum -= 10;
-	if( UDSum < -10 ) UDSum += 10;
-#endif // NADA
+	return(d);
+} // ReadLISLNext
 
-// =====================================
-// Roll-Achse
-// =====================================
-// die statische Korrektur der Erdanziehung
+void WriteLISL(uint8 d, uint8 c)
+{
+	static int8 s;
 
-#ifdef OPT_ADXRS
-	Tl = RollSum * 11;	// Rp um RollSum*11/32 korrigieren
-#endif
+	SendCommand(c);
+	for( s = 8; s; s-- )
+	{
+		SPI_SCL = 0;
+		if( d & 0x80 )
+			SPI_SDA = 1;
+		else
+			SPI_SDA = 0;
+		d <<= 1;
+		SPI_LO_DELAY;
+		SPI_SCL = 1;
+		SPI_HI_DELAY;
+	}
+	SPI_CS = DSEL_LISL;
+	SPI_IO = RD_SPI;	// IO is input (to allow RS232 reception)
+} // WriteLISL
 
-#ifdef OPT_IDG
-	Tl = RollSum * -15; // Rp um RollSum* -15/32 korrigieren
-#endif
-	Tl += 16;
-	Tl >>= 5;
-	Rp -= Tl;
+void IsLISLActive(void)
+{
+	static int8 r;
 
-// dynamic correction of moved mass
-#ifdef OPT_ADXRS
-	Rp += (long)RollSamples;
-	Rp += (long)RollSamples;
-#endif
+	F.AccelerationsValid = false;
+	SPI_CS = DSEL_LISL;
+	WriteLISL(0b01001010, LISL_CTRLREG_2); // enable 3-wire, BDU=1, +/-2g
 
-#ifdef OPT_IDG
-	Rp -= (long)RollSamples;
-#endif
+	r = ReadLISL(LISL_WHOAMI + LISL_READ);
+	if( r == 0x3A )	// a LIS03L sensor is there!
+	{
+		WriteLISL(0b11000111, LISL_CTRLREG_1); // on always, 40Hz sampling rate,  10Hz LP cutoff, enable all axes
+		WriteLISL(0b00000000, LISL_CTRLREG_3);
+		WriteLISL(0b01000000, LISL_FF_CFG); // latch, no interrupts; 
+		WriteLISL(0b00000000, LISL_FF_THS_L);
+		WriteLISL(0b11111100, LISL_FF_THS_H); // -0,5g threshold
+		WriteLISL(255, LISL_FF_DUR);
+		WriteLISL(0b00000000, LISL_DD_CFG);
+		F.AccelerationsValid = true;
+	}
+	else
+		F.AccFailure = true;
+} // IsLISLActive
 
-// correct DC level of the integral
-	LRIntKorr = 0;
-#ifdef OPT_ADXRS
-	if( Rp > 10 ) LRIntKorr =  1;
-	if( Rp < 10 ) LRIntKorr = -1;
-#endif
+void ReadAccelerations()
+{
+	F.AccelerationsValid = ReadLISL(LISL_WHOAMI + LISL_READ) == (uint8)0x3a; // Acc still there?
+	if ( F.AccelerationsValid ) 
+	{
+		Ax.b0 = ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
+		Ax.b1 = ReadLISLNext();
+		Ay.b0 = ReadLISLNext();
+		Ay.b1 = ReadLISLNext();
+		Az.b0 = ReadLISLNext();
+		Az.b1 = ReadLISLNext();
+		SPI_CS = DSEL_LISL;	// end transmission
+	}
+	else
+	{
+		Ax.i16 = Ay.i16 = Az.i16 = 0;
+		if ( State == InFlight )
+		{
+			Stats[AccFailS]++;	// data over run - acc out of range
+			// use neutral values!!!!
+			F.AccFailure = true;
+		}
+	}
+} // ReadAccelerations
 
-#ifdef OPT_IDG
-	if( Rp > 10 ) LRIntKorr = -1;
-	if( Rp < 10 ) LRIntKorr =  1;
-#endif
+void GetNeutralAccelerations(void)
+{
+	// this routine is called ONLY ONCE while booting
+	// and averages accelerations over 16 samples.
+	// Puts values in Neutralxxx registers.
+	static uint8 i;
+	static int16 LR, FB, DU;
 
-#ifdef NADA
-// Integral addieren, Abkling-Funktion
-	Tl = LRSum >> 4;
-	Tl >>= 1;
-	LRSum -= Tl;	// LRSum * 0.96875
-	LRSum += Rp;
-	Rp = LRSum + 128;
-	LRSumPosi += (int)Rp.high8;
-	if( LRSumPosi >  2 ) LRSumPosi -= 2;
-	if( LRSumPosi < -2 ) LRSumPosi += 2;
+	// already done in caller program
+	LR = FB = DU = 0;
+	if ( F.AccelerationsValid )
+	{
+		for ( i = 16; i; i--)
+		{
+			while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == (uint8)0 );
+			ReadAccelerations();
+	
+		#ifdef USE_FLAT_ACC
+			LR -= Ax.i16;
+			FB += Ay.i16;
+			DU += Az.i16;
+		#else
+			LR += Ax.i16;
+			DU += Ay.i16;
+			FB += Az.i16;
+		#endif // USE_FLAT_ACC
+		}	
+	
+		LR = SRS16(LR, 4);
+		FB = SRS16(FB, 4);
+		DU = SRS16(DU, 4);
+	
+		NeutralLR = Limit(LR, -99, 99);
+		NeutralFB = Limit(FB, -99, 99);
+		NeutralDU = Limit(DU - 1024, -99, 99); // -1g
+	}
+	else
+		NeutralLR = NeutralFB = NeutralDU = 0;
 
+} // GetNeutralAccelerations
 
-// Korrekturanteil fuer den PID Regler
-	Rp = LRSumPosi * LinLRIntFactor;
-	Rp += 128;
-	Rp = (int)Rp.high8;
-// limit output
-	if( Rp >  2 ) Rp = 2;
-	if( Rp < -2 ) Rp = -2;
-#endif
-	Rp = 0;
+#ifdef TESTING
 
-// =====================================
-// Nick-Achse
-// =====================================
-// die statische Korrektur der Erdanziehung
+void AccelerometerTest(void)
+{
+	TxString("\r\nAccelerometer test:\r\n");
+	TxString("Read once - no averaging\r\n");
 
-#ifdef OPT_ADXRS
-	Tl = NickSum * 11;	// Np um RollSum* 11/32 korrigieren
-#endif
+	InitAccelerometers();
+	if( F.AccelerationsValid )
+	{
+		ReadAccelerations();
+	
+		TxString("\tL->R: \t");
+		TxVal32(((int32)Ax.i16*1000L)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Ax.i16, 0 , ')');
+		if ( Abs((Ax.i16)) > 128 )
+			TxString(" fault?");
+		TxNextLine();
 
-#ifdef OPT_IDG
-	Tl = NickSum * -15;	// Np um RollSum* -14/32 korrigieren
-#endif
-	Tl += 16;
-	Tl >>= 5;
+		TxString("\tF->B: \t");	
+		TxVal32(((int32)Az.i16*1000L)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Az.i16, 0 , ')');
+		if ( Abs((Az.i16)) > 128 )
+			TxString(" fault?");	
+		TxNextLine();
 
-	Np -= Tl;
-// no dynamic correction of moved mass necessary
+		TxString("\tD->U:    \t");
+	
+		TxVal32(((int32)Ay.i16*1000L)/1024, 3, 'G');
+		TxString(" (");
+		TxVal32((int32)Ay.i16 - 1024, 0 , ')');
+		if ( ( Ay.i16 < 896 ) || ( Ay.i16 > 1152 ) )
+			TxString(" fault?");	
+		TxNextLine();
+	}
+	else
+		TxString("\r\n(Acc. not present)\r\n");
+} // AccelerometerTest
 
-// correct DC level of the integral
-	FBIntKorr = 0;
-#ifdef OPT_ADXRS
-	if( Np > 10 ) FBIntKorr =  1;
-	if( Np < 10 ) FBIntKorr = -1;
-#endif
-#ifdef OPT_IDG
-	if( Np > 10 ) FBIntKorr = -1;
-	if( Np < 10 ) FBIntKorr =  1;
-#endif
+#endif // TESTING
 
-#ifdef NADA
-// Integral addieren
-// Integral addieren, Abkling-Funktion
-	Tl = FBSum >> 4;
-	Tl >>= 1;
-	FBSum -= Tl;	// LRSum * 0.96875
-	FBSum += Np;
-	Np = FBSum + 128;
-	FBSumPosi += (int)Np.high8;
-	if( FBSumPosi >  2 ) FBSumPosi -= 2;
-	if( FBSumPosi < -2 ) FBSumPosi += 2;
+void InitAccelerometers(void)
+{
+	int8 i;
 
-// Korrekturanteil fuer den PID Regler
-	Np = FBSumPosi * LinFBIntFactor;
-	Np += 128;
-	Np = (int)Np.high8;
-// limit output
-	if( Np >  2 ) Np = 2;
-	if( Np < -2 ) Np = -2;
-#endif
-	Np = 0;
-}
+	NeutralLR = NeutralFB = NeutralDU = Ax.i16 = Ay.i16 = Az.i16 = 0;
+
+	IsLISLActive();
+	if( F.AccelerationsValid )
+	{
+		LEDYellow_ON;
+		GetNeutralAccelerations();
+	}
+	else
+		F.AccFailure = true;
+} // InitAccelerometers
+
+#endif // UAVX_HW

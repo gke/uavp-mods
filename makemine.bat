@@ -21,22 +21,21 @@ rem EXPERIMENTAL - USE WITH GREAT CAUTION - EXPERIMENTAL CONTROLS SEVERAL OTHER
 rem DEFINES CONTAINED IN THE BLOCK TOWARDS THE TOP OF UAVX.H
 
 rem Add/Delete required combinations to these sets
-rem set CLOCK=CLOCK_16MHZ CLOCK_40MHZ
+set CLOCK=CLOCK_16MHZ CLOCK_40MHZ
 set PROC=18F2620
 set DBG=NO_DEBUG
-set RX=RX7CH RX6CH
-rem set CFG=QUADROCOPTER TRICOPTER VCOPTER HELICOPTER AILERON ELEVON
-rem set EXP=NO_EXP EXPERIMENTAL
-set BRD=UAVPBLACK
+rem set RX=RX7CH RX6CH
+rem set CFG=QUADROCOPTER TRICOPTER HEXACOPTER HELICOPTER AILERON ELEVON
+set EXP=NO_EXP
 
 rem Personal choice
 set CLOCK=CLOCK_16MHZ
-rem set PROC=18F2620
-rem set DBG=NO_DEBUG
-rem set RX=RX7CH
-set CFG=QUADROCOPTER TRICOPTER VCOPTER	
-set EXP=NO_EXP
-rem set BRD=UAVPBLACK
+set PROC=18F2620
+set DBG=NO_DEBUG
+set RX=RX7CH
+set CFG=QUADROCOPTER VCOPTER	
+set EXP=NO_EXP EXPERIMENTAL
+set BRD=UAVPBLACK
 
 rem Delete working files
 call makeclean.bat
@@ -44,7 +43,7 @@ call makeclean.bat
 rem Requires Tortoise SVN 
 call makerev.bat
 
-del *.HEX
+rem del *.HEX
 
 echo Starting makeall uavp > gen.lst
 echo Starting makeall uavp > log.lst
@@ -52,16 +51,9 @@ echo Starting makeall uavp > log.lst
 for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do for %%e in (%EXP%) do for %%b in (%BRD%) do call makeallhelper.bat %%x %%p %%d %%r %%c %%e %%b 
 
 set PROC=18F2620
-set DBG=TESTING SIMULATE 
-set RX=RX7CH RX6CH
+set DBG=TESTING 
+set RX=RX7CH
 set CFG=QUADROCOPTER
 set BRD=UAVPBLACK
 
 for %%x in (%CLOCK%) do for %%p in (%PROC%) do for %%d in (%DBG%) do for %%r in (%RX%) do for %%c in (%CFG%) do for %%e in (%EXP%) do for %%b in (%BRD%) do call makeallhelper.bat %%x %%p %%d %%r %%c %%e %%b 
-
-rem rm *.zip
-rem "C:\Program Files\7-Zip\7z" a -tzip UAVX-gke-40MHz.zip *-40-*.hex 
-rem "C:\Program Files\7-Zip\7z" a -tzip UAVX-gke-16MHz.zip *-16-*.hex
-rem "C:\Program Files\7-Zip\7z" a -tzip UAVX-gke-EXP.zip *-EXP-*.hex
-
-rem del *.HEX
