@@ -56,6 +56,14 @@ http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top
   * Currently I2c ESCs can not be used for the tricopter configuration.
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_tri_options_jesolins.png
   
+  * *VT-Copter:*
+  * Use VT firmware
+  * Use either all standard CCW or CW props on all axis, or CW and CCW on either left and right and either CCW or CW on the tail/front.
+  * Front of board is oriented to K1.
+  * For servo on back arm or tail use UAVPset FWD (x7.5 Deg) = 24.
+  * For servo on back arm or front use UAVPset FWD (x7.5 Deg) = 0.
+https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_VT-Copter_jesolins.png
+
   * *Quadrocopter:*
   * Use quad firmware.
   * Use standard CCW tractor props on the front and rear arms and CW pusher props on the left and right arms.
