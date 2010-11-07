@@ -62,7 +62,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_tri_options_je
   * Front of board is oriented to K1.
   * For servo on back arm or tail use UAVPset FWD (x7.5 Deg) = 24.
   * For servo on back arm or front use UAVPset FWD (x7.5 Deg) = 0.
-https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_VT-Copter_jesolins.png
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_VT-Copter_jesolins.png
 
   * *Quadrocopter:*
   * Use quad firmware.
