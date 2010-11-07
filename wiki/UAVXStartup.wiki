@@ -50,6 +50,7 @@ http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top
   * *Tricopter:*
   * Use tri firmware.
   * Use either all standard CCW or CW props on all axis, or CW and CCW on either left and right and either CCW or CW on the tail/front.
+  * Adjust tail motor radius and lipo for CG and flight performance.
   * Front of board is oriented to K1.
   * For servo on back arm or tail use UAVPset FWD (x7.5 Deg) = 24.
   * For servo on back arm or front use UAVPset FWD (x7.5 Deg) = 0.
@@ -59,6 +60,8 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_tri_options_je
   * *VT-Copter:*
   * Use VT firmware
   * Use either all standard CCW or CW props on all axis, or CW and CCW on either left and right and either CCW or CW on the tail/front.
+  * Experiment with smaller motors on V-tail in relation to the front motors, motor angles, and prop sizes.
+  * Adjust tail motor radius and lipo for CG and flight performance.
   * Front of board is oriented to K1.
   * For servo on back arm or tail use UAVPset FWD (x7.5 Deg) = 24.
   * For servo on back arm or front use UAVPset FWD (x7.5 Deg) = 0.
