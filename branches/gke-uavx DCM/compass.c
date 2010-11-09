@@ -34,6 +34,32 @@ i24u 	Compass;
 int16 	HeadingFilterA;
 i32u 	HeadingValF;
 
+#ifdef USE_HMC5843
+
+void ComputeHeading(void)
+{
+  static float mx, my;
+  static float CRoll, SRoll, CPitch, SPitch;
+  
+  CRoll = cos(Angle[Roll] * 0.001);
+  SRoll = sin(Angle[Roll] * 0.001);
+  CPitch = cos(Angle[Pitch] * 0.001);
+  SPitch = sin(Angle[Pitch] * 0.001);
+  
+  // Tilt compensated Magnetic field X:
+  mx = (float)Razor.Mag[0] * CPitch + (float)Razor.Mag[1] * SRoll * SPitch + 
+        (float)Razor.Mag[2] * CRoll * SPitch;
+      
+  // Tilt compensated Magnetic field Y:
+  my = (float)Razor.Mag[1] * CRoll - (float)Razor.Mag[2] * SRoll;
+  
+  // Magnetic Heading
+  MagHeading = atan2( -my, mx );
+
+} // ComputeHeading
+
+#else
+
 int16 GetCompass(void)
 {
 	static i16u CompassVal;
@@ -332,4 +358,6 @@ void InitHeading(void)
 
 } // InitHeading
 
+
+#endif // USE_HMC5843
 

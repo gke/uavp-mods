@@ -20,6 +20,7 @@
 
 #include "uavx.h"
 
+uint8 TC(int16);
 void DoMulticopterMix(int16);
 void CheckDemand(int16);
 void MixAndLimitMotors(void);
@@ -45,13 +46,36 @@ int16 ESCMin, ESCMax;
 
 #ifdef MULTICOPTER
 
+#pragma idata throttlecurve
+const int16 ThrottleCurve[17] = { 
+	0,57,81,99,114,128,140, 151,
+	162,171,181,190,198,206,214,221,
+	229
+   };
+#pragma idata
+
+uint8 TC(int16 T)
+{
+	static int16 r;
+
+	r = Limit(T, ESCMin, ESCMax);
+
+	#ifdef CASTLE_ESCS 
+	if ( P[ESCType] == ESCPPM )
+		r =  Table16( r, ThrottleCurve );
+	#endif // CASTLE_ESCS
+
+	return ( r );
+
+} // TC
+
 void DoMulticopterMix(int16 CurrThrottle)
 {
 	static int16 Temp, YlNeg, YlNegOn2, YlPos, YlPosOn2, RlOn2, PlOn2;
 
 	PWM[FrontC] = PWM[LeftC] = PWM[RightC] = PWM[BackC] = CurrThrottle;
 	#ifdef TRICOPTER // usually flown K1 motor to the rear which is set using orientation of 24
-		#ifdef REBALANCE 
+		#ifdef TRI_REBALANCE 
 			PWM[FrontC] -= Pl ;		// front motor
 			PWM[LeftC] -= Rl;		// right rear
 			PWM[RightC] += Rl; 		// left rear
@@ -64,10 +88,10 @@ void DoMulticopterMix(int16 CurrThrottle)
 			PWM[RightC] += (Temp + Rl); // left rear
 	
 			PWM[BackC] = PWMSense[RudderC] * Yl + OUT_NEUTRAL;	// yaw servo
-		#endif	// REBALANCE
+		#endif	// TRI_REBALANCE
 	#else
-	    #ifdef VCOPTER 	// usually flown VTail (K1+K4) to the rear which is set using orientation of 24
-			#ifdef REBALANCE
+	    #ifdef VTCOPTER 	// usually flown VTail (K1+K4) to the rear which is set using orientation of 24
+			#ifdef VT_TREBALANCE
 				PWM[LeftC] -= Rl;		// right rear
 				PWM[RightC] += Rl; 		// left rear
 	
@@ -80,7 +104,7 @@ void DoMulticopterMix(int16 CurrThrottle)
 	
 				PWM[FrontLeftC] -= Pl + PWMSense[RudderC] * Yl; 
 				PWM[FrontRightC] -= Pl - PWMSense[RudderC] * Yl;
-			#endif //REBALANCE
+			#endif // VT_REBALANCE
 		#else // QUADROCOPTER
 			PWM[LeftC]  += -Rl - Yl;	
 			PWM[RightC] +=  Rl - Yl;
@@ -197,7 +221,7 @@ void MixAndLimitCam(void)
 
 } // MixAndLimitCam
 
-#if ( defined TRICOPTER | defined MULTICOPTER | defined VCOPTER )
+#if ( defined TRICOPTER | defined MULTICOPTER | defined VTCOPTER )
 	#include "outputs_copter.h"
 #else
 	#include "outputs_conventional.h"
