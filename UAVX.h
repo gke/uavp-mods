@@ -1,6 +1,5 @@
-
+#define REBALANCE // put most of the weight on K2 and K3
 //#define JIM_MPX_INVERT
-#define REBALANCE		// if defined most of the load is on K2 and K3 motors but CG forward onto K1!
 
 //changes outside this rate are deemed sensor/buss errors
 #define BARO_SANITY_CHECK_DMPS	100		// dm/S 20,40,60,80 or 100
@@ -26,15 +25,14 @@
 //    If not, see http://www.gnu.org/licenses/
 
 #ifndef BATCHMODE
-	#define GKE
-	//#define RX6CH
-	//#define EXPERIMENTAL
+	//#define GKE
+	#define EXPERIMENTAL
 	//#define TESTING						
 	//#define RX6CH 					// 6ch Receivers
 	//#define SIMULATE
-	//#define QUADROCOPTER
+	//#define VCOPTER
+	#define QUADROCOPTER
 	//#define TRICOPTER
-	#define VCOPTER
 	//#define HELICOPTER
 	//#define AILERON
 	//#define ELEVON
@@ -47,7 +45,8 @@
 #endif // CLOCK_40MHZ
 
 #ifdef EXPERIMENTAL
-	#define UAVXBOARD
+	#define USE_DCM
+	//#define USE_HMC5843
 #endif // EXPERIMENTAL
 
 #ifdef I2C_HW
@@ -59,7 +58,9 @@
 
 //________________________________________________________________________________________________
 
+#ifndef USE_DCM
 #define USE_PPM_FAILSAFE
+#endif // !USE_DCM
 
 // Airframe
 
@@ -156,7 +157,7 @@
 // Enable "Dynamic mass" compensation Roll and/or Pitch
 // Normally disabled for pitch only 
 //#define DISABLE_DYNAMIC_MASS_COMP_ROLL
-#define DISABLE_DYNAMIC_MASS_COMP_PITCH
+//#define DISABLE_DYNAMIC_MASS_COMP_PITCH
 
 // Altitude Hold
 
@@ -478,6 +479,9 @@ typedef struct { // GPS
 
 // main.c
 
+enum Directions {BF, LR, UD, Alt }; // x forward, y left and z down
+enum Angles { Pitch, Roll, Yaw }; // X, Y, Z
+
 #define FLAG_BYTES 8
 #define TELEMETRY_FLAG_BYTES 6
 typedef union {
@@ -555,7 +559,11 @@ enum FlightStates { Starting, Landing, Landed, Shutdown, InFlight};
 extern Flags F;
 extern near int8 State;
 
+//______________________________________________________________________________________________
+
 // accel.c
+
+#define GRAVITY 1024
 
 extern void SendCommand(int8);
 extern uint8 ReadLISL(uint8);
@@ -565,13 +573,14 @@ extern void IsLISLActive(void);
 
 extern void ReadAccelerations(void);
 extern void GetNeutralAccelerations(void);
+extern void DoAccelerations(void);
 extern void AccelerometerTest(void);
 extern void InitAccelerometers(void);
 
 extern i16u Ax, Ay, Az;
-extern int8 LRIntCorr, FBIntCorr;
-extern int8 NeutralLR, NeutralFB, NeutralDU;
-extern int16 DUVel, LRVel, FBVel, DUAcc, LRAcc, FBAcc, DUComp, LRComp, FBComp;
+extern int8 IntCorr[2];
+extern int8 Neutral[3];
+extern int16 Vel[3], Acc[3], Comp[4];
 
 //______________________________________________________________________________________________
 
@@ -729,13 +738,10 @@ extern void DoControl(void);
 extern void LightsAndSirens(void);
 extern void InitControl(void);
 
-extern int16 RE, PE, YE, HE;					// gyro rate error	
-extern int16 REp, PEp, YEp;				// previous error for derivative
-extern int16 Rl, Pl, Yl, Ylp;							// PID output values
+extern int16 Angle[3], Anglep[3], Rate[3], Ratep[3];
+extern int16 Rl, Pl, Yl, Ylp;
 extern int24 OSO, OCO;
 extern int16 CameraRollSum, CameraPitchSum;
-extern int16 RollSum, PitchSum, YawSum;			// integral/angle	
-extern int16 RollTrim, PitchTrim, YawTrim;
 extern int16 HoldYaw, YawSlewLimit;
 extern int16 YawFilterA;
 extern int16 RollIntLimit256, PitchIntLimit256, YawIntLimit256;
@@ -744,7 +750,7 @@ extern int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPi
 extern int16 ControlRoll, ControlPitch, ControlRollP, ControlPitchP;
 extern int16 CurrMaxRollPitch;
 extern int16 ThrLow, ThrHigh, ThrNeutral;
-extern int16 AltComp, AltDiffSum, AltD, AltDSum;
+extern int16 AltDiffSum, AltD, AltDSum;
 extern int16 AttitudeHoldResetCount;
 extern int24 DesiredAltitude, Altitude;
 extern int16 ROC;
@@ -787,6 +793,7 @@ typedef struct {
 	} NMEAStruct;
 
 extern NMEAStruct NMEA;
+
 extern const rom uint8 NMEATag[];
 
 extern int32 GPSMissionTime, GPSStartTime;
@@ -814,6 +821,16 @@ extern int32 FakeGPSLongitude, FakeGPSLatitude;
 // gyro.c
 
 extern void ShowGyroType(uint8);
+
+extern void ApplyMagic(void);
+extern void AttitudeFailsafeEstimate(void);
+
+extern void Normalise(void); 
+extern void DriftCorrection(void); 
+extern void AccAdjust(void);
+extern void MUpdate(void); 
+extern void EulerAngles(void);
+
 extern void CompensateRollPitchGyros(void);
 extern void GetGyroValues(void);
 extern void CalculateGyroRates(void);
@@ -828,10 +845,8 @@ extern uint8 ReadByteITG3200(uint8);
 extern void WriteByteITG3200(uint8, uint8);
 extern void InitITG3200(void);
 
-extern int16 GyroMidRoll, GyroMidPitch, GyroMidYaw;
-extern int16 RollRate, PitchRate, YawRate;
-extern i32u YawRateF;
-extern int16 RollRateADC, PitchRateADC, YawRateADC;
+extern int16 GyroADC[3], GyroMid[3], Gyro[3];
+extern i32u YawGyroF;
 
 //______________________________________________________________________________________________
 
@@ -881,8 +896,8 @@ extern void ReceivingGPSOnly(uint8);
 extern int24 mSClock(void);
 
 enum { Clock, GeneralCountdown, UpdateTimeout, RCSignalTimeout, BeeperTimeout, ThrottleIdleTimeout, 
-	FailsafeTimeout, AbortTimeout, NavStateTimeout, LastValidRx, LastGPS, StartTime, AccTimeout, 
-	GPSTimeout, GPSROCUpdate, LEDChaserUpdate, LastBattery, TelemetryUpdate, RangefinderROCUpdate, NavActiveTime, 
+	FailsafeTimeout, AbortTimeout, NavStateTimeout, LastValidRx, LastGPS, StartTime, 
+	GPSTimeout, GPSROCUpdate, LEDChaserUpdate, LastBattery, TelemetryUpdate, RangefinderROCUpdate, AttitudeUpdate, NavActiveTime, 
 	ThrottleUpdate, VerticalDampingUpdate, BaroUpdate, CompassUpdate};
 
 enum WaitStates { WaitSentinel, WaitTag, WaitBody, WaitCheckSum};
@@ -1000,6 +1015,12 @@ extern int16 int32atan2(int32, int32);
 extern int16 int16sqrt(int16);
 extern int32 int32sqrt(int32);
 
+extern float VDot(float v1[3], float v2[3]);
+extern void VCross(float VOut[3], float v1[3], float v2[3]);
+extern void VScale(float VOut[3], float v[3], float s);
+extern void VAdd(float VOut[3],float v1[3], float v2[3]);
+extern void VSub(float VOut[3],float v1[3], float v2[3]);
+
 //______________________________________________________________________________________________
 
 // menu.c
@@ -1026,7 +1047,7 @@ extern const rom uint8 RxChMnem[];
 #define OUT_YGEI2C_MAXIMUM	240
 #define OUT_X3D_MAXIMUM		200
 
-extern uint8 SaturInt(int16);
+extern uint8 TC(int16);
 extern void DoMulticopterMix(int16 CurrThrottle);
 extern void CheckDemand(int16 CurrThrottle);
 extern void MixAndLimitMotors(void);
@@ -1037,7 +1058,6 @@ extern void StopMotors(void);
 extern void InitMotors(void);
 
 enum PWMTags1 {FrontC=0, BackC, RightC, LeftC, CamRollC, CamPitchC}; // order is important for X3D & Holger ESCs
-enum PWMTags5 {FrontLeftC=0, FrontRightC}; // VCopter
 enum PWMTags2 {ThrottleC=0, AileronC, ElevatorC, RudderC};
 enum PWMTags3 {RightElevonC=1, LeftElevonC=2};
 enum PWMTags4 {K1=0, K2, K3, K4, K5, K6};
@@ -1098,10 +1118,10 @@ enum Params { // MAX 64
 	PercentCruiseThr,	// 20c 
 	
 	VertDampKp,			// 21c
-	MiddleDU,			// 22c
+	MiddleUD,			// 22c
 	PercentIdleThr,		// 23c
 	MiddleLR,			// 24c
-	MiddleFB,			// 25c
+	MiddleBF,			// 25c
 	CamPitchKp,			// 26
 	CompassKp,			// 27
 	AltKi,				// 28c 
@@ -1175,7 +1195,7 @@ extern const rom uint8 ESCLimits [];
 
 
 extern int16 OSin[], OCos[];
-extern int8 Orientation, PolarOrientation;
+extern uint8 Orientation, PolarOrientation;
 
 extern uint8 ParamSet;
 extern boolean ParametersChanged, SaveAllowTurnToWP;
@@ -1206,6 +1226,7 @@ extern void CheckThrottleMoved(void);
 extern const rom boolean PPMPosPolarity[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
 extern int8 RMap[];
+extern int16 Trim[3];
 
 #define PPMQMASK 3
 extern int16 PPMQSum[];
@@ -1346,7 +1367,7 @@ extern void BatteryTest(void);
 #error RC_MAXIMUM < RC_NEUTRAL !
 #endif
 
-#if (( defined TRICOPTER + defined QUADROCOPTER + defined VCOPTER + defined HELICOPTER + defined AILERON + defined ELEVON ) != 1)
+#if (( defined TRICOPTER + defined QUADROCOPTER + defined HEXACOPTER + defined HELICOPTER + defined AILERON + defined ELEVON ) != 1)
 #error None or more than one aircraft configuration defined !
 #endif
 
