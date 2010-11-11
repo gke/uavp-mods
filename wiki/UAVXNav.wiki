@@ -17,7 +17,9 @@ Note altitude and position error display along with aircraft location relative t
 
 Uses UAVX simulation mode. Google maps track to follow in next version of UAVXNav but only for simulate mode (Google conditions of use).
 
-<wiki:video url="http://www.youtube.com/watch?v=TBcIJREsCyY&layer_token=127391f3f62840b6"/>
+<wiki:video url="http://www.youtube.com/v/TdTr5837Rdg?fs=1&amp;hl=en_US"/>
+
+
 
 == First Release ==
 
