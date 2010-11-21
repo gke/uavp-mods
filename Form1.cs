@@ -770,10 +770,11 @@ namespace UAVXGS
                             RxPacketError = RxCheckSum != 0;
 
                             CheckSumError = RxPacketError;
+
                             if (CheckSumError)
                                 RxCheckSumErrors++;
 
-                            RxPacketError=false;
+                          //  RxPacketError=false;
                             if (!RxPacketError)
                             {
                                 PacketReceived = true;
@@ -788,6 +789,7 @@ namespace UAVXGS
 
         void ParsePacket(byte ch) 
         {
+            RxCheckSum ^= ch;
             switch (PacketRxState) {
             case WaitRxSentinel:
                 if (ch == SOH)
@@ -1062,7 +1064,7 @@ namespace UAVXGS
                                 UsingRangefinderBox.BackColor = FlagsGroupBox.BackColor;
 
                             if ((Flags[3] & 0x08) != 0)
-                                SimulationTextBox.Text = "Simulation";
+                                SimulationTextBox.Text = "SIMULATION";
                             else
                                 SimulationTextBox.Text = " ";
 
@@ -1077,7 +1079,7 @@ namespace UAVXGS
                                 FocusLockedBox.BackColor = System.Drawing.Color.LightSteelBlue;
 
                             if ((Flags[3] & 0x80) != 0)
-                                PolarBox.BackColor = System.Drawing.Color.Orange;
+                                PolarBox.BackColor = System.Drawing.Color.Green;
                             else
                                 PolarBox.BackColor = FlagsGroupBox.BackColor;
 
