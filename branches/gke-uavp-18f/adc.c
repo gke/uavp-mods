@@ -1,57 +1,61 @@
-// =======================================================================
-// =                   U.A.V.P Brushless UFO Controller                  =
-// =                         Professional Version                        =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
-// =======================================================================
-//
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+// ===============================================================================================
+// =                                UAVX Quadrocopter Controller                                 =
+// =                           Copyright (c) 2008 by Prof. Greg Egan                             =
+// =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
+// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// ===============================================================================================
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    This is part of UAVX.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVX is free software: you can redistribute it and/or modify it under the terms of the GNU 
+//    General Public License as published by the Free Software Foundation, either version 3 of the 
+//    License, or (at your option) any later version.
 
-#include "c-ufo.h"
-#include "bits.h"
+//    UAVX is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without
+//    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+//    See the GNU General Public License for more details.
 
-// Prototypes
-int16 ADC(uint8, uint8);
+//    You should have received a copy of the GNU General Public License along with this program.  
+//    If not, see http://www.gnu.org/licenses/
+
+#include "uavx.h"
+
+int16 ADC(uint8);
 void InitADC(void);
 
-int16 ADC(uint8 Channel, uint8 VRef)
-{
-	int16 Result;
-	uint8 d;
+#pragma udata adcq
+SensorStruct ADCVal[(ADC_TOP_CHANNEL+1)];
+#pragma udata
+uint8 ADCChannel;
 
-	ADCON1bits.VCFG0 = VRef;
-	SetChanADC(Channel<<3);		// using automatic acq
-	ConvertADC();  
-	while (BusyADC()){};
+int16 ADC(uint8 ADCChannel)
+{ // all ADC reads use 5V reference
+	static int16 v;
 
-	Result=ReadADC();
+	DisableInterrupts; // make atomic
+		v = ADCVal[ADCChannel].v.iw1; // rescale by 256
+	EnableInterrupts;
 
-	return (Result); 
+	return ( v );
 } // ADC
 
 void InitADC()
 {
- OpenADC(ADC_FOSC_32 & 
+	static uint8 i, c;
+
+	OpenADC(ADC_FOSC_32 & 
           ADC_RIGHT_JUST &
-          ADC_12_TAD,
+          ADC_20_TAD,		// 12 TAD?
 		  ADC_CH0 &
 		  ADC_INT_OFF &
           ADC_VREFPLUS_VDD &
           ADC_VREFMINUS_VSS,	  
           ADCPORTCONFIG);
+
+	ADCChannel = 0;
+	SetChanADC(	ADCChannel);					// using automatic acq
+	ConvertADC();
+
 } // InitADC
 
 

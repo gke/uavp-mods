@@ -1,25 +1,23 @@
         title   "BootLoader.asm"
-;// =======================================================================
-;// =                   U.A.V.P Brushless UFO Controller                  =
-;// =                         Professional Version                        =
-;// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-;// =              Original (c) 2007 Ing. Wolfgang Mahringer              =
-;// =                          http://www.uavp.org                        =
-;// =======================================================================
+; =================================================================================================
+; =                                  UAVX Quadrocopter Controller                                 =
+; =                             Copyright (c) 2008 by Prof. Greg Egan                             =
+; =                   Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
+; =                       http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+; =================================================================================================
 
-;//  This program is free software; you can redistribute it and/or modify
-;//  it under the terms of the GNU General Public License as published by
-;//  the Free Software Foundation; either version 2 of the License, or
-;//  (at your option) any later version.
+;    This is part of UAVX.
 
-;//  This program is distributed in the hope that it will be useful,
-;//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-;//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;//  GNU General Public License for more details.
+;    UAVX is free software: you can redistribute it and/or modify it under the terms of the GNU 
+;    General Public License as published by the Free Software Foundation, either version 3 of the 
+;    License, or (at your option) any later version.
 
-;//  You should have received a copy of the GNU General Public License along
-;//  with this program; if not, write to the Free Software Foundation, Inc.,
-;//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+;    UAVX is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without even 
+;    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+;    General Public License for more details.
+
+;    You should have received a copy of the GNU General Public License along with this program.  
+;    If not, see http://www.gnu.org/licenses/
 
 ; Version
 ; 1.0 .... W. Mahringer?
@@ -35,17 +33,14 @@
         include "general.asm"
 
 		; need to include clock for baud calculation
-		#ifdef CLOCK_16MHZ
-		_ClkOut			equ		(160/4)
-		#else // CLOCK_40MHZ
-		_ClkOut			equ		(400/4)
-		#endif
+#ifdef CLOCK_16MHZ
+_BAUDRATE		equ		26 
+#else ; CLOCK_40MHZ
+_BAUDRATE		equ		65 
+#endif
 
-		; use 38400 Baud throughout for now.
-		_B38400			equ		(_ClkOut*100000/(4*38400) - 1)
-
-		_RestoreVec		equ		0
-		_MaxRxBuffer		equ		80	;normal max 64 hex chars + tags
+_RestoreVec		equ		0
+_MaxRxBuffer		equ		80	;normal max 64 hex chars + tags
 
 		; RAM variables all in Bank 0
 		cblock 16
@@ -79,6 +74,7 @@
 BootStart
 		; absolutely no C registers or variables are preserved
 	;	movf	PCL,f					;for message table address
+		DII							;disable all interrupts
 		movlw	high Messages
 		movwf	PCLATH
 
@@ -89,27 +85,26 @@ Messages
 		;moved to base of boot which always starts at the base
 		;of a 256 byte segment
 		addwf	PCL,f
-		_Hello		dt	"Boot 2.0\0"
-		_Err		dt	"ERR\0"
-		_CSum		dt	"CSUM\0"
-		_OK			dt	"OK\0"
-		_Done		dt	"SUCCESS!\0"
-		Txt_Hello	equ	_Hello-Messages-1
-		Txt_Err		equ	_Err-Messages-1
-		Txt_CSum	equ	_CSum-Messages-1
-		Txt_OK		equ	_OK-Messages-1
-		Txt_Done	equ	_Done-Messages-1
+_Hello		dt	"Boot 2.0\0"
+_Err		dt	"ERR\0"
+_CSum		dt	"CSUM\0"
+_OK			dt	"OK\0"
+_Done		dt	"SUCCESS!\0"
+Txt_Hello	equ	_Hello-Messages-1
+Txt_Err		equ	_Err-Messages-1
+Txt_CSum	equ	_CSum-Messages-1
+Txt_OK		equ	_OK-Messages-1
+Txt_Done	equ	_Done-Messages-1
 
 Init		
 		movlb	0
-		DII							;disable interrupts
 		clrf	EECON1				;disable all program memory writes
 
 		clrf	T0CON
 		movlw	10100100b			;set RC6 as output (TxD), LEDs
 		movwf	TRISC
 		clrf	TRISB				;all output
-		movlw	_B38400
+		movlw	_BAUDRATE
 		movwf	SPBRG
 		movlw	00100100b			;async mode, BRGH = 1
 		movwf	TXSTA

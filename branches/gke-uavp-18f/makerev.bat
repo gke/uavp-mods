@@ -3,11 +3,11 @@ rem ---------------------------------------------
 rem Update SVN revision include and batch files
 rem ---------------------------------------------
 
-if exist UAVPRevision.h del UAVPRevision.h
-SubWCRev . UAVPRevisionSVN.h UAVPRevision.h
+if exist UAVXRevision.h del UAVXRevision.h
+SubWCRev . UAVXRevisionSVN.h UAVXRevision.h
 
 if exist makeallhelper.bat del makeallhelper.bat
 SubWCRev . makeallhelperSVN.bat makeallhelper.bat
 
-if exist makealltesthelper.bat del makealltesthelper.bat
-SubWCRev . makealltesthelperSVN.bat makealltesthelper.bat
+rem if exist makeall.bat del makeall.bat
+rem SubWCRev . makeallSVN.bat makeall.bat
