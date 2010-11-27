@@ -66,7 +66,7 @@ void DoMulticopterMix(int16 CurrThrottle)
 		if ( P[Balance] != 0 )
 		{
 			B = 128 + P[Balance];
-			PWM[FrontC] =  SRS32(PWM[FrontC] * B, 7;
+			PWM[FrontC] =  SRS32((int32)PWM[FrontC] * B, 7);
 		}
 	#else
 	    #ifdef VTCOPTER 	// usually flown VTail (K1+K4) to the rear - use orientation of 24
@@ -80,8 +80,8 @@ void DoMulticopterMix(int16 CurrThrottle)
 			if ( P[Balance] != 0 )
 			{
 				B = 128 + P[Balance];
-				PWM[FrontLeftC] = SRS32(PWM[FrontLeftC] * B, 7);
-				PWM[FrontRightC] = SRS32(PWM[FrontRightC] * B, 7);
+				PWM[FrontLeftC] = SRS32((int32)PWM[FrontLeftC] * B, 7);
+				PWM[FrontRightC] = SRS32((int32)PWM[FrontRightC] * B, 7);
 			}
 		#else // QUADROCOPTER
 			PWM[LeftC]  += -Rl - Yl;	
