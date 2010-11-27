@@ -1,474 +1,279 @@
-// =======================================================================
-// =                   U.A.V.P Brushless UFO Controller                  =
-// =                         Professional Version                        =
-// =               Copyright (c) 2008-9 by Prof. Greg Egan               =
-// =     Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer       =
-// =                          http://www.uavp.org                        =
-// =======================================================================
+// ===============================================================================================
+// =                                UAVX Quadrocopter Controller                                 =
+// =                           Copyright (c) 2008 by Prof. Greg Egan                             =
+// =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
+// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// ===============================================================================================
 
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
+//    This is part of UAVX.
 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
+//    UAVX is free software: you can redistribute it and/or modify it under the terms of the GNU 
+//    General Public License as published by the Free Software Foundation, either version 3 of the 
+//    License, or (at your option) any later version.
 
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//    UAVX is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without
+//    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+//    See the GNU General Public License for more details.
 
-// Utilities and subroutines
+//    You should have received a copy of the GNU General Public License along with this program.  
+//    If not, see http://www.gnu.org/licenses/
 
-#include "c-ufo.h"
-#include "bits.h"
+#include "uavx.h"
 
-#if (defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C) && !defined DEBUG_SENSORS
+uint8 TC(int16);
+void DoMulticopterMix(int16);
+void CheckDemand(int16);
+void MixAndLimitMotors(void);
+void MixAndLimitCam(void);
+void OutSignals(void);
+void InitI2CESCs(void);
+void StopMotors(void);
+void InitMotors(void);
 
-#define ESC_I2C_DELAY Delay10TCY()
-#define INP_ESC 1
-#define OUT_ESC 0
+boolean OutToggle;
+int16 PWM[6];
+int16 PWMSense[6];
+int16 ESCI2CFail[4];
+int16 CurrThrottle;
+int8 ServoInterval;
 
-void EscWaitClkHi(void)
+#pragma udata access outputvars
+near uint8 SHADOWB, PWM0, PWM1, PWM2, PWM3, PWM4, PWM5;
+near int8 ServoToggle;
+#pragma udata
+
+int16 ESCMin, ESCMax;
+
+#ifdef MULTICOPTER
+
+uint8 TC(int16 T)
 {
-	ESC_I2C_DELAY;
-	ESC_CIO=1;	
-	while( ESC_SCL == OUT_ESC ) ;	// Ensure PORTB Pullups enabled
-	ESC_I2C_DELAY;
-} // EscWaitClkHi
+	return ( Limit(T, ESCMin, ESCMax));
+} // TC
 
-void EscI2CStart(void)
+void DoMulticopterMix(int16 CurrThrottle)
 {
-	ESC_DIO = INP_ESC;	
-	EscWaitClkHi();
-	ESC_SDA = 0;
-	ESC_DIO = OUT_ESC;
-	ESC_I2C_DELAY;
-	ESC_SCL = OUT_ESC;
-	ESC_CIO = 0;
-} // EscI2CStart
+	static int16 Temp, B;
 
-void EscI2CStop(void)
-{
-	ESC_DIO = OUT_ESC;
-	ESC_SDA = 0;
-	EscWaitClkHi();
-
-	ESC_DIO = INP_ESC;	// STOP condition
-	ESC_I2C_DELAY;	
-} // EscI2CStop
-
-
-void SendEscI2CByte(uint8 d)
-{
-	int8 s;
-
-	for( s = 8; s ; s-- )
-	{
-		if( (d & 0x80) !=0 )
-			ESC_DIO = INP_ESC;	
-		else
-		{
-			ESC_SDA = 0;			
-			ESC_DIO = OUT_ESC;	
-		}
+	PWM[FrontC] = PWM[LeftC] = PWM[RightC] = PWM[BackC] = CurrThrottle;
+	#ifdef TRICOPTER // usually flown K1 motor to the rear - use orientation of 24
+		Temp = SRS16(Pl, 1); 			
+		PWM[FrontC] -= Pl;			// front motor
+		PWM[LeftC] += (Temp - Rl);	// right rear
+		PWM[RightC] += (Temp + Rl); // left rear
 	
-		ESC_CIO = 1;
-		while( ESC_SCL == OUT_ESC ) ;
-		ESC_I2C_DELAY;
-		ESC_SCL = OUT_ESC;
-		ESC_CIO = 0;
-		d <<= 1;
-	}
-	ESC_DIO = INP_ESC;	
-	ESC_I2C_DELAY;
-	ESC_CIO = 1;	
-	while( ESC_SCL == OUT_ESC ) ;	
+		PWM[BackC] = PWMSense[RudderC] * Yl + OUT_NEUTRAL;	// yaw servo
+		if ( P[Balance] != 0 )
+		{
+			B = 128 + P[Balance];
+			PWM[FrontC] =  SRS32(PWM[FrontC] * B, 7;
+		}
+	#else
+	    #ifdef VTCOPTER 	// usually flown VTail (K1+K4) to the rear - use orientation of 24
+			Temp = SRS16(Pl, 1); 	
 
-	ESC_I2C_DELAY;		
-	//	nii = I2C_SDA;	
-
-	ESC_SCL = OUT_ESC;
-	ESC_CIO = 0;	
-	ESC_I2C_DELAY;
-	//	I2C_IO = 0;	
-	//	I2C_SDA = 0;
-	return;
-} // SendEscI2CByte
-
-#endif	// ESC_X3D || ESC_HOLGER || ESC_YGEI2C
-
-uint8 SaturInt(int16 l)
-{
-	int16 r;
-
-	#if defined ESC_PPM || defined ESC_HOLGER || defined ESC_YGEI2C
-	r = Limit(l,  Max(_Minimum, MotorLowRun), _Maximum );
-	#endif
-
-	#ifdef ESC_X3D
-	l -= _Minimum;
-	r = Limit(l, 1, 200);
-	#endif
-	return((uint8) r);
-} // SaturInt
-
-void DoMix(int16 CurrGas)
-{
-	int16 Temp;
-
-	Motor[Front] = Motor[Left] = Motor[Right] = CurrGas;
-	#ifndef TRICOPTER
-	Motor[Back] = CurrGas;
-	#endif // !TRICOPTER
-
-	#ifndef TRICOPTER
-	if( FlyCrossMode )
-	{	// "Cross" Mode
-		Motor[Left] +=   Pl - Rl - Yl;
-		Motor[Right] += -Pl + Rl - Yl;
-		Motor[Front] += -Pl - Rl + Yl;
-		Motor[Back] +=   Pl + Rl + Yl; //*
-	}
-	else
-	{	// "Plus" Mode
-		#ifdef MOUNT_45
-		Motor[Left]  += -Rl - Pl - Yl; //*	
-		Motor[Right] +=  Rl + Pl - Yl;
-		Motor[Front] +=  Rl - Pl + Yl;
-		Motor[Back]  += -Rl + Pl + Yl;	
-		#else
-		Motor[Left]  += -Rl - Yl;	
-		Motor[Right] +=  Rl - Yl;
-		Motor[Front] += -Pl + Yl;
-		Motor[Back]  +=  Pl + Yl;
+			PWM[LeftC] += (Temp - Rl);	// right rear
+			PWM[RightC] += (Temp + Rl); // left rear
+	
+			PWM[FrontLeftC] -= Pl + PWMSense[RudderC] * Yl; 
+			PWM[FrontRightC] -= Pl - PWMSense[RudderC] * Yl;
+			if ( P[Balance] != 0 )
+			{
+				B = 128 + P[Balance];
+				PWM[FrontLeftC] = SRS32(PWM[FrontLeftC] * B, 7);
+				PWM[FrontRightC] = SRS32(PWM[FrontRightC] * B, 7);
+			}
+		#else // QUADROCOPTER
+			PWM[LeftC]  += -Rl - Yl;	
+			PWM[RightC] +=  Rl - Yl;
+			PWM[FrontC] += -Pl + Yl;
+			PWM[BackC]  +=  Pl + Yl;
 		#endif
-	}
-
-	#else	// TRICOPTER
-	Temp = SRS16(Rl - Pl, 1); 
-	Motor[Front] += Pl ;			// front motor
-	Motor[Left]  += Temp;			// rear left
-	Motor[Right] -= Temp; 			// rear right
-	Motor[Back]   = Yl + _Neutral;	// yaw servo
 	#endif
 
-} // DoMix
+} // DoMulticopterMix
 
-uint8 	MotorDemandRescale;
+boolean 	MotorDemandRescale;
 
-void CheckDemand(int16 CurrGas)
+void CheckDemand(int16 CurrThrottle)
 {
-	int8 s;
-	int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
+	static int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
 
-	MaxMotor = Max(Motor[Front], Motor[Left]);
-	MaxMotor = Max(MaxMotor, Motor[Right]);
+	MaxMotor = Max(PWM[FrontC], PWM[LeftC]);
+	MaxMotor = Max(MaxMotor, PWM[RightC]);
 	#ifndef TRICOPTER
-	MaxMotor = Max(MaxMotor, Motor[Back]);
+		MaxMotor = Max(MaxMotor, PWM[BackC]);
 	#endif // TRICOPTER
 
-	DemandSwing = MaxMotor - CurrGas;
+	DemandSwing = MaxMotor - CurrThrottle;
 
-	if ( CurrGas < MotorLowRun )
-	{
-		Scale = 0;
-		MotorDemandRescale = true;
-	}
-	else
-		if ( DemandSwing > 0 )
-		{		
-			ScaleHigh = (( _Maximum - (int24)CurrGas) * 256 )/ DemandSwing;	 
-			ScaleLow = (( (int24)CurrGas - MotorLowRun) * 256 )/ DemandSwing;
-			Scale = Min(ScaleHigh, ScaleLow);
-			if ( Scale < 256 )
-			{
-				MotorDemandRescale = true;
-				Rl = (Rl * Scale + 128)/256;  
-				Pl = (Pl * Scale + 128)/256; 
-				Yl = (Yl * Scale + 128)/256; 
-			}
-			else
-				 MotorDemandRescale = false;	
+	if ( DemandSwing > 0 )
+	{		
+		ScaleHigh = (( OUT_MAXIMUM - (int24)CurrThrottle) * 256 )/ DemandSwing;	 
+		ScaleLow = (( (int24)CurrThrottle - IdleThrottle) * 256 )/ DemandSwing;
+		Scale = Min(ScaleHigh, ScaleLow); // just in case!
+		if ( Scale < 0 ) Scale = 1;
+		if ( Scale < 256 )
+		{
+			MotorDemandRescale = true;
+			Rl = (Rl * Scale)/256;  // could get rid of the divides
+			Pl = (Pl * Scale)/256;
+			#ifndef TRICOPTER 
+				Yl = (Yl * Scale)/256;
+			#endif // TRICOPTER 
 		}
 		else
 			MotorDemandRescale = false;	
+	}
+	else
+		MotorDemandRescale = false;	
 
 } // CheckDemand
 
-void MixAndLimit(void)
-{ 	// expensive ~400uSec @16MHz
-    int16 Temp, CurrGas;
+#endif // MULTICOPTER
 
-	// Altitude stabilization factor
-	CurrGas = IGas + (Vud + VBaroComp); // vertical compensation not optional
-	CurrGas = Limit(CurrGas, 0, (int16)(_Maximum * 90 + 50) / 100); // 10% headroom for control
+void MixAndLimitMotors(void)
+{ 	// expensive ~160uSec @ 40MHz
+    static int16 Temp, TempElevon, TempElevator;
 
-	DoMix(CurrGas);
+	if ( DesiredThrottle < IdleThrottle )
+		CurrThrottle = 0;
+	else
+		CurrThrottle = DesiredThrottle;
 
-	CheckDemand(CurrGas);
+	#ifdef MULTICOPTER
+		if ( State == InFlight )
+			 CurrThrottle += (Comp[DU] + Comp[Alt]); // vertical compensation not optional
+			
+		Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
+		CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
+			
+		if ( CurrThrottle > IdleThrottle )
+		{
+			DoMulticopterMix(CurrThrottle);
+			
+			CheckDemand(CurrThrottle);
+			
+			if ( MotorDemandRescale )
+				DoMulticopterMix(CurrThrottle);
+		}
+		else
+		{
+			PWM[FrontC] = PWM[LeftC] = PWM[RightC] = CurrThrottle;
+			#ifdef TRICOPTER
+				PWM[BackC] = PWMSense[RudderC] * Yl + OUT_NEUTRAL;	// yaw servo
+			#else
+				PWM[BackC] = CurrThrottle;
+			#endif // !TRICOPTER
+		}
+	#else
+		CurrThrottle += Comp[Alt]; // simple - faster to climb with no elevator yet
+		
+		PWM[ThrottleC] = CurrThrottle;
+		PWM[RudderC] = PWMSense[RudderC] * Yl + OUT_NEUTRAL;
+		
+		#if ( defined AILERON | defined HELICOPTER )
+			PWM[AileronC] = PWMSense[AileronC] * Rl + OUT_NEUTRAL;
+			PWM[ElevatorC] = PWMSense[ElevatorC] * Pl + OUT_NEUTRAL;
+		#else // ELEVON
+			TempElevator = PWMSense[2] * Pl + OUT_NEUTRAL;
+			PWM[RightElevonC] = PWMSense[RightElevonC] * (TempElevator + Rl);
+			PWM[LeftElevonC] = PWMSense[LeftElevonC] * (TempElevator -  Rl);		
+		#endif
+	#endif
 
-	if ( MotorDemandRescale )
-		DoMix(CurrGas);
-
-	Motor[Front] = SaturInt(Motor[Front]);
-	Motor[Back] = SaturInt(Motor[Back]);
-	Motor[Left] = SaturInt(Motor[Left]);
-	Motor[Right] = SaturInt(Motor[Right]);
-
-} // MixAndLimit
+} // MixAndLimitMotors
 
 void MixAndLimitCam(void)
 {
-	int16 Cr, Cp;
+	static i24u Temp;
 
 	// use only roll/pitch angle estimates
-	if( (IntegralCount == 0) && ((CamRollFactor != 0) || (CamPitchFactor != 0)) )
-	{
-		Cr = RollSum / (int16)CamRollFactor;
-		Cp = PitchSum / (int16)CamPitchFactor;
-	}
-	else
-		Cr = Cp = _Minimum;
+	Temp.i24 = (int24)CameraRollAngle * P[CamRollKp];
+	PWM[CamRollC] = Temp.i2_1 + (int16)P[CamRollTrim];
+	PWM[CamRollC] = PWMSense[CamRollC] * PWM[CamRollC] + OUT_NEUTRAL;
 
-	if( _UseCh7Trigger )
-		Cr += _Neutral;
-	else
-		Cr += IK7;
-		
-	Cp += IK6;		// only Pitch servo is controlled by channel 6
-
-	MCamRoll = Limit(Cr, _Minimum, _Maximum);
-	MCamPitch = Limit(Cp, _Minimum, _Maximum);
+	Temp.i24 = (int24)CameraPitchAngle * P[CamPitchKp];
+	PWM[CamPitchC] = Temp.i2_1 + DesiredCamPitchTrim;
+	PWM[CamPitchC] = PWMSense[CamPitchC] * PWM[CamPitchC] + OUT_NEUTRAL; 			
 
 } // MixAndLimitCam
 
-#pragma udata assembly_language=0x080 
-uint8 SHADOWB, MF, MB, ML, MR, MT, ME; // motor/servo outputs
-#pragma udata
+#if ( defined TRICOPTER | defined MULTICOPTER | defined VTCOPTER )
+	#include "outputs_copter.h"
+#else
+	#include "outputs_conventional.h"
+#endif // TRICOPTER | MULTICOPTER
 
-void OutSignals(void)
+void InitI2CESCs(void)
 {
-	#ifdef DEBUG_SENSORS
-	Trace[TIGas] = IGas;
+	static int8 m;
+	static uint8 r;
+	
+	#ifdef MULTICOPTER
 
-	Trace[TIRoll] = IRoll;
-	Trace[TIPitch] = IPitch;
-	Trace[TIYaw] = IYaw;
+	if ( P[ESCType] ==  ESCHolger )
+		for ( m = 0 ; m < NoOfI2CESCOutputs ; m++ )
+		{
+			ESCI2CStart();
+			r = WriteESCI2CByte(0x52 + ( m*2 ));		// one cmd, one data byte per motor
+			r += WriteESCI2CByte(0);
+			ESCI2CFail[m] += r;  
+			ESCI2CStop();
+		}
+	else
+		if ( P[ESCType] == ESCYGEI2C )
+			for ( m = 0 ; m < NoOfPWMOutputs ; m++ )
+			{
+				ESCI2CStart();
+				r = WriteESCI2CByte(0x62 + ( m*2 ));	// one cmd, one data byte per motor
+				r += WriteESCI2CByte(0);
+				ESCI2CFail[m] += r; 
+				ESCI2CStop();
+			}
+		else
+			if ( P[ESCType] == ESCX3D )
+			{
+				ESCI2CStart();
+				r = WriteESCI2CByte(0x10);			// one command, 4 data bytes
+				r += WriteESCI2CByte(0); 
+				r += WriteESCI2CByte(0);
+				r += WriteESCI2CByte(0);
+				r += WriteESCI2CByte(0);
+				ESCI2CFail[0] += r;
+				ESCI2CStop();
+			}
+	#endif // MULTICOPTER
+} // InitI2CESCs
 
-	Trace[TMFront] = Motor[Front];
-	Trace[TMBack] = Motor[Back];
-	Trace[TMLeft] = Motor[Left];
-	Trace[TMRight] = Motor[Right];
+void StopMotors(void)
+{
+	#ifdef MULTICOPTER
+		PWM[FrontC] = PWM[LeftC] = PWM[RightC] = ESCMin;
+		#ifndef TRICOPTER
+			PWM[BackC] = ESCMin;
+		#endif // !TRICOPTER	
+	#else
+		PWM[ThrottleC] = ESCMin;
+	#endif // MULTICOPTER
 
-	Trace[TMCamRoll] = MCamRoll;
-	Trace[TMCamPitch] = MCamPitch;
-	#else // !DEBUG_SENSORS
+	F.MotorsArmed = false;
+} // StopMotors
 
-	WriteTimer0(0);
-	INTCONbits.TMR0IF = false;
+void InitMotors(void)
+{
+	StopMotors();
+	#ifdef TRICOPTER
+		PWM[BackC] = OUT_NEUTRAL;
+	#endif // !TRICOPTER
 
-	#ifdef ESC_PPM
-	_asm
-	MOVLB	0						// select Bank0
-	MOVLW	0x0f					// turn on motors
-	MOVWF	SHADOWB,1
-	_endasm	
-	PORTB |= 0x0f;
-	#endif
+	PWM[CamRollC] = OUT_NEUTRAL;
+	PWM[CamPitchC] = OUT_NEUTRAL;
 
-	MF = Motor[Front];
-	MB = Motor[Back];
-	ML = Motor[Left];
-	MR = Motor[Right];
+} // InitMotors
 
-	MT = MCamRoll;
-	ME = MCamPitch;
 
-	#ifdef ESC_PPM
 
-	// simply wait for nearly 1 ms
-	// irq service time is max 256 cycles = 64us = 16 TMR0 ticks
-	while( ReadTimer0() < (uint16)(0x100-3-20) ) ; // 16
 
-	// now stop CCP1 interrupt
-	// capture can survive 1ms without service!
-
-	// Strictly only if the masked interrupt region below is
-	// less than the minimum valid Rx pulse/gap width which
-	// is 1027uS less capture time overheads
-
-	DisableInterrupts;	// BLOCK ALL INTERRUPTS for NO MORE than 1mS
-	while( !INTCONbits.TMR0IF ) ;	// wait for first overflow
-	INTCONbits.TMR0IF=0;		// quit TMR0 interrupt
-
-	if( _OutToggle )	// driver cam servos only every 2nd pulse
-	{
-		_asm
-		MOVLB	0					// select Bank0
-		MOVLW	0x3f				// turn on motors
-		MOVWF	SHADOWB,1
-		_endasm	
-		PORTB |= 0x3f;
-	}
-	_OutToggle ^= 1;
-
-// This loop is exactly 16 cycles int16
-// under no circumstances should the loop cycle time be changed
-_asm
-	MOVLB	0						// select Bank0
-OS005:
-	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
-	MOVWF	PORTB,0
-	ANDLW	0x0f
-	BZ		OS006
-			
-	DECFSZ	MF,1,1					// front motor
-	GOTO	OS007
-			
-	BCF		SHADOWB,PulseFront,1	// stop Front pulse
-OS007:
-	DECFSZ	ML,1,1					// left motor
-	GOTO	OS008
-			
-	BCF		SHADOWB,PulseLeft,1		// stop Left pulse
-OS008:
-	DECFSZ	MR,1,1					// right motor
-	GOTO	OS009
-			
-	BCF		SHADOWB,PulseRight,1	// stop Right pulse
-OS009:
-	DECFSZ	MB,1,1					// rear motor
-	GOTO	OS005
-				
-	BCF		SHADOWB,PulseBack,1		// stop Back pulse			
-
-	GOTO	OS005
-OS006:
-_endasm
-	// This will be the corresponding C code:
-	//	while( ALL_OUTPUTS != 0 )
-	//	{	// remain in loop as int16 as any output is still high
-	//		if( TMR2 = MFront  ) PulseFront  = 0;
-	//		if( TMR2 = MBack ) PulseBack = 0;
-	//		if( TMR2 = MLeft  ) PulseLeft  = 0;
-	//		if( TMR2 = MRight ) PulseRight = 0;
-	//	}
-
-	EnableInterrupts;	// Re-enable interrupt
-
-	#endif	// ESC_PPM
-
-	#if defined ESC_X3D || defined ESC_HOLGER || defined ESC_YGEI2C
-
-	if( _OutToggle )	// driver cam servos only every 2nd pulse
-	{
-		_asm
-		MOVLB	0					// select Bank0
-		MOVLW	0x3f				// turn on motors
-		MOVWF	SHADOWB,1
-		_endasm	
-		PORTB |= 0x3f;
-	}
-	_OutToggle ^= 1;
-
-	// in X3D- and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL
-	#ifdef ESC_X3D
-	EscI2CStart();
-	SendEscI2CByte(0x10);	// one command, 4 data bytes
-	SendEscI2CByte(MF); // for all motors
-	SendEscI2CByte(MB);
-	SendEscI2CByte(ML);
-	SendEscI2CByte(MR);
-	EscI2CStop();
-	#endif	// ESC_X3D
-
-	#ifdef ESC_HOLGER
-	EscI2CStart();
-	SendEscI2CByte(0x52);	// one cmd, one data byte per motor
-	SendEscI2CByte(MF); // for all motors
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x54);
-	SendEscI2CByte(MB);
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x58);
-	SendEscI2CByte(ML);
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x56);
-	SendEscI2CByte(MR);
-	EscI2CStop();
-	#endif	// ESC_HOLGER
-
-	#ifdef ESC_YGEI2C
-	EscI2CStart();
-	SendEscI2CByte(0x62);	// one cmd, one data byte per motor
-	SendEscI2CByte(MF>>1); // for all motors
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x64);
-	SendEscI2CByte(MB>>1);
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x68);
-	SendEscI2CByte(ML>>1);
-	EscI2CStop();
-
-	EscI2CStart();
-	SendEscI2CByte(0x66);
-	SendEscI2CByte(MR>>1);
-	EscI2CStop();
-	#endif	// ESC_YGEI2C
-
-	#endif	// ESC_X3D or ESC_HOLGER or ESC_YGEI2C
-
-	while( ReadTimer0() < (uint16)(0x100-3-20) ) ; 	// wait for 2nd TMR0 near overflow
-
-	INTCONbits.GIE = false;					// Int wieder sperren, wegen Jitter
-	while( !INTCONbits.TMR0IF ) ;		// wait for 2nd overflow (2 ms)
-
-	// This loop is exactly 16 cycles int16
-	// under no circumstances should the loop cycle time be changed
-_asm
-	MOVLB	0
-OS001:
-	MOVF	SHADOWB,0,1				// Cannot read PORTB ???
-	MOVWF	PORTB,0
-	ANDLW	0x30		// output ports 4 and 5
-	BZ		OS002		// stop if all 2 outputs are 0
-
-	DECFSZ	MT,1,1
-	GOTO	OS003
-
-	BCF		SHADOWB,PulseCamRoll,1
-OS003:
-	DECFSZ	ME,1,1
-	GOTO	OS004
-
-	BCF		SHADOWB,PulseCamPitch,1
-OS004:
-_endasm
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-	Delay1TCY();
-_asm
-	GOTO	OS001
-OS002:
-_endasm
-
-	EnableInterrupts;	// re-enable interrupt
-
-#endif  // DEBUG_SENSORS
-} // OutSignals
 
 
