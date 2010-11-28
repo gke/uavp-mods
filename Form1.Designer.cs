@@ -31,8 +31,8 @@ namespace UAVXGS
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.FlyingButton = new System.Windows.Forms.Button();
-            this.RollSum = new System.Windows.Forms.TextBox();
-            this.PitchSum = new System.Windows.Forms.TextBox();
+            this.RollAngle = new System.Windows.Forms.TextBox();
+            this.PitchAngle = new System.Windows.Forms.TextBox();
             this.BatteryVolts = new System.Windows.Forms.TextBox();
             this.BatteryCurrent = new System.Windows.Forms.TextBox();
             this.RCGlitches = new System.Windows.Forms.TextBox();
@@ -44,7 +44,7 @@ namespace UAVXGS
             this.PitchRate = new System.Windows.Forms.TextBox();
             this.RollRate = new System.Windows.Forms.TextBox();
             this.LRAcc = new System.Windows.Forms.TextBox();
-            this.YawSum = new System.Windows.Forms.TextBox();
+            this.YawAngle = new System.Windows.Forms.TextBox();
             this.DUAcc = new System.Windows.Forms.TextBox();
             this.FBAcc = new System.Windows.Forms.TextBox();
             this.VoltsLabel = new System.Windows.Forms.Label();
@@ -59,7 +59,6 @@ namespace UAVXGS
             this.CurrentLabel = new System.Windows.Forms.Label();
             this.GPSHDilute = new System.Windows.Forms.TextBox();
             this.RangefinderAltitude = new System.Windows.Forms.TextBox();
-            this.RangefinderROC = new System.Windows.Forms.TextBox();
             this.RelBaroAltitude = new System.Windows.Forms.TextBox();
             this.GPSFix = new System.Windows.Forms.TextBox();
             this.BaroROC = new System.Windows.Forms.TextBox();
@@ -93,8 +92,6 @@ namespace UAVXGS
             this.YawLabel = new System.Windows.Forms.Label();
             this.PitchLabel = new System.Windows.Forms.Label();
             this.RollLabel = new System.Windows.Forms.Label();
-            this.UserAttitudeToDegreesLabel = new System.Windows.Forms.Label();
-            this.UserAttitudeToDegrees = new System.Windows.Forms.TextBox();
             this.AccelerationsGroupBox = new System.Windows.Forms.GroupBox();
             this.CommsGroupBox = new System.Windows.Forms.GroupBox();
             this.EnvGroupBox = new System.Windows.Forms.GroupBox();
@@ -249,6 +246,8 @@ namespace UAVXGS
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.GPSHeadingLabel = new System.Windows.Forms.Label();
+            this.GPSHeading = new System.Windows.Forms.TextBox();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
             this.GyroGroupBox.SuspendLayout();
@@ -286,23 +285,23 @@ namespace UAVXGS
             this.FlyingButton.UseVisualStyleBackColor = false;
             this.FlyingButton.Click += new System.EventHandler(this.FlyingButton_Click);
             // 
-            // RollSum
+            // RollAngle
             // 
-            this.RollSum.Location = new System.Drawing.Point(39, 46);
-            this.RollSum.Name = "RollSum";
-            this.RollSum.ReadOnly = true;
-            this.RollSum.Size = new System.Drawing.Size(32, 20);
-            this.RollSum.TabIndex = 5;
-            this.RollSum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.RollAngle.Location = new System.Drawing.Point(39, 46);
+            this.RollAngle.Name = "RollAngle";
+            this.RollAngle.ReadOnly = true;
+            this.RollAngle.Size = new System.Drawing.Size(32, 20);
+            this.RollAngle.TabIndex = 5;
+            this.RollAngle.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // PitchSum
+            // PitchAngle
             // 
-            this.PitchSum.Location = new System.Drawing.Point(39, 72);
-            this.PitchSum.Name = "PitchSum";
-            this.PitchSum.ReadOnly = true;
-            this.PitchSum.Size = new System.Drawing.Size(32, 20);
-            this.PitchSum.TabIndex = 6;
-            this.PitchSum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.PitchAngle.Location = new System.Drawing.Point(39, 72);
+            this.PitchAngle.Name = "PitchAngle";
+            this.PitchAngle.ReadOnly = true;
+            this.PitchAngle.Size = new System.Drawing.Size(32, 20);
+            this.PitchAngle.TabIndex = 6;
+            this.PitchAngle.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // BatteryVolts
             // 
@@ -315,7 +314,7 @@ namespace UAVXGS
             // 
             // BatteryCurrent
             // 
-            this.BatteryCurrent.BackColor = System.Drawing.Color.MistyRose;
+            this.BatteryCurrent.BackColor = System.Drawing.SystemColors.Control;
             this.BatteryCurrent.Location = new System.Drawing.Point(53, 45);
             this.BatteryCurrent.Name = "BatteryCurrent";
             this.BatteryCurrent.ReadOnly = true;
@@ -404,14 +403,14 @@ namespace UAVXGS
             this.LRAcc.TabIndex = 21;
             this.LRAcc.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // YawSum
+            // YawAngle
             // 
-            this.YawSum.Location = new System.Drawing.Point(39, 98);
-            this.YawSum.Name = "YawSum";
-            this.YawSum.ReadOnly = true;
-            this.YawSum.Size = new System.Drawing.Size(32, 20);
-            this.YawSum.TabIndex = 20;
-            this.YawSum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.YawAngle.Location = new System.Drawing.Point(39, 98);
+            this.YawAngle.Name = "YawAngle";
+            this.YawAngle.ReadOnly = true;
+            this.YawAngle.Size = new System.Drawing.Size(32, 20);
+            this.YawAngle.TabIndex = 20;
+            this.YawAngle.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // DUAcc
             // 
@@ -539,15 +538,6 @@ namespace UAVXGS
             this.RangefinderAltitude.TabIndex = 43;
             this.RangefinderAltitude.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // RangefinderROC
-            // 
-            this.RangefinderROC.Location = new System.Drawing.Point(122, 55);
-            this.RangefinderROC.Name = "RangefinderROC";
-            this.RangefinderROC.ReadOnly = true;
-            this.RangefinderROC.Size = new System.Drawing.Size(32, 20);
-            this.RangefinderROC.TabIndex = 47;
-            this.RangefinderROC.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
             // RelBaroAltitude
             // 
             this.RelBaroAltitude.Location = new System.Drawing.Point(84, 29);
@@ -586,7 +576,7 @@ namespace UAVXGS
             // 
             // FailState
             // 
-            this.FailState.Location = new System.Drawing.Point(238, 56);
+            this.FailState.Location = new System.Drawing.Point(227, 31);
             this.FailState.Name = "FailState";
             this.FailState.ReadOnly = true;
             this.FailState.Size = new System.Drawing.Size(73, 20);
@@ -669,7 +659,7 @@ namespace UAVXGS
             // 
             this.FailStateLabel.AutoSize = true;
             this.FailStateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FailStateLabel.Location = new System.Drawing.Point(183, 59);
+            this.FailStateLabel.Location = new System.Drawing.Point(175, 34);
             this.FailStateLabel.Name = "FailStateLabel";
             this.FailStateLabel.Size = new System.Drawing.Size(51, 13);
             this.FailStateLabel.TabIndex = 71;
@@ -776,7 +766,7 @@ namespace UAVXGS
             // 
             // FlightState
             // 
-            this.FlightState.Location = new System.Drawing.Point(238, 30);
+            this.FlightState.Location = new System.Drawing.Point(56, 31);
             this.FlightState.Name = "FlightState";
             this.FlightState.ReadOnly = true;
             this.FlightState.Size = new System.Drawing.Size(73, 20);
@@ -787,7 +777,7 @@ namespace UAVXGS
             // 
             this.FlightStateLabel.AutoSize = true;
             this.FlightStateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FlightStateLabel.Location = new System.Drawing.Point(184, 33);
+            this.FlightStateLabel.Location = new System.Drawing.Point(18, 33);
             this.FlightStateLabel.Name = "FlightStateLabel";
             this.FlightStateLabel.Size = new System.Drawing.Size(32, 13);
             this.FlightStateLabel.TabIndex = 90;
@@ -823,18 +813,16 @@ namespace UAVXGS
             this.ControlsGroupBox.Size = new System.Drawing.Size(77, 124);
             this.ControlsGroupBox.TabIndex = 93;
             this.ControlsGroupBox.TabStop = false;
-            this.ControlsGroupBox.Text = "Controls (%)";
+            this.ControlsGroupBox.Text = "Control (%)";
             // 
             // AttitudeGroupBox
             // 
             this.AttitudeGroupBox.Controls.Add(this.YawLabel);
             this.AttitudeGroupBox.Controls.Add(this.PitchLabel);
             this.AttitudeGroupBox.Controls.Add(this.RollLabel);
-            this.AttitudeGroupBox.Controls.Add(this.RollSum);
-            this.AttitudeGroupBox.Controls.Add(this.PitchSum);
-            this.AttitudeGroupBox.Controls.Add(this.YawSum);
-            this.AttitudeGroupBox.Controls.Add(this.UserAttitudeToDegreesLabel);
-            this.AttitudeGroupBox.Controls.Add(this.UserAttitudeToDegrees);
+            this.AttitudeGroupBox.Controls.Add(this.RollAngle);
+            this.AttitudeGroupBox.Controls.Add(this.PitchAngle);
+            this.AttitudeGroupBox.Controls.Add(this.YawAngle);
             this.AttitudeGroupBox.Location = new System.Drawing.Point(95, 56);
             this.AttitudeGroupBox.Name = "AttitudeGroupBox";
             this.AttitudeGroupBox.Size = new System.Drawing.Size(77, 125);
@@ -868,25 +856,6 @@ namespace UAVXGS
             this.RollLabel.Size = new System.Drawing.Size(25, 13);
             this.RollLabel.TabIndex = 107;
             this.RollLabel.Text = "Roll";
-            // 
-            // UserAttitudeToDegreesLabel
-            // 
-            this.UserAttitudeToDegreesLabel.AutoSize = true;
-            this.UserAttitudeToDegreesLabel.Location = new System.Drawing.Point(6, 23);
-            this.UserAttitudeToDegreesLabel.Name = "UserAttitudeToDegreesLabel";
-            this.UserAttitudeToDegreesLabel.Size = new System.Drawing.Size(34, 13);
-            this.UserAttitudeToDegreesLabel.TabIndex = 106;
-            this.UserAttitudeToDegreesLabel.Text = "Scale";
-            // 
-            // UserAttitudeToDegrees
-            // 
-            this.UserAttitudeToDegrees.Location = new System.Drawing.Point(46, 20);
-            this.UserAttitudeToDegrees.Name = "UserAttitudeToDegrees";
-            this.UserAttitudeToDegrees.Size = new System.Drawing.Size(25, 20);
-            this.UserAttitudeToDegrees.TabIndex = 105;
-            this.UserAttitudeToDegrees.Text = "35";
-            this.UserAttitudeToDegrees.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.UserAttitudeToDegrees.TextChanged += new System.EventHandler(this.UserAttitudeToDegrees_TextChanged);
             // 
             // AccelerationsGroupBox
             // 
@@ -951,7 +920,7 @@ namespace UAVXGS
             // MissionTimeSecLabel
             // 
             this.MissionTimeSecLabel.AutoSize = true;
-            this.MissionTimeSecLabel.Location = new System.Drawing.Point(18, 33);
+            this.MissionTimeSecLabel.Location = new System.Drawing.Point(442, 5);
             this.MissionTimeSecLabel.Name = "MissionTimeSecLabel";
             this.MissionTimeSecLabel.Size = new System.Drawing.Size(46, 13);
             this.MissionTimeSecLabel.TabIndex = 163;
@@ -959,7 +928,7 @@ namespace UAVXGS
             // 
             // MissionTimeSec
             // 
-            this.MissionTimeSec.Location = new System.Drawing.Point(96, 30);
+            this.MissionTimeSec.Location = new System.Drawing.Point(494, 3);
             this.MissionTimeSec.Name = "MissionTimeSec";
             this.MissionTimeSec.ReadOnly = true;
             this.MissionTimeSec.Size = new System.Drawing.Size(70, 20);
@@ -984,7 +953,7 @@ namespace UAVXGS
             // 
             // BatteryCharge
             // 
-            this.BatteryCharge.BackColor = System.Drawing.Color.MistyRose;
+            this.BatteryCharge.BackColor = System.Drawing.SystemColors.Control;
             this.BatteryCharge.Location = new System.Drawing.Point(35, 71);
             this.BatteryCharge.Name = "BatteryCharge";
             this.BatteryCharge.ReadOnly = true;
@@ -1366,7 +1335,6 @@ namespace UAVXGS
             this.AltitudeGroupBox.Controls.Add(this.RangefinderAltitude);
             this.AltitudeGroupBox.Controls.Add(this.GPSRelAltitude);
             this.AltitudeGroupBox.Controls.Add(this.BaroROC);
-            this.AltitudeGroupBox.Controls.Add(this.RangefinderROC);
             this.AltitudeGroupBox.Controls.Add(this.RelBaroAltitude);
             this.AltitudeGroupBox.Controls.Add(this.GPSAltLabel);
             this.AltitudeGroupBox.Controls.Add(this.BaroAltitudeLabel);
@@ -1381,7 +1349,7 @@ namespace UAVXGS
             // WayHeadingLabel
             // 
             this.WayHeadingLabel.AutoSize = true;
-            this.WayHeadingLabel.Location = new System.Drawing.Point(6, 156);
+            this.WayHeadingLabel.Location = new System.Drawing.Point(7, 178);
             this.WayHeadingLabel.Name = "WayHeadingLabel";
             this.WayHeadingLabel.Size = new System.Drawing.Size(72, 13);
             this.WayHeadingLabel.TabIndex = 64;
@@ -1390,7 +1358,7 @@ namespace UAVXGS
             // GPSLongitudeLabel
             // 
             this.GPSLongitudeLabel.AutoSize = true;
-            this.GPSLongitudeLabel.Location = new System.Drawing.Point(6, 260);
+            this.GPSLongitudeLabel.Location = new System.Drawing.Point(6, 290);
             this.GPSLongitudeLabel.Name = "GPSLongitudeLabel";
             this.GPSLongitudeLabel.Size = new System.Drawing.Size(54, 13);
             this.GPSLongitudeLabel.TabIndex = 63;
@@ -1399,7 +1367,7 @@ namespace UAVXGS
             // GPSLatitudeLabel
             // 
             this.GPSLatitudeLabel.AutoSize = true;
-            this.GPSLatitudeLabel.Location = new System.Drawing.Point(5, 234);
+            this.GPSLatitudeLabel.Location = new System.Drawing.Point(6, 264);
             this.GPSLatitudeLabel.Name = "GPSLatitudeLabel";
             this.GPSLatitudeLabel.Size = new System.Drawing.Size(45, 13);
             this.GPSLatitudeLabel.TabIndex = 61;
@@ -1408,7 +1376,7 @@ namespace UAVXGS
             // NavStateLabel
             // 
             this.NavStateLabel.AutoSize = true;
-            this.NavStateLabel.Location = new System.Drawing.Point(6, 22);
+            this.NavStateLabel.Location = new System.Drawing.Point(7, 22);
             this.NavStateLabel.Name = "NavStateLabel";
             this.NavStateLabel.Size = new System.Drawing.Size(55, 13);
             this.NavStateLabel.TabIndex = 72;
@@ -1417,7 +1385,7 @@ namespace UAVXGS
             // GPSVelLabel
             // 
             this.GPSVelLabel.AutoSize = true;
-            this.GPSVelLabel.Location = new System.Drawing.Point(6, 130);
+            this.GPSVelLabel.Location = new System.Drawing.Point(7, 128);
             this.GPSVelLabel.Name = "GPSVelLabel";
             this.GPSVelLabel.Size = new System.Drawing.Size(47, 13);
             this.GPSVelLabel.TabIndex = 60;
@@ -1426,7 +1394,7 @@ namespace UAVXGS
             // CurrWPLabel
             // 
             this.CurrWPLabel.AutoSize = true;
-            this.CurrWPLabel.Location = new System.Drawing.Point(6, 104);
+            this.CurrWPLabel.Location = new System.Drawing.Point(7, 101);
             this.CurrWPLabel.Name = "CurrWPLabel";
             this.CurrWPLabel.Size = new System.Drawing.Size(32, 13);
             this.CurrWPLabel.TabIndex = 73;
@@ -1434,7 +1402,7 @@ namespace UAVXGS
             // 
             // GPSLatitude
             // 
-            this.GPSLatitude.Location = new System.Drawing.Point(61, 231);
+            this.GPSLatitude.Location = new System.Drawing.Point(60, 261);
             this.GPSLatitude.Name = "GPSLatitude";
             this.GPSLatitude.ReadOnly = true;
             this.GPSLatitude.Size = new System.Drawing.Size(73, 20);
@@ -1443,7 +1411,7 @@ namespace UAVXGS
             // 
             // GPSLongitude
             // 
-            this.GPSLongitude.Location = new System.Drawing.Point(61, 257);
+            this.GPSLongitude.Location = new System.Drawing.Point(60, 287);
             this.GPSLongitude.Name = "GPSLongitude";
             this.GPSLongitude.ReadOnly = true;
             this.GPSLongitude.Size = new System.Drawing.Size(73, 20);
@@ -1461,7 +1429,7 @@ namespace UAVXGS
             // 
             // CurrWP
             // 
-            this.CurrWP.Location = new System.Drawing.Point(97, 101);
+            this.CurrWP.Location = new System.Drawing.Point(97, 98);
             this.CurrWP.Name = "CurrWP";
             this.CurrWP.ReadOnly = true;
             this.CurrWP.Size = new System.Drawing.Size(37, 20);
@@ -1470,7 +1438,7 @@ namespace UAVXGS
             // 
             // WayHeading
             // 
-            this.WayHeading.Location = new System.Drawing.Point(97, 153);
+            this.WayHeading.Location = new System.Drawing.Point(97, 175);
             this.WayHeading.Name = "WayHeading";
             this.WayHeading.ReadOnly = true;
             this.WayHeading.Size = new System.Drawing.Size(37, 20);
@@ -1480,7 +1448,7 @@ namespace UAVXGS
             // WPAltitude
             // 
             this.WPAltitude.AutoSize = true;
-            this.WPAltitude.Location = new System.Drawing.Point(6, 208);
+            this.WPAltitude.Location = new System.Drawing.Point(7, 230);
             this.WPAltitude.Name = "WPAltitude";
             this.WPAltitude.Size = new System.Drawing.Size(47, 13);
             this.WPAltitude.TabIndex = 77;
@@ -1488,7 +1456,7 @@ namespace UAVXGS
             // 
             // GPSVel
             // 
-            this.GPSVel.Location = new System.Drawing.Point(97, 127);
+            this.GPSVel.Location = new System.Drawing.Point(97, 124);
             this.GPSVel.Name = "GPSVel";
             this.GPSVel.ReadOnly = true;
             this.GPSVel.Size = new System.Drawing.Size(37, 20);
@@ -1498,7 +1466,7 @@ namespace UAVXGS
             // HeadingLabel
             // 
             this.HeadingLabel.AutoSize = true;
-            this.HeadingLabel.Location = new System.Drawing.Point(6, 78);
+            this.HeadingLabel.Location = new System.Drawing.Point(7, 75);
             this.HeadingLabel.Name = "HeadingLabel";
             this.HeadingLabel.Size = new System.Drawing.Size(82, 13);
             this.HeadingLabel.TabIndex = 41;
@@ -1506,7 +1474,7 @@ namespace UAVXGS
             // 
             // AltitudeError
             // 
-            this.AltitudeError.Location = new System.Drawing.Point(97, 205);
+            this.AltitudeError.Location = new System.Drawing.Point(97, 227);
             this.AltitudeError.Name = "AltitudeError";
             this.AltitudeError.ReadOnly = true;
             this.AltitudeError.Size = new System.Drawing.Size(37, 20);
@@ -1515,7 +1483,7 @@ namespace UAVXGS
             // 
             // Heading
             // 
-            this.Heading.Location = new System.Drawing.Point(97, 75);
+            this.Heading.Location = new System.Drawing.Point(97, 72);
             this.Heading.Name = "Heading";
             this.Heading.ReadOnly = true;
             this.Heading.Size = new System.Drawing.Size(37, 20);
@@ -1525,7 +1493,7 @@ namespace UAVXGS
             // WPDistanceLabel
             // 
             this.WPDistanceLabel.AutoSize = true;
-            this.WPDistanceLabel.Location = new System.Drawing.Point(5, 182);
+            this.WPDistanceLabel.Location = new System.Drawing.Point(7, 204);
             this.WPDistanceLabel.Name = "WPDistanceLabel";
             this.WPDistanceLabel.Size = new System.Drawing.Size(49, 13);
             this.WPDistanceLabel.TabIndex = 75;
@@ -1533,7 +1501,7 @@ namespace UAVXGS
             // 
             // DistanceToDesired
             // 
-            this.DistanceToDesired.Location = new System.Drawing.Point(97, 179);
+            this.DistanceToDesired.Location = new System.Drawing.Point(97, 201);
             this.DistanceToDesired.Name = "DistanceToDesired";
             this.DistanceToDesired.ReadOnly = true;
             this.DistanceToDesired.Size = new System.Drawing.Size(37, 20);
@@ -1542,6 +1510,8 @@ namespace UAVXGS
             // 
             // NavGroupBox
             // 
+            this.NavGroupBox.Controls.Add(this.GPSHeadingLabel);
+            this.NavGroupBox.Controls.Add(this.GPSHeading);
             this.NavGroupBox.Controls.Add(this.NavStateTimeoutLabel);
             this.NavGroupBox.Controls.Add(this.NavStateTimeout);
             this.NavGroupBox.Controls.Add(this.DistanceToDesired);
@@ -1562,9 +1532,9 @@ namespace UAVXGS
             this.NavGroupBox.Controls.Add(this.GPSVel);
             this.NavGroupBox.Controls.Add(this.WayHeading);
             this.NavGroupBox.Controls.Add(this.WPAltitude);
-            this.NavGroupBox.Location = new System.Drawing.Point(178, 90);
+            this.NavGroupBox.Location = new System.Drawing.Point(178, 57);
             this.NavGroupBox.Name = "NavGroupBox";
-            this.NavGroupBox.Size = new System.Drawing.Size(139, 285);
+            this.NavGroupBox.Size = new System.Drawing.Size(139, 318);
             this.NavGroupBox.TabIndex = 91;
             this.NavGroupBox.TabStop = false;
             this.NavGroupBox.Text = "Nav";
@@ -1572,15 +1542,15 @@ namespace UAVXGS
             // NavStateTimeoutLabel
             // 
             this.NavStateTimeoutLabel.AutoSize = true;
-            this.NavStateTimeoutLabel.Location = new System.Drawing.Point(6, 51);
+            this.NavStateTimeoutLabel.Location = new System.Drawing.Point(7, 48);
             this.NavStateTimeoutLabel.Name = "NavStateTimeoutLabel";
-            this.NavStateTimeoutLabel.Size = new System.Drawing.Size(60, 13);
+            this.NavStateTimeoutLabel.Size = new System.Drawing.Size(55, 13);
             this.NavStateTimeoutLabel.TabIndex = 153;
-            this.NavStateTimeoutLabel.Text = "Delay Time";
+            this.NavStateTimeoutLabel.Text = "Wait Time";
             // 
             // NavStateTimeout
             // 
-            this.NavStateTimeout.Location = new System.Drawing.Point(97, 48);
+            this.NavStateTimeout.Location = new System.Drawing.Point(97, 45);
             this.NavStateTimeout.Name = "NavStateTimeout";
             this.NavStateTimeout.ReadOnly = true;
             this.NavStateTimeout.Size = new System.Drawing.Size(37, 20);
@@ -2354,7 +2324,7 @@ namespace UAVXGS
             "128000"});
             this.COMBaudRateComboBox.Name = "COMBaudRateComboBox";
             this.COMBaudRateComboBox.Size = new System.Drawing.Size(75, 21);
-            this.COMBaudRateComboBox.Text = "9600";
+            this.COMBaudRateComboBox.Text = "115200";
             this.COMBaudRateComboBox.SelectedIndexChanged += new System.EventHandler(this.COMBaudRateComboBox_SelectedIndexChanged);
             // 
             // ReplayButton
@@ -2503,6 +2473,24 @@ namespace UAVXGS
             this.label8.TabIndex = 67;
             this.label8.Text = "Yaw";
             // 
+            // GPSHeadingLabel
+            // 
+            this.GPSHeadingLabel.AutoSize = true;
+            this.GPSHeadingLabel.Location = new System.Drawing.Point(7, 152);
+            this.GPSHeadingLabel.Name = "GPSHeadingLabel";
+            this.GPSHeadingLabel.Size = new System.Drawing.Size(90, 13);
+            this.GPSHeadingLabel.TabIndex = 155;
+            this.GPSHeadingLabel.Text = "GPS Head (Deg.)";
+            // 
+            // GPSHeading
+            // 
+            this.GPSHeading.Location = new System.Drawing.Point(97, 149);
+            this.GPSHeading.Name = "GPSHeading";
+            this.GPSHeading.ReadOnly = true;
+            this.GPSHeading.Size = new System.Drawing.Size(37, 20);
+            this.GPSHeading.TabIndex = 154;
+            this.GPSHeading.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
             // headingIndicatorInstrumentControl1
             // 
             this.headingIndicatorInstrumentControl1.Location = new System.Drawing.Point(369, 368);
@@ -2617,8 +2605,8 @@ namespace UAVXGS
         private System.Windows.Forms.Button FlyingButton;
         private Instruments.AttitudeIndicatorInstrumentControl attitudeIndicatorInstrumentControl1;
         private Instruments.HeadingIndicatorInstrumentControl headingIndicatorInstrumentControl1;
-        private System.Windows.Forms.TextBox RollSum;
-        private System.Windows.Forms.TextBox PitchSum;
+        private System.Windows.Forms.TextBox RollAngle;
+        private System.Windows.Forms.TextBox PitchAngle;
         private System.Windows.Forms.TextBox BatteryVolts;
         private System.Windows.Forms.TextBox BatteryCurrent;
         private System.Windows.Forms.TextBox RCGlitches;
@@ -2630,7 +2618,7 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox PitchRate;
         private System.Windows.Forms.TextBox RollRate;
         private System.Windows.Forms.TextBox LRAcc;
-        private System.Windows.Forms.TextBox YawSum;
+        private System.Windows.Forms.TextBox YawAngle;
         private System.Windows.Forms.TextBox DUAcc;
         private System.Windows.Forms.TextBox FBAcc;
         private System.Windows.Forms.Label VoltsLabel;
@@ -2645,7 +2633,6 @@ namespace UAVXGS
         private System.Windows.Forms.Label CurrentLabel;
         private System.Windows.Forms.TextBox GPSHDilute;
         private System.Windows.Forms.TextBox RangefinderAltitude;
-        private System.Windows.Forms.TextBox RangefinderROC;
         private System.Windows.Forms.TextBox RelBaroAltitude;
         private System.Windows.Forms.TextBox GPSFix;
         private System.Windows.Forms.TextBox BaroROC;
@@ -2729,8 +2716,6 @@ namespace UAVXGS
         private System.Windows.Forms.GroupBox NavGroupBox;
         private System.Windows.Forms.TextBox CurrentAltitude;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label UserAttitudeToDegreesLabel;
-        private System.Windows.Forms.TextBox UserAttitudeToDegrees;
         private System.Windows.Forms.TextBox AltitudeSource;
         private System.Windows.Forms.Button GoogleButton;
         private System.Windows.Forms.TextBox MessageTextBox;
@@ -2835,6 +2820,8 @@ namespace UAVXGS
         private System.Windows.Forms.Label Output5Label;
         private System.Windows.Forms.Label Output4Label;
         private System.Windows.Forms.Label Output0Label;
+        private System.Windows.Forms.Label GPSHeadingLabel;
+        private System.Windows.Forms.TextBox GPSHeading;
     }
 }
 
