@@ -1430,7 +1430,8 @@ namespace UAVXGS
                                 BaroROC.BackColor = System.Drawing.Color.Orange;
                             else
                                 BaroROC.BackColor = AltitudeGroupBox.BackColor;
-                            if (UAVXArm)
+                                
+                            if ( UAVXArm )
                                 RangefinderAltitude.Text = string.Format("{0:n2}", (float)RangefinderAltitudeT * 0.01);
                             else
                                 RangefinderAltitude.Text = string.Format("{0:n2}", (float)RangefinderAltitudeT * 0.1);
