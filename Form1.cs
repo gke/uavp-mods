@@ -1106,8 +1106,8 @@ namespace UAVXGS
 
                             if (UAVXArm)
                             {
-                                BatteryVolts.Text = string.Format("{0:n1}", (float)BatteryVoltsT * 0.001 ); 
-                                BatteryCurrent.Text = string.Format("{0:n1}", (float)BatteryCurrentT * 0.001 ); 
+                                BatteryVolts.Text = string.Format("{0:n1}", (float)BatteryVoltsT * 0.1 ); 
+                                BatteryCurrent.Text = string.Format("{0:n1}", (float)BatteryCurrentT * 0.1 ); 
                                 BatteryCharge.Text = string.Format("{0:n0}", (float)BatteryChargeT); 
                             }
                             else
