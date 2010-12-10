@@ -19,7 +19,7 @@ With older PPM style receivers the signal from the Rx becomes just noise if the 
 
 If your Rx does go to failsafe then it will only execute an RTH if you *GPS fitted and the origin correctly initialised*. 
 
-*IF YOU DO NOT DO THIS THEN IT WILL DO EXACTLY WHAT YOU HAVE SET IN THE RX FAILSAFES JUST AS ANY OTHER AIRCRAFT WILL DO - FLY AWAY.*
+*IF YOU DO NOT DO THIS THEN THE AIRCRAFT WILL DO EXACTLY WHAT YOU HAVE SET IN THE RX FAILSAFES JUST AS ANY OTHER AIRCRAFT WILL DO IF YOU HAVE SET THE FAILSAFE WITH THROTTLE OPEN - FLY AWAY.*
 
 If your GPS is *installed*, working *and* the Origin recorded *and* UAVX determines less than 4 out of 5 Rx frames are good then the following sequence happens. You ONLY have recovery as far as step 2) and then only if 4 or more out of 5 Rx frames are good. 
 
