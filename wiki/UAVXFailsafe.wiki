@@ -9,21 +9,25 @@ UAVX requires the signals from the Rx to meet minimum and maximum pulse width re
 
 Modern receivers usually maintain sensible channel values when the link between the Tx and the Rx fail for some reason. You must set failsafe values for the Rx so they too pass the Rx test in UAVPSet.
 
-If you have adjusted the failsafes correctly then UAVX will not detect a failure. It will do exactly what you have programmed so if you have programmed hold last setting then that is what UAVX will do - all the way into the ground.  You should consider setting the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover and Channel 5 goes to RTH. Nav sensitivity should be what you have determined to be good for position hold and the camera trim should be so your camera is titlted to a safe position.
+If you have adjusted the failsafes correctly then UAVX will not detect a failure. It will do exactly what you have programmed so if you have programmed hold last setting then that is what UAVX will do - all the way into the ground.  You should consider setting the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover and Channel 5 goes to RTH. Nav sensitivity should be what you have determined to be good for position hold and the camera trim should be so your camera is tilted to a safe position.
 
 == Older Receivers ==
 
-With older PPM style receivers the signal from the Rx becomes just noise if the Tx link fails. UAVX will detect this.
+With older PPM style receivers the signal from the Rx becomes just noise if the Tx link fails. UAVX will detect this. Unlike modern receivers it will land - see below.
 
 == What Happens ==
 
-If UAVX determines less than 4 out of 5 Rx frames are good then the following sequence happens. You ONLY have recovery as far as step 2) and then only if 4 or more out of 5 Rx frames are good. 
+If your Rx does go to failsafe then it will only execute an RTH if you *GPS fitted and the origin correctly initialised*. 
+
+*IF YOU DO NOT DO THIS THEN IT WILL DO EXACTLY WHAT YOU HAVE SET IN THE RX FAILSAFES JUST AS ANY OTHER AIRCRAFT WILL DO - FLY AWAY.*
+
+If your GPS is *installed*, working *and* the Origin recorded *and* UAVX determines less than 4 out of 5 Rx frames are good then the following sequence happens. You ONLY have recovery as far as step 2) and then only if 4 or more out of 5 Rx frames are good. 
 
 1) MonitoringRx: the signal has failed so monitor the signal for 1Sec maintaining the last Rx settings. If the the signal recovers resume otherwise 2).
 
 2) Aborting: Climb to the RTH altitude setting (stick programming of no altitude hold on RTH is overriden). If you have GPS hold then position for 5Sec still monitoring the signal every second but if you don't have GPS only wait for a further 1Sec. If signal returns then resume otherwise 3). 
 
-3)  Terminating: You now have no control and UAVX will do an autoland (auto land disable is overriden). Start an auto-land continuing at the Maximum descent rate until the you get down to ~1M above the launch altitude.
+3)  Terminating: You now have no control and UAVX will do an auto-land (auto land disable is overriden). Start an auto-land continuing at the Maximum descent rate until the you get down to ~1M above the launch altitude.
 
 5) Terminated: complete the landing and switch off the motors.  Motors are disabled and will not restart until a re-arm is done.
 
