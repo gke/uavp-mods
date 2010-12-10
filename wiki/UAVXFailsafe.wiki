@@ -39,9 +39,10 @@ In a strong wind or if you are travelling at maximum speed then you can move a l
 
 Routinely check your flight (X stats test) after flights to see if there have been more than a handful of glitches or whether there have been any other sensor failures. The stats are kept from when you disarm to when re-arm even if the battery is unplugged so you can check this at home if that is where your computer is as long as you do not re-arm.
 
-== The Code == 
+== The Old Style Receiver Failsafe Code == 
 
 For those who are inclined the following code ( circa 5 Nov 2010) is pretty much self explanatory. It comes from autonomous.c in the release. If you see any obvious bugs let me know:).
+
 
 void DoPPMFailsafe(void)
 { // only relevant to PPM Rx or Quad NOT synchronising with Rx
