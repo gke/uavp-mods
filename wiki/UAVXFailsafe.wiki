@@ -3,7 +3,7 @@
 
 = UAVX Failsafe Operation =
 
-UAVX requires the signals from the Rx to meet minimum and maximum pulse width requirements which mean the endpoint adjustments (EPAs) for each channel must be adjusted properly - see the UAVXSetup Wiki. The Rx sends all of the channels together in one packet or frame. If UAVX receives less than four good packets in every five it decides the signal is bad and will start failsafe proceedings. 
+UAVX requires the signals from the Rx to meet minimum and maximum pulse width requirements which mean the endpoint adjustments (EPAs) for each channel must be adjusted properly - see the UAVXSetup Wiki. 
 
 == Modern Receivers with Failsafe ==
 
