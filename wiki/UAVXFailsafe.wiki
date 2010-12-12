@@ -3,101 +3,38 @@
 
 = UAVX Failsafe Operation =
 
+UAVX monitors the signals from the Rx to UAVX *NOT* from the Tx to the Rx.
+
 UAVX requires the signals from the Rx to meet minimum and maximum pulse width requirements which mean the endpoint adjustments (EPAs) for each channel must be adjusted properly - see the UAVXSetup Wiki. 
 
 == Modern Receivers with Failsafe ==
 
-Modern receivers usually maintain sensible channel values when the link between the Tx and the Rx fail for some reason. You must set failsafe values for the Rx so they too pass the Rx test in UAVPSet.
+Modern receivers usually maintain sensible channel values when the link between the Tx and the Rx fails for some reason. 
 
-If you have adjusted the failsafes correctly then UAVX will not detect a failure. It will do exactly what you have programmed so if you have programmed hold last setting then that is what UAVX will do - all the way into the ground or up up and away if the throttle is too high.  
+=== Rx Failsafes not set correctly ===
 
-You should consider setting the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover (2/3) and *Channel 5 goes to RTH*. Nav sensitivity should be what you have determined to be good for position hold and the camera trim should be so your camera is tilted to a safe position. If your GPS is *installed*, working *and* the Origin recorded the aircraft should return to the origin and, with no further intervention, attempt to land.
+You have not set R failsafe values for the Rx and adjusted the EPAs so they too pass the Rx test in UAVPSet the behaviour will be unpredicable behaviour but most likely it will be as for older non-failsafe receivers (see Older Receivers below).
 
-If you do not have GPS installed and operating  with the origin set then and the Rx goes to failsafe then this can normaly be detected by UAVX as the controls do not change, which they would do when controlling the aircraft without position hold.  If the controls are not detected as moving for 20 seconds then the aircraft will sound the lost model alarm ( long beeps repeated every few seconds) and attempt to land. If this was not an Rx failsafe and you were simply not moving the sticks the landing will be cancelled immediately you do move them.
+=== How do I set the Rx Failsafes ===
+
+You should set  the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover (2/3) and *MOST IMPORTANTLY Channel 5 selects RTH*. Nav sensitivity should be what you have determined to work well for position hold and the camera trim should be so your camera is tilted to a safe position. 
+
+It is very important to note that the aircraft will do exactly what the Rx settings tell it to do. If you have programmed the Rx hold last setting then that is what UAVX will do - all the way into the ground or up up and away if the throttle is too high and it will continue to do this for several seconds until the fact that the sticks are not changing is detected ( see No GPS ). If it is not actually a real Rx failsafe and you were simply not moving the sticks then moving them cancels the UAVX failsafe.
+
+=== What Happens with no GPS ===
+
+If you do not have GPS installed and operating  with the origin set then and the Rx goes to failsafe then this can normally be detected by UAVX *as the controls do not change*, which they would do when controlling the aircraft without position hold.  If the controls are not not moving for 20 seconds then the aircraft will sound the lost model alarm ( long beeps repeated every few seconds) and attempt to land. If this was not an Rx failsafe and you were simply not 
+
+=== What happens with GPS ===
+
+If your GPS is *installed*, working *and* the Origin recorded the aircraft should return to the origin and, with no further intervention, attempt to land after the time delay set in UAVPSet. If you did not have RTH as your Rx failsafe then it will hold position for 20 seconds then do a RTH.
 
 == Older Receivers ==
 
-With older PPM style receivers the signal from the Rx becomes just noise if the Tx link fails. The failsafe process is as follows.
+With older PPM style receivers the signal from the Rx becomes just noise if the Tx link fails. 
 
-If your GPS is *installed*, working *and* the Origin recorded *and* UAVX determines less than 4 out of 5 Rx frames are good then the following sequence happens. You ONLY have recovery as far as step 2) and then only if 4 or more out of 5 Rx frames are good. 
-
-1) Monitoring Rx: the signal has failed so monitor the signal for 1Sec maintaining the last Rx settings. If the the signal recovers resume otherwise 2).
-
-2) Aborting: Climb to the RTH altitude setting (stick programming of no altitude hold on RTH is overriden). If you have GPS hold then position for 5Sec still monitoring the signal every second but if you don't have GPS only wait for a further 1Sec. If signal returns then resume otherwise 3). 
-
-3)  Terminating: You now have no control and UAVX will do an auto-land (auto land disable is overriden). Start an auto-land continuing at the Maximum descent rate until the you get down to ~1M above the launch altitude. The lost model alarm will sound.
-
-5) Terminated: complete the landing and switch off the motors.  Motors are disabled and will not restart until a re-arm is done.
-
-=== Two Seconds Seems Short ===
-
-In a strong wind or if you are travelling at maximum speed then you can move a long way in 2 seconds. If you have signal outages of more than 2 seconds then you should not have flown. 
+If the Rx signal fails and does not fully recover within 2 seconds then the aircraft will attempt to perform a RTH if GPS is set up properly or land where it is. 
 
 == Flight Statistics ==
 
 Routinely check your flight (X stats test) after flights to see if there have been more than a handful of glitches or whether there have been any other sensor failures. The stats are kept from when you disarm to when re-arm even if the battery is unplugged so you can check this at home if that is where your computer is as long as you do not re-arm.
-
-== The Old Style Receiver Failsafe Code == 
-
-For those who are inclined the following code ( circa 5 Nov 2010) is pretty much self explanatory. It comes from autonomous.c in the release. 
-
-
-void DoPPMFailsafe(void)
-{ // only relevant to PPM Rx or Quad NOT synchronising with Rx
-
-  if ( State == InFlight )
-    switch ( FailState ) { // FailStates { MonitoringRx, Aborting, Terminating, Terminated }
-    case Terminated: // Basic assumption is that aircraft is being flown over a safe area!
-      FailsafeHoldPosition();
-      DoFailsafeLanding();	
-      break;
-    case Terminating:
-      FailsafeHoldPosition();
-      if ( Altitude < LAND_DM )
-      {
-        mS[NavStateTimeout] = mSClock() + NAV_RTH_LAND_TIMEOUT_MS;
-        NavState = Touchdown;
-        FailState = Terminated;
-      }
-      DoFailsafeLanding();
-      break;
-    case Aborting:
-      FailsafeHoldPosition();
-      F.AltHoldEnabled = true;
-      SetDesiredAltitude((int16)P[NavRTHAlt]);
-      if( mSClock() > mS[NavStateTimeout] )
-      {
-        F.LostModel = true;
-        LEDGreen_OFF;
-        LEDRed_ON;
-	
-        mS[NavStateTimeout] = mSClock() + NAV_RTH_LAND_TIMEOUT_MS;
-        NavState = Descending;
-        FailState = Terminating;
-      }
-      else
-        CheckFailsafeAbort();		
-      break;
-    case MonitoringRx:
-      if ( mSClock() > mS[FailsafeTimeout] ) 
-      {
-        // use last "good" throttle
-        Stats[RCFailsafesS]++;
-        if ( F.GPSValid && F.CompassValid )
-          mS[NavStateTimeout] = mSClock() + ABORT_TIMEOUT_GPS_MS;
-        else
-          mS[NavStateTimeout] = mSClock() + ABORT_TIMEOUT_NO_GPS_MS;
-        mS[AbortTimeout] = mSClock() + ABORT_UPDATE_MS;
-        FailState = Aborting; 
-      }
-      break;
-    } // Switch FailState
-    else
-     DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = 0;
-			
-} // DoPPMFailsafe
-
-FAILSAFE_TIMEOUT_MS 1000L // mS. hold last "good" settings and then restore flight or abort
-ABORT_TIMEOUT_GPS_MS 5000L // mS. go to descend on position hold if GPS valid.
-ABORT_TIMEOUT_NO_GPS_MS 0L // mS. go to descend on position hold if GPS valid.  
-ABORT_UPDATE_MS 1000L	// mS. retry period for RC Signal and restore Pilot in Control
