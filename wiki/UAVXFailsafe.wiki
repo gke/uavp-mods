@@ -17,7 +17,7 @@ You have not set R failsafe values for the Rx and adjusted the EPAs so they too 
 
 === How do I set the Rx Failsafes ===
 
-You should set  the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover (2/3) and *MOST IMPORTANTLY Channel 5 selects RTH*. Nav sensitivity should be what you have determined to work well for position hold and the camera trim should be so your camera is tilted to a safe position. 
+You should set  the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover (2/3) and Channel 5 selects RTH. Nav sensitivity should be what you have determined to work well for position hold and the camera trim should be so your camera is tilted to a safe position. 
 
 It is very important to note that the aircraft will do exactly what the Rx settings tell it to do. If you have programmed the Rx hold last setting then that is what UAVX will do - all the way into the ground or up up and away if the throttle is too high and it will continue to do this for several seconds until the fact that the sticks are not changing is detected ( see No GPS ). If it is not actually a real Rx failsafe and you were simply not moving the sticks then moving them cancels the UAVX failsafe.
 
@@ -27,13 +27,13 @@ If you do not have GPS installed and operating  with the origin set then and the
 
 === What happens with GPS ===
 
-If your GPS is *installed*, working *and* the Origin recorded the aircraft should return to the origin and, with no further intervention, attempt to land after the time delay set in UAVPSet. If you did not have RTH as your Rx failsafe then it will hold position for 20 seconds then do a RTH.
+If your GPS is *installed*, working *and* the Origin recorded the aircraft should return to the origin and, with no further intervention, attempt to land after the time delay set in UAVPSet. If you did not have RTH as your Rx failsafe then it will hold position for 20 seconds after which which UAVX will detect the controls are not moving and do a RTH.
 
 == Older Receivers ==
 
 With older PPM style receivers the signal from the Rx becomes just noise if the Tx link fails. 
 
-If the Rx signal fails and does not fully recover within 2 seconds then the aircraft will attempt to perform a RTH if GPS is set up properly or land where it is. 
+If the Rx signal fails and does not fully recover within 2 seconds then the aircraft will attempt to perform a RTH if GPS is set up properly or if GPS is not available land where it is. 
 
 == Flight Statistics ==
 
