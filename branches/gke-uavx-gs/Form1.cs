@@ -1365,6 +1365,9 @@ namespace UAVXGS
                                 case 3: FailState.Text = "Terminated";
                                     FailState.BackColor = System.Drawing.Color.Red;
                                     break;
+                                case 4: FailState.Text = "Terminating";
+                                    FailState.BackColor = System.Drawing.Color.Orange;
+                                    break;
                                 default: FailState.Text = "Unknown"; break;
                             } // switch
 
