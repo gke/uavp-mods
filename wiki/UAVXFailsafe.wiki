@@ -19,11 +19,13 @@ You have not set R failsafe values for the Rx and adjusted the EPAs so they too 
 
 You should set  the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover (2/3) and Channel 5 selects RTH. Nav sensitivity should be what you have determined to work well for position hold and the camera trim should be so your camera is tilted to a safe position. 
 
-It is very important to note that the aircraft will do exactly what the Rx settings tell it to do. If you have programmed the Rx hold last setting then that is what UAVX will do - all the way into the ground or up up and away if the throttle is too high and it will continue to do this for several seconds until the fact that the sticks are not changing is detected ( see No GPS ). If it is not actually a real Rx failsafe and you were simply not moving the sticks then moving them cancels the UAVX failsafe.
+It is very important to note that the aircraft will do exactly what the Rx settings tell it to do. If you have programmed the Rx hold last setting then that is what UAVX will do - all the way into the ground or up up and away if the throttle is too high and it will continue to do this until the fact that the sticks are not changing is detected ( see No GPS ). If you selected Channel 5 to be RTH as suggested there will be no delay and it will return.
+
+If it is not actually a real Rx failsafe and you were simply not moving the sticks then moving them cancels the UAVX failsafe.
 
 === What Happens with no GPS ===
 
-If you do not have GPS installed and operating  with the origin set then and the Rx goes to failsafe then this can normally be detected by UAVX *as the controls do not change*, which they would do when controlling the aircraft without position hold.  If the controls are not not moving for 20 seconds then the aircraft will sound the lost model alarm ( long beeps repeated every few seconds) and attempt to land. If this was not an Rx failsafe and you were simply not 
+If you do not have GPS installed and operating  with the origin set then and the Rx goes to failsafe then this can normally be detected by UAVX *as the controls do not change*, which they would do when controlling the aircraft without position hold.  If the controls are not not moving for 20 seconds then the aircraft will sound the *lost model alarm* ( long beeps repeated every few seconds) and attempt to land. 
 
 === What happens with GPS ===
 
