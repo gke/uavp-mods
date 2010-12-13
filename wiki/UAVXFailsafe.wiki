@@ -29,7 +29,7 @@ If you do not have GPS installed and operating  with the origin set then and the
 
 === What happens with GPS ===
 
-If your GPS is *installed*, working *and* the Origin recorded the aircraft should return to the origin and, with no further intervention, attempt to land after the time delay set in UAVPSet. If you did not have RTH as your Rx failsafe then it will hold position for 20 seconds after which which UAVX will detect the controls are not moving and do a RTH.
+If your GPS is *installed*, working *and* the Origin recorded the aircraft should return to the origin and, with no further intervention, attempt to land after the time delay set in UAVPSet. You MUST have RTH set as your Rx failsafe if you expect the aircraft to return. If you do not then the aircraft will hold position until its battery runs out at which time it will land/crash. It is simply to difficult to resolve between an aircraft navigating or holding position with no control input or a genuine Rx failsafe.
 
 == Older Receivers ==
 
