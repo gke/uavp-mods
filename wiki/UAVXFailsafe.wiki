@@ -13,7 +13,7 @@ Modern receivers usually maintain sensible channel values when the link between 
 
 === Rx Failsafes not set correctly ===
 
-You have not set R failsafe values for the Rx and adjusted the EPAs so they too pass the Rx test in UAVPSet the behaviour will be unpredicable behaviour but most likely it will be as for older non-failsafe receivers (see Older Receivers below).
+You have not set failsafe values for the Rx and adjusted the EPAs so they too pass the Rx test in UAVPSet the behaviour will be unpredicable behaviour but most likely it will be as for older non-failsafe receivers (see Older Receivers below).
 
 === How do I set the Rx Failsafes ===
 
@@ -36,6 +36,10 @@ If your GPS is *installed*, working *and* the Origin recorded the aircraft shoul
 With older PPM style receivers the signal from the Rx becomes just noise if the Tx link fails. 
 
 If the Rx signal fails and does not fully recover within 2 seconds then the aircraft will attempt to perform a RTH if GPS is set up properly or if GPS is not available land where it is. 
+
+== Lost Model Alarm ==
+
+If your aircraft is armed and the sticks have not moved for 2 minutes the lost model alarm will sound.  This is independent of throttle setting and may be of use if your aircraft goes down and is difficult to locate. 
 
 == Flight Statistics ==
 
