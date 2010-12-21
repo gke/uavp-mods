@@ -13,13 +13,13 @@ Modern receivers usually maintain sensible channel values when the link between 
 
 === Rx Failsafes not set correctly ===
 
-You have not set failsafe values for the Rx and adjusted the EPAs so they too pass the Rx test in UAVPSet the behaviour will be unpredicable behaviour. If your EPAs violate the UAVX setup limits then it likely the Rx packets will be rejected as bad and the behaviour it will be as for older non-failsafe receivers (see Older Receivers below).
+If you have not set failsafe values for the Rx and adjusted the EPAs so they too pass the Rx test in UAVPSet the behaviour will be unpredicable. If your EPAs violate the UAVX setup limits then it likely the Rx packets will be rejected as bad and the behaviour will be as for older non-failsafe receivers (see Older Receivers below).
 
 === How do I set the Rx Failsafes ===
 
-You should set  the failsafes so that roll/pitch and yaw go to neutral, throttle goes to slightly under hover (2/3) and Channel 5 selects RTH. Nav sensitivity should be what you have determined to work well for position hold and the camera trim should be so your camera is tilted to a safe position. 
+You should set  the failsafes so that roll/pitch and yaw go to neutral, throttle goes to well under hover (1/2 - 2/3) and Channel 5 selects RTH. Nav sensitivity should be what you have determined to work well for position hold and the camera trim should be so your camera is tilted to a safe position. The amount of throttle required to achieve hover obviously depends on any changes in aircraft weight, battery condition, changes to propellors, motors etc and  also on the *weather*. 
 
-It is very important to note that the aircraft will do exactly what the Rx settings tell it to do. If you have programmed the Rx hold last setting then that is what UAVX will do - all the way into the ground or up up and away if the throttle is too high and it will continue to do this until the fact that the sticks are not changing is detected ( see No GPS ). If you selected Channel 5 to be RTH as suggested there will be no delay and it will return.
+It is very important to note that the aircraft will do exactly what the Rx settings tell it to do. If you have programmed the Rx hold last setting then that is what UAVX will do - all the way *into the ground* or *up up and away* if the throttle is too high and it will continue to do this until the fact that the sticks are not changing is detected ( see No GPS ). If you selected Channel 5 to be RTH as suggested there will be no delay and and the aircraft should return to the launch point at the desired altitude.
 
 If it is not actually a real Rx failsafe and you were simply not moving the sticks then moving them cancels the UAVX failsafe.
 
