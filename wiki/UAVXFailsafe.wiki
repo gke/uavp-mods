@@ -13,7 +13,7 @@ Modern receivers usually maintain sensible channel values when the link between 
 
 === Rx Failsafes not set correctly ===
 
-You have not set failsafe values for the Rx and adjusted the EPAs so they too pass the Rx test in UAVPSet the behaviour will be unpredicable behaviour but most likely it will be as for older non-failsafe receivers (see Older Receivers below).
+You have not set failsafe values for the Rx and adjusted the EPAs so they too pass the Rx test in UAVPSet the behaviour will be unpredicable behaviour. If your EPAs violate the UAVX setup limits then it likely the Rx packets will be rejected as bad and the behaviour it will be as for older non-failsafe receivers (see Older Receivers below).
 
 === How do I set the Rx Failsafes ===
 
@@ -39,7 +39,7 @@ If the Rx signal fails and does not fully recover within 2 seconds then the airc
 
 == Lost Model Alarm ==
 
-If your aircraft is armed and the sticks have not moved for 2 minutes the lost model alarm will sound.  This is independent of throttle setting and may be of use if your aircraft goes down and is difficult to locate. 
+If your aircraft is armed but not flying ( the throttle has closed or the Rx failsafe throttle setting is closed) and the sticks have not moved for 2 minutes the lost model alarm will sound.  This is independent of throttle setting and may be of use if your aircraft goes down and is difficult to locate. 
 
 == Flight Statistics ==
 
