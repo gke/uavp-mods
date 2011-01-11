@@ -1,4 +1,4 @@
-#summary UAVXArm implementation.
+#summary This a progress report for the implementation of UAVX on the LPC1768 Arm processor.
 
 = UAVXArm =
 
