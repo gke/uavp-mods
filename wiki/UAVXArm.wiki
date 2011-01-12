@@ -57,11 +57,11 @@ UAVXArm continues, for now at least, to use the simple decoupled axis assumption
 Sensors are generally auto-detected (Plug and Play) and include:
 
   * Analog gyros from UAVX
-  * ITG3200 3-axis gyros
-  * FMA Co-pilot 3-axis IR attitude
+  * ITG3200 3-axis Gyro
+  * FMA Co-pilot 3-axis IR Attitude
 
-  * ADXL345 3-axis accelerometer
-  * LIS3L 3-axis accelerometer
+  * ADXL345 3-axis Accelerometer
+  * LIS3LV02DQ 3-axis Accelerometer
 
   * HMC6352 Compass
   * HMC5843 3-axis Magnetometer
@@ -70,11 +70,12 @@ Sensors are generally auto-detected (Plug and Play) and include:
   * BMP085 Barometer
   * MPX4115 Barometer
 
-  * TMP100 Temerature
+  * TMP100 Temperature
 
-  * PCA9551 LED driver
+  * PCA9551 LED Driver
+  * TPIC68595 LED Driver
 
-  * ??? Rangefinder
+  * Maxbotix Rangefinders (inch & cm)
 
 === ESCs ===
 
