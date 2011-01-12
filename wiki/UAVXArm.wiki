@@ -9,13 +9,27 @@ A trial port to Arduino has also been done but the near open-ended Arm performan
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course. 
 
+------> breadboard photo here 
+
+=== Implementation Timescale ===
+
+Probably a couple of months.
+
+All of the software is running on breadboard with all sensors tested.
+
+The design of an initial prototype mother board has almost be completed. The board is anticipated to be around 45x55mm and so smaller than the current UAVP. The lead time for any iterations on the board are a little open-ended but also should be around a month. Getting them fabricated up in quantity has not been addressed yet. 
+
+We are attempting as far as is possible to scale the current familiar parameter values to the new parameters required by UAVXArm. This will require a degree of trial and error which is likely to be *time consuming* and may take upwards of a month with the onset of the Northern Hemisphere Winter.
+
+Remember this is a free free-time effort.
+
 === Performance ===
 
-The current UAVX PIC 18F2620 @ 16MHz main loop runs at ~150Hz and uses 32K of code and 1200 bytes of RAM.
+The current UAVX PIC 18F2620 @ 16MHz main loop runs at ~150Hz and uses the entire 32K of available code space and ~1200 bytes of RAM.
 
 The Arm code is running easily at 1KHz+ in the main loop including all of the control and navigation functions. Most of the time is taken up in I2C communications (0.7ms) at 400KHz with the balance for computation 0.3mS unoptimised. 
 
-Unlike the PIC version which was entirely integer arithmetic UAVXArm is all in floating point. To date the code space is about 117Kb (23%) and RAM use is 12Kb (37%) but with a lot of extra stuff compared to the PIC version. 
+Unlike the PIC version which was entirely integer arithmetic UAVXArm is all in floating point (FP). To date the code space is about 117Kb (23%) and RAM use is 12Kb (37%) but with a lot of extra stuff compared to the PIC version. The mbed LPC1768 is not equipped with hardware FP. It performs FP arithmetic by software emulation and yet still obtains an entirely satisfactory performance level. Arm processors with FP are available for higher performance levels - if required :). 
 
 === Algorithms ===
 
