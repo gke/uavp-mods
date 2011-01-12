@@ -75,7 +75,7 @@ Sensors are generally auto-detected (Plug and Play) and include:
 
 === ESCs ===
 
-As for UAVX including I2C and PWM up to 500Hz if required. Four motor channels up to six if the camera stabilisation is not required.
+As for UAVX including I2C and PWM and FastPWM up to 500Hz if required. Four motor channels up to six if the camera stabilisation is not required. All UAVX motor/airframe configurations are supported.
 
 === Camera Control ===
 
