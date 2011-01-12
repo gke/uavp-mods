@@ -8,6 +8,7 @@ The UAVXArm prototype has been running since November 2010 on the mbed which is 
 A trial port to Arduino has also been done but the near open-ended Arm performance limits makes the Arm *FAR* more attractive.
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course.
+
  
 https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm20101207_gke.jpg
 
