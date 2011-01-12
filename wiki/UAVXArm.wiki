@@ -24,7 +24,7 @@ The design of an initial prototype mother board has almost been completed. The b
 
 We are attempting, as far as is possible, to scale the current familiar parameter values to the new parameters required by UAVXArm. This will require a degree of trial and error which is likely to be *time consuming* and may take upwards of a month with the onset of the Northern Hemisphere Winter.
 
-Remember this is a free free-time effort so patience.
+Remember this is a free free-time effort so .... patience.
 
 === Performance ===
 
