@@ -9,7 +9,9 @@ A trial port to Arduino has also been done but the near open-ended Arm performan
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course.
 
-The photo below was taken 7 December 2010. This was during the sensor testing and what you can see are several sensors connected along an SMC card reader. Also connected via its I2C bus is a UAVP board containing a compass and Bosch baro. The UAVXArm software has a preferred priority order of sensors and will choose the prefered sensors first even if other sensors are connected. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors.
+The photo below was taken 7 December 2010. This was during the sensor testing and what you can see are several sensors connected along with an SMC card reader. Also connected via its I2C bus is a UAVP board containing a compass and Bosch baro (underneath the board). The UAVXArm software has a preferred priority order of sensors and will choose the prefered sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors.
+
+Flight logs are written to the SMC card or if that is not available to the mbed flash drive.
 
  
 https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm20101207_gke.jpg
@@ -18,10 +20,7 @@ https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm20101207_gke.
 
 Probably March 2011.
 
-
-All of the software is running on breadboard with all sensors tested.
-
-The design of an initial prototype mother board has almost be completed. The board is anticipated to be around 45x55mm and so smaller than the current UAVP. The lead time for any iterations on the board are a little open-ended but also should be around a month. Getting them fabricated up in quantity has not been addressed yet. 
+The design of an initial prototype mother board has almost been completed. The board is anticipated to be around 45x55mm and so smaller than the current UAVP. The lead time for any iterations on the board are a little open-ended but also should be around a month. Getting them fabricated up in quantity has not been addressed yet. 
 
 We are attempting as far as is possible to scale the current familiar parameter values to the new parameters required by UAVXArm. This will require a degree of trial and error which is likely to be *time consuming* and may take upwards of a month with the onset of the Northern Hemisphere Winter.
 
