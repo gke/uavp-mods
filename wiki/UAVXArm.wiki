@@ -3,7 +3,7 @@
 
 == UAVXArm ==
 
-The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2-3 hours with breaks for coffee/beer and comfort stops. 
+The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2 hours. 
 
 A trial port to Arduino has also been done but the near open-ended Arm performance limits makes the Arm *FAR* more attractive and not expensive. It is currently (12 Jan 2011) $59US from Mouser for example.
 
