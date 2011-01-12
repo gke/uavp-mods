@@ -5,13 +5,13 @@
 
 The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2-3 hours with breaks for coffee/beer and comfort stops. 
 
-A trial port to Arduino has also been done but the near open-ended Arm performance limits makes the Arm *FAR* more attractive.
+A trial port to Arduino has also been done but the near open-ended Arm performance limits makes the Arm *FAR* more attractive and not exepnsive. It is currently (12 Jan 2011) $59US from Mouser for example.
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course.
 
 The photo below was taken 7 December 2010. This was during the sensor testing and what you can see are several sensors connected along with an SMC card reader. Also connected via its I2C bus is a UAVP board containing a compass and Bosch baro (underneath the board). The UAVXArm software has a preferred priority order of sensors and will choose the prefered sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors.
 
-Flight logs are written to the SMC card or if that is not available to the mbed flash drive.
+Flight logs are written to the SMC card, or if that is not available, to the mbed flash drive.
 
  
 https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm20101207_gke.jpg
@@ -22,9 +22,9 @@ Probably March 2011.
 
 The design of an initial prototype mother board has almost been completed. The board is anticipated to be around 45x55mm and so smaller than the current UAVP. The lead time for any iterations on the board are a little open-ended but also should be around a month. Getting them fabricated up in quantity has not been addressed yet. 
 
-We are attempting as far as is possible to scale the current familiar parameter values to the new parameters required by UAVXArm. This will require a degree of trial and error which is likely to be *time consuming* and may take upwards of a month with the onset of the Northern Hemisphere Winter.
+We are attempting, as far as is possible, to scale the current familiar parameter values to the new parameters required by UAVXArm. This will require a degree of trial and error which is likely to be *time consuming* and may take upwards of a month with the onset of the Northern Hemisphere Winter.
 
-Remember this is a free free-time effort.
+Remember this is a free free-time effort so patience.
 
 === Performance ===
 
