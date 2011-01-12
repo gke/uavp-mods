@@ -3,11 +3,15 @@
 
 == UAVXArm ==
 
-The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from an 18F2620 PIC @ 16MHz version took about 2-3 hours with breaks for coffee/beer. A trial port to Arduino has also been done but the near open-ended Arm performance limits makes it FAR more attractive.
+The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2-3 hours with breaks for coffee/beer and comfort stops. 
+
+A trial port to Arduino has also been done but the near open-ended Arm performance limits makes the Arm *FAR* more attractive.
+
+The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course. 
 
 === Performance ===
 
-The current UAVX PIC main loop runs at ~150Hz and uses 32K of code and 1200 bytes of RAM.
+The current UAVX PIC 18F2620 @ 16MHz main loop runs at ~150Hz and uses 32K of code and 1200 bytes of RAM.
 
 The Arm code is running easily at 1KHz+ in the main loop including all of the control and navigation functions. Most of the time is taken up in I2C communications (0.7ms) at 400KHz with the balance for computation 0.3mS unoptimised. 
 
@@ -15,26 +19,29 @@ Unlike the PIC version which was entirely integer arithmetic UAVXArm is all in f
 
 === Algorithms ===
 
+UAVXArm uses the same Navigation and ancilliary algorithms as UAVX. The main departures are in attitude estimation and (later) control
+
 ==== Attitude ====
 
-The PIC version of UAVX used a simple gyro drift compensation scheme and relied on the gravity vector from the accelerometers. This scheme worked perfectly well for near level flight on camera platforms and is computationaly efficient.
+The PIC version of UAVX used a simple gyro drift compensation scheme and relied on the gravity vector from the accelerometers. This scheme worked perfectly well for near level flight on camera platforms and is computationally efficient.
  
-UAVXArm uses the DCM attitude estimation algorithm, like almost everyone else now does. This formulation is not confined to near level flight and yields good attitude estimation for very high angles found in aerobatic flight. The computational requirements for the DCM are more intense pushing simpler processors to their limits. The Arm processor performance is so high that the computations hardly stretch it all.
+UAVXArm uses the DCM attitude estimation algorithm, like almost everyone else now does. This formulation is not confined to near level flight and yields good attitude estimation for very high angles found in aerobatic flight. 
 
-Thanks for the DCM scheme got Rob Mahony for the theory and William Premerlani for making it useful.
+The computational requirements for the DCM are more intense pushing simpler processors to their limits. The Arm processor performance is so high that the computations hardly stretch it all.
+
+Thanks for the DCM scheme go to Rob Mahony et al. for the theory and William Premerlani et al. for making it useful.
 
 ==== Control ====
 
-UAVXArm continues, for now, to use the simple decoupled axis assumptions and with independent PID based controllers on each axis. It is intended to replace this with coupled axis more optimal controllers in the future - as time permits.
-
+UAVXArm continues, for now at least, to use the simple decoupled axis assumptions and with independent PID based controllers on each axis. It is intended to replace this with coupled axis more optimal controllers in the future - as time permits.
 
 === Sensors ===
 
-Sensors are generally auto-detected (Plug and Play).
+Sensors are generally auto-detected (Plug and Play) and include:
 
   * Analog gyros from UAVX
   * ITG3200 3-axis gyros
-  * FMA Co-pilot IR attitude
+  * FMA Co-pilot 3-axis IR attitude
 
   * ADXL345 3-axis accelerometer
   * LIS3L 3-axis accelerometer
