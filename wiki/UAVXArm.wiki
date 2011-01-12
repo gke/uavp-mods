@@ -11,7 +11,7 @@ The original KISS strategy continues with a minimal-hardware uniprocessor implem
 
 The photo below was taken 7 December 2010. This was during the sensor testing and what you can see are several sensors connected along with an SD card reader (replaced by MicroSD). Also connected via its I2C bus is a UAVP board containing a compass and Bosch baro. The UAVXArm software has a preferred priority order of sensors and will choose the prefered sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors in this case.
 
-Flight logs are written to the SMC card, or if that is not available, to the mbed flash drive.
+Flight logs are automatically written to the SD card, or if that is not available, to the mbed flash drive. Flight logs can then accompany any bug reports in the future;).
 
  
 https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm20101207_gke.jpg
