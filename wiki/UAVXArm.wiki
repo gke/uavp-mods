@@ -13,7 +13,7 @@ The original KISS strategy continues with a minimal-hardware uniprocessor implem
 
 === Implementation Timescale ===
 
-Probably a couple of months.
+Probably a couple of months from now (Mid January 2011).
 
 All of the software is running on breadboard with all sensors tested.
 
@@ -71,4 +71,15 @@ Sensors are generally auto-detected (Plug and Play) and include:
 
   * PCA9551 LED driver
 
-  * XXX Rangefinder
+  * ??? Rangefinder
+
+=== ESCs ===
+
+As for UAVX including I2C and PWM up to 500Hz if required. Four motor channels up to six if the camera stabilisation is not required.
+
+=== Camera Control ===
+
+More precise Roll/Pitch control accompanies the DCM attitude estimation. It *may* be necessary to use faster digital servos because of higher updates rates. 
+
+
+_G.K. Egan_
