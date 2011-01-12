@@ -9,7 +9,7 @@ A trial port to Arduino has also been done but the near open-ended Arm performan
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course. 
 
-http://www.rcgroups.com/forums/attachment.php?attachmentid=3721594
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphic/UAVXArm20101207_gke.jpg
 
 === Implementation Timescale ===
 
