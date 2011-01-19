@@ -3,6 +3,8 @@
 
 = UAVX Telemetry DRAFT =
 
+Needs updating.....refer to source code for now (telemetry.c)
+
 The telemetry formats supported are:
 
   * none
