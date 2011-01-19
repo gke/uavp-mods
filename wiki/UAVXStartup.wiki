@@ -215,6 +215,16 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 
   * Is fastening the Accelerometer firmly important: The Accelerometer needs to be fastened firmly (glued or mechanically fixed) to the main board so that it does not move. If you do use glue make it is temperature stable as if it expands or contracts then the offsets may change.
 
+=== Rangefinder ===
+
+  * How do I connect the rangefinder: The rangefinder uses Pin 5 on the PIC. Pin 5 may be connected to the 3.3V supply on earlier boards. Simply cut the track and connect the signal line of the rangefinder to the pin.
+
+  * What if do not want to connect the rangefinder: If you have made the wiring modification but wish to remove the rangefinder you need to connect Pin 5 to 5V.
+
+  * How does UAVX know to use the rangefinder: The signal on Pin 5 is checked when UAVX first starts. Connecting Pin 5 to 3.3V or higher tells UAVX that there is no rangefinder as the voltage should be much lower when the aircraft is on the ground.
+
+  * When is the rangefinder: UAVX detects that the rangefinder reading is within range when the aircraft falls below the best range of the rangefinder and uses that altitude value instead.  There is some overlap to allow UAVX to decide when to switch back to the barometer for altitude readings.
+
 === GPS ===
   * Should I connect both the GPS Rx and Tx line: No you should connect only the GPS Tx signal. If you connected the GPS Rx line the signals that UAVX sends to UAVPSet will also be received by the GPS and may change the GPS settings. 
 
