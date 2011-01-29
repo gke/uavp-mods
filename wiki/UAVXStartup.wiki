@@ -297,10 +297,10 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
     * 40: 40Mhz firmware for boards that have replaced the 16Mhz crystal with a 10hz crystal. Using this firmware requires a PIC programmer for the first time load. *Warning: Do not install this 40Mhz firmware if you have the 16Hz crystal.  If you do you will then need a separate PIC programmer to reprogram it for the 16Hz firmware!*
     * QUAD: four motor quadrocopter.
     * TRI: three motor tricopter.
-    * Heli: for helicopter IMU usage.
+    * VT: four motor tricopter with two V apposed steering motors.
+    * HELI: for helicopter IMU usage.
     * 6CH: for use with 6ch Rx. The navigation sensitivity (below) must be set using UAVPSet rather than the Ch7 pot.
-    * TEST: for UAVX v1.1049 and above to load for the initial setup for Tx/Rx and compass and any follow on testing.
-    * DEBUG: for use with the sensor trace (see SensorTest Wiki). These are NOT flight software and are used to debug sensors and for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
+    * TEST: for UAVX v1.1049 and above to load for the initial setup for Tx/Rx and compass and any follow on testing. Also for use with the sensor trace (see SensorTest Wiki). These are NOT flight software and are used to debug sensors and for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
     * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
 
 === ESC Setup ===
