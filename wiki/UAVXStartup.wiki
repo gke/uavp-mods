@@ -161,12 +161,23 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 
   * From UAVX v1.1247 onward the aircraft will not arm unless the accelerometer is ONLINE. The LED indication for failed Acc is both Yellow and Red LEDs flashing. 
 
+==== Special Alarms In Flight ====
+
+  * I occasionaly hear a single beep particularly when I let the sticks go back to neutral: yes this indicates that the aircraft has captured a new desired GPS position hold point.
+
+  * I hear the beeper sounding once every second: This is the flight battery alarm. You should LAND immediately.
+
+  * I hear the beeper sounding twice every second and the aircraft is coming down really quickly: this is a *failsafe alarm* and UAVX has lost the RC comms link and is doing an auto-land ( See UAVXFailsafe Wiki).
+
+  * My aircraft is sitting on the ground and has started making beep noises every six seconds: the aircraft thinks it is unloved and lost after sitting around for 2-3 minutes or more likely you forgot to disarm the aircraft and make it safe after landing.
+
+  * I don't seem to be able to find my aircraft but I can hear a beep noise off in the trees or the briar patch every six seconds: yes that is the *lost model alarm* you hear coming from the direction where it crashed (See UAVXFailsafe Wiki). 
 
 
 === Setting Parameters ===
   * Setting Default Parameter Values: Use Tools->Test Software->"Shift D" command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. To go to param 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read.
 
-  * Can I use my old UAVP parameter files: Yes but there are more parameters in UAVX than UAVP so if you are a reading an old parameter file you should first load the defaults using the D command (see above). This will ensure the additional parameters of UAVX are given sensible values. You may then save the full parameter set back to a file if you wish.
+  * Can I use my old UAVP parameter files: Yes but there are more parameters in UAVX than UAVP so if you are a reading an old parameter file you should first load the defaults using the D command (see above). This will ensure the additional parameters of UAVX are given sensible values. You may then save the full parameter set back to a file if you wish. The download notes tell you which versions of UAVX, UAVPSet.
 
   * Setting your own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming (See below). Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
 
@@ -178,6 +189,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
   * I am using I2C ESCs (Holger, X3D, YGE) and the motors don't start: Make sure you ground the signal lead of the ESC's PPM connection otherwise the electrical noise may cause the ESC to believe it is talking to a PPM signal rather than a digital I2C signal.
 
   * My motors are making a periodic beeping sound: You may have loaded the Debug SENSORS version of the UAVX and not disconnected your motors. This version of UAVX does not generate signals to control the motors and so your ESCs are not detecting a valid signal. You may have the wrong ESC selected in your configuration. 
+
 === Compass ===
   * Is a Compass required: It is possible to fly a quadrocopter manually without a compass. You must have a compass for GPS navigation.
 
@@ -405,7 +417,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVX_high_TxRx_graphi
 
   * If your Tx/Rx supports it you should consider changing the Pitch and Roll stick sensitivity/rates on your Tx (not UAVX) to around 70% (or less) with an exponential to -40%. This will make the quadrocopter much more controllable. You may wish to adopt similar values for Yaw.
 
-  * *Set your Rx failsafe!*  The UAVX has a failsafe built-in that will go to hover throttle and then land if the Rx signals are lost for 2 seconds when GPS is not installed.  If GPS is installed and Rx signal loss is detected, then at 6 seconds it will RTH and auto-land.  Most modern Rx's have their own failsafe.  If possible, then disable the Rx failsafe so that the UAVX can use its built-in failsafe.  If you can not disable the Rx failsafe, then set the Rx failsafe's throttle to just below what it would take to hover with a full lipo and set ch5 to the high/RTH position.  You should then test the Rx failsafe by holding the model down securely while hooked up to the UAVPset with the Tx/Rx graphic displayed. With the UAVX disarmed, turn off your Tx and note how the Tx/Rx graphic sliders change.  What you want to see is the throttle going to just below hover power and the ch5 going to the high/RTH position with the pitch, roll and yaw going to the neutral positions.  Some adjust your particular Rx failsafe positions must be done for this to work properly and safely!  If the Rx failsafe inputs bad pitch and roll or yaw angles on loss of Tx signals, then the outcome would not be successful.  See your Rx instructions on how to set its failsafe and make sure that it is done correctly!
+  * *Set your Rx failsafe!*  The UAVX has a failsafe built-in that will go to hover throttle and then land if the Rx signals are lost for 2 seconds when GPS is not installed.  If GPS is installed and Rx signal loss is detected, then at 6 seconds it will RTH and auto-land.  Most modern Rx's have their own failsafe.  If possible, then disable the Rx failsafe so that the UAVX can use its built-in failsafe.  If you can not disable the Rx failsafe, then set the Rx failsafe's throttle to just below what it would take to hover with a full lipo and set ch5 to the high/RTH position.  You should then test the Rx failsafe by holding the model down securely while hooked up to the UAVPset with the Tx/Rx graphic displayed. With the UAVX disarmed, turn off your Tx and note how the Tx/Rx graphic sliders change.  What you want to see is the throttle going to just below hover power and the ch5 going to the high/RTH position with the pitch, roll and yaw going to the neutral positions.  Some adjust your particular Rx failsafe positions must be done for this to work properly and safely!  If the Rx failsafe inputs bad pitch and roll or yaw angles on loss of Tx signals, then the outcome would not be successful.  See your Rx instructions on how to set its failsafe and make sure that it is done correctly! *Read the UAVXFailsafe Wiki*.
 
   * Conduct a proper range test with the quadrocopter oriented in all quadrants before flight. *Fly safe!*
 
