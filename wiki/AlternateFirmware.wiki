@@ -1,4 +1,4 @@
-#summary The non-ARM way forward - but never say never!
+#summary The non-ARM way forward - but never say never! Well times up on "Never" - See UAVXArm Wiki.
 #labels gke,jesolins
 
 The essential simplicity of the original UAVP is very attractive. 
