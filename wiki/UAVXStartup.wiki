@@ -163,15 +163,15 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 
 ==== Special Alarms In Flight ====
 
-  * I occasionaly hear a single beep particularly when I let the sticks go back to neutral: yes this indicates that the aircraft has captured a new desired GPS position hold point.
+  * I occasionaly hear a single beep particularly when I let the sticks go back to neutral: This indicates that the aircraft has captured a new desired GPS position hold point.
 
   * I hear the beeper sounding once every second: This is the flight battery alarm. You should LAND immediately.
 
-  * I hear the beeper sounding twice every second and the aircraft is coming down really quickly: this is a *failsafe alarm* and UAVX has lost the RC comms link and is doing an auto-land ( See UAVXFailsafe Wiki).
+  * I hear the beeper sounding twice every second and the aircraft is coming down really quickly: This is a *failsafe alarm* and UAVX has lost the RC comms link and is doing an auto-land (See UAVXFailsafe Wiki).
 
-  * My aircraft is sitting on the ground and has started making beep noises every six seconds: the aircraft thinks it is unloved and lost after sitting around for 2-3 minutes or more likely you forgot to disarm the aircraft and make it safe after landing.
+  * My aircraft is sitting on the ground and has started making beep noises every six seconds: the aircraft thinks it is unloved and lost and starts the *lost model alarm* after sitting around for 2-3 minutes or more likely you forgot to disarm the aircraft and make it safe after landing.
 
-  * I don't seem to be able to find my aircraft but I can hear a beep noise off in the trees or the briar patch every six seconds: yes that is the *lost model alarm* you hear coming from the direction where it crashed (See UAVXFailsafe Wiki). 
+  * I don't seem to be able to find my aircraft but I can hear a beep noise off in the trees or the briar patch every six seconds: Yes that is the *lost model alarm* you hear coming from the direction where it crashed (See UAVXFailsafe Wiki). It starts automatically after a delay of a few minutes.
 
 
 === Setting Parameters ===
