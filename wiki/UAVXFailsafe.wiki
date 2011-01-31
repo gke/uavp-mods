@@ -1,5 +1,5 @@
 #summary UAVX monitors the signals from the Rx to UAVX NOT from the Tx to the Rx. This describes briefly how UAVX attempts to provide failsafe operation when the signal from the Rx indicates failure.
-#labels Featured,gke
+#labels Featured,gke,UAVXFailsafe
 
 = UAVX Failsafe Operation =
 
