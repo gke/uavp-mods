@@ -7,6 +7,8 @@ Over time the group has come up with a set of recommended modifications. Here's 
    * Replace the 3.3V regulator.
    * Use a standalone 5V regulator instead of relying on the ESC regulator.
 
+More recent UAVP boards from QuadroUFO incorporate the modifications.
+
 See these posts (and some of the surrounding ones) for additional information on the regulator mods:
    * http://www.rcgroups.com/forums/showthread.php?p=11375573#post11375573
    * http://www.rcgroups.com/forums/showthread.php?p=11657721#post11657721
