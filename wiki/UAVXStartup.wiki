@@ -300,7 +300,7 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
     * VT: four motor tricopter with two V apposed steering motors.
     * HELI: for helicopter IMU usage.
     * 6CH: for use with 6ch Rx. The navigation sensitivity (below) must be set using UAVPSet rather than the Ch7 pot.
-    * TEST: for UAVX v1.1049 and above to load for the initial setup for Tx/Rx and compass and any follow on testing. Also for use with the sensor trace (see SensorTest Wiki). These are NOT flight software and are used to debug sensors and for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
+    * TEST: for UAVX v1.1049 and above to load for the initial setup for Tx/Rx and compass and any follow on testing. Also for use with the sensor trace (see SensorTest Wiki) to debug sensors and for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
     * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
 
 === ESC Setup ===
@@ -323,7 +323,7 @@ and Tricopter Mega Link Index]
 
 *1. Recommended ESC's:
 
-  * 10A and higher as required for your motors
+  * While the original quadrocopters used ESCs around 10A. UAVX and other similar controllers update the throttle setting 4 or more times faster than with a regular aircraft. This can lead to peak currents much higher than the average motor current.  As there is very little cost or weight penalty it is worth considering higher current ESCs up to 30A even if your motors will only draw under 10A in hover. 
   * [http://www.quadroufo.com Quadroufo.com] Standard 30A ESCs (note that if you requested from Quadroufo to have the fast PWM modified firmware installed on the ESC's, then they do not require throttle calibration)
   * HKSS 
   * Holger I2c
@@ -374,7 +374,7 @@ and Tricopter Mega Link Index]
 
 *WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's peformance and decrease PPM signal quality and model safety.*
 
-*WARNING: It is a requirement that your particular Rx's failsafe is properly set up so that the UAVX will remain safe.  If the Rx's failsafe is not properly set up then on loss of signal the multicopter could potentially and dangerously go to full throttle.
+*WARNING: It is a requirement that your particular Rx's failsafe is properly set up so that the UAVX will remain safe (See UAVXFailsafes Wiki).  If the Rx's failsafe is not properly set up then on loss of signal the multicopter could potentially and dangerously go to full throttle.
 
 *Note:* If using a 6ch Tx, and only the odd channels 1, 3 and 5 on your Rx, then you should ground the remaining UAVX Rx wire to an Rx ground pin.
 
@@ -525,7 +525,7 @@ The steps are:
 
 === Stage 4: RTH with Altitude Hold and Auto Descend ===
 
-THIS IS VERY EXPERIMENTAL so take care and start with an RTH altitude setting which is reasonably high (say 30M) to allow you time to respond.
+Start with an RTH altitude setting which is reasonably high (say 30M) to allow you time to respond.
 
 If you enable RTH Descend in UAVPSet then thirty seconds after you have arrived within the  selected radius of the Origin position with RTH still engaged the quadrocopter should start to descend at around 1 Meter/Sec slowing in the last 15M.  Disengaging RTH will cause the quadrocopter to revert to GPS assisted position hold but you must control the altitude manually. This is the reason that moving the throttle up 10% after engaging RTH may be a good strategy to have as it will arrest the fall if you disengage and hopefully give you enough time to re-establish hover.
 
