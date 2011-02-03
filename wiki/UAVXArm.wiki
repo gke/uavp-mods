@@ -1,5 +1,5 @@
 #summary This a progress report for the implementation of UAVX on mbed based on the LPC1768 Arm processor.
-#labels UAVX,gke,kissys,jesolins,UAVXGS,multicopter
+#labels UAVX,gke,kisssys,jesolins,UAVXGS,multicopter
 
 == UAVXArm ==
 
