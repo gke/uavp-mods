@@ -3,7 +3,7 @@
 
 = Introduction =
 
-FrSky is a relatively new company and their developmental cycle is quite fast with the documentation often lagging.
+[http://www.frsky-rc.com/ FrSky] is a relatively new company and their developmental cycle is quite fast with the documentation often lagging.
 
 What follows is not a recommendation of the FrSky products in general but is intended to put in one place information that is currently difficult to find.
 
