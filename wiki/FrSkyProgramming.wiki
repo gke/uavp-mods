@@ -5,7 +5,8 @@
 
 [http://www.frsky-rc.com/ FrSky] is a relatively new company and their developmental cycle is quite fast with the documentation often lagging.
 
-What follows is not a recommendation of the FrSky products in general but is intended to put in one place information that is currently difficult to find.
+What follows is not a recommendation of the 
+[http://www.frsky-rc.com/ FrSky] products in general but is intended to put in one place information that is currently difficult to find.
 
 == Composite Output ==
 
@@ -13,7 +14,8 @@ While the D8R Rx is not directly compatible with UAVX a recent firmaware release
 
 The firmware update process is quite easy. You will need:
 
-  * The programming cable which is available from FrSky and should come with the combination kit (http://www.frsky-rc.com/ShowProducts.asp?id=42).
+  * The programming cable which is available from 
+[http://www.frsky-rc.com/ FrSky] and should come with the combination kit (http://www.frsky-rc.com/ShowProducts.asp?id=42).
 
   * The updater frsky-upgrade-lite(V1) or later (http://www.frsky-rc.com/download.asp?id=22 ).
 
