@@ -40,5 +40,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSky.jpg
 
 That's it.
 
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSkyD8RComposite.png
+
 
 Reference: http://www.rcgroups.com/forums/showpost.php?p=17169119&postcount=2827
