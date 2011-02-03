@@ -21,7 +21,7 @@ The firmware update process is quite easy. You will need:
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSky.jpg
 
-  * Make up a cable as shown in the photo due to "RENATOA". Note that the Tx pin is mislabelled on the D8R V2 as +5V. This is to be corrected by FrSky in later releases.
+  * Make up a cable as shown in the photo due to "RENATOA". Note that the Tx pin is mislabelled on the D8R V2 as +5V. This is to be corrected by [http://www.frsky-rc.com/ FrSky] in later releases.
 
   * Connect the Rx signal pins on Ch7 and 8 together using a jumper plug. This is how the Rx detects it is in programming mode.
 
