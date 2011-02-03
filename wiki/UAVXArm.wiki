@@ -1,15 +1,15 @@
 #summary This a progress report for the implementation of UAVX on mbed based on the LPC1768 Arm processor.
-#labels UAVX,gke,kisssys,jesolins,UAVXGS,multicopter
+#labels UAVX,gke,kissys,jesolins,UAVXGS,multicopter
 
 == UAVXArm ==
 
 The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2 hours. 
 
-A trial port to Arduino has also been done but the near open-ended Arm high-end performance makes the Arm *FAR* more attractive and not expensive. It is currently (12 Jan 2011) $59US from Mouser for example.
+A trial port to Arduino has also been done but the near open-ended Arm high-end performance makes the Arm *FAR* more attractive and not expensive. The mbed used for the prototype is currently (12 Jan 2011) $59US from Mouser. 
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course.
 
-The photo below was taken 7 December 2010. This was during the sensor testing and what you can see are several sensors connected along with an SD card reader (replaced by MicroSD). Also connected via its I2C bus is a UAVP board containing a compass and Bosch baro. The UAVXArm software has a preferred priority order of sensors and will choose the prefered sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors in this case.
+The photo below was taken 7 December 2010. This was during the sensor testing and what you can see are several sensors connected along with an SD card reader (replaced by MicroSD). Also connected via its I2C bus is a UAVP board containing a compass and Bosch baro. The UAVXArm software has a preferred priority order of sensors and will choose the preferred sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors in this case.
 
 Flight logs are automatically written to the SD card, or if that is not available, to the mbed flash drive. Flight logs can then accompany any bug reports in the future;).
 
@@ -79,11 +79,10 @@ Sensors are generally auto-detected (Plug and Play) and include:
 
 === ESCs ===
 
-As for UAVX including I2C and PWM and FastPWM up to 500Hz if required. Four motor channels up to six if the camera stabilisation is not required. All UAVX motor/airframe configurations are supported.
+As for UAVX including I2C and PWM and FastPWM up to 500Hz if required. Six motor channels and two for camera stabilisation. All UAVX motor/airframe configurations are supported.
 
 === Camera Control ===
 
-More precise Roll/Pitch control accompanies the DCM attitude estimation. It *may* be necessary to use faster digital servos because of higher updates rates. 
+More precise Roll/Pitch control accompanies the DCM attitude estimation. The servo update rate is independent of the motor updates. 
 
-
-_G.K. Egan_
+_G.K. Egan, S. Westerfeld & J. Solinski_
