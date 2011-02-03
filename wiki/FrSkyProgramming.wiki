@@ -5,8 +5,7 @@
 
 [http://www.frsky-rc.com/ FrSky] is a relatively new company and their developmental cycle is quite fast with the documentation often lagging.
 
-What follows is not a recommendation of the 
-[http://www.frsky-rc.com/ FrSky] products in general but is intended to put in one place information that is currently difficult to find.
+What follows is not a recommendation of the [http://www.frsky-rc.com/ FrSky] products in general but is intended to put in one place information that is currently difficult to find.
 
 == Composite Output ==
 
