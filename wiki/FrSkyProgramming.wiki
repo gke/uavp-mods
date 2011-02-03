@@ -3,9 +3,9 @@
 
 = Introduction =
 
-*FrSky* is a relatively new company and their developmental cycle is quite fast with the documentation often lagging.
+FrSky is a relatively new company and their developmental cycle is quite fast with the documentation often lagging.
 
-What follows is not a recommendation of the *FrSky* products in general but is intended to put in one place information that is currently difficult to find.
+What follows is not a recommendation of the FrSky products in general but is intended to put in one place information that is currently difficult to find.
 
 == Composite Output ==
 
@@ -21,7 +21,7 @@ The firmware update process is quite easy. You will need:
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSky.jpg
 
-  * Make up a cable as shown in the photo due to "RENATOA". Note that the Tx pin is mislabelled on the D8R V2 Rx and is in fact the Tx pin.
+  * Make up a cable as shown in the photo due to "RENATOA". Note that the Tx pin is mislabelled on the D8R V2 as +5V. This is to be corrected by FrSky in later releases.
 
   * Connect the Rx signal pins on Ch7 and 8 together using a jumper plug. This is how the Rx detects it is in programming mode.
 
