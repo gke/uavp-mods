@@ -13,8 +13,7 @@ While the D8R Rx is not directly compatible with UAVX a recent firmaware release
 
 The firmware update process is quite easy. You will need:
 
-  * The programming cable which is available from 
-[http://www.frsky-rc.com/ FrSky] and should come with the combination kit (http://www.frsky-rc.com/ShowProducts.asp?id=42).
+  * The programming cable which is available from [http://www.frsky-rc.com/ FrSky] and should come with the combination kit (http://www.frsky-rc.com/ShowProducts.asp?id=42).
 
   * The updater frsky-upgrade-lite(V1) or later (http://www.frsky-rc.com/download.asp?id=22 ).
 
