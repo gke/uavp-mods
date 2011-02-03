@@ -32,7 +32,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSky.jpg
 
   * Select the appropriate COM port for the adapter.
 
-  * Select the firmware *file* which is currently http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/fdd_rx_cppm_build110120.frk ). Release versions should appear on the FrSky site in due course. You should see information on the current Rx version at the bottom of the window.
+  * Select the firmware *file* which is currently http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/fdd_rx_cppm_build110120.frk ). Further release versions should appear on the FrSky site in due course. You should see information on the current Rx version at the bottom of the window.
 
   * Select *Download* and when finished select *End*
 
