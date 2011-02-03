@@ -1,4 +1,5 @@
 #summary How to Update the FrSky V2 Receivers
+#labels Featured,Phase-Deploy,FrSky,D8R,Composite,gke
 
 = Introduction =
 
