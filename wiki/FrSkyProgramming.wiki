@@ -38,7 +38,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSky.jpg
 
   * Power down the Rx and remove all cables.
 
-That's it!
+= That's it! =
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSkyD8RComposite.png
 
