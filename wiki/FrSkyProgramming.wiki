@@ -20,7 +20,7 @@ The firmware update process is quite easy. You will need:
 
 
 
-  * Make up a cable as shown in the photo due to RENATOA. Note that the Tx pin is mislabelled on the DR* V2 Rx and is in fact the Tx pin.
+  * Make up a cable as shown in the photo due to RENATOA. Note that the Tx pin is mislabelled on the D8R V2 Rx and is in fact the Tx pin.
 
   * Connect the signal pins on Ch7 and 8 together using a jumper plug.
 
