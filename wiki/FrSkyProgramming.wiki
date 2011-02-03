@@ -1,5 +1,5 @@
-#summary How to Update the FrSky V2 Receivers
-#labels Featured,Phase-Deploy,FrSky,D8R,Composite,gke
+#summary How to Update the FrSky D8R V2 Receivers for Composite PPM
+#labels Featured,Phase-Deploy,FrSky,D8R,Composite,gke,UAVX
 
 = Introduction =
 
@@ -9,7 +9,7 @@ What follows is not a recommendation of the *FrSky* products in general but is i
 
 == Composite Output ==
 
-While the D8R Rx is not directly compatible with UAVX a recent firmaware release allows it to directly generate composite PPM signals where "All Channels" come out on Ch 8.
+While the D8R Rx is not directly compatible with UAVX a recent firmaware release allows it to directly generate composite PPM signals where "All Channels" come out on Ch 8. The function of channels 1 to 7 are preserved.
 
 The firmware update process is quite easy. You will need:
 
@@ -23,7 +23,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSky.jpg
 
   * Make up a cable as shown in the photo due to "RENATOA". Note that the Tx pin is mislabelled on the D8R V2 Rx and is in fact the Tx pin.
 
-  * Connect the signal pins on Ch7 and 8 together using a jumper plug. This is how the Rx detects it is in programming mode.
+  * Connect the Rx signal pins on Ch7 and 8 together using a jumper plug. This is how the Rx detects it is in programming mode.
 
   * Connect your adapter cable to the serial adapter cable you received with the Tx module.
 
