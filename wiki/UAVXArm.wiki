@@ -5,7 +5,7 @@
 
 The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2 hours. 
 
-A trial port to Arduino has also been done but the near open-ended Arm high-end performance makes the Arm *FAR* more attractive and not expensive. The mbed used for the prototype is currently (12 Jan 2011) $59US from Mouser. 
+A trial port to Arduino has also been done but the near open-ended Arm high-end performance makes the Arm *FAR* more attractive and not expensive. The mbed used for the prototype is currently (12 Jan 2011) $59US from Mouser. The LPC1768 processor itself is ~$6USD.
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course.
 
