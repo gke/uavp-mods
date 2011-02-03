@@ -1,0 +1,46 @@
+#summary How to Update the FrSky V2 Receivers
+
+= Introduction =
+
+FrsKy is a relatively new company and their developmental cycle is quite fast with the documentation often lagging.
+
+What follows is not a recommendation of the FrSky products in general but is intended to put in one place information that is currently difficult to find.
+
+== Composite Output ==
+
+While the D8R Rx is not directly compatible with UAVX a recent firmaware release allows it to directly generate composite PPM signals where "All Channels" come out on Ch 8.
+
+The firmware update process is quite easy. You will need:
+
+  * The programming cable which is available from FrSky and should come with the combination kit (http://www.frsky-rc.com/ShowProducts.asp?id=42).
+
+  * The updater frsky-update-lite.
+
+== Process ==
+
+
+
+  * Make up a cable as shown in the photo due to RENATOA. Note that the Tx pin is mislabelled on the DR* V2 Rx and is in fact the Tx pin.
+
+  * Connect the signal pins on Ch7 and 8 together using a jumper plug.
+
+  * Connect your adapter cable to the serial adapter cable you received with the Tx module.
+
+  * Power up the Rx. The LEDs should be out.
+
+  * Start up frsky_update_rev11.
+
+  * Select the appropriate COM port for the adapter.
+
+  * Select the firmaware file which is currently fdd_rx_cppm_build110120.frk
+
+  * Select *Download* and when finished select *End*
+
+  * Power down the Rx and remove all cables.
+
+That's it.
+
+
+
+
+http://www.rcgroups.com/forums/showpost.php?p=17169119&postcount=2827
