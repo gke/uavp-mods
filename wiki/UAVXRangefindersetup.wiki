@@ -1,5 +1,5 @@
 #labels UAVXRangefinder,MaxbotixEZ3,GKE,JESOLINS
-#Setting up the XL- MaxSonar®- EZ3™ (MB1230) on the UAVX
+#Summary Setting up the XL- MaxSonar®- EZ3™ (MB1230) on the UAVX
 
 = Setting up the XL- MaxSonar®- EZ3™ (MB1230) on the UAVX =
 
