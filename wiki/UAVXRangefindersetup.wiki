@@ -6,7 +6,7 @@
 (5 February 2011 Jesolins)
 
 
-The addition of a rangefinder allows much better control of the multicopter’s close to ground hovers and smoother control in the final descend when using the UAVX auto-landing feature. Using GPS as an altitude source alone tends to be unreliable unless the satellite constellation is very good. Therefore installing a rangefinder gives the UAVX a better auto-land capability than using GPS alone.  
+The addition of a rangefinder allows much better control of the multicopter’s close to ground hovers and smoother control in the final descend when using the UAVX auto-landing feature. Using GPS as an altitude source alone tends to be unreliable unless the satellite constellation is very good. The barometer can give good altitude resolution, but not a precise as the ultrasonic rangefinder which operates only below about 7M.  Therefore installing a rangefinder gives the UAVX a better auto-land capability than using GPS or the barometer alone.  
 
 The rangefinder is capable of measuring 0 to about 7M or 21ft in altitude.  The UAVX code transitions to the barometer for altitude control and measurement at approximately that point.
 
@@ -33,7 +33,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/rangefinder/EZ3.png
 Mount the sensor to point straight down.  It is best to mount it near the center of the multicopter to minimize range change altitude calculations as a result of the swinging of the arms.
 
 
-The original version of the UAVP board requires that a trace to be cut on the bottom of the FCB:
+The original version of the UAVP board requires that a trace that supplies 5v from the PIC pin5 to a via to be cut on the bottom of the FCB:
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/rangefinder/UAVX_PIN5_ON_PIC.jpg
 
@@ -42,7 +42,7 @@ This trace must be jumpered/shorted again if you decide to remove the rangefinde
 
 
 
-The newer board from www.quadroufo.com has the original K18 that was used for the 5v IDG dual axis gyro modified for the rangefinder.
+The newer board from www.quadroufo.com has the original K18 that was used for the 3v IDG dual axis gyro modified for the rangefinder.
  
 
 https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/rangefinder/UAVP_FCB_new_top_RF_K18_pop_jesolins.jpg
