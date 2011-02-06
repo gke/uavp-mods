@@ -1,9 +1,21 @@
 #summary Getting rid of the serial cable!
+#labels UAVX,Telemetry,GKE,KISSSYS,JESOLINS
 
-There are at least two options that you can use to get rid of the serial cable on the UAVP.
+There are at several options that you can use to get rid of the serial cable on the UAVX. The second involves using an XBee module instead of a bluetooth adapter.
 
 The first is documented here: 
 
-http://forum.uavp.ch/viewtopic.php?t=1954
+http://uavp.ch/forum/viewtopic.php?t=1179&highlight=bluetooth
 
-The second involved using an XBee module instead of a bluetooth adapter.
+There are many differrent types of bluetooth modules to choose from.  The ranges and setup varies with each.  The BlueSmurf Gold from Sparkfun has had successful setups.  If you have others that work then let us know and we will post your details here.
+
+The wiring to the UAVX is different depending on the bluetooth or XBee or Zigbee or other Tx/Rx you use.  
+
+For a serial connection the use of the K7 Tx, Rx and Gnd is used, An in most cases would require a 232 or TTL level converter to work.  The Tx modules must be set to read and send at 9600bps.  The UAVPset Telemetry pull down should be normally be UAVX and written to the UAVX.
+
+For the TTL with non-inverted signals the GPS K19 connector is used.
+
+Take care with the Tx voltage requirements.  The board can supply a total of 5v 1A of which 100ma is used by the devices on the board.  The 3v board power is only 100ma of which 50 is used so it is not recommended to use that as a Vcc for a Tx.  Instead use a separate 5v BEC or the ESC BEC from K2 to K4 for the older UAVP board or K1 to K4 for the newer UAVP board from http://www.quadroufo.com.  If 3v is required then use diodes or another regulator to lower the 5v from the ESC BECs.
+
+This WIKI info will be expanded by thread contributors on detailed setup solutions for each type of telemetry Tx installed.
+
