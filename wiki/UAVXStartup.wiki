@@ -55,6 +55,7 @@ http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top
   * For servo on back arm or tail use UAVPset FWD (x7.5 Deg) = 24.
   * For servo on back arm or front use UAVPset FWD (x7.5 Deg) = 0.
   * Currently I2c ESCs can not be used for the tricopter configuration.
+  * For the tricopter firmware, you must solder a bridge/wire between the K3 and K4 middle 5v pins to provide power to the mechanical servo.  You should remove this bridge if you decide to use the board for any other firmware that does not use the K4 for a mechanical servo.
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_tri_options_jesolins.png
   
   * *VT-Copter:*
@@ -108,6 +109,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
   * You DO NOT have to adjust the compass offset as this is always relative to K1.
   * Tricopter:  The UAVPset FWD (x7.5 Deg) value of 24 (180 deg) is Y mode with steering servo motor arm to the rear and a value of 0 is steering arm forward.
   * For the Tricopter I2C is not currently supported. The yaw servo is updated at the same rate as the motors and so greater Pulse Cycle times may be required.  Different modes may require changes to P, I and D parameters. 
+  * For the tricopter firmware, you must solder a bridge/wire between the K3 and K4 middle 5v pins to provide power to the mechanical servo.  You should remove this bridge if you decide to use the board for any other firmware that does not use the K4 for a mechanical servo.
  
 === Tx/Rx ===
   * Also read the Tx/Rx Setup paragraph.
@@ -415,7 +417,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVX_high_TxRx_graphi
 
   * When you get the graphic to respond, now it the time to very carefully check the Tx/Rx and motor responses.  Either weight or tie or have someone tightly hold down the quad.  Do the first check with the motor wires disconnected or the props off!  Arm the quadrocopter. Move all the sticks and switches through their ranges and confirm that the Green LED remains on.  *Do not run the throttle at max for any more than a split-second as damage to the ESC's or motor's could result!*  If you got this far, then the UAVX is properly setup for the Tx/Rx.
 
-  * If your Tx/Rx supports it you should consider changing the Pitch and Roll stick sensitivity/rates on your Tx (not UAVX) to around 70% (or less) with an exponential to -40%. This will make the quadrocopter much more controllable. You may wish to adopt similar values for Yaw.
+  * If your Tx/Rx supports it you should consider changing the Pitch and Roll stick sensitivity/rates on your Tx (not UAVX) to around 70% (or less) with an exponential to -40%. This will make the quadrocopter much more controllable. The Yaw Tx control is ususally fine for most without any Tx exponential or rate adjustments. You may wish to adjust the Tx exponential or rate to increase the yaw speed with positive values.
 
   * *Set your Rx failsafe!*  The UAVX has a failsafe built-in that will go to hover throttle and then land if the Rx signals are lost for 2 seconds when GPS is not installed.  If GPS is installed and Rx signal loss is detected, then at 6 seconds it will RTH and auto-land.  Most modern Rx's have their own failsafe.  If possible, then disable the Rx failsafe so that the UAVX can use its built-in failsafe.  If you can not disable the Rx failsafe, then set the Rx failsafe's throttle to just below what it would take to hover with a full lipo and set ch5 to the high/RTH position.  You should then test the Rx failsafe by holding the model down securely while hooked up to the UAVPset with the Tx/Rx graphic displayed. With the UAVX disarmed, turn off your Tx and note how the Tx/Rx graphic sliders change.  What you want to see is the throttle going to just below hover power and the ch5 going to the high/RTH position with the pitch, roll and yaw going to the neutral positions.  Some adjust your particular Rx failsafe positions must be done for this to work properly and safely!  If the Rx failsafe inputs bad pitch and roll or yaw angles on loss of Tx signals, then the outcome would not be successful.  See your Rx instructions on how to set its failsafe and make sure that it is done correctly! *Read the UAVXFailsafe Wiki*.
 
