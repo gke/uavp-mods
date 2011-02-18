@@ -1,23 +1,24 @@
 // ===============================================================================================
-// =                                UAVX Quadrocopter Controller                                 =
+// =                              UAVXArm Quadrocopter Controller                                =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
 // =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
 // ===============================================================================================
 
-//    This is part of UAVX.
+//    This is part of UAVXArm.
 
-//    UAVX is free software: you can redistribute it and/or modify it under the terms of the GNU
+//    UAVXArm is free software: you can redistribute it and/or modify it under the terms of the GNU
 //    General Public License as published by the Free Software Foundation, either version 3 of the
 //    License, or (at your option) any later version.
 
-//    UAVX is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without
+//    UAVXArm is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without
 //    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 //    See the GNU General Public License for more details.
 
 //    You should have received a copy of the GNU General Public License along with this program.
 //    If not, see http://www.gnu.org/licenses/
-#include "UAVX.h"
+
+#include "UAVXArm.h"
 
 void DoRxPolarity(void);
 void InitRC(void);
@@ -29,53 +30,53 @@ void CheckThrottleMoved(void);
 void ReceiverTest(void);
 
 const uint8 Map[CustomTxRx+1][CONTROLS] = {
-	{ 2,0,1,3,4,5,6 }, 	// Futaba Thr 3 Throttle
-	{ 1,0,3,2,4,5,6 },	// Futaba Thr 2 Throttle
-	{ 4,2,1,0,5,3,6 },	// Futaba 9C Spektrum DM8/AR7000
-	{ 0,1,2,3,4,5,6 },	// JR XP8103/PPM
-	{ 6,0,3,5,2,4,1 },	// JR 9XII Spektrum DM9 ?
+    { 2,0,1,3,4,5,6 },     // Futaba Thr 3 Throttle
+    { 1,0,3,2,4,5,6 },    // Futaba Thr 2 Throttle
+    { 4,2,1,0,5,3,6 },    // Futaba 9C Spektrum DM8/AR7000
+    { 0,1,2,3,4,5,6 },    // JR XP8103/PPM
+    { 6,0,3,5,2,4,1 },    // JR 9XII Spektrum DM9 ?
 
-	{ 5,0,3,6,2,1,4 },	// JR DXS12 
-	{ 5,0,3,6,2,1,4 },	// Spektrum DX7/AR7000
-	{ 4,0,3,5,2,1,6 },	// Spektrum DX7/AR6200
+    { 5,0,3,6,2,1,4 },    // JR DXS12 
+    { 5,0,3,6,2,1,4 },    // Spektrum DX7/AR7000
+    { 4,0,3,5,2,1,6 },    // Spektrum DX7/AR6200
 
-	{ 2,0,1,3,4,6,5 }, 	// Futaba Thr 3 Sw 6/7
-	{ 0,1,2,3,4,5,6 },	// Spektrum DX7/AR6000
-	{ 0,1,2,3,4,5,6 },	// Graupner MX16S
-	{ 4,0,2,3,1,5,6 },	// Spektrum DX6i/AR6200
-	{ 2,0,1,3,4,5,6 },	// Futaba Th 3/R617FS
-	{ 4,0,2,3,5,1,6 },	// Spektrum DX7a/AR7000
-	{ 2,0,1,3,4,6,5 }, 	// External decoder (Futaba Thr 3 6/7 swap)
-	{ 0,1,2,3,4,5,6 },	// FrSky DJT/D8R-SP
-	{ 5,0,3,6,2,1,4 },	// UNDEFINED Spektrum DX7/AR7000
-	{ 2,0,1,3,4,5,6 }	// Custom
-//{ 4,0,2,1,3,5,6 }	// Custom
-	};
+    { 2,0,1,3,4,6,5 },     // Futaba Thr 3 Sw 6/7
+    { 0,1,2,3,4,5,6 },    // Spektrum DX7/AR6000
+    { 0,1,2,3,4,5,6 },    // Graupner MX16S
+    { 4,0,2,3,1,5,6 },    // Spektrum DX6i/AR6200
+    { 2,0,1,3,4,5,6 },    // Futaba Th 3/R617FS
+    { 4,0,2,3,5,1,6 },    // Spektrum DX7a/AR7000
+    { 2,0,1,3,4,6,5 },     // External decoder (Futaba Thr 3 6/7 swap)
+    { 0,1,2,3,4,5,6 },    // FrSky DJT/D8R-SP
+    { 5,0,3,6,2,1,4 },    // UNDEFINED Spektrum DX7/AR7000
+    { 2,0,1,3,4,5,6 }    // Custom
+//{ 4,0,2,1,3,5,6 }    // Custom
+    };
 
 // Rx signalling polarity used only for serial PPM frames usually
 // by tapping internal Rx circuitry.
 const boolean PPMPosPolarity[CustomTxRx+1] =
-	{
-		false, 	// Futaba Ch3 Throttle
-		false,	// Futaba Ch2 Throttle
-		true,	// Futaba 9C Spektrum DM8/AR7000
-		true,	// JR XP8103/PPM
-		true,	// JR 9XII Spektrum DM9/AR7000
+    {
+        false,     // Futaba Ch3 Throttle
+        false,    // Futaba Ch2 Throttle
+        true,    // Futaba 9C Spektrum DM8/AR7000
+        true,    // JR XP8103/PPM
+        true,    // JR 9XII Spektrum DM9/AR7000
 
-		true,	// JR DXS12
-		true,	// Spektrum DX7/AR7000
-		true,	// Spektrum DX7/AR6200
-		false,	// Futaba Thr 3 Sw 6/7
-		true,	// Spektrum DX7/AR6000
-		true,	// Graupner MX16S
-		true,	// Graupner DX6i/AR6200
-		true,	// Futaba Thr 3/R617FS
-		true, 	// Spektrum DX7a/AR7000
-		false, 	// External decoder (Futaba Ch3 Throttle)
-		true,	// FrSky DJT/D8R-SP
-		true,	// UNKNOWN using Spektrum DX7/AR7000
-		true	// custom Tx/Rx combination
-	};
+        true,    // JR DXS12
+        true,    // Spektrum DX7/AR7000
+        true,    // Spektrum DX7/AR6200
+        false,    // Futaba Thr 3 Sw 6/7
+        true,    // Spektrum DX7/AR6000
+        true,    // Graupner MX16S
+        true,    // Graupner DX6i/AR6200
+        true,    // Futaba Thr 3/R617FS
+        true,     // Spektrum DX7a/AR7000
+        false,     // External decoder (Futaba Ch3 Throttle)
+        true,    // FrSky DJT/D8R-SP
+        true,    // UNKNOWN using Spektrum DX7/AR7000
+        true    // custom Tx/Rx combination
+    };
 
 // Reference Internal Quadrocopter Channel Order
 // 0 Throttle

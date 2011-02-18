@@ -1,27 +1,26 @@
 // ===============================================================================================
-// =                                UAVX Quadrocopter Controller                                 =
+// =                              UAVXArm Quadrocopter Controller                                =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
 // =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
 // ===============================================================================================
 
-//    This is part of UAVX.
+//    This is part of UAVXArm.
 
-//    UAVX is free software: you can redistribute it and/or modify it under the terms of the GNU
+//    UAVXArm is free software: you can redistribute it and/or modify it under the terms of the GNU
 //    General Public License as published by the Free Software Foundation, either version 3 of the
 //    License, or (at your option) any later version.
 
-//    UAVX is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without
+//    UAVXArm is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without
 //    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 //    See the GNU General Public License for more details.
 
 //    You should have received a copy of the GNU General Public License along with this program.
 //    If not, see http://www.gnu.org/licenses/
 
+#include "UAVXArm.h"
 
 // Barometers Freescale TI ADC and Bosch BMP085 3.8MHz, Bosch SMD500 400KHz
-
-#include "UAVX.h"
 
 #define BARO_MIN_CLIMB          150.0    // M minimum available barometer climb from origin
 #define BARO_MIN_DESCENT        -50.0    //M minimum available barometer descent from origin
