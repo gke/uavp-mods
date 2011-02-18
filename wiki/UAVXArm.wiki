@@ -9,12 +9,15 @@ A trial port to Arduino has also been done but the near open-ended Arm high-end 
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course.
 
-The photo below was taken 7 December 2010. This was during the sensor testing and what you can see are several sensors connected along with an SD card reader (replaced by MicroSD). Also connected via its I2C bus is a UAVP board containing a compass and Bosch baro. The UAVXArm software has a preferred priority order of sensors and will choose the preferred sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors in this case.
+The software first ran in early December 2010. The UAVXArm software is fully plug and play but with a preferred priority order of sensors and will choose the preferred sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors in this case.
 
 Flight logs are automatically written to the SD card, or if that is not available, to the mbed flash drive. Flight logs can then accompany any bug reports in the future;).
 
+The V1 Boards have now been tested. The schematics and exposure release of the software are in the downloads area as well as the SVN. The software will be updated periodically. 
+
+https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArmV1-20110216a.JPG
  
-https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm20101207_gke.jpg
+https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArmV1_20110216b.JPG
 
 === Implementation Timescale ===
 
