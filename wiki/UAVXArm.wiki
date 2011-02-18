@@ -9,7 +9,7 @@ A trial port to Arduino has also been done but the near open-ended Arm high-end 
 
 The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course.
 
-The software first ran in early December 2010. The UAVXArm software is fully plug and play but with a preferred priority order of sensors and will choose the preferred sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors in this case.
+The UAVXArm software is fully plug and play but with a preferred priority order of sensors and will choose the preferred sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors in this case.
 
 Flight logs are automatically written to the SD card, or if that is not available, to the mbed flash drive. Flight logs can then accompany any bug reports in the future;).
 
