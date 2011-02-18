@@ -17,7 +17,7 @@ The V1 Boards have now been tested. The schematics and exposure release of the s
 
 https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArmV1-20110216a.JPG
  
-https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArmV1_20110216b.JPG
+https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArmV1_20110216c.JPG
 
 === Implementation Timescale ===
 
