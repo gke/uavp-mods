@@ -1,317 +1,189 @@
-// ==============================================
-// =      U.A.V.P Brushless UFO Controller      =
-// =           Professional Version             =
-// = Copyright (c) 2007 Ing. Wolfgang Mahringer =
-// =      Rewritten 2008 Ing. Greg Egan         =
-// ==============================================
-//
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License along
-//  with this program; if not, write to the Free Software Foundation, Inc.,
-//  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ==============================================
-// =  please visit http://www.uavp.org          =
-// ==============================================
+// ===============================================================================================
+// =                                UAVX Quadrocopter Controller                                 =
+// =                           Copyright (c) 2008 by Prof. Greg Egan                             =
+// =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
+// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// ===============================================================================================
 
-// Interrupt routine
-// Major changes to irq.c including removal of redundant source by Ing. Greg Egan - 
-// use at your own risk - see GPL.
+//    This is part of UAVX.
 
-#include "c-ufo.h"
-#include "bits.h"
+//    UAVX is free software: you can redistribute it and/or modify it under the terms of the GNU
+//    General Public License as published by the Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
 
-#include <int16cxx.h>	//interrupt support
+//    UAVX is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY; without
+//    even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//    See the GNU General Public License for more details.
 
-#pragma origin 4
+//    You should have received a copy of the GNU General Public License along with this program.
+//    If not, see http://www.gnu.org/licenses/
 
-// Interrupt Routine
+// Interrupt Routines
 
-bank1 int16 	NewK1, NewK2, NewK3, NewK4, NewK5, NewK6, NewK7;
+#include "UAVX.h"
 
-uns8	RecFlags;
+const int16 MIN_PPM_SYNC_PAUSE = 2400;      // uS
 
-#pragma interruptSaveCheck w
+// no less than 1500
 
-#define USE_FILTERS
+extern void InitTimersAndInterrupts(void);
 
-interrupt irq(void)
-{
-int8	NewRoll, NewNick, NewTurn;	
-int16 	Temp;
-uns16 	CCPR1 @0x15;
+void enableTxIrq0(void);
+void disableTxIrq0(void);
+void enableTxIrq1(void);
+void disableTxIrq1(void);
 
-// For 2.4GHz systems see README_DSM2_ETC.
- 
-	int_save_registers;	// save W and STATUS
+void RCISR(void);
+void RCNullISR(void);
+void RCTimeoutISR(void);
+void CamPWMOnISR(void);
+void CamRollPWMOffISR(void);
+void CamPitchPWMOffISR(void);
+void TelemetryInISR(void);
+void GPSInISR(void);
 
-	if( TMR2IF )	// 5 or 14 ms have elapsed without an active edge
-	{
-		TMR2IF = 0;	// quit int
-#ifndef RX_PPM	// single PPM pulse train from receiver
-		if( _FirstTimeout )			// 5 ms have been gone by...
-		{
-			PR2 = TMR2_5MS;			// set compare reg to 5ms
-			goto ErrorRestart;
-		}
-		_FirstTimeout = 1;
-		PR2 = TMR2_14MS;			// set compare reg to 14ms
-#endif
-		RecFlags = 0;
-	}
-	if( CCP1IF )
-	{
-		TMR2 = 0;				// re-set timer and postscaler
-		TMR2IF = 0;				// quit int
-		_FirstTimeout = 0;
+Timer timer;
+Timeout CamRollTimeout, CamPitchTimeout;
+Ticker CameraTicker;
+Timeout RCTimeout;
 
-#ifndef RX_PPM						// single PPM pulse train from receiver
-							// standard usage (PPM, 3 or 4 channels input)
-		CCPR1.low8 = CCPR1L;
-		CCPR1.high8 = CCPR1H;
-		CCP1M0 ^= 1;	// toggle edge bit
-		PR2 = TMR2_5MS;				// set compare reg to 5ms
+uint32    mS[CompassUpdate + 1];
 
-		if( NegativePPM ^ CCP1M0  )		// a negative edge
-		{
-#endif
-			// could be replaced by a switch ???
+uint32    PrevEdge, CurrEdge;
+uint8     Intersection, PrevPattern, CurrPattern;
+uint32    Width;
+int16     PPM[MAX_CONTROLS];
+int8      PPM_Index;
+int24     PauseTime;
+uint8     RxState;
+int8      State, FailState;
+int8      SignalCount;
+uint16    RCGlitches;
+int16     PWMCycles = 0;
 
-			if( RecFlags == 0 )
-			{
-				NewK1 = CCPR1;
-			}
-			else
-			if( RecFlags == 2 )
-			{
-				NewK3 = CCPR1;
-				NewK2 = NewK3 - NewK2;
-				NewK2 >>= 1;
-			}
-			else
-			if( RecFlags == 4 )
-			{
-				NewK5 = CCPR1;
-				NewK4 = NewK5 - NewK4;
-				NewK4 >>= 1;
-			}
-			else
-			if( RecFlags == 6 )
-			{
-				NewK7 = CCPR1;
-				NewK6 = NewK7 - NewK6;
-				NewK6 >>= 1; 		
-#ifdef RX_DSM2
-				if (NewK6.high8 !=1) 	// add glitch detection to 6 & 7
-					goto ErrorRestart;
-#else
-				IK6 = NewK6.low8;
-#endif // RX_DSM2	
-			}
-#ifdef RX_PPM
-			else
-#else
-			else	// values are unsafe
-				goto ErrorRestart;
-		}
-		else	// a positive edge
-		{
-#endif // RX_PPM 
-			if( RecFlags == 1 )
-			{
-				NewK2 = CCPR1;
-				NewK1 = NewK2 - NewK1;
-				NewK1 >>= 1;
-			}
-			else
-			if( RecFlags == 3 )
-			{
-				NewK4 = CCPR1;
-				NewK3 = NewK4 - NewK3;
-				NewK3 >>= 1;
-			}
-			else
-			if( RecFlags == 5 )
-			{
-				NewK6 = CCPR1;
-				NewK5 = NewK6 - NewK5;
-				NewK5 >>= 1;
+void enableTxIrq0(void) {
+    LPC_UART0->IER |= 0x0002;
+} // enableTxIrq0
 
-				// sanity check - NewKx has values in 4us units now. 
-				// content must be 256..511 (1024-2047us)
-				if( (NewK1.high8 == 1) &&
-				    (NewK2.high8 == 1) &&
-				    (NewK3.high8 == 1) &&
-				    (NewK4.high8 == 1) &&
-				    (NewK5.high8 == 1) )
-				{
-#ifndef RX_DSM2									
-					if( FutabaMode ) // Ch3 set for Throttle on UAPSet
-					{
-						IGas = NewK3.low8;
-#ifdef EXCHROLLNICK
-						NewRoll = NewK2.low8 - _Neutral;
-						NewNick = NewK1.low8- _Neutral;
-#else
-						NewRoll = NewK1.low8- _Neutral;
-						NewNick = NewK2.low8- _Neutral;
-#endif // EXCHROLLNICK
-					}
-					else
-					{
-						IGas  = NewK1.low8;
-						NewRoll = NewK2.low8- _Neutral;
-						NewNick = NewK3.low8- _Neutral;
-					}
-					NewTurn = NewK4.low8 - _Neutral;
-					
-					// DoubleRate removed
-										
-#ifdef USE_FILTERS
-					Temp = (int16)IRoll << 1;// UGLY code forced by cc5x compiler
-					Temp += (int16)IRoll;
-					Temp += NewRoll;
-					Temp += 2;	
-					Temp >>= 2;
-					IRoll = Temp;
+void disableTxIrq0(void) {
+    LPC_UART0->IER &= ~0x0002;
+} // disableTxIrq0
 
-					Temp = (int16)INick << 1;
-					Temp += (int16)INick;
-					Temp += NewNick;
-					Temp += 2;
-					Temp >>= 2;
-					INick = Temp;
+void enableTxIrq1(void) {
+    LPC_UART1->IER |= 0x0002;
+} // enableTxIrq1
 
+void disableTxIrq1(void) {
+    LPC_UART1->IER &= ~0x0002;
+}  // disableTxIrq1
 
-					Temp = (int16)ITurn << 1;
-					Temp += (int16)ITurn;
-					Temp += NewTurn;
-					Temp += 2; 
-					Temp >>= 2;
-					ITurn = Temp;
-#else
-					IRoll = NewRoll; 
-					INick = NewNick;
-					ITurn = NewTurn;
-#endif // USE_FILTERS	
-					IK5 = NewK5.low8;
-					IK6 = - _Neutral;
-					IK7 = - _Neutral;
+void InitTimersAndInterrupts(void) {
+    static int8 i;
 
-					_NoSignal = 0;
-					_NewValues = 1; // potentially IK6 & IK7 are still about to change ???
-#endif // !RX_DSM2
-				}
-				else	// values are unsafe
-					goto ErrorRestart;
-			}
-			else
-			if( RecFlags == 7 )
-			{
-				NewK7 = CCPR1 - NewK7;
-				NewK7 >>= 1;	
-#ifdef RX_DSM2
-				if (NewK7.high8 !=1)	
-					goto ErrorRestart;
+    timer.start();
 
-				if( FutabaMode ) // Ch3 set for Throttle on UAPSet
-				{
-//EDIT FROM HERE ->
-// CURRENTLY Futaba 9C with Spektrum DM8 / JR 9XII with DM9 module
-					IGas = NewK5.low8;
+    GPSSerial.attach(GPSInISR, GPSSerial.RxIrq);
 
-					NewRoll = NewK3.low8 - _Neutral; 
-					NewNick = NewK2.low8 - _Neutral;
-					NewTurn = NewK1.low8 - _Neutral;
+    InitTelemetryPacket();
+    //TelemetrySerial.attach(TelemetryInISR, TelemetrySerial.RxIrq);
 
-					IK5 = NewK6.low8; // do not filter
-					IK6 = NewK4.low8;
-					IK7 = NewK7.low8;
-// TO HERE
-				}
-				else // Reference 2.4GHz configuration DX7 Tx and AR7000 Rx
-				{
-					IGas = NewK6.low8;
+    RCPositiveEdge = true;
 
-					NewRoll = NewK1.low8 - _Neutral; 
-					NewNick = NewK4.low8 - _Neutral;
-					NewTurn = NewK7.low8 - _Neutral;
+    RCTimeout.attach_us(& RCTimeoutISR, 50000);
 
-					IK5 = NewK3.low8; // do not filter
-					IK6 = NewK5.low8;
-					IK7 = NewK2.low8;
-				}
+#ifdef SOFTWARE_CAM_PWM
+    CameraTicker.attach_us(&CamPWMOnISR, 22500);
+#endif // SOFTWARE_CAM_PWM
 
-				// DoubleRate removed
+    for (i = Clock; i<= CompassUpdate; i++)
+        mS[i] = 0;
 
-#ifdef USE_FILTERS
-				Temp = (int)IRoll << 1;
-				Temp += (int)IRoll;
-				Temp += NewRoll;
-				//Temp += 2;		// run out of code space!
-				Temp >>= 2;
-				IRoll = Temp;
+} // InitTimersAndInterrupts
 
-				Temp = (int)INick << 1;
-				Temp += (int)INick;
-				Temp += NewNick;
-				//Temp += 2;
-				Temp >>= 2;
-				INick = Temp;
+void RCISR(void) {
+    CurrEdge = timer.read_us();
 
-				Temp = (int)ITurn << 1;
-				Temp += (int)ITurn;
-				Temp += NewTurn;
-				//Temp += 2;
-				Temp >>= 2;
-				ITurn = Temp;
-#else
-				IRoll = NewRoll; 
-				INick = NewNick;
-				ITurn = NewTurn;		
-#endif // USE_FILTERS
-				_NoSignal = 0;
-				_NewValues = 1;
-#else				
-				IK7 = NewK7.low8;
-#endif // RX_DSM2 
-				RecFlags = -1;
-			}
-			else
-			{
-ErrorRestart:
-				_NewValues = 0;
-				_NoSignal = 1;		// Signal lost
-				RecFlags = -1;
-#ifndef RX_PPM
-				if( NegativePPM )
-					CCP1M0 = 1;	// wait for positive edge next
-				else
-					CCP1M0 = 0;	// wait for negative edge next
-#endif
-			}	
-#ifndef RX_PPM
-		}
-#endif
-		CCP1IF = 0;				// quit int
-		RecFlags++;
-	}
-	else
-	if( T0IF && T0IE )
-	{
-		T0IF = 0;				// quit int
-		TimeSlot--;
-	}
-	
-	int_restore_registers;
-}
+    Width = CurrEdge - PrevEdge;
+    PrevEdge = CurrEdge;
+
+    if ( Width > MIN_PPM_SYNC_PAUSE ) {  // A pause  > 5ms
+        PPM_Index = 0;                        // Sync pulse detected - next CH is CH1
+        F.RCFrameOK = true;
+        F.RCNewValues = false;
+        PauseTime = Width;
+    } else
+        if (PPM_Index < RC_CONTROLS) { // Width in 1us ticks.
+            if ( ( Width >= RC_MIN_WIDTH_US ) && ( Width <= RC_MAX_WIDTH_US ) )
+                PPM[PPM_Index] = Width - 1000;
+            else {
+                // preserve old value i.e. default hold
+                RCGlitches++;
+                F.RCFrameOK = false;
+            }
+
+            PPM_Index++;
+            // MUST demand rock solid RC frames for autonomous functions not
+            // to be cancelled by noise-generated partially correct frames
+            if ( PPM_Index == RC_CONTROLS ) {
+                if ( F.RCFrameOK ) {
+                    F.RCNewValues = true;
+                    SignalCount++;
+                } else {
+                    F.RCNewValues = false;
+                    SignalCount -= RC_GOOD_RATIO;
+                }
+
+                SignalCount = Limit(SignalCount, -RC_GOOD_BUCKET_MAX, RC_GOOD_BUCKET_MAX);
+                F.Signal = SignalCount > 0;
+
+                if ( F.Signal )
+                    mS[LastValidRx] = timer.read_ms();
+
+                RCTimeout.attach_us(& RCTimeoutISR, RC_SIGNAL_TIMEOUT_MS*1000);
+            }
+        }
+
+} // RCISR
+
+void RCNullISR(void) {
+// discard edge
+} // RCNullISR
+
+void CamPWMOnISR(void) {
+
+    PWMCamRoll.write(true);
+    CamRollTimeout.attach_us(&CamRollPWMOffISR, CamRollPulseWidth);
+    PWMCamPitch.write(true);
+    CamPitchTimeout.attach_us(&CamPitchPWMOffISR, CamPitchPulseWidth);
+
+} // CamPWMOnISR
+
+void CamRollPWMOffISR(void) {
+
+    PWMCamRoll.write(false);
+    CamRollTimeout.detach();
+
+} // CamRollPWMOffISR
+
+void CamPitchPWMOffISR(void) {
+
+    PWMCamPitch.write(false);
+    CamPitchTimeout.detach();
+
+} // CamPitchPWMOffISR
+
+void RCTimeoutISR(void) {
+    if ( F.Signal ) {
+        F.Signal = false;
+        SignalCount = -RC_GOOD_BUCKET_MAX;
+    }
+} // RCTimeoutISR
+
+void GPSInISR(void) {
+    RxGPSPacket( GPSSerial.getc());
+} // GPSInISR
+
+void TelemetryInISR(void) {
+    RxTelemetryPacket(TelemetrySerial.getc());
+} // TelemetryInISR
 
