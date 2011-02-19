@@ -52,6 +52,9 @@ namespace UAVP.UAVPSet
                     mainForm.infoTextBox.Text = mainForm.help.GetString("IntegralLimiter");
                 if (mainForm.PitchAcc1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("Neutral");
+
+                if (mainForm.Balance1NumericUpDown.Focused || mainForm.Balance2NumericUpDown.Focused)
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("Balance");
                             
                 // Yaw
                 if (mainForm.YawProp1NumericUpDown.Focused || mainForm.YawProp2NumericUpDown.Focused)
@@ -94,13 +97,13 @@ namespace UAVP.UAVPSet
                 if (mainForm.HoverThrottle1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("HoverThrottle");
 
-                if (mainForm.ImpulseTime1NumericUpDown.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("Impuls");
+                if (mainForm.BaroScale1NumericUpDown.Focused )
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("BaroScale");
                 if (mainForm.LowMotorRun1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("LowMotorRun");
-                if (mainForm.CameraRoll1NumericUpDown.Focused || mainForm.CameraRoll2NumericUpDown.Focused)
+                if (mainForm.CameraRoll1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("CameraGain");
-                if (mainForm.CameraRollTrim1NumericUpDown.Focused || mainForm.CameraRollTrim2NumericUpDown.Focused)
+                if (mainForm.CameraRollTrim1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("CameraRollTrim");
                 if (mainForm.Compass1NumericUpDown.Focused || mainForm.Compass2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("Compass");
@@ -124,8 +127,12 @@ namespace UAVP.UAVPSet
                 if (mainForm.AltIntLimit1NumericUpDown.Focused || mainForm.AltIntLimit2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("AltIntLimit");
 
-                if (mainForm.BaroScale1NumericUpDown.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("BaroScale");
+                if (mainForm.ThrottleGS1NumericUpDown.Focused || mainForm.ThrottleGS2NumericUpDown.Focused )
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("ThrottleGainSchedule");
+
+                if (mainForm.Acro1NumericUpDown.Focused || mainForm.Acro2NumericUpDown.Focused)
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("Acro");
+
                 if (mainForm.DescDelay1NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("DescentDelay");
                 if (mainForm.DescentRate1NumericUpDown.Focused || mainForm.DescentRate2NumericUpDown.Focused)
@@ -136,7 +143,7 @@ namespace UAVP.UAVPSet
                 if (mainForm.GPSGain1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("GPSGain");
 
-                if (mainForm.GyroRollPitchComboBox1.Focused || mainForm.GyroYawComboBox1.Focused)
+                if (mainForm.GyroComboBox1.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("GyroType");
                 if (mainForm.ESCComboBox1.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("ESCType");
@@ -147,8 +154,7 @@ namespace UAVP.UAVPSet
                     mainForm.infoTextBox.Text = mainForm.help.GetString("TelemetryType");
   
                 //GPS
-                if (mainForm.NavRadius1NumericUpDown.Focused || mainForm.NavRadius2NumericUpDown.Focused)
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("NavRadius");
+
                 if (mainForm.NavNeutralRadius1NumericUpDown.Focused || mainForm.NavNeutralRadius2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavNeutralRadius");
                 if (mainForm.NavInt1NumericUpDown.Focused || mainForm.NavInt2NumericUpDown.Focused)
@@ -161,6 +167,9 @@ namespace UAVP.UAVPSet
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavRTHAltitude");
                 if (mainForm.NavMagVar1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavMagVar");
+
+                if (mainForm.NavYawLimit1NumericUpDown.Focused)
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("NavTurnLimit");
         }
     }
 }

@@ -520,7 +520,7 @@ namespace UAVP.UAVPSet
                                     // || temp.Substring(0,1) == "T")
                                     
                 {
-                    if (temp == "Press any key when done\r" || temp == "# ")
+                    if (temp == "Press the CONTINUE button when done\r" || temp == "# ")
                         break;
 
                     ret.Add(temp);

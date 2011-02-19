@@ -130,8 +130,8 @@ namespace UAVP.UAVPSet
                     labelGPSGain1.Visible = true;
                     GPSGain1NumericUpDown.Visible = true;
 
-                    labelBaroScale1.Visible = true;
-                    BaroScale1NumericUpDown.Visible = true;
+                    labelThrottleGS1.Visible = true;
+                    ThrottleGS1NumericUpDown.Visible = true;
 
                     bit0Header1Label.Visible = true;
                     bit01CheckBox.Visible = true;
@@ -178,23 +178,18 @@ namespace UAVP.UAVPSet
 
                     CameraRoll1Label.Visible = true;
                     CameraRoll1NumericUpDown.Visible = true;
-                    CameraRoll2Label.Visible = true;
-                    CameraRoll2NumericUpDown.Visible = true;
+
                     CameraRollTrim1Label.Visible = true;
                     CameraRollTrim1NumericUpDown.Visible = true;
-                    CameraRollTrim2Label.Visible = true;
-                    CameraRollTrim2NumericUpDown.Visible = true;
 
                     CameraPitch1Label.Visible = true;
                     CameraPitch1NumericUpDown.Visible = true;
-                    CameraPitch2Label.Visible = true;
-                    CameraPitch2NumericUpDown.Visible = true;
 
                     labelDescDelay1.Visible = true;
                     DescDelay1NumericUpDown.Visible = true;
 
-                    labelBaroScale1.Visible = true;
-                    BaroScale1NumericUpDown.Visible = true;
+                    labelThrottleGS1.Visible = true;
+                    ThrottleGS1NumericUpDown.Visible = true;
 
                     labelESC1.Visible = true;
                     ESCComboBox1.Visible = true;
@@ -205,11 +200,8 @@ namespace UAVP.UAVPSet
                     labelTelemetry1.Visible = true;
                     TelemetryComboBox1.Visible = true;
 
-                    labelGyroRollPitch1.Visible = true;
-                    GyroRollPitchComboBox1.Visible = true;
-
-                    labelGyroYaw1.Visible = true;
-                    GyroYawComboBox1.Visible = true;
+                    labelGyros1.Visible = true;
+                    GyroComboBox1.Visible = true;
 
                     LabelHoverThrottle1.Visible = true;
                     HoverThrottle1NumericUpDown.Visible = true;
@@ -219,6 +211,9 @@ namespace UAVP.UAVPSet
 
                     Orientation1Label.Visible = true;
                     Orientation1NumericUpDown.Visible = true;
+
+                    NavYawLimit1Label.Visible = true;
+                    NavYawLimit1NumericUpDown.Visible = true;
 
                     break;
                 case "UAVXLight":
@@ -233,8 +228,8 @@ namespace UAVP.UAVPSet
                     labelGPSGain1.Visible = false;
                     GPSGain1NumericUpDown.Visible = false;
 
-                    labelBaroScale1.Visible = false;
-                    BaroScale1NumericUpDown.Visible = false;
+                    labelThrottleGS1.Visible = false;
+                    ThrottleGS1NumericUpDown.Visible = false;
 
                     bit0Header1Label.Visible = true;
                     bit01CheckBox.Visible = true; 
@@ -284,23 +279,18 @@ namespace UAVP.UAVPSet
 
                     CameraRoll1Label.Visible = false;
                     CameraRoll1NumericUpDown.Visible = false;
-                    CameraRoll2Label.Visible = false;
-                    CameraRoll2NumericUpDown.Visible = false;
+
                     CameraRollTrim1Label.Visible = false;
                     CameraRollTrim1NumericUpDown.Visible = false;
-                    CameraRollTrim2Label.Visible = false;
-                    CameraRollTrim2NumericUpDown.Visible = false;
 
                     CameraPitch1Label.Visible = false; 
                     CameraPitch1NumericUpDown.Visible = false;
-                    CameraPitch2Label.Visible = false;
-                    CameraPitch2NumericUpDown.Visible = false;
 
                     labelDescDelay1.Visible = false;
                     DescDelay1NumericUpDown.Visible = false;
 
-                    labelBaroScale1.Visible = false;
-                    BaroScale1NumericUpDown.Visible = false;
+                    labelThrottleGS1.Visible = false;
+                    ThrottleGS1NumericUpDown.Visible = false;
 
                     labelESC1.Visible = true;
                     ESCComboBox1.Visible = true;
@@ -311,11 +301,8 @@ namespace UAVP.UAVPSet
                     labelTelemetry1.Visible = true;
                     TelemetryComboBox1.Visible = true;
 
-                    labelGyroRollPitch1.Visible = true;
-                    GyroRollPitchComboBox1.Visible = true;
-
-                    labelGyroYaw1.Visible = true;
-                    GyroYawComboBox1.Visible = true;
+                    labelGyros1.Visible = true;
+                    GyroComboBox1.Visible = true;
 
                     LabelHoverThrottle1.Visible = false;
                     HoverThrottle1NumericUpDown.Visible = false;
@@ -486,6 +473,49 @@ namespace UAVP.UAVPSet
 
         private void bit61CheckBox_CheckedChanged(object sender, EventArgs e)
         {
+            //if (bit61CheckBox.Checked)
+            if (false )
+            {
+                bit01CheckBox.Visible = false;
+                bit0Header1Label.Visible = false;
+
+                bit11CheckBox.Visible = false;
+                bit1Header1Label.Visible = false;
+
+                NavRTHAlt1NumericUpDown.Visible = false;
+                labelNavRTHAlt1.Visible = false;
+ 
+                NavRTHAlt2NumericUpDown.Visible = false;
+                labelNavRTHAlt2.Visible = false;
+
+                DescDelay1NumericUpDown.Visible = false;
+                labelDescDelay1.Visible = false;
+
+                groupBoxGPS1.Visible = false;
+                groupBoxGPS2.Visible = false;
+            }
+           // else
+            if (false )
+            {
+                bit01CheckBox.Visible = true;
+                bit0Header1Label.Visible = true;
+
+                bit11CheckBox.Visible = true;
+                bit1Header1Label.Visible = true;
+
+                NavRTHAlt1NumericUpDown.Visible = true;
+                labelNavRTHAlt1.Visible = true;
+
+                NavRTHAlt2NumericUpDown.Visible = true;
+                labelNavRTHAlt2.Visible = true;
+
+                DescDelay1NumericUpDown.Visible = true;
+                labelDescDelay1.Visible = true;
+
+                groupBoxGPS1.Visible = true;
+                groupBoxGPS2.Visible = true;
+            }
+
             bitTextWechsel(sender);
         }
 
@@ -771,16 +801,10 @@ namespace UAVP.UAVPSet
         }
 
        
-        private void GyroRollPitchComboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void GyroComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             parameterSets.feldUpdaten(sender, this);
         }
-
-        private void GyroYawComboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            parameterSets.feldUpdaten(sender, this);
-        }
-
 
         private void TxRxComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -841,7 +865,7 @@ namespace UAVP.UAVPSet
             parameterSets.feldUpdaten(sender, this);
         }
 
-     
-    
+
+  
     }
 }

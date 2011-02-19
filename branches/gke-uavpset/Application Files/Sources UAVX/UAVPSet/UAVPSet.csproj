@@ -9,10 +9,10 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UAVP.UAVPSet</RootNamespace>
-    <AssemblyName>UAVPSet 4.09  %28UAVX%29</AssemblyName>
+    <AssemblyName>UAVPSet 4.16 %28UAVX%29</AssemblyName>
     <ApplicationIcon>uavpset.ico</ApplicationIcon>
-    <ManifestCertificateThumbprint>ECAC212CEC9D51D4D8DA4095BA9F4311ED77E226</ManifestCertificateThumbprint>
-    <ManifestKeyFile>UAVPSet_2_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestCertificateThumbprint>2916BEED45BB4736F71C17E3B5B8BF2942A547A9</ManifestCertificateThumbprint>
+    <ManifestKeyFile>UAVPSet_3_TemporaryKey.pfx</ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
     <SignManifests>true</SignManifests>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -26,7 +26,7 @@
     <SignAssembly>false</SignAssembly>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <PublishUrl>C:\Program Files\UAVPSet 4.09 UAVX\</PublishUrl>
+    <PublishUrl>C:\Program Files\UAVPSet Publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -37,12 +37,12 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <TargetCulture>en</TargetCulture>
-    <ProductName>UAVPset 4.09</ProductName>
+    <ProductName>UAVPset 4.16</ProductName>
     <PublisherName>UAVX</PublisherName>
     <SuiteName>UAVX</SuiteName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>3</ApplicationRevision>
-    <ApplicationVersion>4.9.0.%2a</ApplicationVersion>
+    <ApplicationRevision>5</ApplicationRevision>
+    <ApplicationVersion>4.16.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -340,6 +340,7 @@
     <None Include="Resources\diagram.bmp" />
     <None Include="UAVPSet_1_TemporaryKey.pfx" />
     <None Include="UAVPSet_2_TemporaryKey.pfx" />
+    <None Include="UAVPSet_3_TemporaryKey.pfx" />
     <None Include="UAVPSet_TemporaryKey.pfx" />
     <Content Include="Resources\info.jpg" />
     <Content Include="Resources\uavp.ico" />

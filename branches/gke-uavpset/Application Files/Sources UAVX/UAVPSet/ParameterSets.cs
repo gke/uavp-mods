@@ -1113,9 +1113,9 @@ namespace UAVP.UAVPSet
                             //parameterForm1[15].Value = temp.ToString();
                             break;
                         case 17:
-                            parameterForm1[16].Value = register.Value;
-                            mainForm.ImpulseTime1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.ImpulseTime1NumericUpDown, mainForm);
+                            parameterForm1[16].Value = "8";
+                            mainForm.BaroScale1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.BaroScale1NumericUpDown, mainForm);
                             break;
                         case 18:
                             if (Convert.ToInt16(register.Value) < 0)
@@ -1190,8 +1190,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 29:
                             parameterForm1[28].Value = register.Value;
-                            mainForm.NavRadius1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.NavRadius1NumericUpDown, mainForm);
+                            mainForm.Acro1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Acro1NumericUpDown, mainForm);
                             break;
                         case 30:
                             parameterForm1[29].Value = register.Value;
@@ -1199,8 +1199,14 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.NavInt1NumericUpDown, mainForm);
                             break;
                         case 31:
+                            parameterForm1[30].Value = register.Value;
+                            mainForm.ThrottleGS1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.ThrottleGS1NumericUpDown, mainForm);
                             break;
                         case 32:
+                            parameterForm1[31].Value = register.Value;
+                            mainForm.Acro1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Acro1NumericUpDown, mainForm);
                             break;
                         case 33:
                             parameterForm1[32].Value = register.Value;
@@ -1214,8 +1220,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 35:
                             parameterForm1[34].Value = register.Value;
-                            mainForm.GyroRollPitchComboBox1.SelectedIndex = Convert.ToInt16(register.Value);  
-                            feldUpdaten(mainForm.GyroRollPitchComboBox1, mainForm);
+                            mainForm.GyroComboBox1.SelectedIndex = Convert.ToInt16(register.Value);  
+                            feldUpdaten(mainForm.GyroComboBox1, mainForm);
                             break;
                         case 36:
                             parameterForm1[35].Value = register.Value;
@@ -1322,9 +1328,9 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.BatteryCapacity1NumericUpDown, mainForm);
                             break;
                         case 55:
-                            parameterForm1[54].Value = register.Value;
-                            mainForm.GyroYawComboBox1.SelectedIndex = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.GyroYawComboBox1, mainForm);
+                            parameterForm1[54].Value = "0"; //Nav Radius
+                          //  mainForm.Balance1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                          //  feldUpdaten(mainForm.Balance1NumericUpDown, mainForm);
                             break;
                         case 56:
                             parameterForm1[55].Value = register.Value;
@@ -1335,6 +1341,16 @@ namespace UAVP.UAVPSet
                             parameterForm1[56].Value = register.Value;
                             mainForm.Orientation1NumericUpDown.Value = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.Orientation1NumericUpDown, mainForm);
+                            break;
+                        case 58:
+                            parameterForm1[57].Value = register.Value;
+                            mainForm.NavYawLimit1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.NavYawLimit1NumericUpDown, mainForm);
+                            break;
+                        case 59:
+                            parameterForm1[58].Value = register.Value;
+                            mainForm.Balance1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Balance1NumericUpDown, mainForm);
                             break;
                         
                         default: break; // up to case 64 available
@@ -1449,15 +1465,15 @@ namespace UAVP.UAVPSet
                             break;
                         
                         case 19:
-                            parameterForm2[18].Value = register.Value;
-                            mainForm.CameraRoll2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.CameraRoll2NumericUpDown, mainForm);
+                          //  parameterForm2[18].Value = register.Value;
+                          //  mainForm.CameraRoll2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                          //  feldUpdaten(mainForm.CameraRoll2NumericUpDown, mainForm);
                             break;
                         
                         case 26:
-                            parameterForm2[25].Value = register.Value;
-                            mainForm.CameraPitch2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.CameraPitch2NumericUpDown, mainForm);
+                          //  parameterForm2[25].Value = register.Value;
+                          //  mainForm.CameraPitch2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                          //  feldUpdaten(mainForm.CameraPitch2NumericUpDown, mainForm);
                             break;
                         case 27:
                             parameterForm2[26].Value = register.Value;
@@ -1470,9 +1486,9 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.AltInt2NumericUpDown, mainForm);
                             break;
                         case 29:
-                            parameterForm2[28].Value = register.Value;
-                            mainForm.NavRadius2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.NavRadius2NumericUpDown, mainForm);
+                          //  parameterForm2[28].Value = register.Value;
+                          //  mainForm.NavRadius2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                          //  feldUpdaten(mainForm.NavRadius2NumericUpDown, mainForm);
                             break;
                         case 30:
                             parameterForm2[29].Value = register.Value;
@@ -1480,8 +1496,14 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.NavInt2NumericUpDown, mainForm);
                             break;
                         case 31:
+                            parameterForm2[30].Value = register.Value;
+                            mainForm.ThrottleGS2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.ThrottleGS2NumericUpDown, mainForm);
                             break;
                         case 32:
+                            parameterForm2[31].Value = register.Value;
+                            mainForm.Acro2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Acro2NumericUpDown, mainForm);
                             break;
                         case 33:
                             parameterForm2[32].Value = register.Value;
@@ -1496,9 +1518,9 @@ namespace UAVP.UAVPSet
                             break;
                        
                         case 40:
-                            parameterForm2[39].Value = register.Value;
-                            mainForm.CameraRollTrim2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.CameraRollTrim2NumericUpDown, mainForm);
+                          //  parameterForm2[39].Value = register.Value;
+                          //  mainForm.CameraRollTrim2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                          //  feldUpdaten(mainForm.CameraRollTrim2NumericUpDown, mainForm);
                             break;
                         case 41:
                             parameterForm2[40].Value = register.Value;
@@ -1524,6 +1546,11 @@ namespace UAVP.UAVPSet
                             parameterForm2[55].Value = register.Value;
                             mainForm.AltKd2NumericUpDown.Value = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.AltKd2NumericUpDown, mainForm);
+                            break;
+                        case 59:
+                            parameterForm2[58].Value = register.Value;
+                            mainForm.Balance2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Balance2NumericUpDown, mainForm);
                             break;
                         
                         default: break; // up to case 64 available
@@ -1577,7 +1604,7 @@ namespace UAVP.UAVPSet
                 mainForm.bit31CheckBox.ForeColor = farbeElement;
                 mainForm.bit41CheckBox.ForeColor = farbeElement;
 
-                mainForm.ImpulseTime1NumericUpDown.ForeColor = farbeElement;
+                mainForm.BaroScale1NumericUpDown.ForeColor = farbeElement;
 
                 mainForm.Battery1NumericUpDown.ForeColor = farbeElement;
 
@@ -1592,7 +1619,7 @@ namespace UAVP.UAVPSet
                 mainForm.Compass1NumericUpDown.ForeColor = farbeElement;
                 mainForm.AltInt1NumericUpDown.ForeColor = farbeElement;
 
-                mainForm.NavRadius1NumericUpDown.ForeColor = farbeElement;
+                mainForm.Acro1NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavNeutralRadius1NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavInt1NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavRTHAlt1NumericUpDown.ForeColor = farbeElement;
@@ -1616,12 +1643,9 @@ namespace UAVP.UAVPSet
                 mainForm.YawLimit2NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawIntLimit2NumericUpDown.ForeColor = farbeElement;
 
-              
-                mainForm.CameraPitch2NumericUpDown.ForeColor = farbeElement;
                 mainForm.Compass2NumericUpDown.ForeColor = farbeElement;
                 mainForm.AltInt2NumericUpDown.ForeColor = farbeElement;
 
-                mainForm.NavRadius2NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavNeutralRadius2NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavInt2NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavRTHAlt2NumericUpDown.ForeColor = farbeElement;
