@@ -80,9 +80,10 @@ namespace UAVP.UAVPSet
             // 
             // anyKeyButton
             // 
+            this.anyKeyButton.BackColor = System.Drawing.Color.LimeGreen;
             resources.ApplyResources(this.anyKeyButton, "anyKeyButton");
             this.anyKeyButton.Name = "anyKeyButton";
-            this.anyKeyButton.UseVisualStyleBackColor = true;
+            this.anyKeyButton.UseVisualStyleBackColor = false;
             this.anyKeyButton.Click += new System.EventHandler(this.anyKeyButton_Click);
             // 
             // closeButton

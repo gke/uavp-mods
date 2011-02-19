@@ -246,6 +246,9 @@
   <data name="&gt;&gt;splitContainer2.Panel1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
+  <data name="anyKeyButton.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
   <data name="anyKeyButton.Location" type="System.Drawing.Point, System.Drawing">
     <value>426, 4</value>
   </data>
@@ -256,7 +259,7 @@
     <value>6</value>
   </data>
   <data name="anyKeyButton.Text" xml:space="preserve">
-    <value>any key</value>
+    <value>Continue</value>
   </data>
   <data name="&gt;&gt;anyKeyButton.Name" xml:space="preserve">
     <value>anyKeyButton</value>
@@ -269,6 +272,9 @@
   </data>
   <data name="&gt;&gt;anyKeyButton.ZOrder" xml:space="preserve">
     <value>0</value>
+  </data>
+  <data name="closeButton.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="closeButton.Location" type="System.Drawing.Point, System.Drawing">
     <value>566, 4</value>
