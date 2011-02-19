@@ -1,8 +1,9 @@
-#summary How to compile the UAVP/UAVX firmware..
+#summary How to compile the UAVP/UAVX and UAVPset firmware:
+#labels gke,jesolins,UAVX,UAVP,UAVPset
 
 The zip archives in the downloads area contain a full set of flight and test HEX files. The following processes are only necessary if you are doing your own development work.
 
-== Installing the compilers ==
+== Installing the UAVP/UAVX firmware compilers (see below for UAVPset)==
 First you need to install the compilers required for generating the flight and test HEX files. You only need to do this once.
 
    * Download the latest version of MPLab and the C18 compiler and install them (http://www.microchip.com).
@@ -19,5 +20,13 @@ The latest version of UAVPSet supports V3.15 UAVP and UAVX.
 == Using MPLab ==
    * All of the revisions on this site now contain an MPLab project workspace file (mcw). For the older 16F876 PICs the compiler is used is cc5x which does not readily support simulation within MPLab.
    * With the exception of sensor inputs full simulation can be performed within MPLab when using the C18 compiler. 
+
+== Compiling UAVPset firmware ==
+
+  * Download and install the Microsoft Visual Express Studio for C#: http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-csharp-express
+  * Obtain the UAVPset source code from ( http://code.google.com/p/uavp-mods/downloads/list) and unzip it.
+  * Open the .sln to edit the UAVPset software.
+
+
 
 See the relevant README files. 
