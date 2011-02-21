@@ -90,8 +90,6 @@ void DoStartingBeeps(uint8 b) {
     DoBeep100mS(8,0);
 } // DoStartingBeeps
 
-boolean BeeperIsOn;
-
 void CheckAlarms(void) {
 
     static uint16 BeeperOnTime, BeeperOffTime;

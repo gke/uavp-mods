@@ -92,9 +92,7 @@ void InitTimersAndInterrupts(void) {
 
     RCTimeout.attach_us(& RCTimeoutISR, 50000);
 
-#ifdef SOFTWARE_CAM_PWM
     CameraTicker.attach_us(&CamPWMOnISR, 22500);
-#endif // SOFTWARE_CAM_PWM
 
     for (i = Clock; i<= CompassUpdate; i++)
         mS[i] = 0;

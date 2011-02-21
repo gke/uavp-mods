@@ -66,10 +66,6 @@ void DoAltitudeHold(void) { // Syncronised to baro intervals independant of acti
     static real32 AltdT, AltdTR;
     static uint32 Now;
 
-#ifdef ALT_SCRATCHY_BEEPER
-    if ( (--BeepTick <= 0) && !F.BeeperInUse )
-        Beeper_TOG;
-#endif
     Now = uSClock();
     AltdT = ( Now - AltuSp ) * 0.000001;
     AltdT = Limit(AltdT, 0.01, 0.1); // limit range for restarts
@@ -112,13 +108,6 @@ void DoAltitudeHold(void) { // Syncronised to baro intervals independant of acti
     else
         if ( ROC < Stats[MinROCS] )
             Stats[MinROCS] = ROC;
-
-#ifdef ALT_SCRATCHY_BEEPER
-    if ( (BeepTick <= 0) && !F.BeeperInUse) {
-        Beeper_TOG;
-        BeepTick = 5;
-    }
-#endif
 
 } // DoAltitudeHold
 
@@ -417,9 +406,7 @@ void LightsAndSirens(void) {
         }
         ReadParameters();
         GetIRAttitude(); // only active if IRSensors selected
-    } while ((!F.Signal) || (Armed && FirstPass) || F.Ch5Active ||
-             // F.GyroFailure ||
-             // (!F.AccelerationsValid) ||
+    } while ((!F.Signal) || (Armed && FirstPass) || F.Ch5Active || F.GyroFailure || (!F.AccelerationsValid) ||
              ( InitialThrottle >= RC_THRES_START ) || (!F.ParametersValid) );
 
     FirstPass = false;

@@ -124,7 +124,7 @@ void BaroTest(void) {
     } else
         TxString("no rangefinder\r\n");
 
-    TxString("\r\nAmbient :\t");
+    TxString("\r\nUAVXArm Shield:\t");
     TxVal32((int32)AmbientTemperature.i16, 1, ' ');
     TxString("C\r\n");
 
@@ -193,7 +193,7 @@ void InitBarometer(void) {
 
     Comp[Alt] = AltDiffSum = AltDSum = 0;
     F.BaroAltitudeValid= true; // optimistic
-
+ 
     if ( IsFreescaleBaroActive() )
         InitFreescaleBarometer();
     else
@@ -210,12 +210,15 @@ void InitBarometer(void) {
 // Freescale ex Motorola MPX4115 Barometer with ADS7823 12bit ADC
 
 void SetFreescaleMCP4725(int16);
+boolean IdentifyMCP4725(void);
 void SetFreescaleOffset(void);
 void ReadFreescaleBaro(void);
 real32 FreescaleToDM(int24);
 void GetFreescaleBaroAltitude(void);
 boolean IsFreescaleBaroActive(void);
 void InitFreescaleBarometer(void);
+
+uint8 MCP4725_ID_Actual;
 
 void SetFreescaleMCP4725(int16 d) {
     static i16u dd;
@@ -224,13 +227,28 @@ void SetFreescaleMCP4725(int16 d) {
     dd.u16 = d << 4;                            // left align
 
     I2CBARO.start();
-    r = I2CBARO.write(MCP4725_WR) != I2C_ACK;
+    r = I2CBARO.write(MCP4725_ID_Actual) != I2C_ACK;
     r = I2CBARO.write(MCP4725_CMD) != I2C_ACK;
     r = I2CBARO.write(dd.b1) != I2C_ACK;
     r = I2CBARO.write(dd.b0) != I2C_ACK;
     I2CBARO.stop();
 
 } // SetFreescaleMCP4725
+
+boolean IdentifyMCP4725(void) {
+
+    static boolean r;
+    
+    r = true;
+    if ( I2CBAROAddressResponds( MCP4725_ID_0xC8 ) )
+        MCP4725_ID_Actual = MCP4725_ID_0xC8;
+    else 
+        if ( I2CBAROAddressResponds( MCP4725_ID_0xCC ) )
+            MCP4725_ID_Actual = MCP4725_ID_0xCC;
+        else
+            r = false;
+   return(r);    
+} // IdentifyMCP4725
 
 void SetFreescaleOffset(void) {
     // Steve Westerfeld
@@ -339,19 +357,15 @@ void GetFreescaleBaroAltitude(void) {
 
 boolean IsFreescaleBaroActive(void) { // check for Freescale Barometer
 
-    I2CBARO.start();
-    if ( I2CBARO.write(ADS7823_ID) != I2C_ACK ) goto FreescaleInactive;
+    static boolean r;
 
-    BaroType = BaroMPX4115;
-    I2CBARO.stop();
-    
-    TrackMinI2CRate(400000);
-
-    return(true);
-
-FreescaleInactive:
-    I2CBARO.stop();
-    return(false);
+    r = I2CBAROAddressResponds( ADS7823_ID );
+    if ( r ) {
+        BaroType = BaroMPX4115;
+        r = IdentifyMCP4725();
+        TrackMinI2CRate(400000);
+    }
+    return (r);
 
 } // IsFreescaleBaroActive
 
@@ -547,7 +561,7 @@ boolean IsBoschBaroActive(void) { // check for Bosch Barometers
         BaroType = BaroBMP085;
     else
         BaroType = BaroSMD500;
-        
+
     TrackMinI2CRate(400000);
 
     return(true);

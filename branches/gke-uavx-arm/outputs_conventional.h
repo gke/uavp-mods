@@ -43,14 +43,6 @@ void OutSignals(void) {
     Out3.pulsewidth_us(1000 + (int16)( PWM[RudderC] * PWMScale ) );
 #endif
 
-    CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
-    CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
-
-#ifndef SOFTWARE_CAM_PWM
-    Out4.pulsewidth_us(CamRollPulseWidth);
-    Out5.pulsewidth_us(CamPitchPulseWidth);
-#endif // !SOFTWARE_CAM_PWM
-
 } // OutSignals
 
 

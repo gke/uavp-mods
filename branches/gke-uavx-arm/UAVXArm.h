@@ -1,17 +1,19 @@
 
 // Commissioning defines
 
-#define I2C_MAX_RATE_HZ    400000
+#define I2C_MAX_RATE_HZ    400000       
 
-#define MCP4725_ID          0xc8            // or 0xcc
+#define PWM_UPDATE_HZ       200             // MUST BE LESS THAN OR EAUAL TO 450HZ
 
-//changes outside this rate are deemed sensor/buss errors
+#define SUPPRESS_SDCARD                     // no logging to check if buffering backup is an issue
+
+//BMP occasional returns bad results - changes outside this rate are deemed sensor/buss errors
 #define BARO_SANITY_CHECK_MPS    10.0       // dm/S 20,40,60,80 or 100
 
 #define SIX_DOF        // effects acc and gyro addresses
 
 #define SOFTWARE_CAM_PWM
-    
+
 #define BATTERY_VOLTS_SCALE   57.85         // 51.8144    // Volts scaling for internal divider
 
 //#define DCM_YAW_COMP
@@ -174,7 +176,7 @@ extern Timer timer;
 #define ALT_UPDATE_HZ                   20L     // Hz based on 50mS update time for Baro 
 
 #ifdef MULTICOPTER
-#define PWM_UPDATE_HZ                   450L    // PWM motor update rate must be <450 and >100
+//#define PWM_UPDATE_HZ                   450L    // PWM motor update rate must be <450 and >100
 #else
 #define PWM_UPDATE_HZ                   40L     // standard RC servo update rate
 #endif // MULTICOPTER
@@ -202,7 +204,7 @@ extern Timer timer;
 
 // Altitude Hold
 
-#define ALT_SCRATCHY_BEEPER                     // Scratchy beeper noise on altitude hold
+
 #define ALT_HOLD_MAX_ROC_MPS            0.5      // Must be changing altitude at less than this for alt. hold to be detected
 
 // the range within which throttle adjustment is proportional to altitude error
@@ -766,10 +768,11 @@ enum BaroTypes { BaroBMP085, BaroSMD500, BaroMPX4115, BaroUnknown };
 #define ADS7823_RD          0x91    // ADS7823 ADC
 #define ADS7823_CMD         0x00
 
+extern uint8 MCP4725_ID_Actual;
+
 #define MCP4725_MAX         4095    // 12 bits
-//#define MCP4725_ID          0xC8
-#define MCP4725_WR          MCP4725_ID
-#define MCP4725_RD          (MCP4725_ID+1)
+#define MCP4725_ID_0xC8     0xc8
+#define MCP4725_ID_0xCC     0xcc
 #define MCP4725_CMD         0x40    // write to DAC registor in next 2 bytes
 #define MCP4725_EPROM       0x60    // write to DAC registor and eprom
 
@@ -779,6 +782,7 @@ extern void ReadFreescaleBaro(void);
 extern real32 FreescaleToDM(int24);
 extern void GetFreescaleBaroAltitude(void);
 extern boolean IsFreescaleBaroActive(void);
+extern boolean IdentifyMCP4725(void);
 extern void InitFreescaleBarometer(void);
 
 #define BOSCH_ID_BMP085         0x55
@@ -861,7 +865,10 @@ extern void CalibrateHMC6352(void);
 extern void InitHMC6352(void);
 extern boolean HMC6352Active(void);
 
-typedef struct { real32 V; real32 Offset; } MagStruct;
+typedef struct {
+    real32 V;
+    real32 Offset;
+} MagStruct;
 extern MagStruct Mag[3];
 extern real32 MagDeviation, CompassOffset;
 extern real32 MagHeading, Heading, FakeHeading;
@@ -1062,8 +1069,9 @@ extern PwmOut Out1;                 // 22
 extern PwmOut Out2;                 // 23
 extern PwmOut Out3;                 // 24
 
-extern PwmOut Out4;                 // 25
-extern PwmOut Out5;                 // 26
+//extern PwmOut Out4;                 // 25
+//extern PwmOut Out5;                 // 26
+extern DigitalOut DebugPin;                  // 25
 
 extern I2C I2C0;                    // 27, 28
 
@@ -1089,9 +1097,11 @@ extern struct tm* RTCTime;
 
 #define I2CTEMP I2C0
 #define I2CBARO I2C0
+#define I2CBAROAddressResponds I2C0AddressResponds
 #define I2CGYRO I2C0
 #define I2CACC I2C0
 #define I2CCOMPASS I2C0
+#define I2CCOMPASSAddressResponds I2C0AddressResponds
 #define I2CESC I2C0
 #define I2CLED I2C0
 
@@ -1191,6 +1201,10 @@ extern real32 IR[3], IRMax, IRMin, IRSwing;
 #define I2C_ACK  1
 #define I2C_NACK 0
 
+extern boolean I2C0AddressResponds(uint8);
+#ifdef HAVE_I2C1
+extern boolean I2C1AddressResponds(uint8);
+#endif // HAVE_I2C1
 extern void TrackMinI2CRate(uint32);
 extern void ShowI2CDeviceName(uint8);
 extern uint8 ScanI2CBus(void);
@@ -1206,15 +1220,15 @@ extern uint32 MinI2CRate;
 
 #define PCA9551_ID         0xc0
 
-#define AUX0M              0x0001
-#define AUX1M              0x0002
-#define AUX2M              0x0004
-#define AUX3M              0x0008
+#define DRV0M              0x0001
+#define DRV1M              0x0002
+#define DRV2M              0x0004
+#define DRV3M              0x0008
 
-#define DRV0M              0x0010
-#define DRV1M              0x0020
-#define DRV2M              0x0040
-#define DRV3M              0x0080
+#define AUX0M              0x0010
+#define AUX1M              0x0020
+#define AUX2M              0x0040
+#define AUX3M              0x0080
 
 #define BeeperM            DRV0M
 
@@ -1447,7 +1461,7 @@ enum Params { // MAX 64
     NavIntLimit,           // 48
     AltIntLimit,           // 49
     unused50,              // 50 GravComp
-    CompSteps,             // 51
+    unused51 ,             // 51 CompSteps
     ServoSense,            // 52
     CompassOffsetQtr,      // 53
     BatteryCapacity,       // 54

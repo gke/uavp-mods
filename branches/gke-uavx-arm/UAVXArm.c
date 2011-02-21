@@ -34,7 +34,6 @@ int main(void) {
  
     InitRC();
     InitTimersAndInterrupts();
-    GreenLED = 1;
     InitLEDs();
         
     InitParameters();
@@ -46,6 +45,7 @@ int main(void) {
     InitAccelerometers();
     InitGyros();
     InitIRSensors();
+  
     InitCompass();
     InitRangefinder();
 
@@ -56,7 +56,7 @@ int main(void) {
     InitBarometer();
 
     ShowSetup(true);
-    
+
     I2C0.frequency(MinI2CRate);
 
     FirstPass = true;
@@ -176,14 +176,19 @@ int main(void) {
             DoControl();
 
             MixAndLimitMotors();
-            MixAndLimitCam();
             OutSignals();
-// zzz need to do some minor scheduling here with housekeeping
+            
+            MixAndLimitCam();
+            
+// zzz??? need to do some minor scheduling here with housekeeping
+DebugPin = true;
+// rewrite analog calls to get overlap!!!!!!!!!!!!!! just waiting at present for conversions
+
             GetTemperature();
             GetBattery();
             CheckAlarms();
             CheckTelemetry();
-
+DebugPin = false;
             SensorTrace();
 
         } // flight while armed

@@ -20,69 +20,117 @@
 
 #include "UAVXArm.h"
 
+boolean I2C0AddressResponds(uint8);
+#ifdef HAVE_I2C1
+boolean I2C1AddressResponds(uint8);
+#endif // HAVE_I2C1
+void TrackMinI2CRate(uint32);
+void ShowI2CDeviceName(uint8);
+uint8 ScanI2CBus(void);
+boolean ESCWaitClkHi(void);
+void ProgramSlaveAddress(uint8);
+void ConfigureESCs(void);
+
 uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 
 void TrackMinI2CRate(uint32 r) {
- if ( r < MinI2CRate )
-    MinI2CRate = r;
+    if ( r < MinI2CRate )
+        MinI2CRate = r;
 } // TrackMinI2CRate
 
-void ShowI2CDeviceName(uint8 d)
-{
+void ShowI2CDeviceName(uint8 d) {
     TxChar(' ');
     switch ( d  ) {
-    case ADXL345_ID: TxString("ADXL345 Acc"); break;
-    case ITG3200_ID: TxString("ITG3200 Gyro"); break;
-    case HMC5843_ID: TxString("HMC5843 Magnetometer"); break;
-    case HMC6352_ID: TxString("HMC6352 Compass"); break;
-    case ADS7823_ID: TxString("ADS7823 ADC"); break;
-    case MCP4725_ID: TxString("MCP4725 DAC"); break;
-    case BOSCH_ID: TxString("Bosch Baro"); break;
-    case TMP100_ID: TxString("TMP100 Temp"); break;
-    case PCA9551_ID: TxString("PCA9551 LED");break;
-    case LISL_ID: TxString("LIS3L Acc"); break;
-    default: break;
+        case ADXL345_ID:
+            TxString("ADXL345 Acc");
+            break;
+        case ITG3200_ID:
+            TxString("ITG3200 Gyro");
+            break;
+        case HMC5843_ID:
+            TxString("HMC5843 Magnetometer");
+            break;
+        case HMC6352_ID:
+            TxString("HMC6352 Compass");
+            break;
+        case ADS7823_ID:
+            TxString("ADS7823 ADC");
+            break;
+        case MCP4725_ID_0xCC:
+            TxString("MCP4725 DAC");
+            break;
+        case MCP4725_ID_0xC8:
+            TxString("MCP4725 DAC");
+            break;
+        case BOSCH_ID:
+            TxString("Bosch Baro");
+            break;
+        case TMP100_ID:
+            TxString("TMP100 Temp");
+            break;
+        case PCA9551_ID:
+            TxString("PCA9551 LED");
+            break;
+        case LISL_ID:
+            TxString("LIS3L Acc");
+            break;
+        default:
+            break;
     } // switch
     TxChar(' ');
 
 } // ShowI2CDeviceName
+
+boolean I2C0AddressResponds(uint8 s) {
+    static boolean r;
+    I2C0.start();
+    r = I2C0.write(s) == I2C_ACK;
+    I2C0.stop();
+    return (r);
+} // I2C0AddressResponds
+
+#ifdef HAVE_IC1
+boolean I2C1AddressResponds(uint8 s) {
+    static boolean r;
+    I2C1.start();
+    r = I2C1.write(s) == I2C_ACK;
+    I2C1.stop();
+    return (r);
+} // I2C1AddressResponds
+#endif // HAVE_IC1
 
 uint8 ScanI2CBus(void) {
     uint8 s;
     uint8 d;
 
     d = 0;
-
     TxString("Buss 0\r\n");
     for ( s = 0x10 ; s <= 0xf6 ; s += 2 ) {
-        I2C0.start();
-        if ( I2C0.write(s) == I2C_ACK ) {
+        if (  I2C0AddressResponds(s) ) {
             d++;
             TxString("\t0x");
             TxValH(s);
             ShowI2CDeviceName( s );
             TxNextLine();
         }
-        I2C0.stop();
 
         Delay1mS(2);
     }
-    
-    /* 
+
+    #ifdef HAVE_I2C1
     TxString("Buss 1\r\n");
     for ( s = 0x10 ; s <= 0xf6 ; s += 2 ) {
-        I2C1.start();
-        if ( I2C1.write(s) == I2C_ACK ) {
+        if (  I2C0AddressResponds(s) ) {
             d++;
             TxString("\t0x");
             TxValH(s);
+            ShowI2CDeviceName( s );
             TxNextLine();
         }
-        I2C1.stop();
 
         Delay1mS(2);
     }
-    */
+    #endif // HAVE_I2C1
 
     PCA9551Test();
 

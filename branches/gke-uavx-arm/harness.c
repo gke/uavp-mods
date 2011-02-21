@@ -55,8 +55,10 @@ PwmOut Out1(p22);                       // 22
 PwmOut Out2(p23);                       // 23
 PwmOut Out3(p24);                       // 24
 
-PwmOut Out4(p25);                       // 25
-PwmOut Out5(p26);                       // 26
+//PwmOut Out4(p25);                       // 25
+//PwmOut Out5(p26);                       // 26
+
+DigitalOut DebugPin(p25);                  // 25
 
 I2C I2C0(p28, p27);                     // 27, 28
 

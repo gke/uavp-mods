@@ -46,14 +46,11 @@ void OutSignals(void) {   // The PWM pulses are in two parts these being a 1mS p
     Out2.pulsewidth_us(1000 + (int16)( PWM[RightTC] * PWMScale ) );
     Out3.pulsewidth_us(1000 + (int16)( PWM[FrontBC] * PWMScale ) );
     
-    CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
-    CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
-
-#ifndef SOFTWARE_CAM_PWM
-    Out4.pulsewidth_us(CamRollPulseWidth);
-    Out5.pulsewidth_us(CamPitchPulseWidth);
-#endif // !SOFTWARE_CAM_PWM
-
+    #ifdef USING_PWM4AND5
+    Out4.pulsewidth_us(1000 + (int16)( PWM[LeftBC] * PWMScale ) );
+    Out5.pulsewidth_us(1000 + (int16)( PWM[RightBC] * PWMScale ) );
+    #endif // USING_PWM4AND5
+    
 #endif // !(SIMULATE | TESTING)
 
 } // OutSignals
