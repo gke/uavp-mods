@@ -42,14 +42,14 @@ uint8 PrevPCA9551LEDShadow;
 
 boolean PrevHolding = false;
 const uint16 LEDChase[8] = {
-    AUX0M,
-    AUX1M,
-    AUX2M,
-    AUX3M,
     YellowM,
     RedM,
     GreenM,
-    BlueM
+    BlueM, 
+    DRV1M,
+    DRV3M,
+    DRV2M,
+    DRV0M
 };
 
 void WritePCA9551(uint8 S) {
@@ -131,7 +131,8 @@ void LEDsOff(uint16 l) {
 } // LEDsOff
 
 void LEDChaser(void) {
-#define LED_NO  (uint8)7    // all LEDs
+#define LED_NO  (uint8)6    // skip buzzer
+//#define LED_NO  (uint8)7    // all LEDs
 
     if ( mSClock() > mS[LEDChaserUpdate] ) {
         if ( F.HoldingAlt ) {
@@ -183,7 +184,7 @@ void LEDsAndBuzzer(void) {
     SendLEDs();
 
     TxString("\r\nOutput test\r\n");
-    TxString("Sequence Aux0, Aux1, Aux2, Aux3, Drv0/Buzz, Drv1, Drv2, Drv3, Y, R, G, B\r\n");
+    TxString("Sequence Drv0/Buzz, Drv1, Drv2, Drv3, Aux0, Aux1, Aux2, Aux3, Y, R, G, B\r\n");
     mask = (uint8)1;
     for ( m = 1; m <= 12; m++ ) {        
         for ( s = 0; s < 10; s++ ) { // 10 flashes (count MUST be even!)

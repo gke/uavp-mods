@@ -36,22 +36,12 @@ void OutSignals(void) {
 #else
     PWM[BackC] = TC(PWM[BackC]);
 #endif
-    PWM[CamRollC] = Limit(PWM[CamRollC], 1, OUT_MAXIMUM);
-    PWM[CamPitchC] = Limit(PWM[CamPitchC], 1, OUT_MAXIMUM);
 
     Out0.pulsewidth_us(1000 + (int16)( PWM[FrontC] * PWMScale ) );
     Out1.pulsewidth_us(1000 + (int16)( PWM[LeftC] * PWMScale ) );
     Out2.pulsewidth_us(1000 + (int16)( PWM[RightC] * PWMScale ) );
     Out3.pulsewidth_us(1000 + (int16)( PWM[BackC] * PWMScale ) );
                       
-    CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
-    CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
-
-#ifndef SOFTWARE_CAM_PWM
-    Out4.pulsewidth_us(CamRollPulseWidth);
-    Out5.pulsewidth_us(CamPitchPulseWidth);
-#endif // !SOFTWARE_CAM_PWM
-   
 #ifdef MULTICOPTER
     // in X3D and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL.
     // ACK (r) not checked as no recovery is possible.
@@ -99,8 +89,6 @@ void OutSignals(void) {
 #else
     PWM[BackC] = Limit(PWM[BackC], ESCMin, ESCMax);
 #endif
-    PWM[CamRollC] = Limit(PWM[CamRollC], 1, OUT_MAXIMUM);
-    PWM[CamPitchC] = Limit(PWM[CamPitchC], 1, OUT_MAXIMUM);
 
 #endif // !(SIMULATE | TESTING)
 

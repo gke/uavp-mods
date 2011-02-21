@@ -102,7 +102,8 @@ void GetAttitude(void) {
 
         Rate[Yaw] = 0.0; // need Yaw gyro!
 
-    } else
+    } else {
+        DebugPin = true;
         switch  ( AttitudeMethod ) {
             case PremerlaniDCM:
                 DCMUpdate();
@@ -120,6 +121,9 @@ void GetAttitude(void) {
                 EulerAngles();
                 break;
         } // switch
+
+        DebugPin = false;
+    }
 
     F.NearLevel = Max(fabs(Angle[Roll]), fabs(Angle[Pitch])) < NAV_RTH_LOCKOUT;
 

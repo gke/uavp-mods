@@ -38,7 +38,6 @@ real32 PWMSense[8];
 int16 ESCI2CFail[6];
 int16 CurrThrottle;
 int16 CamRollPulseWidth, CamPitchPulseWidth;
-
 int16 ESCMin, ESCMax;
 
 #define PWM_PERIOD_US         (1000000/PWM_UPDATE_HZ)
@@ -214,16 +213,19 @@ void MixAndLimitMotors(void) {
 } // MixAndLimitMotors
 
 void MixAndLimitCam(void) {
-    static real32 Temp;
+    static real32 Temp; 
 
     // use only roll/pitch angle estimates
     Temp = Angle[Roll] * K[CamRollKp];
     PWM[CamRollC] = Temp + K[CamRollTrim];
-    PWM[CamRollC] = PWMSense[CamRollC] * PWM[CamRollC] + OUT_NEUTRAL;
+    PWM[CamRollC] = PWM[CamRollC] + OUT_NEUTRAL; // PWMSense[CamRollC] * 
 
     Temp = Angle[Pitch] * K[CamPitchKp];
     PWM[CamPitchC] = Temp + DesiredCamPitchTrim;
-    PWM[CamPitchC] = PWMSense[CamPitchC] * PWM[CamPitchC] + OUT_NEUTRAL;
+    PWM[CamPitchC] = PWM[CamPitchC] + OUT_NEUTRAL; //PWMSense[CamPitchC] * 
+    
+    CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
+    CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
 
 } // MixAndLimitCam
 

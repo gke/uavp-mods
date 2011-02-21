@@ -42,7 +42,7 @@ const uint8 ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMUM, O
 #endif
 #endif
 
-uint8    ParamSet;
+uint8 ParamSet;
 boolean ParametersChanged, SaveAllowTurnToWP;
 
 int8 P[MAX_PARAMETERS];
@@ -99,8 +99,8 @@ void Legacy(void) {
     K[YawIntLimit] = P[YawIntLimit] * 256.0 /1000.0;
 
     // Camera
-    K[CamRollKp] *= 0.05;
-    K[CamPitchKp] *= 0.05;
+    K[CamRollKp] *= 5.0;
+    K[CamPitchKp] *= 5.0;
 
     // Acceleration Neutrals
     K[MiddleBF] = P[MiddleBF] * 0.001; // mG
@@ -132,7 +132,7 @@ void ReadParameters(void) {
         }
 
         b = P[ServoSense];
-        for ( i = 0; i < 6; i++ ) {
+        for ( i = 0; i < 8; i++ ) {
             if ( b & 1 )
                 PWMSense[i] = -1;
             else

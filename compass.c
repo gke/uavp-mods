@@ -190,7 +190,7 @@ void ReadHMC5843(void) {
         Mag[LR].V = Y.i16;
         Mag[UD].V = -Z.i16;
     }
-
+DebugPin = true;
     CRoll = cos(Angle[Roll]);
     SRoll = sin(Angle[Roll]);
     CPitch = cos(Angle[Pitch]);
@@ -201,7 +201,7 @@ void ReadHMC5843(void) {
 
     // Magnetic Heading
     MagHeading = MakePi(atan2( -my, mx ));
-
+DebugPin = false;
     F.CompassValid = true;
     return;
 
@@ -245,9 +245,8 @@ void InitHMC5843(void) {
 } // InitHMC5843Magnetometer
 
 boolean IsHMC5843Active(void) {
-    I2CCOMPASS.start();
-    F.CompassValid = !(I2CCOMPASS.write(HMC5843_ID) != I2C_ACK);
-    I2CCOMPASS.stop();
+    
+    F.CompassValid = I2CCOMPASSAddressResponds( HMC5843_ID );
     
     if ( F.CompassValid )
         TrackMinI2CRate(400000);
@@ -513,9 +512,7 @@ CTerror:
 
 boolean HMC6352Active(void) {
 
-    I2CCOMPASS.start();
-    F.CompassValid = !(I2CCOMPASS.write(HMC6352_ID) != I2C_ACK);
-    I2CCOMPASS.stop();
+    F.CompassValid = I2CCOMPASSAddressResponds( HMC6352_ID );
 
     if ( F.CompassValid )
         TrackMinI2CRate(100000);

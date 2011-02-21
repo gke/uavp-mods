@@ -28,6 +28,52 @@ real32 BatteryVolts, BatteryCurrentADCEstimated, BatteryChargeUsedAH;
 real32 BatteryCharge, BatteryCurrent;
 real32 BatteryVoltsScale;
 
+void DirectAnalog(void) {
+// Framework Simon Ford
+
+    static uint32 data;
+
+
+
+    // Select channel and start conversion
+    LPC_ADC->ADCR &= ~0xFF;
+    LPC_ADC->ADCR |= 1 << 5; // ADC0[5]
+    LPC_ADC->ADCR |= 1 << 24;
+
+    // Repeatedly get the sample data until DONE bit
+    do {
+        data = LPC_ADC->ADGDR;
+    } while ((data & ((uint32)1 << 31)) == 0);
+
+    // Stop conversion
+    LPC_ADC->ADCR &= ~(1 << 24);
+
+} // DirectAnalog
+
+void InitDirectAnalog(void) {
+
+// power on, clk divider /4
+    LPC_SC->PCONP |= (1 << 12);
+    LPC_SC->PCLKSEL0 &= ~(0x3 << 24);
+
+    // software-controlled ADC settings
+    LPC_ADC->ADCR = (0 << 0) // SEL: 0 = no channels selected
+                    | (25 << 8)    // CLKDIV: PCLK max ~= 25MHz, /25 to give safe 1MHz
+                    | (0 << 16)    // BURST: 0 = software control
+                    | (0 << 17)    // CLKS: not applicable
+                    | (1 << 21)    // PDN: 1 = operational
+                    | (0 << 24)    // START: 0 = no start
+                    | (0 << 27);   // EDGE: not applicable
+
+    // setup P1_31 as sel 3 (ADC), mode 2 (no pull)
+    LPC_PINCON->PINSEL3 &= ~((uint32)0x3 << 30);
+    LPC_PINCON->PINSEL3 |= (uint32)0x3 << 30;
+
+    LPC_PINCON->PINMODE3 &= ~((uint32)0x3 << 30);
+    LPC_PINCON->PINMODE3 |= (uint32)0x2 << 30;
+    
+} // InitDirectAnalog
+
 void GetBattery(void) {
     //  AttoPilot Voltage and Current Sense Breakout SparkFun Part: SEN-09028
 

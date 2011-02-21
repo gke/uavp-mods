@@ -45,15 +45,15 @@ const int PX_LENGTH = 2048;
 int8 PX[PX_LENGTH], PXNew[PX_LENGTH];
 
 void CheckSDCardValid(void) {
-/*
-    FILE *testfile;
+    /*
+        FILE *testfile;
 
-    testfile = fopen("/SDCard/OK", "w");
-    F.SDCardValid = testfile != NULL;
-    if ( F.SDCardValid ) fclose(testfile);
-*/   
+        testfile = fopen("/SDCard/OK", "w");
+        F.SDCardValid = testfile != NULL;
+        if ( F.SDCardValid ) fclose(testfile);
+    */
     F.SDCardValid =  SDCard.initialise_card() != 0;
-    
+
 
 } // CheckSDCardValid
 
@@ -158,8 +158,11 @@ void CloseLogfile(void) {
 } // CloseLog
 
 void TxLogChar(uint8 ch) {
-    if ( LogfileIsOpen ) 
+
+#ifndef SUPPRESS_SDCARD
+    if ( LogfileIsOpen )
         fprintf(logfile, "%c",  ch);
+#endif // !SUPPRESS_SDCARD
 } // TxLogChar
 
 
