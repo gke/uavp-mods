@@ -33,6 +33,145 @@ void ConfigureESCs(void);
 
 uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 
+//______________________________________________________________________________________________
+
+// Software I2C
+
+#ifdef SW_I2C
+
+#define I2CDelay5uS wait_us(5)
+#define I2CDelay2uS //wait_us(2)
+#define HighLowDelay //wait_us(1)
+#define FloatDelay // ???
+
+#define I2CSDALow {I2C0SDA.write(0);HighLowDelay;I2C0SDA.output();}
+#define I2CSDAFloat {I2C0SDA.input();}
+#define I2CSCLLow {I2C0SCL.write(0);HighLowDelay;I2C0SCL.output();}
+#define I2CSCLFloat {I2C0SCL.input();FloatDelay;}
+
+void MyI2C::frequency(uint32 f) {
+// delay depending on rate
+} // frequency
+
+boolean MyI2C::waitclock(void) {
+    static uint16 s;
+
+    I2CSCLFloat;        // set SCL to input, output a high
+    s = 0;
+    while ( !I2C0SCL.read() ) 
+        if ( ++s > 60000 ) {
+            Stats[I2CFailS]++;
+            return (false);
+        }
+    return( true );
+} // waitclock
+
+void MyI2C::start(void) {
+    static boolean r;
+
+    I2CSDAFloat;
+    r = waitclock();
+    I2CSDALow;
+    I2CDelay5uS;
+    I2CSCLLow;
+} // start
+
+void MyI2C::stop(void) {
+    static boolean r;
+
+    I2CSDALow;
+    r = waitclock();
+    I2CSDAFloat;
+    I2CDelay5uS;
+} // stop
+
+uint8 MyI2C::blockread(uint8 a, char* S, uint8 l) {
+    static uint8 b;
+    static boolean r;
+
+    I2C0.start();
+    r = I2C0.write(a) == I2C_ACK;
+    for (b = 0; b < (l - 1); b++)
+        S[b] = I2C0.read(I2C_ACK);
+    S[l-1] = I2C0.read(I2C_NACK);
+    I2C0.stop();
+
+    return( r );
+} // blockread
+
+uint8 MyI2C::read(uint8 ack) {
+    static uint8 s, d;
+
+    I2CSDAFloat;
+    d = 0;
+    s = 8;
+    do {
+        if ( waitclock() ) {
+            d <<= 1;
+            if ( I2C0SDA.read() ) d |= 1;
+            I2CSCLLow;
+            I2CDelay2uS;
+        } else
+            return( 0 );
+    } while ( --s );
+
+    I2C0SDA.write(ack);
+    HighLowDelay;
+    I2C0SDA.output();
+    HighLowDelay;
+
+    if ( waitclock() ) {
+        I2CSCLLow;
+        return( d );
+    } else
+        return( 0 );
+} // read
+
+void MyI2C::blockwrite(uint8 a, const char* S, uint8 l) {
+    static uint8 b;
+    static boolean r;
+
+    I2C0.start();
+    r = I2C0.write(a) == I2C_ACK;  // use this?
+    for (b = 0; b < l; b++)
+        r |= I2C0.write(S[b]);
+    I2C0.stop();
+
+    return;
+} // blockwrite
+
+uint8 MyI2C::write(uint8 d) {
+    static uint8 s;
+
+    for ( s = 0; s < 8; s++ ) {
+        if ( d & 0x80 ) {
+            I2CSDAFloat;
+        } else {
+            I2CSDALow;
+        }
+
+        if ( waitclock() ) {
+            I2CSCLLow;
+            d <<= 1;
+        } else
+            return(I2C_NACK);
+    }
+
+    I2CSDAFloat;
+    if ( waitclock() )
+        s = I2C0SDA.read();
+    else
+        return(I2C_NACK);
+
+    I2CSCLLow;
+
+    return(I2C_ACK);
+} // write
+
+#endif // SW_I2C
+
+//______________________________________________________________________________________________
+
 void TrackMinI2CRate(uint32 r) {
     if ( r < MinI2CRate )
         MinI2CRate = r;
@@ -108,16 +247,17 @@ uint8 ScanI2CBus(void) {
     for ( s = 0x10 ; s <= 0xf6 ; s += 2 ) {
         if (  I2C0AddressResponds(s) ) {
             d++;
+            DebugPin = 1;
             TxString("\t0x");
             TxValH(s);
             ShowI2CDeviceName( s );
             TxNextLine();
+            DebugPin = 0;
         }
-
         Delay1mS(2);
     }
 
-    #ifdef HAVE_I2C1
+#ifdef HAVE_I2C1
     TxString("Buss 1\r\n");
     for ( s = 0x10 ; s <= 0xf6 ; s += 2 ) {
         if (  I2C0AddressResponds(s) ) {
@@ -127,36 +267,35 @@ uint8 ScanI2CBus(void) {
             ShowI2CDeviceName( s );
             TxNextLine();
         }
-
         Delay1mS(2);
     }
-    #endif // HAVE_I2C1
+#endif // HAVE_I2C1
 
     PCA9551Test();
 
     return(d);
 } // ScanI2CBus
 
-void ProgramSlaveAddress(uint8 addr) {
+void ProgramSlaveAddress(uint8 a) {
     static uint8 s;
 
     for (s = 0x10 ; s < 0xf0 ; s += 2 ) {
         I2CESC.start();
         if ( I2CESC.read(s) == I2C_ACK )
-            if ( s == addr ) {   // ESC is already programmed OK
+            if ( s == a ) {   // ESC is already programmed OK
                 I2CESC.stop();
                 TxString("\tESC at SLA 0x");
-                TxValH(addr);
+                TxValH(a);
                 TxString(" is already programmed OK\r\n");
                 return;
             } else {
                 if ( I2CESC.read(0x87) == I2C_ACK ) // select register 0x07
-                    if ( I2CESC.write( addr ) == I2C_ACK ) { // new slave address
+                    if ( I2CESC.write( a ) == I2C_ACK ) { // new slave address
                         I2CESC.stop();
                         TxString("\tESC at SLA 0x");
                         TxValH(s);
                         TxString(" reprogrammed to SLA 0x");
-                        TxValH(addr);
+                        TxValH(a);
                         TxNextLine();
                         return;
                     }
@@ -164,7 +303,7 @@ void ProgramSlaveAddress(uint8 addr) {
         I2CESC.stop();
     }
     TxString("\tESC at SLA 0x");
-    TxValH(addr);
+    TxValH(a);
     TxString(" no response - check cabling and pullup resistors!\r\n");
 } // ProgramSlaveAddress
 
@@ -178,25 +317,8 @@ void ConfigureESCs(void) {
     if ( (int8)P[ESCType] == ESCYGEI2C ) {
         TxString("\r\nProgram YGE ESCs\r\n");
         for ( m = 0 ; m < NoOfI2CESCOutputs ; m++ ) {
-            TxString("Connect ONLY ");
-            switch ( m ) {
-#ifdef HEXACOPTER
-                    not yet!
-#else
-                case 0 :
-                    TxString("Front");
-                    break;
-                case 1 :
-                    TxString("Back");
-                    break;
-                case 2 :
-                    TxString("Right");
-                    break;
-                case 3 :
-                    TxString("Left");
-                    break;
-#endif // HEXACOPTER
-            }
+            TxString("Connect ONLY M");
+            TxChar('1' + m);
             TxString(" ESC, then press any key \r\n");
             while ( PollRxChar() != 'x' ); // UAVPSet uses 'x' for any key button
             //    TxString("\r\n");

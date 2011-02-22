@@ -206,11 +206,11 @@ void ReadADXL345Acc(void) {
     */
 
     I2CACC.start();
-    r = I2CACC.write(ADXL345_ID);
+    r = I2CACC.write(ADXL345_WR);
     r = I2CACC.write(0x32); // point to acc data
     I2CACC.stop();
 
-    I2CACC.read(ADXL345_ID, b, 6);
+    I2CACC.blockread(ADXL345_RD, b, 6);
 
     X.b1 = b[1];
     X.b0 = b[0];
@@ -240,7 +240,7 @@ void InitADXL345Acc() {
     static uint8 r;
 
     I2CACC.start();
-    I2CACC.write(ADXL345_W);
+    I2CACC.write(ADXL345_WR);
     r = I2CACC.write(0x2D);  // power register
     r = I2CACC.write(0x08);  // measurement mode
     I2CACC.stop();
@@ -248,7 +248,7 @@ void InitADXL345Acc() {
     Delay1mS(5);
 
     I2CACC.start();
-    r = I2CACC.write(ADXL345_W);
+    r = I2CACC.write(ADXL345_WR);
     r =  I2CACC.write(0x31);  // format
     r =  I2CACC.write(0x08);  // full resolution, 2g
     I2CACC.stop();
@@ -256,7 +256,7 @@ void InitADXL345Acc() {
     Delay1mS(5);
 
     I2CACC.start();
-    r =  I2CACC.write(ADXL345_W);
+    r =  I2CACC.write(ADXL345_WR);
     r =  I2CACC.write(0x2C);  // Rate
     r =  I2CACC.write(0x09);  // 50Hz, 400Hz 0x0C
     I2CACC.stop();
@@ -268,7 +268,7 @@ void InitADXL345Acc() {
 boolean ADXL345AccActive(void) {
 
     I2CACC.start();
-    F.AccelerationsValid = I2CACC.write(ADXL345_ID) == I2C_ACK;
+    F.AccelerationsValid = I2CACC.write(ADXL345_WR) == I2C_ACK;
     I2CACC.stop();
     
     TrackMinI2CRate(400000);
@@ -292,12 +292,12 @@ void ReadLISLAcc(void) {
     static char b[6];
     static i16u X, Y, Z;
 
-    F.AccelerationsValid = I2CACC.write(LISL_ID) == I2C_ACK; // Acc still there?
+    F.AccelerationsValid = I2CACCAddressResponds( LISL_ID ); // Acc still there?
     if ( F.AccelerationsValid ) {
 
         // Ax.b0 = I2CACC.write(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
 
-        I2CACC.read(LISL_ID, b, 6);
+        I2CACC.blockread(LISL_READ, b, 6);
 
         X.b1 = b[1];
         X.b0 = b[0];

@@ -213,7 +213,7 @@ void PCA9551Test(void) {
     I2CGYRO.write(0x11);
     I2CLED.stop();
 
-    I2CLED.read(PCA9551_ID, b, 7);
+    I2CLED.blockread(PCA9551_ID, b, 7);
 
     TxString("0:\t0b");
     TxBin8(b[6]);
@@ -237,7 +237,7 @@ boolean IsPCA9551Active(void) {
     if ( I2CGYRO.write(PCA9551_ID) != I2C_ACK ) goto LError;
     I2CLED.stop();
 
-    I2CLED.write(PCA9551_ID, b, 7);
+    I2CLED.blockwrite(PCA9551_ID, b, 7);
     
     TrackMinI2CRate(400000);
 

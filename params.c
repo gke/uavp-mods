@@ -55,24 +55,26 @@ uint8 UAVXAirframe;
 
 void Legacy(void) {
     static uint8 p;
+    
+
 
     for ( p = 0; p <MAX_PARAMETERS; p++ ) // brute force
         K[p] = (float)P[p];
 
     // Rate Control
-    K[RollKp] *= 2.6;
-    K[RollKi] *= 20.7;
-    K[RollKd]  = -K[RollKd] * 0.021;
+    K[RollKp] *= 2.6 * MAGIC;
+    K[RollKi] *= 20.7 * MAGIC;
+    K[RollKd]  = -K[RollKd] * 0.021 * MAGIC;
     K[RollIntLimit] *= DEGRAD;
 
-    K[PitchKp] *= 2.6;
-    K[PitchKi] *= 20.7;
-    K[PitchKd]  = -K[PitchKd] * 0.021;
+    K[PitchKp] *= 2.6 * MAGIC;
+    K[PitchKi] *= 20.7 * MAGIC;
+    K[PitchKd]  = -K[PitchKd] * 0.021 * MAGIC;
     K[PitchIntLimit] *= DEGRAD;
 
-    K[YawKp] *= 2.6;
-    K[YawKi] *= 41.4;
-    K[YawKd]  = -K[YawKd] * 0.0004;
+    K[YawKp] *= 2.6 * MAGIC;
+    K[YawKi] *= 41.4 * MAGIC;
+    K[YawKd]  = -K[YawKd] * 0.0004 * MAGIC;
 
     // Angle Control
 

@@ -26,20 +26,20 @@ void InitHarness(void);
 LocalFileSystem Flash("local");
 
 // connections to ARM
-                                        // 1 GND
-                                        // 2 4.5-9V
-                                        // 3 VBat
-                                        // 4 NReset
-                                        
+// 1 GND
+// 2 4.5-9V
+// 3 VBat
+// 4 NReset
+
 //SPI SPI0(p5, p6, p7);                 // 5 SPI MOSI, 6 SPI MOSO, 7 SPI CLK
 //DigitalOut SPICS(p8);                 // 8
 SDFileSystem SDCard(p5, p6, p7, p8, "SDCard");
-                                        
+
 //I2C I2C1(p9, p10);                    // 9 Tx / I2C SDA, 10 Rx / I2C SCL
 SerialBuffered TelemetrySerial(p9, p10);
 DigitalIn Armed(p11);                   // 11 SPI MOSI
 DigitalOut PWMCamPitch(p12);            // 12 SPI MOSO
-                                        
+
 Serial GPSSerial(p13, p14);             // 13 Tx1 / SPI CLK, 14 Rx1
 
 AnalogIn PitchADC(p15);                 // 15 AN0
@@ -48,7 +48,7 @@ AnalogIn YawADC(p18);                   // 17 AN2 (has DAC capability)
 
 AnalogIn RangefinderADC(p17);           // 18 AN3
 AnalogIn BatteryCurrentADC(p19);        // 19 AN4
-AnalogIn BatteryVoltsADC(p20);          // 20 AN5 
+AnalogIn BatteryVoltsADC(p20);          // 20 AN5
 
 PwmOut Out0(p21);                       // 21
 PwmOut Out1(p22);                       // 22
@@ -60,19 +60,24 @@ PwmOut Out3(p24);                       // 24
 
 DigitalOut DebugPin(p25);                  // 25
 
+#ifdef SW_I2C
+MyI2C I2C0;
+DigitalInOut I2C0SCL(p27);
+DigitalInOut I2C0SDA(p28);
+#else
 I2C I2C0(p28, p27);                     // 27, 28
-
+#endif // SW_I2C
 DigitalIn RCIn(p29);                    // 29 CAN
-DigitalOut PWMCamRoll(p30);             // 30 CAN 
+DigitalOut PWMCamRoll(p30);             // 30 CAN
 
-//Serial TelemetrySerial(USBTX, USBRX);   
-                                        // 31 USB +, 32 USB -
-                                        // 34 -37 Ethernet
-                                        // 38 IF +
-                                        // 39 IF -
-                                        // 40 3.3V Out 
-                
-// order L-R end of card                        
+//Serial TelemetrySerial(USBTX, USBRX);
+// 31 USB +, 32 USB -
+// 34 -37 Ethernet
+// 38 IF +
+// 39 IF -
+// 40 3.3V Out
+
+// order L-R end of card
 DigitalOut BlueLED(LED1);
 DigitalOut GreenLED(LED2);
 DigitalOut RedLED(LED3);
@@ -83,29 +88,28 @@ InterruptIn RCInterrupt(p29);
 char RTCString[32], RTCLogfile[32];
 struct tm* RTCTime;
 
-void UpdateRTC(void)
-{
+void UpdateRTC(void) {
     time_t s = time(NULL);
     RTCTime = localtime(&s);
-    strftime(RTCString, 32, "%a %b %d %H:%M:%S %Y", RTCTime );   
+    strftime(RTCString, 32, "%a %b %d %H:%M:%S %Y", RTCTime );
 } // UpdateRTCString
 
-void InitHarness(void){
+void InitHarness(void) {
 
     I2C0.frequency(I2C_MAX_RATE_HZ);
-  
+
     TelemetrySerial.baud(115200);
-    TelemetrySerial.set_tx_buffer_size(512);  
+    TelemetrySerial.set_tx_buffer_size(512);
 
     GPSSerial.baud(115200); // reduce baud rate to lighten interrupt traffic?
-    
+
     PWMCamRoll.write(false);
     PWMCamPitch.write(false);
-    
+
     Armed.mode(PullUp);
 
     CheckSDCardValid();
-    
+
     UpdateRTC();
 
 } // InitHarness

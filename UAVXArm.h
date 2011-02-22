@@ -1,6 +1,10 @@
 
 // Commissioning defines
 
+//#define SW_I2C                               // define for software I2C
+
+#define MAGIC 0.05                           // rescales the sensitivity of all PID loop params
+
 #define I2C_MAX_RATE_HZ    400000       
 
 #define PWM_UPDATE_HZ       200             // MUST BE LESS THAN OR EAUAL TO 450HZ
@@ -591,7 +595,8 @@ extern void InitAccelerometers(void);
 #define ADXL345_ID         0x53
 #endif // 6DOF
 
-#define ADXL345_W           ADXL345_ID
+#define ADXL345_WR           ADXL345_ID
+#define ADXL345_RD           (ADXL345_ID+1)
 
 extern const float GRAVITY_ADXL345;
 
@@ -765,8 +770,8 @@ enum BaroTypes { BaroBMP085, BaroSMD500, BaroMPX4115, BaroUnknown };
 #define ADS7823_TIME_MS     50      // 20Hz
 #define ADS7823_MAX         4095    // 12 bits
 #define ADS7823_ID          0x90    // ADS7823 ADC
-#define ADS7823_WR          0x90    // ADS7823 ADC
-#define ADS7823_RD          0x91    // ADS7823 ADC
+#define ADS7823_WR          ADS7823_ID      // ADS7823 ADC
+#define ADS7823_RD          (ADS7823_ID+1)  // ADS7823 ADC
 #define ADS7823_CMD         0x00
 
 extern uint8 MCP4725_ID_Actual;
@@ -788,6 +793,8 @@ extern void InitFreescaleBarometer(void);
 
 #define BOSCH_ID_BMP085         0x55
 #define BOSCH_ID                0xee
+#define BOSCH_WR                BOSCH_ID_BMP085
+#define BOSCH_RD                (BOSCH_ID_BMP085+1)
 #define BOSCH_TEMP_BMP085       0x2e
 #define BOSCH_TEMP_SMD500       0x6e
 #define BOSCH_PRESS             0xf4
@@ -846,6 +853,8 @@ extern void InitCompass(void);
 // HMC5843 Compass
 
 #define HMC5843_ID      0x3C        // 0x1E 9DOF
+#define HMC5843_WR      HMC5843_ID
+#define HMC5843_RD      (HMC5843_ID+1)
 
 extern void ReadHMC5843(void);
 extern void GetHMC5843Parameters(void);
@@ -856,7 +865,9 @@ extern boolean IsHMC5843Active(void);
 
 // HMC6352
 
-#define HMC6352_ID             0x42
+#define HMC6352_ID       0x42
+#define HMC6352_WR       HMC6352_ID
+#define HMC6352_RD       (HMC6352_ID+1)
 
 extern void ReadHMC6352(void);
 extern uint8 WriteByteHMC6352(uint8);
@@ -1018,8 +1029,8 @@ extern void AnalogGyroTest(void);
 #define ITG3200_ID      0xD2
 #endif // 6DOF
 
-#define ITG3200_R       (ITG3200_ID+1)
-#define ITG3200_W       ITG3200_ID
+#define ITG3200_WR       ITG3200_ID
+#define ITG3200_RD       (ITG3200_ID+1)
 
 extern void ReadITG3200Gyro(void);
 extern uint8 ReadByteITG3200(uint8);
@@ -1035,7 +1046,6 @@ extern uint8 GyroType;
 //______________________________________________________________________________________________
 
 // harness.c
-
 
 extern void UpdateRTC(void);
 extern void InitHarness(void);
@@ -1074,9 +1084,37 @@ extern PwmOut Out3;                 // 24
 
 //extern PwmOut Out4;                 // 25
 //extern PwmOut Out5;                 // 26
-extern DigitalOut DebugPin;                  // 25
+extern DigitalOut DebugPin;           // 25
+
+#ifdef SW_I2C
+
+class MyI2C {
+
+private:
+
+    boolean waitclock(void);
+
+public:
+
+    void frequency(uint32 f);
+    void start(void);
+    void stop(void);
+    uint8 blockread(uint8 r, char* b, uint8);
+    uint8 read(uint8 r);
+    void blockwrite(uint8 a, const char* b, uint8 l);
+    uint8 write(uint8 d);
+};
+
+extern MyI2C I2C0;                    // 27, 28
+extern DigitalInOut I2C0SCL;
+extern DigitalInOut I2C0SDA;
+#else
 
 extern I2C I2C0;                    // 27, 28
+#define blockread   read
+#define blockwrite  write
+
+#endif // SW_I2C
 
 extern DigitalIn  RCIn;             // 29 CAN
 extern DigitalOut PWMCamRoll;      // 30 CAN
@@ -1102,7 +1140,9 @@ extern struct tm* RTCTime;
 #define I2CBARO I2C0
 #define I2CBAROAddressResponds I2C0AddressResponds
 #define I2CGYRO I2C0
+#define I2CGYROAddressResponds I2C0AddressResponds
 #define I2CACC I2C0
+#define I2CACCAddressResponds I2C0AddressResponds
 #define I2CCOMPASS I2C0
 #define I2CCOMPASSAddressResponds I2C0AddressResponds
 #define I2CESC I2C0
@@ -1201,8 +1241,13 @@ extern real32 IR[3], IRMax, IRMin, IRSwing;
 
 // i2c.c
 
+#ifdef SW_I2C
+#define I2C_ACK  0
+#define I2C_NACK 1
+#else
 #define I2C_ACK  1
 #define I2C_NACK 0
+#endif // SW_I2C
 
 extern boolean I2C0AddressResponds(uint8);
 #ifdef HAVE_I2C1
@@ -1371,16 +1416,21 @@ extern void StopMotors(void);
 extern void ExercisePWM(void);
 extern void InitMotors(void);
 
+// Using clockwise numbering - NOT the same as UAVXPIC
 enum PWMCamTags { CamRollC = 6, CamPitchC = 7 };
-enum PWMQuadTags {FrontC=0, BackC, RightC, LeftC }; // order is important for X3D & Holger ESCs
+enum PWMQuadTags {FrontC=0, RightC, BackC, LeftC }; // order is important for X3D & Holger ESCs
 enum PWMConvTags {ThrottleC=0, AileronC, ElevatorC, RudderC, RTHC };
 enum PWMWingTags3 {RightElevonC=1, LeftElevonC=2};
-enum PWMVTTags {FrontLeftC=0, FrontRightC};
-enum PWMY6Tags {FrontTC=0, LeftTC, RightTC, FrontBC, LeftBC, RightBC };
-enum PWMHexTags {FrontHC=0, FrontLeftHC, FrontRightHC, BackLeftHC, BackRightHC,BackHC };
+enum PWMVTTags {FrontRightC=0, FrontLeftC};
+enum PWMY6Tags {FrontTC=0, RightTC, LeftTC, FrontBC, RightBC, LeftBC };
+enum PWMHexTags {FrontHC=0, FrontRightHC, BackRightHC, BackHC, BackLeftHC,FrontLeftHC };
 
 //#define NoOfPWMOutputs            4
+#ifdef HEXACOPTER
+#define NoOfI2CESCOutputs         6
+#else
 #define NoOfI2CESCOutputs         4
+#endif // HEXACOPTER
 
 extern const real32 PWMScale;
 
