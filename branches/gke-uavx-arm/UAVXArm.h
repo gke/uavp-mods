@@ -645,6 +645,7 @@ extern uint8 AccelerometerType;
 
 // analog.c
 
+extern real32 ADC(uint8);
 extern void GetBattery(void);
 extern void BatteryTest(void);
 extern void InitBattery(void);
@@ -1063,6 +1064,8 @@ extern AnalogIn YawADC;             // 17 AN2
 extern AnalogIn RangefinderADC;     // 18 AN3
 extern AnalogIn BatteryCurrentADC;  // 19 AN4
 extern AnalogIn BatteryVoltsADC;    // 20 AN5
+
+enum ADCValues { ADCPitch, ADCRoll, ADCYaw, ADCRangefinder, ADCBatteryCurrent, ADCBatteryVolts };
 
 extern PwmOut Out0;                 // 21
 extern PwmOut Out1;                 // 22

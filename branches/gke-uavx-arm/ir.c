@@ -49,9 +49,9 @@ void GetIRAttitude() {
 
     if ( GyroType == IRSensors ) {
     
-    IR[Pitch] = -PitchADC.read() * 2.0 - IR_NEUTRAL;
-    IR[Roll] = RollADC.read() * 2.0 - IR_NEUTRAL;
-    IR[Yaw] = YawADC.read() * 2.0 - IR_NEUTRAL;
+    IR[Pitch] = -ADC(ADCPitch) * 2.0 - IR_NEUTRAL;
+    IR[Roll] = ADC(ADCRoll) * 2.0 - IR_NEUTRAL;
+    IR[Yaw] = ADC(YawADC) * 2.0 - IR_NEUTRAL;
 
     for ( i = 0; i < (uint8)3; i++ )
         TrackIRMaxMin(IR[i]);

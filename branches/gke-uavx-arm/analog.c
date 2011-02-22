@@ -20,6 +20,7 @@
 
 #include "UAVXArm.h"
 
+real32 ADC(uint8);
 void GetBattery(void);
 void BatteryTest(void);
 void InitBattery(void);
@@ -32,8 +33,6 @@ void DirectAnalog(void) {
 // Framework Simon Ford
 
     static uint32 data;
-
-
 
     // Select channel and start conversion
     LPC_ADC->ADCR &= ~0xFF;
@@ -71,8 +70,40 @@ void InitDirectAnalog(void) {
 
     LPC_PINCON->PINMODE3 &= ~((uint32)0x3 << 30);
     LPC_PINCON->PINMODE3 |= (uint32)0x2 << 30;
-    
+
 } // InitDirectAnalog
+
+real32 ADC(uint8 p) {
+
+    static real32 r;
+
+DebugPin = 1;
+    switch (p) {
+        case ADCPitch:
+            r = PitchADC.read();
+            break;
+        case ADCRoll:
+            r = RollADC.read();
+            break;
+        case ADCYaw:
+            r = YawADC.read();
+            break;
+        case ADCRangefinder:
+            r = RangefinderADC.read();
+            break;
+        case ADCBatteryCurrent:
+            r = BatteryCurrentADC.read();
+            break;
+        case ADCBatteryVolts:
+            r =  BatteryVoltsADC.read();
+            break;
+    }
+    
+  DebugPin = 0;
+
+    return ( r );
+
+} // ADC
 
 void GetBattery(void) {
     //  AttoPilot Voltage and Current Sense Breakout SparkFun Part: SEN-09028
@@ -80,13 +111,13 @@ void GetBattery(void) {
     const real32 BatteryCurrentScale = 90.15296;    // Amps FS
 
     if ( F.HaveBatterySensor ) {
-        BatteryCurrent = BatteryCurrentADC.read() * BatteryCurrentScale;
+        BatteryCurrent = ADC(ADCBatteryCurrent) * BatteryCurrentScale;
         BatteryChargeUsedAH  += BatteryCurrent * (real32)(mSClock() - mS[LastBattery]) * 2.777777e-7;
         mS[LastBattery] = mSClock();
     } else
         BatteryCurrent =  BatteryChargeUsedAH = 0;
 
-    BatteryVolts = BatteryVoltsADC.read() *  BatteryVoltsScale;
+    BatteryVolts = ADC(ADCBatteryVolts) *  BatteryVoltsScale;
     F.LowBatt = BatteryVolts < K[LowVoltThres];
 
 } // GetBattery
@@ -138,7 +169,7 @@ const real32 RangefinderScale = 10.24; // Metres FS
 void GetRangefinderAltitude(void) {
 
     if ( F.RangefinderAltitudeValid ) {
-        RangefinderAltitude = RangefinderADC.read() * RangefinderScale;
+        RangefinderAltitude = ADC(ADCRangefinder) * RangefinderScale;
         if ( F.RFInInches )
             RangefinderAltitude *= 2.54;
 
