@@ -42,13 +42,13 @@ void OutSignals(void) {   // The PWM pulses are in two parts these being a 1mS p
         StopMotors();
     
     Out0.pulsewidth_us(1000 + (int16)( PWM[FrontTC] * PWMScale ) );
-    Out1.pulsewidth_us(1000 + (int16)( PWM[LeftTC] * PWMScale ) );
-    Out2.pulsewidth_us(1000 + (int16)( PWM[RightTC] * PWMScale ) );
+    Out1.pulsewidth_us(1000 + (int16)( PWM[RightTC] * PWMScale ) );
+    Out2.pulsewidth_us(1000 + (int16)( PWM[LeftTC] * PWMScale ) );
     Out3.pulsewidth_us(1000 + (int16)( PWM[FrontBC] * PWMScale ) );
     
-    #ifdef USING_PWM4AND5
-    Out4.pulsewidth_us(1000 + (int16)( PWM[LeftBC] * PWMScale ) );
-    Out5.pulsewidth_us(1000 + (int16)( PWM[RightBC] * PWMScale ) );
+ xxx   #ifdef USING_PWM4AND5
+    Out4.pulsewidth_us(1000 + (int16)( PWM[RightBC] * PWMScale ) );
+    Out5.pulsewidth_us(1000 + (int16)( PWM[LeftBC] * PWMScale ) );
     #endif // USING_PWM4AND5
     
 #endif // !(SIMULATE | TESTING)

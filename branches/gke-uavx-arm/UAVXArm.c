@@ -26,6 +26,7 @@ uint32 T1;
 
 boolean OK;
 uint8 ch;
+uint8 xxx;
 
 int main(void) {
 
@@ -35,7 +36,7 @@ int main(void) {
     InitRC();
     InitTimersAndInterrupts();
     InitLEDs();
-        
+            
     InitParameters();
     ReadStatsPX();
     InitMotors();

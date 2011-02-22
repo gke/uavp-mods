@@ -292,8 +292,8 @@ void StopMotors(void) {
 #endif // MULTICOPTER
 
     Out0.pulsewidth_us(1000 + (int16)( PWM[FrontC] * PWMScale ) );
-    Out1.pulsewidth_us(1000 + (int16)( PWM[LeftC] * PWMScale ) );
-    Out2.pulsewidth_us(1000 + (int16)( PWM[RightC] * PWMScale ) );
+    Out1.pulsewidth_us(1000 + (int16)( PWM[RightC] * PWMScale ) );
+    Out2.pulsewidth_us(1000 + (int16)( PWM[LeftC] * PWMScale ) );
     Out3.pulsewidth_us(1000 + (int16)( PWM[BackC] * PWMScale ) );
 
     CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );

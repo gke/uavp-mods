@@ -38,8 +38,8 @@ void OutSignals(void) {
 #endif
 
     Out0.pulsewidth_us(1000 + (int16)( PWM[FrontC] * PWMScale ) );
-    Out1.pulsewidth_us(1000 + (int16)( PWM[LeftC] * PWMScale ) );
-    Out2.pulsewidth_us(1000 + (int16)( PWM[RightC] * PWMScale ) );
+    Out1.pulsewidth_us(1000 + (int16)( PWM[RightC] * PWMScale ) );
+    Out2.pulsewidth_us(1000 + (int16)( PWM[LeftC] * PWMScale ) );
     Out3.pulsewidth_us(1000 + (int16)( PWM[BackC] * PWMScale ) );
                       
 #ifdef MULTICOPTER
@@ -66,13 +66,13 @@ void OutSignals(void) {
                 I2CESC.stop();
             }
         else
-            if ( P[ESCType] == ESCX3D ) {
+           if ( P[ESCType] == ESCX3D ) {
                 I2CESC.start();
                 r = I2CESC.write(0x10);                // one command, 4 data bytes
                 r += I2CESC.write( PWM[FrontC] );
+                r += I2CESC.write( PWM[RightC] );
                 r += I2CESC.write( PWM[BackC] );
                 r += I2CESC.write( PWM[LeftC] );
-                r += I2CESC.write( PWM[RightC] );
                 ESCI2CFail[0] += r;
                 //  other ESCs if a Hexacopter
                 I2CESC.stop();

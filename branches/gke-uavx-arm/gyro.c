@@ -214,11 +214,11 @@ void ReadITG3200Gyro(void) {
     static i16u GX, GY, GZ;
 
     I2CGYRO.start();
-    if ( I2CGYRO.write(ITG3200_W) != I2C_ACK ) goto SGerror;
+    if ( I2CGYRO.write(ITG3200_WR) != I2C_ACK ) goto SGerror;
     if ( I2CGYRO.write(ITG3200_GX_H) != I2C_ACK ) goto SGerror;
     I2CGYRO.stop();
 
-    I2CGYRO.read(ITG3200_R, G, 6);
+    I2CGYRO.blockread(ITG3200_RD, G, 6);
 
     GX.b0 = G[1];
     GX.b1 = G[0];
@@ -254,11 +254,11 @@ uint8 ReadByteITG3200(uint8 a) {
     static uint8 d;
 
     I2CGYRO.start();
-    if ( I2CGYRO.write(ITG3200_W) != I2C_ACK ) goto SGerror;
+    if ( I2CGYRO.write(ITG3200_WR) != I2C_ACK ) goto SGerror;
     if ( I2CGYRO.write(a) != I2C_ACK ) goto SGerror;
 
     I2CGYRO.start();
-    if ( I2CGYRO.write(ITG3200_R) != I2C_ACK ) goto SGerror;
+    if ( I2CGYRO.write(ITG3200_RD) != I2C_ACK ) goto SGerror;
     d = I2CGYRO.read(I2C_NACK);
     I2CGYRO.stop();
 
@@ -274,7 +274,7 @@ SGerror:
 
 void WriteByteITG3200(uint8 a, uint8 d) {
     I2CGYRO.start();    // restart
-    if ( I2CGYRO.write(ITG3200_W) != I2C_ACK ) goto SGerror;
+    if ( I2CGYRO.write(ITG3200_WR) != I2C_ACK ) goto SGerror;
     if ( I2CGYRO.write(a) != I2C_ACK ) goto SGerror;
     if ( I2CGYRO.write(d) != I2C_ACK ) goto SGerror;
     I2CGYRO.stop();
@@ -353,7 +353,7 @@ void ITG3200Test(void) {
 
 boolean ITG3200GyroActive(void) {
     I2CGYRO.start();
-    F.GyroFailure = I2CGYRO.write(ITG3200_ID) != I2C_ACK;
+    F.GyroFailure = !I2CGYROAddressResponds( ITG3200_ID);
     I2CGYRO.stop();
     
     if ( !F.GyroFailure )

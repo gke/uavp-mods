@@ -307,7 +307,7 @@ void ReadFreescaleBaro(void) {
     if ( I2CBARO.write(ADS7823_WR) != I2C_ACK ) goto FSError;
     if ( I2CBARO.write(ADS7823_CMD) != I2C_ACK ) goto FSError;
 
-    I2CBARO.read(ADS7823_RD, B, 8);  // read block of 4 baro samples
+    I2CBARO.blockread(ADS7823_RD, B, 8);  // read block of 4 baro samples
 
     B0.b0 = B[1];
     B0.b1 = B[0];
@@ -346,9 +346,7 @@ void GetFreescaleBaroAltitude(void) {
         ReadFreescaleBaro();
         if ( F.BaroAltitudeValid ) {
             BaroPressure = (int24)BaroVal.u16; // sum of 4 samples
-
             BaroRelAltitude = FreescaleToDM(BaroPressure - OriginBaroPressure);
-
             F.NewBaroValue = F.BaroAltitudeValid;
         }
     }
@@ -467,18 +465,18 @@ SBerror:
 void ReadBoschBaro(void) {
     // Possible I2C protocol error - split read of ADC
     I2CBARO.start();
-    if ( I2CBARO.write(BOSCH_ID) != I2C_ACK ) goto RVerror;
+    if ( I2CBARO.write(BOSCH_WR) != I2C_ACK ) goto RVerror;
     if ( I2CBARO.write(BOSCH_ADC_MSB) != I2C_ACK ) goto RVerror;
     I2CBARO.start();    // restart
-    if ( I2CBARO.write(BOSCH_ID+1) != I2C_ACK ) goto RVerror;
+    if ( I2CBARO.write(BOSCH_RD) != I2C_ACK ) goto RVerror;
     BaroVal.b1 = I2CBARO.read(I2C_NACK);
     I2CBARO.stop();
 
     I2CBARO.start();
-    if ( I2CBARO.write(BOSCH_ID) != I2C_ACK ) goto RVerror;
+    if ( I2CBARO.write(BOSCH_WR) != I2C_ACK ) goto RVerror;
     if ( I2CBARO.write(BOSCH_ADC_LSB) != I2C_ACK ) goto RVerror;
     I2CBARO.start();    // restart
-    if ( I2CBARO.write(BOSCH_ID+1) != I2C_ACK ) goto RVerror;
+    if ( I2CBARO.write(BOSCH_RD) != I2C_ACK ) goto RVerror;
     BaroVal.b0 = I2CBARO.read(I2C_NACK);
     I2CBARO.stop();
 
@@ -550,10 +548,10 @@ boolean IsBoschBaroActive(void) { // check for Bosch Barometers
     static uint8 r;
 
     I2CBARO.start();
-    if ( I2CBARO.write(BOSCH_ID) != I2C_ACK ) goto BoschInactive;
+    if ( I2CBARO.write(BOSCH_WR) != I2C_ACK ) goto BoschInactive;
     if ( I2CBARO.write(BOSCH_TYPE) != I2C_ACK ) goto BoschInactive;
     I2CBARO.start();    // restart
-    if ( I2CBARO.write(BOSCH_ID+1) != I2C_ACK ) goto BoschInactive;
+    if ( I2CBARO.write(BOSCH_RD) != I2C_ACK ) goto BoschInactive;
     r = I2CBARO.read(I2C_NACK);
     I2CBARO.stop();
 
