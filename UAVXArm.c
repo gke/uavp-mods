@@ -180,15 +180,11 @@ int main(void) {
             
             MixAndLimitCam();
             
-// zzz??? need to do some minor scheduling here with housekeeping
-DebugPin = true;
-// rewrite analog calls to get overlap!!!!!!!!!!!!!! just waiting at present for conversions
-
-            GetTemperature();
+            GetTemperature();  
             GetBattery();
             CheckAlarms();
             CheckTelemetry();
-DebugPin = false;
+
             SensorTrace();
 
         } // flight while armed
