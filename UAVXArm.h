@@ -3,7 +3,7 @@
 
 //#define SW_I2C                               // define for software I2C
 
-#define MAGIC 0.05                           // rescales the sensitivity of all PID loop params
+#define MAGIC 0.1                         // rescales the sensitivity of all PID loop params
 
 #define I2C_MAX_RATE_HZ    400000       
 

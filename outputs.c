@@ -291,10 +291,13 @@ void StopMotors(void) {
     PWM[ThrottleC] = ESCMin;
 #endif // MULTICOPTER
 
-    Out0.pulsewidth_us(1000 + (int16)( PWM[FrontC] * PWMScale ) );
-    Out1.pulsewidth_us(1000 + (int16)( PWM[RightC] * PWMScale ) );
-    Out2.pulsewidth_us(1000 + (int16)( PWM[LeftC] * PWMScale ) );
-    Out3.pulsewidth_us(1000 + (int16)( PWM[BackC] * PWMScale ) );
+    Out0.pulsewidth_us(1000 + (int16)( PWM[0] * PWMScale ) );
+    Out1.pulsewidth_us(1000 + (int16)( PWM[1] * PWMScale ) );
+    Out2.pulsewidth_us(1000 + (int16)( PWM[2] * PWMScale ) );
+    Out3.pulsewidth_us(1000 + (int16)( PWM[3] * PWMScale ) );
+    
+ //   Out4.pulsewidth_us(1000 + (int16)( PWM[4] * PWMScale ) );
+ //   Out5.pulsewidth_us(1000 + (int16)( PWM[5] * PWMScale ) );
 
     CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
     CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
