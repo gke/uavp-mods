@@ -39,8 +39,8 @@ void OutSignals(void) {
 
     Out0.pulsewidth_us(1000 + (int16)( PWM[FrontC] * PWMScale ) );
     Out1.pulsewidth_us(1000 + (int16)( PWM[RightC] * PWMScale ) );
-    Out2.pulsewidth_us(1000 + (int16)( PWM[LeftC] * PWMScale ) );
-    Out3.pulsewidth_us(1000 + (int16)( PWM[BackC] * PWMScale ) );
+    Out2.pulsewidth_us(1000 + (int16)( PWM[BackC] * PWMScale ) );
+    Out3.pulsewidth_us(1000 + (int16)( PWM[LeftC] * PWMScale ) );
                       
 #ifdef MULTICOPTER
     // in X3D and Holger-Mode, K2 (left motor) is SDA, K3 (right) is SCL.
