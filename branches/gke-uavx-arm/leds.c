@@ -45,7 +45,7 @@ const uint16 LEDChase[8] = {
     YellowM,
     RedM,
     GreenM,
-    BlueM, 
+    BlueM,
     DRV1M,
     DRV3M,
     DRV2M,
@@ -186,7 +186,7 @@ void LEDsAndBuzzer(void) {
     TxString("\r\nOutput test\r\n");
     TxString("Sequence Drv0/Buzz, Drv1, Drv2, Drv3, Aux0, Aux1, Aux2, Aux3, Y, R, G, B\r\n");
     mask = (uint8)1;
-    for ( m = 1; m <= 12; m++ ) {        
+    for ( m = 1; m <= 12; m++ ) {
         for ( s = 0; s < 10; s++ ) { // 10 flashes (count MUST be even!)
             LEDShadow ^= mask;
             SendLEDs();
@@ -213,7 +213,7 @@ void PCA9551Test(void) {
     I2CGYRO.write(0x11);
     I2CLED.stop();
 
-    I2CLED.blockread(PCA9551_ID, b, 7);
+    if ( I2CLED.blockread(PCA9551_ID, b, 7) == 0 ) {
 
     TxString("0:\t0b");
     TxBin8(b[6]);
@@ -224,29 +224,27 @@ void PCA9551Test(void) {
         TxBin8(b[i]);
         TxNextLine();
     }
+    }
+    else
+    TxString("FAILED\r\n");
+    
     TxNextLine();
 } // PCA9551Test
 
 boolean IsPCA9551Active(void) {
 
     const char b[7] = {0x11,0x25,0x80,0x25,0x80,0x00,0x00}; // Period 1Sec., PWM 50%, ON
+    boolean r;
 
-    F.UsingLEDDriver = true; // optimistic
+    F.UsingLEDDriver = I2CGYROAddressResponds( PCA9551_ID );
 
-    I2CLED.start();
-    if ( I2CGYRO.write(PCA9551_ID) != I2C_ACK ) goto LError;
-    I2CLED.stop();
+    if ( F.UsingLEDDriver ) {
+        I2CLED.blockwrite(PCA9551_ID, b, 7);
+        TrackMinI2CRate(400000);
+    }
 
-    I2CLED.blockwrite(PCA9551_ID, b, 7);
+    return ( F.UsingLEDDriver );
     
-    TrackMinI2CRate(400000);
-
-    return ( true );
-
-LError:
-    F.UsingLEDDriver = false;
-    return (  F.UsingLEDDriver );
-
 } //IsPCA9551Active
 
 void InitLEDs(void) {
@@ -254,7 +252,7 @@ void InitLEDs(void) {
     boolean r;
 
     r = IsPCA9551Active();
-       
+
     LEDShadow = SavedLEDs = LEDPattern = 0;
     PrevLEDShadow = 0x0fff;
 

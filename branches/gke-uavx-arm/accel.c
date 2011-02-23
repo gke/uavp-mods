@@ -210,7 +210,7 @@ void ReadADXL345Acc(void) {
     r = I2CACC.write(0x32); // point to acc data
     I2CACC.stop();
 
-    I2CACC.blockread(ADXL345_RD, b, 6);
+    I2CACC.blockread(ADXL345_ID, b, 6);
 
     X.b1 = b[1];
     X.b0 = b[0];

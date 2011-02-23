@@ -210,44 +210,42 @@ real32 ITG3200Temperature;
 
 void ReadITG3200Gyro(void) {
     static char G[6];
-    static uint8 g;
+    static uint8 g, r;
     static i16u GX, GY, GZ;
 
     I2CGYRO.start();
-    if ( I2CGYRO.write(ITG3200_WR) != I2C_ACK ) goto SGerror;
-    if ( I2CGYRO.write(ITG3200_GX_H) != I2C_ACK ) goto SGerror;
+    r = ( I2CGYRO.write(ITG3200_WR) != I2C_ACK );
+    r = ( I2CGYRO.write(ITG3200_GX_H) != I2C_ACK );
     I2CGYRO.stop();
 
-    I2CGYRO.blockread(ITG3200_RD, G, 6);
+    if ( I2CGYRO.blockread(ITG3200_ID, G, 6) == 0 ) {
 
-    GX.b0 = G[1];
-    GX.b1 = G[0];
-    GY.b0 = G[3];
-    GY.b1 = G[2];
-    GZ.b0 = G[5];
-    GZ.b1 = G[4];
+        GX.b0 = G[1];
+        GX.b1 = G[0];
+        GY.b0 = G[3];
+        GY.b1 = G[2];
+        GZ.b0 = G[5];
+        GZ.b1 = G[4];
 
-    if ( F.Using9DOF ) { // SparkFun/QuadroUFO breakout pins forward components up 
-        GyroADC[Roll] = -(real32)GY.i16;
-        GyroADC[Pitch] = -(real32)GX.i16;
-        GyroADC[Yaw] = -(real32)GZ.i16;
-    } else { // SparkFun 6DOF breakout pins forward components down
-        GyroADC[Roll] = -(real32)GX.i16;
-        GyroADC[Pitch] = -(real32)GY.i16;
-        GyroADC[Yaw] = (real32)GZ.i16;
+        if ( F.Using9DOF ) { // SparkFun/QuadroUFO breakout pins forward components up
+            GyroADC[Roll] = -(real32)GY.i16;
+            GyroADC[Pitch] = -(real32)GX.i16;
+            GyroADC[Yaw] = -(real32)GZ.i16;
+        } else { // SparkFun 6DOF breakout pins forward components down
+            GyroADC[Roll] = -(real32)GX.i16;
+            GyroADC[Pitch] = -(real32)GY.i16;
+            GyroADC[Yaw] = (real32)GZ.i16;
+        }
+
+        for ( g = 0; g < (uint8)3; g++ )
+            GyroADC[g] *= GyroToRadian[ITG3200Gyro];
+
+    } else {
+        // GYRO FAILURE - FATAL
+        Stats[GyroFailS]++;
+      // not in flight keep trying   F.GyroFailure = true;
     }
 
-    for ( g = 0; g < (uint8)3; g++ )
-        GyroADC[g] *= GyroToRadian[ITG3200Gyro];
-
-    return;
-
-SGerror:
-    I2CGYRO.stop();
-    // GYRO FAILURE - FATAL
-    Stats[GyroFailS]++;
-    F.GyroFailure = true;
-    return;
 } // ReadITG3200Gyro
 
 uint8 ReadByteITG3200(uint8 a) {
@@ -352,10 +350,9 @@ void ITG3200Test(void) {
 } // ITG3200Test
 
 boolean ITG3200GyroActive(void) {
-    I2CGYRO.start();
-    F.GyroFailure = !I2CGYROAddressResponds( ITG3200_ID);
-    I2CGYRO.stop();
-    
+
+    F.GyroFailure = !I2CGYROAddressResponds( ITG3200_ID );
+
     if ( !F.GyroFailure )
         TrackMinI2CRate(400000);
 
