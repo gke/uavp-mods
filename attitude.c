@@ -200,8 +200,8 @@ void AttitudeTest(void) {
         TxNextLine();
     }
 
-    TxString("Compass: \t");
-    TxVal32(Make2Pi(MagHeading) * MILLIANGLE, 3, 0);
+    TxString("Heading: \t");
+    TxVal32(Make2Pi(Heading) * MILLIANGLE, 3, 0);
     TxNextLine();
 
 } // AttitudeTest

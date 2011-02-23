@@ -1,20 +1,20 @@
 
 // Commissioning defines
 
-//#define SW_I2C                               // define for software I2C
+#define SW_I2C                               // define for software I2C - TRAGICALLY SLOW
 
-#define MAGIC 0.1                         // rescales the sensitivity of all PID loop params
+#define MAGIC 0.1                           // rescales the sensitivity of all PID loop params
 
 #define I2C_MAX_RATE_HZ    400000       
 
-#define PWM_UPDATE_HZ       200             // MUST BE LESS THAN OR EAUAL TO 450HZ
+#define PWM_UPDATE_HZ       200             // MUST BE LESS THAN OR EQUAL TO 450HZ
 
 #define SUPPRESS_SDCARD                     // no logging to check if buffering backup is an issue
 
 //BMP occasional returns bad results - changes outside this rate are deemed sensor/buss errors
 #define BARO_SANITY_CHECK_MPS    10.0       // dm/S 20,40,60,80 or 100
 
-#define SIX_DOF        // effects acc and gyro addresses
+#define SIX_DOF                             // effects acc and gyro addresses
 
 #define SOFTWARE_CAM_PWM
 

@@ -40,8 +40,8 @@ uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 #ifdef SW_I2C
 
 #define I2CDelay5uS wait_us(5)
-#define I2CDelay2uS //wait_us(2)
-#define HighLowDelay //wait_us(1)
+#define I2CDelay2uS // wait_us(2)
+#define HighLowDelay // wait_us(1)
 #define FloatDelay // ???
 
 #define I2CSDALow {I2C0SDA.write(0);HighLowDelay;I2C0SDA.output();}
@@ -54,11 +54,11 @@ void MyI2C::frequency(uint32 f) {
 } // frequency
 
 boolean MyI2C::waitclock(void) {
-    static uint16 s;
+    static uint32 s;
 
     I2CSCLFloat;        // set SCL to input, output a high
     s = 0;
-    while ( !I2C0SCL.read() ) 
+    while ( !I2C0SCL.read() )
         if ( ++s > 60000 ) {
             Stats[I2CFailS]++;
             return (false);
@@ -87,16 +87,16 @@ void MyI2C::stop(void) {
 
 uint8 MyI2C::blockread(uint8 a, char* S, uint8 l) {
     static uint8 b;
-    static boolean r;
+    static boolean err;
 
     I2C0.start();
-    r = I2C0.write(a) == I2C_ACK;
+    err = I2C0.write(a|1) != I2C_ACK;
     for (b = 0; b < (l - 1); b++)
         S[b] = I2C0.read(I2C_ACK);
     S[l-1] = I2C0.read(I2C_NACK);
     I2C0.stop();
 
-    return( r );
+    return( err );
 } // blockread
 
 uint8 MyI2C::read(uint8 ack) {
@@ -133,17 +133,17 @@ void MyI2C::blockwrite(uint8 a, const char* S, uint8 l) {
 
     I2C0.start();
     r = I2C0.write(a) == I2C_ACK;  // use this?
-    for (b = 0; b < l; b++)
+    for ( b = 0; b < l; b++ )
         r |= I2C0.write(S[b]);
     I2C0.stop();
 
-    return;
 } // blockwrite
 
 uint8 MyI2C::write(uint8 d) {
-    static uint8 s;
+    static uint8 s, r;
 
-    for ( s = 0; s < 8; s++ ) {
+    for ( s = 0; s < 8; s++)
+    {
         if ( d & 0x80 ) {
             I2CSDAFloat;
         } else {
@@ -158,14 +158,13 @@ uint8 MyI2C::write(uint8 d) {
     }
 
     I2CSDAFloat;
-    if ( waitclock() )
-        s = I2C0SDA.read();
-    else
+    if ( waitclock() ) {
+        r = I2C0SDA.read();
+        I2CSCLLow;
+        return( r );
+    } else
         return(I2C_NACK);
 
-    I2CSCLLow;
-
-    return(I2C_ACK);
 } // write
 
 #endif // SW_I2C

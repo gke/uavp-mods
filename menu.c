@@ -431,7 +431,7 @@ void ProcessCommand(void) {
                     ShowPrompt();
                     break;
                 case 'G':    // GPS
-                    GPSTest();
+                   GyroTest();// GPSTest();
                     ShowPrompt();
                     break;
                 case 'H':    // barometer
