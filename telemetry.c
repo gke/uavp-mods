@@ -243,8 +243,8 @@ void SendFlightPacket(void) {
     for ( b = 0; b < 4; b++ )
         TxESCu8((uint8)PWM[b]);
 
-    TxESCu8((uint8)PWM[CamRollC]);
-    TxESCu8((uint8)PWM[CamPitchC]);
+    TxESCu8(100);//(uint8)PWM[CamRollC]);
+    TxESCu8(200);//(uint8)PWM[CamPitchC]);
 
     TxESCi24(mSClock() - mS[StartTime]);
 
@@ -373,7 +373,7 @@ void SendMinPacket(void) {
     TxESCu8(State);
     TxESCu8(NavState);
     TxESCu8(FailState);
-    
+
     TxESCi16(BatteryVolts * 10.0); // to do scaling
     TxESCi16(BatteryCurrent * 10.0);
     TxESCi16(BatteryChargeUsedAH * 1000.0);
@@ -414,7 +414,7 @@ void SendParamPacket(uint8 p) {
 
 } // SendParamPacket
 
-void SendCycle(void) { 
+void SendCycle(void) {
 
     switch ( UAVXCurrPacketTag ) {
         case UAVXFlightPacketTag:
@@ -467,7 +467,7 @@ void SendArduStation(void) {
     SST: Switch Status, used for debugging, but is disabled in the current version.
     */
 
-    if ( ++Count == 4 ) { 
+    if ( ++Count == 4 ) {
         TxString("!!!");
         TxString("LAT:");
         TxVal32(GPSLatitude / 6000, 3, 0);
@@ -511,8 +511,7 @@ void SendArduStation(void) {
 
 } // SendArduStation
 
-void SendCustom(void)
-{ // user defined telemetry human readable OK for small amounts of data < 1mS
+void SendCustom(void) { // user defined telemetry human readable OK for small amounts of data < 1mS
 
     EchoToLogFile = true;
 

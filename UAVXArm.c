@@ -60,6 +60,9 @@ int main(void) {
         StopMotors();
 
         LightsAndSirens();    // Check for Rx signal, disarmed on power up, throttle closed, gyros ONLINE
+        
+        GetAttitude();
+        MixAndLimitCam();
 
         State = Starting;
         F.FirstArmed = false;
