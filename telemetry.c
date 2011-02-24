@@ -34,7 +34,8 @@ void SendFlightPacket(void);
 void SendNavPacket(void);
 void SendControlPacket(void);
 void SendStatsPacket(void);
-void SendParamPacket(uint8);
+void SendParamPacket(uint8, uint8);
+void SendParameters(uint8);
 void SendMinPacket(void);
 void SendArduStation(void);
 void SendCustom(void);
@@ -219,7 +220,7 @@ void SendFlightPacket(void) {
     SendPacketHeader();
 
     TxESCu8(UAVXFlightPacketTag);
-    TxESCu8(48 + TELEMETRY_FLAG_BYTES);
+    TxESCu8(58 + TELEMETRY_FLAG_BYTES);
     for ( b = 0; b < TELEMETRY_FLAG_BYTES; b++ )
         TxESCu8(F.AllFlags[b]);
 
@@ -240,11 +241,8 @@ void SendFlightPacket(void) {
     TxESCi8((int8)Comp[UD]);
     TxESCi8((int8)Comp[Alt]);
 
-    for ( b = 0; b < 4; b++ )
-        TxESCu8((uint8)PWM[b]);
-
-    TxESCu8(100);//(uint8)PWM[CamRollC]);
-    TxESCu8(200);//(uint8)PWM[CamPitchC]);
+    for ( b = 0; b < 8; b++ )
+        TxESCi16((int16)PWM[b]);
 
     TxESCi24(mSClock() - mS[StartTime]);
 
@@ -257,14 +255,14 @@ void SendControlPacket(void) {
     SendPacketHeader();
 
     TxESCu8(UAVXControlPacketTag);
-    TxESCu8(35);
+    TxESCu8(45);
 
     TxESCi16(DesiredThrottle);
 
     ShowAttitude();
 
-    for ( b = 0; b < 6; b++ ) // motor/servo channels
-        TxESCu8((uint8)PWM[b]);
+    for ( b = 0; b < 8; b++ ) // motor/servo channels
+        TxESCi16((int16)PWM[b]);
 
     TxESCi24( time(NULL) );
 
@@ -398,21 +396,29 @@ void SendMinPacket(void) {
 
 } // SendMinPacket
 
-void SendParamPacket(uint8 p) {
-
-    static uint8 b;
+void SendParamPacket(uint8 s, uint8 p) {
 
     SendPacketHeader();
+    static union { real32 r32; int32 i32; } Temp;
+    
+  //  Temp.r32 = K[p];
 
-    TxESCu8(UAVXParamsPacketTag);
-    TxESCu8(MAX_PARAMETERS+1);
+    TxESCu8(UAVXArmParamPacketTag);
+    TxESCu8(6);
+    TxESCu8(s);
     TxESCu8(p);
-    for (b = 0; b < (uint8)MAX_PARAMETERS; b++ )
-        TxESCi8(PX[MAX_PARAMETERS*2 + b]);
-
+    TxESCi32(K[p] * 1000.0 );
     SendPacketTrailer();
-
+ 
 } // SendParamPacket
+
+void SendParameters(uint8 s) {
+    static uint8 p;
+
+    for ( p = 0; p < MAX_PARAMETERS; p++ )
+        SendParamPacket(s, p);
+    SendParamPacket(0, MAX_PARAMETERS);
+} // SendParameters
 
 void SendCycle(void) {
 

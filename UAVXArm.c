@@ -96,8 +96,7 @@ int main(void) {
                         ZeroStats();
                         DoStartingBeeps(3);
                         
-                        SendParamPacket(0);
-                        SendParamPacket(1);
+                        SendParameters(ParamSet);
 
                         mS[ArmedTimeout] = mSClock() + ARMED_TIMEOUT_MS;
                         mS[RxFailsafeTimeout] = mSClock() + RC_NO_CHANGE_TIMEOUT_MS;

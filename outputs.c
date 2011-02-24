@@ -214,18 +214,18 @@ void MixAndLimitMotors(void) {
 
 void MixAndLimitCam(void) {
 
-	static real32 NewCamRoll, NewCamPitch;
-	
-	PWMSense[CamRollC] = 1.0; 
-	PWMSense[CamPitchC] = 1.0;
+    static real32 NewCamRoll, NewCamPitch;
+    
+    PWMSense[CamRollC] = 1.0; 
+    PWMSense[CamPitchC] = 1.0;
  
-	NewCamRoll = CameraRollAngle * K[CamRollKp] + K[CamRollTrim];
-	NewCamRoll = PWMSense[CamRollC] * NewCamRoll + OUT_NEUTRAL;
-	PWM[CamRollC] = SlewLimit( PWM[CamRollC], NewCamRoll, 2); // change to 10Hz filter
+    NewCamRoll = CameraRollAngle * K[CamRollKp] + K[CamRollTrim];
+    NewCamRoll = PWMSense[CamRollC] * NewCamRoll + OUT_NEUTRAL;
+    PWM[CamRollC] = SlewLimit( PWM[CamRollC], NewCamRoll, 2); // change to 10Hz filter
 
-	NewCamPitch = CameraPitchAngle * K[CamPitchKp] + DesiredCamPitchTrim;
-	NewCamPitch = PWMSense[CamPitchC] * NewCamPitch + OUT_NEUTRAL; 
-	PWM[CamPitchC] = SlewLimit( PWM[CamPitchC], NewCamPitch, 2.0); // change to 10Hz filter
+    NewCamPitch = CameraPitchAngle * K[CamPitchKp] + DesiredCamPitchTrim;
+    NewCamPitch = PWMSense[CamPitchC] * NewCamPitch + OUT_NEUTRAL; 
+    PWM[CamPitchC] = SlewLimit( PWM[CamPitchC], NewCamPitch, 2.0); // change to 10Hz filter
  
     CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
     CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
