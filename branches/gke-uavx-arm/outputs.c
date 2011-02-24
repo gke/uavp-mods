@@ -213,17 +213,20 @@ void MixAndLimitMotors(void) {
 } // MixAndLimitMotors
 
 void MixAndLimitCam(void) {
-    static real32 Temp; 
 
-    // use only roll/pitch angle estimates
-    Temp = Angle[Roll] * K[CamRollKp];
-    PWM[CamRollC] = Temp + K[CamRollTrim];
-    PWM[CamRollC] = PWM[CamRollC] + OUT_NEUTRAL; // PWMSense[CamRollC] * 
+	static real32 NewCamRoll, NewCamPitch;
+	
+	PWMSense[CamRollC] = 1.0; 
+	PWMSense[CamPitchC] = 1.0;
+ 
+	NewCamRoll = CameraRollAngle * K[CamRollKp] + K[CamRollTrim];
+	NewCamRoll = PWMSense[CamRollC] * NewCamRoll + OUT_NEUTRAL;
+	PWM[CamRollC] = SlewLimit( PWM[CamRollC], NewCamRoll, 2); // change to 10Hz filter
 
-    Temp = Angle[Pitch] * K[CamPitchKp];
-    PWM[CamPitchC] = Temp + DesiredCamPitchTrim;
-    PWM[CamPitchC] = PWM[CamPitchC] + OUT_NEUTRAL; //PWMSense[CamPitchC] * 
-    
+	NewCamPitch = CameraPitchAngle * K[CamPitchKp] + DesiredCamPitchTrim;
+	NewCamPitch = PWMSense[CamPitchC] * NewCamPitch + OUT_NEUTRAL; 
+	PWM[CamPitchC] = SlewLimit( PWM[CamPitchC], NewCamPitch, 2.0); // change to 10Hz filter
+ 
     CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
     CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
 
@@ -298,14 +301,6 @@ void StopMotors(void) {
     
  //   Out4.pulsewidth_us(1000 + (int16)( PWM[4] * PWMScale ) );
  //   Out5.pulsewidth_us(1000 + (int16)( PWM[5] * PWMScale ) );
-
-    CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
-    CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
-    
-#ifndef SOFTWARE_CAM_PWM 
-    Out4.pulsewidth_us(CamRollPulseWidth);
-    Out5.pulsewidth_us(CamPitchPulseWidth);
-#endif // !SOFTWARE_CAM_PWM
 
     F.MotorsArmed = false;
 } // StopMotors

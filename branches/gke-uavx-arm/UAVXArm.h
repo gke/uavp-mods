@@ -3,12 +3,13 @@
 
 #define SW_I2C                               // define for software I2C - TRAGICALLY SLOW
 
-#define MAGIC 0.1                           // rescales the sensitivity of all PID loop params
+#define MAGIC 1.0                           // rescales the sensitivity of all PID loop params
 
 #define I2C_MAX_RATE_HZ    400000       
 
 #define PWM_UPDATE_HZ       200             // MUST BE LESS THAN OR EQUAL TO 450HZ
 
+#define DISABLE_EXTRAS                       // suppress altitude hold, position hold and inertial compensation
 #define SUPPRESS_SDCARD                     // no logging to check if buffering backup is an issue
 
 //BMP occasional returns bad results - changes outside this rate are deemed sensor/buss errors
@@ -21,7 +22,6 @@
 #define BATTERY_VOLTS_SCALE   57.85         // 51.8144    // Volts scaling for internal divider
 
 //#define DCM_YAW_COMP
-//#define DISABLE_EXTRAS
 
 #define USING_MBED
 
@@ -891,6 +891,8 @@ extern uint8 CompassType;
 
 // control.c
 
+extern real32 PTerm, ITerm, DTerm; //zzz
+
 extern void DoAltitudeHold(void);
 extern void UpdateAltitudeSource(void);
 extern void AltitudeHold(void);
@@ -913,6 +915,7 @@ extern int16 HoldYaw, YawSlewLimit;
 extern int16 CruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
 extern int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim;
 extern real32 ControlRoll, ControlPitch, ControlRollP, ControlPitchP;
+extern real32 CameraRollAngle, CameraPitchAngle;
 extern int16 CurrMaxRollPitch;
 
 extern int16 AttitudeHoldResetCount;

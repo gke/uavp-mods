@@ -20,6 +20,8 @@
 
 #include "UAVXArm.h"
 
+real32 PTerm, ITerm, DTerm;
+
 void DoAltitudeHold(void);
 void UpdateAltitudeSource(void);
 void AltitudeHold(void);
@@ -43,6 +45,7 @@ int16 HoldYaw;
 int16 CruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
 int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim;
 real32 ControlRoll, ControlPitch, ControlRollP, ControlPitchP;
+real32 CameraRollAngle, CameraPitchAngle;
 int16 CurrMaxRollPitch;
 
 int16 AttitudeHoldResetCount;
@@ -219,6 +222,9 @@ void DoOrientationTransform(void) {
 
     // PC+RS
     ControlPitch = (int16)( DesiredPitch * OCO + DesiredRoll * OSO );
+    
+    CameraRollAngle = Angle[Pitch] * OSO + Angle[Roll] * OCO;
+    CameraPitchAngle = Angle[Pitch] * OCO - Angle[Roll] * OSO;
 
 } // DoOrientationTransform
 
@@ -263,6 +269,7 @@ void GainSchedule(boolean UseAngle) {
 } // GainSchedule
 
 void DoControl(void) {
+
     GetAttitude();
     AltitudeHold();
     InertialDamping();
@@ -289,9 +296,7 @@ void DoControl(void) {
     // for commissioning
     Comp[BF] = Comp[LR] = Comp[UD] = Comp[Alt] = 0;
     NavCorr[Roll] = NavCorr[Pitch] = NavCorr[Yaw] = 0;
-
     F.UsingAngleControl = false;
-
 #endif // DISABLE_EXTRAS
 
     if ( F.UsingAngleControl ) {
@@ -317,7 +322,7 @@ void DoControl(void) {
         AngleE[Roll] = Limit(Angle[Roll],  -K[RollIntLimit], K[RollIntLimit]);
         Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi + (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
         Rl -=  NavCorr[Roll] - Comp[LR];
-
+          
         Rl *= GS;
 
         Rl -= ControlRoll;
@@ -330,7 +335,7 @@ void DoControl(void) {
         AngleE[Pitch] = Limit(Angle[Pitch],  -K[PitchIntLimit], K[PitchIntLimit]);
         Pl  = Rate[Pitch] * GPitchKp + AngleE[Pitch] * GPitchKi + (Rate[Pitch]-Ratep[Pitch]) * GPitchKd * dTR;
         Pl -= NavCorr[Pitch] - Comp[BF];
-
+        
         Pl *= GS;
 
         Pl -= ControlPitch;
