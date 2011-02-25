@@ -1673,7 +1673,7 @@ enum PacketTags {UnknownPacketTag = 0, LevPacketTag, NavPacketTag, MicropilotPac
                  AirframePacketTag, NavUpdatePacketTag, BasicPacketTag, RestartPacketTag, TrimblePacketTag,
                  MessagePacketTag, EnvironmentPacketTag, BeaconPacketTag, UAVXFlightPacketTag,
                  UAVXNavPacketTag, UAVXStatsPacketTag, UAVXControlPacketTag, UAVXParamPacketTag, UAVXMinPacketTag, 
-                 FrSkyPacketTag, UAVXArmParamPacketTag
+                 UAVXArmParamPacketTag, UAVXStickPacketTag, FrSkyPacketTag = 99
                 };
 
 enum TelemetryTypes { NoTelemetry, GPSTelemetry, UAVXTelemetry, UAVXControlTelemetry, UAVXMinTelemetry,
