@@ -255,11 +255,13 @@ void SendControlPacket(void) {
     SendPacketHeader();
 
     TxESCu8(UAVXControlPacketTag);
-    TxESCu8(45);
+    TxESCu8(46);
 
     TxESCi16(DesiredThrottle);
 
     ShowAttitude();
+
+    TxESCu8(UAVXAirframe | 0x80);
 
     for ( b = 0; b < 8; b++ ) // motor/servo channels
         TxESCi16((int16)PWM[b]);
@@ -317,6 +319,20 @@ void SendNavPacket(void) {
     SendPacketTrailer();
 
 } // SendNavPacket
+
+void SendStickPacket(void) {
+    static uint8 c;
+
+    SendPacketHeader();
+
+    TxESCu8(UAVXStickPacketTag);
+    TxESCu8( 1 + RC_CONTROLS * 2 );
+    TxESCu8(RC_CONTROLS);
+    for ( c = 0; c < RC_CONTROLS; c++ )
+        TxESCi16(RC[c]);
+
+    SendPacketTrailer();
+} // SendStickPacket
 
 void SendStatsPacket(void) {
     SendPacketHeader();
@@ -399,9 +415,11 @@ void SendMinPacket(void) {
 void SendParamPacket(uint8 s, uint8 p) {
 
     SendPacketHeader();
-    static union { real32 r32; int32 i32; } Temp;
-    
-  //  Temp.r32 = K[p];
+    static union { real32 r32;
+        int32 i32;
+    } Temp;
+
+    //  Temp.r32 = K[p];
 
     TxESCu8(UAVXArmParamPacketTag);
     TxESCu8(6);
@@ -409,7 +427,7 @@ void SendParamPacket(uint8 s, uint8 p) {
     TxESCu8(p);
     TxESCi32(K[p] * 1000.0 );
     SendPacketTrailer();
- 
+
 } // SendParamPacket
 
 void SendParameters(uint8 s) {
