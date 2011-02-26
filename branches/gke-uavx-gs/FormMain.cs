@@ -57,6 +57,9 @@ namespace UAVXGS
         const byte UAVXControlPacketTag = 16;
         const byte UAVXParamsPacketTag = 17;
         const byte UAVXMinPacketTag = 18;
+        const byte UAVXArmParamsPacketTag = 19;
+        const byte UAVXStickPacketTag = 20;
+
         const byte FrSkyPacketTag = 99;
 
         const byte WaitRxSentinel = 0;
@@ -190,7 +193,7 @@ namespace UAVXGS
         short BatteryCurrentT;          // 11
  		short BatteryChargeT;           // 13
         short RCGlitchesT;              // 15
-        short DesiredThrottleT;         // 17
+        public short DesiredThrottleT;         // 17
         short DesiredRollT;             // 19
         short DesiredPitchT;            // 21
         short DesiredYawT;              // 23
@@ -324,7 +327,9 @@ namespace UAVXGS
         short RxLengthErrors = 0, RxCheckSumErrors = 0, RxIllegalErrors = 0, RxFrSkyErrors = 0;
 
         double[,] Params = new double[2,MAXPARAMS];
+        int[] Sticks = new int[16];
 
+        byte RCControls = 0;
         byte RxCheckSum;
 
       //  int COMBaudRate = DefaultBaudRate;
@@ -611,7 +616,7 @@ namespace UAVXGS
                 "HorizDampDecay," +
                 "BaroScale," +
                 "TelemetryType," +
-                "MaxDescentRateDmpS," +
+                "MaxDescentRate," +
                 "DescentDelayS," +
                 "NavIntLimit," +
                 "AltIntLimit," +
@@ -619,8 +624,8 @@ namespace UAVXGS
 
                 "Unused51," +
                 "ServoSense," + 
-                "CompassOffsetQtr," +
-                "BatteryCapacity," +
+                "CompOffsetQtr," +
+                "BattCap," +
                 "GyroYawType," +     
                 "AltKd," +
                 "Orient," +   
@@ -699,9 +704,9 @@ namespace UAVXGS
                 "RollRate," +
                 "PitchRate," +
                 "YawRate," +
-                "RollSum," +
-                "PitchSum," +
-                "YawSum," +
+                "RollAngle," +
+                "PitchAngle," +
+                "YawAngle," +
                 "LRAcc," +
                 "FBAcc," +
                 "DUAcc," +
@@ -712,7 +717,7 @@ namespace UAVXGS
 
                 SaveTextLogFileStreamWriter.Write("M1,M2,M3,M4,M5,M6,CamP,CamR,"); 
 
-                SaveTextLogFileStreamWriter.Write("Nav," +
+                SaveTextLogFileStreamWriter.Write("Time, Nav," +
                 "NavState," +
                 "FailState," +
                 "GPSSats," +
@@ -733,7 +738,7 @@ namespace UAVXGS
                 "DesAlt," +
                 "DesLat," +
                 "DesLon," +
-                "NavStateTimeout," +
+                "NavTimeout," +
                 "AmbTemp," +
                 "GPSTime," +
                 "Sens," +
@@ -1293,7 +1298,7 @@ namespace UAVXGS
 
         void DoOrientation()
         {
-            if (!DoneOrientation)
+         //  do it all of the time in case some one changes orientation but does not shutdown GS if (!DoneOrientation)
             {
                 if ((Flags[3] & 0x08) != 0)
                     FlightHeadingOffset = 0.0;
@@ -1778,6 +1783,11 @@ namespace UAVXGS
                             Params[ParamSet - 1, ParamNo] = ExtractByte(ref UAVXPacket, 4);
 
                     break;
+                case UAVXStickPacketTag:
+                    RCControls = ExtractByte(ref UAVXPacket, 2);
+                    for (b = 0; b < RCControls; b++)
+                        Sticks[b] = ExtractInt(ref UAVXPacket, (byte)(b * 2 + 3));
+                    break;
                 case UAVXStatsPacketTag:
                     StatsPacketsReceived++;
                     I2CFailsT = ExtractShort(ref UAVXPacket, 2);
@@ -1912,8 +1922,12 @@ namespace UAVXGS
                     LRAccT = ExtractShort(ref UAVXPacket, 22);
                     FBAccT = ExtractShort(ref UAVXPacket, 24);
                     DUAccT = ExtractShort(ref UAVXPacket, 26);
+                    AirframeT = ExtractByte(ref UAVXPacket, 28);
 
-                    DoMotorsAndTime(28);
+                    UAVXArm = (AirframeT & 0x80) != 0;
+                    AirframeT &= 0x7f;
+
+                    DoMotorsAndTime(29); 
 
                     UpdateControls();
                     UpdateAttitude();
@@ -2066,7 +2080,8 @@ namespace UAVXGS
             } // switch
 
 
-            if ( ( RxPacketTag == UAVXControlPacketTag ) || ( RxPacketTag == UAVXFlightPacketTag ) || ( RxPacketTag == UAVXMinPacketTag ) )
+            if ( ( RxPacketTag == UAVXControlPacketTag ) || ( RxPacketTag == UAVXFlightPacketTag ) ||
+                ( RxPacketTag == UAVXMinPacketTag ) )
             {
                 FlightRoll = PitchAngleT * OSO + RollAngleT * OCO;
                 FlightPitch = PitchAngleT * OCO - RollAngleT * OSO;
@@ -2082,7 +2097,7 @@ namespace UAVXGS
                         FlightPitch * MILLIRADDEG, -FlightRoll * MILLIRADDEG);
                 else
                     attitudeIndicatorInstrumentControl1.SetAttitudeIndicatorParameters(
-                        FlightPitch / AttitudeToDegrees, -FlightRoll / AttitudeToDegrees);
+                        -FlightPitch / AttitudeToDegrees, FlightRoll / AttitudeToDegrees);
             }
 
             if (RxPacketTag == UAVXNavPacketTag )
