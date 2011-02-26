@@ -1,13 +1,29 @@
 
 // Commissioning defines
 
-#define SW_I2C                               // define for software I2C - TRAGICALLY SLOW
+#define SW_I2C                              // define for software I2C - TRAGICALLY SLOW
 
 #define MAGIC 1.0                           // rescales the sensitivity of all PID loop params
 
 #define I2C_MAX_RATE_HZ    400000       
 
-#define PWM_UPDATE_HZ       200             // MUST BE LESS THAN OR EQUAL TO 450HZ
+#define PWM_UPDATE_HZ       120             // reduced for turningys - I2C runns at PID loop rate always
+                                           // MUST BE LESS THAN OR EQUAL TO 450HZ
+
+// LP cutoffs for sensors - there is interaction between these and the DCM tuning and the overall PID cycle time
+#define YAW_FREQ            10.0            // Hz
+#define ROLL_PITCH_FREQ     10000.0     //100.0  // Hz
+#define ACC_FREQ            10000.0     //20.0    // Hz 
+#define COMPASS_FREQ        10.0            // Hz must be less than 10Hz
+
+// DCM tuning tweak these until the pitch/roll angle tracks CLOSELY but the noise is mostly but not 
+// completely tuned out.
+// Jitter in tha artificial horizon gives part of the story but better to use the UAVXFC logs
+#define Kp_RollPitch 1.0      // 5.0
+#define Ki_RollPitch 0.001    // 0.005
+#define Kp_Yaw 1.2
+#define Ki_Yaw 0.00002
+
 
 #define DISABLE_EXTRAS                       // suppress altitude hold, position hold and inertial compensation
 #define SUPPRESS_SDCARD                     // no logging to check if buffering backup is an issue
@@ -575,9 +591,6 @@ extern int8 State;
 
 // accel.c
 
-#define ACC_FREQ  50     // Hz must be less than 100Hz
-const real32 OneOnTwoPiAccF = ( 1.0 / ( TWOPI * ACC_FREQ ));
-
 enum AccelerometerTypes { LISLAcc, ADXL345Acc, AccUnknown };
 
 extern void ShowAccType(void);
@@ -598,7 +611,7 @@ extern void InitAccelerometers(void);
 #define ADXL345_WR           ADXL345_ID
 #define ADXL345_RD           (ADXL345_ID+1)
 
-extern const float GRAVITY_ADXL345;
+#define GRAVITY_ADXL345_R   (1.0/250.0) // ~4mG/LSB
 
 extern void ReadADXL345Acc(void);
 extern void InitADXL345Acc(void);
@@ -606,7 +619,7 @@ extern boolean ADXL345AccActive(void);
 
 // LIS3LV02DG 3-Axis Accelerometer 400KHz
 
-extern const float GRAVITY_LISL;
+#define GRAVITY_LISL_R (1.0/1024.0)
 
 #define LISL_WHOAMI      0x0f
 #define LISL_OFFSET_X    0x16
@@ -642,9 +655,10 @@ extern boolean LISLAccActive(void);
 
 // other accelerometers
 
-extern real32 Vel[3], Acc[3], AccNeutral[3];
+extern real32 Vel[3], AccADC[3], AccNoise[3], Acc[3], AccNeutral[3], Accp[3];
 extern int16 NewAccNeutral[3];
 extern uint8 AccelerometerType;
+extern real32 GravityR; // recip gravity scaling
 
 //______________________________________________________________________________________________
 
@@ -836,12 +850,9 @@ enum CompassTypes { HMC5843, HMC6352, NoCompass };
 
 #define COMPASS_UPDATE_MS               50
 #define COMPASS_UPDATE_S                (real32)(COMPASS_UPDATE_MS * 0.001)
-#define COMPASS_FREQ                    10      // Hz must be less than 10Hz
 
 #define COMPASS_MAXDEV                30        // maximum yaw compensation of compass heading 
 #define COMPASS_MIDDLE                10        // yaw stick neutral dead zone
-
-const real32 OneOnTwoPiCompassF = ( 1.0 / ( TWOPI * COMPASS_FREQ ));
 
 extern void ReadCompass(void);
 extern void GetHeading(void);
@@ -1043,7 +1054,7 @@ extern void ITG3200Test(void);
 extern boolean ITG3200GyroActive(void);
 
 extern const real32 GyroToRadian[];
-extern real32 GyroADC[3], GyroNeutral[3], Gyro[3]; // Radians
+extern real32 GyroADC[3], GyroADCp[3], GyroNoise[3], GyroNeutral[3], Gyrop[3], Gyro[3]; // Radians
 extern uint8 GyroType;
 
 //______________________________________________________________________________________________
@@ -1725,7 +1736,7 @@ extern void DoBeep100mS(uint8, uint8);
 extern void DoStartingBeeps(uint8);
 extern real32 SlewLimit(real32, real32, real32);
 extern real32 DecayX(real32, real32);
-extern void LPFilter(real32*, real32*, real32, real32);
+extern real32 LPFilter(real32, real32, real32, real32);
 extern void CheckAlarms(void);
 extern void Timing(uint8, uint32);
 

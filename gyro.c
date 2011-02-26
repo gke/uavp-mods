@@ -38,15 +38,29 @@ void InitGyros(void);
 void GyroTest(void);
 void ShowGyroType(void);
 
-real32 GyroADC[3], GyroNeutral[3], Gyro[3]; // Radians
+real32 GyroADC[3], GyroNoise[3], GyroNeutral[3], Gyro[3], Gyrop[3]; // Radians
 uint8 GyroType;
 
 void GetGyroRates(void) {
     static uint8 g;
+    static real32 GyroA, d;
 
     ReadGyros();
+
+    for ( g = 0; g < (uint8)3; g++ ) {
+        d = fabs(Gyro[g]-Gyrop[g]);
+        if ( d>GyroNoise[g] ) GyroNoise[g] = d;
+    }
+
+    GyroA = dT / ( 1.0 / ( TWOPI * ROLL_PITCH_FREQ ) + dT );
+    Gyro[Roll] = LPFilter( Gyro[Roll] - GyroNeutral[Roll], Gyrop[Roll], GyroA, dT );
+    Gyro[Pitch] = LPFilter( Gyro[Pitch] - GyroNeutral[Pitch], Gyrop[Pitch], GyroA, dT );
+
+    GyroA = dT / ( 1.0 / ( TWOPI * YAW_FREQ ) + dT );
+    Gyro[Yaw] = LPFilter( Gyro[Yaw] - GyroNeutral[Yaw], Gyrop[Yaw], GyroA, dT );
     for ( g = 0; g < (uint8)3; g++ )
-        Gyro[g] = ( GyroADC[g] - GyroNeutral[g] ) ;
+        Gyrop[g] = Gyro[g];
+
 } // GetGyroRates
 
 void ReadGyros(void) {
@@ -64,24 +78,24 @@ void ReadGyros(void) {
 } // ReadGyros
 
 void ErectGyros(void) {
-    static int16 i, g;
+    static uint8 i, g;
 
     LEDRed_ON;
 
-    for ( g = 0; g <(int8)3; g++ )
+    for ( g = 0; g <(uint8)3; g++ )
         GyroNeutral[g] = 0.0;
 
     for ( i = 0; i < 32 ; i++ ) {
         Delay1mS(10);
 
         ReadGyros();
-        for ( g = 0; g <(int8)3; g++ )
-            GyroNeutral[g] += GyroADC[g];
+        for ( g = 0; g <(uint8)3; g++ )
+            GyroNeutral[g] += Gyro[g];
     }
 
-    for ( g = 0; g <(int8)3; g++ ) {
+    for ( g = 0; g <(uint8)3; g++ ) {
         GyroNeutral[g] *= 0.03125;
-        Gyro[g] = 0.0;
+        Gyro[g] = Gyrop[g] = 0.0;
     }
 
     LEDRed_OFF;
@@ -94,17 +108,20 @@ void GyroTest(void) {
 
     ReadGyros();
 
+    TxString("Rate and Max Delta(Deg./Sec.)\r\n");
+
     TxString("\r\n\tRoll:   \t");
-    TxVal32(GyroADC[Roll] * 1000.0, 3, 0);
+    TxVal32(Gyro[Roll] * MILLIANGLE, 3, HT);
+    TxVal32(GyroNoise[Roll] * MILLIANGLE, 3, 0);
     TxNextLine();
     TxString("\tPitch:  \t");
-    TxVal32(GyroADC[Pitch] * 1000.0, 3, 0);
+    TxVal32(Gyro[Pitch] * MILLIANGLE, 3, HT);
+    TxVal32(GyroNoise[Pitch] * MILLIANGLE, 3, 0);
     TxNextLine();
     TxString("\tYaw:    \t");
-    TxVal32(GyroADC[Yaw] * 1000.0, 3, 0);
+    TxVal32(Gyro[Yaw] * MILLIANGLE, 3, HT);
+    TxVal32(GyroNoise[Yaw] * MILLIANGLE, 3, 0);
     TxNextLine();
-
-    TxString("Expect ~0.0 ( ~0.5 for for analog gyros)\r\n");
 
     switch ( GyroType ) {
         case ITG3200Gyro:
@@ -120,6 +137,7 @@ void GyroTest(void) {
 } // GyroTest
 
 void InitGyros(void) {
+
     if ( ITG3200GyroActive() )
         GyroType = ITG3200Gyro;
     else
@@ -187,7 +205,8 @@ void ReadAnalogGyros(void) {
     GyroADC[Yaw] = YawADC.read();
 
     for ( g = 0; g < (uint8)3; g++ )
-        GyroADC[g] *= GyroToRadian[GyroType];
+        Gyro[g] = GyroADC[g] * GyroToRadian[GyroType];
+
 } // ReadAnalogGyros
 
 void InitAnalogGyros(void) {
@@ -210,6 +229,7 @@ real32 ITG3200Temperature;
 
 void ReadITG3200Gyro(void) {
     static char G[6];
+    static real32 d;
     static uint8 g, r;
     static i16u GX, GY, GZ;
 
@@ -238,12 +258,12 @@ void ReadITG3200Gyro(void) {
         }
 
         for ( g = 0; g < (uint8)3; g++ )
-            GyroADC[g] *= GyroToRadian[ITG3200Gyro];
+            Gyro[g] = GyroADC[g] * GyroToRadian[ITG3200Gyro];
 
     } else {
         // GYRO FAILURE - FATAL
         Stats[GyroFailS]++;
-      // not in flight keep trying   F.GyroFailure = true;
+        // not in flight keep trying   F.GyroFailure = true;
     }
 
 } // ReadITG3200Gyro

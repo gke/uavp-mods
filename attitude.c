@@ -161,29 +161,35 @@ void AttitudeTest(void) {
 
     } else {
 
-        TxString("Rates (Raw and Compensated):\r\n");
+        TxString("Gyro, Compensated, Max Delta(Deg./Sec.):\r\n");
         TxString("\tRoll \t");
         TxVal32(Gyro[Roll] * MILLIANGLE, 3, HT);
-        TxVal32(Rate[Roll] * MILLIANGLE, 3, 0);
+        TxVal32(Rate[Roll] * MILLIANGLE, 3, HT);
+        TxVal32(GyroNoise[Roll] * MILLIANGLE,3, 0);
         TxNextLine();
         TxString("\tPitch\t");
         TxVal32(Gyro[Pitch] * MILLIANGLE, 3, HT);
-        TxVal32(Rate[Pitch] * MILLIANGLE, 3, 0);
+        TxVal32(Rate[Pitch] * MILLIANGLE, 3, HT);
+        TxVal32(GyroNoise[Pitch] * MILLIANGLE,3, 0);
         TxNextLine();
         TxString("\tYaw  \t");
         TxVal32(Gyro[Yaw] * MILLIANGLE, 3, HT);
-        TxVal32(Rate[Yaw] * MILLIANGLE, 3, 0);
+        TxVal32(Rate[Yaw] * MILLIANGLE, 3, HT);
+        TxVal32(GyroNoise[Yaw] * MILLIANGLE, 3, 0);
         TxNextLine();
 
-        TxString("Accelerations:\r\n");
+        TxString("Accelerations , peak change(G):\r\n");
         TxString("\tB->F \t");
-        TxVal32(Acc[BF] * 1000.0, 3, 0);
+        TxVal32(Acc[BF] * 1000.0, 3, HT);
+        TxVal32( AccNoise[BF] * 1000.0, 3, 0);
         TxNextLine();
         TxString("\tL->R \t");
-        TxVal32(Acc[LR] * 1000.0, 3, 0);
+        TxVal32(Acc[LR] * 1000.0, 3, HT);
+        TxVal32( AccNoise[LR] * 1000.0, 3, 0);
         TxNextLine();
         TxString("\tU->D \t");
-        TxVal32(Acc[UD] * 1000.0, 3, 0);
+        TxVal32(Acc[UD] * 1000.0, 3, HT);
+        TxVal32( AccNoise[UD] * 1000.0, 3, 0);
         TxNextLine();
     }
 
@@ -219,11 +225,8 @@ void DCMUpdate(void);
 void DCMEulerAngles(void);
 
 // requires rescaling for the much faster PID cycle in UAVXArm
-// guess x5 initially
-#define Kp_RollPitch 25.0       // 5.0
-#define Ki_RollPitch 0.025      // 0.005
-#define Kp_Yaw 1.2
-#define Ki_Yaw 0.00002
+
+
 
 real32   RollPitchError[3] = {0,0,0};
 real32   OmegaV[3] = {0,0,0}; // corrected gyro data

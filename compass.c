@@ -94,7 +94,7 @@ void DoCompassTest(void) {
 
 void GetHeading(void) {
 
-    const real32 CompassA = COMPASS_UPDATE_S / ( OneOnTwoPiCompassF + COMPASS_UPDATE_S );
+    const real32 CompassA = COMPASS_UPDATE_S / ( 1.0 / ( TWOPI * COMPASS_FREQ ) + COMPASS_UPDATE_S );
 
     ReadCompass();
 
@@ -102,7 +102,7 @@ void GetHeading(void) {
     if ( fabs(Heading - Headingp ) > PI )
         Headingp = Heading;
 
-    Heading = Headingp + (Heading - Headingp) * CompassA;
+    Heading = LPFilter(Heading, Headingp, CompassA, COMPASS_UPDATE_S);
     Headingp = Heading;
 
 #ifdef SIMULATE

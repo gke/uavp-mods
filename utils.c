@@ -28,7 +28,7 @@ void DoStartingBeeps(uint8);
 void CheckAlarms(void);
 real32 SlewLimit(real32, real32, real32);
 real32 DecayX(real32, real32);
-void LPFilter(real32*, real32*, real32, real32);
+real32 LPFilter(real32, real32, real32, real32);
 void Timing(uint8, uint32);
 
 TimingRec Times[(UnknownT+1)];
@@ -143,14 +143,8 @@ real32 DecayX(real32 i, real32 d) {
     return (i);
 } // DecayX
 
-void LPFilter(real32* i, real32* ip, real32 FilterF, real32 dT) {
-    static real32 FilterA;
-
-    FilterA = dT / ( FilterF + dT );
-
-    *i = *ip + (*i - *ip) * FilterA;
-    *ip = *i;
-
+real32 LPFilter(real32 i, real32 ip, real32 FilterA, real32 dT) {
+    return ( ip + (i - ip) * FilterA );
 } // LPFilter
 
 real32 SlewLimit(real32 Old, real32 New, real32 Slew) {
