@@ -27,9 +27,10 @@ void GetNeutralAccelerations(void);
 void AccelerometerTest(void);
 void InitAccelerometers(void);
 
-real32 Vel[3], Acc[3], AccNeutral[3], Accp[3];
+real32 Vel[3], AccADC[3], AccADCp[3], AccNoise[3], Acc[3], AccNeutral[3], Accp[3];
 int16 NewAccNeutral[3];
 uint8 AccelerometerType;
+real32 GravityR;
 
 void ShowAccType(void) {
     switch ( AccelerometerType ) {
@@ -89,8 +90,8 @@ void GetNeutralAccelerations(void) {
 
 void GetAccelerations(void) {
 
-    static real32 AccA;
     static uint8 a;
+    static real32 AccA;
 
     if ( F.AccelerationsValid ) {
         ReadAccelerometers();
@@ -102,9 +103,9 @@ void GetAccelerations(void) {
         Acc[LR] -= K[MiddleLR];
         Acc[UD] -= K[MiddleUD];
 
-        AccA = dT / ( OneOnTwoPiAccF + dT );
+        AccA = dT / ( 1.0 / ( TWOPI * ACC_FREQ ) + dT );
         for ( a = 0; a < (uint8)3; a++ ) {
-            Acc[a] = Accp[a] + (Acc[a] - Accp[a]) * AccA;
+            Acc[a] = LPFilter( Acc[a], Accp[a], AccA, dT );
             Accp[a] = Acc[a];
         }
 
@@ -123,22 +124,23 @@ void AccelerometerTest(void) {
 
     if ( F.AccelerationsValid ) {
         ReadAccelerometers();
+        
+        TxString("Sensor & Max Delta\r\n");
 
         TxString("\tL->R: \t");
-        TxVal32( Acc[LR] * 1000.0, 3, 'G');
+        TxVal32( AccADC[LR], 0, HT);TxVal32( AccNoise[LR], 0, 0);
         if ( fabs(Acc[LR]) > 0.2 )
             TxString(" fault?");
         TxNextLine();
 
         TxString("\tB->F: \t");
-        TxVal32( Acc[BF] * 1000.0, 3, 'G');
+        TxVal32( AccADC[BF], 0, HT);TxVal32( AccNoise[BF], 0, 0);
         if ( fabs(Acc[BF]) > 0.2 )
             TxString(" fault?");
         TxNextLine();
 
-
         TxString("\tU->D:    \t");
-        TxVal32( Acc[UD] * 1000.0, 3, 'G');
+        TxVal32( AccADC[UD], 0, HT);TxVal32( AccNoise[UD], 0, 0);
         if ( fabs(Acc[UD]) > 1.2 )
             TxString(" fault?");
         TxNextLine();
@@ -151,18 +153,23 @@ void InitAccelerometers(void) {
     F.AccelerationsValid = true; // optimistic
 
     for ( a = 0; a < (uint8)3; a++ ) {
-        NewAccNeutral[a] = Acc[a] = Accp[a] = Vel[a] = 0.0;
+        NewAccNeutral[a] = AccADC[a] = AccADCp[a] = AccNoise[a] = Acc[a] = Accp[a] = Vel[a] = 0.0;
         Comp[a] = 0;
     }
     Acc[2] = Accp[2] = 1.0;
 
     if ( ADXL345AccActive() ) {
+        GravityR = GRAVITY_ADXL345_R;
         InitADXL345Acc();
         AccelerometerType = ADXL345Acc;
 
     } else
         if ( LISLAccActive() )
+        {
+            GravityR = GRAVITY_LISL_R;
             AccelerometerType = LISLAcc;
+            
+        }
         else
             // check for other accs in preferred order
         {
@@ -186,13 +193,12 @@ void ReadADXL345Acc(void);
 void InitADXL345Acc(void);
 boolean ADXL345AccActive(void);
 
-const float GRAVITY_ADXL345 = 250.0; // ~4mG/LSB
-
 void ReadADXL345Acc(void) {
 
     static uint8 a, r;
     static char b[6];
     static i16u X, Y, Z;
+    static real32 d;
 
     /*
     r = 0;
@@ -220,19 +226,20 @@ void ReadADXL345Acc(void) {
     Z.b0 = b[4];
 
     if ( F.Using9DOF ) { // SparkFun/QuadroUFO 9DOF breakouts pins forward components up
-        Acc[BF] = -Y.i16;
-        Acc[LR] = -X.i16;
-        Acc[UD] = -Z.i16;
+        AccADC[BF] = -Y.i16;
+        AccADC[LR] = -X.i16;
+        AccADC[UD] = -Z.i16;
     } else {// SparkFun 6DOF breakouts pins forward components down 
-        Acc[BF] = -X.i16;
-        Acc[LR] = -Y.i16;
-        Acc[UD] = -Z.i16; 
+        AccADC[BF] = -X.i16;
+        AccADC[LR] = -Y.i16;
+        AccADC[UD] = -Z.i16; 
     }
 
-    // LP filter here?
-
-    for ( a = 0; a < (int8)3; a++ )
-        Acc[a] /= GRAVITY_ADXL345;
+    for ( a = 0; a < (int8)3; a++ ) {
+        d = fabs(AccADC[a]-AccADCp[a]);
+        if ( d>AccNoise[a] ) AccNoise[a] = d;
+        Acc[a] = AccADC[a] * GRAVITY_ADXL345_R;
+        }
 
 } // ReadADXL345Acc
 

@@ -415,17 +415,13 @@ void SendMinPacket(void) {
 void SendParamPacket(uint8 s, uint8 p) {
 
     SendPacketHeader();
-    static union { real32 r32;
-        int32 i32;
-    } Temp;
-
-    //  Temp.r32 = K[p];
 
     TxESCu8(UAVXArmParamPacketTag);
     TxESCu8(6);
     TxESCu8(s);
     TxESCu8(p);
     TxESCi32(K[p] * 1000.0 );
+    
     SendPacketTrailer();
 
 } // SendParamPacket
@@ -436,6 +432,7 @@ void SendParameters(uint8 s) {
     for ( p = 0; p < MAX_PARAMETERS; p++ )
         SendParamPacket(s, p);
     SendParamPacket(0, MAX_PARAMETERS);
+    
 } // SendParameters
 
 void SendCycle(void) {
