@@ -265,8 +265,6 @@ namespace UAVXGS
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.GyroGroupBox.SuspendLayout();
             this.ControlsGroupBox.SuspendLayout();
             this.AttitudeGroupBox.SuspendLayout();
@@ -290,7 +288,6 @@ namespace UAVXGS
             this.NavCompBox.SuspendLayout();
             this.FrSkyBox.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // FlyingButton
@@ -2392,7 +2389,7 @@ namespace UAVXGS
             // testsoftwareToolStripMenuItem
             // 
             this.testsoftwareToolStripMenuItem.Name = "testsoftwareToolStripMenuItem";
-            this.testsoftwareToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.testsoftwareToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.testsoftwareToolStripMenuItem.Text = "Parameters";
             // 
             // ReplayButton
@@ -2669,31 +2666,11 @@ namespace UAVXGS
             this.attitudeIndicatorInstrumentControl1.TabIndex = 3;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
             // 
-            // toolStrip1
-            // 
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton1});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 25);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(848, 25);
-            this.toolStrip1.TabIndex = 172;
-            this.toolStrip1.Text = "toolStrip1";
-            // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton1.Text = "toolStripButton1";
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(848, 633);
-            this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.FrSkyBox);
             this.Controls.Add(this.FrSkycheckBox1);
@@ -2784,8 +2761,6 @@ namespace UAVXGS
             this.FrSkyBox.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -3026,8 +3001,6 @@ namespace UAVXGS
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label FrSkyErrLabel;
         private System.Windows.Forms.TextBox RxFrSkyErr;
-        private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem testsoftwareToolStripMenuItem;
     }
