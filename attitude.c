@@ -30,7 +30,7 @@ void AttitudeTest(void);
 
 real32 dT, HalfdT, dTR, dTmS;
 uint32 uSp;
-uint8 AttitudeMethod = PremerlaniDCM; //MadgwickIMU PremerlaniDCM MadgwickAHRS;
+uint8 AttitudeMethod = WolferlScheme; //Wolferl MadgwickIMU PremerlaniDCM MadgwickAHRS;
 
 void AttitudeFailsafeEstimate(void) {
 
@@ -38,7 +38,7 @@ void AttitudeFailsafeEstimate(void) {
 
     for ( i = 0; i < (uint8)3; i++ ) {
         Rate[i] = Gyro[i];
-        Angle[i] += Rate[i] * dTmS;
+        Angle[i] += Rate[i] * dT;
     }
 } // AttitudeFailsafeEstimate
 
@@ -82,9 +82,9 @@ void GetAttitude(void) {
     if ( mSClock() > mS[CompassUpdate] ) {
         mS[CompassUpdate] = mSClock() + COMPASS_UPDATE_MS;
         GetHeading();
-#ifndef USE_DCM_YAW
-        DoLegacyYawComp();
-#endif // !USE_DCM_YAW
+
+        if ( F.UseLegacyYawComp )
+            DoLegacyYawComp();
     }
 
     Now = uSClock();
@@ -105,18 +105,25 @@ void GetAttitude(void) {
     } else {
         DebugPin = true;
         switch  ( AttitudeMethod ) {
+            case WolferlScheme:
+                F.UseLegacyYawComp = true;
+                Wolferl();
+                break;
             case PremerlaniDCM:
+                F.UseLegacyYawComp = false;
                 DCMUpdate();
                 DCMNormalise();
                 DCMDriftCorrection();
                 DCMEulerAngles();
                 break;
             case MadgwickIMU:
+                F.UseLegacyYawComp = true;
                 IMUupdate(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], Acc[LR], Acc[UD]);
                 EulerAngles();
                 //   DoLegacyYawComp();
                 break;
             case MadgwickAHRS: // must have magnetometer
+                F.UseLegacyYawComp = false;
                 AHRSupdate(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], Acc[LR], Acc[UD], 1,0,0);//Mag[BF].V, Mag[LR].V, Mag[UD].V);
                 EulerAngles();
                 break;
@@ -213,6 +220,55 @@ void AttitudeTest(void) {
 } // AttitudeTest
 
 //____________________________________________________________________________________________
+// Original simple accelerometer compensation of gyros developed for UAVP by Wolfgang Mahringer
+// and adapted for UAVXArm
+
+void Wolferl(void) {
+
+#define WKp 0.1 //0.25
+
+    static real32 Grav[2], Dyn[2], Correction[2];
+    static real32 CompStep;
+
+    CompStep = WKp * dT;
+
+    // Roll
+
+    Grav[LR] = -sin(Angle[Roll]); // original used approximation for small angles
+
+#ifdef DISABLE_DYNAMIC_MASS_COMP_ROLL
+    Dyn[LR] = 0;
+#else
+    Dyn[LR] = Gyro[Roll];   // lateral acceleration due to rate - do later:).
+#endif
+
+    Correction[LR] = Acc[LR] + Grav[LR] + Dyn[LR];
+    Correction[LR] = Limit(Correction[LR], -CompStep, CompStep);
+
+    Angle[Roll] += Gyro[Roll] * dT;
+    Angle[Roll] = Limit(Angle[Roll], -QUARTERPI, QUARTERPI);
+    Angle[Roll] += Correction[LR];
+
+    // Pitch
+
+    Grav[BF] = -sin(Angle[Pitch]);
+
+#ifdef DISABLE_DYNAMIC_MASS_COMP_PITCH
+    Dyn[BF] = 0;
+#else
+    Dyn[BF] = Gyro[Pitch];
+#endif
+
+    Correction[BF] = Acc[BF] + Grav[BF] + Dyn[BF];
+    Correction[BF] = Limit(Correction[BF], -CompStep, CompStep);
+
+    Angle[Pitch] += Gyro[Pitch] * dT;
+    Angle[Pitch] = Limit(Angle[Pitch], -QUARTERPI, QUARTERPI);
+    Angle[Pitch] += Correction[BF];
+
+} // Wolferl
+
+//____________________________________________________________________________________________
 
 // The DCM formulation used here is due to W. Premerlani and P. Bizard in a paper entitled:
 // Direction Cosine Matrix IMU: Theory, Draft 17 June 2009. This paper draws upon the original
@@ -225,8 +281,6 @@ void DCMUpdate(void);
 void DCMEulerAngles(void);
 
 // requires rescaling for the much faster PID cycle in UAVXArm
-
-
 
 real32   RollPitchError[3] = {0,0,0};
 real32   OmegaV[3] = {0,0,0}; // corrected gyro data
@@ -308,19 +362,19 @@ void DCMDriftCorrection(void) {
     VScale(&ScaledOmegaI[0], &RollPitchError[0], Ki_RollPitch * AccWeight);
     VAdd(&OmegaI[0], &OmegaI[0], &ScaledOmegaI[0]);
 
-#ifdef USE_DCM_YAW
-    // Yaw - drift correction based on compass/magnetometer heading
-    HeadingCos = cos( Heading );
-    HeadingSin = sin( Heading );
-    ErrorCourse = ( U[0][0] * HeadingSin ) - ( U[1][0] * HeadingCos );
-    VScale(YawError, &U[2][0], ErrorCourse );
+    if ( !F.UseLegacyYawComp ) {
+        // Yaw - drift correction based on compass/magnetometer heading
+        HeadingCos = cos( Heading );
+        HeadingSin = sin( Heading );
+        ErrorCourse = ( U[0][0] * HeadingSin ) - ( U[1][0] * HeadingCos );
+        VScale(YawError, &U[2][0], ErrorCourse );
 
-    VScale(&ScaledOmegaP[0], &YawError[0], Kp_Yaw );
-    VAdd(&OmegaP[0], &OmegaP[0], &ScaledOmegaP[0]);
+        VScale(&ScaledOmegaP[0], &YawError[0], Kp_Yaw );
+        VAdd(&OmegaP[0], &OmegaP[0], &ScaledOmegaP[0]);
 
-    VScale(&ScaledOmegaI[0], &YawError[0], Ki_Yaw );
-    VAdd(&OmegaI[0], &OmegaI[0], &ScaledOmegaI[0]);
-#endif // USE_DCM_YAW
+        VScale(&ScaledOmegaI[0], &YawError[0], Ki_Yaw );
+        VAdd(&OmegaI[0], &OmegaI[0], &ScaledOmegaI[0]);
+    }
 } // DCMDriftCorrection
 
 void DCMUpdate(void) {
@@ -367,9 +421,8 @@ void DCMEulerAngles(void) {
     Angle[Pitch] = asin(DCM[2][0]);
     Angle[Roll] = -atan2(DCM[2][1], DCM[2][2]);
 
-#ifdef USE_DCM_YAW
-    Angle[Yaw] = atan2(DCM[1][0], DCM[0][0]);
-#endif // USE_DCM_YAW
+    if ( !F.UseLegacyYawComp )
+        Angle[Yaw] = atan2(DCM[1][0], DCM[0][0]);
 
 } // DCMEulerAngles
 

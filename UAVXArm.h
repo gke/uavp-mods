@@ -3,27 +3,46 @@
 
 #define SW_I2C                              // define for software I2C - TRAGICALLY SLOW
 
-#define MAGIC 1.0                           // rescales the sensitivity of all PID loop params
+#define MAGIC 1.0                           // rescales the PID loop paramters globally
 
-#define I2C_MAX_RATE_HZ    400000       
+#define I2C_MAX_RATE_HZ     400000
+
+#define MAX_PID_CYCLE_HZ    200              // PID cycle rate do not exceed
+#define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
 #define PWM_UPDATE_HZ       120             // reduced for turningys - I2C runns at PID loop rate always
-                                           // MUST BE LESS THAN OR EQUAL TO 450HZ
+// MUST BE LESS THAN OR EQUAL TO 450HZ
 
-// LP cutoffs for sensors - there is interaction between these and the DCM tuning and the overall PID cycle time
-#define YAW_FREQ            10.0            // Hz
-#define ROLL_PITCH_FREQ     10000.0     //100.0  // Hz
-#define ACC_FREQ            10000.0     //20.0    // Hz 
-#define COMPASS_FREQ        10.0            // Hz must be less than 10Hz
+// LP filter cutoffs for sensors
+#define YAW_FREQ            10.0                     // Hz
+#define ROLL_PITCH_FREQ     (MAX_PID_CYCLE_HZ/2)
+#define ACC_FREQ            10.0
+#define COMPASS_FREQ        10.0                    // Hz must be less than 10Hz
 
-// DCM tuning tweak these until the pitch/roll angle tracks CLOSELY but the noise is mostly but not 
-// completely tuned out.
-// Jitter in tha artificial horizon gives part of the story but better to use the UAVXFC logs
-#define Kp_RollPitch 1.0      // 5.0
-#define Ki_RollPitch 0.001    // 0.005
+// DCM Attitude Estimation
+
+// The pitch/roll angle should track CLOSELY with the noise "mostly" tuned out.
+// Jitter in the artificial horizon gives part of the story but better to use the UAVXFC logs.
+
+// Assumes normalised gravity vector
+#define TAU                 5.0                        // Sec. 1-10
+#define Kp_RollPitch        5.0 //(2.0/TAU)                  //1.0      // 5.0
+#define Ki_RollPitch        0.005//((1.0/TAU)*(1.0/TAU))      //0.001    // 0.005
+//#define Ki_RollPitch      (1.0/(TAU*TAU)) ?
 #define Kp_Yaw 1.2
 #define Ki_Yaw 0.00002
 
+/*
+                Kp      Ki          KpYaw   KiYaw
+Arducopter      0.0014  0.00002     1.0     0.00002 (200Hz)
+Arducopter      5.0     0.005       1.2     0.00002
+Ihlein          0.2     0.01        0.02    0.01    (50Hz)
+Premerlani      0.0755  0.00943                     (50Hz)
+Bascom          0.02    0.00002     1.2     0.00002
+Matrixpilot     0.04    0.008       0.016   0.0005
+Superstable     0.0014  0.00000015  1.2    0.00005 (200Hz)
+
+*/
 
 #define DISABLE_EXTRAS                       // suppress altitude hold, position hold and inertial compensation
 #define SUPPRESS_SDCARD                     // no logging to check if buffering backup is an issue
@@ -579,6 +598,8 @@ UsingLEDDriver:
 Using9DOF:
         1,
 HaveBatterySensor:
+        1,
+UseLegacyYawComp:
         1;
     };
 } Flags;
@@ -682,7 +703,7 @@ extern real32 RangefinderAltitude;
 
 // attitude.c
 
-enum AttitudeMethods { PremerlaniDCM,  MadgwickIMU,  MadgwickAHRS};
+enum AttitudeMethods { WolferlScheme, PremerlaniDCM,  MadgwickIMU,  MadgwickAHRS};
 
 extern void GetAttitude(void);
 extern void DoLegacyYawComp(void);
@@ -692,6 +713,10 @@ extern void InitAttitude(void);
 extern real32 dT, dTR;
 extern uint32 PrevDCMUpdate;
 extern uint8 AttitudeMethod;
+
+// Wolferl
+
+extern void Wolferl(void);
 
 // DCM Premerlani
 
@@ -936,6 +961,7 @@ extern real32 ROC;
 extern boolean FirstPass;
 
 extern uint32 AltuSp;
+extern uint32 ControlUpdateTimeuS;
 extern int16 DescentLimiter;
 
 extern int16 FakeDesiredPitch, FakeDesiredRoll, FakeDesiredYaw;
@@ -1683,7 +1709,7 @@ enum TelemetryStates { WaitRxSentinel, WaitRxESC,  WaitRxBody };
 enum PacketTags {UnknownPacketTag = 0, LevPacketTag, NavPacketTag, MicropilotPacketTag, WayPacketTag,
                  AirframePacketTag, NavUpdatePacketTag, BasicPacketTag, RestartPacketTag, TrimblePacketTag,
                  MessagePacketTag, EnvironmentPacketTag, BeaconPacketTag, UAVXFlightPacketTag,
-                 UAVXNavPacketTag, UAVXStatsPacketTag, UAVXControlPacketTag, UAVXParamPacketTag, UAVXMinPacketTag, 
+                 UAVXNavPacketTag, UAVXStatsPacketTag, UAVXControlPacketTag, UAVXParamPacketTag, UAVXMinPacketTag,
                  UAVXArmParamPacketTag, UAVXStickPacketTag, FrSkyPacketTag = 99
                 };
 

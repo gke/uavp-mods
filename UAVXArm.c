@@ -100,6 +100,7 @@ int main(void) {
 
                         mS[ArmedTimeout] = mSClock() + ARMED_TIMEOUT_MS;
                         mS[RxFailsafeTimeout] = mSClock() + RC_NO_CHANGE_TIMEOUT_MS;
+                        ControlUpdateTimeuS = uSClock();
                         F.ForceFailsafe = F.LostModel = false;
 
                         State = Landed;
@@ -169,6 +170,9 @@ int main(void) {
                 FailState = MonitoringRx;
             } else
                 DoPPMFailsafe();
+                
+            while ( uSClock() < ControlUpdateTimeuS ) {}; // CAUTION: uS clock wraps at about an hour
+            ControlUpdateTimeuS = uSClock() + PID_CYCLE_US; 
 
             DoControl();
 
