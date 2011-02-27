@@ -62,6 +62,7 @@ void ReadAccelerometers(void) {
             Acc[UD] = 1.0;
             break;
     } // switch
+           
 } // ReadAccelerometers
 
 void GetNeutralAccelerations(void) {
@@ -72,15 +73,20 @@ void GetNeutralAccelerations(void) {
         for ( i = 16; i; i--) {
             ReadAccelerometers();
             for ( a = 0; a <(uint8)3; a++ )
-                Temp[a] += Acc[a];
+                Temp[a] += AccADC[a];
         }
-
+        
         for ( a = 0; a <(uint8)3; a++ )
-            Temp[a] = Temp[a] * 0.0625;
+            Temp[a] *= 0.0625;
+            
+        // removes other accelerations
+        GravityR = 1.0/sqrt(Sqr(Temp[BF])+Sqr(Temp[LR])+Sqr(Temp[UD]));
+         for ( a = 0; a <(uint8)3; a++ )
+            Acc[a] *= GravityR;
 
-        NewAccNeutral[BF] = Limit((int16)(Temp[BF] * 1000.0 ), -99, 99);
-        NewAccNeutral[LR] = Limit( (int16)(Temp[LR] * 1000.0 ), -99, 99);
-        NewAccNeutral[UD] = Limit( (int16)(( Temp[UD] - 1.0 ) * 1000.0) , -99, 99);
+        NewAccNeutral[BF] = Limit((int16)(Acc[BF] * 1000.0 ), -99, 99);
+        NewAccNeutral[LR] = Limit( (int16)(Acc[LR] * 1000.0 ), -99, 99);
+        NewAccNeutral[UD] = Limit( (int16)(( Acc[UD] - 1.0 ) * 1000.0) , -99, 99);
 
     } else
         for ( a = 0; a <(uint8)3; a++ )
@@ -91,24 +97,24 @@ void GetNeutralAccelerations(void) {
 void GetAccelerations(void) {
 
     static uint8 a;
-    static real32 AccA;
+    static real32 AccA, Norm;
 
     if ( F.AccelerationsValid ) {
         ReadAccelerometers();
 
         // Neutral[ {LR, BF, UD} ] pass through UAVPSet
         // and come back as AccMiddle[LR] etc.
-
-        Acc[BF] -= K[MiddleBF];
-        Acc[LR] -= K[MiddleLR];
-        Acc[UD] -= K[MiddleUD];
-
+        
+        Acc[BF] = AccADC[BF] * GravityR - K[MiddleBF];
+        Acc[LR] = AccADC[LR] * GravityR - K[MiddleLR];
+        Acc[UD] = AccADC[UD] * GravityR - K[MiddleUD];
+        
         AccA = dT / ( 1.0 / ( TWOPI * ACC_FREQ ) + dT );
         for ( a = 0; a < (uint8)3; a++ ) {
             Acc[a] = LPFilter( Acc[a], Accp[a], AccA, dT );
             Accp[a] = Acc[a];
         }
-
+             
     } else {
         Acc[LR] = Acc[BF] = 0;
         Acc[UD] = 1.0;
@@ -123,7 +129,7 @@ void AccelerometerTest(void) {
     InitAccelerometers();
 
     if ( F.AccelerationsValid ) {
-        ReadAccelerometers();
+        GetAccelerations();
         
         TxString("Sensor & Max Delta\r\n");
 
@@ -159,17 +165,12 @@ void InitAccelerometers(void) {
     Acc[2] = Accp[2] = 1.0;
 
     if ( ADXL345AccActive() ) {
-        GravityR = GRAVITY_ADXL345_R;
         InitADXL345Acc();
         AccelerometerType = ADXL345Acc;
 
     } else
         if ( LISLAccActive() )
-        {
-            GravityR = GRAVITY_LISL_R;
             AccelerometerType = LISLAcc;
-            
-        }
         else
             // check for other accs in preferred order
         {
@@ -234,11 +235,10 @@ void ReadADXL345Acc(void) {
         AccADC[LR] = -Y.i16;
         AccADC[UD] = -Z.i16; 
     }
-
+    
     for ( a = 0; a < (int8)3; a++ ) {
         d = fabs(AccADC[a]-AccADCp[a]);
         if ( d>AccNoise[a] ) AccNoise[a] = d;
-        Acc[a] = AccADC[a] * GRAVITY_ADXL345_R;
         }
 
 } // ReadADXL345Acc
@@ -292,10 +292,9 @@ void WriteLISL(uint8, uint8);
 void ReadLISLAcc(void);
 boolean LISLAccActive(void);
 
-const float GRAVITY_LISL = 1024.0;
-
 void ReadLISLAcc(void) {
     static uint8 a;
+    static real32 d;
     static char b[6];
     static i16u X, Y, Z;
 
@@ -313,14 +312,14 @@ void ReadLISLAcc(void) {
         Z.b1 = b[5];
         Z.b0 = b[4];
 
-        Acc[BF] = Z.i16;
-        Acc[LR] = -X.i16;
-        Acc[UD] = Y.i16;
-
-        // LP Filter here?
-
-        for ( a = 0; a < (uint8)3; a++ )
-            Acc[a] /= GRAVITY_LISL;
+        AccADC[BF] = Z.i16;
+        AccADC[LR] = -X.i16;
+        AccADC[UD] = Y.i16;
+        
+        for ( a = 0; a < (int8)3; a++ ) {
+        d = fabs(AccADC[a]-AccADCp[a]);
+        if ( d>AccNoise[a] ) AccNoise[a] = d;
+        }
 
     } else {
         for ( a = 0; a < (uint8)3; a++ )

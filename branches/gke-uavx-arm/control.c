@@ -55,6 +55,7 @@ real32 ROC;
 
 uint32 AltuSp;
 int16 DescentLimiter;
+uint32 ControlUpdateTimeuS;
 
 real32 GRollKp, GRollKi, GRollKd, GPitchKp, GPitchKi, GPitchKd;
 
@@ -438,5 +439,6 @@ void InitControl(void) {
         AngleE[i] = AngleIntE[i] = Angle[i] = Anglep[i] = Rate[i] = Trim[i] = Vel[i] = Comp[i] = 0.0;
 
     Comp[Alt] = AltSum = Ylp = ControlRollP = ControlPitchP = AltitudeP = 0.0;
+    ControlUpdateTimeuS = 0;
 
 } // InitControl
