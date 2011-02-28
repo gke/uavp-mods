@@ -80,7 +80,6 @@ void OutSignals(void) {
 #endif //  MULTICOPTER
 
 #else
-
     PWM[FrontC] = Limit(PWM[FrontC], ESCMin, ESCMax);
     PWM[LeftC] = Limit(PWM[LeftC], ESCMin, ESCMax);
     PWM[RightC] = Limit(PWM[RightC], ESCMin, ESCMax);

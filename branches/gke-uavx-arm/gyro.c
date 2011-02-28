@@ -59,8 +59,10 @@ void GetGyroRates(void) {
     GyroA = dT / ( 1.0 / ( TWOPI * YAW_FREQ ) + dT );
     Gyro[Yaw] = LPFilter( Gyro[Yaw] - GyroNeutral[Yaw], Gyrop[Yaw], GyroA, dT );
     for ( g = 0; g < (uint8)3; g++ )
+    {
         Gyrop[g] = Gyro[g];
-
+        Rate[g] = Gyro[g]; // DCM etc can use computed rates - later!
+    }
 } // GetGyroRates
 
 void ReadGyros(void) {

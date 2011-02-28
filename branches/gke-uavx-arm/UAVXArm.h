@@ -1618,7 +1618,6 @@ extern void InitRC(void);
 extern void MapRC(void);
 extern void CheckSticksHaveChanged(void);
 extern void UpdateControls(void);
-extern void CaptureTrims(void);
 extern void CheckThrottleMoved(void);
 extern void ReceiverTest(void);
 
@@ -1631,7 +1630,6 @@ extern int16 PPMQSum[];
 extern int16x8x4Q PPMQ;
 extern boolean RCPositiveEdge;
 extern int16 RC[], RCp[];
-extern int16 Trim[3];
 extern int16 ThrLow, ThrNeutral, ThrHigh;
 
 //__________________________________________________________________________________________

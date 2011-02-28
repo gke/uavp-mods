@@ -22,7 +22,6 @@
 
 // Interrupt Routines
 
-
 const int16 MIN_PPM_SYNC_PAUSE = 2400;      // uS
 
 // no less than 1500
