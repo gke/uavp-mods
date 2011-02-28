@@ -87,7 +87,6 @@ int main(void) {
                         }
 
                         InitControl();
-                        CaptureTrims();
                         InitGPS();
                         InitNavigation();
 

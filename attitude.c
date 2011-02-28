@@ -48,7 +48,7 @@ void DoLegacyYawComp(void) {
 
     if ( F.CompassValid ) {
         // + CCW
-        Temp = DesiredYaw - Trim[Yaw];
+        Temp = DesiredYaw;
         if ( fabs(Temp) > COMPASS_MIDDLE ) { // acquire new heading
             DesiredHeading = Heading;
             HE = 0.0;
@@ -60,7 +60,7 @@ void DoLegacyYawComp(void) {
         }
     }
 
-    Angle[Yaw] += Rate[Yaw];
+    Angle[Yaw] += Rate[Yaw] * COMPASS_UPDATE_S;
     Angle[Yaw] = Limit(Angle[Yaw], -K[YawIntLimit], K[YawIntLimit]);
 
     Angle[Yaw] = DecayX(Angle[Yaw], 0.0002);                 // GKE added to kill gyro drift
@@ -239,13 +239,13 @@ void Wolferl(void) {
 #ifdef DISABLE_DYNAMIC_MASS_COMP_ROLL
     Dyn[LR] = 0;
 #else
-    Dyn[LR] = Gyro[Roll];   // lateral acceleration due to rate - do later:).
+    Dyn[LR] = Rate[Roll];   // lateral acceleration due to rate - do later:).
 #endif
 
     Correction[LR] = Acc[LR] + Grav[LR] + Dyn[LR];
     Correction[LR] = Limit(Correction[LR], -CompStep, CompStep);
 
-    Angle[Roll] += Gyro[Roll] * dT;
+    Angle[Roll] += Rate[Roll] * dT;
     Angle[Roll] = Limit(Angle[Roll], -QUARTERPI, QUARTERPI);
     Angle[Roll] += Correction[LR];
 
@@ -256,13 +256,13 @@ void Wolferl(void) {
 #ifdef DISABLE_DYNAMIC_MASS_COMP_PITCH
     Dyn[BF] = 0;
 #else
-    Dyn[BF] = Gyro[Pitch];
+    Dyn[BF] = Rate[Pitch];
 #endif
 
     Correction[BF] = Acc[BF] + Grav[BF] + Dyn[BF];
     Correction[BF] = Limit(Correction[BF], -CompStep, CompStep);
 
-    Angle[Pitch] += Gyro[Pitch] * dT;
+    Angle[Pitch] += Rate[Pitch] * dT;
     Angle[Pitch] = Limit(Angle[Pitch], -QUARTERPI, QUARTERPI);
     Angle[Pitch] += Correction[BF];
 
@@ -627,15 +627,6 @@ void  EulerAngles(void) {
     Angle[Roll] = atan2(2.0*q2*q3 - 2.0*q0*q1 , 2.0*Sqr(q0) + 2.0*Sqr(q3) - 1.0);
     Angle[Pitch] = asin(2.0*q1*q2 - 2.0*q0*q2);
     Angle[Yaw] = -atan2(2.0*q1*q2 - 2.0*q0*q3 ,  2.0*Sqr(q0) + 2.0*Sqr(q1) - 1.0);
-
-    for ( g = 0; g < (uint8)3; g++ ) {
-#ifdef USE_GYRO_RATE
-        Rate[g] = Gyro[g];
-#else
-        Rate[g] = ( Angle[g] - Anglep[g] ) * dTR;
-        Anglep[g] = Angle[g];
-#endif // USE_GYRO_RATE
-    }
 
 } // EulerAngles
 

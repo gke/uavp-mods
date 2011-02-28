@@ -347,11 +347,10 @@ void DoControl(void) {
 
     // Yaw
 
-    Rate[Yaw] -= NavCorr[Yaw];
-    if ( abs(DesiredYaw) > 5 )
-        Rate[Yaw] -= DesiredYaw;
-
     Yl  = Rate[Yaw] * K[YawKp] + Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * dTR;
+    
+    Yl +=  (NavCorr[Yaw] + DesiredYaw);
+    
     Ratep[Yaw] = Rate[Yaw];
 
 #ifdef TRICOPTER
@@ -436,7 +435,7 @@ void InitControl(void) {
     AltuSp = DescentLimiter = 0;
 
     for ( i = 0; i < (uint8)3; i++ )
-        AngleE[i] = AngleIntE[i] = Angle[i] = Anglep[i] = Rate[i] = Trim[i] = Vel[i] = Comp[i] = 0.0;
+        AngleE[i] = AngleIntE[i] = Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
 
     Comp[Alt] = AltSum = Ylp = ControlRollP = ControlPitchP = AltitudeP = 0.0;
     ControlUpdateTimeuS = 0;
