@@ -20,8 +20,6 @@
 
 #include "UAVXArm.h"
 
-//#define USE_GYRO_RATE
-
 // Reference frame is positive X forward, Y left, Z down, Roll right, Pitch up, Yaw CW.
 
 void AttitudeFailsafeEstimate(void);
@@ -44,26 +42,23 @@ void AttitudeFailsafeEstimate(void) {
 
 void DoLegacyYawComp(void) {
 
-    static real32 Temp, HE;
+#define COMPASS_MIDDLE        10        // yaw stick neutral dead zone
+#define COMPASS_YAW_COMP      (0.1 * COMPASS_UPDATE_S) // Radians/Sec 
 
-    if ( F.CompassValid ) {
-        // + CCW
-        Temp = DesiredYaw;
-        if ( fabs(Temp) > COMPASS_MIDDLE ) { // acquire new heading
-            DesiredHeading = Heading;
-            HE = 0.0;
-        } else {
+    static real32 HE;
+
+    if ( F.CompassValid )  // CW+
+        if ( abs(DesiredYaw) > COMPASS_MIDDLE )
+            DesiredHeading = Heading; // acquire new heading
+        else {
             HE = MakePi(DesiredHeading - Heading);
             HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
             HE = HE * K[CompassKp];
-            Rate[Yaw] -= Limit(HE, -COMPASS_MAXDEV, COMPASS_MAXDEV);
+            Rate[Yaw] -= Limit(HE, -COMPASS_YAW_COMP, COMPASS_YAW_COMP);
         }
-    }
 
     Angle[Yaw] += Rate[Yaw] * COMPASS_UPDATE_S;
     Angle[Yaw] = Limit(Angle[Yaw], -K[YawIntLimit], K[YawIntLimit]);
-
-    Angle[Yaw] = DecayX(Angle[Yaw], 0.0002);                 // GKE added to kill gyro drift
 
 } // DoLegacyYawComp
 

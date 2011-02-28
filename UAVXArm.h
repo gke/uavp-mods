@@ -1,23 +1,23 @@
 
 // Commissioning defines
 
-#define SW_I2C                              // define for software I2C - TRAGICALLY SLOW
+#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW
 
-#define MAGIC 1.0                           // rescales the PID loop paramters globally
+#define MAGIC               1.0                       // rescales the PID loop paramters globally
 
 #define I2C_MAX_RATE_HZ     400000
 
-#define MAX_PID_CYCLE_HZ    200              // PID cycle rate do not exceed
+#define MAX_PID_CYCLE_HZ    200                       // PID cycle rate do not exceed
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
-#define PWM_UPDATE_HZ       120             // reduced for turningys - I2C runns at PID loop rate always
+#define PWM_UPDATE_HZ       120                       // reduced for turningys - I2C runns at PID loop rate always
 // MUST BE LESS THAN OR EQUAL TO 450HZ
 
 // LP filter cutoffs for sensors
-#define YAW_FREQ            10.0                     // Hz
+#define YAW_FREQ            10.0                      // Hz
 #define ROLL_PITCH_FREQ     (MAX_PID_CYCLE_HZ/2)
 #define ACC_FREQ            10.0
-#define COMPASS_FREQ        10.0                    // Hz must be less than 10Hz
+#define COMPASS_FREQ        10.0                      // Hz must be less than 10Hz
 
 // DCM Attitude Estimation
 
@@ -40,7 +40,7 @@ Ihlein          0.2     0.01        0.02    0.01    (50Hz)
 Premerlani      0.0755  0.00943                     (50Hz)
 Bascom          0.02    0.00002     1.2     0.00002
 Matrixpilot     0.04    0.008       0.016   0.0005
-Superstable     0.0014  0.00000015  1.2    0.00005 (200Hz)
+Superstable     0.0014  0.00000015  1.2     0.00005 (200Hz)
 
 */
 
@@ -875,9 +875,6 @@ enum CompassTypes { HMC5843, HMC6352, NoCompass };
 
 #define COMPASS_UPDATE_MS               50
 #define COMPASS_UPDATE_S                (real32)(COMPASS_UPDATE_MS * 0.001)
-
-#define COMPASS_MAXDEV                30        // maximum yaw compensation of compass heading 
-#define COMPASS_MIDDLE                10        // yaw stick neutral dead zone
 
 extern void ReadCompass(void);
 extern void GetHeading(void);

@@ -41,7 +41,7 @@ uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 
 #define I2CDelay5uS wait_us(5)
 #define I2CDelay2uS // wait_us(2)
-#define HighLowDelay // wait_us(1)
+#define HighLowDelay  wait_us(1)
 #define FloatDelay // ???
 
 #define I2CSDALow {I2C0SDA.write(0);HighLowDelay;I2C0SDA.output();}
@@ -59,7 +59,7 @@ boolean MyI2C::waitclock(void) {
     I2CSCLFloat;        // set SCL to input, output a high
     s = 0;
     while ( !I2C0SCL.read() )
-        if ( ++s > 60000 ) {
+        if ( ++s > 16000 ) { // ~1mS
             Stats[I2CFailS]++;
             return (false);
         }
