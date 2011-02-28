@@ -82,8 +82,8 @@ void DoMulticopterMix(real32 CurrThrottle) {
 #else
 #ifdef Y6COPTER
     Temp = Pl * 0.5;
-    PWM[FrontTC] -= Pl;             // front motor
-    PWM[LeftTC] += (Temp - Rl);     // right rear
+    PWM[FrontTC] -= Pl;          // front motor
+    PWM[LeftTC] += (Temp - Rl);  // right rear
     PWM[RightTC] += (Temp + Rl); // left rear
 
     PWM[FrontBC] = PWM[FrontTC];
