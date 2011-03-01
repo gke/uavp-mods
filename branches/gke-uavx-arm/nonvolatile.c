@@ -45,15 +45,8 @@ const int PX_LENGTH = 2048;
 int8 PX[PX_LENGTH], PXNew[PX_LENGTH];
 
 void CheckSDCardValid(void) {
-    /*
-        FILE *testfile;
 
-        testfile = fopen("/SDCard/OK", "w");
-        F.SDCardValid = testfile != NULL;
-        if ( F.SDCardValid ) fclose(testfile);
-    */
     F.SDCardValid =  SDCard.initialise_card() != 0;
-
 
 } // CheckSDCardValid
 
@@ -102,7 +95,6 @@ boolean ReadPXImagefile(void) {
     else
         pxfile = fopen("/local/Params.txt", "r");
 
-
     OK = false;
     if ( pxfile != NULL ) {
         CheckSum = 0;
@@ -134,6 +126,9 @@ void CreateLogfile(void) {
     static uint8 i;
 
     UpdateRTC();
+
+#ifndef SUPPRESS_SDCARD
+
     if ( F.SDCardValid )
         strftime(RTCLogfile, 32, "/SDCard/L%H-%M.log", RTCTime );
     else
@@ -151,6 +146,8 @@ void CreateLogfile(void) {
     }
     LogChars = 0;
 
+#endif // !SUPPRESS_SDCARD
+
 } // CreateLogfile
 
 void CloseLogfile(void) {
@@ -160,8 +157,11 @@ void CloseLogfile(void) {
 void TxLogChar(uint8 ch) {
 
 #ifndef SUPPRESS_SDCARD
-    if ( LogfileIsOpen )
-        fprintf(logfile, "%c",  ch);
+    if ( LogfileIsOpen ) {
+        LogfileIsOpen =  fprintf(logfile, "%c",  ch) > 0;
+        if ( !LogfileIsOpen )
+            CloseLogfile();
+    }
 #endif // !SUPPRESS_SDCARD
 } // TxLogChar
 

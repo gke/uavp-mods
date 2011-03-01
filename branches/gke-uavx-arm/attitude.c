@@ -42,22 +42,34 @@ void AttitudeFailsafeEstimate(void) {
 
 void DoLegacyYawComp(void) {
 
-#define COMPASS_MIDDLE        10        // yaw stick neutral dead zone
-#define COMPASS_YAW_COMP      (0.1 * COMPASS_UPDATE_S) // Radians/Sec 
+#define COMPASS_MIDDLE          10        // yaw stick neutral dead zone
+#define DRIFT_COMP_YAW_RATE     QUARTERPI  // Radians/Sec
+#define MAX_YAW_RATE            (HALFPI / RC_NEUTRAL);  // Radians/Sec HalfPI 90deg/sec
 
     static real32 HE;
+    static int16 Temp, DesiredYawRate;
 
+    // Yaw Angle here is meant to be interpreted as the Heading Error
+
+    Temp = DesiredYaw - Trim[Yaw];
     if ( F.CompassValid )  // CW+
-        if ( abs(DesiredYaw) > COMPASS_MIDDLE )
+        if ( abs(Temp) > COMPASS_MIDDLE ) {
             DesiredHeading = Heading; // acquire new heading
-        else {
+            HE = 0.0;
+        } else {
             HE = MakePi(DesiredHeading - Heading);
             HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
             HE = HE * K[CompassKp];
-            Rate[Yaw] -= Limit(HE, -COMPASS_YAW_COMP, COMPASS_YAW_COMP);
+            HE = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
         }
+    else {
+        DesiredHeading = Heading;
+        HE = 0.0;
+    }
 
-    Angle[Yaw] += Rate[Yaw] * COMPASS_UPDATE_S;
+    HE += ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;
+
+    Angle[Yaw] += ( Rate[Yaw] + HE  ) * COMPASS_UPDATE_S;
     Angle[Yaw] = Limit(Angle[Yaw], -K[YawIntLimit], K[YawIntLimit]);
 
 } // DoLegacyYawComp

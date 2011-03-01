@@ -1,9 +1,9 @@
 
 // Commissioning defines
 
-#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW
+#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW - 100KHz
 
-#define MAGIC               1.0                       // rescales the PID loop paramters globally
+#define MAGIC               1.0                       // rescales the PID loop parameters globally
 
 #define I2C_MAX_RATE_HZ     400000
 
@@ -11,11 +11,11 @@
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
 #define PWM_UPDATE_HZ       120                       // reduced for turningys - I2C runns at PID loop rate always
-// MUST BE LESS THAN OR EQUAL TO 450HZ
+                                                      // MUST BE LESS THAN OR EQUAL TO 450HZ
 
 // LP filter cutoffs for sensors
 #define YAW_FREQ            10.0                      // Hz
-#define ROLL_PITCH_FREQ     (MAX_PID_CYCLE_HZ/2)
+#define ROLL_PITCH_FREQ     (MAX_PID_CYCLE_HZ/2)      // Shannon
 #define ACC_FREQ            10.0
 #define COMPASS_FREQ        10.0                      // Hz must be less than 10Hz
 
@@ -25,10 +25,10 @@
 // Jitter in the artificial horizon gives part of the story but better to use the UAVXFC logs.
 
 // Assumes normalised gravity vector
-#define TAU                 5.0                        // Sec. 1-10
-#define Kp_RollPitch        5.0 //(2.0/TAU)                  //1.0      // 5.0
-#define Ki_RollPitch        0.005//((1.0/TAU)*(1.0/TAU))      //0.001    // 0.005
-//#define Ki_RollPitch      (1.0/(TAU*TAU)) ?
+#define TAU_S                 5.0                        //  1-10
+#define Kp_RollPitch        5.0 //(2.0/TAU_S)                  //1.0      // 5.0
+#define Ki_RollPitch        0.005//((1.0/TAU_S)*(1.0/TAU_S))      //0.001    // 0.005
+//#define Ki_RollPitch      (1.0/(TAU_S*TAU_S)) ?
 #define Kp_Yaw 1.2
 #define Ki_Yaw 0.00002
 
@@ -45,7 +45,7 @@ Superstable     0.0014  0.00000015  1.2     0.00005 (200Hz)
 */
 
 #define DISABLE_EXTRAS                       // suppress altitude hold, position hold and inertial compensation
-#define SUPPRESS_SDCARD                     // no logging to check if buffering backup is an issue
+#define SUPPRESS_SDCARD                     //DO NOT RE-ENABLE - MOTOR INTERMITTENTS WILL OCCUR
 
 //BMP occasional returns bad results - changes outside this rate are deemed sensor/buss errors
 #define BARO_SANITY_CHECK_MPS    10.0       // dm/S 20,40,60,80 or 100
@@ -313,15 +313,6 @@ extern Timer timer;
 #define THROTTLE_SLEW_LIMIT             0       // limits the rate at which the throttle can change (=0 no slew limit, 5 OK)
 #define THROTTLE_MIDDLE                 10      // throttle stick dead zone for baro 
 #define THROTTLE_MIN_ALT_HOLD           75      // min throttle stick for altitude lock
-
-// RC
-
-#define RC_INIT_FRAMES                  32      // number of initial RC frames to allow filters to settle
-
-#define RC_MIN_WIDTH_US                 900
-#define RC_MAX_WIDTH_US                 2100
-
-#define RC_NO_CHANGE_TIMEOUT_MS         20000L        // mS.
 
 typedef union {
     int16 i16;
@@ -950,6 +941,7 @@ extern int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPi
 extern real32 ControlRoll, ControlPitch, ControlRollP, ControlPitchP;
 extern real32 CameraRollAngle, CameraPitchAngle;
 extern int16 CurrMaxRollPitch;
+extern int16 Trim[3];
 
 extern int16 AttitudeHoldResetCount;
 extern real32 AltDiffSum, AltD, AltDSum;
@@ -1610,11 +1602,19 @@ extern uint8 UAVXAirframe;
 
 // rc.c
 
+#define RC_INIT_FRAMES                  32      // number of initial RC frames to allow filters to settle
+
+#define RC_MIN_WIDTH_US                 1000    // temporarily to prevent wraparound 900
+#define RC_MAX_WIDTH_US                 2100
+
+#define RC_NO_CHANGE_TIMEOUT_MS         20000L    
+
 extern void DoRxPolarity(void);
 extern void InitRC(void);
 extern void MapRC(void);
 extern void CheckSticksHaveChanged(void);
 extern void UpdateControls(void);
+extern void CaptureTrims(void);
 extern void CheckThrottleMoved(void);
 extern void ReceiverTest(void);
 

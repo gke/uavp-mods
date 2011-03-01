@@ -47,6 +47,7 @@ int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim
 real32 ControlRoll, ControlPitch, ControlRollP, ControlPitchP;
 real32 CameraRollAngle, CameraPitchAngle;
 int16 CurrMaxRollPitch;
+int16 Trim[3];
 
 int16 AttitudeHoldResetCount;
 real32 AltDiffSum, AltD, AltDSum;
@@ -307,7 +308,7 @@ void DoControl(void) {
         AngleIntE[Roll] += AngleE[Roll] * dT;
         AngleIntE[Roll] = Limit(AngleIntE[Roll], -K[RollIntLimit], K[RollIntLimit]);
         Rl  = -(AngleE[Roll] * GRollKp + AngleIntE[Roll] * GRollKi + Rate[Roll] * GRollKd * dTR);
-        Rl -=  NavCorr[Roll] - Comp[LR];
+        Rl -= ( NavCorr[Roll] + Comp[LR] );
 
         // Pitch
 
@@ -315,15 +316,14 @@ void DoControl(void) {
         AngleIntE[Pitch] += AngleE[Pitch] * dT;
         AngleIntE[Pitch] = Limit(AngleIntE[Pitch], -K[PitchIntLimit], K[PitchIntLimit]);
         Pl  = -(AngleE[Pitch] * GPitchKp + AngleIntE[Pitch] * GPitchKi + Rate[Pitch] * GPitchKd * dTR);
-        Pl -= NavCorr[Pitch] - Comp[BF];
+        Pl -= ( NavCorr[Pitch] + Comp[BF] );
 
     } else {
         // Roll
 
         AngleE[Roll] = Limit(Angle[Roll],  -K[RollIntLimit], K[RollIntLimit]);
         Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi + (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
-        Rl -=  NavCorr[Roll] - Comp[LR];
-          
+        Rl -=  ( NavCorr[Roll] + Comp[LR] );          
         Rl *= GS;
 
         Rl -= ControlRoll;
@@ -335,8 +335,7 @@ void DoControl(void) {
 
         AngleE[Pitch] = Limit(Angle[Pitch],  -K[PitchIntLimit], K[PitchIntLimit]);
         Pl  = Rate[Pitch] * GPitchKp + AngleE[Pitch] * GPitchKi + (Rate[Pitch]-Ratep[Pitch]) * GPitchKd * dTR;
-        Pl -= NavCorr[Pitch] - Comp[BF];
-        
+        Pl -= ( NavCorr[Pitch] + Comp[BF] );   
         Pl *= GS;
 
         Pl -= ControlPitch;
@@ -346,19 +345,19 @@ void DoControl(void) {
     }
 
     // Yaw
+    
+
 
     Yl  = Rate[Yaw] * K[YawKp] + Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * dTR;
-    
-    Yl +=  (-NavCorr[Yaw] + DesiredYaw);
-    
-    Ratep[Yaw] = Rate[Yaw];
 
+    Ratep[Yaw] = Rate[Yaw];
+    
 #ifdef TRICOPTER
     Yl = SlewLimit(Ylp, Yl, 2.0);
     Ylp = Yl;
     Yl = Limit(Yl, -K[YawLimit] * 4.0, K[YawLimit] * 4.0);
 #else
-    Yl = Limit(Yl, -K[YawLimit], K[YawLimit]);
+    Yl = Limit(Yl, -K[YawLimit], K[YawLimit]); // currently 25 default
 #endif // TRICOPTER
 
 #endif // SIMULATE        

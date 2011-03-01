@@ -97,7 +97,7 @@ void GetNeutralAccelerations(void) {
 void GetAccelerations(void) {
 
     static uint8 a;
-    static real32 AccA, Norm;
+    static real32 AccA;
 
     if ( F.AccelerationsValid ) {
         ReadAccelerometers();

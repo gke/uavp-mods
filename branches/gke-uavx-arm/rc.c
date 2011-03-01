@@ -25,6 +25,7 @@ void InitRC(void);
 void MapRC(void);
 void CheckSticksHaveChanged(void);
 void UpdateControls(void);
+void CaptureTrims(void);
 void CheckThrottleMoved(void);
 void ReceiverTest(void);
 
@@ -131,6 +132,7 @@ void InitRC(void) {
     PPMQ.Head = 0;
 
     DesiredRoll = DesiredPitch = DesiredYaw = DesiredThrottle = StickThrottle = 0;
+    Trim[Roll] = Trim[Pitch] = Trim[Yaw] = 0;
 
     PPM_Index = PrevEdge = RCGlitches = 0;
 } // InitRC
@@ -284,10 +286,8 @@ void UpdateControls(void) {
 #endif // ATTITUDE_NO_LIMITS
     DesiredYaw = RC[YawRC] - RC_NEUTRAL;
 
-    HoldRoll = DesiredRoll;
-    HoldRoll = abs(HoldRoll);
-    HoldPitch = DesiredPitch;
-    HoldPitch = abs(HoldPitch);
+	HoldRoll = abs(DesiredRoll - Trim[Roll]);
+	HoldPitch = abs(DesiredPitch - Trim[Pitch]);
     CurrMaxRollPitch = Max(HoldRoll, HoldPitch);
 
     if ( CurrMaxRollPitch > ATTITUDE_HOLD_LIMIT )
@@ -312,6 +312,18 @@ void UpdateControls(void) {
     F.NewCommands = true;
 
 } // UpdateControls
+
+void CaptureTrims(void)
+{ 	// only used in detecting movement from neutral in hold GPS position
+	// Trims are invalidated if Nav sensitivity is changed - Answer do not use trims ?
+	#ifndef TESTING
+	Trim[Roll] = Limit(DesiredRoll, -NAV_MAX_TRIM, NAV_MAX_TRIM);
+	Trim[Yaw] = Limit(DesiredPitch, -NAV_MAX_TRIM, NAV_MAX_TRIM);
+	Trim[Yaw] = Limit(DesiredYaw, -NAV_MAX_TRIM, NAV_MAX_TRIM);
+	#endif // TESTING
+
+	HoldYaw = 0;
+} // CaptureTrims
 
 void CheckThrottleMoved(void) {
     if ( mSClock() < mS[ThrottleUpdate] )
