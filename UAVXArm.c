@@ -87,6 +87,9 @@ int main(void) {
                         }
 
                         InitControl();
+                        DesiredHeading = Heading;
+                        Angle[Yaw] = 0.0;
+                        CaptureTrims();
                         InitGPS();
                         InitNavigation();
 
@@ -106,6 +109,8 @@ int main(void) {
                         break;
                     case Landed:
                         DesiredThrottle = 0;
+                        DesiredHeading = Heading;
+                        Angle[Yaw] = 0.0;
                         if ( mSClock() > mS[ArmedTimeout] )
                             DoShutdown();
                         else
@@ -129,8 +134,11 @@ int main(void) {
                             }
                         break;
                     case Landing:
+                        DesiredHeading = Heading;
+                        Angle[Yaw] = 0.0;
                         if ( StickThrottle > IdleThrottle ) {
                             DesiredThrottle = 0;
+                            DesiredHeading = Heading = Angle[Yaw] = 0.0;
                             State = InFlight;
                         } else
                             if ( mSClock() < mS[ThrottleIdleTimeout] )

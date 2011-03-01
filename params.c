@@ -64,17 +64,17 @@ void Legacy(void) {
     // Rate Control
     K[RollKp] *= 2.6 * MAGIC;
     K[RollKi] *= 20.7 * MAGIC;
-    K[RollKd]  = -K[RollKd] * 0.021 * MAGIC;
+    K[RollKd]  = K[RollKd] * 0.021 * MAGIC;
     K[RollIntLimit] *= DEGRAD;
 
     K[PitchKp] *= 2.6 * MAGIC;
     K[PitchKi] *= 20.7 * MAGIC;
-    K[PitchKd]  = -K[PitchKd] * 0.021 * MAGIC;
+    K[PitchKd]  = K[PitchKd] * 0.021 * MAGIC;
     K[PitchIntLimit] *= DEGRAD;
 
     K[YawKp] *= 2.6 * MAGIC;
     K[YawKi] *= 41.4 * MAGIC;
-    K[YawKd]  = -K[YawKd] * 0.0004 * MAGIC;
+    K[YawKd]  = K[YawKd] * 0.0004 * MAGIC;
 
     // Angle Control
 

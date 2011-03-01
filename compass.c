@@ -203,7 +203,6 @@ void ReadHMC5843(void) {
     MagHeading = MakePi(atan2( -my, mx ));
     DebugPin = false;
     F.CompassValid = true;
-    return;
 
 } // ReadHMC5843
 
