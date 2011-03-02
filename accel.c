@@ -35,13 +35,13 @@ real32 GravityR;
 void ShowAccType(void) {
     switch ( AccelerometerType ) {
         case LISLAcc:
-            TxString("LIS3L");
+            TxString(" LIS3L");
             break;
         case ADXL345Acc:
-            TxString("ADXL345");
+            TxString(" ADXL345");
             break;
         case AccUnknown:
-            TxString("unknown");
+            TxString(" unknown");
             break;
         default:
             ;
@@ -62,31 +62,33 @@ void ReadAccelerometers(void) {
             Acc[UD] = 1.0;
             break;
     } // switch
-           
+
 } // ReadAccelerometers
 
 void GetNeutralAccelerations(void) {
-    static uint8 i, a;
+    static int16 i;
+    static uint8 a;
     static real32 Temp[3] = {0.0, 0.0, 0.0};
+    const int16 Samples = 100;
 
     if ( F.AccelerationsValid ) {
-        for ( i = 16; i; i--) {
+        for ( i = Samples; i; i--) {
             ReadAccelerometers();
             for ( a = 0; a <(uint8)3; a++ )
                 Temp[a] += AccADC[a];
         }
         
         for ( a = 0; a <(uint8)3; a++ )
-            Temp[a] *= 0.0625;
-            
+            Temp[a] /= Samples;
+                 
         // removes other accelerations
         GravityR = 1.0/sqrt(Sqr(Temp[BF])+Sqr(Temp[LR])+Sqr(Temp[UD]));
-         for ( a = 0; a <(uint8)3; a++ )
-            Acc[a] *= GravityR;
+        for ( a = 0; a <(uint8)3; a++ )
+            Acc[a] = Temp[a] * GravityR;
 
         NewAccNeutral[BF] = Limit((int16)(Acc[BF] * 1000.0 ), -99, 99);
         NewAccNeutral[LR] = Limit( (int16)(Acc[LR] * 1000.0 ), -99, 99);
-        NewAccNeutral[UD] = Limit( (int16)(( Acc[UD] - 1.0 ) * 1000.0) , -99, 99);
+        NewAccNeutral[UD] = Limit( (int16)(( Acc[UD] + 1.0 ) * 1000.0) , -99, 99);
 
     } else
         for ( a = 0; a <(uint8)3; a++ )
@@ -104,17 +106,17 @@ void GetAccelerations(void) {
 
         // Neutral[ {LR, BF, UD} ] pass through UAVPSet
         // and come back as AccMiddle[LR] etc.
-        
+
         Acc[BF] = AccADC[BF] * GravityR - K[MiddleBF];
         Acc[LR] = AccADC[LR] * GravityR - K[MiddleLR];
         Acc[UD] = AccADC[UD] * GravityR - K[MiddleUD];
-        
+
         AccA = dT / ( 1.0 / ( TWOPI * ACC_FREQ ) + dT );
         for ( a = 0; a < (uint8)3; a++ ) {
             Acc[a] = LPFilter( Acc[a], Accp[a], AccA, dT );
             Accp[a] = Acc[a];
         }
-             
+
     } else {
         Acc[LR] = Acc[BF] = 0;
         Acc[UD] = 1.0;
@@ -130,23 +132,26 @@ void AccelerometerTest(void) {
 
     if ( F.AccelerationsValid ) {
         GetAccelerations();
-        
+
         TxString("Sensor & Max Delta\r\n");
 
         TxString("\tL->R: \t");
-        TxVal32( AccADC[LR], 0, HT);TxVal32( AccNoise[LR], 0, 0);
+        TxVal32( AccADC[LR], 0, HT);
+        TxVal32( AccNoise[LR], 0, 0);
         if ( fabs(Acc[LR]) > 0.2 )
             TxString(" fault?");
         TxNextLine();
 
         TxString("\tB->F: \t");
-        TxVal32( AccADC[BF], 0, HT);TxVal32( AccNoise[BF], 0, 0);
+        TxVal32( AccADC[BF], 0, HT);
+        TxVal32( AccNoise[BF], 0, 0);
         if ( fabs(Acc[BF]) > 0.2 )
             TxString(" fault?");
         TxNextLine();
 
         TxString("\tU->D:    \t");
-        TxVal32( AccADC[UD], 0, HT);TxVal32( AccNoise[UD], 0, 0);
+        TxVal32( AccADC[UD], 0, HT);
+        TxVal32( AccNoise[UD], 0, 0);
         if ( fabs(Acc[UD]) > 1.2 )
             TxString(" fault?");
         TxNextLine();
@@ -163,21 +168,21 @@ void InitAccelerometers(void) {
         Comp[a] = 0;
     }
     Acc[2] = Accp[2] = 1.0;
-
     if ( ADXL345AccActive() ) {
         InitADXL345Acc();
         AccelerometerType = ADXL345Acc;
 
     } else
-        if ( LISLAccActive() )
+        if ( LISLAccActive() ) {
+            InitLISLAcc();
             AccelerometerType = LISLAcc;
-        else
+        } else
             // check for other accs in preferred order
         {
             AccelerometerType = AccUnknown;
             F.AccelerationsValid = false;
         }
-
+            
     if ( F.AccelerationsValid ) {
         LEDYellow_ON;
         GetNeutralAccelerations();
@@ -201,17 +206,6 @@ void ReadADXL345Acc(void) {
     static i16u X, Y, Z;
     static real32 d;
 
-    /*
-    r = 0;
-    while ( r == 0 ) {
-        I2CACC.start();
-        r = I2CACC.write(ADXL345_ID);
-        r = I2CACC.write(0x30);
-        r = I2CACC.read(true) & 0x80;
-        I2CACC.stop();
-    }
-    */
-
     I2CACC.start();
     r = I2CACC.write(ADXL345_WR);
     r = I2CACC.write(0x32); // point to acc data
@@ -230,16 +224,16 @@ void ReadADXL345Acc(void) {
         AccADC[BF] = -Y.i16;
         AccADC[LR] = -X.i16;
         AccADC[UD] = -Z.i16;
-    } else {// SparkFun 6DOF breakouts pins forward components down 
+    } else {// SparkFun 6DOF breakouts pins forward components down
         AccADC[BF] = -X.i16;
         AccADC[LR] = -Y.i16;
-        AccADC[UD] = -Z.i16; 
+        AccADC[UD] = Z.i16;
     }
-    
+
     for ( a = 0; a < (int8)3; a++ ) {
         d = fabs(AccADC[a]-AccADCp[a]);
         if ( d>AccNoise[a] ) AccNoise[a] = d;
-        }
+    }
 
 } // ReadADXL345Acc
 
@@ -274,13 +268,12 @@ void InitADXL345Acc() {
 
 boolean ADXL345AccActive(void) {
 
-    I2CACC.start();
-    F.AccelerationsValid = I2CACC.write(ADXL345_WR) == I2C_ACK;
-    I2CACC.stop();
-    
-    TrackMinI2CRate(400000);
-     
-    return( true ); //zzz F.AccelerationsValid );
+    F.AccelerationsValid = I2CACCAddressResponds(ADXL345_ID);
+
+    if ( F.AccelerationsValid)
+        TrackMinI2CRate(400000);
+
+    return( F.AccelerationsValid );
 
 } // ADXL345AccActive
 
@@ -290,7 +283,21 @@ boolean ADXL345AccActive(void) {
 
 void WriteLISL(uint8, uint8);
 void ReadLISLAcc(void);
+void InitLISLAcc(void);
 boolean LISLAccActive(void);
+
+uint8 ReadLISL(uint8 a) {
+static uint8 r;
+        I2CACC.start();
+        I2CACC.write(LISL_WR);
+        I2CACC.write(a );
+        I2CACC.stop();
+        
+        I2CACC.start();
+         r = I2CACC.read(LISL_RD);
+        I2CACC.stop();
+return(r);
+} // ReadLISL
 
 void ReadLISLAcc(void) {
     static uint8 a;
@@ -301,9 +308,12 @@ void ReadLISLAcc(void) {
     F.AccelerationsValid = I2CACCAddressResponds( LISL_ID ); // Acc still there?
     if ( F.AccelerationsValid ) {
 
-        // Ax.b0 = I2CACC.write(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
+        I2CACC.start();
+        I2CACC.write(LISL_WR);
+        I2CACC.write(LISL_OUTX_L | 0x80 ); // auto increment address
+        I2CACC.stop();
 
-        I2CACC.blockread(LISL_READ, b, 6);
+        I2CACC.blockread(LISL_RD, b, 6);
 
         X.b1 = b[1];
         X.b0 = b[0];
@@ -311,14 +321,14 @@ void ReadLISLAcc(void) {
         Y.b0 = b[2];
         Z.b1 = b[5];
         Z.b0 = b[4];
+    
+        AccADC[BF] = Y.i16;
+        AccADC[LR] = X.i16;
+        AccADC[UD] = Z.i16;
 
-        AccADC[BF] = Z.i16;
-        AccADC[LR] = -X.i16;
-        AccADC[UD] = Y.i16;
-        
         for ( a = 0; a < (int8)3; a++ ) {
-        d = fabs(AccADC[a]-AccADCp[a]);
-        if ( d>AccNoise[a] ) AccNoise[a] = d;
+            d = fabs(AccADC[a]-AccADCp[a]);
+            if ( d>AccNoise[a] ) AccNoise[a] = d;
         }
 
     } else {
@@ -336,32 +346,34 @@ void ReadLISLAcc(void) {
 
 void WriteLISL(uint8 d, uint8 a) {
     I2CACC.start();
+    I2CACC.write(LISL_WR);
     I2CACC.write(a);
     I2CACC.write(d);
     I2CACC.stop();
 } // WriteLISL
 
-boolean LISLAccActive(void) {
-    F.AccelerationsValid = false;
-    /*
-        WriteLISL(0x4a, LISL_CTRLREG_2);           // enable 3-wire, BDU=1, +/-2g
+void InitLISLAcc(void) {
 
-        if ( I2CACC.write(LISL_ID) == I2C_ACK ) {
-            WriteLISL(0xc7, LISL_CTRLREG_1);       // on always, 40Hz sampling rate,  10Hz LP cutoff, enable all axes
-            WriteLISL(0, LISL_CTRLREG_3);
-            WriteLISL(0x40, LISL_FF_CFG);          // latch, no interrupts;
-            WriteLISL(0, LISL_FF_THS_L);
-            WriteLISL(0xFC, LISL_FF_THS_H);        // -0,5g threshold
-            WriteLISL(255, LISL_FF_DUR);
-            WriteLISL(0, LISL_DD_CFG);
-            F.AccelerationsValid = true;
-        } else
-            F.AccFailure = true;
-    */
-    
+    WriteLISL(0x4a, LISL_CTRLREG_2);       // enable 3-wire, BDU=1, +/-2g
+
+    WriteLISL(0xc7, LISL_CTRLREG_1);       // on always, 40Hz sampling rate,  10Hz LP cutoff, enable all axes
+    WriteLISL(0, LISL_CTRLREG_3);
+    WriteLISL(0x40, LISL_FF_CFG);          // latch, no interrupts;
+    WriteLISL(0, LISL_FF_THS_L);
+    WriteLISL(0xFC, LISL_FF_THS_H);        // -0,5g threshold
+    WriteLISL(255, LISL_FF_DUR);
+    WriteLISL(0, LISL_DD_CFG);
+    F.AccelerationsValid = true;
+
     TrackMinI2CRate(400000);
-        
-    return ( false );//F.AccelerationsValid );
+    
+} // InitLISLAcc
+
+boolean LISLAccActive(void) {
+
+    F.AccelerationsValid = I2CACCAddressResponds( LISL_ID );
+    
+    return ( F.AccelerationsValid );
 } // LISLAccActive
 
 

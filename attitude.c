@@ -22,32 +22,24 @@
 
 // Reference frame is positive X forward, Y left, Z down, Roll right, Pitch up, Yaw CW.
 
-void AttitudeFailsafeEstimate(void);
 void DoLegacyYawComp(void);
 void AttitudeTest(void);
 
+real32 Attitude[3][MaxAttitudeScheme];
 real32 dT, HalfdT, dTR, dTmS;
 uint32 uSp;
-uint8 AttitudeMethod = WolferlScheme; //Wolferl MadgwickIMU PremerlaniDCM MadgwickAHRS;
-
-void AttitudeFailsafeEstimate(void) {
-
-    static uint8 i;
-
-    for ( i = 0; i < (uint8)3; i++ ) {
-        Rate[i] = Gyro[i];
-        Angle[i] += Rate[i] * dT;
-    }
-} // AttitudeFailsafeEstimate
+uint8 AttitudeMethod = WolferlSimple; //SimpleIntegrator, WolferlSimple MadgwickIMU PremerlaniDCM MadgwickAHRS;
 
 void DoLegacyYawComp(void) {
 
 #define COMPASS_MIDDLE          10        // yaw stick neutral dead zone
-#define DRIFT_COMP_YAW_RATE     QUARTERPI  // Radians/Sec
+#define DRIFT_COMPYAW_RATE     QUARTERPI  // Radians/Sec
 #define MAX_YAW_RATE            (HALFPI / RC_NEUTRAL);  // Radians/Sec HalfPI 90deg/sec
 
     static real32 HE;
-    static int16 Temp, DesiredYawRate;
+    static int16 Temp;
+
+    Rate[Yaw] = Gyro[Yaw];
 
     // Yaw Angle here is meant to be interpreted as the Heading Error
 
@@ -60,7 +52,7 @@ void DoLegacyYawComp(void) {
             HE = MakePi(DesiredHeading - Heading);
             HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
             HE = HE * K[CompassKp];
-            HE = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
+            HE = -Limit(HE, -DRIFT_COMPYAW_RATE, DRIFT_COMPYAW_RATE);
         }
     else {
         DesiredHeading = Heading;
@@ -86,19 +78,17 @@ void GetAttitude(void) {
         GetAccelerations();
     }
 
-    if ( mSClock() > mS[CompassUpdate] ) {
-        mS[CompassUpdate] = mSClock() + COMPASS_UPDATE_MS;
-        GetHeading();
-
-        if ( F.UseLegacyYawComp )
-            DoLegacyYawComp();
-    }
-
     Now = uSClock();
     dT = ( Now - uSp) * 0.000001;
     HalfdT = 0.5 * dT;
     dTR = 1.0 / dT;
     uSp = Now;
+
+    if ( mSClock() > mS[CompassUpdate] ) {
+        mS[CompassUpdate] = mSClock() + COMPASS_UPDATE_MS;
+        GetHeading();
+        F.HeadingUpdated = true;
+    }
 
     if ( GyroType == IRSensors ) {
 
@@ -111,30 +101,52 @@ void GetAttitude(void) {
 
     } else {
         DebugPin = true;
+
         switch  ( AttitudeMethod ) {
-            case WolferlScheme:
+            case WolferlSimple:
                 F.UseLegacyYawComp = true;
-                Wolferl();
                 break;
             case PremerlaniDCM:
                 F.UseLegacyYawComp = false;
-                DCMUpdate();
-                DCMNormalise();
-                DCMDriftCorrection();
-                DCMEulerAngles();
                 break;
             case MadgwickIMU:
                 F.UseLegacyYawComp = true;
-                IMUupdate(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], Acc[LR], Acc[UD]);
-                EulerAngles();
-                //   DoLegacyYawComp();
                 break;
             case MadgwickAHRS: // must have magnetometer
                 F.UseLegacyYawComp = false;
-                AHRSupdate(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], Acc[LR], Acc[UD], 1,0,0);//Mag[BF].V, Mag[LR].V, Mag[UD].V);
-                EulerAngles();
                 break;
         } // switch
+        
+        // Integrator
+        Integrator();
+
+        // WolferlSimple
+        Wolferl();
+
+        //PremerlaniDCM
+        DCMUpdate();
+        DCMNormalise();
+        DCMDriftCorrection();
+        DCMEulerAngles();
+
+        // MadgwickIMU
+        IMUupdate(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], Acc[LR], Acc[UD]);
+        EulerAngles(MadgwickIMU);
+
+        // MadgwickAHRS
+        AHRSupdate(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], Acc[LR], Acc[UD],Mag[BF].V, Mag[LR].V, Mag[UD].V);
+        EulerAngles(MadgwickAHRS);
+
+        // Kalman
+        DoKalman();
+
+        // Complementary
+        DoCF();
+
+        for ( i = 0; i <(uint8)3; i++ )
+            Angle[i] = Attitude[i][AttitudeMethod];
+
+        F.HeadingUpdated = false;
 
         DebugPin = false;
     }
@@ -226,24 +238,47 @@ void AttitudeTest(void) {
 
 } // AttitudeTest
 
+
+//____________________________________________________________________________________________
+// Integrator
+
+void Integrator(void) {
+
+    static uint8 g;
+
+    for ( g = 0; g < (uint8)3; g++ ) {
+        Rate[g] = Gyro[g];
+        Attitude[g][SimpleIntegrator] += Rate[g] * dT;
+        }
+        
+        } // Integrator
 //____________________________________________________________________________________________
 // Original simple accelerometer compensation of gyros developed for UAVP by Wolfgang Mahringer
 // and adapted for UAVXArm
 
 void Wolferl(void) {
 
-#define WKp 0.1 //0.25
+#define WKp 0.15
+#define COMPASS_MIDDLE          10        // yaw stick neutral dead zone
+#define DRIFT_COMPYAW_RATE     QUARTERPI  // Radians/Sec
+#define MAX_YAW_RATE            (HALFPI / RC_NEUTRAL);  // Radians/Sec HalfPI 90deg/sec
 
     static real32 Grav[2], Dyn[2], Correction[2];
     static real32 CompStep;
+    static uint8 g;
+    static real32 HE;
+    static int16 Temp;
 
     CompStep = WKp * dT;
 
+    for ( g = 0; g <(uint8) 3; g++ )
+        Rate[g] = Gyro[g];
+
     // Roll
 
-    Grav[LR] = -sin(Angle[Roll]); // original used approximation for small angles
+    Grav[LR] = -sin(Attitude[Roll][WolferlSimple]); // original used approximation for small angles
 
-#ifdef DISABLE_DYNAMIC_MASS_COMP_ROLL
+#ifdef DISABLE_DYNAMIC_MASS_COMPRoll
     Dyn[LR] = 0;
 #else
     Dyn[LR] = Rate[Roll];   // lateral acceleration due to rate - do later:).
@@ -252,15 +287,15 @@ void Wolferl(void) {
     Correction[LR] = Acc[LR] + Grav[LR] + Dyn[LR];
     Correction[LR] = Limit(Correction[LR], -CompStep, CompStep);
 
-    Angle[Roll] += Rate[Roll] * dT;
-    Angle[Roll] = Limit(Angle[Roll], -QUARTERPI, QUARTERPI);
-    Angle[Roll] += Correction[LR];
+    Attitude[Roll][WolferlSimple] += Rate[Roll] * dT;
+    Attitude[Roll][WolferlSimple] = Limit(Attitude[Roll][WolferlSimple], -QUARTERPI, QUARTERPI);
+    Attitude[Roll][WolferlSimple] += Correction[LR];
 
     // Pitch
 
-    Grav[BF] = -sin(Angle[Pitch]);
+    Grav[BF] = -sin(Attitude[Pitch][WolferlSimple]);
 
-#ifdef DISABLE_DYNAMIC_MASS_COMP_PITCH
+#ifdef DISABLE_DYNAMIC_MASS_COMPPitch
     Dyn[BF] = 0;
 #else
     Dyn[BF] = Rate[Pitch];
@@ -269,9 +304,37 @@ void Wolferl(void) {
     Correction[BF] = Acc[BF] + Grav[BF] + Dyn[BF];
     Correction[BF] = Limit(Correction[BF], -CompStep, CompStep);
 
-    Angle[Pitch] += Rate[Pitch] * dT;
-    Angle[Pitch] = Limit(Angle[Pitch], -QUARTERPI, QUARTERPI);
-    Angle[Pitch] += Correction[BF];
+    Attitude[Pitch][WolferlSimple] += Rate[Pitch] * dT;
+    Attitude[Pitch][WolferlSimple] = Limit(Attitude[Pitch][WolferlSimple], -QUARTERPI, QUARTERPI);
+    Attitude[Pitch][WolferlSimple] += Correction[BF];
+
+    // Yaw
+
+    // Yaw Angle here is meant to be interpreted as the Heading Error
+
+    if ( F.HeadingUpdated ) {
+
+        Temp = DesiredYaw - Trim[Yaw];
+        if ( F.CompassValid )  // CW+
+            if ( abs(Temp) > COMPASS_MIDDLE ) {
+                DesiredHeading = Heading; // acquire new heading
+                HE = 0.0;
+            } else {
+                HE = MakePi(DesiredHeading - Heading);
+                HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
+                HE = HE * K[CompassKp];
+                HE = -Limit(HE, -DRIFT_COMPYAW_RATE, DRIFT_COMPYAW_RATE);
+            }
+        else {
+            DesiredHeading = Heading;
+            HE = 0.0;
+        }
+
+        HE += ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;
+
+        Attitude[Yaw][WolferlSimple] += ( Rate[Yaw] + HE  ) * COMPASS_UPDATE_S;
+        Attitude[Yaw][WolferlSimple] = Limit(Attitude[Yaw][WolferlSimple], -K[YawIntLimit], K[YawIntLimit]);
+    }
 
 } // Wolferl
 
@@ -354,22 +417,15 @@ void DCMDriftCorrection(void) {
 
     static real32 ScaledOmegaP[3], ScaledOmegaI[3];
     static real32 YawError[3];
-    static real32 AccMagnitude, AccWeight;
     static real32 ErrorCourse;
 
-    AccMagnitude = sqrt( Sqr(Acc[0]) + Sqr(Acc[1]) + Sqr(Acc[2]) );
-
-    // dynamic weighting of Accelerometer info (reliability filter)
-    // weight for Accelerometer info ( < 0.5G = 0.0, 1G = 1.0 , > 1.5G = 0.0)
-    AccWeight = Limit(1.0 - 2.0 * fabs(1.0 - AccMagnitude), 0.0, 1.0);
-
     VCross(&RollPitchError[0], &Acc[0], &DCM[2][0]); //adjust the reference ground
-    VScale(&OmegaP[0], &RollPitchError[0], Kp_RollPitch * AccWeight);
+    VScale(&OmegaP[0], &RollPitchError[0], Kp_RollPitch);
 
-    VScale(&ScaledOmegaI[0], &RollPitchError[0], Ki_RollPitch * AccWeight);
+    VScale(&ScaledOmegaI[0], &RollPitchError[0], Ki_RollPitch);
     VAdd(&OmegaI[0], &OmegaI[0], &ScaledOmegaI[0]);
 
-    if ( !F.UseLegacyYawComp ) {
+    if ( F.HeadingUpdated ) {
         // Yaw - drift correction based on compass/magnetometer heading
         HeadingCos = cos( Heading );
         HeadingSin = sin( Heading );
@@ -425,11 +481,9 @@ void DCMEulerAngles(void) {
     for ( g = 0; g < (uint8)3; g++ )
         Rate[g] = Gyro[g];
 
-    Angle[Pitch] = asin(DCM[2][0]);
-    Angle[Roll] = -atan2(DCM[2][1], DCM[2][2]);
-
-    if ( !F.UseLegacyYawComp )
-        Angle[Yaw] = atan2(DCM[1][0], DCM[0][0]);
+    Attitude[Pitch][PremerlaniDCM] = asin(DCM[2][0]);
+    Attitude[Roll][PremerlaniDCM]= -atan2(DCM[2][1], DCM[2][2]);
+    Attitude[Yaw][PremerlaniDCM] = atan2(DCM[1][0], DCM[0][0]);
 
 } // DCMEulerAngles
 
@@ -529,7 +583,7 @@ void IMUupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az)
 // Quaternion implementation of the 'DCM filter' [Mahoney et al].  Incorporates the magnetic distortion
 // compensation algorithms from my filter [Madgwick] which eliminates the need for a reference
 // direction of flux (bx bz) to be predefined and limits the effect of magnetic distortions to yaw
-// axis only.
+// a only.
 
 // User must define 'HalfdT' as the (sample period / 2), and the filter gains 'MKp' and 'MKi'.
 
@@ -627,15 +681,92 @@ void AHRSupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az
 
 } // AHRSupdate
 
-void  EulerAngles(void) {
+void  EulerAngles(uint8 S) {
 
-    static uint8 g;
-
-    Angle[Roll] = atan2(2.0*q2*q3 - 2.0*q0*q1 , 2.0*Sqr(q0) + 2.0*Sqr(q3) - 1.0);
-    Angle[Pitch] = asin(2.0*q1*q2 - 2.0*q0*q2);
-    Angle[Yaw] = -atan2(2.0*q1*q2 - 2.0*q0*q3 ,  2.0*Sqr(q0) + 2.0*Sqr(q1) - 1.0);
+    Attitude[Roll][S] = atan2(2.0*q2*q3 - 2.0*q0*q1 , 2.0*Sqr(q0) + 2.0*Sqr(q3) - 1.0);
+    Attitude[Pitch][S] = asin(2.0*q1*q2 - 2.0*q0*q2);
+    Attitude[Yaw][S] = -atan2(2.0*q1*q2 - 2.0*q0*q3 ,  2.0*Sqr(q0) + 2.0*Sqr(q1) - 1.0);
 
 } // EulerAngles
+
+//_________________________________________________________________________________
+
+// Complementary Filter originally authored by RoyLB
+// http://www.rcgroups.com/forums/showpost.php?p=12082524&postcount=1286
+
+const real32 TauCF = 1.1;
+
+real32 AngleCF[2] = {0,0};
+real32 F0[2] = {0,0};
+real32 F1[2] = {0,0};
+real32 F2[2] = {0,0};
+
+real32 CF(uint8 a, real32 NewAngle, real32 NewRate) {
+
+//    if (Acc[UD] > -0.5 && ( fabs(NewAngle) < SIXTHPI) ) {
+        F0[a] = (NewAngle - AngleCF[a]) * Sqr(TauCF);
+        F2[a] += F0[a] * dT;
+        F1[a] = F2[a] + (NewAngle - AngleCF[a]) * 2.0 * TauCF + NewRate;
+        AngleCF[a] = (F1[a] * dT) + AngleCF[a];
+ //   } else
+ //       AngleCF[a] += NewRate * dT;
+
+    return ( AngleCF[a] ); // This is actually the current angle, but is stored for the next iteration
+} // CF
+
+void DoCF(void) {
+    Attitude[Roll][Complementary] = CF(Roll, asin(Acc[Roll])*RADDEG, Gyro[Roll])*DEGRAD;
+    Attitude[Pitch][Complementary] = CF(Pitch, asin(Acc[Pitch])*RADDEG, Gyro[Pitch])*DEGRAD;
+} // DoCF
+
+//_________________________________________________________________________________
+
+// Kalman Filter originally authored by Tom Pycke
+// http://tom.pycke.be/mav/71/kalman-filtering-of-imu-data
+
+real32 AngleKF[2] = {0,0};
+real32 BiasKF[2] = {0,0};
+real32 P00[2] = {0,0};
+real32 P01[2] = {0,0};
+real32 P10[2] = {0,0};
+real32 P11[2] = {0,0};
+
+real32 KalmanFilter(uint8 a, real32 NewAngle, real32 NewRate) {
+
+    const real32 AngleQ = 0.001;
+    const real32 GyroQ = 0.003;
+    const real32 AngleR = 0.03;
+
+    static real32 y, S;
+    static real32 K0, K1;
+
+    AngleKF[a] += dT * (NewRate - BiasKF[a]);
+    P00[a] +=  - dT * (P10[a] + P01[a]) + AngleQ * dT;
+    P01[a] +=  - dT * P11[a];
+    P10[a] +=  - dT * P11[a];
+    P11[a] +=  + GyroQ * dT;
+
+    y = NewAngle - AngleKF[a];
+    S = P00[a] + AngleR;
+    K0 = P00[a] / S;
+    K1 = P10[a] / S;
+
+    AngleKF[a] +=  K0 * y;
+    BiasKF[a]  +=  K1 * y;
+    P00[a] -= K0 * P00[a];
+    P01[a] -= K0 * P01[a];
+    P10[a] -= K1 * P00[a];
+    P11[a] -= K1 * P01[a];
+
+    return ( AngleKF[a] );
+
+}  // KalmanFilter
+
+void DoKalman(void) {
+    Attitude[Roll][Kalman] = KalmanFilter(Roll, asin(Acc[Roll])*RADDEG, Gyro[Roll]*RADDEG)*DEGRAD;
+    Attitude[Pitch][Kalman]  = KalmanFilter(Pitch, asin(Acc[Pitch])*RADDEG, Gyro[Pitch]*RADDEG)*DEGRAD;
+} // DoKalman
+
 
 /*
 heading = atan2(2*qy*qw-2*qx*qz , 1 - 2*qy2 - 2*qz2)

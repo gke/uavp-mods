@@ -380,12 +380,13 @@ void ProcessCommand(void) {
                     ShowPrompt();
                     break;
                 case 'N' :    // neutral values
+                    GetNeutralAccelerations();
                     TxString("\r\nNeutral    R:");
-                    TxValS(NewAccNeutral[BF]);
-
-                    TxString("    P:");
                     TxValS(NewAccNeutral[LR]);
 
+                    TxString("    P:");
+                    TxValS(NewAccNeutral[BF]);
+                    
                     TxString("   V:");
                     TxValS(NewAccNeutral[UD]);
                     ShowPrompt();
@@ -431,7 +432,7 @@ void ProcessCommand(void) {
                     ShowPrompt();
                     break;
                 case 'G':    // GPS
-                   GyroTest();// GPSTest();
+                    GPSTest();
                     ShowPrompt();
                     break;
                 case 'H':    // barometer
