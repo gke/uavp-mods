@@ -207,7 +207,7 @@ extern Timer timer;
 #define UAVX_TEL_INTERVAL_MS            125L    // mS. emit an interleaved telemetry packet
 #define ARDU_TEL_INTERVAL_MS            200L    // mS. Ardustation
 #define UAVX_CONTROL_TEL_INTERVAL_MS    10L     // mS. flight control only
-#define CUSTOM_TEL_INTERVAL_MS          250L    // mS.
+#define CUSTOM_TEL_INTERVAL_MS          125L    // mS.
 #define UAVX_MIN_TEL_INTERVAL_MS        1000L    // mS. emit minimum FPV telemetry packet slow rate for example to FrSky
 
 #define GPS_TIMEOUT_MS                  2000L   // mS.
@@ -495,7 +495,7 @@ WayPointAchieved:
         1,
 WayPointCentred:
         1,
-Unused2: // was UsingGPSAlt:
+HeadingUpdated: // was UsingGPSAlt:
         1,
 UsingRTHAutoDescend:
         1,
@@ -661,8 +661,12 @@ extern boolean ADXL345AccActive(void);
 #define LISL_READ        0x80
 #define LISL_ID          0x3a
 
+#define LISL_WR         LISL_ID
+#define LISL_RD         (LISL_ID+1)
+
 extern void WriteLISL(uint8, uint8);
 extern void ReadLISLAcc(void);
+extern void InitLISLAcc(void);
 extern boolean LISLAccActive(void);
 
 // other accelerometers
@@ -694,7 +698,7 @@ extern real32 RangefinderAltitude;
 
 // attitude.c
 
-enum AttitudeMethods { WolferlScheme, PremerlaniDCM,  MadgwickIMU,  MadgwickAHRS};
+enum AttitudeMethods { SimpleIntegrator, WolferlSimple, PremerlaniDCM,  MadgwickIMU,  MadgwickAHRS, Kalman, Complementary, MaxAttitudeScheme};
 
 extern void GetAttitude(void);
 extern void DoLegacyYawComp(void);
@@ -704,6 +708,12 @@ extern void InitAttitude(void);
 extern real32 dT, dTR;
 extern uint32 PrevDCMUpdate;
 extern uint8 AttitudeMethod;
+
+extern real32 Attitude[3][MaxAttitudeScheme];
+
+// SimpleIntegrator
+
+extern void Integrator(void);
 
 // Wolferl
 
@@ -733,9 +743,15 @@ extern real32 TempM[3][3];
 
 extern void IMUupdate(real32, real32, real32, real32, real32, real32);
 extern void AHRSupdate(real32, real32, real32, real32, real32, real32, real32, real32, real32);
-extern void EulerAngles(void);
+extern void EulerAngles(uint8);
 
 extern real32 q0, q1, q2, q3;    // quaternion elements representing the estimated orientation
+
+// Kalman
+extern void DoKalman(void);
+        
+// Complementary
+extern void DoCF(void);
 
 //______________________________________________________________________________________________
 
@@ -1705,7 +1721,7 @@ enum PacketTags {UnknownPacketTag = 0, LevPacketTag, NavPacketTag, MicropilotPac
                  AirframePacketTag, NavUpdatePacketTag, BasicPacketTag, RestartPacketTag, TrimblePacketTag,
                  MessagePacketTag, EnvironmentPacketTag, BeaconPacketTag, UAVXFlightPacketTag,
                  UAVXNavPacketTag, UAVXStatsPacketTag, UAVXControlPacketTag, UAVXParamPacketTag, UAVXMinPacketTag,
-                 UAVXArmParamPacketTag, UAVXStickPacketTag, FrSkyPacketTag = 99
+                 UAVXArmParamPacketTag, UAVXStickPacketTag,  UAVXCustomPacketTag, FrSkyPacketTag = 99
                 };
 
 enum TelemetryTypes { NoTelemetry, GPSTelemetry, UAVXTelemetry, UAVXControlTelemetry, UAVXMinTelemetry,

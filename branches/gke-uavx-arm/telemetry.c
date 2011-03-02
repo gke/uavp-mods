@@ -421,7 +421,7 @@ void SendParamPacket(uint8 s, uint8 p) {
     TxESCu8(s);
     TxESCu8(p);
     TxESCi32(K[p] * 1000.0 );
-    
+
     SendPacketTrailer();
 
 } // SendParamPacket
@@ -432,7 +432,7 @@ void SendParameters(uint8 s) {
     for ( p = 0; p < MAX_PARAMETERS; p++ )
         SendParamPacket(s, p);
     SendParamPacket(0, MAX_PARAMETERS);
-    
+
 } // SendParameters
 
 void SendCycle(void) {
@@ -534,43 +534,24 @@ void SendArduStation(void) {
 
 void SendCustom(void) { // user defined telemetry human readable OK for small amounts of data < 1mS
 
-    EchoToLogFile = true;
+    static uint8 i,s, a;
 
-    // insert values here using TxVal32(n, dp, separator)
-    // dp is the scaling to decimal places, separator
-    // separator may be a single 'char', HT for tab, or 0 (no space)
-    // ->
+    a = Pitch;
+    
+    // always a vector of int16;
+    SendPacketHeader();
 
-    TxVal32(mSClock(), 3, HT);
+    TxESCu8(UAVXCustomPacketTag);
+    TxESCu8(1 + 6 + MaxAttitudeScheme * 2);
+    TxESCu8(3 + MaxAttitudeScheme); // how many 16bit elements
+    TxESCi16(AttitudeMethod);
+    TxESCi16(Gyro[a] * 1000.0);
+    TxESCi16(Acc[a] * 1000.0);
+    for ( s = 0; s < MaxAttitudeScheme; s++ )
+        TxESCi16( Attitude[a][s] * 1000.0 );
 
-    if ( F.HoldingAlt ) // are we holding
-        TxChar('H');
-    else
-        TxChar('N');
-    TxChar(HT);
+    SendPacketTrailer();
 
-    if (F.UsingRangefinderAlt ) // are we using the rangefinder
-        TxChar('R');
-    else
-        TxChar('B');
-    TxChar(HT);
-
-    TxVal32(SRS32(Comp[Alt],1), 1, HT);        // ~% throttle compensation
-
-    TxVal32(GPSRelAltitude, 1, HT);
-    TxVal32(BaroRelAltitude, 1, HT);
-    TxVal32(RangefinderAltitude, 2, HT);
-
-    TxVal32(BaroPressure, 0, HT);            // eff. sensor reading
-    TxVal32(BaroTemperature, 0, HT);         // eff. sensor reading redundant for MPX4115
-    TxVal32(CompBaroPressure, 0, HT);          // moving sum of last 8 readings
-
-    // <-
-
-    TxChar(CR);
-    TxChar(LF);
-
-    EchoToLogFile = false;
 } // SendCustom
 
 void SensorTrace(void) {
