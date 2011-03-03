@@ -1,7 +1,7 @@
 
 // Commissioning defines
 
-#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW - 100KHz
+#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW ~100KHz
 
 #define MAGIC               1.0                       // rescales the PID loop parameters globally
 
@@ -10,16 +10,18 @@
 #define MAX_PID_CYCLE_HZ    200                       // PID cycle rate do not exceed
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
-#define PWM_UPDATE_HZ       120                       // reduced for turningys - I2C runns at PID loop rate always
+#define PWM_UPDATE_HZ       200                       // reduced for turningys - I2C runs at PID loop rate always
                                                       // MUST BE LESS THAN OR EQUAL TO 450HZ
 
 // LP filter cutoffs for sensors
-#define YAW_FREQ            10.0                      // Hz
+#define YAW_FREQ            20.0                      // Hz
 #define ROLL_PITCH_FREQ     (MAX_PID_CYCLE_HZ/2)      // Shannon
 #define ACC_FREQ            10.0
-#define COMPASS_FREQ        10.0                      // Hz must be less than 10Hz
+#define COMPASS_FREQ        100.0                      // Hz must be less than 10Hz
 
 // DCM Attitude Estimation
+
+//#define INC_ALL_SCHEMES                               // runs all attitude control schemes - use "custom" telemetry
 
 // The pitch/roll angle should track CLOSELY with the noise "mostly" tuned out.
 // Jitter in the artificial horizon gives part of the story but better to use the UAVXFC logs.
@@ -590,7 +592,7 @@ Using9DOF:
         1,
 HaveBatterySensor:
         1,
-UseLegacyYawComp:
+AttitudeCompActive:
         1;
     };
 } Flags;
@@ -623,15 +625,11 @@ extern void InitAccelerometers(void);
 #define ADXL345_WR           ADXL345_ID
 #define ADXL345_RD           (ADXL345_ID+1)
 
-#define GRAVITY_ADXL345_R   (1.0/250.0) // ~4mG/LSB
-
 extern void ReadADXL345Acc(void);
 extern void InitADXL345Acc(void);
 extern boolean ADXL345AccActive(void);
 
 // LIS3LV02DG 3-Axis Accelerometer 400KHz
-
-#define GRAVITY_LISL_R (1.0/1024.0)
 
 #define LISL_WHOAMI      0x0f
 #define LISL_OFFSET_X    0x16
@@ -702,10 +700,11 @@ enum AttitudeMethods { SimpleIntegrator, WolferlSimple, PremerlaniDCM,  Madgwick
 
 extern void GetAttitude(void);
 extern void DoLegacyYawComp(void);
+extern void NormaliseAccelerations(void);
 extern void AttitudeTest(void);
 extern void InitAttitude(void);
 
-extern real32 dT, dTR;
+extern real32 dT, dTOn2, dTR;
 extern uint32 PrevDCMUpdate;
 extern uint8 AttitudeMethod;
 
