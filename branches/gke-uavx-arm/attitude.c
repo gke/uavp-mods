@@ -22,9 +22,8 @@
 
 // Reference frame is positive X forward, Y left, Z down, Roll right, Pitch up, Yaw CW.
 
-#define MIN_ACC_MAGNITUDE 0.9 // below this the accelerometers are deemed unreliable - falling?
-
 void DoLegacyYawComp(uint8);
+void NormaliseAccelerations(void);
 void AttitudeTest(void);
 
 real32 Attitude[3][MaxAttitudeScheme];
@@ -36,7 +35,7 @@ void DoLegacyYawComp(uint8 S) {
 
 #define COMPASS_MIDDLE          10         // yaw stick neutral dead zone
 #define DRIFT_COMPYAW_RATE      QUARTERPI  // Radians/Sec
-#define MAX_YAW_RATE            (HALFPI / RC_NEUTRAL);  // Radians/Sec HalfPI 90deg/sec
+#define MAX_YAW_RATE            (PI / RC_NEUTRAL);  // Radians/Sec HalfPI 90deg/sec
 
     static real32 HE;
     static int16 Temp;
@@ -68,6 +67,27 @@ void DoLegacyYawComp(uint8 S) {
     }
 
 } // DoLegacyYawComp
+
+void NormaliseAccelerations(void) {
+
+const real32 MIN_ACC_MAGNITUDE = 0.7; // below this the accelerometers are deemed unreliable - falling?
+
+    static real32 ReNorm, AccMag;
+    
+    AccMag = sqrt(Sqr(Acc[BF]) + Sqr(Acc[LR]) + Sqr(Acc[UD])); 
+    if ( AccMag < MIN_ACC_MAGNITUDE ) {
+        Acc[LR] = Acc[BF]  = 0.0;
+        Acc[UD] = 1.0;
+        F.AttitudeCompActive = false;
+    } else {
+        ReNorm = 1.0 / AccMag;
+        Acc[BF] *= ReNorm;
+        Acc[LR] *= ReNorm;
+        Acc[UD] *= ReNorm;
+        F.AttitudeCompActive = true;
+    }
+
+} // NormaliseAccelerations
 
 void GetAttitude(void) {
 
@@ -104,6 +124,8 @@ void GetAttitude(void) {
 
     } else {
         DebugPin = true;
+        
+        NormaliseAccelerations(); // also checks for free-fall
 
         // WolferlSimple
         Wolferl();
@@ -176,8 +198,6 @@ void Wolferl(void) {
     static real32 Grav[2], Dyn[2], Correction[2];
     static real32 CompStep;
     static uint8 g;
-    static real32 HE;
-    static int16 Temp;
 
     CompStep = WKp * dT;
 
@@ -262,7 +282,7 @@ void DCMNormalise(void) {
 
     Problem = false;
     for ( r = 0; r < (uint8)3; r++ ) {
-        Renorm = VDot(&TempM[r][0],&TempM[r][0]);
+        Renorm = VDot(&TempM[r][0], &TempM[r][0]);
         if ( (Renorm <  1.5625) && (Renorm > 0.64) )
             Renorm = 0.5 * (3.0 - Renorm);               //eq.21
         else
@@ -301,19 +321,7 @@ void DCMDriftCorrection(void) {
     static real32 YawError[3];
     static real32 ErrorCourse;
 
-    // normalise the measurements
-    aMag = sqrt(Sqr(ax) + Sqr(ay) + Sqr(az)); // zero Acc values into AHRS is FATAL
-    if ( aMag < MIN_ACC_MAGNITUDE ) {
-        AccN[LR] = AccN[BF]  = 0.0;
-        AccN[DU] = 1.0;
-    } else {
-        rnorm = 1.0 / aMag;
-        AccN[BF] = Acc[BF] *rnorm;
-        AccN[LR] *= rnorm;
-        AccN[DU] *= rnorm;
-    }
-
-    VCross(&RollPitchError[0], &AccN[0], &DCM[2][0]); //adjust the reference ground
+    VCross(&RollPitchError[0], &Acc[0], &DCM[2][0]); //adjust the reference ground
     VScale(&OmegaP[0], &RollPitchError[0], Kp_RollPitch);
 
     VScale(&ScaledOmegaI[0], &RollPitchError[0], Ki_RollPitch);
@@ -415,24 +423,12 @@ real32 exInt = 0.0, eyInt = 0.0, ezInt = 0.0;   // scaled integral error
 
 void IMUupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az) {
 
-    static real32 rnorm;
+    static real32 ReNorm;
     static real32 vx, vy, vz;
     static real32 ex, ey, ez;
-    static real32 aMag;
+  //  static real32 aMag;
 
 //swap z and y?
-
-    // normalise the measurements
-    aMag = sqrt(Sqr(ax) + Sqr(ay) + Sqr(az)); // zero Acc values into AHRS is FATAL
-    if ( aMag < MIN_ACC_MAGNITUDE ) {
-        ax = ay = 0.0;
-        az = 1.0;
-    } else {
-        rnorm = 1.0 / aMag;
-        ax *= rnorm;
-        ay *= rnorm;
-        az *= rnorm;
-    }
 
     // estimated direction of gravity
     vx = 2.0*(q1*q3 - q0*q2);
@@ -461,11 +457,11 @@ void IMUupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az)
     q3 += (q0*gz + q1*gy - q2*gx)*dTOn2;
 
     // normalise quaternion
-    rnorm = 1.0/sqrt(Sqr(q0) + Sqr(q1) + Sqr(q2) + Sqr(q3));
-    q0 *= rnorm;
-    q1 *= rnorm;
-    q2 *= rnorm;
-    q3 *= rnorm;
+    ReNorm = 1.0  /sqrt(Sqr(q0) + Sqr(q1) + Sqr(q2) + Sqr(q3));
+    q0 *= ReNorm;
+    q1 *= ReNorm;
+    q2 *= ReNorm;
+    q3 *= ReNorm;
 
 }  // IMUupdate
 
@@ -493,7 +489,7 @@ void IMUupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az)
 
 void AHRSupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az, real32 mx, real32 my, real32 mz) {
 
-    static real32 rnorm;
+    static real32 ReNorm;
     static real32 hx, hy, hz, bx2, bz2, mx2, my2, mz2;
     static real32 vx, vy, vz, wx, wy, wz;
     static real32 ex, ey, ez;
@@ -512,22 +508,10 @@ void AHRSupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az
     q2q3 = q2*q3;
     q3q3 = q3*q3;
 
-    aMag = sqrt(Sqr(ax) + Sqr(ay) + Sqr(az)); // zero values into AHRS is FATAL
-    if ( aMag < MIN_ACC_MAGNITUDE ) {
-        ax = ay = 0.0;
-        az = 1.0;
-    } else {
-        // normalise the measurements
-        rnorm = 1.0/aMag;
-        ax *= rnorm;
-        ay *= rnorm;
-        az *= rnorm;
-    }
-
-    rnorm = 1.0/sqrt(Sqr(mx) + Sqr(my) + Sqr(mz));
-    mx *= rnorm;
-    my *= rnorm;
-    mz *= rnorm;
+    ReNorm = 1.0/sqrt(Sqr(mx) + Sqr(my) + Sqr(mz));
+    mx *= ReNorm;
+    my *= ReNorm;
+    mz *= ReNorm;
     mx2 = 2.0 * mx;
     my2 = 2.0 * my;
     mz2 = 2.0 * mz;
@@ -570,11 +554,11 @@ void AHRSupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az
     q3 += (q0*gz + q1*gy - q2*gx)*dTOn2;
 
     // normalise quaternion
-    rnorm = 1.0/sqrt(Sqr(q0) + Sqr(q1) + Sqr(q2) + Sqr(q3));
-    q0 *= rnorm;
-    q1 *= rnorm;
-    q2 *= rnorm;
-    q3 *= rnorm;
+    ReNorm = 1.0/sqrt(Sqr(q0) + Sqr(q1) + Sqr(q2) + Sqr(q3));
+    q0 *= ReNorm;
+    q1 *= ReNorm;
+    q2 *= ReNorm;
+    q3 *= ReNorm;
 
 } // AHRSupdate
 
