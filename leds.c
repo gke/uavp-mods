@@ -204,7 +204,8 @@ void LEDsAndBuzzer(void) {
 // LED Driver
 
 void PCA9551Test(void) {
-    static char b[8], i, r;
+    static char b[8];
+    static uint8 i;
 
     TxString("\r\nPCA9551Test\r\n");
 
@@ -234,7 +235,6 @@ void PCA9551Test(void) {
 boolean IsPCA9551Active(void) {
 
     const char b[7] = {0x11,0x25,0x80,0x25,0x80,0x00,0x00}; // Period 1Sec., PWM 50%, ON
-    boolean r;
 
     F.UsingLEDDriver = I2CGYROAddressResponds( PCA9551_ID );
 
@@ -248,8 +248,6 @@ boolean IsPCA9551Active(void) {
 } //IsPCA9551Active
 
 void InitLEDs(void) {
-
-    boolean r;
 
     r = IsPCA9551Active();
 

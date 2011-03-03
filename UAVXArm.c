@@ -21,6 +21,7 @@
 #include "UAVXArm.h"
 
 volatile Flags     F;
+int8 r; // global I2C 
 
 int main(void) {
 

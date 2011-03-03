@@ -86,7 +86,6 @@ void WritePXImagefile(void) {
 
 boolean ReadPXImagefile(void) {
     static uint16 a;
-    static int8 r;
     static int32 v, CheckSum;
     static boolean OK;
 
@@ -121,13 +120,13 @@ boolean ReadPXImagefile(void) {
 
 } // ReadPXImagefile
 
-
 void CreateLogfile(void) {
-    static uint8 i;
-
-    UpdateRTC();
 
 #ifndef SUPPRESS_SDCARD
+
+    static int16 i;
+
+    UpdateRTC();
 
     if ( F.SDCardValid )
         strftime(RTCLogfile, 32, "/SDCard/L%H-%M.log", RTCTime );
@@ -138,7 +137,7 @@ void CreateLogfile(void) {
 
     LogfileIsOpen = logfile != NULL;
     if ( LogfileIsOpen ) {
-        i=0;
+        i = 0;
         while ( RTCString[i] != 0 )
             TxLogChar(RTCString[i++]);
         TxLogChar(CR);
