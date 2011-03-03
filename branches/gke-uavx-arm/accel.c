@@ -77,10 +77,10 @@ void GetNeutralAccelerations(void) {
             for ( a = 0; a <(uint8)3; a++ )
                 Temp[a] += AccADC[a];
         }
-        
+
         for ( a = 0; a <(uint8)3; a++ )
             Temp[a] /= Samples;
-                 
+
         // removes other accelerations
         GravityR = 1.0/sqrt(Sqr(Temp[BF])+Sqr(Temp[LR])+Sqr(Temp[UD]));
         for ( a = 0; a <(uint8)3; a++ )
@@ -111,11 +111,13 @@ void GetAccelerations(void) {
         Acc[LR] = AccADC[LR] * GravityR - K[MiddleLR];
         Acc[UD] = AccADC[UD] * GravityR - K[MiddleUD];
 
+#ifdef SUPPRESS_ACC_FILTERS
         AccA = dT / ( 1.0 / ( TWOPI * ACC_FREQ ) + dT );
-        for ( a = 0; a < (uint8)3; a++ ) {
+        for ( a = 0; a < (uint8)3; a++ )
             Acc[a] = LPFilter( Acc[a], Accp[a], AccA, dT );
+#endif // SUPPRESS_ACC_FILTERS
+        for ( a = 0; a < (uint8)3; a++ )
             Accp[a] = Acc[a];
-        }
 
     } else {
         Acc[LR] = Acc[BF] = 0;
@@ -182,7 +184,7 @@ void InitAccelerometers(void) {
             AccelerometerType = AccUnknown;
             F.AccelerationsValid = false;
         }
-            
+
     if ( F.AccelerationsValid ) {
         LEDYellow_ON;
         GetNeutralAccelerations();
@@ -201,7 +203,7 @@ boolean ADXL345AccActive(void);
 
 void ReadADXL345Acc(void) {
 
-    static uint8 a, r;
+    static uint8 a;
     static char b[6];
     static i16u X, Y, Z;
     static real32 d;
@@ -238,7 +240,6 @@ void ReadADXL345Acc(void) {
 } // ReadADXL345Acc
 
 void InitADXL345Acc() {
-    static uint8 r;
 
     I2CACC.start();
     I2CACC.write(ADXL345_WR);
@@ -287,16 +288,16 @@ void InitLISLAcc(void);
 boolean LISLAccActive(void);
 
 uint8 ReadLISL(uint8 a) {
-static uint8 r;
-        I2CACC.start();
-        I2CACC.write(LISL_WR);
-        I2CACC.write(a );
-        I2CACC.stop();
-        
-        I2CACC.start();
-         r = I2CACC.read(LISL_RD);
-        I2CACC.stop();
-return(r);
+    static uint8 r;
+    I2CACC.start();
+    I2CACC.write(LISL_WR);
+    I2CACC.write(a );
+    I2CACC.stop();
+
+    I2CACC.start();
+    r = I2CACC.read(LISL_RD);
+    I2CACC.stop();
+    return(r);
 } // ReadLISL
 
 void ReadLISLAcc(void) {
@@ -321,7 +322,7 @@ void ReadLISLAcc(void) {
         Y.b0 = b[2];
         Z.b1 = b[5];
         Z.b0 = b[4];
-    
+
         AccADC[BF] = Y.i16;
         AccADC[LR] = X.i16;
         AccADC[UD] = Z.i16;
@@ -366,13 +367,13 @@ void InitLISLAcc(void) {
     F.AccelerationsValid = true;
 
     TrackMinI2CRate(400000);
-    
+
 } // InitLISLAcc
 
 boolean LISLAccActive(void) {
 
     F.AccelerationsValid = I2CACCAddressResponds( LISL_ID );
-    
+
     return ( F.AccelerationsValid );
 } // LISLAccActive
 

@@ -222,7 +222,6 @@ uint8 MCP4725_ID_Actual;
 
 void SetFreescaleMCP4725(int16 d) {
     static i16u dd;
-    static uint8 r;
 
     dd.u16 = d << 4;                            // left align
 

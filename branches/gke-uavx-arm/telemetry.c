@@ -170,14 +170,8 @@ void CheckTelemetry(void) {
 } // CheckTelemetry
 
 void SendPacketHeader(void) {
-    static int8 b;
 
     EchoToLogFile = true;
-
-#ifdef TELEMETRY_PREAMBLE
-    for (b=10;b;b--)
-        TxChar(0x55);
-#endif // TELEMETRY_PREAMBLE
 
     TxChar(0xff); // synchronisation to "jolt" USART
     TxChar(SOH);
@@ -534,7 +528,7 @@ void SendArduStation(void) {
 
 void SendCustom(void) { // user defined telemetry human readable OK for small amounts of data < 1mS
 
-    static uint8 i,s, a;
+    static uint8 s, a;
 
     a = Pitch;
     

@@ -49,7 +49,9 @@ uint8 TC(int16 T) {
 } // TC
 
 void DoMulticopterMix(real32 CurrThrottle) {
+#ifndef MULTICOPTER
     static real32 Temp;
+#endif
 
 #ifdef Y6COPTER
     PWM[FrontTC] = PWM[LeftTC] = PWM[RightTC] = CurrThrottle;
@@ -157,8 +159,11 @@ void CheckDemand(real32 CurrThrottle) {
 #endif // MULTICOPTER
 
 void MixAndLimitMotors(void) {
-    static real32 Temp, TempElevon, TempElevator;
+#ifndef MULTICOPTER
+    static TempElevon, TempElevator;
     static uint8 m;
+#endif
+    static real32 Temp;
 
     if ( DesiredThrottle < IdleThrottle )
         CurrThrottle = 0;
@@ -303,7 +308,6 @@ void StopMotors(void) {
 } // StopMotors
 
 void InitMotors(void) {
-    static uint8 m;
 
     Out0.period_us(PWM_PERIOD_US);
 

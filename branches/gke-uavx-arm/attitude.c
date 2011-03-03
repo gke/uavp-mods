@@ -317,9 +317,14 @@ void DCMMotionCompensation(void) {
 
 void DCMDriftCorrection(void) {
 
-    static real32 ScaledOmegaP[3], ScaledOmegaI[3];
+    static real32 ScaledOmegaI[3];
+    
+    //DON'T USE  #define USE_DCM_YAW_COMP
+    #ifdef USE_DCM_YAW_COMP
+    static real32 ScaledOmegaP[3];   
     static real32 YawError[3];
     static real32 ErrorCourse;
+    #endif // USE_DCM_YAW_COMP
 
     VCross(&RollPitchError[0], &Acc[0], &DCM[2][0]); //adjust the reference ground
     VScale(&OmegaP[0], &RollPitchError[0], Kp_RollPitch);
@@ -327,7 +332,7 @@ void DCMDriftCorrection(void) {
     VScale(&ScaledOmegaI[0], &RollPitchError[0], Ki_RollPitch);
     VAdd(&OmegaI[0], &OmegaI[0], &ScaledOmegaI[0]);
 
-    /*
+    #ifdef USE_DCM_YAW_COMP
     if ( F.HeadingUpdated ) {
         // Yaw - drift correction based on compass/magnetometer heading
         HeadingCos = cos( Heading );
@@ -341,7 +346,7 @@ void DCMDriftCorrection(void) {
         VScale(&ScaledOmegaI[0], &YawError[0], Ki_Yaw );
         VAdd(&OmegaI[0], &OmegaI[0], &ScaledOmegaI[0]);
     }
-    */
+    #endif // USE_DCM_YAW_COMP
 
 } // DCMDriftCorrection
 
@@ -494,7 +499,6 @@ void AHRSupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az
     static real32 vx, vy, vz, wx, wy, wz;
     static real32 ex, ey, ez;
     static real32 q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
-    static real32 aMag;
 
     // auxiliary variables to reduce number of repeated operations
     q0q0 = q0*q0;
@@ -584,13 +588,13 @@ real32 F2[2] = {0,0};
 
 real32 CF(uint8 a, real32 NewAngle, real32 NewRate) {
 
-//    if ( Acc[UD] > MIN_ACC_MAGNITUDE && ( fabs(NewAngle) < SIXTHPI) ) {
+if ( F.AttitudeCompActive ) {
     F0[a] = (NewAngle - AngleCF[a]) * Sqr(TauCF);
     F2[a] += F0[a] * dT;
     F1[a] = F2[a] + (NewAngle - AngleCF[a]) * 2.0 * TauCF + NewRate;
     AngleCF[a] = (F1[a] * dT) + AngleCF[a];
-//   } else
-//       AngleCF[a] += NewRate * dT;
+   } else
+       AngleCF[a] += NewRate * dT;
 
     return ( AngleCF[a] ); // This is actually the current angle, but is stored for the next iteration
 } // CF

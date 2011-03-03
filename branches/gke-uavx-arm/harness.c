@@ -25,6 +25,8 @@ void InitHarness(void);
 
 LocalFileSystem Flash("local");
 
+uint8 I2C0SDAPin, I2C0SCLPin;
+
 // connections to ARM
 // 1 GND
 // 2 4.5-9V
@@ -95,6 +97,9 @@ void UpdateRTC(void) {
 } // UpdateRTCString
 
 void InitHarness(void) {
+
+    I2C0SDAPin = mbed1768Pins[27];
+    I2C0SCLPin = mbed1768Pins[28];
 
     I2C0.frequency(I2C_MAX_RATE_HZ);
 

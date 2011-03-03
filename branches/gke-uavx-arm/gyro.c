@@ -52,12 +52,17 @@ void GetGyroRates(void) {
         if ( d>GyroNoise[g] ) GyroNoise[g] = d;
     }
 
+#ifdef SUPPRESS_GYRO_FILTERS
+
     GyroA = dT / ( 1.0 / ( TWOPI * ROLL_PITCH_FREQ ) + dT );
     Gyro[Roll] = LPFilter( Gyro[Roll] - GyroNeutral[Roll], Gyrop[Roll], GyroA, dT );
     Gyro[Pitch] = LPFilter( Gyro[Pitch] - GyroNeutral[Pitch], Gyrop[Pitch], GyroA, dT );
 
     GyroA = dT / ( 1.0 / ( TWOPI * YAW_FREQ ) + dT );
     Gyro[Yaw] = LPFilter( Gyro[Yaw] - GyroNeutral[Yaw], Gyrop[Yaw], GyroA, dT );
+
+#endif // SUPPRESS_GYRO_FILTERS
+
     for ( g = 0; g < (uint8)3; g++ )
         Gyrop[g] = Gyro[g];
 
@@ -231,8 +236,7 @@ real32 ITG3200Temperature;
 
 void ReadITG3200Gyro(void) {
     static char G[6];
-    static real32 d;
-    static uint8 g, r;
+    static uint8 g;
     static i16u GX, GY, GZ;
 
     I2CGYRO.start();

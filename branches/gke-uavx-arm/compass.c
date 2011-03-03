@@ -102,7 +102,9 @@ void GetHeading(void) {
     if ( fabs(Heading - Headingp ) > PI )
         Headingp = Heading;
 
+#ifdef SUPPRESS_COMPASS_FILTER
     Heading = LPFilter(Heading, Headingp, CompassA, COMPASS_UPDATE_S);
+#endif // SUPPRESS_COMPASS_FILTER
     Headingp = Heading;
 
 #ifdef SIMULATE
@@ -163,7 +165,6 @@ boolean HMC5843Active(void);
 void ReadHMC5843(void) {
     static char b[6];
     static i16u X, Y, Z;
-    static uint8 r;
     static real32 mx, my;
     static real32 CRoll, SRoll, CPitch, SPitch;
 
@@ -231,7 +232,6 @@ void DoHMC5843Test(void) {
 } // DoHMC5843Test
 
 void InitHMC5843(void) {
-    static uint8 r;
 
     I2CCOMPASS.start();
     r = I2CCOMPASS.write(HMC5843_WR);

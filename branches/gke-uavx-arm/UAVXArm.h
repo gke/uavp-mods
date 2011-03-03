@@ -11,13 +11,17 @@
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
 #define PWM_UPDATE_HZ       200                       // reduced for turningys - I2C runs at PID loop rate always
-                                                      // MUST BE LESS THAN OR EQUAL TO 450HZ
+// MUST BE LESS THAN OR EQUAL TO 450HZ
 
 // LP filter cutoffs for sensors
+#define SUPPRESS_GYRO_FILTERS                          
+#define SUPPRESS_ACC_FILTERS
+#define SUPPRESS_COMPASS_FILTER
+
 #define YAW_FREQ            20.0                      // Hz
 #define ROLL_PITCH_FREQ     (MAX_PID_CYCLE_HZ/2)      // Shannon
 #define ACC_FREQ            10.0
-#define COMPASS_FREQ        100.0                      // Hz must be less than 10Hz
+#define COMPASS_FREQ        100.0                     // Hz must be less than 10Hz
 
 // DCM Attitude Estimation
 
@@ -600,6 +604,7 @@ AttitudeCompActive:
 enum FlightStates { Starting, Landing, Landed, Shutdown, InFlight};
 extern volatile Flags F;
 extern int8 State;
+extern int8 r;
 
 //______________________________________________________________________________________________
 
@@ -748,7 +753,7 @@ extern real32 q0, q1, q2, q3;    // quaternion elements representing the estimat
 
 // Kalman
 extern void DoKalman(void);
-        
+
 // Complementary
 extern void DoCF(void);
 
@@ -1096,6 +1101,8 @@ extern void InitHarness(void);
 
 extern LocalFileSystem Flash;
 
+extern uint8 I2C0SDAPin, I2C0SCLPin;
+
 // 1 GND
 // 2 4.5-9V
 // 3 VBat
@@ -1440,6 +1447,16 @@ extern int8 PX[], PXNew[];
 
 //______________________________________________________________________________________________
 
+// NXP1768pins.c
+
+extern boolean PinRead(uint8);
+extern void PinWrite(uint8, boolean);
+extern void PinSetOutput(uint8, boolean);
+
+extern const uint8 mbed1768Pins[];
+
+//______________________________________________________________________________________________
+
 // outputs.c
 
 #define OUT_MINIMUM            1.0              // Required for PPM timing loops
@@ -1622,7 +1639,7 @@ extern uint8 UAVXAirframe;
 #define RC_MIN_WIDTH_US                 1000    // temporarily to prevent wraparound 900
 #define RC_MAX_WIDTH_US                 2100
 
-#define RC_NO_CHANGE_TIMEOUT_MS         20000L    
+#define RC_NO_CHANGE_TIMEOUT_MS         20000L
 
 extern void DoRxPolarity(void);
 extern void InitRC(void);
