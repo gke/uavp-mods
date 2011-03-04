@@ -11,27 +11,32 @@
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
 #define PWM_UPDATE_HZ       200                       // reduced for turningys - I2C runs at PID loop rate always
-// MUST BE LESS THAN OR EQUAL TO 450HZ
+                                                       // MUST BE LESS THAN OR EQUAL TO 450HZ
 
 // LP filter cutoffs for sensors
-#define SUPPRESS_GYRO_FILTERS                          
-#define SUPPRESS_ACC_FILTERS
-#define SUPPRESS_COMPASS_FILTER
 
-#define YAW_FREQ            20.0                      // Hz
-#define ROLL_PITCH_FREQ     (MAX_PID_CYCLE_HZ/2)      // Shannon
+#define SUPPRESS_ROLL_PITCH_GYRO_FILTERS                           
+#define ROLL_PITCH_FREQ     80.0                       // must be <= ITG3200 LP filter
+                    
+//#define SUPPRESS_ACC_FILTERS
 #define ACC_FREQ            10.0
-#define COMPASS_FREQ        100.0                     // Hz must be less than 10Hz
+
+//#define SUPPRESS_YAW_GYRO_FILTERS   
+#define YAW_FREQ            10.0                     // Hz
+
+//#define SUPPRESS_COMPASS 
+//#define SUPPRESS_COMPASS_FILTER
+#define COMPASS_FREQ        10.0                     // Hz must be less than 10Hz
 
 // DCM Attitude Estimation
 
-//#define INC_ALL_SCHEMES                               // runs all attitude control schemes - use "custom" telemetry
+//#define INC_ALL_SCHEMES                            // runs all attitude control schemes - use "custom" telemetry
 
 // The pitch/roll angle should track CLOSELY with the noise "mostly" tuned out.
 // Jitter in the artificial horizon gives part of the story but better to use the UAVXFC logs.
 
 // Assumes normalised gravity vector
-#define TAU_S                 5.0                        //  1-10
+#define TAU_S               5.0                        //  1-10
 #define Kp_RollPitch        5.0 //(2.0/TAU_S)                  //1.0      // 5.0
 #define Ki_RollPitch        0.005//((1.0/TAU_S)*(1.0/TAU_S))      //0.001    // 0.005
 //#define Ki_RollPitch      (1.0/(TAU_S*TAU_S)) ?

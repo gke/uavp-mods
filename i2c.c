@@ -39,7 +39,7 @@ uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 
 #ifdef SW_I2C
 
-//#define USE_NXP_PINS
+//BROKEN - NEEDS MEMORY PROTECTION MAGIC? #define USE_NXP_PINS
 #ifdef USE_NXP_PINS
 
 #define I2CDelay5uS  wait_us(5)
@@ -56,7 +56,7 @@ uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 
 #define I2CDelay5uS  wait_us(5)
 #define I2CDelay2uS // wait_us(2)
-#define HighLowDelay wait_us(1)
+#define HighLowDelay //wait_us(1)
 #define FloatDelay //
 
 #define I2CSDALow {I2C0SDA.write(0);HighLowDelay;I2C0SDA.output();}

@@ -205,7 +205,7 @@ void ShowAttitude(void) {
 
     TxESCi16(Acc[LR] * 1000.0);
     TxESCi16(Acc[BF] * 1000.0);
-    TxESCi16(Acc[UD] * 1000.0);
+    TxESCi16(Heading * 1000.0*180.0/3.14159);//zzzAcc[UD] * 1000.0);
 } // ShowAttitude
 
 void SendFlightPacket(void) {

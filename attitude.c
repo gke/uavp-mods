@@ -33,14 +33,21 @@ uint8 AttitudeMethod = WolferlSimple; //SimpleIntegrator, WolferlSimple Madgwick
 
 void DoLegacyYawComp(uint8 S) {
 
-#define COMPASS_MIDDLE          10         // yaw stick neutral dead zone
-#define DRIFT_COMPYAW_RATE      QUARTERPI  // Radians/Sec
+#define COMPASS_MIDDLE          10                  // yaw stick neutral dead zone
+#define DRIFT_COMP_YAW_RATE      QUARTERPI           // Radians/Sec
 #define MAX_YAW_RATE            (PI / RC_NEUTRAL);  // Radians/Sec HalfPI 90deg/sec
 
     static real32 HE;
     static int16 Temp;
 
     Rate[Yaw] = Gyro[Yaw];
+
+#ifdef SUPPRESS_COMPASS
+
+    Attitude[Yaw][S] = 0.0;
+    //  Rate[Yaw] = Limit(Rate[Yaw], -MAX_YAW_RATE, MAX_YAW_RATE);
+
+#else
 
     // Yaw Angle here is meant to be interpreted as the Heading Error
     if ( F.HeadingUpdated ) {
@@ -53,7 +60,7 @@ void DoLegacyYawComp(uint8 S) {
                 HE = MakePi(DesiredHeading - Heading);
                 HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
                 HE = HE * K[CompassKp];
-                HE = -Limit(HE, -DRIFT_COMPYAW_RATE, DRIFT_COMPYAW_RATE);
+                HE = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
             }
         else {
             DesiredHeading = Heading;
@@ -64,17 +71,20 @@ void DoLegacyYawComp(uint8 S) {
 
         Attitude[Yaw][S] += ( Rate[Yaw] + HE  ) * COMPASS_UPDATE_S;
         Attitude[Yaw][S] = Limit(Attitude[Yaw][WolferlSimple], -K[YawIntLimit], K[YawIntLimit]);
+
     }
+
+#endif // SUPPRESS_COMPASS
 
 } // DoLegacyYawComp
 
 void NormaliseAccelerations(void) {
 
-const real32 MIN_ACC_MAGNITUDE = 0.7; // below this the accelerometers are deemed unreliable - falling?
+    const real32 MIN_ACC_MAGNITUDE = 0.7; // below this the accelerometers are deemed unreliable - falling?
 
     static real32 ReNorm, AccMag;
-    
-    AccMag = sqrt(Sqr(Acc[BF]) + Sqr(Acc[LR]) + Sqr(Acc[UD])); 
+
+    AccMag = sqrt(Sqr(Acc[BF]) + Sqr(Acc[LR]) + Sqr(Acc[UD]));
     if ( AccMag < MIN_ACC_MAGNITUDE ) {
         Acc[LR] = Acc[BF]  = 0.0;
         Acc[UD] = 1.0;
@@ -124,16 +134,18 @@ void GetAttitude(void) {
 
     } else {
         DebugPin = true;
-        
+
         NormaliseAccelerations(); // also checks for free-fall
 
         // WolferlSimple
         Wolferl();
 
-#ifdef INC_ALL_SCHEMES
-
         // Integrator
         Integrator();
+
+#ifdef INC_ALL_SCHEMES
+
+
 
         //PremerlaniDCM
         DCMUpdate();
@@ -318,13 +330,13 @@ void DCMMotionCompensation(void) {
 void DCMDriftCorrection(void) {
 
     static real32 ScaledOmegaI[3];
-    
+
     //DON'T USE  #define USE_DCM_YAW_COMP
-    #ifdef USE_DCM_YAW_COMP
-    static real32 ScaledOmegaP[3];   
+#ifdef USE_DCM_YAW_COMP
+    static real32 ScaledOmegaP[3];
     static real32 YawError[3];
     static real32 ErrorCourse;
-    #endif // USE_DCM_YAW_COMP
+#endif // USE_DCM_YAW_COMP
 
     VCross(&RollPitchError[0], &Acc[0], &DCM[2][0]); //adjust the reference ground
     VScale(&OmegaP[0], &RollPitchError[0], Kp_RollPitch);
@@ -332,7 +344,7 @@ void DCMDriftCorrection(void) {
     VScale(&ScaledOmegaI[0], &RollPitchError[0], Ki_RollPitch);
     VAdd(&OmegaI[0], &OmegaI[0], &ScaledOmegaI[0]);
 
-    #ifdef USE_DCM_YAW_COMP
+#ifdef USE_DCM_YAW_COMP
     if ( F.HeadingUpdated ) {
         // Yaw - drift correction based on compass/magnetometer heading
         HeadingCos = cos( Heading );
@@ -346,7 +358,7 @@ void DCMDriftCorrection(void) {
         VScale(&ScaledOmegaI[0], &YawError[0], Ki_Yaw );
         VAdd(&OmegaI[0], &OmegaI[0], &ScaledOmegaI[0]);
     }
-    #endif // USE_DCM_YAW_COMP
+#endif // USE_DCM_YAW_COMP
 
 } // DCMDriftCorrection
 
@@ -431,7 +443,7 @@ void IMUupdate(real32 gx, real32 gy, real32 gz, real32 ax, real32 ay, real32 az)
     static real32 ReNorm;
     static real32 vx, vy, vz;
     static real32 ex, ey, ez;
-  //  static real32 aMag;
+    //  static real32 aMag;
 
 //swap z and y?
 
@@ -588,13 +600,13 @@ real32 F2[2] = {0,0};
 
 real32 CF(uint8 a, real32 NewAngle, real32 NewRate) {
 
-if ( F.AttitudeCompActive ) {
-    F0[a] = (NewAngle - AngleCF[a]) * Sqr(TauCF);
-    F2[a] += F0[a] * dT;
-    F1[a] = F2[a] + (NewAngle - AngleCF[a]) * 2.0 * TauCF + NewRate;
-    AngleCF[a] = (F1[a] * dT) + AngleCF[a];
-   } else
-       AngleCF[a] += NewRate * dT;
+    if ( F.AttitudeCompActive ) {
+        F0[a] = (NewAngle - AngleCF[a]) * Sqr(TauCF);
+        F2[a] += F0[a] * dT;
+        F1[a] = F2[a] + (NewAngle - AngleCF[a]) * 2.0 * TauCF + NewRate;
+        AngleCF[a] = (F1[a] * dT) + AngleCF[a];
+    } else
+        AngleCF[a] += NewRate * dT;
 
     return ( AngleCF[a] ); // This is actually the current angle, but is stored for the next iteration
 } // CF
