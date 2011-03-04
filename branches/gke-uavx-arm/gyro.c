@@ -52,16 +52,16 @@ void GetGyroRates(void) {
         if ( d>GyroNoise[g] ) GyroNoise[g] = d;
     }
 
-#ifdef SUPPRESS_GYRO_FILTERS
-
+#ifndef SUPPRESS_ROLL_PITCH_GYRO_FILTERS
     GyroA = dT / ( 1.0 / ( TWOPI * ROLL_PITCH_FREQ ) + dT );
     Gyro[Roll] = LPFilter( Gyro[Roll] - GyroNeutral[Roll], Gyrop[Roll], GyroA, dT );
     Gyro[Pitch] = LPFilter( Gyro[Pitch] - GyroNeutral[Pitch], Gyrop[Pitch], GyroA, dT );
+#endif // !SUPPRESS_ROLL_PITCH_GYRO_FILTERS 
 
+#ifndef SUPPRESS_YAW_GYRO_FILTERS
     GyroA = dT / ( 1.0 / ( TWOPI * YAW_FREQ ) + dT );
     Gyro[Yaw] = LPFilter( Gyro[Yaw] - GyroNeutral[Yaw], Gyrop[Yaw], GyroA, dT );
-
-#endif // SUPPRESS_GYRO_FILTERS
+#endif // !SUPPRESS_GYRO_FILTERS
 
     for ( g = 0; g < (uint8)3; g++ )
         Gyrop[g] = Gyro[g];
@@ -313,11 +313,18 @@ SGerror:
 } // WriteByteITG3200
 
 void InitITG3200Gyro(void) {
+
+#define FS_SEL 3
+
+//#define DLPF_CFG 1 // 188HZ
+#define DLPF_CFG 2 // 98HZ
+//#define DLPF_CFG 3 // 42HZ
+
     F.GyroFailure = false; // reset optimistically!
 
     WriteByteITG3200(ITG3200_PWR_M, 0x80);    // Reset to defaults
     WriteByteITG3200(ITG3200_SMPL, 0x00);     // continuous update
-    WriteByteITG3200(ITG3200_DLPF, 0x19);     // 188Hz, 2000deg/S
+    WriteByteITG3200(ITG3200_DLPF, (FS_SEL << 3) | DLPF_CFG );     // 188Hz, 2000deg/S
     WriteByteITG3200(ITG3200_INT_C, 0x00);    // no interrupts
     WriteByteITG3200(ITG3200_PWR_M, 0x01);    // X Gyro as Clock Ref.
 

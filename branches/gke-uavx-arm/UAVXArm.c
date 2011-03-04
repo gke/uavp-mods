@@ -21,7 +21,7 @@
 #include "UAVXArm.h"
 
 volatile Flags     F;
-int8 r; // global I2C 
+int8 r; // global I2C
 
 int main(void) {
 
@@ -31,7 +31,7 @@ int main(void) {
     InitRC();
     InitTimersAndInterrupts();
     InitLEDs();
-         
+
     InitParameters();
     ReadStatsPX();
     InitMotors();
@@ -41,7 +41,7 @@ int main(void) {
     InitAccelerometers();
     InitGyros();
     InitIRSensors();
- 
+
     InitCompass();
     InitRangefinder();
 
@@ -61,7 +61,7 @@ int main(void) {
         StopMotors();
 
         LightsAndSirens();    // Check for Rx signal, disarmed on power up, throttle closed, gyros ONLINE
-        
+
         GetAttitude();
         MixAndLimitCam();
 
@@ -98,7 +98,7 @@ int main(void) {
                         ErectGyros(); // DO NOT MOVE AIRCRAFT!
                         ZeroStats();
                         DoStartingBeeps(3);
-                        
+
                         SendParameters(ParamSet);
 
                         mS[ArmedTimeout] = mSClock() + ARMED_TIMEOUT_MS;
@@ -178,18 +178,18 @@ int main(void) {
                 FailState = MonitoringRx;
             } else
                 DoPPMFailsafe();
-                
+
             while ( uSClock() < ControlUpdateTimeuS ) {}; // CAUTION: uS clock wraps at about an hour
-            ControlUpdateTimeuS = uSClock() + PID_CYCLE_US; 
+            ControlUpdateTimeuS = uSClock() + PID_CYCLE_US;
 
             DoControl();
 
             MixAndLimitMotors();
             OutSignals();
-            
+
             MixAndLimitCam();
-            
-            GetTemperature();  
+
+            GetTemperature();
             GetBattery();
             CheckAlarms();
             CheckTelemetry();

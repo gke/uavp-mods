@@ -102,9 +102,9 @@ void GetHeading(void) {
     if ( fabs(Heading - Headingp ) > PI )
         Headingp = Heading;
 
-#ifdef SUPPRESS_COMPASS_FILTER
+#ifndef SUPPRESS_COMPASS_FILTER
     Heading = LPFilter(Heading, Headingp, CompassA, COMPASS_UPDATE_S);
-#endif // SUPPRESS_COMPASS_FILTER
+#endif // !SUPPRESS_COMPASS_FILTER
     Headingp = Heading;
 
 #ifdef SIMULATE
@@ -209,14 +209,39 @@ void ReadHMC5843(void) {
 
 void CalibrateHMC5843(void) {
 
-} // DoHMC5843Test
+} // CalibrateHMC5843
+
+void GetHMC5843Parameters(void) {
+
+    static char CP[16];
+    static uint8 i;
+
+    I2CCOMPASS.start();
+    r = I2CCOMPASS.write(HMC5843_WR);
+    r = I2CCOMPASS.write(0x00); // point to data
+    I2CCOMPASS.stop();
+
+    r = I2CCOMPASS.blockread(HMC5843_RD, CP, 13);
+
+    for ( i = 0; i < (uint8)13; i++ ) {
+        TxVal32(i,0,0);
+        TxString(":\t0x");
+        TxValH(CP[i]);
+        TxChar(HT);
+        TxBin8(CP[i]);
+        TxNextLine();
+    }
+
+} // GetHMC5843Parameters
 
 void DoHMC5843Test(void) {
     TxString("\r\nCompass test (HMC5843)\r\n\r\n");
 
     ReadHMC5843();
 
-    TxString("Mag:\t");
+    GetHMC5843Parameters();
+
+    TxString("\r\nMag:\t");
     TxVal32(Mag[LR].V, 0, HT);
     TxVal32(Mag[BF].V, 0, HT);
     TxVal32(Mag[UD].V, 0, HT);
@@ -231,13 +256,24 @@ void DoHMC5843Test(void) {
     TxString(" deg (True)\r\n");
 } // DoHMC5843Test
 
-void InitHMC5843(void) {
+uint8 WriteByteHMC5843(uint8 a, uint8 d) {
 
     I2CCOMPASS.start();
     r = I2CCOMPASS.write(HMC5843_WR);
-    r = I2CCOMPASS.write(0x02);
-    r = I2CCOMPASS.write(0x00);   // Set continuous mode (default to 10Hz)
+    r = I2CCOMPASS.write(a);
+    r = I2CCOMPASS.write(d);
     I2CCOMPASS.stop();
+
+    return( I2C_ACK );
+} // WriteByteHMC5843
+
+void InitHMC5843(void) {
+
+#define DR 5    // 20Hz
+//#define DR 6    // 50Hz
+
+    WriteByteHMC5843(0x00, DR << 2); // rate, normal measurement mode
+    WriteByteHMC5843(0x02, 0x00); // mode continuous
 
     Delay1mS(50);
 
@@ -295,6 +331,7 @@ char CP[9];
 #define TEST_COMP_OPMODE 0x70    // standby mode to reliably read EEPROM
 
 void GetHMC6352Parameters(void) {
+    int16 Temp;
     uint8 r;
 
     I2CCOMPASS.start();
@@ -323,37 +360,8 @@ void GetHMC6352Parameters(void) {
 
         Delay1mS(10);
     }
-
-    return;
-
-CTerror:
-    I2CCOMPASS.stop();
-    TxString("FAIL\r\n");
-
-} // GetHMC6352Parameters
-
-void DoHMC6352Test(void) {
-    static real32 Temp;
-
-    TxString("\r\nCompass test (HMC6352)\r\n");
-
-    I2CCOMPASS.start();
-    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write('G')  != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write(0x74) != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write(TEST_COMP_OPMODE) != I2C_ACK ) goto CTerror;
-    I2CCOMPASS.stop();
-
-    Delay1mS(1);
-
-    //  I2CCOMPASS.start(); // Do Set/Reset now
-    if ( WriteByteHMC6352('O')  != I2C_ACK ) goto CTerror;
-
-    Delay1mS(7);
-
-    GetHMC6352Parameters();
-
-    TxString("\r\nRegisters\r\n");
+    
+        TxString("\r\nRegisters\r\n");
     TxString("\t0:\tI2C");
     TxString("\t 0x");
     TxValH(CP[0]);
@@ -418,6 +426,34 @@ void DoHMC6352Test(void) {
     }
     TxNextLine();
 
+    return;
+
+CTerror:
+    I2CCOMPASS.stop();
+    TxString("FAIL\r\n");
+
+} // GetHMC6352Parameters
+
+void DoHMC6352Test(void) {
+
+    TxString("\r\nCompass test (HMC6352)\r\n");
+
+    I2CCOMPASS.start();
+    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto CTerror;
+    if ( I2CCOMPASS.write('G')  != I2C_ACK ) goto CTerror;
+    if ( I2CCOMPASS.write(0x74) != I2C_ACK ) goto CTerror;
+    if ( I2CCOMPASS.write(TEST_COMP_OPMODE) != I2C_ACK ) goto CTerror;
+    I2CCOMPASS.stop();
+
+    Delay1mS(1);
+
+    //  I2CCOMPASS.start(); // Do Set/Reset now
+    if ( WriteByteHMC6352('O')  != I2C_ACK ) goto CTerror;
+
+    Delay1mS(7);
+
+    GetHMC6352Parameters();
+    
     InitCompass();
     if ( !F.CompassValid ) goto CTerror;
 

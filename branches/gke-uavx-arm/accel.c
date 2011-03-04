@@ -111,11 +111,11 @@ void GetAccelerations(void) {
         Acc[LR] = AccADC[LR] * GravityR - K[MiddleLR];
         Acc[UD] = AccADC[UD] * GravityR - K[MiddleUD];
 
-#ifdef SUPPRESS_ACC_FILTERS
+#ifndef SUPPRESS_ACC_FILTERS
         AccA = dT / ( 1.0 / ( TWOPI * ACC_FREQ ) + dT );
         for ( a = 0; a < (uint8)3; a++ )
             Acc[a] = LPFilter( Acc[a], Accp[a], AccA, dT );
-#endif // SUPPRESS_ACC_FILTERS
+#endif // !SUPPRESS_ACC_FILTERS
         for ( a = 0; a < (uint8)3; a++ )
             Accp[a] = Acc[a];
 
