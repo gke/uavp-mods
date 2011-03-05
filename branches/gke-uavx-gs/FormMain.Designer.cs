@@ -177,6 +177,8 @@ namespace UAVXGS
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.SimulationTextBox = new System.Windows.Forms.TextBox();
             this.OutputGroupBox = new System.Windows.Forms.GroupBox();
+            this.OutputTotalLabel = new System.Windows.Forms.Label();
+            this.OutputTot = new System.Windows.Forms.TextBox();
             this.Output4Label = new System.Windows.Forms.Label();
             this.Output5Label = new System.Windows.Forms.Label();
             this.OutputT5 = new System.Windows.Forms.TextBox();
@@ -304,19 +306,19 @@ namespace UAVXGS
             // 
             // RollAngle
             // 
-            this.RollAngle.Location = new System.Drawing.Point(39, 46);
+            this.RollAngle.Location = new System.Drawing.Point(41, 45);
             this.RollAngle.Name = "RollAngle";
             this.RollAngle.ReadOnly = true;
-            this.RollAngle.Size = new System.Drawing.Size(32, 20);
+            this.RollAngle.Size = new System.Drawing.Size(29, 20);
             this.RollAngle.TabIndex = 5;
             this.RollAngle.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // PitchAngle
             // 
-            this.PitchAngle.Location = new System.Drawing.Point(39, 72);
+            this.PitchAngle.Location = new System.Drawing.Point(41, 71);
             this.PitchAngle.Name = "PitchAngle";
             this.PitchAngle.ReadOnly = true;
-            this.PitchAngle.Size = new System.Drawing.Size(32, 20);
+            this.PitchAngle.Size = new System.Drawing.Size(29, 20);
             this.PitchAngle.TabIndex = 6;
             this.PitchAngle.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -422,10 +424,10 @@ namespace UAVXGS
             // 
             // YawAngle
             // 
-            this.YawAngle.Location = new System.Drawing.Point(39, 98);
+            this.YawAngle.Location = new System.Drawing.Point(41, 97);
             this.YawAngle.Name = "YawAngle";
             this.YawAngle.ReadOnly = true;
-            this.YawAngle.Size = new System.Drawing.Size(32, 20);
+            this.YawAngle.Size = new System.Drawing.Size(29, 20);
             this.YawAngle.TabIndex = 20;
             this.YawAngle.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -667,7 +669,7 @@ namespace UAVXGS
             // 
             this.FailStateLabel.AutoSize = true;
             this.FailStateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FailStateLabel.Location = new System.Drawing.Point(185, 33);
+            this.FailStateLabel.Location = new System.Drawing.Point(182, 33);
             this.FailStateLabel.Name = "FailStateLabel";
             this.FailStateLabel.Size = new System.Drawing.Size(51, 13);
             this.FailStateLabel.TabIndex = 71;
@@ -774,7 +776,7 @@ namespace UAVXGS
             // 
             // FlightState
             // 
-            this.FlightState.Location = new System.Drawing.Point(108, 30);
+            this.FlightState.Location = new System.Drawing.Point(92, 30);
             this.FlightState.Name = "FlightState";
             this.FlightState.ReadOnly = true;
             this.FlightState.Size = new System.Drawing.Size(73, 20);
@@ -785,7 +787,7 @@ namespace UAVXGS
             // 
             this.FlightStateLabel.AutoSize = true;
             this.FlightStateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FlightStateLabel.Location = new System.Drawing.Point(70, 33);
+            this.FlightStateLabel.Location = new System.Drawing.Point(42, 33);
             this.FlightStateLabel.Name = "FlightStateLabel";
             this.FlightStateLabel.Size = new System.Drawing.Size(32, 13);
             this.FlightStateLabel.TabIndex = 90;
@@ -831,9 +833,9 @@ namespace UAVXGS
             this.AttitudeGroupBox.Controls.Add(this.RollAngle);
             this.AttitudeGroupBox.Controls.Add(this.PitchAngle);
             this.AttitudeGroupBox.Controls.Add(this.YawAngle);
-            this.AttitudeGroupBox.Location = new System.Drawing.Point(95, 56);
+            this.AttitudeGroupBox.Location = new System.Drawing.Point(95, 57);
             this.AttitudeGroupBox.Name = "AttitudeGroupBox";
-            this.AttitudeGroupBox.Size = new System.Drawing.Size(77, 125);
+            this.AttitudeGroupBox.Size = new System.Drawing.Size(77, 124);
             this.AttitudeGroupBox.TabIndex = 94;
             this.AttitudeGroupBox.TabStop = false;
             this.AttitudeGroupBox.Text = "Attitude";
@@ -841,16 +843,16 @@ namespace UAVXGS
             // YawLabel
             // 
             this.YawLabel.AutoSize = true;
-            this.YawLabel.Location = new System.Drawing.Point(6, 101);
+            this.YawLabel.Location = new System.Drawing.Point(4, 100);
             this.YawLabel.Name = "YawLabel";
-            this.YawLabel.Size = new System.Drawing.Size(28, 13);
+            this.YawLabel.Size = new System.Drawing.Size(35, 13);
             this.YawLabel.TabIndex = 109;
-            this.YawLabel.Text = "Yaw";
+            this.YawLabel.Text = "YawE";
             // 
             // PitchLabel
             // 
             this.PitchLabel.AutoSize = true;
-            this.PitchLabel.Location = new System.Drawing.Point(6, 75);
+            this.PitchLabel.Location = new System.Drawing.Point(5, 74);
             this.PitchLabel.Name = "PitchLabel";
             this.PitchLabel.Size = new System.Drawing.Size(31, 13);
             this.PitchLabel.TabIndex = 108;
@@ -859,7 +861,7 @@ namespace UAVXGS
             // RollLabel
             // 
             this.RollLabel.AutoSize = true;
-            this.RollLabel.Location = new System.Drawing.Point(6, 49);
+            this.RollLabel.Location = new System.Drawing.Point(5, 48);
             this.RollLabel.Name = "RollLabel";
             this.RollLabel.Size = new System.Drawing.Size(25, 13);
             this.RollLabel.TabIndex = 107;
@@ -904,7 +906,7 @@ namespace UAVXGS
             this.EnvGroupBox.Size = new System.Drawing.Size(125, 43);
             this.EnvGroupBox.TabIndex = 97;
             this.EnvGroupBox.TabStop = false;
-            this.EnvGroupBox.Text = "Env Status";
+            this.EnvGroupBox.Text = "Board";
             // 
             // AmbientTemp
             // 
@@ -1789,6 +1791,8 @@ namespace UAVXGS
             // 
             // OutputGroupBox
             // 
+            this.OutputGroupBox.Controls.Add(this.OutputTotalLabel);
+            this.OutputGroupBox.Controls.Add(this.OutputTot);
             this.OutputGroupBox.Controls.Add(this.Output4Label);
             this.OutputGroupBox.Controls.Add(this.Output5Label);
             this.OutputGroupBox.Controls.Add(this.OutputT5);
@@ -1808,10 +1812,28 @@ namespace UAVXGS
             this.OutputGroupBox.TabStop = false;
             this.OutputGroupBox.Text = "Outputs (%)";
             // 
+            // OutputTotalLabel
+            // 
+            this.OutputTotalLabel.AutoSize = true;
+            this.OutputTotalLabel.Location = new System.Drawing.Point(208, 13);
+            this.OutputTotalLabel.Name = "OutputTotalLabel";
+            this.OutputTotalLabel.Size = new System.Drawing.Size(26, 13);
+            this.OutputTotalLabel.TabIndex = 79;
+            this.OutputTotalLabel.Text = "Tot.";
+            // 
+            // OutputTot
+            // 
+            this.OutputTot.Location = new System.Drawing.Point(207, 29);
+            this.OutputTot.Name = "OutputTot";
+            this.OutputTot.ReadOnly = true;
+            this.OutputTot.Size = new System.Drawing.Size(27, 20);
+            this.OutputTot.TabIndex = 78;
+            this.OutputTot.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
             // Output4Label
             // 
             this.Output4Label.AutoSize = true;
-            this.Output4Label.Location = new System.Drawing.Point(175, 12);
+            this.Output4Label.Location = new System.Drawing.Point(148, 14);
             this.Output4Label.Name = "Output4Label";
             this.Output4Label.Size = new System.Drawing.Size(13, 13);
             this.Output4Label.TabIndex = 77;
@@ -1820,7 +1842,7 @@ namespace UAVXGS
             // Output5Label
             // 
             this.Output5Label.AutoSize = true;
-            this.Output5Label.Location = new System.Drawing.Point(213, 12);
+            this.Output5Label.Location = new System.Drawing.Point(181, 14);
             this.Output5Label.Name = "Output5Label";
             this.Output5Label.Size = new System.Drawing.Size(13, 13);
             this.Output5Label.TabIndex = 76;
@@ -1828,26 +1850,26 @@ namespace UAVXGS
             // 
             // OutputT5
             // 
-            this.OutputT5.Location = new System.Drawing.Point(206, 29);
+            this.OutputT5.Location = new System.Drawing.Point(174, 29);
             this.OutputT5.Name = "OutputT5";
             this.OutputT5.ReadOnly = true;
-            this.OutputT5.Size = new System.Drawing.Size(32, 20);
+            this.OutputT5.Size = new System.Drawing.Size(27, 20);
             this.OutputT5.TabIndex = 75;
             this.OutputT5.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // OutputT4
             // 
-            this.OutputT4.Location = new System.Drawing.Point(168, 29);
+            this.OutputT4.Location = new System.Drawing.Point(141, 29);
             this.OutputT4.Name = "OutputT4";
             this.OutputT4.ReadOnly = true;
-            this.OutputT4.Size = new System.Drawing.Size(32, 20);
+            this.OutputT4.Size = new System.Drawing.Size(27, 20);
             this.OutputT4.TabIndex = 74;
             this.OutputT4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // Output2Label
             // 
             this.Output2Label.AutoSize = true;
-            this.Output2Label.Location = new System.Drawing.Point(102, 12);
+            this.Output2Label.Location = new System.Drawing.Point(83, 13);
             this.Output2Label.Name = "Output2Label";
             this.Output2Label.Size = new System.Drawing.Size(13, 13);
             this.Output2Label.TabIndex = 73;
@@ -1856,7 +1878,7 @@ namespace UAVXGS
             // Output3Label
             // 
             this.Output3Label.AutoSize = true;
-            this.Output3Label.Location = new System.Drawing.Point(140, 12);
+            this.Output3Label.Location = new System.Drawing.Point(114, 13);
             this.Output3Label.Name = "Output3Label";
             this.Output3Label.Size = new System.Drawing.Size(13, 13);
             this.Output3Label.TabIndex = 72;
@@ -1865,7 +1887,7 @@ namespace UAVXGS
             // Output1Label
             // 
             this.Output1Label.AutoSize = true;
-            this.Output1Label.Location = new System.Drawing.Point(64, 12);
+            this.Output1Label.Location = new System.Drawing.Point(49, 14);
             this.Output1Label.Name = "Output1Label";
             this.Output1Label.Size = new System.Drawing.Size(13, 13);
             this.Output1Label.TabIndex = 71;
@@ -1874,7 +1896,7 @@ namespace UAVXGS
             // Output0Label
             // 
             this.Output0Label.AutoSize = true;
-            this.Output0Label.Location = new System.Drawing.Point(26, 12);
+            this.Output0Label.Location = new System.Drawing.Point(17, 14);
             this.Output0Label.Name = "Output0Label";
             this.Output0Label.Size = new System.Drawing.Size(13, 13);
             this.Output0Label.TabIndex = 68;
@@ -1882,37 +1904,37 @@ namespace UAVXGS
             // 
             // OutputT3
             // 
-            this.OutputT3.Location = new System.Drawing.Point(130, 29);
+            this.OutputT3.Location = new System.Drawing.Point(108, 29);
             this.OutputT3.Name = "OutputT3";
             this.OutputT3.ReadOnly = true;
-            this.OutputT3.Size = new System.Drawing.Size(32, 20);
+            this.OutputT3.Size = new System.Drawing.Size(27, 20);
             this.OutputT3.TabIndex = 47;
             this.OutputT3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // OutputT2
             // 
-            this.OutputT2.Location = new System.Drawing.Point(92, 29);
+            this.OutputT2.Location = new System.Drawing.Point(75, 29);
             this.OutputT2.Name = "OutputT2";
             this.OutputT2.ReadOnly = true;
-            this.OutputT2.Size = new System.Drawing.Size(32, 20);
+            this.OutputT2.Size = new System.Drawing.Size(27, 20);
             this.OutputT2.TabIndex = 46;
             this.OutputT2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // OutputT1
             // 
-            this.OutputT1.Location = new System.Drawing.Point(54, 29);
+            this.OutputT1.Location = new System.Drawing.Point(42, 30);
             this.OutputT1.Name = "OutputT1";
             this.OutputT1.ReadOnly = true;
-            this.OutputT1.Size = new System.Drawing.Size(32, 20);
+            this.OutputT1.Size = new System.Drawing.Size(27, 20);
             this.OutputT1.TabIndex = 45;
             this.OutputT1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // OutputT0
             // 
-            this.OutputT0.Location = new System.Drawing.Point(16, 29);
+            this.OutputT0.Location = new System.Drawing.Point(9, 30);
             this.OutputT0.Name = "OutputT0";
             this.OutputT0.ReadOnly = true;
-            this.OutputT0.Size = new System.Drawing.Size(32, 20);
+            this.OutputT0.Size = new System.Drawing.Size(27, 20);
             this.OutputT0.TabIndex = 44;
             this.OutputT0.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -2414,12 +2436,11 @@ namespace UAVXGS
             this.Airframe.BackColor = System.Drawing.SystemColors.Control;
             this.Airframe.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Airframe.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Airframe.Location = new System.Drawing.Point(587, 83);
+            this.Airframe.Location = new System.Drawing.Point(596, 82);
             this.Airframe.Name = "Airframe";
             this.Airframe.Size = new System.Drawing.Size(100, 13);
             this.Airframe.TabIndex = 166;
             this.Airframe.Text = "Quadrocopter";
-            this.Airframe.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ReplayNumericUpDown
             // 
@@ -2541,17 +2562,17 @@ namespace UAVXGS
             // FrSkycheckBox1
             // 
             this.FrSkycheckBox1.AutoSize = true;
-            this.FrSkycheckBox1.Location = new System.Drawing.Point(12, 30);
+            this.FrSkycheckBox1.Location = new System.Drawing.Point(6, 31);
             this.FrSkycheckBox1.Name = "FrSkycheckBox1";
-            this.FrSkycheckBox1.Size = new System.Drawing.Size(53, 17);
+            this.FrSkycheckBox1.Size = new System.Drawing.Size(15, 14);
             this.FrSkycheckBox1.TabIndex = 168;
-            this.FrSkycheckBox1.Text = "FrSky";
             this.FrSkycheckBox1.UseVisualStyleBackColor = true;
             // 
             // FrSkyBox
             // 
             this.FrSkyBox.Controls.Add(this.FrSkyErrLabel);
             this.FrSkyBox.Controls.Add(this.RxFrSkyErr);
+            this.FrSkyBox.Controls.Add(this.FrSkycheckBox1);
             this.FrSkyBox.Controls.Add(this.FrSkyLQLabel);
             this.FrSkyBox.Controls.Add(this.FrSkyA2Label);
             this.FrSkyBox.Controls.Add(this.FrSkyA1Label);
@@ -2568,25 +2589,25 @@ namespace UAVXGS
             // FrSkyErrLabel
             // 
             this.FrSkyErrLabel.AutoSize = true;
-            this.FrSkyErrLabel.Location = new System.Drawing.Point(121, 12);
+            this.FrSkyErrLabel.Location = new System.Drawing.Point(140, 12);
             this.FrSkyErrLabel.Name = "FrSkyErrLabel";
-            this.FrSkyErrLabel.Size = new System.Drawing.Size(49, 13);
+            this.FrSkyErrLabel.Size = new System.Drawing.Size(23, 13);
             this.FrSkyErrLabel.TabIndex = 75;
-            this.FrSkyErrLabel.Text = "Lost Pkt.";
+            this.FrSkyErrLabel.Text = "Err.";
             // 
             // RxFrSkyErr
             // 
-            this.RxFrSkyErr.Location = new System.Drawing.Point(120, 28);
+            this.RxFrSkyErr.Location = new System.Drawing.Point(140, 28);
             this.RxFrSkyErr.Name = "RxFrSkyErr";
             this.RxFrSkyErr.ReadOnly = true;
-            this.RxFrSkyErr.Size = new System.Drawing.Size(48, 20);
+            this.RxFrSkyErr.Size = new System.Drawing.Size(28, 20);
             this.RxFrSkyErr.TabIndex = 74;
             this.RxFrSkyErr.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // FrSkyLQLabel
             // 
             this.FrSkyLQLabel.AutoSize = true;
-            this.FrSkyLQLabel.Location = new System.Drawing.Point(6, 12);
+            this.FrSkyLQLabel.Location = new System.Drawing.Point(23, 12);
             this.FrSkyLQLabel.Name = "FrSkyLQLabel";
             this.FrSkyLQLabel.Size = new System.Drawing.Size(39, 13);
             this.FrSkyLQLabel.TabIndex = 73;
@@ -2595,7 +2616,7 @@ namespace UAVXGS
             // FrSkyA2Label
             // 
             this.FrSkyA2Label.AutoSize = true;
-            this.FrSkyA2Label.Location = new System.Drawing.Point(81, 12);
+            this.FrSkyA2Label.Location = new System.Drawing.Point(102, 12);
             this.FrSkyA2Label.Name = "FrSkyA2Label";
             this.FrSkyA2Label.Size = new System.Drawing.Size(33, 13);
             this.FrSkyA2Label.TabIndex = 71;
@@ -2604,7 +2625,7 @@ namespace UAVXGS
             // FrSkyA1Label
             // 
             this.FrSkyA1Label.AutoSize = true;
-            this.FrSkyA1Label.Location = new System.Drawing.Point(44, 12);
+            this.FrSkyA1Label.Location = new System.Drawing.Point(63, 12);
             this.FrSkyA1Label.Name = "FrSkyA1Label";
             this.FrSkyA1Label.Size = new System.Drawing.Size(33, 13);
             this.FrSkyA1Label.TabIndex = 68;
@@ -2612,7 +2633,7 @@ namespace UAVXGS
             // 
             // FrSkyLQ
             // 
-            this.FrSkyLQ.Location = new System.Drawing.Point(6, 28);
+            this.FrSkyLQ.Location = new System.Drawing.Point(26, 28);
             this.FrSkyLQ.Name = "FrSkyLQ";
             this.FrSkyLQ.ReadOnly = true;
             this.FrSkyLQ.Size = new System.Drawing.Size(32, 20);
@@ -2621,7 +2642,7 @@ namespace UAVXGS
             // 
             // FrSkyA2
             // 
-            this.FrSkyA2.Location = new System.Drawing.Point(82, 28);
+            this.FrSkyA2.Location = new System.Drawing.Point(102, 28);
             this.FrSkyA2.Name = "FrSkyA2";
             this.FrSkyA2.ReadOnly = true;
             this.FrSkyA2.Size = new System.Drawing.Size(32, 20);
@@ -2630,7 +2651,7 @@ namespace UAVXGS
             // 
             // FrSkyA1
             // 
-            this.FrSkyA1.Location = new System.Drawing.Point(44, 28);
+            this.FrSkyA1.Location = new System.Drawing.Point(64, 28);
             this.FrSkyA1.Name = "FrSkyA1";
             this.FrSkyA1.ReadOnly = true;
             this.FrSkyA1.Size = new System.Drawing.Size(32, 20);
@@ -2673,7 +2694,6 @@ namespace UAVXGS
             this.ClientSize = new System.Drawing.Size(848, 633);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.FrSkyBox);
-            this.Controls.Add(this.FrSkycheckBox1);
             this.Controls.Add(this.NavCompBox);
             this.Controls.Add(this.ReplayNumericUpDown);
             this.Controls.Add(this.Airframe);
@@ -3003,6 +3023,8 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox RxFrSkyErr;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem testsoftwareToolStripMenuItem;
+        private System.Windows.Forms.TextBox OutputTot;
+        private System.Windows.Forms.Label OutputTotalLabel;
     }
 }
 
