@@ -59,6 +59,7 @@ namespace UAVXGS
         const byte UAVXMinPacketTag = 18;
         const byte UAVXArmParamsPacketTag = 19;
         const byte UAVXStickPacketTag = 20;
+        const byte UAVXCustomPacketTag = 21;
 
         const byte FrSkyPacketTag = 99;
 
@@ -292,7 +293,6 @@ namespace UAVXGS
         double FlightPitchp = 0.0;
         double OSO = 0.0;
         double OCO = 1.0;
-        bool DoneOrientation = false;
 
         bool UAVXArm = false;
 
@@ -309,6 +309,8 @@ namespace UAVXGS
         long StatsPacketsReceived = 0;
         long ControlPacketsReceived = 0;
         long FrSkyPacketsReceived = 0;
+        long TopMotor;
+        double TotalOutput;
 
         short ParamSet, ParamNo;
 
@@ -344,6 +346,8 @@ namespace UAVXGS
         System.IO.StreamWriter SaveTextLogFileStreamWriter;
         System.IO.FileStream SaveTextParamFileStream;
         System.IO.StreamWriter SaveTextParamFileStreamWriter;
+        System.IO.FileStream SaveTextCustomFileStream;
+        System.IO.StreamWriter SaveTextCustomFileStreamWriter;
 
         System.IO.FileStream OpenLogFileStream;
         System.IO.BinaryReader OpenLogFileBinaryReader; 
@@ -516,6 +520,10 @@ namespace UAVXGS
                     SaveTextParamFileStreamWriter = new System.IO.StreamWriter(SaveTextParamFileStream, System.Text.Encoding.ASCII);
                     WriteTextParamFileHeader();
 
+                    SaveTextCustomFileStream = new System.IO.FileStream("UAVX_Custom.csv", System.IO.FileMode.Create);
+                    SaveTextCustomFileStreamWriter = new System.IO.StreamWriter(SaveTextCustomFileStream, System.Text.Encoding.ASCII);
+                    WriteTextCustomFileHeader();
+
                     ReplayProgressBar.Value = 0;
                     ReplayProgress = 0;
                     Thread Replay = new Thread(new ThreadStart(ReadReplayLogFile)); 
@@ -535,6 +543,9 @@ namespace UAVXGS
             SaveTextParamFileStreamWriter.Flush();
             SaveTextParamFileStreamWriter.Close();
             SaveTextParamFileStream.Close();
+            SaveTextCustomFileStreamWriter.Flush();
+            SaveTextCustomFileStreamWriter.Close();
+            SaveTextCustomFileStream.Close();
         }
 
         private void CreateSaveLogFile()
@@ -559,9 +570,18 @@ namespace UAVXGS
             SaveTextParamFileStreamWriter = new System.IO.StreamWriter(SaveTextParamFileStream, System.Text.Encoding.ASCII);
             WriteTextParamFileHeader();
 
+            SaveTextCustomFileStream = new System.IO.FileStream(FileName + "_Custom.csv", System.IO.FileMode.Create);
+            SaveTextCustomFileStreamWriter = new System.IO.StreamWriter(SaveTextCustomFileStream, System.Text.Encoding.ASCII);
+            WriteTextCustomFileHeader();
+
             NavPacketsReceived = 0;
             FlightPacketsReceived = 0;
             StatsPacketsReceived = 0;
+        }
+
+        private void WriteTextCustomFileHeader()
+        {
+             SaveTextCustomFileStreamWriter.WriteLine("Scheme,Gyro,Acc,Integrate(0),Wolferl(1),DCM(2),MadgwickIMU(3),MadgwickAHRS(4),Kalman(5),CFilter(6),MultiWii(7)");
         }
 
         private void WriteTextParamFileHeader()
@@ -1307,8 +1327,6 @@ namespace UAVXGS
 
                 OSO = Math.Sin(FlightHeadingOffset);
                 OCO = Math.Cos(FlightHeadingOffset);
-
-                DoneOrientation = true;
             }
         }
 
@@ -1529,25 +1547,40 @@ namespace UAVXGS
         {
             short m;
 
-             if ( UAVXArm )
-                {
-                    m = p;
-                    for (m = 0; m < 8; m++)
-                        OutputT[m] = ExtractShort(ref UAVXPacket, (byte)(p+m*2));
+            TotalOutput = 0;
+            if (UAVXArm)
+            {
+                m = p;
+                for (m = 0; m < 8; m++)
+                    OutputT[m] = ExtractShort(ref UAVXPacket, (byte)(p + m * 2));
 
-                    MissionTimeMilliSecT = ExtractInt24(ref UAVXPacket, (byte)(p+8));
-                }
+                MissionTimeMilliSecT = ExtractInt24(ref UAVXPacket, (byte)(p + 8));
+
+                TopMotor = 5;
+            }
+            else
+            {
+                m = p;
+                for (m = 0; m < 6; m++)
+                    OutputT[m] = ExtractByte(ref UAVXPacket, (byte)(p + m));
+
+                OutputT[6] = OutputT[4];
+                OutputT[7] = OutputT[5];
+
+                MissionTimeMilliSecT = ExtractInt24(ref UAVXPacket, (byte)(p + 6));
+
+                // clumsy!
+                if ((AirframeT == 4) || (AirframeT == 5) || (AirframeT == 6)) // One motor
+                    TopMotor = 0;
                 else
-                {
-                    m = p;
-                    for (m = 0; m < 6 ; m++)
-                        OutputT[m] = ExtractByte(ref UAVXPacket, (byte)(p+m));
+                    if (AirframeT == 3) // Y6
+                        TopMotor = 5;
+                    else
+                        TopMotor = 3;
+            }
 
-                    OutputT[6] = OutputT[4];
-                    OutputT[7] = OutputT[5];
-
-                    MissionTimeMilliSecT = ExtractInt24(ref UAVXPacket, (byte)(p+6));
-                }
+            for (m = 0; m <= TopMotor; m++ )
+                TotalOutput += OutputT[m];
         }
 
         void UpdateMotors()
@@ -1562,6 +1595,19 @@ namespace UAVXGS
             OutputT5.Text = string.Format("{0:n0}", OutputT[5] * OUTMaximumScale);
             OutputT6.Text = string.Format("{0:n0}", OutputT[6] * OUTMaximumScale);
             OutputT7.Text = string.Format("{0:n0}", OutputT[7] * OUTMaximumScale);
+            TotalOutput =  OUTMaximumScale * TotalOutput;
+            OutputTot.Text = string.Format("{0:n0}", TotalOutput);
+            TotalOutput /= (TopMotor + 1);
+            if (TotalOutput > 30)
+                OutputTot.BackColor = System.Drawing.Color.Green;
+            else
+                if (TotalOutput > 50)
+                    OutputTot.BackColor = System.Drawing.Color.Orange;
+                else
+                    if (TotalOutput > 75)
+                        OutputTot.BackColor = System.Drawing.Color.Red;
+                    else
+                        OutputTot.BackColor = OutputGroupBox.BackColor;
         }
 
         void UpdateAltitude()
@@ -1696,6 +1742,18 @@ namespace UAVXGS
 
                 switch (RxPacketTag)
                 {
+                    case UAVXCustomPacketTag:
+
+                        b = ExtractByte(ref UAVXPacket, 2);
+                        for (i = 0; i < b; i++ )
+                            if ( i > 0 )
+                                SaveTextCustomFileStreamWriter.Write(ExtractShort(ref UAVXPacket, (byte)(3 + i * 2)) * MILLIRADDEG + ",");
+                            else
+                                SaveTextCustomFileStreamWriter.Write(ExtractShort(ref UAVXPacket, (byte)(3 + i * 2)) + ",");
+  
+                        SaveTextCustomFileStreamWriter.WriteLine();
+                     
+                    break;
                 case UAVXMinPacketTag:
 
                     for (i = 2; i < (NoOfFlagBytes + 2); i++)
@@ -2201,23 +2259,23 @@ namespace UAVXGS
             ((Flags[5] & 0x80) >> 7) + ","); // Unused0
 
             SaveTextLogFileStreamWriter.Write(StateT + "," +
-            BatteryVoltsT + "," +
-            BatteryCurrentT + "," +
+            BatteryVoltsT * 0.1 + "," +
+            BatteryCurrentT * 0.1 + "," +
             BatteryChargeT + "," +
             RCGlitchesT + "," +
             DesiredThrottleT + "," +
             DesiredRollT + "," +
             DesiredPitchT + "," +
             DesiredYawT + "," +
-            RollRateT + "," +
-            PitchRateT + "," +
-            YawRateT + "," +
-            RollAngleT + "," +
-            PitchAngleT + "," +
-            YawAngleT + "," +
-            LRAccT + "," +
-            FBAccT + "," +
-            DUAccT + "," +
+            RollRateT * MILLIRADDEG + "," +
+            PitchRateT * MILLIRADDEG + "," +
+            YawRateT * MILLIRADDEG + "," +
+            RollAngleT * MILLIRADDEG + "," +
+            PitchAngleT * MILLIRADDEG + "," +
+            YawAngleT * MILLIRADDEG + "," +
+            LRAccT * 0.001 + "," +
+            FBAccT * 0.001 + "," +
+            DUAccT * 0.001 + "," +
             LRCompT + "," +
             FBCompT + "," +
             DUCompT + "," +
@@ -2226,7 +2284,7 @@ namespace UAVXGS
             for (i = 0; i < NoOfOutputs; i++)
                 SaveTextLogFileStreamWriter.Write(OutputT[i] + ",");
 
-            SaveTextLogFileStreamWriter.Write(MissionTimeMilliSecT + ",");
+            SaveTextLogFileStreamWriter.Write(MissionTimeMilliSecT * 0.001 + ",");
 
             SaveTextLogFileStreamWriter.Write("Nav," +
             NavStateT + "," +
@@ -2234,23 +2292,23 @@ namespace UAVXGS
             GPSNoOfSatsT + "," +
             GPSFixT + "," +
             CurrWPT + "," +
-            BaroROCT + "," +
-            RelBaroAltitudeT + "," +
-            GPSHeadingT + "," +
-            RangefinderAltitudeT + "," +
-            GPSHDiluteT + "," +
-            HeadingT + "," +
-            DesiredCourseT + "," +
-            GPSVelT + "," +
-            GPSROCT + "," +
-            GPSRelAltitudeT + "," +
-            GPSLatitudeT + "," +
-            GPSLongitudeT + "," +
-            DesiredAltitudeT + "," +
-            DesiredLatitudeT + "," +
-            DesiredLongitudeT + "," +
+            BaroROCT * 0.1 + "," +
+            RelBaroAltitudeT * 0.1 + "," +
+            GPSHeadingT * MILLIRADDEG + "," +
+            RangefinderAltitudeT * 0.01 + "," +
+            GPSHDiluteT * 0.001 + "," +
+            HeadingT * MILLIRADDEG + "," +
+            DesiredCourseT * MILLIRADDEG + "," +
+            GPSVelT * 0.1 + "," +
+            GPSROCT * 0.1 + "," +
+            GPSRelAltitudeT * 0.1+ "," +
+            GPSLatitudeT / 6000000.0 + "," +
+            GPSLongitudeT / 6000000.0 + "," +
+            DesiredAltitudeT * 0.1 + "," +
+            DesiredLatitudeT / 6000000.0 + "," +
+            DesiredLongitudeT / 6000000.0 + "," +
             NavStateTimeoutT + "," +
-            AmbientTempT + "," +
+            AmbientTempT * 0.1 + "," +
             GPSMissionTimeT + "," +
 
             NavSensitivityT + "," +
@@ -2304,6 +2362,9 @@ namespace UAVXGS
                 SaveTextParamFileStreamWriter.Flush();
                 SaveTextParamFileStreamWriter.Close();
                 SaveTextParamFileStream.Close();
+                SaveTextCustomFileStreamWriter.Flush();
+                SaveTextCustomFileStreamWriter.Close();
+                SaveTextCustomFileStream.Close();
             }
         }
 
@@ -2374,6 +2435,7 @@ namespace UAVXGS
             ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
         }
 
+        
     
     }
 }
