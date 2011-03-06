@@ -31,7 +31,7 @@ int main(void) {
     InitRC();
     InitTimersAndInterrupts();
     InitLEDs();
-
+    
     InitParameters();
     ReadStatsPX();
     InitMotors();

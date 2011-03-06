@@ -33,7 +33,7 @@ void TxValS(int8);
 void TxBin8(uint8);
 void TxNextLine(uint8);
 void TxNibble( uint8);
-void TxValH( uint8);
+void TxValH(uint8);
 void TxValH16( uint16);
 uint8 RxChar(void);
 uint8 PollRxChar(void);

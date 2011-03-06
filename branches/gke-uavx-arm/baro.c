@@ -95,7 +95,9 @@ void BaroTest(void) {
         TxNextLine();
 
     if ( BaroType == BaroMPX4115 ) {
-        TxString("Range   :\t");
+        TxString("\r\nAddress :\t0x");
+        TxValH(MCP4725_ID_Actual);
+        TxString("\r\nRange   :\t");
         TxVal32((int32) BaroDescentAvailable * 10.0, 1, ' ');
         TxString("-> ");
         TxVal32((int32) BaroClimbAvailable * 10.0, 1, 'M');
@@ -193,7 +195,7 @@ void InitBarometer(void) {
 
     Comp[Alt] = AltDiffSum = AltDSum = 0;
     F.BaroAltitudeValid= true; // optimistic
- 
+
     if ( IsFreescaleBaroActive() )
         InitFreescaleBarometer();
     else
@@ -235,18 +237,23 @@ void SetFreescaleMCP4725(int16 d) {
 } // SetFreescaleMCP4725
 
 boolean IdentifyMCP4725(void) {
+    /*
+        static boolean r;
 
-    static boolean r;
-    
-    r = true;
-    if ( I2CBAROAddressResponds( MCP4725_ID_0xCC ) )
+        r = true;
         MCP4725_ID_Actual = MCP4725_ID_0xCC;
-    else 
-        if ( I2CBAROAddressResponds( MCP4725_ID_0xC8 ) )
-            MCP4725_ID_Actual = MCP4725_ID_0xC8;
+        if ( I2CBAROAddressResponds( MCP4725_ID_0xCC ) )
+            MCP4725_ID_Actual = MCP4725_ID_0xCC;
         else
-            r = false;
-   return(r);    
+            if ( I2CBAROAddressResponds( MCP4725_ID_0xC8 ) )
+                MCP4725_ID_Actual = MCP4725_ID_0xC8;
+            else
+                r = false;
+
+       return(r);
+    */
+    MCP4725_ID_Actual = FORCE_BARO_ID;
+    return(true);
 } // IdentifyMCP4725
 
 void SetFreescaleOffset(void) {
@@ -374,6 +381,8 @@ void InitFreescaleBarometer(void) {
     AltitudeUpdateRate = 1000L/ADS7823_TIME_MS;
 
     BaroTemperature = 0;
+    if ( P[BaroScale] <= 0 )
+        P[BaroScale] = 56; // failsafe setting
     Error = ( (int16)P[BaroScale] * 20 ) / 16;  // 0.2M
     BaroPressure =  0;
 

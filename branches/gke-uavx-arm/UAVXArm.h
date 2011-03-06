@@ -5,6 +5,9 @@
 
 #define MAGIC               1.0                       // rescales the PID loop parameters globally
 
+#define  FORCE_BARO_ID      0xcc
+//#define  FORCE_BARO_ID      0xc8
+
 #define I2C_MAX_RATE_HZ     400000
 
 #define MAX_PID_CYCLE_HZ    200                       // PID cycle rate do not exceed
@@ -29,7 +32,7 @@
 
 // DCM Attitude Estimation
 
-//#define INC_ALL_SCHEMES                            // runs all attitude control schemes - use "custom" telemetry
+#define INC_ALL_SCHEMES                            // runs all attitude control schemes - use "custom" telemetry
 
 // The pitch/roll angle should track CLOSELY with the noise "mostly" tuned out.
 // Jitter in the artificial horizon gives part of the story but better to use the UAVXFC logs.
@@ -1166,8 +1169,8 @@ public:
 };
 
 extern MyI2C I2C0;                    // 27, 28
-extern DigitalInOut I2C0SCL;
-extern DigitalInOut I2C0SDA;
+extern PortInOut I2C0SCL;
+extern PortInOut I2C0SDA;
 #else
 
 extern I2C I2C0;                    // 27, 28
