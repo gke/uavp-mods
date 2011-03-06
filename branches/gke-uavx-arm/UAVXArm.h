@@ -1,7 +1,7 @@
 
 // Commissioning defines
 
-#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW ~100KHz
+//#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW ~100KHz
 
 #define MAGIC               1.0                       // rescales the PID loop parameters globally
 
@@ -19,14 +19,13 @@
 #define ROLL_PITCH_FREQ     80.0                       // must be <= ITG3200 LP filter
                     
 //#define SUPPRESS_ACC_FILTERS
-#define ACC_FREQ            10.0
+#define ACC_FREQ            80.0
 
 //#define SUPPRESS_YAW_GYRO_FILTERS   
 #define YAW_FREQ            10.0                     // Hz
 
-//#define SUPPRESS_COMPASS 
 //#define SUPPRESS_COMPASS_FILTER
-#define COMPASS_FREQ        10.0                     // Hz must be less than 10Hz
+#define COMPASS_FREQ        10.0                     // Hz must be less than 10Hz @ 20Hz update
 
 // DCM Attitude Estimation
 
@@ -245,7 +244,7 @@ extern Timer timer;
 // unfortunately there seems to be a leak which cause the roll/pitch
 // to increase without the decay.
 
-#define ATTITUDE_SCALE                  0.5     // scaling of stick units for attitude angle control 
+#define ATTITUDE_SCALE                  0.008     // scaling of stick units for attitude angle control 
 
 // Enable "Dynamic mass" compensation Roll and/or Pitch
 // Normally disabled for pitch only
@@ -253,7 +252,6 @@ extern Timer timer;
 //#define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
 // Altitude Hold
-
 
 #define ALT_HOLD_MAX_ROC_MPS            0.5      // Must be changing altitude at less than this for alt. hold to be detected
 
@@ -601,7 +599,7 @@ Using9DOF:
         1,
 HaveBatterySensor:
         1,
-AttitudeCompActive:
+AccMagnitudeOK:
         1;
     };
 } Flags;
@@ -706,7 +704,8 @@ extern real32 RangefinderAltitude;
 
 // attitude.c
 
-enum AttitudeMethods { SimpleIntegrator, WolferlSimple, PremerlaniDCM,  MadgwickIMU,  MadgwickAHRS, Kalman, Complementary, MaxAttitudeScheme};
+enum AttitudeMethods { Integrator, Wolferl, PremerlaniDCM,  MadgwickIMU,  
+MadgwickAHRS, Kalman, Complementary, MultiWii, MaxAttitudeScheme};
 
 extern void GetAttitude(void);
 extern void DoLegacyYawComp(void);
@@ -718,15 +717,16 @@ extern real32 dT, dTOn2, dTR;
 extern uint32 PrevDCMUpdate;
 extern uint8 AttitudeMethod;
 
-extern real32 Attitude[3][MaxAttitudeScheme];
+extern real32 EstAngle[3][MaxAttitudeScheme];
+extern real32 EstRate[3][MaxAttitudeScheme];
 
 // SimpleIntegrator
 
-extern void Integrator(void);
+extern void DoIntegrator(void);
 
 // Wolferl
 
-extern void Wolferl(void);
+extern void DoWolferl(void);
 
 // DCM Premerlani
 
@@ -736,6 +736,7 @@ extern void AccAdjust(void);
 extern void DCMMotionCompensation(void);
 extern void DCMUpdate(void);
 extern void DCMEulerAngles(void);
+extern void DoDCM(void);
 
 extern real32 RollPitchError[3];
 extern real32 AccV[3];
@@ -750,9 +751,9 @@ extern real32 TempM[3][3];
 
 // IMU & AHRS S.O.H. Madgwick
 
-extern void IMUupdate(real32, real32, real32, real32, real32, real32);
-extern void AHRSupdate(real32, real32, real32, real32, real32, real32, real32, real32, real32);
-extern void EulerAngles(uint8);
+extern void DoMadgwickIMU(real32, real32, real32, real32, real32, real32);
+extern void DoMadgwickAHRS(real32, real32, real32, real32, real32, real32, real32, real32, real32);
+extern void MadgwickEulerAngles(uint8);
 
 extern real32 q0, q1, q2, q3;    // quaternion elements representing the estimated orientation
 
@@ -761,6 +762,9 @@ extern void DoKalman(void);
 
 // Complementary
 extern void DoCF(void);
+
+// MultiWii
+extern  void DoMultiWii();
 
 //______________________________________________________________________________________________
 
