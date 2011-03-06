@@ -39,32 +39,34 @@ uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 
 #ifdef SW_I2C
 
-//BROKEN - NEEDS MEMORY PROTECTION MAGIC? #define USE_NXP_PINS
-#ifdef USE_NXP_PINS
+void SDelay(uint16 d) { // 1.25 + 0.0475 * n uS ~0.05uS per click
 
-#define I2CDelay5uS  wait_us(5)
-#define I2CDelay2uS wait_us(2)
-#define HighLowDelay wait_us(1)
-#define FloatDelay wait_us(1)
+    volatile int16 v;
+    for (v = 0; v < d ; v++ ) {};
 
-#define I2CSDALow {PinWrite(I2C0SDAPin,false);HighLowDelay;PinSetOutput(I2C0SDAPin,true);}
-#define I2CSDAFloat {PinSetOutput(I2C0SDAPin,false);}
-#define I2CSCLLow {PinWrite(I2C0SCLPin,false);HighLowDelay;PinSetOutput(I2C0SCLPin,true);}
-#define I2CSCLFloat {PinSetOutput(I2C0SCLPin,false);FloatDelay;}
+}  // SDelay
+
+#define I2C400KHZ
+#ifdef I2C400KHZ
+
+#define SCLLowStartT  SDelay(10) // 82 for 100KHz 10 for 400KHz
+#define I2CDelay2uS SDelay(10)
+#define SCLLowPadT SDelay(6) // 82 for 100KHz 10 for 400KHz
+#define SCLHighT SDelay(13) // 85 for 100KHz 13 for 400KHz
 
 #else
 
-#define I2CDelay5uS  wait_us(5)
-#define I2CDelay2uS // wait_us(2)
-#define HighLowDelay //wait_us(1)
-#define FloatDelay //
+#define SCLLowStartT  SDelay(10) // 82 for 100KHz 10 for 400KHz
+#define I2CDelay2uS SDelay(10)
+#define SCLLowPadT SDelay(82) // 78 for 100KHz 6 for 400KHz
+#define SCLHighT SDelay(85) // 85 for 100KHz 13 for 400KHz
 
-#define I2CSDALow {I2C0SDA.write(0);HighLowDelay;I2C0SDA.output();}
-#define I2CSDAFloat {I2C0SDA.input();}
-#define I2CSCLLow {I2C0SCL.write(0);HighLowDelay;I2C0SCL.output();}
-#define I2CSCLFloat {I2C0SCL.input();FloatDelay;}
+#endif //I2C400KHZ
 
-#endif // USE_NXP_PINS
+#define I2CSDALow {I2C0SDA.write(0);I2C0SDA.output();SCLLowPadT;}
+#define I2CSDAFloat {I2C0SDA.input();SCLLowPadT;}
+#define I2CSCLLow {I2C0SCL.write(0);I2C0SCL.output();}
+#define I2CSCLFloat {I2C0SCL.input();SCLHighT;}
 
 void MyI2C::frequency(uint32 f) {
 // delay depending on rate
@@ -75,7 +77,7 @@ void MyI2C::start(void) {
     I2CSDAFloat;
     r = waitclock();
     I2CSDALow;
-    I2CDelay5uS;
+    SCLLowStartT;
     I2CSCLLow;
 } // start
 
@@ -84,87 +86,15 @@ void MyI2C::stop(void) {
     I2CSDALow;
     r = waitclock();
     I2CSDAFloat;
-    I2CDelay5uS;
+    SCLLowStartT;
 } // stop
 
-#ifdef USE_NXP_PINS
-
 boolean MyI2C::waitclock(void) {
     static uint32 s;
 
     I2CSCLFloat;        // set SCL to input, output a high
     s = 0;
-    while ( PinRead(I2C0SCLPin) != 0 )  
-        if ( ++s > 16000 ) { // ~1mS
-            Stats[I2CFailS]++;
-            return (false);
-        }
-    return( true );
-} // waitclock
-
-uint8 MyI2C::read(uint8 ack) {
-    static uint8 s, d;
-
-    I2CSDAFloat;
-    d = 0;
-    s = 8;
-    do {
-        if ( waitclock() ) {
-            d <<= 1;
-            if ( PinRead(I2C0SDAPin) ) d |= 1;
-            I2CSCLLow;
-            I2CDelay2uS;
-        } else
-            return( 0 );
-    } while ( --s );
-
-    PinWrite(I2C0SDAPin, ack);
-    HighLowDelay;
-    PinSetOutput(I2C0SDAPin, true );
-    HighLowDelay;
-
-    if ( waitclock() ) {
-        I2CSCLLow;
-        return( d );
-    } else
-        return( 0 );
-} // read
-
-uint8 MyI2C::write(uint8 d) {
-    static uint8 s, r;
-
-    for ( s = 0; s < 8; s++) {
-        if ( d & 0x80 ) {
-            I2CSDAFloat;
-        } else {
-            I2CSDALow;
-        }
-
-        if ( waitclock() ) {
-            I2CSCLLow;
-            d <<= 1;
-        } else
-            return(I2C_NACK);
-    }
-
-    I2CSDAFloat;
-    if ( waitclock() ) {
-        r = PinRead(I2C0SDAPin) != 0;
-        I2CSCLLow;
-        return( r );
-    } else
-        return(I2C_NACK);
-
-} // write
-
-#else
-
-boolean MyI2C::waitclock(void) {
-    static uint32 s;
-
-    I2CSCLFloat;        // set SCL to input, output a high
-    s = 0;
-    while ( !I2C0SCL.read() )
+    while ( I2C0SCL.read() == 0 )
         if ( ++s > 16000 ) { // ~1mS
             Stats[I2CFailS]++;
             return (false);
@@ -189,9 +119,8 @@ uint8 MyI2C::read(uint8 ack) {
     } while ( --s );
 
     I2C0SDA.write(ack);
-    HighLowDelay;
     I2C0SDA.output();
-    HighLowDelay;
+    SCLLowPadT;
 
     if ( waitclock() ) {
         I2CSCLLow;
@@ -226,9 +155,6 @@ uint8 MyI2C::write(uint8 d) {
         return(I2C_NACK);
 
 } // write
-
-#endif // USE_NXP_PINS
-
 
 uint8 MyI2C::blockread(uint8 a, char* S, uint8 l) {
     static uint8 b;

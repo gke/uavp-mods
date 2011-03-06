@@ -298,7 +298,6 @@ void DoControl(void) {
     // for commissioning
     Comp[BF] = Comp[LR] = Comp[UD] = Comp[Alt] = 0;
     NavCorr[Roll] = NavCorr[Pitch] = NavCorr[Yaw] = 0;
-    F.UsingAngleControl = false;
 #endif // DISABLE_EXTRAS
    
     if ( F.UsingAngleControl ) {

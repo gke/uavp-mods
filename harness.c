@@ -25,7 +25,12 @@ void InitHarness(void);
 
 LocalFileSystem Flash("local");
 
-uint8 I2C0SDAPin, I2C0SCLPin;
+const uint8 mbed1768Pins[32] = {
+    255,255,255,255,255,9,8,7,6,0,
+    1,18,17,15,16,23,24,25,26,62,
+    63,69,68,67,66,65,64,11,10,5,
+    4,255
+};
 
 // connections to ARM
 // 1 GND
@@ -63,12 +68,19 @@ PwmOut Out3(p24);                       // 24
 DigitalOut DebugPin(p25);                  // 25
 
 #ifdef SW_I2C
+
 MyI2C I2C0;
-DigitalInOut I2C0SCL(p27);
-DigitalInOut I2C0SDA(p28);
+
+#define I2C0SDASet (1<<10) //mbed1768Pins[27&0x0f])
+PortInOut I2C0SDA(Port0, I2C0SDASet );
+
+#define I2C0SCLSet (1<<11) //mbed1768Pins[28&0x0f])
+PortInOut I2C0SCL(Port0, I2C0SCLSet );
+
 #else
 I2C I2C0(p28, p27);                     // 27, 28
 #endif // SW_I2C
+
 DigitalIn RCIn(p29);                    // 29 CAN
 DigitalOut PWMCamRoll(p30);             // 30 CAN
 
@@ -97,9 +109,6 @@ void UpdateRTC(void) {
 } // UpdateRTCString
 
 void InitHarness(void) {
-
-    I2C0SDAPin = mbed1768Pins[27];
-    I2C0SCLPin = mbed1768Pins[28];
 
     I2C0.frequency(I2C_MAX_RATE_HZ);
 

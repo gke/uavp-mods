@@ -21,6 +21,7 @@
 #include "UAVXArm.h"
 
 // Reference frame is positive X forward, Y left, Z down, Roll right, Pitch up, Yaw CW.
+// CAUTION: Because of the coordinate frame the LR Acc sense must be negated for roll compensation.
 
 void DoLegacyYawComp(uint8);
 void NormaliseAccelerations(void);
@@ -78,7 +79,7 @@ void NormaliseAccelerations(void) {
     static real32 ReNorm;
 
     AccMagnitude = sqrt(Sqr(Acc[BF]) + Sqr(Acc[LR]) + Sqr(Acc[UD]));
-    F.AccMagnitudeOK = true; //AccMagnitude > MIN_ACC_MAGNITUDE;
+    F.AccMagnitudeOK = AccMagnitude > MIN_ACC_MAGNITUDE;
     if ( F.AccMagnitudeOK ) {
         ReNorm = 1.0 / AccMagnitude;
         Acc[BF] *= ReNorm;
@@ -130,12 +131,12 @@ void GetAttitude(void) {
 
         // Wolferl
         DoWolferl();
-        
-        #ifdef INC_ALL_SCHEMES
-        
+
+#ifdef INC_ALL_SCHEMES
+
         // Complementary
         DoCF();
-        
+
         // Kalman
         DoKalman();
 
@@ -146,10 +147,10 @@ void GetAttitude(void) {
         DoMultiWii();
 
         // Madgwick IMU BROKEN
-        DoMadgwickIMU(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], Acc[LR], Acc[UD]);
+        DoMadgwickIMU(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], Acc[UD]);
 
         // Madgwick AHRS BROKEN
-        DoMadgwickAHRS(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], Acc[LR], Acc[UD],Mag[BF].V, Mag[LR].V, Mag[UD].V);
+        DoMadgwickAHRS(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], Acc[UD],Mag[BF].V, Mag[LR].V, Mag[UD].V);
 
         // Integrator - REFERENCE/FALLBACK
         DoIntegrator();
@@ -216,7 +217,7 @@ void DoWolferl(void) {
         Dyn[LR] = 0.0;
 #endif
 
-        Correction[LR] = -Acc[LR] + Grav[LR] + Dyn[LR]; // +Acc
+        Correction[LR] = -Acc[LR] + Grav[LR] + Dyn[LR]; // Acc is reversed
         Correction[LR] = Limit(Correction[LR], -CompStep, CompStep);
 
         EstAngle[Roll][Wolferl] += Rate[Roll] * dT;
@@ -641,10 +642,11 @@ void DoCF(void) {
 
     static uint8 a;
 
-    for (a = 0; a <(uint8)2; a++ ) {
-        EstAngle[a][Complementary] = CF(a, asin(Acc[a]), Gyro[a]);
-        EstRate[a][Complementary] = Gyro[a];
-    }
+    EstAngle[Roll][Complementary] = CF(Roll, asin(-Acc[Roll]), Gyro[Roll]);
+    EstAngle[Pitch][Complementary] = CF(Pitch, asin(-Acc[Pitch]), Gyro[Pitch]);
+    EstRate[Roll][Complementary] = Gyro[Roll];
+    EstRate[Pitch][Complementary] = Gyro[Pitch];
+
     EstAngle[a][Complementary] = Gyro[Yaw] * dT;
     EstRate[Yaw][Complementary] = Gyro[Yaw];
 
@@ -701,8 +703,8 @@ real32 KalmanFilter(uint8 a, real32 NewAngle, real32 NewRate) {
 }  // KalmanFilter
 
 void DoKalman(void) {
-    EstAngle[Roll][Kalman] = KalmanFilter(Roll, asin(Acc[Roll]) * RADDEG, Gyro[Roll] * RADDEG) * DEGRAD;
-    EstAngle[Pitch][Kalman]  = KalmanFilter(Pitch, asin(Acc[Pitch]) * RADDEG, Gyro[Pitch] * RADDEG) * DEGRAD;
+    EstAngle[Roll][Kalman] = KalmanFilter(Roll, asin(-Acc[LR]) * RADDEG, Gyro[Roll] * RADDEG) * DEGRAD;
+    EstAngle[Pitch][Kalman]  = KalmanFilter(Pitch, asin(Acc[BF]) * RADDEG, Gyro[Pitch] * RADDEG) * DEGRAD;
 } // DoKalman
 
 
@@ -748,11 +750,11 @@ void DoMultiWii(void) { // V1.6
         //   angle_axis = arcsin(ACC_axis/ACC_1G) =~= ACC_axis/ACC_1G
         // the angle calculation is much faster in this case
 
-        if ( (fabs(Acc[Roll]) > acc_25deg) && (fabs(Acc[Pitch]) > acc_25deg) ) {
+        if ( (fabs(Acc[LR]) > acc_25deg) && (fabs(Acc[BF]) > acc_25deg) ) {
             Axz += a;
             Ayz += b;
-            Axz = ( Acc[Roll] + Axz * wGyro ) * invW; // =~= sin_roll
-            Ayz = ( Acc[Pitch] + Ayz * wGyro ) * invW; // =~= sin_pitch
+            Axz = ( -Acc[LR] + Axz * wGyro ) * invW; // =~= sin_roll
+            Ayz = ( Acc[BF] + Ayz * wGyro ) * invW; // =~= sin_pitch
 
             small_angle = true;
         } else {
