@@ -300,22 +300,22 @@ void DoControl(void) {
     NavCorr[Roll] = NavCorr[Pitch] = NavCorr[Yaw] = 0;
     F.UsingAngleControl = false;
 #endif // DISABLE_EXTRAS
-
+   
     if ( F.UsingAngleControl ) {
         // Roll
 
-        AngleE[Roll] = ( ControlRoll * ATTITUDE_SCALE ) - Angle[Roll];
+        AngleE[Roll] = Angle[Roll] - ControlRoll * ATTITUDE_SCALE;
         AngleIntE[Roll] += AngleE[Roll] * dT;
         AngleIntE[Roll] = Limit(AngleIntE[Roll], -K[RollIntLimit], K[RollIntLimit]);
-        Rl  = -(AngleE[Roll] * GRollKp + AngleIntE[Roll] * GRollKi + Rate[Roll] * GRollKd * dTR);
+        Rl  = AngleE[Roll] * GRollKp + AngleIntE[Roll] * GRollKi + Rate[Roll] * GRollKd * dTR;
         Rl -= ( NavCorr[Roll] + Comp[LR] );
 
         // Pitch
 
-        AngleE[Pitch] = ( ControlPitch * ATTITUDE_SCALE ) - Angle[Pitch];
+        AngleE[Pitch] = Angle[Pitch] - ControlPitch * ATTITUDE_SCALE;
         AngleIntE[Pitch] += AngleE[Pitch] * dT;
         AngleIntE[Pitch] = Limit(AngleIntE[Pitch], -K[PitchIntLimit], K[PitchIntLimit]);
-        Pl  = -(AngleE[Pitch] * GPitchKp + AngleIntE[Pitch] * GPitchKi + Rate[Pitch] * GPitchKd * dTR);
+        Pl  = AngleE[Pitch] * GPitchKp + AngleIntE[Pitch] * GPitchKi + Rate[Pitch] * GPitchKd * dTR;
         Pl -= ( NavCorr[Pitch] + Comp[BF] );
 
     } else {

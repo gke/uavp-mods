@@ -239,11 +239,11 @@ boolean IdentifyMCP4725(void) {
     static boolean r;
     
     r = true;
-    if ( I2CBAROAddressResponds( MCP4725_ID_0xC8 ) )
-        MCP4725_ID_Actual = MCP4725_ID_0xC8;
+    if ( I2CBAROAddressResponds( MCP4725_ID_0xCC ) )
+        MCP4725_ID_Actual = MCP4725_ID_0xCC;
     else 
-        if ( I2CBAROAddressResponds( MCP4725_ID_0xCC ) )
-            MCP4725_ID_Actual = MCP4725_ID_0xCC;
+        if ( I2CBAROAddressResponds( MCP4725_ID_0xC8 ) )
+            MCP4725_ID_Actual = MCP4725_ID_0xC8;
         else
             r = false;
    return(r);    

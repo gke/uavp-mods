@@ -37,6 +37,8 @@ real32 MagHeading, Heading, Headingp, FakeHeading;
 real32 HeadingSin, HeadingCos;
 uint8 CompassType;
 
+enum MagCoords { MX, MY, MZ };
+
 void ReadCompass(void) {
     switch ( CompassType ) {
         case HMC5843:
@@ -165,7 +167,7 @@ boolean HMC5843Active(void);
 void ReadHMC5843(void) {
     static char b[6];
     static i16u X, Y, Z;
-    static real32 mx, my;
+    static real32 FX,FY;
     static real32 CRoll, SRoll, CPitch, SPitch;
 
     I2CCOMPASS.start();
@@ -192,16 +194,17 @@ void ReadHMC5843(void) {
         Mag[UD].V = -Z.i16;
     }
     DebugPin = true;
-    CRoll = cos(Angle[Roll]);
-    SRoll = sin(Angle[Roll]);
-    CPitch = cos(Angle[Pitch]);
-    SPitch = sin(Angle[Pitch]);
+    CRoll = cos(Angle[Roll]); // 
+    SRoll = sin(Angle[Roll]); // Acc[LR] - optimisation not worthwhile
+    CPitch = cos(Angle[Pitch]); //
+    SPitch = sin(Angle[Pitch]); // Acc[BF]
 
-    mx = (Mag[BF].V-Mag[BF].Offset) * CPitch + (Mag[LR].V-Mag[LR].Offset) * SRoll * SPitch + (Mag[UD].V-Mag[UD].Offset) * CRoll * SPitch;
-    my =  (Mag[LR].V-Mag[LR].Offset) * CRoll - (Mag[UD].V-Mag[UD].Offset) * SRoll;
+    FX = (Mag[BF].V-Mag[BF].Offset) * CPitch + (Mag[LR].V-Mag[LR].Offset) * SRoll * SPitch + (Mag[UD].V-Mag[UD].Offset) * CRoll * SPitch;
+    FY = (Mag[LR].V-Mag[LR].Offset) * CRoll - (Mag[UD].V-Mag[UD].Offset) * SRoll;
 
     // Magnetic Heading
-    MagHeading = MakePi(atan2( -my, mx ));
+    MagHeading = MakePi(atan2( -FY, FX ));
+
     DebugPin = false;
     F.CompassValid = true;
 
@@ -209,6 +212,59 @@ void ReadHMC5843(void) {
 
 void CalibrateHMC5843(void) {
 
+/*
+void magOffsetCalc()
+{
+  int   i, j ;
+  float tempMatrix[3] ;
+  float offsetSum[3] ;
+    
+  // Compute magnetic field of the earth
+  
+  magFieldEarth[0] = vectorDotProduct(3, &dcmMatrix[0], &magFieldBody[0]);
+  magFieldEarth[1] = vectorDotProduct(3, &dcmMatrix[3], &magFieldBody[0]);
+  magFieldEarth[2] = vectorDotProduct(3, &dcmMatrix[6], &magFieldBody[0]);
+  
+  // First pass thru?
+  
+  if (firstPassMagOffset == 1)
+  {
+    setPastValues();                         // Yes, set initial values for previous values
+    firstPassMagOffset =0;                   // Clear first pass flag
+  }
+  
+  // Compute the offsets in the magnetometer:
+  vectorAdd(3, offsetSum , magFieldBody, magFieldBodyPrevious) ;
+  
+  matrixMultiply(1, 3, 3, tempMatrix, magFieldEarthPrevious, dcmMatrix); 
+  vectorSubtract(3, offsetSum, offsetSum, tempMatrix); 
+  matrixMultiply(1, 3, 3, tempMatrix, magFieldEarth, dcmMatrixPrevious); 
+  vectorSubtract(3, offsetSum, offsetSum, tempMatrix) ;
+  
+  for ( i = 0 ; i < 3 ; i++ )
+    if ( abs(offsetSum[i] ) < 3 )
+      offsetSum[i] = 0 ;
+  
+  vectorAdd (3, magOffset, magOffset, offsetSum);  
+  setPastValues();
+}
+
+void setPastValues()
+{
+  int i;
+  
+  for (i = 0 ; i < 3 ; i++)
+  {
+    magFieldEarthPrevious[i] = magFieldEarth[i];
+    magFieldBodyPrevious[i]  = magFieldBody[i];
+  }
+  
+  for (i = 0 ; i < 9 ; i++)
+  {
+    dcmMatrixPrevious[i] = dcmMatrix[i];
+  }
+}
+*/
 } // CalibrateHMC5843
 
 void GetHMC5843Parameters(void) {
@@ -242,8 +298,8 @@ void DoHMC5843Test(void) {
     GetHMC5843Parameters();
 
     TxString("\r\nMag:\t");
-    TxVal32(Mag[LR].V, 0, HT);
     TxVal32(Mag[BF].V, 0, HT);
+    TxVal32(Mag[LR].V, 0, HT);
     TxVal32(Mag[UD].V, 0, HT);
     TxNextLine();
     TxNextLine();
@@ -360,8 +416,8 @@ void GetHMC6352Parameters(void) {
 
         Delay1mS(10);
     }
-    
-        TxString("\r\nRegisters\r\n");
+
+    TxString("\r\nRegisters\r\n");
     TxString("\t0:\tI2C");
     TxString("\t 0x");
     TxValH(CP[0]);
@@ -453,7 +509,7 @@ void DoHMC6352Test(void) {
     Delay1mS(7);
 
     GetHMC6352Parameters();
-    
+
     InitCompass();
     if ( !F.CompassValid ) goto CTerror;
 

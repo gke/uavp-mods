@@ -102,7 +102,7 @@ void ErectGyros(void) {
         GyroNeutral[g] *= 0.03125;
         Gyro[g] = Gyrop[g] = 0.0;
         for ( s = 0; s < MaxAttitudeScheme; s++ )
-            Attitude[g][s] = 0.0;
+            EstAngle[g][s] = EstRate[g][s] = 0.0;
     }
 
     LEDRed_OFF;

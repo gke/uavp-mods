@@ -205,7 +205,7 @@ void ShowAttitude(void) {
 
     TxESCi16(Acc[LR] * 1000.0);
     TxESCi16(Acc[BF] * 1000.0);
-    TxESCi16(Heading * 1000.0*180.0/3.14159);//zzzAcc[UD] * 1000.0);
+    TxESCi16(Acc[UD] * 1000.0);
 } // ShowAttitude
 
 void SendFlightPacket(void) {
@@ -530,7 +530,7 @@ void SendCustom(void) { // user defined telemetry human readable OK for small am
 
     static uint8 s, a;
 
-    a = Pitch;
+    a = Roll;
     
     // always a vector of int16;
     SendPacketHeader();
@@ -542,7 +542,7 @@ void SendCustom(void) { // user defined telemetry human readable OK for small am
     TxESCi16(Gyro[a] * 1000.0);
     TxESCi16(Acc[a] * 1000.0);
     for ( s = 0; s < MaxAttitudeScheme; s++ )
-        TxESCi16( Attitude[a][s] * 1000.0 );
+        TxESCi16( EstAngle[a][s] * 1000.0 );
 
     SendPacketTrailer();
 
