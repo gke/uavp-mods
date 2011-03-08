@@ -25,12 +25,21 @@ void InitHarness(void);
 
 LocalFileSystem Flash("local");
 
-const uint8 mbed1768Pins[32] = {
+const uint8 mbed1768Pins[32] = { // Maping of mbed pins to LPC 1768 "port" pins
     255,255,255,255,255,9,8,7,6,0,
     1,18,17,15,16,23,24,25,26,62,
     63,69,68,67,66,65,64,11,10,5,
     4,255
 };
+
+const uint32 mbed1768Ports[8] = { 
+    LPC_GPIO0_BASE,
+    LPC_GPIO1_BASE,
+    LPC_GPIO2_BASE,
+    LPC_GPIO3_BASE,
+    LPC_GPIO4_BASE
+};
+
 
 // connections to ARM
 // 1 GND
@@ -71,14 +80,18 @@ DigitalOut DebugPin(p25);                  // 25
 
 MyI2C I2C0;
 
-#define I2C0SDASet (1<<10) //mbed1768Pins[27&0x0f])
+#define I2C0SDASet (1<<mbed1768Pins[28&0x1f]) // 10
+#define I2C0SDAPort (mbed1768Pins[28&0x0f]>>5)
 PortInOut I2C0SDA(Port0, I2C0SDASet );
 
-#define I2C0SCLSet (1<<11) //mbed1768Pins[28&0x0f])
+#define I2C0SCLSet (1<<mbed1768Pins[27&0x1f]) // 11
+#define I2C0SCLPort (mbed1768Pins[27&0x0f]>>5)
 PortInOut I2C0SCL(Port0, I2C0SCLSet );
 
 #else
+
 I2C I2C0(p28, p27);                     // 27, 28
+
 #endif // SW_I2C
 
 DigitalIn RCIn(p29);                    // 29 CAN

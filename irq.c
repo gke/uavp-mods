@@ -61,22 +61,6 @@ int8      SignalCount;
 uint16    RCGlitches;
 int16     PWMCycles = 0;
 
-void enableTxIrq0(void) {
-    LPC_UART0->IER |= 0x0002;
-} // enableTxIrq0
-
-void disableTxIrq0(void) {
-    LPC_UART0->IER &= ~0x0002;
-} // disableTxIrq0
-
-void enableTxIrq1(void) {
-    LPC_UART1->IER |= 0x0002;
-} // enableTxIrq1
-
-void disableTxIrq1(void) {
-    LPC_UART1->IER &= ~0x0002;
-}  // disableTxIrq1
-
 void InitTimersAndInterrupts(void) {
     static int8 i;
 

@@ -27,6 +27,7 @@
 
 //    Rewritten for UAVXArm by G.K Egan 2011
 
+#ifdef USE_NXP_PIN_MAP // NOT COMMISSIONED
 
 #include "UAVXArm.h"
 
@@ -141,7 +142,9 @@ void PinSetOutput(uint8 pn, boolean PinIsOutput) {
         default:
             break;
     }
-} // PinSetOutput
 
+} // PinSetOutput
+ 
+#endif // USE_NXP_PIN_MAP
 
 

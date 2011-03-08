@@ -87,7 +87,9 @@ void BaroTest(void) {
     TxString("\r\nType:\t");
     ShowBaroType();
 
-    TxString("Init Retries:\t");
+    TxString("BaroScale:\t");
+    TxVal32(P[BaroScale],0,0);
+    TxString("\r\nInit Retries:\t");
     TxVal32((int32)BaroRetries - 2, 0, ' '); // always minimum of 2
     if ( BaroRetries >= BARO_INIT_RETRIES )
         TxString(" FAILED Init.\r\n");
@@ -108,15 +110,19 @@ void BaroTest(void) {
         TxNextLine();
     }
 
-    if ( !F.BaroAltitudeValid ) goto BAerror;
+    if ( F.BaroAltitudeValid ) {
 
-    while ( !F.NewBaroValue )
-        GetBaroAltitude();
-    F.NewBaroValue = false;
+        while ( !F.NewBaroValue )
+            GetBaroAltitude();
 
-    TxString("Alt.:     \t");
-    TxVal32(BaroRelAltitude * 10.0, 1, ' ');
-    TxString("M\r\n");
+        F.NewBaroValue = false;
+
+        TxString("Alt.:     \t");
+        TxVal32(BaroRelAltitude * 10.0, 1, ' ');
+        TxString("M\r\n");
+
+    } else
+        TxString("Barometer FAILED\r\n");
 
     TxString("\r\nR.Finder: \t");
     if ( F.RangefinderAltitudeValid ) {
@@ -130,9 +136,6 @@ void BaroTest(void) {
     TxVal32((int32)AmbientTemperature.i16, 1, ' ');
     TxString("C\r\n");
 
-    return;
-BAerror:
-    TxString("FAIL\r\n");
 } // BaroTest
 
 void GetBaroAltitude(void) {
@@ -286,13 +289,14 @@ void SetFreescaleOffset(void) {
     Delay1mS(100);
     ReadFreescaleBaro();
 
-    while ( (BaroVal.u16 < (uint16)(((uint24)ADS7823_MAX*4L*3L)/4L) ) && (BaroOffsetDAC > 2) ) {
-        BaroOffsetDAC -= 2;
+    while ( (BaroVal.u16 < (uint16)(((uint24)ADS7823_MAX*4L*3L)/4L) ) && (BaroOffsetDAC > 1) ) {
+        BaroOffsetDAC -= 1;
         SetFreescaleMCP4725(BaroOffsetDAC);
-        Delay1mS(10);
+        Delay1mS(10); // 10
         ReadFreescaleBaro();
         TxVal32(BaroOffsetDAC,0,HT);
-        TxVal32(BaroVal.u16,0,' ');
+        TxVal32(BaroVal.u16,0,HT);
+        TxVal32((int32)FreescaleToDM(BaroVal.u16), 1, 0);
         TxNextLine();
         LEDYellow_TOG;
     }
@@ -383,9 +387,8 @@ void InitFreescaleBarometer(void) {
     BaroTemperature = 0;
     if ( P[BaroScale] <= 0 )
         P[BaroScale] = 56; // failsafe setting
-    Error = ( (int16)P[BaroScale] * 20 ) / 16;  // 0.2M
+ 
     BaroPressure =  0;
-
     BaroRetries = 0;
     do {
         BaroPressureP = BaroPressure;
@@ -396,7 +399,7 @@ void InitFreescaleBarometer(void) {
         ReadFreescaleBaro();
         BaroPressure = (int24)BaroVal.u16;
     } while ( ( ++BaroRetries < BARO_INIT_RETRIES )
-              && ( abs((int16)(BaroPressure - BaroPressureP)) > Error ) );
+              && ( fabs( FreescaleToDM(BaroPressure - BaroPressureP) ) > 5 ) );
 
     F.BaroAltitudeValid = BaroRetries < BARO_INIT_RETRIES;
 
