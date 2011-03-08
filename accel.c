@@ -209,11 +209,11 @@ void ReadADXL345Acc(void) {
     static real32 d;
 
     I2CACC.start();
-    r = I2CACC.write(ADXL345_WR);
-    r = I2CACC.write(0x32); // point to acc data
+    if ( I2CACC.write(ADXL345_WR) != I2C_ACK ) goto ADXL345Error; // point to acc data
+    if ( I2CACC.write(0x32) != I2C_ACK ) goto ADXL345Error; // point to acc data
     I2CACC.stop();
 
-    I2CACC.blockread(ADXL345_ID, b, 6);
+    if ( I2CACC.blockread(ADXL345_ID, b, 6) ) goto ADXL345Error;
 
     X.b1 = b[1];
     X.b0 = b[0];
@@ -237,33 +237,47 @@ void ReadADXL345Acc(void) {
         if ( d>AccNoise[a] ) AccNoise[a] = d;
     }
 
+    return;
+
+ADXL345Error:
+    I2CACC.stop();
+
+    I2CError[ADXL345_ID]++;
+
 } // ReadADXL345Acc
 
 void InitADXL345Acc() {
 
     I2CACC.start();
-    I2CACC.write(ADXL345_WR);
-    r = I2CACC.write(0x2D);  // power register
-    r = I2CACC.write(0x08);  // measurement mode
+    if ( I2CACC.write(ADXL345_WR) != I2C_ACK ) goto ADXL345Error;;
+    if ( I2CACC.write(0x2D) != I2C_ACK ) goto ADXL345Error;  // power register
+    if ( I2CACC.write(0x08) != I2C_ACK ) goto ADXL345Error;  // measurement mode
     I2CACC.stop();
 
     Delay1mS(5);
 
     I2CACC.start();
-    r = I2CACC.write(ADXL345_WR);
-    r =  I2CACC.write(0x31);  // format
-    r =  I2CACC.write(0x08);  // full resolution, 2g
+    if ( I2CACC.write(ADXL345_WR) != I2C_ACK ) goto ADXL345Error;
+    if ( I2CACC.write(0x31) != I2C_ACK ) goto ADXL345Error;  // format
+    if ( I2CACC.write(0x08) != I2C_ACK ) goto ADXL345Error;  // full resolution, 2g
     I2CACC.stop();
 
     Delay1mS(5);
 
     I2CACC.start();
-    r =  I2CACC.write(ADXL345_WR);
-    r =  I2CACC.write(0x2C);  // Rate
-    r =  I2CACC.write(0x09);  // 50Hz, 400Hz 0x0C
+    if ( I2CACC.write(ADXL345_WR) != I2C_ACK ) goto ADXL345Error;
+    if ( I2CACC.write(0x2C) != I2C_ACK ) goto ADXL345Error;  // Rate
+    if ( I2CACC.write(0x09) != I2C_ACK ) goto ADXL345Error;  // 50Hz, 400Hz 0x0C
     I2CACC.stop();
 
     Delay1mS(5);
+
+    return;
+
+ADXL345Error:
+    I2CACC.stop();
+
+    I2CError[ADXL345_ID]++;
 
 } // InitADXL345Acc
 
@@ -282,92 +296,98 @@ boolean ADXL345AccActive(void) {
 
 // LIS3LV02DG Accelerometer 400KHz
 
-void WriteLISL(uint8, uint8);
+boolean WriteLISL(uint8, uint8);
 void ReadLISLAcc(void);
 void InitLISLAcc(void);
 boolean LISLAccActive(void);
 
-uint8 ReadLISL(uint8 a) {
-    static uint8 r;
-    I2CACC.start();
-    I2CACC.write(LISL_WR);
-    I2CACC.write(a );
-    I2CACC.stop();
-
-    I2CACC.start();
-    r = I2CACC.read(LISL_RD);
-    I2CACC.stop();
-    return(r);
-} // ReadLISL
-
 void ReadLISLAcc(void) {
+
     static uint8 a;
     static real32 d;
     static char b[6];
     static i16u X, Y, Z;
 
     F.AccelerationsValid = I2CACCAddressResponds( LISL_ID ); // Acc still there?
-    if ( F.AccelerationsValid ) {
 
-        I2CACC.start();
-        I2CACC.write(LISL_WR);
-        I2CACC.write(LISL_OUTX_L | 0x80 ); // auto increment address
-        I2CACC.stop();
+    if ( !F.AccelerationsValid ) goto LISLError;
 
-        I2CACC.blockread(LISL_RD, b, 6);
+    I2CACC.start();
+    if ( I2CACC.write(LISL_WR) != I2C_ACK ) goto LISLError;
+    if ( I2CACC.write(LISL_OUTX_L | 0x80 ) != I2C_ACK ) goto LISLError; // auto increment address
+    I2CACC.stop();
 
-        X.b1 = b[1];
-        X.b0 = b[0];
-        Y.b1 = b[3];
-        Y.b0 = b[2];
-        Z.b1 = b[5];
-        Z.b0 = b[4];
+    if ( I2CACC.blockread(LISL_RD, b, 6) ) goto LISLError;
 
-        // UAVP Breakout Board pins to the rear components up
-        AccADC[BF] = -Y.i16;
-        AccADC[LR] = -X.i16;
-        AccADC[UD] = Z.i16;
+    X.b1 = b[1];
+    X.b0 = b[0];
+    Y.b1 = b[3];
+    Y.b0 = b[2];
+    Z.b1 = b[5];
+    Z.b0 = b[4];
 
-        for ( a = 0; a < (int8)3; a++ ) {
-            d = fabs(AccADC[a]-AccADCp[a]);
-            if ( d>AccNoise[a] ) AccNoise[a] = d;
-        }
+    // UAVP Breakout Board pins to the rear components up
+    AccADC[BF] = -Y.i16;
+    AccADC[LR] = -X.i16;
+    AccADC[UD] = Z.i16;
 
-    } else {
-        for ( a = 0; a < (uint8)3; a++ )
-            Acc[a] = AccNeutral[a];
-        Acc[UD] += 1.0;
-
-        if ( State == InFlight ) {
-            Stats[AccFailS]++;    // data over run - acc out of range
-            // use neutral values!!!!
-            F.AccFailure = true;
-        }
+    for ( a = 0; a < (int8)3; a++ ) {
+        d = fabs(AccADC[a]-AccADCp[a]);
+        if ( d>AccNoise[a] ) AccNoise[a] = d;
     }
+
+    return;
+
+LISLError:
+    I2CACC.stop();
+
+    I2CError[LISL_ID]++;
+
+    if ( State == InFlight ) {
+        Stats[AccFailS]++;    // data over run - acc out of range
+        // use neutral values!!!!
+        F.AccFailure = true;
+    }
+
 } // ReadLISLAccelerometers
 
-void WriteLISL(uint8 d, uint8 a) {
+boolean WriteLISL(uint8 d, uint8 a) {
+
     I2CACC.start();
-    I2CACC.write(LISL_WR);
-    I2CACC.write(a);
-    I2CACC.write(d);
+    if ( I2CACC.write(LISL_WR) != I2C_ACK ) goto LISLError;
+    if ( I2CACC.write(a) != I2C_ACK ) goto LISLError;
+    if ( I2CACC.write(d) != I2C_ACK ) goto LISLError;
     I2CACC.stop();
+
+    return(false);
+
+LISLError:
+    I2CACC.stop();
+
+    I2CError[LISL_ID]++;
+
+    return(true);
+
 } // WriteLISL
 
 void InitLISLAcc(void) {
 
-    WriteLISL(0x4a, LISL_CTRLREG_2);       // enable 3-wire, BDU=1, +/-2g
-
-    WriteLISL(0xc7, LISL_CTRLREG_1);       // on always, 40Hz sampling rate,  10Hz LP cutoff, enable all axes
-    WriteLISL(0, LISL_CTRLREG_3);
-    WriteLISL(0x40, LISL_FF_CFG);          // latch, no interrupts;
-    WriteLISL(0, LISL_FF_THS_L);
-    WriteLISL(0xFC, LISL_FF_THS_H);        // -0,5g threshold
-    WriteLISL(255, LISL_FF_DUR);
-    WriteLISL(0, LISL_DD_CFG);
-    F.AccelerationsValid = true;
+    if ( WriteLISL(0x4a, LISL_CTRLREG_2) ) goto LISLError; // enable 3-wire, BDU=1, +/-2g
+    if ( WriteLISL(0xc7, LISL_CTRLREG_1) ) goto LISLError; // on always, 40Hz sampling rate,  10Hz LP cutoff, enable all axes
+    if ( WriteLISL(0, LISL_CTRLREG_3) ) goto LISLError;
+    if ( WriteLISL(0x40, LISL_FF_CFG) ) goto LISLError;    // latch, no interrupts;
+    if ( WriteLISL(0, LISL_FF_THS_L) ) goto LISLError;
+    if ( WriteLISL(0xFC, LISL_FF_THS_H) ) goto LISLError;  // -0,5g threshold
+    if ( WriteLISL(255, LISL_FF_DUR) ) goto LISLError;
+    if ( WriteLISL(0, LISL_DD_CFG) ) goto LISLError;
 
     TrackMinI2CRate(400000);
+    F.AccelerationsValid = true;
+
+    return;
+
+LISLError:
+    F.AccelerationsValid = false;
 
 } // InitLISLAcc
 
@@ -376,6 +396,7 @@ boolean LISLAccActive(void) {
     F.AccelerationsValid = I2CACCAddressResponds( LISL_ID );
 
     return ( F.AccelerationsValid );
+
 } // LISLAccActive
 
 

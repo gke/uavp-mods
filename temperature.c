@@ -27,7 +27,7 @@ i16u AmbientTemperature;
 void GetTemperature(void) {
 
     I2CTEMP.start();
-    if ( I2CTEMP.write(TMP100_RD) != I2C_ACK ) goto Terror;
+    if ( I2CTEMP.write(TMP100_RD) != I2C_ACK ) goto TMP100Error;
     AmbientTemperature.b1 = I2CTEMP.read(I2C_ACK);
     AmbientTemperature.b0 = I2CTEMP.read(I2C_NACK);
     I2CTEMP.stop();
@@ -41,8 +41,10 @@ void GetTemperature(void) {
             Stats[MinTempS] = AmbientTemperature.i16;
     return;
 
-Terror:
+TMP100Error:
     I2CTEMP.stop();
+    
+    I2CError[TMP100_ID]++;
     AmbientTemperature.i16 = 0;
 
     return;

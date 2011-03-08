@@ -675,7 +675,7 @@ extern boolean ADXL345AccActive(void);
 #define LISL_WR         LISL_ID
 #define LISL_RD         (LISL_ID+1)
 
-extern void WriteLISL(uint8, uint8);
+extern boolean WriteLISL(uint8, uint8);
 extern void ReadLISLAcc(void);
 extern void InitLISLAcc(void);
 extern boolean LISLAccActive(void);
@@ -1097,7 +1097,7 @@ extern void AnalogGyroTest(void);
 
 extern void ReadITG3200Gyro(void);
 extern uint8 ReadByteITG3200(uint8);
-extern void WriteByteITG3200(uint8, uint8);
+extern boolean WriteByteITG3200(uint8, uint8);
 extern void InitITG3200Gyro(void);
 extern void ITG3200Test(void);
 extern boolean ITG3200GyroActive(void);
@@ -1324,8 +1324,10 @@ extern uint8 ScanI2CBus(void);
 extern boolean ESCWaitClkHi(void);
 extern void ProgramSlaveAddress(uint8);
 extern void ConfigureESCs(void);
+extern void InitI2C(void);
 
 extern uint32 MinI2CRate;
+extern uint32 I2CError[256];
 
 //______________________________________________________________________________________________
 
