@@ -216,19 +216,18 @@ void PCA9551Test(void) {
 
     if ( I2CLED.blockread(PCA9551_ID, b, 7) == 0 ) {
 
-    TxString("0:\t0b");
-    TxBin8(b[6]);
-    TxNextLine();
-    for (i = 0; i <6; i++ ) {
-        TxVal32(i+1, 0,0);
-        TxString(":\t0b");
-        TxBin8(b[i]);
+        TxString("0:\t0b");
+        TxBin8(b[6]);
         TxNextLine();
-    }
-    }
-    else
-    TxString("FAILED\r\n");
-    
+        for (i = 0; i <6; i++ ) {
+            TxVal32(i+1, 0,0);
+            TxString(":\t0b");
+            TxBin8(b[i]);
+            TxNextLine();
+        }
+    } else
+        TxString("FAILED\r\n");
+
     TxNextLine();
 } // PCA9551Test
 
@@ -243,8 +242,12 @@ boolean IsPCA9551Active(void) {
         TrackMinI2CRate(400000);
     }
 
+#ifdef DISABLE_LED_DRIVER
+    F.UsingLEDDriver = false;
+#endif // DISABLE_LED_DRIVER
+
     return ( F.UsingLEDDriver );
-    
+
 } //IsPCA9551Active
 
 void InitLEDs(void) {

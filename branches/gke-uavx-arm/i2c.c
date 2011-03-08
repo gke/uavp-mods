@@ -46,7 +46,7 @@ void SDelay(uint16 d) { // 1.25 + 0.0475 * n uS ~0.05uS per click
 
 }  // SDelay
 
-#define I2C400KHZ
+//#define I2C400KHZ
 #ifdef I2C400KHZ
 
 #define SCLLowStartT  SDelay(10) // 82 for 100KHz 10 for 400KHz
@@ -87,6 +87,7 @@ void MyI2C::stop(void) {
     r = waitclock();
     I2CSDAFloat;
     SCLLowStartT;
+
 } // stop
 
 boolean MyI2C::waitclock(void) {
@@ -118,8 +119,12 @@ uint8 MyI2C::read(uint8 ack) {
             return( 0 );
     } while ( --s );
 
-    I2C0SDA.write(ack);
+    if ( ack == I2C_NACK )
+        I2C0SDA.write(0xffff); // Port write with mask selecting SDA - messy
+    else
+        I2C0SDA.write(0); 
     I2C0SDA.output();
+
     SCLLowPadT;
 
     if ( waitclock() ) {
@@ -127,6 +132,7 @@ uint8 MyI2C::read(uint8 ack) {
         return( d );
     } else
         return( 0 );
+
 } // read
 
 uint8 MyI2C::write(uint8 d) {
@@ -148,11 +154,14 @@ uint8 MyI2C::write(uint8 d) {
 
     I2CSDAFloat;
     if ( waitclock() ) {
-        r = I2C0SDA.read();
+        r = I2C0SDA.read() != 0;
+        I2CSDALow;// kill runt pulses
         I2CSCLLow;
-        return( r );
-    } else
+        return ( r );
+    } else {
+//   I2CSCLLow;
         return(I2C_NACK);
+    }
 
 } // write
 

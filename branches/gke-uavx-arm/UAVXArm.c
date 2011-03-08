@@ -31,7 +31,19 @@ int main(void) {
     InitRC();
     InitTimersAndInterrupts();
     InitLEDs();
-    
+
+/*
+Delay1mS(500);
+        InitADXL345Acc();
+            MCP4725_ID_Actual = FORCE_BARO_ID;
+    while (1) {
+           DebugPin = 1;
+       SetFreescaleMCP4725(1);
+       DebugPin = 0;
+        Delay1mS(1); 
+        ReadADXL345Acc();
+    }
+*/
     InitParameters();
     ReadStatsPX();
     InitMotors();

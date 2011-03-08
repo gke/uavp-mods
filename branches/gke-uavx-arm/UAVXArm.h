@@ -1,9 +1,11 @@
 
 // Commissioning defines
 
-//#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW ~100KHz
+#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW ~100KHz
 
 #define MAGIC               1.0                       // rescales the PID loop parameters globally
+
+#define DISABLE_LED_DRIVER                              // turns off use of PCA driver
 
 #define  FORCE_BARO_ID      0xcc
 //#define  FORCE_BARO_ID      0xc8

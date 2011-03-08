@@ -316,9 +316,11 @@ void InitMotors(void) {
 #ifndef Y6COPTER
 #ifdef TRICOPTER
     PWM[BackC] = OUT_NEUTRAL;
-#endif // !TRICOPTER    
+#endif // !TRICOPTER
     PWM[CamRollC] = OUT_NEUTRAL;
     PWM[CamPitchC] = OUT_NEUTRAL;
+    CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
+    CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );    
 #endif // Y6COPTER
 
 } // InitMotors
