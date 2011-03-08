@@ -531,7 +531,7 @@ void SendCustom(void) { // user defined telemetry human readable OK for small am
     static uint8 s, a;
 
     a = Roll;
-    
+
     // always a vector of int16;
     SendPacketHeader();
 

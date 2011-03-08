@@ -26,6 +26,7 @@ int8 r; // global I2C
 int main(void) {
 
     InitMisc();
+    InitI2C();
     InitHarness();
 
     InitRC();

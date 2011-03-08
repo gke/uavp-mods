@@ -75,8 +75,8 @@ void ShowBaroType(void) {
 } // ShowBaro
 
 void BaroTest(void) {
-    TxString("\r\nAltitude test\r\n");
 
+    TxString("\r\nAltitude test\r\n");
     TxString("Initialising\r\n");
 
     InitBarometer();
@@ -231,11 +231,17 @@ void SetFreescaleMCP4725(int16 d) {
     dd.u16 = d << 4;                            // left align
 
     I2CBARO.start();
-    r = I2CBARO.write(MCP4725_ID_Actual) != I2C_ACK;
-    r = I2CBARO.write(MCP4725_CMD) != I2C_ACK;
-    r = I2CBARO.write(dd.b1) != I2C_ACK;
-    r = I2CBARO.write(dd.b0) != I2C_ACK;
+    if ( I2CBARO.write(MCP4725_ID_Actual) != I2C_ACK ) goto MCP4725Error;
+    if ( I2CBARO.write(MCP4725_CMD) != I2C_ACK ) goto MCP4725Error;
+    if ( I2CBARO.write(dd.b1) != I2C_ACK ) goto MCP4725Error;
+    if ( I2CBARO.write(dd.b0) != I2C_ACK ) goto MCP4725Error;
     I2CBARO.stop();
+
+    return;
+
+MCP4725Error:
+    I2CBARO.stop();
+    I2CError[MCP4725_ID_Actual]++;
 
 } // SetFreescaleMCP4725
 
@@ -255,8 +261,10 @@ boolean IdentifyMCP4725(void) {
 
        return(r);
     */
+
     MCP4725_ID_Actual = FORCE_BARO_ID;
     return(true);
+
 } // IdentifyMCP4725
 
 void SetFreescaleOffset(void) {
@@ -313,11 +321,13 @@ void ReadFreescaleBaro(void) {
     mS[BaroUpdate] = mSClock() + ADS7823_TIME_MS;
 
     I2CBARO.start();  // start conversion
+    if ( I2CBARO.write(ADS7823_WR) != I2C_ACK ) goto ADS7823Error;
+    if ( I2CBARO.write(ADS7823_CMD) != I2C_ACK ) goto ADS7823Error;
+    I2CBARO.stop();
 
-    if ( I2CBARO.write(ADS7823_WR) != I2C_ACK ) goto FSError;
-    if ( I2CBARO.write(ADS7823_CMD) != I2C_ACK ) goto FSError;
+    if ( I2CBARO.blockread(ADS7823_RD, B, 8) ) goto ADS7823Error;
 
-    I2CBARO.blockread(ADS7823_RD, B, 8);  // read block of 4 baro samples
+    // read block of 4 baro samples
 
     B0.b0 = B[1];
     B0.b1 = B[0];
@@ -334,15 +344,17 @@ void ReadFreescaleBaro(void) {
 
     return;
 
-FSError:
+ADS7823Error:
     I2CBARO.stop();
 
-    F.BaroAltitudeValid = F.HoldingAlt = false;
+    I2CError[ADS7823_ID]++;
+
+    // F.BaroAltitudeValid = F.HoldingAlt = false;
     if ( State == InFlight ) {
         Stats[BaroFailS]++;
         F.BaroFailure = true;
     }
-    return;
+
 } // ReadFreescaleBaro
 
 real32 FreescaleToDM(int24 p) { // decreasing pressure is increase in altitude negate and rescale to metre altitude
@@ -379,7 +391,6 @@ boolean IsFreescaleBaroActive(void) { // check for Freescale Barometer
 
 void InitFreescaleBarometer(void) {
     static int16 BaroOriginAltitude, MinAltitude;
-    real32 Error;
     static int24 BaroPressureP;
 
     AltitudeUpdateRate = 1000L/ADS7823_TIME_MS;
@@ -387,7 +398,7 @@ void InitFreescaleBarometer(void) {
     BaroTemperature = 0;
     if ( P[BaroScale] <= 0 )
         P[BaroScale] = 56; // failsafe setting
- 
+
     BaroPressure =  0;
     BaroRetries = 0;
     do {
@@ -455,54 +466,62 @@ void StartBoschBaroADC(boolean ReadPressure) {
     }
 
     I2CBARO.start();
-    if ( I2CBARO.write(BOSCH_ID) != I2C_ACK ) goto SBerror;
-
+    if ( I2CBARO.write(BOSCH_ID) != I2C_ACK ) goto BoschError;
     // access control register, start measurement
-    if ( I2CBARO.write(BOSCH_CTL) != I2C_ACK ) goto SBerror;
-
+    if ( I2CBARO.write(BOSCH_CTL) != I2C_ACK ) goto BoschError;
     // select 32kHz input, measure temperature
-    if ( I2CBARO.write(TempOrPress) != I2C_ACK ) goto SBerror;
+    if ( I2CBARO.write(TempOrPress) != I2C_ACK ) goto BoschError;
     I2CBARO.stop();
 
     F.BaroAltitudeValid = true;
     return;
 
-SBerror:
+BoschError:
     I2CBARO.stop();
-    F.BaroAltitudeValid = F.HoldingAlt = false;
-    return;
+
+    I2CError[BOSCH_ID]++;
+
+    //F.BaroAltitudeValid = F.HoldingAlt = false;
+    if ( State == InFlight ) {
+        Stats[BaroFailS]++;
+        F.BaroFailure = true;
+    }
+
 } // StartBoschBaroADC
 
 void ReadBoschBaro(void) {
+
     // Possible I2C protocol error - split read of ADC
     I2CBARO.start();
-    if ( I2CBARO.write(BOSCH_WR) != I2C_ACK ) goto RVerror;
-    if ( I2CBARO.write(BOSCH_ADC_MSB) != I2C_ACK ) goto RVerror;
+    if ( I2CBARO.write(BOSCH_WR) != I2C_ACK ) goto BoschError;
+    if ( I2CBARO.write(BOSCH_ADC_MSB) != I2C_ACK ) goto BoschError;
     I2CBARO.start();    // restart
-    if ( I2CBARO.write(BOSCH_RD) != I2C_ACK ) goto RVerror;
+    if ( I2CBARO.write(BOSCH_RD) != I2C_ACK ) goto BoschError;
     BaroVal.b1 = I2CBARO.read(I2C_NACK);
     I2CBARO.stop();
 
     I2CBARO.start();
-    if ( I2CBARO.write(BOSCH_WR) != I2C_ACK ) goto RVerror;
-    if ( I2CBARO.write(BOSCH_ADC_LSB) != I2C_ACK ) goto RVerror;
+    if ( I2CBARO.write(BOSCH_WR) != I2C_ACK ) goto BoschError;
+    if ( I2CBARO.write(BOSCH_ADC_LSB) != I2C_ACK ) goto BoschError;
     I2CBARO.start();    // restart
-    if ( I2CBARO.write(BOSCH_RD) != I2C_ACK ) goto RVerror;
+    if ( I2CBARO.write(BOSCH_RD) != I2C_ACK ) goto BoschError;
     BaroVal.b0 = I2CBARO.read(I2C_NACK);
     I2CBARO.stop();
 
     F.BaroAltitudeValid = true;
     return;
 
-RVerror:
+BoschError:
     I2CBARO.stop();
+
+    I2CError[BOSCH_ID]++;
 
     F.BaroAltitudeValid = F.HoldingAlt = false;
     if ( State == InFlight ) {
         Stats[BaroFailS]++;
         F.BaroFailure = true;
     }
-    return;
+
 } // ReadBoschBaro
 
 #define BOSCH_BMP085_TEMP_COEFF        62L
@@ -576,6 +595,7 @@ boolean IsBoschBaroActive(void) { // check for Bosch Barometers
     return(true);
 
 BoschInactive:
+
     return(false);
 
 } // IsBoschBaroActive

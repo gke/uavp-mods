@@ -80,11 +80,18 @@ void WritePCA9551(uint8 S) {
     }
 
     I2CLED.start();
-    I2CLED.write(PCA9551_ID);
-    I2CLED.write(0x15);
-    I2CLED.write(L03);
-    I2CLED.write(L47);
+    if ( I2CLED.write(PCA9551_ID) != I2C_ACK ) goto PCA9551Error;
+    if ( I2CLED.write(0x15) != I2C_ACK ) goto PCA9551Error;
+    if ( I2CLED.write(L03) != I2C_ACK ) goto PCA9551Error;
+    if ( I2CLED.write(L47) != I2C_ACK ) goto PCA9551Error;
     I2CLED.stop();
+     
+    return;
+    
+PCA9551Error:
+I2CLED.stop();
+
+    I2CError[PCA9551_ID]++;
 
 } // WritePCA9551
 
@@ -210,11 +217,11 @@ void PCA9551Test(void) {
     TxString("\r\nPCA9551Test\r\n");
 
     I2CLED.start();
-    I2CGYRO.write(PCA9551_ID);
-    I2CGYRO.write(0x11);
+    if ( I2CGYRO.write(PCA9551_ID) != I2C_ACK ) goto PCA9551Error;
+    if ( I2CGYRO.write(0x11) != I2C_ACK ) goto PCA9551Error;;
     I2CLED.stop();
 
-    if ( I2CLED.blockread(PCA9551_ID, b, 7) == 0 ) {
+    if ( I2CLED.blockread(PCA9551_ID, b, 7) ) goto PCA9551Error;
 
         TxString("0:\t0b");
         TxBin8(b[6]);
@@ -225,10 +232,18 @@ void PCA9551Test(void) {
             TxBin8(b[i]);
             TxNextLine();
         }
-    } else
+              
+    TxNextLine();
+             
+    return;
+
+PCA9551Error:
+I2CLED.stop();
+
+I2CError[PCA9551_ID]++;
+
         TxString("FAILED\r\n");
 
-    TxNextLine();
 } // PCA9551Test
 
 boolean IsPCA9551Active(void) {

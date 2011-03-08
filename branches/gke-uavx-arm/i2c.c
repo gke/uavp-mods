@@ -31,6 +31,8 @@ boolean ESCWaitClkHi(void);
 void ProgramSlaveAddress(uint8);
 void ConfigureESCs(void);
 
+uint32 I2CError[256];
+
 uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 
 //______________________________________________________________________________________________
@@ -46,17 +48,17 @@ void SDelay(uint16 d) { // 1.25 + 0.0475 * n uS ~0.05uS per click
 
 }  // SDelay
 
-//#define I2C400KHZ
+#define I2C400KHZ
 #ifdef I2C400KHZ
 
-#define SCLLowStartT  SDelay(10) // 82 for 100KHz 10 for 400KHz
+#define SCLLowStartT SDelay(10) // 82 for 100KHz 10 for 400KHz
 #define I2CDelay2uS SDelay(10)
 #define SCLLowPadT SDelay(6) // 82 for 100KHz 10 for 400KHz
 #define SCLHighT SDelay(13) // 85 for 100KHz 13 for 400KHz
 
 #else
 
-#define SCLLowStartT  SDelay(10) // 82 for 100KHz 10 for 400KHz
+#define SCLLowStartT  SDelay(82) // 82 for 100KHz 10 for 400KHz
 #define I2CDelay2uS SDelay(10)
 #define SCLLowPadT SDelay(82) // 78 for 100KHz 6 for 400KHz
 #define SCLHighT SDelay(85) // 85 for 100KHz 13 for 400KHz
@@ -97,6 +99,7 @@ boolean MyI2C::waitclock(void) {
     s = 0;
     while ( I2C0SCL.read() == 0 )
         if ( ++s > 16000 ) { // ~1mS
+            I2CError[0]++;
             Stats[I2CFailS]++;
             return (false);
         }
@@ -122,7 +125,7 @@ uint8 MyI2C::read(uint8 ack) {
     if ( ack == I2C_NACK )
         I2C0SDA.write(0xffff); // Port write with mask selecting SDA - messy
     else
-        I2C0SDA.write(0); 
+        I2C0SDA.write(0);
     I2C0SDA.output();
 
     SCLLowPadT;
@@ -267,26 +270,34 @@ uint8 ScanI2CBus(void) {
 
     d = 0;
     TxString("Buss 0\r\n");
+    TxString("SCL Hangs:\t");
+    TxVal32(I2CError[0], 0, 0);
+    TxNextLine();
     for ( s = 0x10 ; s <= 0xf6 ; s += 2 ) {
         if (  I2C0AddressResponds(s) ) {
             d++;
-            DebugPin = 1;
             TxString("\t0x");
             TxValH(s);
+            TxChar(HT);
+            TxVal32(I2CError[s], 0, HT);
             ShowI2CDeviceName( s );
             TxNextLine();
-            DebugPin = 0;
         }
         Delay1mS(2);
     }
 
 #ifdef HAVE_I2C1
     TxString("Buss 1\r\n");
+    TxString("Buss 0\r\n");
+    TxString("SCL Hangs:\t");
+    TxNextLine();
     for ( s = 0x10 ; s <= 0xf6 ; s += 2 ) {
-        if (  I2C0AddressResponds(s) ) {
+        if ( I2C0AddressResponds(s) ) {
             d++;
             TxString("\t0x");
             TxValH(s);
+            TxChar(HT);
+            TxVal32(I2CError[s], 0, HT);
             ShowI2CDeviceName( s );
             TxNextLine();
         }
@@ -351,6 +362,15 @@ void ConfigureESCs(void) {
     } else
         TxString("\r\nYGEI2C not selected as ESC?\r\n");
 } // ConfigureESCs
+
+void InitI2C(void) {
+
+    uint8 i;
+
+    for ( i = 0; i < 255; i++ )
+        I2CError[i] = 0;
+
+} // InitI2C
 
 
 

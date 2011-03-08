@@ -171,11 +171,11 @@ void ReadHMC5843(void) {
     static real32 CRoll, SRoll, CPitch, SPitch;
 
     I2CCOMPASS.start();
-    r = I2CCOMPASS.write(HMC5843_WR);
-    r = I2CCOMPASS.write(0x03); // point to data
+    if ( I2CCOMPASS.write(HMC5843_WR) != I2C_ACK ) goto HMC5843Error;
+    if ( I2CCOMPASS.write(0x03) != I2C_ACK ) goto HMC5843Error; // point to data
     I2CCOMPASS.stop();
 
-    I2CCOMPASS.blockread(HMC5843_RD, b, 6);
+    if ( I2CCOMPASS.blockread(HMC5843_RD, b, 6) ) goto HMC5843Error;
 
     X.b1 = b[0];
     X.b0 = b[1];
@@ -207,6 +207,15 @@ void ReadHMC5843(void) {
 
     DebugPin = false;
     F.CompassValid = true;
+    
+    return;
+    
+HMC5843Error:
+    I2CCOMPASS.stop();
+    
+    I2CError[HMC5843_ID]++;
+    
+    F.CompassValid = false;
 
 } // ReadHMC5843
 
@@ -273,11 +282,11 @@ void GetHMC5843Parameters(void) {
     static uint8 i;
 
     I2CCOMPASS.start();
-    r = I2CCOMPASS.write(HMC5843_WR);
-    r = I2CCOMPASS.write(0x00); // point to data
+    if ( I2CCOMPASS.write(HMC5843_WR) != I2C_ACK) goto HMC5843Error;
+    if ( I2CCOMPASS.write(0x00) != I2C_ACK) goto HMC5843Error; // point to data
     I2CCOMPASS.stop();
 
-    r = I2CCOMPASS.blockread(HMC5843_RD, CP, 13);
+    if ( I2CCOMPASS.blockread(HMC5843_RD, CP, 13) ) goto HMC5843Error;
 
     for ( i = 0; i < (uint8)13; i++ ) {
         TxVal32(i,0,0);
@@ -287,6 +296,13 @@ void GetHMC5843Parameters(void) {
         TxBin8(CP[i]);
         TxNextLine();
     }
+    
+    return;
+    
+HMC5843Error:
+    I2CCOMPASS.stop();
+    
+    I2CError[HMC5843_ID]++;
 
 } // GetHMC5843Parameters
 
@@ -312,15 +328,23 @@ void DoHMC5843Test(void) {
     TxString(" deg (True)\r\n");
 } // DoHMC5843Test
 
-uint8 WriteByteHMC5843(uint8 a, uint8 d) {
+boolean WriteByteHMC5843(uint8 a, uint8 d) {
 
     I2CCOMPASS.start();
-    r = I2CCOMPASS.write(HMC5843_WR);
-    r = I2CCOMPASS.write(a);
-    r = I2CCOMPASS.write(d);
+    if ( I2CCOMPASS.write(HMC5843_WR) != I2C_ACK ) goto HMC5843Error;
+    if ( I2CCOMPASS.write(a) != I2C_ACK ) goto HMC5843Error;
+    if ( I2CCOMPASS.write(d) != I2C_ACK ) goto HMC5843Error;
     I2CCOMPASS.stop();
 
-    return( I2C_ACK );
+    return( false );
+    
+HMC5843Error:
+I2CCOMPASS.stop();
+
+    I2CError[HMC5843]++;
+    
+    return(true);
+    
 } // WriteByteHMC5843
 
 void InitHMC5843(void) {
@@ -328,10 +352,19 @@ void InitHMC5843(void) {
 #define DR 5    // 20Hz
 //#define DR 6    // 50Hz
 
-    WriteByteHMC5843(0x00, DR << 2); // rate, normal measurement mode
-    WriteByteHMC5843(0x02, 0x00); // mode continuous
+    if ( WriteByteHMC5843(0x00, DR << 2) ) goto HMC5843Error; // rate, normal measurement mode
+    if ( WriteByteHMC5843(0x02, 0x00) ) goto HMC5843Error; // mode continuous
 
     Delay1mS(50);
+    
+    return;
+    
+HMC5843Error:
+    I2CCOMPASS.stop();
+
+    I2CError[HMC5843]++;
+    
+    F.CompassValid = false;
 
 } // InitHMC5843Magnetometer
 
@@ -362,23 +395,36 @@ void ReadHMC6352(void) {
     static i16u v;
 
     I2CCOMPASS.start();
-    F.CompassMissRead = I2CCOMPASS.write(HMC6352_RD) != I2C_ACK;
+    if ( I2CCOMPASS.write(HMC6352_RD) != I2C_ACK ) goto HMC6352Error;
     v.b1 = I2CCOMPASS.read(I2C_ACK);
     v.b0 = I2CCOMPASS.read(I2C_NACK);
     I2CCOMPASS.stop();
 
     MagHeading = Make2Pi( ((real32)v.i16 * PI) / 1800.0 - CompassOffset ); // Radians
+    
+    return;
+    
+HMC6352Error:    
+    I2CCOMPASS.stop();
+    
+    F.CompassMissRead = true;
+    
 } // ReadHMC6352
 
 uint8 WriteByteHMC6352(uint8 d) {
+
     I2CCOMPASS.start();
-    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto WError;
-    if ( I2CCOMPASS.write(d) != I2C_ACK ) goto WError;
+    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write(d) != I2C_ACK ) goto HMC6352Error;
     I2CCOMPASS.stop();
 
     return( I2C_ACK );
-WError:
+    
+HMC6352Error:
     I2CCOMPASS.stop();
+    
+    I2CError[HMC6352_ID]++;
+    
     return ( I2C_NACK );
 } // WriteByteHMC6352
 
@@ -388,13 +434,12 @@ char CP[9];
 
 void GetHMC6352Parameters(void) {
     int16 Temp;
-    uint8 r;
 
     I2CCOMPASS.start();
-    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write('G')  != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write(0x74) != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write(TEST_COMP_OPMODE) != I2C_ACK ) goto CTerror;
+    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write('G')  != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write(0x74) != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write(TEST_COMP_OPMODE) != I2C_ACK ) goto HMC6352Error;
     I2CCOMPASS.stop();
 
     Delay1mS(20);
@@ -402,15 +447,15 @@ void GetHMC6352Parameters(void) {
     for (r = 0; r <= (uint8)8; r++) { // must have this timing - not block read!
 
         I2CCOMPASS.start();
-        if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto CTerror;
-        if ( I2CCOMPASS.write('r')  != I2C_ACK ) goto CTerror;
-        if ( I2CCOMPASS.write(r)  != I2C_ACK ) goto CTerror;
+        if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto HMC6352Error;
+        if ( I2CCOMPASS.write('r')  != I2C_ACK ) goto HMC6352Error;
+        if ( I2CCOMPASS.write(r)  != I2C_ACK ) goto HMC6352Error;
         I2CCOMPASS.stop();
 
         Delay1mS(10);
 
         I2CCOMPASS.start();
-        if ( I2CCOMPASS.write(HMC6352_RD) != I2C_ACK ) goto CTerror;
+        if ( I2CCOMPASS.write(HMC6352_RD) != I2C_ACK ) goto HMC6352Error;
         CP[r] = I2CCOMPASS.read(I2C_NACK);
         I2CCOMPASS.stop();
 
@@ -484,8 +529,11 @@ void GetHMC6352Parameters(void) {
 
     return;
 
-CTerror:
+HMC6352Error:
     I2CCOMPASS.stop();
+    
+    I2CError[HMC6352_ID]++;
+    
     TxString("FAIL\r\n");
 
 } // GetHMC6352Parameters
@@ -495,28 +543,28 @@ void DoHMC6352Test(void) {
     TxString("\r\nCompass test (HMC6352)\r\n");
 
     I2CCOMPASS.start();
-    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write('G')  != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write(0x74) != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write(TEST_COMP_OPMODE) != I2C_ACK ) goto CTerror;
+    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write('G')  != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write(0x74) != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write(TEST_COMP_OPMODE) != I2C_ACK ) goto HMC6352Error;
     I2CCOMPASS.stop();
 
     Delay1mS(1);
 
     //  I2CCOMPASS.start(); // Do Set/Reset now
-    if ( WriteByteHMC6352('O')  != I2C_ACK ) goto CTerror;
+    if ( WriteByteHMC6352('O')  != I2C_ACK ) goto HMC6352Error;
 
     Delay1mS(7);
 
     GetHMC6352Parameters();
 
     InitCompass();
-    if ( !F.CompassValid ) goto CTerror;
+    if ( !F.CompassValid ) goto HMC6352Error;
 
     Delay1mS(50);
 
     ReadHMC6352();
-    if ( F.CompassMissRead ) goto CTerror;
+    if ( F.CompassMissRead ) goto HMC6352Error;
 
     TxNextLine();
     TxVal32(MagHeading * RADDEG * 10.0, 1, 0);
@@ -526,8 +574,12 @@ void DoHMC6352Test(void) {
     TxString(" deg (True)\r\n");
 
     return;
-CTerror:
+    
+HMC6352Error:
     I2CCOMPASS.stop();
+    
+    I2CError[HMC6352_ID]++;
+    
     TxString("FAIL\r\n");
 } // DoHMC6352Test
 
@@ -536,18 +588,18 @@ void CalibrateHMC6352(void) {   // calibrate the compass by rotating the ufo thr
     while ( PollRxChar() != 'x' ); // UAVPSet uses 'x' for CONTINUE button
 
     // Do Set/Reset now
-    if ( WriteByteHMC6352('O') != I2C_ACK ) goto CCerror;
+    if ( WriteByteHMC6352('O') != I2C_ACK ) goto HMC6352Error;
 
     Delay1mS(7);
 
     // set Compass device to Calibration mode
-    if ( WriteByteHMC6352('C') != I2C_ACK ) goto CCerror;
+    if ( WriteByteHMC6352('C') != I2C_ACK ) goto HMC6352Error;
 
     TxString("\r\nRotate horizontally 720 deg in ~30 sec. - Press CONTINUE button (x) to Finish\r\n");
     while ( PollRxChar() != 'x' );
 
     // set Compass device to End-Calibration mode
-    if ( WriteByteHMC6352('E') != I2C_ACK ) goto CCerror;
+    if ( WriteByteHMC6352('E') != I2C_ACK ) goto HMC6352Error;
 
     TxString("\r\nCalibration complete\r\n");
 
@@ -557,7 +609,11 @@ void CalibrateHMC6352(void) {   // calibrate the compass by rotating the ufo thr
 
     return;
 
-CCerror:
+HMC6352Error:
+    I2CCOMPASS.stop();
+    
+    I2CError[HMC6352_ID]++;
+    
     TxString("Calibration FAILED\r\n");
 } // CalibrateHMC6352
 
@@ -572,33 +628,37 @@ void InitHMC6352(void) {
 
     // Set device to Compass mode
     I2CCOMPASS.start();
-    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write('G')  != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write(0x74) != I2C_ACK ) goto CTerror;
-    if ( I2CCOMPASS.write(COMP_OPMODE) != I2C_ACK ) goto CTerror;
+    if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write('G')  != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write(0x74) != I2C_ACK ) goto HMC6352Error;
+    if ( I2CCOMPASS.write(COMP_OPMODE) != I2C_ACK ) goto HMC6352Error;
     I2CCOMPASS.stop();
 
     Delay1mS(1);
 
     // save operation mode in Flash
-    if ( WriteByteHMC6352('L') != I2C_ACK ) goto CTerror;
+    if ( WriteByteHMC6352('L') != I2C_ACK ) goto HMC6352Error;
 
     Delay1mS(1);
 
     // Do Bridge Offset Set/Reset now
-    if ( WriteByteHMC6352('O') != I2C_ACK ) goto CTerror;
+    if ( WriteByteHMC6352('O') != I2C_ACK ) goto HMC6352Error;
 
     Delay1mS(50);
 
     F.CompassValid = true;
 
     return;
-CTerror:
+    
+HMC6352Error:
+    I2CCOMPASS.stop();
+    
+    I2CError[HMC6352_ID]++;
+    
     F.CompassValid = false;
     Stats[CompassFailS]++;
     F.CompassFailure = true;
 
-    I2CCOMPASS.stop();
 } // InitHMC6352
 
 boolean HMC6352Active(void) {
