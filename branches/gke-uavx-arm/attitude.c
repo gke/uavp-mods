@@ -28,6 +28,7 @@ void NormaliseAccelerations(void);
 void AttitudeTest(void);
 
 real32 AccMagnitude;
+real32 HeadingE;
 real32 EstAngle[3][MaxAttitudeScheme];
 real32 EstRate[3][MaxAttitudeScheme];
 real32 dT, dTOn2, dTR, dTmS;
@@ -40,8 +41,8 @@ void DoLegacyYawComp(uint8 S) {
 #define DRIFT_COMP_YAW_RATE      QUARTERPI           // Radians/Sec
 #define MAX_YAW_RATE            (PI / RC_NEUTRAL);  // Radians/Sec HalfPI 90deg/sec
 
-    static real32 HE;
     static int16 Temp;
+    static real32 HE;
 
     Rate[Yaw] = Gyro[Yaw];
 
@@ -51,16 +52,16 @@ void DoLegacyYawComp(uint8 S) {
         if ( F.CompassValid )  // CW+
             if ( abs(Temp) > COMPASS_MIDDLE ) {
                 DesiredHeading = Heading; // acquire new heading
-                HE = 0.0;
+                HeadingE = HE = 0.0;
             } else {
-                HE = MakePi(DesiredHeading - Heading);
-                HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
-                HE = HE * K[CompassKp];
+                HeadingE = MakePi(DesiredHeading - Heading);
+                HeadingE = Limit(HeadingE, -SIXTHPI, SIXTHPI); // 30 deg limit
+                HE = HeadingE * K[CompassKp];
                 HE = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
             }
         else {
             DesiredHeading = Heading;
-            HE = 0.0;
+            HeadingE = HE = 0.0;
         }
 
         Yaw[Rate] = HE + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;

@@ -715,6 +715,7 @@ extern void AttitudeTest(void);
 extern void InitAttitude(void);
 
 extern real32 dT, dTOn2, dTR;
+extern real32 HeadingE;
 extern uint32 PrevDCMUpdate;
 extern uint8 AttitudeMethod;
 
