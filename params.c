@@ -97,7 +97,7 @@ void Legacy(void) {
     
     K[Balance] = ( 128.0 + (float)P[Balance])/128.0;
     
-    K[CompassKp] = P[CompassKp] / 4096.0;
+    K[CompassKp] = P[CompassKp] * 0.1;
     K[YawIntLimit] = P[YawIntLimit] * 256.0 /1000.0;
 
     // Camera

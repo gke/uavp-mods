@@ -31,8 +31,8 @@ boolean ESCWaitClkHi(void);
 void ProgramSlaveAddress(uint8);
 void ConfigureESCs(void);
 
-uint32 I2CError[256];
-
+uint16 I2CError[256];
+uint8 I2CSpeed = 10; // 100KHz
 uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 
 //______________________________________________________________________________________________
@@ -44,26 +44,34 @@ uint32 MinI2CRate = I2C_MAX_RATE_HZ;
 void SDelay(uint16 d) { // 1.25 + 0.0475 * n uS ~0.05uS per click
 
     volatile int16 v;
+
     for (v = 0; v < d ; v++ ) {};
 
 }  // SDelay
 
-#define I2C400KHZ
-#ifdef I2C400KHZ
+#define SCLLowStartT SDelay(I2CSpeed)
+#define DataLowPadT SDelay(I2CSpeed)
+#define SCLLowPadT SDelay(I2CSpeed)
+#define SCLHighT SDelay(I2CSpeed)
+/*
+
+#if ( I2C_MAX_RATE_HZ == 400000 )
 
 #define SCLLowStartT SDelay(10) // 82 for 100KHz 10 for 400KHz
-#define I2CDelay2uS SDelay(10)
+#define DataLowPadT SDelay(10)
 #define SCLLowPadT SDelay(6) // 82 for 100KHz 10 for 400KHz
 #define SCLHighT SDelay(13) // 85 for 100KHz 13 for 400KHz
 
 #else
 
 #define SCLLowStartT  SDelay(82) // 82 for 100KHz 10 for 400KHz
-#define I2CDelay2uS SDelay(10)
+#define DataLowPadT SDelay(82)
 #define SCLLowPadT SDelay(82) // 78 for 100KHz 6 for 400KHz
 #define SCLHighT SDelay(85) // 85 for 100KHz 13 for 400KHz
 
 #endif //I2C400KHZ
+
+*/
 
 #define I2CSDALow {I2C0SDA.write(0);I2C0SDA.output();SCLLowPadT;}
 #define I2CSDAFloat {I2C0SDA.input();SCLLowPadT;}
@@ -72,6 +80,11 @@ void SDelay(uint16 d) { // 1.25 + 0.0475 * n uS ~0.05uS per click
 
 void MyI2C::frequency(uint32 f) {
 // delay depending on rate
+
+    if ( f == 400000 )
+        I2CSpeed = 10;
+    else
+        I2CSpeed = 80;
 } // frequency
 
 void MyI2C::start(void) {
@@ -100,6 +113,7 @@ boolean MyI2C::waitclock(void) {
     while ( I2C0SCL.read() == 0 )
         if ( ++s > 16000 ) { // ~1mS
             I2CError[0]++;
+            // possible add SCL cycles here to attempt to force device reset
             Stats[I2CFailS]++;
             return (false);
         }
@@ -117,7 +131,7 @@ uint8 MyI2C::read(uint8 ack) {
             d <<= 1;
             if ( I2C0SDA.read() ) d |= 1;
             I2CSCLLow;
-            I2CDelay2uS;
+            DataLowPadT;
         } else
             return( 0 );
     } while ( --s );
@@ -157,7 +171,10 @@ uint8 MyI2C::write(uint8 d) {
 
     I2CSDAFloat;
     if ( waitclock() ) {
-        r = I2C0SDA.read() != 0;
+        if ( I2C0SDA.read() )
+            r = I2C_NACK;
+        else
+            r = I2C_ACK;
         I2CSDALow;// kill runt pulses
         I2CSCLLow;
         return ( r );
@@ -199,6 +216,8 @@ void MyI2C::blockwrite(uint8 a, const char* S, uint8 l) {
 //______________________________________________________________________________________________
 
 void TrackMinI2CRate(uint32 r) {
+
+// CURRENTLY USING DEFINE TO SPECIFY RATE - UAVXArm.h
     if ( r < MinI2CRate )
         MinI2CRate = r;
 } // TrackMinI2CRate
@@ -270,6 +289,11 @@ uint8 ScanI2CBus(void) {
 
     d = 0;
     TxString("Buss 0\r\n");
+#if ( I2C_MAX_RATE_HZ == 400000 )
+    TxString("Rate:\t400KHz\r\n");
+#else
+    TxString("Rate:\t100KHz\r\n");
+#endif
     TxString("SCL Hangs:\t");
     TxVal32(I2CError[0], 0, 0);
     TxNextLine();
@@ -288,7 +312,11 @@ uint8 ScanI2CBus(void) {
 
 #ifdef HAVE_I2C1
     TxString("Buss 1\r\n");
-    TxString("Buss 0\r\n");
+#if ( I2C_MAX_RATE_HZ == 400000 )
+    TxString("Rate:\t400KHz\r\n");
+#else
+    TxString("Rate:\t100KHz\r\n");
+#endif
     TxString("SCL Hangs:\t");
     TxNextLine();
     for ( s = 0x10 ; s <= 0xf6 ; s += 2 ) {

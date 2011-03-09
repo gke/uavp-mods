@@ -5,19 +5,15 @@
 
 #define MAGIC               1.0                       // rescales the PID loop parameters globally
 
-#define DISABLE_LED_DRIVER                              // turns off use of PCA driver
-
-#define  FORCE_BARO_ID      0xcc
-//#define  FORCE_BARO_ID      0xc8
-
+//#define DISABLE_LED_DRIVER                             // disables the PCA driver and also the BUZZER
+ 
 #define I2C_MAX_RATE_HZ     400000
 
 #define MAX_PID_CYCLE_HZ    200                       // PID cycle rate do not exceed
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
-#define PWM_UPDATE_HZ       200                       // reduced for turningys - I2C runs at PID loop rate always
+#define PWM_UPDATE_HZ       200                       // reduced for Turnigys - I2C runs at PID loop rate always
                                                        // MUST BE LESS THAN OR EQUAL TO 450HZ
-
 // LP filter cutoffs for sensors
 
 #define SUPPRESS_ROLL_PITCH_GYRO_FILTERS                           
@@ -1306,13 +1302,8 @@ extern real32 IR[3], IRMax, IRMin, IRSwing;
 
 // i2c.c
 
-#ifdef SW_I2C
-#define I2C_ACK  0
-#define I2C_NACK 1
-#else
-#define I2C_ACK  1
-#define I2C_NACK 0
-#endif // SW_I2C
+#define I2C_ACK  true
+#define I2C_NACK false
 
 extern boolean I2C0AddressResponds(uint8);
 #ifdef HAVE_I2C1
@@ -1327,7 +1318,7 @@ extern void ConfigureESCs(void);
 extern void InitI2C(void);
 
 extern uint32 MinI2CRate;
-extern uint32 I2CError[256];
+extern uint16 I2CError[256];
 
 //______________________________________________________________________________________________
 

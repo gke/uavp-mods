@@ -345,8 +345,6 @@ void DoControl(void) {
 
     // Yaw
     
-
-
     Yl  = Rate[Yaw] * K[YawKp] + Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * dTR;
 
     Ratep[Yaw] = Rate[Yaw];
