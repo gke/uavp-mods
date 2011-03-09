@@ -246,24 +246,23 @@ MCP4725Error:
 } // SetFreescaleMCP4725
 
 boolean IdentifyMCP4725(void) {
-    /*
-        static boolean r;
 
-        r = true;
+    static boolean r;
+
+    r = true;
+    MCP4725_ID_Actual = MCP4725_ID_0xCC;
+    if ( I2CBAROAddressResponds( MCP4725_ID_0xCC ) )
         MCP4725_ID_Actual = MCP4725_ID_0xCC;
-        if ( I2CBAROAddressResponds( MCP4725_ID_0xCC ) )
-            MCP4725_ID_Actual = MCP4725_ID_0xCC;
+    else
+        if ( I2CBAROAddressResponds( MCP4725_ID_0xC8 ) )
+            MCP4725_ID_Actual = MCP4725_ID_0xC8;
         else
-            if ( I2CBAROAddressResponds( MCP4725_ID_0xC8 ) )
-                MCP4725_ID_Actual = MCP4725_ID_0xC8;
-            else
-                r = false;
+            r = false;
 
-       return(r);
-    */
+    return(r);
 
-    MCP4725_ID_Actual = FORCE_BARO_ID;
-    return(true);
+//   MCP4725_ID_Actual = FORCE_BARO_ID;
+//   return(true);
 
 } // IdentifyMCP4725
 

@@ -63,11 +63,10 @@ void DoLegacyYawComp(uint8 S) {
             HE = 0.0;
         }
 
-        HE += ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;
+        Yaw[Rate] = HE + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;
 
-        EstAngle[Yaw][S] += ( Rate[Yaw] + HE  ) * COMPASS_UPDATE_S;
+        EstAngle[Yaw][S] += Rate[Yaw] * COMPASS_UPDATE_S;
         EstAngle[Yaw][S] = Limit(EstAngle[Yaw][Wolferl], -K[YawIntLimit], K[YawIntLimit]);
-
     }
 
 } // DoLegacyYawComp
