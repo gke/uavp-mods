@@ -73,7 +73,7 @@ void Legacy(void) {
     K[PitchIntLimit] *= DEGRAD;
 
     K[YawKp] *= 2.6 * MAGIC;
-    K[YawKi] *= 41.4 * MAGIC;
+    K[YawKi] *= 4.14 * MAGIC; // was 41.4
     K[YawKd]  = K[YawKd] * 0.0004 * MAGIC;
 
     // Angle Control

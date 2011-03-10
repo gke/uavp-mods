@@ -243,6 +243,11 @@ ADXL345Error:
     I2CACC.stop();
 
     I2CError[ADXL345_ID]++;
+    if ( State == InFlight ) {
+        Stats[AccFailS]++;    // data over run - acc out of range
+        // use neutral values!!!!
+        F.AccFailure = true;
+    }
 
 } // ReadADXL345Acc
 

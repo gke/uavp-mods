@@ -194,7 +194,7 @@ void ReadHMC5843(void) {
         Mag[UD].V = -Z.i16;
     }
     DebugPin = true;
-    CRoll = cos(Angle[Roll]); // 
+    CRoll = cos(Angle[Roll]); //
     SRoll = sin(Angle[Roll]); // Acc[LR] - optimisation not worthwhile
     CPitch = cos(Angle[Pitch]); //
     SPitch = sin(Angle[Pitch]); // Acc[BF]
@@ -207,73 +207,74 @@ void ReadHMC5843(void) {
 
     DebugPin = false;
     F.CompassValid = true;
-    
+
     return;
-    
+
 HMC5843Error:
     I2CCOMPASS.stop();
-    
+
     I2CError[HMC5843_ID]++;
-    
+    if ( State == InFlight ) Stats[CompassFailS]++;
+
     F.CompassValid = false;
 
 } // ReadHMC5843
 
 void CalibrateHMC5843(void) {
 
-/*
-void magOffsetCalc()
-{
-  int   i, j ;
-  float tempMatrix[3] ;
-  float offsetSum[3] ;
-    
-  // Compute magnetic field of the earth
-  
-  magFieldEarth[0] = vectorDotProduct(3, &dcmMatrix[0], &magFieldBody[0]);
-  magFieldEarth[1] = vectorDotProduct(3, &dcmMatrix[3], &magFieldBody[0]);
-  magFieldEarth[2] = vectorDotProduct(3, &dcmMatrix[6], &magFieldBody[0]);
-  
-  // First pass thru?
-  
-  if (firstPassMagOffset == 1)
-  {
-    setPastValues();                         // Yes, set initial values for previous values
-    firstPassMagOffset =0;                   // Clear first pass flag
-  }
-  
-  // Compute the offsets in the magnetometer:
-  vectorAdd(3, offsetSum , magFieldBody, magFieldBodyPrevious) ;
-  
-  matrixMultiply(1, 3, 3, tempMatrix, magFieldEarthPrevious, dcmMatrix); 
-  vectorSubtract(3, offsetSum, offsetSum, tempMatrix); 
-  matrixMultiply(1, 3, 3, tempMatrix, magFieldEarth, dcmMatrixPrevious); 
-  vectorSubtract(3, offsetSum, offsetSum, tempMatrix) ;
-  
-  for ( i = 0 ; i < 3 ; i++ )
-    if ( abs(offsetSum[i] ) < 3 )
-      offsetSum[i] = 0 ;
-  
-  vectorAdd (3, magOffset, magOffset, offsetSum);  
-  setPastValues();
-}
+    /*
+    void magOffsetCalc()
+    {
+      int   i, j ;
+      float tempMatrix[3] ;
+      float offsetSum[3] ;
 
-void setPastValues()
-{
-  int i;
-  
-  for (i = 0 ; i < 3 ; i++)
-  {
-    magFieldEarthPrevious[i] = magFieldEarth[i];
-    magFieldBodyPrevious[i]  = magFieldBody[i];
-  }
-  
-  for (i = 0 ; i < 9 ; i++)
-  {
-    dcmMatrixPrevious[i] = dcmMatrix[i];
-  }
-}
-*/
+      // Compute magnetic field of the earth
+
+      magFieldEarth[0] = vectorDotProduct(3, &dcmMatrix[0], &magFieldBody[0]);
+      magFieldEarth[1] = vectorDotProduct(3, &dcmMatrix[3], &magFieldBody[0]);
+      magFieldEarth[2] = vectorDotProduct(3, &dcmMatrix[6], &magFieldBody[0]);
+
+      // First pass thru?
+
+      if (firstPassMagOffset == 1)
+      {
+        setPastValues();                         // Yes, set initial values for previous values
+        firstPassMagOffset =0;                   // Clear first pass flag
+      }
+
+      // Compute the offsets in the magnetometer:
+      vectorAdd(3, offsetSum , magFieldBody, magFieldBodyPrevious) ;
+
+      matrixMultiply(1, 3, 3, tempMatrix, magFieldEarthPrevious, dcmMatrix);
+      vectorSubtract(3, offsetSum, offsetSum, tempMatrix);
+      matrixMultiply(1, 3, 3, tempMatrix, magFieldEarth, dcmMatrixPrevious);
+      vectorSubtract(3, offsetSum, offsetSum, tempMatrix) ;
+
+      for ( i = 0 ; i < 3 ; i++ )
+        if ( abs(offsetSum[i] ) < 3 )
+          offsetSum[i] = 0 ;
+
+      vectorAdd (3, magOffset, magOffset, offsetSum);
+      setPastValues();
+    }
+
+    void setPastValues()
+    {
+      int i;
+
+      for (i = 0 ; i < 3 ; i++)
+      {
+        magFieldEarthPrevious[i] = magFieldEarth[i];
+        magFieldBodyPrevious[i]  = magFieldBody[i];
+      }
+
+      for (i = 0 ; i < 9 ; i++)
+      {
+        dcmMatrixPrevious[i] = dcmMatrix[i];
+      }
+    }
+    */
 } // CalibrateHMC5843
 
 void GetHMC5843Parameters(void) {
@@ -296,12 +297,12 @@ void GetHMC5843Parameters(void) {
         TxBin8(CP[i]);
         TxNextLine();
     }
-    
+
     return;
-    
+
 HMC5843Error:
     I2CCOMPASS.stop();
-    
+
     I2CError[HMC5843_ID]++;
 
 } // GetHMC5843Parameters
@@ -337,14 +338,14 @@ boolean WriteByteHMC5843(uint8 a, uint8 d) {
     I2CCOMPASS.stop();
 
     return( false );
-    
+
 HMC5843Error:
-I2CCOMPASS.stop();
+    I2CCOMPASS.stop();
 
     I2CError[HMC5843]++;
-    
+
     return(true);
-    
+
 } // WriteByteHMC5843
 
 void InitHMC5843(void) {
@@ -356,14 +357,14 @@ void InitHMC5843(void) {
     if ( WriteByteHMC5843(0x02, 0x00) ) goto HMC5843Error; // mode continuous
 
     Delay1mS(50);
-    
+
     return;
-    
+
 HMC5843Error:
     I2CCOMPASS.stop();
 
     I2CError[HMC5843]++;
-    
+
     F.CompassValid = false;
 
 } // InitHMC5843Magnetometer
@@ -401,14 +402,16 @@ void ReadHMC6352(void) {
     I2CCOMPASS.stop();
 
     MagHeading = Make2Pi( ((real32)v.i16 * PI) / 1800.0 - CompassOffset ); // Radians
-    
+
     return;
-    
-HMC6352Error:    
+
+HMC6352Error:
     I2CCOMPASS.stop();
-    
+
+    if ( State == InFlight ) Stats[CompassFailS]++;
+
     F.CompassMissRead = true;
-    
+
 } // ReadHMC6352
 
 uint8 WriteByteHMC6352(uint8 d) {
@@ -419,12 +422,12 @@ uint8 WriteByteHMC6352(uint8 d) {
     I2CCOMPASS.stop();
 
     return( I2C_ACK );
-    
+
 HMC6352Error:
     I2CCOMPASS.stop();
-    
+
     I2CError[HMC6352_ID]++;
-    
+
     return ( I2C_NACK );
 } // WriteByteHMC6352
 
@@ -531,9 +534,9 @@ void GetHMC6352Parameters(void) {
 
 HMC6352Error:
     I2CCOMPASS.stop();
-    
+
     I2CError[HMC6352_ID]++;
-    
+
     TxString("FAIL\r\n");
 
 } // GetHMC6352Parameters
@@ -574,12 +577,12 @@ void DoHMC6352Test(void) {
     TxString(" deg (True)\r\n");
 
     return;
-    
+
 HMC6352Error:
     I2CCOMPASS.stop();
-    
+
     I2CError[HMC6352_ID]++;
-    
+
     TxString("FAIL\r\n");
 } // DoHMC6352Test
 
@@ -611,9 +614,9 @@ void CalibrateHMC6352(void) {   // calibrate the compass by rotating the ufo thr
 
 HMC6352Error:
     I2CCOMPASS.stop();
-    
+
     I2CError[HMC6352_ID]++;
-    
+
     TxString("Calibration FAILED\r\n");
 } // CalibrateHMC6352
 
@@ -649,12 +652,12 @@ void InitHMC6352(void) {
     F.CompassValid = true;
 
     return;
-    
+
 HMC6352Error:
     I2CCOMPASS.stop();
-    
+
     I2CError[HMC6352_ID]++;
-    
+
     F.CompassValid = false;
     Stats[CompassFailS]++;
     F.CompassFailure = true;

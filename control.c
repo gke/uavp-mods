@@ -43,7 +43,8 @@ real32 GS;
 real32 Rl, Pl, Yl, Ylp;
 int16 HoldYaw;
 int16 CruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
-int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim;
+int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredCamPitchTrim;
+real32 DesiredHeading;
 real32 ControlRoll, ControlPitch, ControlRollP, ControlPitchP;
 real32 CameraRollAngle, CameraPitchAngle;
 int16 CurrMaxRollPitch;
@@ -224,7 +225,7 @@ void DoOrientationTransform(void) {
 
     // PC+RS
     ControlPitch = (int16)( DesiredPitch * OCO + DesiredRoll * OSO );
-    
+
     CameraRollAngle = Angle[Pitch] * OSO + Angle[Roll] * OCO;
     CameraPitchAngle = Angle[Pitch] * OCO - Angle[Roll] * OSO;
 
@@ -299,7 +300,7 @@ void DoControl(void) {
     Comp[BF] = Comp[LR] = Comp[UD] = Comp[Alt] = 0;
     NavCorr[Roll] = NavCorr[Pitch] = NavCorr[Yaw] = 0;
 #endif // DISABLE_EXTRAS
-   
+
     if ( F.UsingAngleControl ) {
         // Roll
 
@@ -322,7 +323,7 @@ void DoControl(void) {
 
         AngleE[Roll] = Limit(Angle[Roll],  -K[RollIntLimit], K[RollIntLimit]);
         Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi + (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
-        Rl -=  ( NavCorr[Roll] + Comp[LR] );          
+        Rl -=  ( NavCorr[Roll] + Comp[LR] );
         Rl *= GS;
 
         Rl -= ControlRoll;
@@ -334,7 +335,7 @@ void DoControl(void) {
 
         AngleE[Pitch] = Limit(Angle[Pitch],  -K[PitchIntLimit], K[PitchIntLimit]);
         Pl  = Rate[Pitch] * GPitchKp + AngleE[Pitch] * GPitchKi + (Rate[Pitch]-Ratep[Pitch]) * GPitchKd * dTR;
-        Pl -= ( NavCorr[Pitch] + Comp[BF] );   
+        Pl -= ( NavCorr[Pitch] + Comp[BF] );
         Pl *= GS;
 
         Pl -= ControlPitch;
@@ -345,10 +346,18 @@ void DoControl(void) {
 
     // Yaw
     
-    Yl  = Rate[Yaw] * K[YawKp] + Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * dTR;
+    #define MAX_YAW_RATE  (HALFPI / RC_NEUTRAL)  // Radians/Sec e.g. HalfPI is 90deg/sec
 
-    Ratep[Yaw] = Rate[Yaw];
+    if ( F.HeadingUpdated ) {
     
+        DoLegacyYawComp(AttitudeMethod); // returns Angle as heading error along with compensated rate
+           
+        Yl  = ( Rate[Yaw] + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE ) * K[YawKp] +
+                 Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * YawdTR;
+        F.HeadingUpdated = false;
+        Ratep[Yaw] = Rate[Yaw];
+    }
+
 #ifdef TRICOPTER
     Yl = SlewLimit(Ylp, Yl, 2.0);
     Ylp = Yl;
@@ -433,6 +442,9 @@ void InitControl(void) {
     for ( i = 0; i < (uint8)3; i++ )
         AngleE[i] = AngleIntE[i] = Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
 
+    YawdT = COMPASS_UPDATE_S;
+    YawdTR = 1.0 / YawdT;
+    
     Comp[Alt] = AltSum = Ylp = ControlRollP = ControlPitchP = AltitudeP = 0.0;
     ControlUpdateTimeuS = 0;
 

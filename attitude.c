@@ -28,10 +28,9 @@ void NormaliseAccelerations(void);
 void AttitudeTest(void);
 
 real32 AccMagnitude;
-real32 HeadingE;
 real32 EstAngle[3][MaxAttitudeScheme];
 real32 EstRate[3][MaxAttitudeScheme];
-real32 dT, dTOn2, dTR, dTmS;
+real32 dT, dTOn2, dTR, dTmS, YawdT, YawdTR;
 uint32 uSp;
 uint8 AttitudeMethod = Wolferl; //Integrator, Wolferl MadgwickIMU PremerlaniDCM MadgwickAHRS, MultiWii;
 
@@ -39,36 +38,33 @@ void DoLegacyYawComp(uint8 S) {
 
 #define COMPASS_MIDDLE          10                  // yaw stick neutral dead zone
 #define DRIFT_COMP_YAW_RATE      QUARTERPI           // Radians/Sec
-#define MAX_YAW_RATE            (PI / RC_NEUTRAL);  // Radians/Sec HalfPI 90deg/sec
 
     static int16 Temp;
     static real32 HE;
 
+    // Yaw Angle here is meant to be interpreted as the Heading Error
+
     Rate[Yaw] = Gyro[Yaw];
 
-    // Yaw Angle here is meant to be interpreted as the Heading Error
-    if ( F.HeadingUpdated ) {
-        Temp = DesiredYaw - Trim[Yaw];
-        if ( F.CompassValid )  // CW+
-            if ( abs(Temp) > COMPASS_MIDDLE ) {
-                DesiredHeading = Heading; // acquire new heading
-                HeadingE = HE = 0.0;
-            } else {
-                HeadingE = MakePi(DesiredHeading - Heading);
-                HeadingE = Limit(HeadingE, -SIXTHPI, SIXTHPI); // 30 deg limit
-                HE = HeadingE * K[CompassKp];
-                HE = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
-            }
-        else {
-            DesiredHeading = Heading;
-            HeadingE = HE = 0.0;
+    Temp = DesiredYaw; // - Trim[Yaw];
+    if ( F.CompassValid )  // CW+
+        if ( abs(Temp) > COMPASS_MIDDLE ) {
+            DesiredHeading = Heading; // acquire new heading
+            HE = Angle[Yaw] = 0.0;
+        } else {
+            HE = MakePi(DesiredHeading - Heading);
+            HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
+            HE = HE * K[CompassKp];
+            HE = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
         }
-
-        Yaw[Rate] = HE + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;
-
-        EstAngle[Yaw][S] += Rate[Yaw] * COMPASS_UPDATE_S;
-        EstAngle[Yaw][S] = Limit(EstAngle[Yaw][Wolferl], -K[YawIntLimit], K[YawIntLimit]);
+    else {
+        DesiredHeading = Heading;
+        HE = Angle[Yaw] = 0.0;
     }
+
+    Rate[Yaw] += HE;
+    Angle[Yaw] += Rate[Yaw] * YawdT;
+    Angle[Yaw] = Limit(Angle[Yaw], -K[YawIntLimit], K[YawIntLimit]);
 
 } // DoLegacyYawComp
 
@@ -157,12 +153,8 @@ void GetAttitude(void) {
 
 #endif // INC_ALL_SCHEMES
 
-        DoLegacyYawComp(AttitudeMethod);
-
-        for ( i = 0; i <(uint8)3; i++ )
-            Angle[i] = EstAngle[i][AttitudeMethod];
-
-        F.HeadingUpdated = false;
+        Angle[Roll] = EstAngle[Roll][AttitudeMethod];
+        Angle[Pitch] = EstAngle[Pitch][AttitudeMethod];
 
         DebugPin = false;
     }
@@ -192,16 +184,15 @@ void DoIntegrator(void) {
 // Original simple accelerometer compensation of gyros developed for UAVP by Wolfgang Mahringer
 // and adapted for UAVXArm
 
-void DoWolferl(void) {
+void DoWolferl(void) { // NO YAW ESTIMATE
 
     const real32 WKp = 0.13; // 0.1
 
     static real32 Grav[2], Dyn[2], Correction[2];
     static real32 CompStep;
-    static uint8 g;
 
-    for ( g = 0; g <(uint8) 3; g++ )
-        Rate[g] = Gyro[g];
+    Rate[Roll] = Gyro[Roll];
+    Rate[Pitch] = Gyro[Pitch];
 
     if ( F.AccMagnitudeOK ) {
 
@@ -393,13 +384,6 @@ void DCMUpdate(void) {
 
 } // DCMUpdate
 
-void DoDCM(void) {
-    DCMUpdate();
-    DCMNormalise();
-    DCMDriftCorrection();
-    DCMEulerAngles();
-} // DoDCM
-
 void DCMEulerAngles(void) {
 
     static uint8 g;
@@ -412,6 +396,13 @@ void DCMEulerAngles(void) {
     EstAngle[Yaw][PremerlaniDCM] = atan2(DCM[1][0], DCM[0][0]);
 
 } // DCMEulerAngles
+
+void DoDCM(void) {
+    DCMUpdate();
+    DCMNormalise();
+    DCMDriftCorrection();
+    DCMEulerAngles();
+} // DoDCM
 
 //___________________________________________________________________________________
 
@@ -638,17 +629,12 @@ real32 CF(uint8 a, real32 NewAngle, real32 NewRate) {
     return ( AngleCF[a] ); // This is actually the current angle, but is stored for the next iteration
 } // CF
 
-void DoCF(void) {
-
-    static uint8 a;
+void DoCF(void) { // NO YAW ANGLE ESTIMATE
 
     EstAngle[Roll][Complementary] = CF(Roll, asin(-Acc[Roll]), Gyro[Roll]);
     EstAngle[Pitch][Complementary] = CF(Pitch, asin(-Acc[Pitch]), Gyro[Pitch]);
     EstRate[Roll][Complementary] = Gyro[Roll];
     EstRate[Pitch][Complementary] = Gyro[Pitch];
-
-    EstAngle[a][Complementary] = Gyro[Yaw] * dT;
-    EstRate[Yaw][Complementary] = Gyro[Yaw];
 
 } // DoCF
 
@@ -702,7 +688,7 @@ real32 KalmanFilter(uint8 a, real32 NewAngle, real32 NewRate) {
 
 }  // KalmanFilter
 
-void DoKalman(void) {
+void DoKalman(void) { // NO YAW ANGLE ESTIMATE
     EstAngle[Roll][Kalman] = KalmanFilter(Roll, asin(-Acc[LR]) * RADDEG, Gyro[Roll] * RADDEG) * DEGRAD;
     EstAngle[Pitch][Kalman]  = KalmanFilter(Pitch, asin(Acc[BF]) * RADDEG, Gyro[Pitch] * RADDEG) * DEGRAD;
 } // DoKalman
@@ -718,9 +704,9 @@ void DoKalman(void) {
 // and http://www.starlino.com/imu_kalman_arduino.html
 // with this algorithm, we can get absolute angles for a stable mode integration
 
-void DoMultiWii(void) { // V1.6
+void DoMultiWii(void) { // V1.6  NO YAW ANGLE ESTIMATE
 
-    const real32 acc_25deg = sin(25.0*PI/180.0);
+    const real32 acc_25deg = sin(25.0 * PI / 180.0);
 
     static real32 RxEst = 0.0;      // init acc in stable mode
     static real32 RyEst = 0.0;

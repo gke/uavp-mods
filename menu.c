@@ -316,7 +316,10 @@ void ShowSetup(boolean h) {
 
     if ( InitialThrottle >= RC_THRES_START )
         TxString("\tThrottle may be open - CLOSE!\r\n");
-
+        
+    if ( !F.UsingLEDDriver )
+        TxString("\tPCA Line Driver OFFLINE - no BUZZER warnings!\r\n");
+        
     ShowPrompt();
 } // ShowSetup
 
@@ -333,6 +336,7 @@ void ProcessCommand(void) {
             switch ( ch ) {
                 case 'D':
                     UseDefaultParameters();
+                    InitParameters();
                     ShowPrompt();
                     break;
                 case 'L'  :    // List parameters

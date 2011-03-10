@@ -19,9 +19,9 @@
 //    If not, see http://www.gnu.org/licenses/
 
    const int8 DefaultParams[MAX_PARAMETERS][2] = {
-    {18,0},            // RollKp,             01
-    {8,0},             // RollKi,            02
-    {20, 0},            // RollKd,            03
+    {28,0},            // RollKp,             01
+    {12,0},             // RollKi,            02
+    {15, 0},            // RollKd,            03
     {0,true},            // HorizDampKp,        04c //-1
     {5,0},                 // RollIntLimit,    05
     {18,0},             // PitchKp,            06
@@ -30,8 +30,8 @@
     {8,0},                 // AltKp,            09
     {5,0},                 // PitchIntLimit,    10
     
-    {30,0},             // YawKp,             11
-    {25,0},             // YawKi,            12
+    {20,0},             // YawKp,             11
+    {10,0},             // YawKi,            12
     {0,0},                 // YawKd,            13
     {25,0},                 // YawLimit,        14
     {2,0},                 // YawIntLimit,        15

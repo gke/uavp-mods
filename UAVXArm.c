@@ -33,18 +33,18 @@ int main(void) {
     InitTimersAndInterrupts();
     InitLEDs();
 
-/*
-Delay1mS(500);
-        InitADXL345Acc();
-            MCP4725_ID_Actual = FORCE_BARO_ID;
-    while (1) {
-           DebugPin = 1;
-       SetFreescaleMCP4725(1);
-       DebugPin = 0;
-        Delay1mS(1); 
-        ReadADXL345Acc();
-    }
-*/
+    /*
+    Delay1mS(500);
+            InitADXL345Acc();
+                MCP4725_ID_Actual = FORCE_BARO_ID;
+        while (1) {
+               DebugPin = 1;
+           SetFreescaleMCP4725(1);
+           DebugPin = 0;
+            Delay1mS(1);
+            ReadADXL345Acc();
+        }
+    */
     InitParameters();
     ReadStatsPX();
     InitMotors();
@@ -152,7 +152,6 @@ Delay1mS(500);
                         Angle[Yaw] = 0.0;
                         if ( StickThrottle > IdleThrottle ) {
                             DesiredThrottle = 0;
-                            DesiredHeading = Heading = Angle[Yaw] = 0.0;
                             State = InFlight;
                         } else
                             if ( mSClock() < mS[ThrottleIdleTimeout] )

@@ -217,7 +217,7 @@ extern Timer timer;
 
 #define UAVX_TEL_INTERVAL_MS            125L    // mS. emit an interleaved telemetry packet
 #define ARDU_TEL_INTERVAL_MS            200L    // mS. Ardustation
-#define UAVX_CONTROL_TEL_INTERVAL_MS    10L     // mS. flight control only
+#define UAVX_CONTROL_TEL_INTERVAL_MS    100L    // mS. flight control only
 #define CUSTOM_TEL_INTERVAL_MS          125L    // mS.
 #define UAVX_MIN_TEL_INTERVAL_MS        1000L    // mS. emit minimum FPV telemetry packet slow rate for example to FrSky
 
@@ -709,13 +709,12 @@ enum AttitudeMethods { Integrator, Wolferl, PremerlaniDCM,  MadgwickIMU,
 MadgwickAHRS, Kalman, Complementary, MultiWii, MaxAttitudeScheme};
 
 extern void GetAttitude(void);
-extern void DoLegacyYawComp(void);
+extern void DoLegacyYawComp(uint8);
 extern void NormaliseAccelerations(void);
 extern void AttitudeTest(void);
 extern void InitAttitude(void);
 
-extern real32 dT, dTOn2, dTR;
-extern real32 HeadingE;
+extern real32 dT, dTOn2, dTR, dTmS, YawdT, YawdTR;
 extern uint32 PrevDCMUpdate;
 extern uint8 AttitudeMethod;
 
@@ -968,7 +967,8 @@ extern real32 GS;
 
 extern int16 HoldYaw, YawSlewLimit;
 extern int16 CruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
-extern int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredHeading, DesiredCamPitchTrim;
+extern int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredCamPitchTrim;
+extern real32 DesiredHeading;
 extern real32 ControlRoll, ControlPitch, ControlRollP, ControlPitchP;
 extern real32 CameraRollAngle, CameraPitchAngle;
 extern int16 CurrMaxRollPitch;
@@ -1163,7 +1163,7 @@ public:
     void stop(void);
     uint8 blockread(uint8 r, char* b, uint8);
     uint8 read(uint8 r);
-    void blockwrite(uint8 a, const char* b, uint8 l);
+    boolean blockwrite(uint8 a, const char* b, uint8 l);
     uint8 write(uint8 d);
 };
 
