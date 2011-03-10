@@ -49,11 +49,12 @@ void SDelay(uint16 d) { // 1.25 + 0.0475 * n uS ~0.05uS per click
 
 }  // SDelay
 
+/*
 #define SCLLowStartT SDelay(I2CSpeed)
 #define DataLowPadT SDelay(I2CSpeed)
 #define SCLLowPadT SDelay(I2CSpeed)
 #define SCLHighT SDelay(I2CSpeed)
-/*
+*/
 
 #if ( I2C_MAX_RATE_HZ == 400000 )
 
@@ -71,7 +72,6 @@ void SDelay(uint16 d) { // 1.25 + 0.0475 * n uS ~0.05uS per click
 
 #endif //I2C400KHZ
 
-*/
 
 #define I2CSDALow {I2C0SDA.write(0);I2C0SDA.output();SCLLowPadT;}
 #define I2CSDAFloat {I2C0SDA.input();SCLLowPadT;}
@@ -199,15 +199,21 @@ uint8 MyI2C::blockread(uint8 a, char* S, uint8 l) {
     return( err );
 } // blockread
 
-void MyI2C::blockwrite(uint8 a, const char* S, uint8 l) {
+boolean MyI2C::blockwrite(uint8 a, const char* S, uint8 l) {
     static uint8 b;
-    static boolean r;
 
     I2C0.start();
-    r = I2C0.write(a) == I2C_ACK;  // use this?
+    if ( I2C0.write(a) != I2C_ACK ) goto BlockWriteError; // use this?
     for ( b = 0; b < l; b++ )
-        r |= I2C0.write(S[b]);
+        if ( I2C0.write(S[b]) != I2C_ACK ) goto BlockWriteError;
     I2C0.stop();
+
+    return(false);
+
+BlockWriteError:
+    I2C0.stop();
+
+    return(true);
 
 } // blockwrite
 
@@ -289,6 +295,13 @@ uint8 ScanI2CBus(void) {
 
     d = 0;
     TxString("Buss 0\r\n");
+
+#ifdef SW_I2C
+    TxString("I2C Ver.:\tSoftware\r\n");
+#else
+    TxString("I2C Ver.:\tHardware (CAUTION)\r\n");
+#endif // SW_I2C
+
 #if ( I2C_MAX_RATE_HZ == 400000 )
     TxString("Rate:\t400KHz\r\n");
 #else
@@ -312,6 +325,13 @@ uint8 ScanI2CBus(void) {
 
 #ifdef HAVE_I2C1
     TxString("Buss 1\r\n");
+
+#ifdef SW_I2C
+    TxString("I2C Ver.:\tSoftware\r\n");
+#else
+    TxString("I2C Ver.:\tHardware (CAUTION)\r\n");
+#endif // SW_I2C
+
 #if ( I2C_MAX_RATE_HZ == 400000 )
     TxString("Rate:\t400KHz\r\n");
 #else

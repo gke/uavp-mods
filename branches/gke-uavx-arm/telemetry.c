@@ -249,14 +249,15 @@ void SendControlPacket(void) {
     SendPacketHeader();
 
     TxESCu8(UAVXControlPacketTag);
-    TxESCu8(50);
+    TxESCu8(52);
 
     TxESCi16(DesiredThrottle);
 
     ShowAttitude();
     
     TxESCi16(Rate[Yaw] * 1000.0);
-    TxESCi16(HeadingE * 1000.0);
+    TxESCi16(Heading * 1000.0);
+    TxESCi16(DesiredHeading * 1000.0);
 
     TxESCu8(UAVXAirframe | 0x80);
 

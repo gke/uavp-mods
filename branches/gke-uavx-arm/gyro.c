@@ -297,9 +297,9 @@ ITG3200Error:
     I2CError[ITG3200_ID]++;
     // GYRO FAILURE - FATAL
     Stats[GyroFailS]++;
-    
+
     //F.GyroFailure = true;
-    
+
     return ( 0 );
 
 } // ReadByteITG3200
@@ -345,7 +345,7 @@ void InitITG3200Gyro(void) {
     F.GyroFailure = false;
 
     ReadITG3200Gyro();
-    
+
     return;
 
 ITG3200Error:

@@ -85,11 +85,11 @@ void WritePCA9551(uint8 S) {
     if ( I2CLED.write(L03) != I2C_ACK ) goto PCA9551Error;
     if ( I2CLED.write(L47) != I2C_ACK ) goto PCA9551Error;
     I2CLED.stop();
-     
+
     return;
-    
+
 PCA9551Error:
-I2CLED.stop();
+    I2CLED.stop();
 
     I2CError[PCA9551_ID]++;
 
@@ -223,26 +223,26 @@ void PCA9551Test(void) {
 
     if ( I2CLED.blockread(PCA9551_ID, b, 7) ) goto PCA9551Error;
 
-        TxString("0:\t0b");
-        TxBin8(b[6]);
-        TxNextLine();
-        for (i = 0; i <6; i++ ) {
-            TxVal32(i+1, 0,0);
-            TxString(":\t0b");
-            TxBin8(b[i]);
-            TxNextLine();
-        }
-              
+    TxString("0:\t0b");
+    TxBin8(b[6]);
     TxNextLine();
-             
+    for (i = 0; i <6; i++ ) {
+        TxVal32(i+1, 0,0);
+        TxString(":\t0b");
+        TxBin8(b[i]);
+        TxNextLine();
+    }
+
+    TxNextLine();
+
     return;
 
 PCA9551Error:
-I2CLED.stop();
+    I2CLED.stop();
 
-I2CError[PCA9551_ID]++;
+    I2CError[PCA9551_ID]++;
 
-        TxString("FAILED\r\n");
+    TxString("FAILED\r\n");
 
 } // PCA9551Test
 
@@ -253,13 +253,19 @@ boolean IsPCA9551Active(void) {
     F.UsingLEDDriver = I2CGYROAddressResponds( PCA9551_ID );
 
     if ( F.UsingLEDDriver ) {
-        I2CLED.blockwrite(PCA9551_ID, b, 7);
+        if ( I2CLED.blockwrite(PCA9551_ID, b, 7) ) goto PCA9551Error;
         TrackMinI2CRate(400000);
     }
 
 #ifdef DISABLE_LED_DRIVER
     F.UsingLEDDriver = false;
 #endif // DISABLE_LED_DRIVER
+
+    return ( F.UsingLEDDriver );
+
+PCA9551Error:
+
+    F.UsingLEDDriver = false;
 
     return ( F.UsingLEDDriver );
 
