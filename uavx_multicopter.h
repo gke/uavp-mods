@@ -26,9 +26,9 @@
     {5,0},                 // RollIntLimit,    05
     {18,0},             // PitchKp,            06
     {8,0},             // PitchKi,            07
-    {20,0},                 // PitchKd,            08
-    {8,0},                 // AltKp,            09
-    {5,0},                 // PitchIntLimit,    10
+    {29,0},                 // PitchKd,            08
+    {12,0},                 // AltKp,            09
+    {15,0},                 // PitchIntLimit,    10
     
     {20,0},             // YawKp,             11
     {10,0},             // YawKi,            12

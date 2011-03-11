@@ -254,7 +254,7 @@ void SendControlPacket(void) {
     TxESCi16(DesiredThrottle);
 
     ShowAttitude();
-    
+
     TxESCi16(Rate[Yaw] * 1000.0);
     TxESCi16(Heading * 1000.0);
     TxESCi16(DesiredHeading * 1000.0);
@@ -333,40 +333,19 @@ void SendStickPacket(void) {
 } // SendStickPacket
 
 void SendStatsPacket(void) {
+
+    static uint8 i;
+
     SendPacketHeader();
 
     TxESCu8(UAVXStatsPacketTag);
-    TxESCu8(44);
+    TxESCu8(MAX_STATS * 2 + 2);
 
-    TxESCi16(Stats[I2CFailS]);
-    TxESCi16(Stats[GPSInvalidS]);
-    TxESCi16(Stats[AccFailS]);
-    TxESCi16(Stats[GyroFailS]);
-    TxESCi16(Stats[CompassFailS]);
-    TxESCi16(Stats[BaroFailS]);
-    TxESCi16(Stats[ESCI2CFailS]);
-
-    TxESCi16(Stats[RCFailsafesS]);
-
-    TxESCi16(Stats[GPSAltitudeS]);
-    TxESCi16(Stats[GPSVelS]);
-    TxESCi16(Stats[GPSMinSatsS]);
-    TxESCi16(Stats[GPSMaxSatsS]);
-    TxESCi16(Stats[MinHDiluteS]);
-    TxESCi16(Stats[MaxHDiluteS]);
-
-    TxESCi16(Stats[BaroRelAltitudeS]);
-    TxESCi16(0);//Stats[MinBaroROCS]);
-    TxESCi16(0);//Stats[MaxBaroROCS]);
-
-    TxESCi16(Stats[MinTempS]);
-    TxESCi16(Stats[MaxTempS]);
-
-    TxESCi16(Stats[BadS]);
+    for ( i = 0; i < MAX_STATS ; i++)
+        TxESCi16(Stats[i]);
 
     TxESCu8(UAVXAirframe | 0x80);
     TxESCu8(Orientation);
-    TxESCi16(Stats[BadNumS]);
 
     SendPacketTrailer();
 
