@@ -204,10 +204,9 @@ void InitBarometer(void) {
     else
         if ( IsBoschBaroActive() )
             InitBoschBarometer();
-        else {
+        else 
             F.BaroAltitudeValid = F.HoldingAlt = false;
-            Stats[BaroFailS]++;
-        }
+
 } // InitBarometer
 
 // -----------------------------------------------------------
@@ -479,12 +478,7 @@ BoschError:
     I2CBARO.stop();
 
     I2CError[BOSCH_ID]++;
-
-    //F.BaroAltitudeValid = F.HoldingAlt = false;
-    if ( State == InFlight ) {
-        Stats[BaroFailS]++;
-        F.BaroFailure = true;
-    }
+    F.BaroAltitudeValid = false;
 
 } // StartBoschBaroADC
 
@@ -564,10 +558,8 @@ void GetBoschBaroAltitude(void) {
 
                 F.NewBaroValue = F.BaroAltitudeValid;
             }
-        else {
+        else 
             AcquiringPressure = true;
-            Stats[BaroFailS]++;
-        }
 
         StartBoschBaroADC(AcquiringPressure);
     }

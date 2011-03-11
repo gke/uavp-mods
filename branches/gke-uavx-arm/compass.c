@@ -23,7 +23,7 @@
 // Local magnetic declination not included
 // http://www.ngdc.noaa.gov/geomagmodels/Declination.jsp
 
-
+real32 AdaptiveCompassFreq(void);
 void ReadCompass(void);
 void GetHeading(void);
 void CalibrateCompass(void);
@@ -38,6 +38,18 @@ real32 HeadingSin, HeadingCos;
 uint8 CompassType;
 
 enum MagCoords { MX, MY, MZ };
+
+real32 AdaptiveCompassFreq(void) { // reduce LP frequency with reduced yaw input
+
+    static real32 f;
+
+    f = ( COMPASS_MAX_FREQ * abs(DesiredYaw) / RC_NEUTRAL );
+    f = Limit(f, 0.5, COMPASS_MAX_FREQ);
+
+    return( f );
+
+} // AdaptiveCompassFreq
+
 
 void ReadCompass(void) {
     switch ( CompassType ) {
@@ -96,7 +108,7 @@ void DoCompassTest(void) {
 
 void GetHeading(void) {
 
-    const real32 CompassA = COMPASS_UPDATE_S / ( 1.0 / ( TWOPI * COMPASS_FREQ ) + COMPASS_UPDATE_S );
+    static real32 CompassA;
 
     ReadCompass();
 
@@ -105,6 +117,7 @@ void GetHeading(void) {
         Headingp = Heading;
 
 #ifndef SUPPRESS_COMPASS_FILTER
+    CompassA = COMPASS_UPDATE_S / ( 1.0 / ( TWOPI * AdaptiveCompassFreq() ) + COMPASS_UPDATE_S );
     Heading = LPFilter(Heading, Headingp, CompassA, COMPASS_UPDATE_S);
 #endif // !SUPPRESS_COMPASS_FILTER
     Headingp = Heading;
@@ -216,6 +229,7 @@ HMC5843Error:
     I2CError[HMC5843_ID]++;
     if ( State == InFlight ) Stats[CompassFailS]++;
 
+    F.CompassMissRead = true;
     F.CompassValid = false;
 
 } // ReadHMC5843
@@ -659,7 +673,7 @@ HMC6352Error:
     I2CError[HMC6352_ID]++;
 
     F.CompassValid = false;
-    Stats[CompassFailS]++;
+
     F.CompassFailure = true;
 
 } // InitHMC6352

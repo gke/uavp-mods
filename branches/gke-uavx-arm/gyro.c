@@ -20,12 +20,12 @@
 
 #include "UAVXArm.h"
 const real32 GyroToRadian[UnknownGyro] = {
-    0.023841,       // MLX90609
-    0.044680,       // ADXRS150
-    0.007149,       // IDG300
-    0.011796,       // LY530
-    0.017872,       // ADXRS300
-    0.000607,       // ITG3200
+    8.635062,       // MLX90609
+    4.607669,       // ADXRS150
+    28.797933,      // IDG300
+    17.453293,      // LY530
+    11.519173,      // ADXRS300
+    0.000438704,    // ITG3200 16bit 2's complement
     1.0             // Infrared Sensors
     // add others as required
 };
@@ -115,7 +115,7 @@ void GyroTest(void) {
 
     ReadGyros();
 
-    TxString("Rate and Max Delta(Deg./Sec.)\r\n");
+    TxString("\r\n\tRate and Max Delta(Deg./Sec.)\r\n");
 
     TxString("\r\n\tRoll:   \t");
     TxVal32(Gyro[Roll] * MILLIANGLE, 3, HT);

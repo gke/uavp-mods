@@ -4,8 +4,6 @@
 #define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW ~100KHz
 
 #define MAGIC               1.0                       // rescales the PID loop parameters globally
-
-//#define DISABLE_LED_DRIVER                             // disables the PCA driver and also the BUZZER
  
 #define I2C_MAX_RATE_HZ     400000
 
@@ -17,16 +15,13 @@
 // LP filter cutoffs for sensors
 
 #define SUPPRESS_ROLL_PITCH_GYRO_FILTERS                           
-#define ROLL_PITCH_FREQ     80.0                       // must be <= ITG3200 LP filter
+#define ROLL_PITCH_FREQ     ( 0.5 * PWM_UPDATE_HZ )  // must be <= ITG3200 LP filter
                     
 //#define SUPPRESS_ACC_FILTERS
-#define ACC_FREQ            80.0
+#define ACC_FREQ            ( 0.5 * PWM_UPDATE_HZ )
 
 //#define SUPPRESS_YAW_GYRO_FILTERS   
-#define YAW_FREQ            10.0                     // Hz
-
-//#define SUPPRESS_COMPASS_FILTER
-#define COMPASS_FREQ        10.0                     // Hz must be less than 10Hz @ 20Hz update
+#define YAW_FREQ            10.0                     // <= 10Hz
 
 // DCM Attitude Estimation
 
@@ -54,6 +49,8 @@ Matrixpilot     0.04    0.008       0.016   0.0005
 Superstable     0.0014  0.00000015  1.2     0.00005 (200Hz)
 
 */
+
+//#define DISABLE_LED_DRIVER                             // disables the PCA driver and also the BUZZER
 
 #define DISABLE_EXTRAS                       // suppress altitude hold, position hold and inertial compensation
 #define SUPPRESS_SDCARD                     //DO NOT RE-ENABLE - MOTOR INTERMITTENTS WILL OCCUR
@@ -434,7 +431,7 @@ typedef struct { // GPS
 #define MAX_PARAMETERS      64        // parameters in PXPROM start at zero
 
 #define STATS_ADDR_PX       ( PARAMS_ADDR_PX + (MAX_PARAMETERS *2) )
-#define MAX_STATS           64
+#define MAX_STATS           32 // 64 bytes
 
 // uses second Page of PXPROM
 #define NAV_ADDR_PX         256L
@@ -894,9 +891,12 @@ extern real32 FakeBaroRelAltitude;
 
 enum CompassTypes { HMC5843, HMC6352, NoCompass };
 
-#define COMPASS_UPDATE_MS               50
-#define COMPASS_UPDATE_S                (real32)(COMPASS_UPDATE_MS * 0.001)
+//#define SUPPRESS_COMPASS_FILTER
+#define COMPASS_UPDATE_S                0.05
+#define COMPASS_UPDATE_MS               50      // 20Hz
+#define COMPASS_MAX_FREQ                ( 0.5 / COMPASS_UPDATE_S )   // Nyquist
 
+extern real32 AdaptiveCompassFreq(void);
 extern void ReadCompass(void);
 extern void GetHeading(void);
 extern void ShowCompassType(void);
@@ -1707,8 +1707,7 @@ extern void ShowStats(void);
 enum Statistics {
     GPSAltitudeS, BaroRelAltitudeS, ESCI2CFailS, GPSMinSatsS, MinROCS, MaxROCS, GPSVelS,
     AccFailS, CompassFailS, BaroFailS, GPSInvalidS, GPSMaxSatsS, NavValidS,
-    MinHDiluteS, MaxHDiluteS, RCGlitchesS, GPSBaroScaleS, GyroFailS, RCFailsafesS, I2CFailS, MinTempS, MaxTempS, BadS, BadNumS
-}; // NO MORE THAN 32 or 64 bytes
+    MinHDiluteS, MaxHDiluteS, RCGlitchesS, GPSBaroScaleS, GyroFailS, RCFailsafesS, I2CFailS, MinTempS, MaxTempS, BadS, BadNumS }; // NO MORE THAN 32 or 64 bytes
 
 extern int16 Stats[];
 
