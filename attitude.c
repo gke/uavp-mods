@@ -38,8 +38,8 @@ uint8 AttitudeMethod = Wolferl; //Integrator, Wolferl MadgwickIMU PremerlaniDCM 
 
 void AdaptiveYawLPFreq(void) { // Filter LP freq is decreased with reduced yaw stick deflection
 
-    YawFilterLPFreq = ( YAW_MAX_FREQ * abs(DesiredYaw) / RC_NEUTRAL );
-    YawFilterLPFreq = Limit(YawFilterLPFreq, 0.5, YAW_MAX_FREQ);
+    YawFilterLPFreq = ( MAX_YAW_FREQ * abs(DesiredYaw) / RC_NEUTRAL );
+    YawFilterLPFreq = Limit(YawFilterLPFreq, 0.5, MAX_YAW_FREQ);
 
 } // AdaptiveYawFilterA
 

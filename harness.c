@@ -32,6 +32,7 @@ const uint8 mbed1768Pins[32] = { // Maping of mbed pins to LPC 1768 "port" pins
     4,255
 };
 
+/*
 const uint32 mbed1768Ports[8] = { 
     LPC_GPIO0_BASE,
     LPC_GPIO1_BASE,
@@ -39,7 +40,7 @@ const uint32 mbed1768Ports[8] = {
     LPC_GPIO3_BASE,
     LPC_GPIO4_BASE
 };
-
+*/
 
 // connections to ARM
 // 1 GND
