@@ -23,7 +23,6 @@
 // Local magnetic declination not included
 // http://www.ngdc.noaa.gov/geomagmodels/Declination.jsp
 
-real32 AdaptiveCompassFreq(void);
 void ReadCompass(void);
 void GetHeading(void);
 void CalibrateCompass(void);
@@ -33,23 +32,12 @@ void InitCompass(void);
 
 MagStruct Mag[3] = {{ 0,0 },{ 0,0 },{ 0,0 }};
 real32 MagDeviation, CompassOffset;
-real32 MagHeading, Heading, Headingp, FakeHeading;
+real32 MagHeading, Heading, HeadingP, FakeHeading;
 real32 HeadingSin, HeadingCos;
+real32 CompassMaxSlew;
 uint8 CompassType;
 
 enum MagCoords { MX, MY, MZ };
-
-real32 AdaptiveCompassFreq(void) { // reduce LP frequency with reduced yaw input
-
-    static real32 f;
-
-    f = ( COMPASS_MAX_FREQ * abs(DesiredYaw) / RC_NEUTRAL );
-    f = Limit(f, 0.5, COMPASS_MAX_FREQ);
-
-    return( f );
-
-} // AdaptiveCompassFreq
-
 
 void ReadCompass(void) {
     switch ( CompassType ) {
@@ -108,19 +96,26 @@ void DoCompassTest(void) {
 
 void GetHeading(void) {
 
-    static real32 CompassA;
+    static real32 CompassChange, CompassA;
 
     ReadCompass();
 
     Heading = Make2Pi( MagHeading - MagDeviation - CompassOffset );
-    if ( fabs(Heading - Headingp ) > PI )
-        Headingp = Heading;
+    if ( fabs( Heading - HeadingP ) > PI )
+        HeadingP = Heading;
+    else {
+        CompassChange = fabs( Heading - HeadingP );
+        if ( CompassChange > CompassMaxSlew ) {
+            Heading = HeadingP; // SlewLimit(Headingp, -CompassMaxSlew, CompassMaxSlew );    // use previous value
+            Stats[CompassFailS]++;
+        }
+    }
 
 #ifndef SUPPRESS_COMPASS_FILTER
-    CompassA = COMPASS_UPDATE_S / ( 1.0 / ( TWOPI * AdaptiveCompassFreq() ) + COMPASS_UPDATE_S );
-    Heading = LPFilter(Heading, Headingp, CompassA, COMPASS_UPDATE_S);
+    CompassA = dT / ( 1.0 / ( TWOPI * YawFilterLPFreq ) + dT );
+    Heading = LPFilter(Heading, HeadingP, CompassA);
 #endif // !SUPPRESS_COMPASS_FILTER
-    Headingp = Heading;
+    HeadingP = Heading;
 
 #ifdef SIMULATE
 #if ( defined AILERON | defined ELEVON )
@@ -162,7 +157,7 @@ void InitCompass(void) {
 
     ReadCompass();
     mS[CompassUpdate] = mSClock();
-    Heading = Headingp = Make2Pi( MagHeading - MagDeviation - CompassOffset );
+    Heading = HeadingP = Make2Pi( MagHeading - MagDeviation - CompassOffset );
 
 } // InitCompass
 
@@ -207,10 +202,10 @@ void ReadHMC5843(void) {
         Mag[UD].V = -Z.i16;
     }
     DebugPin = true;
-    CRoll = cos(Angle[Roll]); //
-    SRoll = sin(Angle[Roll]); // Acc[LR] - optimisation not worthwhile
-    CPitch = cos(Angle[Pitch]); //
-    SPitch = sin(Angle[Pitch]); // Acc[BF]
+    CRoll = cos(Angle[Roll]);
+    SRoll = sin(Angle[Roll]);       // Acc[LR] - optimisation not worthwhile
+    CPitch = cos(Angle[Pitch]);
+    SPitch = sin(Angle[Pitch]);     // Acc[BF]
 
     FX = (Mag[BF].V-Mag[BF].Offset) * CPitch + (Mag[LR].V-Mag[LR].Offset) * SRoll * SPitch + (Mag[UD].V-Mag[UD].Offset) * CRoll * SPitch;
     FY = (Mag[LR].V-Mag[LR].Offset) * CRoll - (Mag[UD].V-Mag[UD].Offset) * SRoll;
@@ -234,14 +229,17 @@ HMC5843Error:
 
 } // ReadHMC5843
 
+real32  magFieldEarth[3],  magFieldBody[3], dcmMatrix[9];
+boolean firstPassMagOffset = true;
+
 void CalibrateHMC5843(void) {
 
     /*
     void magOffsetCalc()
     {
-      int   i, j ;
-      float tempMatrix[3] ;
-      float offsetSum[3] ;
+      int16   i, j ;
+      static real32 tempMatrix[3] ;
+      static real32 offsetSum[3] ;
 
       // Compute magnetic field of the earth
 
@@ -251,10 +249,10 @@ void CalibrateHMC5843(void) {
 
       // First pass thru?
 
-      if (firstPassMagOffset == 1)
+      if ( firstPassMagOffset )
       {
         setPastValues();                         // Yes, set initial values for previous values
-        firstPassMagOffset =0;                   // Clear first pass flag
+        firstPassMagOffset = false;              // Clear first pass flag
       }
 
       // Compute the offsets in the magnetometer:
@@ -275,18 +273,17 @@ void CalibrateHMC5843(void) {
 
     void setPastValues()
     {
-      int i;
+      static uint8 i;
 
-      for (i = 0 ; i < 3 ; i++)
+      for ( i = 0; i < 3; i++)
       {
         magFieldEarthPrevious[i] = magFieldEarth[i];
         magFieldBodyPrevious[i]  = magFieldBody[i];
       }
 
-      for (i = 0 ; i < 9 ; i++)
-      {
+      for ( i = 0; i < 9; i++)
         dcmMatrixPrevious[i] = dcmMatrix[i];
-      }
+
     }
     */
 } // CalibrateHMC5843
@@ -322,6 +319,7 @@ HMC5843Error:
 } // GetHMC5843Parameters
 
 void DoHMC5843Test(void) {
+
     TxString("\r\nCompass test (HMC5843)\r\n\r\n");
 
     ReadHMC5843();
@@ -335,12 +333,12 @@ void DoHMC5843Test(void) {
     TxNextLine();
     TxNextLine();
 
-    TxVal32(MagHeading * RADDEG * 10.0, 1, 0);
-    TxString(" deg (Magnetic)\r\n");
+    TxVal32(MagHeading * RADDEG * 10.0, 1, ' ');
+    TxString("deg (Magnetic)\r\n");
 
-    Heading = Headingp = Make2Pi( MagHeading - MagDeviation - CompassOffset );
-    TxVal32(Heading * RADDEG * 10.0, 1, 0);
-    TxString(" deg (True)\r\n");
+    Heading = HeadingP = Make2Pi( MagHeading - MagDeviation - CompassOffset );
+    TxVal32(Heading * RADDEG * 10.0, 1, ' ');
+    TxString("deg (True)\r\n");
 } // DoHMC5843Test
 
 boolean WriteByteHMC5843(uint8 a, uint8 d) {
@@ -356,7 +354,7 @@ boolean WriteByteHMC5843(uint8 a, uint8 d) {
 HMC5843Error:
     I2CCOMPASS.stop();
 
-    I2CError[HMC5843]++;
+    I2CError[HMC5843_ID]++;
 
     return(true);
 
@@ -364,10 +362,9 @@ HMC5843Error:
 
 void InitHMC5843(void) {
 
-#define DR 5    // 20Hz
-//#define DR 6    // 50Hz
+    CompassMaxSlew = (COMPASS_SANITY_CHECK_RAD_S/HMC5843_UPDATE_S);
 
-    if ( WriteByteHMC5843(0x00, DR << 2) ) goto HMC5843Error; // rate, normal measurement mode
+    if ( WriteByteHMC5843(0x00, HMC5843_DR  << 2) ) goto HMC5843Error; // rate, normal measurement mode
     if ( WriteByteHMC5843(0x02, 0x00) ) goto HMC5843Error; // mode continuous
 
     Delay1mS(50);
@@ -377,7 +374,7 @@ void InitHMC5843(void) {
 HMC5843Error:
     I2CCOMPASS.stop();
 
-    I2CError[HMC5843]++;
+    I2CError[HMC5843_ID]++;
 
     F.CompassValid = false;
 
@@ -586,7 +583,7 @@ void DoHMC6352Test(void) {
     TxNextLine();
     TxVal32(MagHeading * RADDEG * 10.0, 1, 0);
     TxString(" deg (Magnetic)\r\n");
-    Heading = Headingp = Make2Pi( MagHeading - MagDeviation - CompassOffset );
+    Heading = HeadingP = Make2Pi( MagHeading - MagDeviation - CompassOffset );
     TxVal32(Heading * RADDEG * 10.0, 1, 0);
     TxString(" deg (True)\r\n");
 
@@ -643,6 +640,8 @@ void InitHMC6352(void) {
 #define COMP_OPMODE 0x72
 #endif // SUPPRESS_COMPASS_SR
 
+    CompassMaxSlew =  (COMPASS_SANITY_CHECK_RAD_S/HMC6352_UPDATE_S);
+
     // Set device to Compass mode
     I2CCOMPASS.start();
     if ( I2CCOMPASS.write(HMC6352_WR) != I2C_ACK ) goto HMC6352Error;
@@ -651,12 +650,12 @@ void InitHMC6352(void) {
     if ( I2CCOMPASS.write(COMP_OPMODE) != I2C_ACK ) goto HMC6352Error;
     I2CCOMPASS.stop();
 
-    Delay1mS(1);
+    Delay1mS(10);
 
     // save operation mode in Flash
     if ( WriteByteHMC6352('L') != I2C_ACK ) goto HMC6352Error;
 
-    Delay1mS(1);
+    Delay1mS(10);
 
     // Do Bridge Offset Set/Reset now
     if ( WriteByteHMC6352('O') != I2C_ACK ) goto HMC6352Error;

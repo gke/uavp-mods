@@ -23,6 +23,7 @@
 // Reference frame is positive X forward, Y left, Z down, Roll right, Pitch up, Yaw CW.
 // CAUTION: Because of the coordinate frame the LR Acc sense must be negated for roll compensation.
 
+void AdaptiveYawLPFreq(void);
 void DoLegacyYawComp(uint8);
 void NormaliseAccelerations(void);
 void AttitudeTest(void);
@@ -30,14 +31,22 @@ void AttitudeTest(void);
 real32 AccMagnitude;
 real32 EstAngle[3][MaxAttitudeScheme];
 real32 EstRate[3][MaxAttitudeScheme];
-real32 dT, dTOn2, dTR, dTmS, YawdT, YawdTR;
+real32 YawFilterLPFreq;
+real32 dT, dTOn2, dTR, dTmS;
 uint32 uSp;
 uint8 AttitudeMethod = Wolferl; //Integrator, Wolferl MadgwickIMU PremerlaniDCM MadgwickAHRS, MultiWii;
 
+void AdaptiveYawLPFreq(void) { // Filter LP freq is decreased with reduced yaw stick deflection
+
+    YawFilterLPFreq = ( YAW_MAX_FREQ * abs(DesiredYaw) / RC_NEUTRAL );
+    YawFilterLPFreq = Limit(YawFilterLPFreq, 0.5, YAW_MAX_FREQ);
+
+} // AdaptiveYawFilterA
+
 void DoLegacyYawComp(uint8 S) {
 
-#define COMPASS_MIDDLE          10                  // yaw stick neutral dead zone
-#define DRIFT_COMP_YAW_RATE      QUARTERPI           // Radians/Sec
+#define COMPASS_MIDDLE          10                 // yaw stick neutral dead zone
+#define DRIFT_COMP_YAW_RATE     QUARTERPI          // Radians/Sec
 
     static int16 Temp;
     static real32 HE;
@@ -46,24 +55,23 @@ void DoLegacyYawComp(uint8 S) {
 
     Rate[Yaw] = Gyro[Yaw];
 
-    Temp = DesiredYaw; // - Trim[Yaw];
+    Temp = DesiredYaw - Trim[Yaw];
     if ( F.CompassValid )  // CW+
         if ( abs(Temp) > COMPASS_MIDDLE ) {
             DesiredHeading = Heading; // acquire new heading
-            HE = Angle[Yaw] = 0.0;
+            Angle[Yaw] = 0.0;
         } else {
             HE = MakePi(DesiredHeading - Heading);
             HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
             HE = HE * K[CompassKp];
-            HE = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
+            Rate[Yaw] = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
         }
     else {
         DesiredHeading = Heading;
-        HE = Angle[Yaw] = 0.0;
+        Angle[Yaw] = 0.0;
     }
 
-    Rate[Yaw] += HE;
-    Angle[Yaw] += Rate[Yaw] * YawdT;
+    Angle[Yaw] += Rate[Yaw] * dT;
     Angle[Yaw] = Limit(Angle[Yaw], -K[YawIntLimit], K[YawIntLimit]);
 
 } // DoLegacyYawComp
@@ -105,11 +113,7 @@ void GetAttitude(void) {
     dTR = 1.0 / dT;
     uSp = Now;
 
-    if ( mSClock() > mS[CompassUpdate] ) {
-        mS[CompassUpdate] = mSClock() + COMPASS_UPDATE_MS;
-        GetHeading();
-        F.HeadingUpdated = true;
-    }
+    GetHeading(); // only updated every 50mS but read continuously anyway
 
     if ( GyroType == IRSensors ) {
 
@@ -212,7 +216,7 @@ void DoWolferl(void) { // NO YAW ESTIMATE
         Correction[LR] = Limit(Correction[LR], -CompStep, CompStep);
 
         EstAngle[Roll][Wolferl] += Rate[Roll] * dT;
-        EstAngle[Roll][Wolferl] = Limit(EstAngle[Roll][Wolferl], -QUARTERPI, QUARTERPI);
+        EstAngle[Roll][Wolferl] = Limit(EstAngle[Roll][Wolferl], -ATTITUDE_ANGLE_LIMIT, ATTITUDE_ANGLE_LIMIT);
         EstAngle[Roll][Wolferl] += Correction[LR];
 
         // Pitch
@@ -229,7 +233,7 @@ void DoWolferl(void) { // NO YAW ESTIMATE
         Correction[BF] = Limit(Correction[BF], -CompStep, CompStep);
 
         EstAngle[Pitch][Wolferl] += Rate[Pitch] * dT;
-        EstAngle[Pitch][Wolferl] = Limit(EstAngle[Pitch][Wolferl], -QUARTERPI, QUARTERPI);
+        EstAngle[Pitch][Wolferl] = Limit(EstAngle[Pitch][Wolferl], -ATTITUDE_ANGLE_LIMIT, ATTITUDE_ANGLE_LIMIT);
         EstAngle[Pitch][Wolferl] += Correction[BF];
     } else {
         EstAngle[Roll][Wolferl] += Rate[Roll] * dT;

@@ -2,8 +2,6 @@
 // Commissioning defines
 
 #define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW ~100KHz
-
-#define MAGIC               1.0                       // rescales the PID loop parameters globally
  
 #define I2C_MAX_RATE_HZ     400000
 
@@ -16,12 +14,14 @@
 
 #define SUPPRESS_ROLL_PITCH_GYRO_FILTERS                           
 #define ROLL_PITCH_FREQ     ( 0.5 * PWM_UPDATE_HZ )  // must be <= ITG3200 LP filter
+#define ATTITUDE_ANGLE_LIMIT QUARTERPI               // set to PI for aerobatics
                     
 //#define SUPPRESS_ACC_FILTERS
 #define ACC_FREQ            ( 0.5 * PWM_UPDATE_HZ )
 
 //#define SUPPRESS_YAW_GYRO_FILTERS   
-#define YAW_FREQ            10.0                     // <= 10Hz
+#define YAW_MAX_FREQ            10.0                     // <= 10Hz
+#define COMPASS_SANITY_CHECK_RAD_S  TWOPI                // 
 
 // DCM Attitude Estimation
 
@@ -502,7 +502,7 @@ WayPointAchieved:
         1,
 WayPointCentred:
         1,
-HeadingUpdated: // was UsingGPSAlt:
+UnusedGPSAlt: // was UsingGPSAlt:
         1,
 UsingRTHAutoDescend:
         1,
@@ -703,15 +703,17 @@ extern real32 RangefinderAltitude;
 // attitude.c
 
 enum AttitudeMethods { Integrator, Wolferl, PremerlaniDCM,  MadgwickIMU,  
-MadgwickAHRS, Kalman, Complementary, MultiWii, MaxAttitudeScheme};
+        MadgwickAHRS, Kalman, Complementary, MultiWii, MaxAttitudeScheme};
 
+extern void AdaptiveYawLPFreq(void);
 extern void GetAttitude(void);
 extern void DoLegacyYawComp(uint8);
 extern void NormaliseAccelerations(void);
 extern void AttitudeTest(void);
 extern void InitAttitude(void);
 
-extern real32 dT, dTOn2, dTR, dTmS, YawdT, YawdTR;
+extern real32 dT, dTOn2, dTR, dTmS;
+extern real32 YawFilterLPFreq;
 extern uint32 PrevDCMUpdate;
 extern uint8 AttitudeMethod;
 
@@ -892,9 +894,6 @@ extern real32 FakeBaroRelAltitude;
 enum CompassTypes { HMC5843, HMC6352, NoCompass };
 
 //#define SUPPRESS_COMPASS_FILTER
-#define COMPASS_UPDATE_S                0.05
-#define COMPASS_UPDATE_MS               50      // 20Hz
-#define COMPASS_MAX_FREQ                ( 0.5 / COMPASS_UPDATE_S )   // Nyquist
 
 extern real32 AdaptiveCompassFreq(void);
 extern void ReadCompass(void);
@@ -905,6 +904,12 @@ extern void CalibrateCompass(void);
 extern void InitCompass(void);
 
 // HMC5843 Compass
+
+#define HMC5843_DR          6       // 50Hz
+#define HMC5843_UPDATE_S    0.02
+
+//#define HMC5843_DR            5    // 20Hz
+//#define HMC5843_UPDATE_S      0.05
 
 #define HMC5843_ID      0x3C        // 0x1E 9DOF
 #define HMC5843_WR      HMC5843_ID
@@ -918,6 +923,8 @@ extern void InitHMC5843(void);
 extern boolean IsHMC5843Active(void);
 
 // HMC6352
+
+#define HMC6352_UPDATE_S    0.05    // 20Hz
 
 #define HMC6352_ID       0x42
 #define HMC6352_WR       HMC6352_ID
@@ -937,7 +944,8 @@ typedef struct {
 } MagStruct;
 extern MagStruct Mag[3];
 extern real32 MagDeviation, CompassOffset;
-extern real32 MagHeading, Heading, FakeHeading;
+extern real32 MagHeading, Heading, HeadingP, FakeHeading;
+extern real32 CompassMaxSlew;
 extern real32 HeadingSin, HeadingCos;
 extern uint8 CompassType;
 
@@ -1796,7 +1804,7 @@ extern void DoBeep100mS(uint8, uint8);
 extern void DoStartingBeeps(uint8);
 extern real32 SlewLimit(real32, real32, real32);
 extern real32 DecayX(real32, real32);
-extern real32 LPFilter(real32, real32, real32, real32);
+extern real32 LPFilter(real32, real32, real32);
 extern void CheckAlarms(void);
 extern void Timing(uint8, uint32);
 

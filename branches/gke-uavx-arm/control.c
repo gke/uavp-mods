@@ -345,18 +345,16 @@ void DoControl(void) {
     }
 
     // Yaw
-    
-    #define MAX_YAW_RATE  (HALFPI / RC_NEUTRAL)  // Radians/Sec e.g. HalfPI is 90deg/sec
 
-    if ( F.HeadingUpdated ) {
-    
-        DoLegacyYawComp(AttitudeMethod); // returns Angle as heading error along with compensated rate
-           
-        Yl  = ( Rate[Yaw] + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE ) * K[YawKp] +
-                 Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * YawdTR;
-        F.HeadingUpdated = false;
-        Ratep[Yaw] = Rate[Yaw];
-    }
+#define MAX_YAW_RATE  (HALFPI / RC_NEUTRAL)  // Radians/Sec e.g. HalfPI is 90deg/sec
+
+    DoLegacyYawComp(AttitudeMethod); // returns Angle as heading error along with compensated rate
+
+    Yl  = ( Rate[Yaw] + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE ) * K[YawKp] +
+          Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * dTR;
+
+    Ratep[Yaw] = Rate[Yaw];
+
 
 #ifdef TRICOPTER
     Yl = SlewLimit(Ylp, Yl, 2.0);
@@ -442,9 +440,6 @@ void InitControl(void) {
     for ( i = 0; i < (uint8)3; i++ )
         AngleE[i] = AngleIntE[i] = Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
 
-    YawdT = COMPASS_UPDATE_S;
-    YawdTR = 1.0 / YawdT;
-    
     Comp[Alt] = AltSum = Ylp = ControlRollP = ControlPitchP = AltitudeP = 0.0;
     ControlUpdateTimeuS = 0;
 

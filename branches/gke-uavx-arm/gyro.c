@@ -43,24 +43,25 @@ uint8 GyroType;
 
 void GetGyroRates(void) {
     static uint8 g;
-    static real32 GyroA, d;
+    static real32 d, GyroA;
 
     ReadGyros();
 
     for ( g = 0; g < (uint8)3; g++ ) {
         d = fabs(Gyro[g]-Gyrop[g]);
-        if ( d>GyroNoise[g] ) GyroNoise[g] = d;
+        if ( d > GyroNoise[g] ) GyroNoise[g] = d;
     }
 
 #ifndef SUPPRESS_ROLL_PITCH_GYRO_FILTERS
+    // dT is almost unchanged so this could be optimised
     GyroA = dT / ( 1.0 / ( TWOPI * ROLL_PITCH_FREQ ) + dT );
-    Gyro[Roll] = LPFilter( Gyro[Roll] - GyroNeutral[Roll], Gyrop[Roll], GyroA, dT );
-    Gyro[Pitch] = LPFilter( Gyro[Pitch] - GyroNeutral[Pitch], Gyrop[Pitch], GyroA, dT );
+    Gyro[Roll] = LPFilter( Gyro[Roll] - GyroNeutral[Roll], Gyrop[Roll], GyroA );
+    Gyro[Pitch] = LPFilter( Gyro[Pitch] - GyroNeutral[Pitch], Gyrop[Pitch], GyroA );
 #endif // !SUPPRESS_ROLL_PITCH_GYRO_FILTERS 
 
 #ifndef SUPPRESS_YAW_GYRO_FILTERS
-    GyroA = dT / ( 1.0 / ( TWOPI * YAW_FREQ ) + dT );
-    Gyro[Yaw] = LPFilter( Gyro[Yaw] - GyroNeutral[Yaw], Gyrop[Yaw], GyroA, dT );
+    GyroA = dT / ( 1.0 / ( TWOPI * YawFilterLPFreq ) + dT );
+    Gyro[Yaw] = LPFilter( Gyro[Yaw] - GyroNeutral[Yaw], Gyrop[Yaw], GyroA );
 #endif // !SUPPRESS_GYRO_FILTERS
 
     for ( g = 0; g < (uint8)3; g++ )
