@@ -114,7 +114,7 @@ void GetAccelerations(void) {
 #ifndef SUPPRESS_ACC_FILTERS
         AccA = dT / ( 1.0 / ( TWOPI * ACC_FREQ ) + dT );
         for ( a = 0; a < (uint8)3; a++ )
-            Acc[a] = LPFilter( Acc[a], Accp[a], AccA, dT );
+            Acc[a] = LPFilter( Acc[a], Accp[a], AccA );
 #endif // !SUPPRESS_ACC_FILTERS
         for ( a = 0; a < (uint8)3; a++ )
             Accp[a] = Acc[a];

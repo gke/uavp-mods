@@ -285,6 +285,8 @@ void UpdateControls(void) {
     DesiredPitch = SRS16((RC[PitchRC] - RC_NEUTRAL) * RollPitchScale, 7);
 #endif // ATTITUDE_NO_LIMITS
     DesiredYaw = RC[YawRC] - RC_NEUTRAL;
+    
+    AdaptiveYawLPFreq();
 
     HoldRoll = abs(DesiredRoll - Trim[Roll]);
     HoldPitch = abs(DesiredPitch - Trim[Pitch]);

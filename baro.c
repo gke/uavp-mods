@@ -204,7 +204,7 @@ void InitBarometer(void) {
     else
         if ( IsBoschBaroActive() )
             InitBoschBarometer();
-        else 
+        else
             F.BaroAltitudeValid = F.HoldingAlt = false;
 
 } // InitBarometer
@@ -558,7 +558,7 @@ void GetBoschBaroAltitude(void) {
 
                 F.NewBaroValue = F.BaroAltitudeValid;
             }
-        else 
+        else
             AcquiringPressure = true;
 
         StartBoschBaroADC(AcquiringPressure);
