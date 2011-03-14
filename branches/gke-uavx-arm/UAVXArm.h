@@ -1,27 +1,28 @@
 
 // Commissioning defines
 
-#define SW_I2C                                        // define for software I2C - TRAGICALLY SLOW ~100KHz
+#define SW_I2C                                     // define for software I2C - TRAGICALLY SLOW ~100KHz
  
 #define I2C_MAX_RATE_HZ     400000
 
-#define MAX_PID_CYCLE_HZ    200                       // PID cycle rate do not exceed
+#define MAX_PID_CYCLE_HZ    200                    // PID cycle rate do not exceed
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
-#define PWM_UPDATE_HZ       200                       // reduced for Turnigys - I2C runs at PID loop rate always
-                                                       // MUST BE LESS THAN OR EQUAL TO 450HZ
+#define PWM_UPDATE_HZ       200                     // reduced for Turnigys - I2C runs at PID loop rate always
+                                                    // MUST BE LESS THAN OR EQUAL TO 450HZ
 // LP filter cutoffs for sensors
 
-#define SUPPRESS_ROLL_PITCH_GYRO_FILTERS                           
-#define ROLL_PITCH_FREQ     ( 0.5 * PWM_UPDATE_HZ )  // must be <= ITG3200 LP filter
-#define ATTITUDE_ANGLE_LIMIT QUARTERPI               // set to PI for aerobatics
+//#define SUPPRESS_ROLL_PITCH_GYRO_FILTERS                           
+#define ROLL_PITCH_FREQ     (0.5*PWM_UPDATE_HZ)     // must be <= ITG3200 LP filter
+#define ATTITUDE_ANGLE_LIMIT QUARTERPI              // set to PI for aerobatics
                     
 //#define SUPPRESS_ACC_FILTERS
-#define ACC_FREQ            ( 0.5 * PWM_UPDATE_HZ )
+#define ACC_FREQ            (0.5*PWM_UPDATE_HZ)
 
-//#define SUPPRESS_YAW_GYRO_FILTERS   
-#define YAW_MAX_FREQ            10.0                     // <= 10Hz
-#define COMPASS_SANITY_CHECK_RAD_S  TWOPI                // 
+//#define SUPPRESS_YAW_GYRO_FILTERS
+//#define USE_FIXED_YAW_FILTER                      // does not rescale LP cutoff with yaw stick  
+#define MAX_YAW_FREQ            10.0                // <= 10Hz
+#define COMPASS_SANITY_CHECK_RAD_S  TWOPI           // changes greater than this rate ignored
 
 // DCM Attitude Estimation
 
@@ -31,9 +32,9 @@
 // Jitter in the artificial horizon gives part of the story but better to use the UAVXFC logs.
 
 // Assumes normalised gravity vector
-#define TAU_S               5.0                        //  1-10
-#define Kp_RollPitch        5.0 //(2.0/TAU_S)                  //1.0      // 5.0
-#define Ki_RollPitch        0.005//((1.0/TAU_S)*(1.0/TAU_S))      //0.001    // 0.005
+#define TAU_S               5.0                                 //  1-10
+#define Kp_RollPitch        5.0 //(2.0/TAU_S)                   //1.0      // 5.0
+#define Ki_RollPitch        0.005//((1.0/TAU_S)*(1.0/TAU_S))    //0.001    // 0.005
 //#define Ki_RollPitch      (1.0/(TAU_S*TAU_S)) ?
 #define Kp_Yaw 1.2
 #define Ki_Yaw 0.00002
@@ -52,15 +53,13 @@ Superstable     0.0014  0.00000015  1.2     0.00005 (200Hz)
 
 //#define DISABLE_LED_DRIVER                             // disables the PCA driver and also the BUZZER
 
-#define DISABLE_EXTRAS                       // suppress altitude hold, position hold and inertial compensation
+#define DISABLE_EXTRAS                      // suppress altitude hold, position hold and inertial compensation
 #define SUPPRESS_SDCARD                     //DO NOT RE-ENABLE - MOTOR INTERMITTENTS WILL OCCUR
 
 //BMP occasional returns bad results - changes outside this rate are deemed sensor/buss errors
 #define BARO_SANITY_CHECK_MPS    10.0       // dm/S 20,40,60,80 or 100
 
 #define SIX_DOF                             // effects acc and gyro addresses
-
-#define SOFTWARE_CAM_PWM
 
 #define BATTERY_VOLTS_SCALE   57.85         // 51.8144    // Volts scaling for internal divider
 

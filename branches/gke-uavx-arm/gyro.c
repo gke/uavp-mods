@@ -60,7 +60,13 @@ void GetGyroRates(void) {
 #endif // !SUPPRESS_ROLL_PITCH_GYRO_FILTERS 
 
 #ifndef SUPPRESS_YAW_GYRO_FILTERS
+
+#ifdef USE_FIXED_YAW_FILTER
+    GyroA = dT / ( 1.0 / ( TWOPI * MAX_YAW_FREQ ) + dT );
+#else
     GyroA = dT / ( 1.0 / ( TWOPI * YawFilterLPFreq ) + dT );
+#endif // USE_FIXED_YAW_FILTER
+
     Gyro[Yaw] = LPFilter( Gyro[Yaw] - GyroNeutral[Yaw], Gyrop[Yaw], GyroA );
 #endif // !SUPPRESS_GYRO_FILTERS
 
