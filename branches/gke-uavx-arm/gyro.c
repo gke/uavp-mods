@@ -25,7 +25,7 @@ const real32 GyroToRadian[UnknownGyro] = {
     28.797933,      // IDG300
     17.453293,      // LY530
     11.519173,      // ADXRS300
-    0.000438704,    // ITG3200 16bit 2's complement
+    0.000438704 * 2.0,    // ITG3200 16bit 2's complement
     1.0             // Infrared Sensors
     // add others as required
 };
@@ -214,8 +214,8 @@ void AnalogGyroTest(void);
 void ReadAnalogGyros(void) {
     static uint8 g;
 
-    GyroADC[Roll] = RollADC.read();
-    GyroADC[Pitch] = PitchADC.read();
+    GyroADC[Roll] = -RollADC.read();
+    GyroADC[Pitch] = -PitchADC.read();
     GyroADC[Yaw] = YawADC.read();
 
     for ( g = 0; g < (uint8)3; g++ )

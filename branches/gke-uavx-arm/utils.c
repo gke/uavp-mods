@@ -25,6 +25,7 @@ void Delay1mS(int16);
 void Delay100mS(int16);
 void DoBeep100mS(uint8, uint8);
 void DoStartingBeeps(uint8);
+void DoBeeperPulse1mS(uint16);
 void CheckAlarms(void);
 real32 SlewLimit(real32, real32, real32);
 real32 DecayX(real32, real32);
@@ -32,6 +33,8 @@ real32 LPFilter(real32, real32, real32);
 void Timing(uint8, uint32);
 
 TimingRec Times[(UnknownT+1)];
+
+uint32 BeeperOnTime, BeeperOffTime;
 
 void InitMisc(void) {
     int8 i;
@@ -88,18 +91,29 @@ void DoStartingBeeps(uint8 b) {
         DoBeep100mS(2, 8);
 
     DoBeep100mS(8,0);
+
 } // DoStartingBeeps
 
-void CheckAlarms(void) {
+void DoBeeperPulse1mS(int16 d) {
 
-    static uint16 BeeperOnTime, BeeperOffTime;
+    if ( !F.BeeperInUse ) {
+        mS[BeeperTimeout] = mSClock() + 500L;
+        Beeper_ON;
+    }
+
+//   BeeperOnTime = d;
+//   BeeperOffTime = 0x7ffffff;
+
+} // DoBeeperPulse1mS
+
+void CheckAlarms(void) {
 
     F.BeeperInUse = F.LowBatt || F.LostModel  || (State == Shutdown);
 
     if ( F.BeeperInUse ) {
         if ( F.LowBatt ) {
-            BeeperOffTime = 750;
-            BeeperOnTime = 250;
+            BeeperOffTime = 500;
+            BeeperOnTime = 500;
         } else
             if ( State == Shutdown ) {
                 BeeperOffTime = 4750;
@@ -146,7 +160,7 @@ real32 DecayX(real32 i, real32 d) {
 real32 LPFilter(real32 i, real32 ip, real32 A) {
 
     return ( ip + (i - ip) * A );
-    
+
 } // LPFilter
 
 real32 SlewLimit(real32 Old, real32 New, real32 Slew) {

@@ -1,11 +1,13 @@
 
 // Commissioning defines
 
-#define SW_I2C                                     // define for software I2C - TRAGICALLY SLOW ~100KHz
+//#define PID_TUNING                                  // DO NOT FLY - forces fast output for PID tuning studies < 200Hz
+ 
+#define SW_I2C                                      // define for software I2C - TRAGICALLY SLOW ~100KHz
  
 #define I2C_MAX_RATE_HZ     400000
 
-#define MAX_PID_CYCLE_HZ    200                    // PID cycle rate do not exceed
+#define MAX_PID_CYCLE_HZ    200                     // PID cycle rate do not exceed
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
 
 #define PWM_UPDATE_HZ       200                     // reduced for Turnigys - I2C runs at PID loop rate always
@@ -16,7 +18,7 @@
 #define ROLL_PITCH_FREQ     (0.5*PWM_UPDATE_HZ)     // must be <= ITG3200 LP filter
 #define ATTITUDE_ANGLE_LIMIT QUARTERPI              // set to PI for aerobatics
                     
-//#define SUPPRESS_ACC_FILTERS
+#define SUPPRESS_ACC_FILTERS
 #define ACC_FREQ            (0.5*PWM_UPDATE_HZ)
 
 //#define SUPPRESS_YAW_GYRO_FILTERS
@@ -215,6 +217,7 @@ extern Timer timer;
 #define ARDU_TEL_INTERVAL_MS            200L    // mS. Ardustation
 #define UAVX_CONTROL_TEL_INTERVAL_MS    100L    // mS. flight control only
 #define CUSTOM_TEL_INTERVAL_MS          125L    // mS.
+#define FAST_CUSTOM_TEL_INTERVAL_MS     5L      // mS.
 #define UAVX_MIN_TEL_INTERVAL_MS        1000L    // mS. emit minimum FPV telemetry packet slow rate for example to FrSky
 
 #define GPS_TIMEOUT_MS                  2000L   // mS.
@@ -701,8 +704,8 @@ extern real32 RangefinderAltitude;
 
 // attitude.c
 
-enum AttitudeMethods { Integrator, Wolferl, PremerlaniDCM,  MadgwickIMU,  
-        MadgwickAHRS, Kalman, Complementary, MultiWii, MaxAttitudeScheme};
+enum AttitudeMethods { Integrator, Wolferl,  Complementary, Kalman, PremerlaniDCM,  MadgwickIMU,  
+        MadgwickAHRS, MultiWii, MaxAttitudeScheme};
 
 extern void AdaptiveYawLPFreq(void);
 extern void GetAttitude(void);
@@ -1186,6 +1189,8 @@ extern I2C I2C0;                    // 27, 28
 #endif // SW_I2C
 
 extern DigitalIn  RCIn;             // 29 CAN
+extern InterruptIn RCInterrupt;
+
 extern DigitalOut PWMCamRoll;      // 30 CAN
 
 //extern Serial TelemetrySerial;
@@ -1199,8 +1204,6 @@ extern DigitalOut BlueLED;
 extern DigitalOut GreenLED;
 extern DigitalOut RedLED;
 extern DigitalOut YellowLED;
-
-extern InterruptIn RCInterrupt;
 
 extern char RTCString[], RTCLogfile[];
 extern struct tm* RTCTime;
@@ -1276,6 +1279,9 @@ extern void TelemetryOutISR(void);
 extern void RazorInISR(void);
 extern void RazorOutISR(void);
 
+extern void TurnBeeperOff(void);
+extern void DoBeeperPulse1mS(int16);
+
 enum { Clock, GeneralCountdown, UpdateTimeout, RCSignalTimeout, BeeperTimeout, ThrottleIdleTimeout,
        FailsafeTimeout, AbortTimeout, RxFailsafeTimeout, DescentUpdate, StickChangeUpdate, NavStateTimeout, LastValidRx,
        LastGPS, StartTime, GPSTimeout, LEDChaserUpdate, LastBattery, TelemetryUpdate, NavActiveTime, BeeperUpdate,
@@ -1295,6 +1301,11 @@ extern boolean WaitingForSync;
 
 extern int8 SignalCount;
 extern uint16 RCGlitches;
+
+extern Timer timer;
+extern Timeout CamRollTimeout, CamPitchTimeout;
+extern Ticker CameraTicker;
+extern Timeout RCTimeout;
 
 //______________________________________________________________________________________________
 
@@ -1740,6 +1751,7 @@ extern void SendParamPacket(uint8, uint8);
 extern void SendParameters(uint8);
 extern void SendMinPacket(void);
 extern void SendArduStation(void);
+extern void SendPIDTuning(void);
 extern void SendCustom(void);
 extern void SensorTrace(void);
 extern void CheckTelemetry(void);
@@ -1811,6 +1823,8 @@ typedef struct {
     uint32 T;
     uint32 Count;
 } TimingRec;
+
+extern uint32 BeeperOnTime, BeeperOffTime;
 
 enum Timed { GetAttitudeT , UnknownT };
 extern TimingRec Times[];

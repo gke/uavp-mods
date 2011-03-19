@@ -362,12 +362,9 @@ void DoNavigation(void) {
                         if ( F.AcquireNewPosition && !( F.Ch5Active & F.UsingPositionHoldLock ) ) {
                             F.AllowTurnToWP = SaveAllowTurnToWP;
                             AcquireHoldPosition();
-#ifdef NAV_ACQUIRE_BEEPER
-                            if ( !F.BeeperInUse ) {
-                                mS[BeeperTimeout] = mSClock() + 500L;
-                                Beeper_ON;
-                            }
-#endif // NAV_ACQUIRE_BEEPER
+                            #ifdef NAV_ACQUIRE_BEEPER
+                            DoBeeperPulse1mS(500);
+                            #endif // NAV_ACQUIRE_BEEPER
                         }
                     } else
                         F.AcquireNewPosition = true;

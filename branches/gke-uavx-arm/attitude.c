@@ -34,6 +34,7 @@ real32 EstRate[3][MaxAttitudeScheme];
 real32 YawFilterLPFreq;
 real32 dT, dTOn2, dTR, dTmS;
 uint32 uSp;
+
 uint8 AttitudeMethod = Wolferl; //Integrator, Wolferl MadgwickIMU PremerlaniDCM MadgwickAHRS, MultiWii;
 
 void AdaptiveYawLPFreq(void) { // Filter LP freq is decreased with reduced yaw stick deflection
@@ -176,9 +177,9 @@ void DoIntegrator(void) {
     static uint8 g;
 
     for ( g = 0; g < (uint8)3; g++ ) {
-        Rate[g] = Gyro[g];
-        EstAngle[g][Integrator] += Rate[g] * dT;
-        EstAngle[g][Integrator] = DecayX(EstAngle[g][Integrator], 0.03 * dT);
+        EstRate[g][Integrator] = Gyro[g];
+        EstAngle[g][Integrator] +=  EstRate[g][Integrator] * dT;
+        EstAngle[g][Integrator] = DecayX(EstAngle[g][Integrator], 0.0001 * dT);
     }
 
 } // DoIntegrator
@@ -605,7 +606,8 @@ void  MadgwickEulerAngles(uint8 S) {
 
     EstAngle[Roll][S] = atan2(2.0*q2*q3 - 2.0*q0*q1 , 2.0*Sqr(q0) + 2.0*Sqr(q3) - 1.0);
     EstAngle[Pitch][S] = asin(2.0*q1*q2 - 2.0*q0*q2);
-    // EstAngle[Yaw][S] = -atan2(2.0*q1*q2 - 2.0*q0*q3 ,  2.0*Sqr(q0) + 2.0*Sqr(q1) - 1.0);
+    EstAngle[Yaw][S] = -atan2(2.0*q1*q2 - 2.0*q0*q3 ,  2.0*Sqr(q0) + 2.0*Sqr(q1) - 1.0);
+    
 } // MadgwickEulerAngles
 
 //_________________________________________________________________________________
@@ -695,6 +697,8 @@ real32 KalmanFilter(uint8 a, real32 NewAngle, real32 NewRate) {
 void DoKalman(void) { // NO YAW ANGLE ESTIMATE
     EstAngle[Roll][Kalman] = KalmanFilter(Roll, asin(-Acc[LR]) * RADDEG, Gyro[Roll] * RADDEG) * DEGRAD;
     EstAngle[Pitch][Kalman]  = KalmanFilter(Pitch, asin(Acc[BF]) * RADDEG, Gyro[Pitch] * RADDEG) * DEGRAD;
+    EstRate[Roll][Kalman] = Gyro[Roll];
+    EstRate[Pitch][Kalman] = Gyro[Pitch];
 } // DoKalman
 
 
@@ -773,6 +777,10 @@ void DoMultiWii(void) { // V1.6  NO YAW ANGLE ESTIMATE
 
     EstAngle[Roll][MultiWii] =  Axz;
     EstAngle[Pitch][MultiWii] =  Ayz;
+    
+    // Temp
+    EstRate[Roll][MultiWii] = Gyro[Roll];
+    EstRate[Pitch][MultiWii] = Gyro[Pitch];
 
 } // DoMultiWii
 

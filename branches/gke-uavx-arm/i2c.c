@@ -58,17 +58,17 @@ void SDelay(uint16 d) { // 1.25 + 0.0475 * n uS ~0.05uS per click
 
 #if ( I2C_MAX_RATE_HZ == 400000 )
 
-#define SCLLowStartT SDelay(10) // 82 for 100KHz 10 for 400KHz
-#define DataLowPadT SDelay(10)
-#define SCLLowPadT SDelay(6) // 82 for 100KHz 10 for 400KHz
-#define SCLHighT SDelay(13) // 85 for 100KHz 13 for 400KHz
+#define SCLLowStartT SDelay(10)
+#define DataLowPadT SDelay(16) // 10
+#define SCLLowPadT SDelay(6)
+#define SCLHighT SDelay(10)
 
 #else
 
-#define SCLLowStartT  SDelay(82) // 82 for 100KHz 10 for 400KHz
+#define SCLLowStartT  SDelay(82)
 #define DataLowPadT SDelay(82)
-#define SCLLowPadT SDelay(82) // 78 for 100KHz 6 for 400KHz
-#define SCLHighT SDelay(85) // 85 for 100KHz 13 for 400KHz
+#define SCLLowPadT SDelay(82)
+#define SCLHighT SDelay(85)
 
 #endif //I2C400KHZ
 
@@ -129,9 +129,14 @@ uint8 MyI2C::read(uint8 ack) {
     do {
         if ( waitclock() ) {
             d <<= 1;
-            if ( I2C0SDA.read() ) d |= 1;
-            I2CSCLLow;
-            DataLowPadT;
+            if ( I2C0SDA.read() ) {
+                d |= 1;
+                I2CSCLLow;
+                DataLowPadT;
+            } else {
+                I2CSCLLow;
+                SDelay(10);//DataLowPadT;
+            }
         } else
             return( 0 );
     } while ( --s );
