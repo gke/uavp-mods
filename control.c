@@ -21,6 +21,7 @@
 #include "UAVXArm.h"
 
 real32 PTerm, ITerm, DTerm;
+real32 XAngle = 0.0;
 
 void DoAltitudeHold(void);
 void UpdateAltitudeSource(void);
@@ -322,7 +323,12 @@ void DoControl(void) {
         // Roll
 
         AngleE[Roll] = Limit(Angle[Roll],  -K[RollIntLimit], K[RollIntLimit]);
-        Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi + (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
+        Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi + (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;        
+        
+PTerm = Rate[Roll] * GRollKp;
+ITerm  = AngleE[Roll] * GRollKi;
+DTerm  = (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
+
         Rl -=  ( NavCorr[Roll] + Comp[LR] );
         Rl *= GS;
 
@@ -364,7 +370,7 @@ void DoControl(void) {
     Yl = Limit(Yl, -K[YawLimit], K[YawLimit]); // currently 25 default
 #endif // TRICOPTER
 
-#endif // SIMULATE        
+#endif // SIMULATE 
 
 } // DoControl
 

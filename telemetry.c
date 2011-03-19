@@ -38,6 +38,7 @@ void SendParamPacket(uint8, uint8);
 void SendParameters(uint8);
 void SendMinPacket(void);
 void SendArduStation(void);
+void SendPIDTuning(void);
 void SendCustom(void);
 void SensorTrace(void);
 
@@ -206,6 +207,7 @@ void ShowAttitude(void) {
     TxESCi16(Acc[LR] * 1000.0);
     TxESCi16(Acc[BF] * 1000.0);
     TxESCi16(Acc[UD] * 1000.0);
+
 } // ShowAttitude
 
 void SendFlightPacket(void) {
@@ -509,24 +511,49 @@ void SendArduStation(void) {
 
 } // SendArduStation
 
+void SendPIDTuning(void) { // user defined telemetry human readable OK for small amounts of data < 1mS
+
+    // Fixed to roll axis
+    
+    SendPacketHeader();
+
+    TxESCu8(UAVXCustomPacketTag);
+    TxESCu8(1 + 10);
+    TxESCu8(5); // how many 16bit elements
+    
+    TxESCi16(DesiredRoll);
+    TxESCi16(PWM[RightC]);    
+    
+    TxESCi16(Gyro[Roll] * 1000.0);
+    TxESCi16(Acc[LR] * 1000.0);
+    
+    TxESCi16(EstAngle[Roll][AttitudeMethod] * 1000.0 );
+              
+    SendPacketTrailer();
+
+} // SendPIDTuning
+
+
 void SendCustom(void) { // user defined telemetry human readable OK for small amounts of data < 1mS
 
-    static uint8 s, a;
-
-    a = Roll;
+    static uint8 s;
 
     // always a vector of int16;
     SendPacketHeader();
 
     TxESCu8(UAVXCustomPacketTag);
-    TxESCu8(1 + 6 + MaxAttitudeScheme * 2);
-    TxESCu8(3 + MaxAttitudeScheme); // how many 16bit elements
+    TxESCu8(1 + 8 + MaxAttitudeScheme * 2);
+    TxESCu8(4 + MaxAttitudeScheme ); // how many 16bit elements
     TxESCi16(AttitudeMethod);
-    TxESCi16(Gyro[a] * 1000.0);
-    TxESCi16(Acc[a] * 1000.0);
+    
+    TxESCi16(0); // spare
+         
+    TxESCi16(Gyro[Roll] * 1000.0);
+    TxESCi16(Acc[LR] * 1000.0);
+    
     for ( s = 0; s < MaxAttitudeScheme; s++ )
-        TxESCi16( EstAngle[a][s] * 1000.0 );
-
+        TxESCi16( EstAngle[Roll][s] * 1000.0 );
+        
     SendPacketTrailer();
 
 } // SendCustom

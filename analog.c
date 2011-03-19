@@ -35,7 +35,7 @@ void DirectAnalog(void) {
     static uint32 data;
 
     // Select channel and start conversion
-    LPC_ADC->ADCR &= ~0xFF;
+    LPC_ADC->ADCR &= ~0xff;
     LPC_ADC->ADCR |= 1 << 5; // ADC0[5]
     LPC_ADC->ADCR |= 1 << 24;
 
@@ -51,7 +51,7 @@ void DirectAnalog(void) {
 
 void InitDirectAnalog(void) {
 
-// power on, clk divider /4
+    // power on, clk divider /4
     LPC_SC->PCONP |= (1 << 12);
     LPC_SC->PCLKSEL0 &= ~(0x3 << 24);
 
@@ -77,7 +77,6 @@ real32 ADC(uint8 p) {
 
     static real32 r;
 
-DebugPin = 1;
     switch (p) {
         case ADCPitch:
             r = PitchADC.read();
@@ -98,8 +97,6 @@ DebugPin = 1;
             r =  BatteryVoltsADC.read();
             break;
     }
-    
-  DebugPin = 0;
 
     return ( r );
 

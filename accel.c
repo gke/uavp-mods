@@ -332,9 +332,9 @@ void ReadLISLAcc(void) {
     Z.b0 = b[4];
 
     // UAVP Breakout Board pins to the rear components up
-    AccADC[BF] = -Y.i16;
-    AccADC[LR] = -X.i16;
-    AccADC[UD] = Z.i16;
+    AccADC[BF] = Y.i16;
+    AccADC[LR] = X.i16;
+    AccADC[UD] = -Z.i16;
 
     for ( a = 0; a < (int8)3; a++ ) {
         d = fabs(AccADC[a]-AccADCp[a]);
