@@ -2,7 +2,7 @@
 // =                              UAVXArm Quadrocopter Controller                                =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
-// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// =                           http://code.google.com/p/uavp-mods/                               =
 // ===============================================================================================
 
 //    This is part of UAVXArm.
@@ -25,6 +25,7 @@
 
 void ReadCompass(void);
 void GetHeading(void);
+real32 MinimumTurn(real32);
 void CalibrateCompass(void);
 void ShowCompassType(void);
 void DoCompassTest(void);
@@ -96,24 +97,23 @@ void DoCompassTest(void) {
 
 void GetHeading(void) {
 
-    static real32 CompassChange, CompassA;
+    static real32 HeadingChange, CompassA;
 
     ReadCompass();
 
     Heading = Make2Pi( MagHeading - MagDeviation - CompassOffset );
-    if ( fabs( Heading - HeadingP ) > PI )
+    HeadingChange = fabs( Heading - HeadingP );
+    if ( HeadingChange > ONEANDHALFPI ) // wrap 0 -> TwoPI
         HeadingP = Heading;
-    else {
-        CompassChange = fabs( Heading - HeadingP );
-        if ( CompassChange > CompassMaxSlew ) {
+    else
+        if ( HeadingChange > CompassMaxSlew ) { // Sanity check - discard reading
             Heading = HeadingP; // SlewLimit(Headingp, -CompassMaxSlew, CompassMaxSlew );    // use previous value
             Stats[CompassFailS]++;
         }
-    }
 
 #ifndef SUPPRESS_COMPASS_FILTER
     CompassA = dT / ( 1.0 / ( TWOPI * YawFilterLPFreq ) + dT );
-    Heading = LPFilter(Heading, HeadingP, CompassA);
+    Heading = Make2Pi( LPFilter(Heading, HeadingP, CompassA) );
 #endif // !SUPPRESS_COMPASS_FILTER
     HeadingP = Heading;
 
@@ -132,6 +132,24 @@ void GetHeading(void) {
 #endif // AILERON | ELEVON
 #endif // SIMULATE 
 } // GetHeading
+
+//boolean DirectionSelected = false;
+//real32 DirectionSense = 1.0;
+
+real32 MinimumTurn(real32 A ) {
+
+    static real32 AbsA;
+
+    AbsA = fabs(A);
+    if ( AbsA > PI )
+        A = ( AbsA - TWOPI ) * Sign(A);
+
+    //DirectionSelected = fabs(A) > THIRDPI; // avoid dithering around reciprocal heading
+    //DirectionSense = Sign(A);
+
+    return ( A );
+
+} // MinimumTurn
 
 void InitCompass(void) {
     if ( IsHMC5843Active() )

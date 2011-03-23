@@ -1,7 +1,10 @@
 
 // Commissioning defines
 
-//#define PID_TUNING                                  // DO NOT FLY - forces fast output for PID tuning studies < 200Hz
+//#define SERIAL_TELEMETRY GPSSerial                // Select the one you want Steve
+#define SERIAL_TELEMETRY TelemetrySerial
+
+//#define PID_TUNING                                // Forces fast output for PID tuning studies < 200Hz
  
 #define SW_I2C                                      // define for software I2C - TRAGICALLY SLOW ~100KHz
  
@@ -73,7 +76,7 @@ Superstable     0.0014  0.00000015  1.2     0.00005 (200Hz)
 // =                              UAVXArm Quadrocopter Controller                                =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
-// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// =                           http://code.google.com/p/uavp-mods/                               =
 // ===============================================================================================
 
 //    This is part of UAVXArm.
@@ -124,7 +127,9 @@ extern Timer timer;
 #define false   0
 
 #define PI              3.141592654
+#define THIRDPI         (PI/3.0)
 #define HALFPI          (PI*0.5)
+#define ONEANDHALFPI    (PI * 1.5)
 #define QUARTERPI       (PI*0.25)
 #define SIXTHPI         (PI/6.0)
 #define TWOPI           (PI*2.0)
@@ -900,6 +905,7 @@ enum CompassTypes { HMC5843, HMC6352, NoCompass };
 extern real32 AdaptiveCompassFreq(void);
 extern void ReadCompass(void);
 extern void GetHeading(void);
+extern real32 MinimumTurn(real32);
 extern void ShowCompassType(void);
 extern void DoCompassTest(void);
 extern void CalibrateCompass(void);
@@ -954,8 +960,6 @@ extern uint8 CompassType;
 //______________________________________________________________________________________________
 
 // control.c
-
-extern real32 PTerm, ITerm, DTerm; //zzz
 
 extern void DoAltitudeHold(void);
 extern void UpdateAltitudeSource(void);
