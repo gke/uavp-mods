@@ -2,7 +2,7 @@
 // =                              UAVXArm Quadrocopter Controller                                =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
-// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// =                           http://code.google.com/p/uavp-mods/                               =
 // ===============================================================================================
 
 //    This is part of UAVXArm.
@@ -62,7 +62,7 @@ void DoLegacyYawComp(uint8 S) {
             DesiredHeading = Heading; // acquire new heading
             Angle[Yaw] = 0.0;
         } else {
-            HE = MakePi(DesiredHeading - Heading);
+            HE = MinimumTurn(DesiredHeading - Heading);
             HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
             HE = HE * K[CompassKp];
             Rate[Yaw] = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
@@ -607,7 +607,7 @@ void  MadgwickEulerAngles(uint8 S) {
     EstAngle[Roll][S] = atan2(2.0*q2*q3 - 2.0*q0*q1 , 2.0*Sqr(q0) + 2.0*Sqr(q3) - 1.0);
     EstAngle[Pitch][S] = asin(2.0*q1*q2 - 2.0*q0*q2);
     EstAngle[Yaw][S] = -atan2(2.0*q1*q2 - 2.0*q0*q3 ,  2.0*Sqr(q0) + 2.0*Sqr(q1) - 1.0);
-    
+
 } // MadgwickEulerAngles
 
 //_________________________________________________________________________________
@@ -777,7 +777,7 @@ void DoMultiWii(void) { // V1.6  NO YAW ANGLE ESTIMATE
 
     EstAngle[Roll][MultiWii] =  Axz;
     EstAngle[Pitch][MultiWii] =  Ayz;
-    
+
     // Temp
     EstRate[Roll][MultiWii] = Gyro[Roll];
     EstRate[Pitch][MultiWii] = Gyro[Pitch];

@@ -2,7 +2,7 @@
 // =                              UAVXArm Quadrocopter Controller                                =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
-// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// =                           http://code.google.com/p/uavp-mods/                               =
 // ===============================================================================================
 
 //    This is part of UAVXArm.
@@ -19,9 +19,6 @@
 //    If not, see http://www.gnu.org/licenses/
 
 #include "UAVXArm.h"
-
-real32 PTerm, ITerm, DTerm;
-real32 XAngle = 0.0;
 
 void DoAltitudeHold(void);
 void UpdateAltitudeSource(void);
@@ -99,16 +96,12 @@ void DoAltitudeHold(void) { // Syncronised to baro intervals independant of acti
     if ( ROC < ( -K[MaxDescentRateDmpS] * 10.0 ) ) {
         DescentLimiter += 1;
         DescentLimiter = Limit(DescentLimiter, 0, ALT_MAX_THR_COMP * 2.0);
-
     } else
         DescentLimiter = DecayX(DescentLimiter, 1);
 
     NewAltComp = AltP + AltI + AltD + AltDSum + DescentLimiter;
-
     NewAltComp = Limit(NewAltComp, -ALT_MAX_THR_COMP, ALT_MAX_THR_COMP);
-
     Comp[Alt] = SlewLimit(Comp[Alt], NewAltComp, 1.0);
-
 
     if ( ROC > Stats[MaxROCS] )
         Stats[MaxROCS] = ROC;
@@ -262,13 +255,27 @@ void GainSchedule(boolean UseAngle) {
 
     GS = 1.0; // Temp
 
-    GRollKp = K[RollKp];
-    GRollKi = K[RollKi];
-    GRollKd = K[RollKd];
+    if ( UseAngle ) {
 
-    GPitchKp = K[PitchKp];
-    GPitchKi = K[PitchKi];
-    GPitchKd = K[PitchKd];
+        GRollKp = K[RollKp];
+        GRollKi = K[RollKi];
+        GRollKd = K[RollKd];
+
+        GPitchKp = K[PitchKp];
+        GPitchKi = K[PitchKi];
+        GPitchKd = K[PitchKd];
+
+    } else {
+
+        GRollKp = K[RollKp];
+        GRollKi = K[RollKi];
+        GRollKd = K[RollKd];
+
+        GPitchKp = K[PitchKp];
+        GPitchKi = K[PitchKi];
+        GPitchKd = K[PitchKd];
+
+    }
 
 } // GainSchedule
 
@@ -305,7 +312,7 @@ void DoControl(void) {
     if ( F.UsingAngleControl ) {
         // Roll
 
-        AngleE[Roll] = Angle[Roll] - ControlRoll * ATTITUDE_SCALE;
+        AngleE[Roll] = Angle[Roll] - ( ControlRoll * ATTITUDE_SCALE );
         AngleIntE[Roll] += AngleE[Roll] * dT;
         AngleIntE[Roll] = Limit(AngleIntE[Roll], -K[RollIntLimit], K[RollIntLimit]);
         Rl  = AngleE[Roll] * GRollKp + AngleIntE[Roll] * GRollKi + Rate[Roll] * GRollKd * dTR;
@@ -313,7 +320,7 @@ void DoControl(void) {
 
         // Pitch
 
-        AngleE[Pitch] = Angle[Pitch] - ControlPitch * ATTITUDE_SCALE;
+        AngleE[Pitch] = Angle[Pitch] - ( ControlPitch * ATTITUDE_SCALE );
         AngleIntE[Pitch] += AngleE[Pitch] * dT;
         AngleIntE[Pitch] = Limit(AngleIntE[Pitch], -K[PitchIntLimit], K[PitchIntLimit]);
         Pl  = AngleE[Pitch] * GPitchKp + AngleIntE[Pitch] * GPitchKi + Rate[Pitch] * GPitchKd * dTR;
@@ -323,12 +330,7 @@ void DoControl(void) {
         // Roll
 
         AngleE[Roll] = Limit(Angle[Roll],  -K[RollIntLimit], K[RollIntLimit]);
-        Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi + (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;        
-        
-PTerm = Rate[Roll] * GRollKp;
-ITerm  = AngleE[Roll] * GRollKi;
-DTerm  = (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
-
+        Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi + (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
         Rl -=  ( NavCorr[Roll] + Comp[LR] );
         Rl *= GS;
 
@@ -360,7 +362,6 @@ DTerm  = (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
           Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * dTR;
 
     Ratep[Yaw] = Rate[Yaw];
-
 
 #ifdef TRICOPTER
     Yl = SlewLimit(Ylp, Yl, 2.0);

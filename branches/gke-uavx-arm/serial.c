@@ -57,8 +57,8 @@ void TxChar(uint8 ch) {
 
     TxCheckSum ^= ch;
 
-    while ( !TelemetrySerial.writeable() ) {};
-    TelemetrySerial.putc(ch);
+    while ( !SERIAL_TELEMETRY.writeable() ) {};
+    SERIAL_TELEMETRY.putc(ch);
 
     if ( EchoToLogFile )
         TxLogChar(ch);
@@ -124,8 +124,8 @@ void TxValH16(uint16 v) {
 uint8 PollRxChar(void) {
     uint8    ch;
 
-    if (  TelemetrySerial.readable() ) {    // a character is waiting in the buffer
-        ch = TelemetrySerial.getc();        // get the character
+    if (  SERIAL_TELEMETRY.readable() ) {    // a character is waiting in the buffer
+        ch = SERIAL_TELEMETRY.getc();        // get the character
         TxChar(ch);                         // echo it for UAVPSet
         return(ch);                         // and return it
     }
@@ -136,9 +136,9 @@ uint8 PollRxChar(void) {
 uint8 RxChar(void) {
     uint8    ch;
 
-    while ( !TelemetrySerial.readable() ) {};
+    while ( !SERIAL_TELEMETRY.readable() ) {};
 
-    ch = TelemetrySerial.getc();    // get the character
+    ch = SERIAL_TELEMETRY.getc();    // get the character
 
     return(ch);
 } // RxChar

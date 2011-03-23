@@ -2,7 +2,7 @@
 // =                              UAVXArm Quadrocopter Controller                                =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                 Original V3.15 Copyright (c) 2007 Ing. Wolfgang Mahringer                   =
-// =                     http://code.google.com/p/uavp-mods/ http://uavp.ch                      =
+// =                           http://code.google.com/p/uavp-mods/                               =
 // ===============================================================================================
 
 //    This is part of UAVXArm.
@@ -514,21 +514,20 @@ void SendArduStation(void) {
 void SendPIDTuning(void) { // user defined telemetry human readable OK for small amounts of data < 1mS
 
     // Fixed to roll axis
-    
+
     SendPacketHeader();
 
     TxESCu8(UAVXCustomPacketTag);
     TxESCu8(1 + 10);
     TxESCu8(5); // how many 16bit elements
-    
+
     TxESCi16(DesiredRoll);
-    TxESCi16(PWM[RightC]);    
+    TxESCi16(PWM[RightC]);
     
-    TxESCi16(Gyro[Roll] * 1000.0);
-    TxESCi16(Acc[LR] * 1000.0);
-    
-    TxESCi16(EstAngle[Roll][AttitudeMethod] * 1000.0 );
-              
+    TxESCi16(Gyro[Roll] * 1000.0);   
+    TxESCi16(Acc[Roll] * 1000.0);
+    TxESCi16(Angle[Roll] * 1000.0 );
+
     SendPacketTrailer();
 
 } // SendPIDTuning
@@ -545,15 +544,15 @@ void SendCustom(void) { // user defined telemetry human readable OK for small am
     TxESCu8(1 + 8 + MaxAttitudeScheme * 2);
     TxESCu8(4 + MaxAttitudeScheme ); // how many 16bit elements
     TxESCi16(AttitudeMethod);
-    
+
     TxESCi16(0); // spare
-         
+
     TxESCi16(Gyro[Roll] * 1000.0);
     TxESCi16(Acc[LR] * 1000.0);
-    
+
     for ( s = 0; s < MaxAttitudeScheme; s++ )
         TxESCi16( EstAngle[Roll][s] * 1000.0 );
-        
+
     SendPacketTrailer();
 
 } // SendCustom
