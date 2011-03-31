@@ -523,8 +523,8 @@ void SendPIDTuning(void) { // user defined telemetry human readable OK for small
 
     TxESCi16(DesiredRoll);
     TxESCi16(PWM[RightC]);
-    
-    TxESCi16(Gyro[Roll] * 1000.0);   
+
+    TxESCi16(Gyro[Roll] * 1000.0);
     TxESCi16(Acc[Roll] * 1000.0);
     TxESCi16(Angle[Roll] * 1000.0 );
 

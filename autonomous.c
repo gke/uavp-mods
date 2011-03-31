@@ -26,7 +26,6 @@ void Navigate(int32, int32);
 void SetDesiredAltitude(int16);
 void DoFailsafeLanding(void);
 void AcquireHoldPosition(void);
-void NavGainSchedule(int16);
 void DoNavigation(void);
 void DoPPMFailsafe(void);
 void UAVXNavCommand(void);
@@ -217,7 +216,7 @@ void Navigate(int32 NavLatitude, int32 NavLongitude ) {
         // Just use simple rudder only for now.
         if ( !F.WayPointAchieved ) {
             NavCorr[Yaw] = -(RelHeading * NAV_YAW_LIMIT) / HALFPI;
-            NavCorr[Yaw] = Limit(NavCorr[Yaw], -NAV_YAW_LIMIT, NAV_YAW_LIMIT); // gently!
+            NavCorr[Yaw] = Limit1(NavCorr[Yaw], NAV_YAW_LIMIT); // gently!
         }
 
 #else // MULTICOPTER
@@ -233,24 +232,24 @@ void Navigate(int32 NavLatitude, int32 NavLongitude ) {
         // Roll & Pitch
 
         for ( a = 0; a < (uint8)2 ; a++ ) {
-            NavP = Limit(NavE[a], -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH);
+            NavP = Limit1(NavE[a], NAV_MAX_ROLL_PITCH);
 
             NavIntE[a] += NavE[a];
-            NavIntE[a] = Limit(NavIntE[a], -K[NavIntLimit], K[NavIntLimit]);
+            NavIntE[a] = Limit1(NavIntE[a], K[NavIntLimit]);
             NavI = NavIntE[a] * K[NavKi] * GPSdT;
             NavIntE[a] = Decay1(NavIntE[a]);
 
             Diff = (NavEp[a] - NavE[a]);
-            Diff = Limit(Diff, -256, 256);
+            Diff = Limit1(Diff, 256);
             NavD = Diff * K[NavKd] * GPSdTR;
-            NavD = Limit(NavD, -NAV_DIFF_LIMIT, NAV_DIFF_LIMIT);
+            NavD = Limit1(NavD, NAV_DIFF_LIMIT);
 
             NavEp[a] = NavE[a];
 
             NavCorr[a] = (NavP + NavI + NavD ) * NavSensitivity;
 
             NavCorr[a] = SlewLimit(NavCorrp[a], NavCorr[a], NAV_CORR_SLEW_LIMIT);
-            NavCorr[a] = Limit(NavCorr[a], -NAV_MAX_ROLL_PITCH, NAV_MAX_ROLL_PITCH);
+            NavCorr[a] = Limit1(NavCorr[a], NAV_MAX_ROLL_PITCH);
 
             NavCorrp[a] = NavCorr[a];
         }
@@ -259,7 +258,7 @@ void Navigate(int32 NavLatitude, int32 NavLongitude ) {
         if ( F.AllowTurnToWP && !F.WayPointAchieved ) {
             RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
             NavCorr[Yaw] = -(RelHeading * NavYCorrLimit) / HALFPI;
-            NavCorr[Yaw] = Limit(NavCorr[Yaw], -NavYCorrLimit, NavYCorrLimit); // gently!
+            NavCorr[Yaw] = Limit1(NavCorr[Yaw], NavYCorrLimit); // gently!
         } else
             NavCorr[Yaw] = 0;
 

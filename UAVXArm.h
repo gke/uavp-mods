@@ -4,7 +4,7 @@
 //#define SERIAL_TELEMETRY GPSSerial                // Select the one you want Steve
 #define SERIAL_TELEMETRY TelemetrySerial
 
-//#define PID_TUNING                                // Forces fast output for PID tuning studies < 200Hz
+//#define PID_TUNING                                // DO NOT FLY - NO YAW/PITCH - Forces fast output for PID tuning studies < 200Hz
  
 #define SW_I2C                                      // define for software I2C - TRAGICALLY SLOW ~100KHz
  
@@ -405,6 +405,7 @@ typedef struct { // GPS
 #define Min(i,j)                ((i<j) ? i : j )
 #define Decay1(i)               (((i) < 0) ? (i+1) : (((i) > 0) ? (i-1) : 0))
 #define Limit(i,l,u)            (((i) < l) ? l : (((i) > u) ? u : (i)))
+#define Limit1(i,l)            (((i) < -(l)) ? -(l) : (((i) > (l)) ? (l) : (i)))
 #define Sqr(v)                  ( v * v )
 
 // To speed up NMEA sentence processing
@@ -784,7 +785,6 @@ extern void Navigate(int32, int32);
 extern void SetDesiredAltitude(int16);
 extern void DoFailsafeLanding(void);
 extern void AcquireHoldPosition(void);
-extern void NavGainSchedule(int16);
 extern void DoNavigation(void);
 extern void FakeFlight(void);
 extern void DoPPMFailsafe(void);
@@ -972,6 +972,8 @@ extern void DoControl(void);
 
 extern void LightsAndSirens(void);
 extern void InitControl(void);
+
+extern real32 PTerm, ITerm, DTerm;
 
 extern real32 Angle[3], Anglep[3], Rate[3], Ratep[3];
 extern real32 Comp[4];

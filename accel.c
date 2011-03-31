@@ -86,9 +86,9 @@ void GetNeutralAccelerations(void) {
         for ( a = 0; a <(uint8)3; a++ )
             Acc[a] = Temp[a] * GravityR;
 
-        NewAccNeutral[BF] = Limit((int16)(Acc[BF] * 1000.0 ), -99, 99);
-        NewAccNeutral[LR] = Limit( (int16)(Acc[LR] * 1000.0 ), -99, 99);
-        NewAccNeutral[UD] = Limit( (int16)(( Acc[UD] + 1.0 ) * 1000.0) , -99, 99);
+        NewAccNeutral[BF] = Limit1((int16)(Acc[BF] * 1000.0 ), 99);
+        NewAccNeutral[LR] = Limit1( (int16)(Acc[LR] * 1000.0 ), 99);
+        NewAccNeutral[UD] = Limit1( (int16)(( Acc[UD] + 1.0 ) * 1000.0) , 99);
 
     } else
         for ( a = 0; a <(uint8)3; a++ )
