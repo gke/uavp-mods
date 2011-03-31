@@ -990,6 +990,8 @@ extern real32 CameraRollAngle, CameraPitchAngle;
 extern int16 CurrMaxRollPitch;
 extern int16 Trim[3];
 
+extern real32 GRollKp, GRollKi, GRollKd, GPitchKp, GPitchKi, GPitchKd;
+
 extern int16 AttitudeHoldResetCount;
 extern real32 AltDiffSum, AltD, AltDSum;
 extern real32 DesiredAltitude, Altitude, AltitudeP;
