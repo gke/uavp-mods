@@ -259,6 +259,8 @@ void GainSchedule(void) {
 
     GS = 1.0; // Temp
 
+  
+
 } // GainSchedule
 
 real32 RelayA = 0.0;
@@ -340,16 +342,17 @@ void DoControl(void) {
 #endif // DISABLE_EXTRAS
 
     AngleE[Roll] = Limit1(Angle[Roll], K[RollIntLimit]);
-
     Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi; // + ( Rate[Roll] - Ratep[Roll] ) * GRollKd * dTR;
 
+/*
     PTerm =  Rate[Roll] * GRollKp;
     ITerm = AngleE[Roll] * GRollKi;
     DTerm = 0; // ( Rate[Roll] - Ratep[Roll] ) * GRollKd * dTR;
+*/
 
-    Rl -=  ( NavCorr[Roll] + Comp[LR] );
+  //  Rl -=  ( NavCorr[Roll] + Comp[LR] );
     Rl += ControlRoll;
-    
+
     Ratep[Roll] = Rate[Roll];
 
     // Pitch
@@ -357,7 +360,7 @@ void DoControl(void) {
     AngleE[Pitch] = Limit1(Angle[Pitch], K[PitchIntLimit]);
     Pl  = Rate[Pitch] * GPitchKp + AngleE[Pitch] * GPitchKi; // + ( Rate[Pitch] - Ratep[Pitch] ) * GPitchKd * dTR;
 
-    Pl -= ( NavCorr[Pitch] + Comp[BF] );
+ //   Pl -= ( NavCorr[Pitch] + Comp[BF] );
     Pl += ControlPitch;
 
     Ratep[Pitch] = Rate[Pitch];
@@ -384,7 +387,7 @@ void DoControl(void) {
 #endif // SIMULATE 
 
 #ifdef PID_TUNING
-    Pl = Yl = 0.0;
+   Pl = Yl = 0.0;
 #endif
 
 } // DoControl

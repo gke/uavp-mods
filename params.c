@@ -56,8 +56,16 @@ uint8 UAVXAirframe;
 void Legacy(void) {
     static uint8 p;
     
-    for ( p = 0; p <MAX_PARAMETERS; p++ ) // brute force
+    for ( p = 0; p < MAX_PARAMETERS; p++ ) // brute force
         K[p] = (float)P[p];
+        
+    GRollKp = K[RollKp];
+    GRollKi = K[RollKi];
+    GRollKd = K[RollKd];
+
+    GPitchKp = K[PitchKp];
+    GPitchKi = K[PitchKi];
+    GPitchKd = K[PitchKd];
 
     K[RollIntLimit] *= (DEGRAD * 10.0);
     K[PitchIntLimit] *= (DEGRAD * 10.0);
