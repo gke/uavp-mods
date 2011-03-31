@@ -59,24 +59,12 @@ void Legacy(void) {
     for ( p = 0; p <MAX_PARAMETERS; p++ ) // brute force
         K[p] = (float)P[p];
 
-    // Rate Control
-    K[RollKp] *= 2.6;
-    K[RollKi] *= 20.7;
-    K[RollKd]  = K[RollKd] * 0.021;
     K[RollIntLimit] *= (DEGRAD * 10.0);
-
-    K[PitchKp] *= 2.6;
-    K[PitchKi] *= 20.7;
-    K[PitchKd]  = K[PitchKd] * 0.021;
     K[PitchIntLimit] *= (DEGRAD * 10.0);
 
     K[YawKp] *= 2.6;
     K[YawKi] *= 4.14; // was 41.4
     K[YawKd]  = K[YawKd] * 0.0004;
-
-    // Angle Control
-
-    // not yet
 
     // Inertial Damping
     K[VertDampKp] *= 0.1; // one click/MPS
@@ -265,7 +253,7 @@ void UpdateParamSetChoice(void) {
             if ( F.AllowNavAltitudeHold )
                 DoBeep100mS(4, 4);
             ParametersChanged |= true;
-            Beeper_OFF;
+       //zzz     Beeper_OFF;
             LEDBlue_OFF;
         }
     }

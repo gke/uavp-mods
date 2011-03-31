@@ -63,9 +63,9 @@ void DoLegacyYawComp(uint8 S) {
             Angle[Yaw] = 0.0;
         } else {
             HE = MinimumTurn(DesiredHeading - Heading);
-            HE = Limit(HE, -SIXTHPI, SIXTHPI); // 30 deg limit
+            HE = Limit1(HE, SIXTHPI); // 30 deg limit
             HE = HE * K[CompassKp];
-            Rate[Yaw] = -Limit(HE, -DRIFT_COMP_YAW_RATE, DRIFT_COMP_YAW_RATE);
+            Rate[Yaw] = -Limit1(HE, DRIFT_COMP_YAW_RATE);
         }
     else {
         DesiredHeading = Heading;
@@ -73,7 +73,7 @@ void DoLegacyYawComp(uint8 S) {
     }
 
     Angle[Yaw] += Rate[Yaw] * dT;
-    Angle[Yaw] = Limit(Angle[Yaw], -K[YawIntLimit], K[YawIntLimit]);
+    Angle[Yaw] = Limit1(Angle[Yaw], K[YawIntLimit]);
 
 } // DoLegacyYawComp
 
@@ -214,10 +214,10 @@ void DoWolferl(void) { // NO YAW ESTIMATE
 #endif
 
         Correction[LR] = -Acc[LR] + Grav[LR] + Dyn[LR]; // Acc is reversed
-        Correction[LR] = Limit(Correction[LR], -CompStep, CompStep);
+        Correction[LR] = Limit1(Correction[LR], CompStep);
 
         EstAngle[Roll][Wolferl] += Rate[Roll] * dT;
-        EstAngle[Roll][Wolferl] = Limit(EstAngle[Roll][Wolferl], -ATTITUDE_ANGLE_LIMIT, ATTITUDE_ANGLE_LIMIT);
+        EstAngle[Roll][Wolferl] = Limit1(EstAngle[Roll][Wolferl], ATTITUDE_ANGLE_LIMIT);
         EstAngle[Roll][Wolferl] += Correction[LR];
 
         // Pitch
@@ -231,10 +231,10 @@ void DoWolferl(void) { // NO YAW ESTIMATE
 #endif
 
         Correction[BF] = Acc[BF] + Grav[BF] + Dyn[BF];
-        Correction[BF] = Limit(Correction[BF], -CompStep, CompStep);
+        Correction[BF] = Limit1(Correction[BF], CompStep);
 
         EstAngle[Pitch][Wolferl] += Rate[Pitch] * dT;
-        EstAngle[Pitch][Wolferl] = Limit(EstAngle[Pitch][Wolferl], -ATTITUDE_ANGLE_LIMIT, ATTITUDE_ANGLE_LIMIT);
+        EstAngle[Pitch][Wolferl] = Limit1(EstAngle[Pitch][Wolferl], ATTITUDE_ANGLE_LIMIT);
         EstAngle[Pitch][Wolferl] += Correction[BF];
     } else {
         EstAngle[Roll][Wolferl] += Rate[Roll] * dT;

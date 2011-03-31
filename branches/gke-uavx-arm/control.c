@@ -18,7 +18,11 @@
 //    You should have received a copy of the GNU General Public License along with this program.
 //    If not, see http://www.gnu.org/licenses/
 
+
+
 #include "UAVXArm.h"
+
+real32 PTerm, ITerm, DTerm;
 
 void DoAltitudeHold(void);
 void UpdateAltitudeSource(void);
@@ -43,7 +47,7 @@ int16 HoldYaw;
 int16 CruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
 int16 DesiredRoll, DesiredPitch, DesiredYaw, DesiredCamPitchTrim;
 real32 DesiredHeading;
-real32 ControlRoll, ControlPitch, ControlRollP, ControlPitchP;
+real32 ControlRoll, ControlPitch;
 real32 CameraRollAngle, CameraPitchAngle;
 int16 CurrMaxRollPitch;
 int16 Trim[3];
@@ -77,21 +81,21 @@ void DoAltitudeHold(void) { // Syncronised to baro intervals independant of acti
     AltuSp = Now;
 
     AltE = DesiredAltitude - Altitude;
-    LimAltE = Limit(AltE, -ALT_BAND_M, ALT_BAND_M);
+    LimAltE = Limit1(AltE, ALT_BAND_M);
 
     AltP = LimAltE * K[AltKp];
-    AltP = Limit(AltP, -ALT_MAX_THR_COMP, ALT_MAX_THR_COMP);
+    AltP = Limit1(AltP, ALT_MAX_THR_COMP);
 
     AltDiffSum += LimAltE;
-    AltDiffSum = Limit(AltDiffSum, -ALT_INT_WINDUP_LIMIT, ALT_INT_WINDUP_LIMIT);
+    AltDiffSum = Limit1(AltDiffSum, ALT_INT_WINDUP_LIMIT);
     AltI = AltDiffSum * K[AltKi] * AltdT;
-    AltI = Limit(AltDiffSum, -K[AltIntLimit], K[AltIntLimit]);
+    AltI = Limit1(AltDiffSum, K[AltIntLimit]);
 
     ROC = ( Altitude - AltitudeP ) * AltdTR; // may neeed filtering - noisy
     AltitudeP = Altitude;
 
     AltD = ROC * K[AltKd];
-    AltD = Limit(AltD, -ALT_MAX_THR_COMP, ALT_MAX_THR_COMP);
+    AltD = Limit1(AltD, ALT_MAX_THR_COMP);
 
     if ( ROC < ( -K[MaxDescentRateDmpS] * 10.0 ) ) {
         DescentLimiter += 1;
@@ -100,7 +104,7 @@ void DoAltitudeHold(void) { // Syncronised to baro intervals independant of acti
         DescentLimiter = DecayX(DescentLimiter, 1);
 
     NewAltComp = AltP + AltI + AltD + AltDSum + DescentLimiter;
-    NewAltComp = Limit(NewAltComp, -ALT_MAX_THR_COMP, ALT_MAX_THR_COMP);
+    NewAltComp = Limit1(NewAltComp, ALT_MAX_THR_COMP);
     Comp[Alt] = SlewLimit(Comp[Alt], NewAltComp, 1.0);
 
     if ( ROC > Stats[MaxROCS] )
@@ -175,13 +179,13 @@ void InertialDamping(void) { // Uses accelerometer to damp disturbances while ho
                 // Left - Right
                 Vel[LR] += Acc[LR] * dT;
                 Comp[LR] = Vel[LR] * K[HorizDampKp];
-                Comp[LR] = Limit(Comp[LR], -DAMP_HORIZ_LIMIT, DAMP_HORIZ_LIMIT);
+                Comp[LR] = Limit1(Comp[LR], DAMP_HORIZ_LIMIT);
                 Vel[LR] = DecayX(Vel[LR], K[HorizDampDecay]);
 
                 // Back - Front
                 Vel[BF] += Acc[BF] * dT;
                 Comp[BF] = Vel[BF] * K[HorizDampKp];
-                Comp[BF] = Limit(Comp[BF], -DAMP_HORIZ_LIMIT, DAMP_HORIZ_LIMIT);
+                Comp[BF] = Limit1(Comp[BF], DAMP_HORIZ_LIMIT);
                 Vel[BF] = DecayX(Vel[BF], K[HorizDampDecay]);
             } else {
                 Vel[LR] = Vel[BF] = 0;
@@ -225,7 +229,7 @@ void DoOrientationTransform(void) {
 
 } // DoOrientationTransform
 
-void GainSchedule(boolean UseAngle) {
+void GainSchedule(void) {
 
     /*
     // rudimentary gain scheduling (linear)
@@ -255,31 +259,57 @@ void GainSchedule(boolean UseAngle) {
 
     GS = 1.0; // Temp
 
-    if ( UseAngle ) {
-
-        GRollKp = K[RollKp];
-        GRollKi = K[RollKi];
-        GRollKd = K[RollKd];
-
-        GPitchKp = K[PitchKp];
-        GPitchKi = K[PitchKi];
-        GPitchKd = K[PitchKd];
-
-    } else {
-
-        GRollKp = K[RollKp];
-        GRollKi = K[RollKi];
-        GRollKd = K[RollKd];
-
-        GPitchKp = K[PitchKp];
-        GPitchKi = K[PitchKi];
-        GPitchKd = K[PitchKd];
-
-    }
-
 } // GainSchedule
 
+real32 RelayA = 0.0;
+real32 RelayStim = 3.0;
+real32 RelayTau = 0.0;
+uint32 RelayIteration = 0;
+real32 RelayP, RelayW;
+
+void DoRelayTuning(void) {
+
+    static real32 Temp;
+
+    Temp = fabs(Angle[Roll]);
+    if ( Temp > RelayA ) RelayA = Temp;
+
+    if ( ( RelayP < 0.0 ) && ( Angle[Roll] >= 0.0 ) ) {
+
+        RelayTau = RelayIteration * dT;
+
+        RelayP = - (PI * RelayA) / ( 4.0 * RelayStim );
+        RelayW = (2.0 * PI) / RelayTau;
+
+#ifndef PID_RAW
+        SendPIDTuning();
+#endif // PID_RAW
+
+        RelayA = 0.0;
+
+        RelayIteration = 0;
+    }
+
+    RelayIteration++;
+    RelayP = Angle[Roll];
+
+} // DoRelayTuning
+
+void Relay(void) {
+
+    if ( Angle[Roll] < 0.0 )
+        Rl = -RelayStim;
+    else
+        Rl = +RelayStim;
+
+    DesiredRoll = Rl;
+
+} // Relay
+
 void DoControl(void) {
+
+    const real32 RelayKcu = ( 4.0 * 10 )/ ( PI * 0.8235 ); // stimulus 10 => Kcu 15.5
+    const real32 RelayPd  = 2.0 * 1.285;
 
     GetAttitude();
     AltitudeHold();
@@ -301,7 +331,7 @@ void DoControl(void) {
 
     DoOrientationTransform();
 
-    GainSchedule(F.UsingAngleControl);
+    GainSchedule();
 
 #ifdef DISABLE_EXTRAS
     // for commissioning
@@ -309,48 +339,28 @@ void DoControl(void) {
     NavCorr[Roll] = NavCorr[Pitch] = NavCorr[Yaw] = 0;
 #endif // DISABLE_EXTRAS
 
-    if ( F.UsingAngleControl ) {
-        // Roll
+    AngleE[Roll] = Limit1(Angle[Roll], K[RollIntLimit]);
 
-        AngleE[Roll] = Angle[Roll] - ( ControlRoll * ATTITUDE_SCALE );
-        AngleIntE[Roll] += AngleE[Roll] * dT;
-        AngleIntE[Roll] = Limit(AngleIntE[Roll], -K[RollIntLimit], K[RollIntLimit]);
-        Rl  = AngleE[Roll] * GRollKp + AngleIntE[Roll] * GRollKi + Rate[Roll] * GRollKd * dTR;
-        Rl -= ( NavCorr[Roll] + Comp[LR] );
+    Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi; // + ( Rate[Roll] - Ratep[Roll] ) * GRollKd * dTR;
 
-        // Pitch
+    PTerm =  Rate[Roll] * GRollKp;
+    ITerm = AngleE[Roll] * GRollKi;
+    DTerm = 0; // ( Rate[Roll] - Ratep[Roll] ) * GRollKd * dTR;
 
-        AngleE[Pitch] = Angle[Pitch] - ( ControlPitch * ATTITUDE_SCALE );
-        AngleIntE[Pitch] += AngleE[Pitch] * dT;
-        AngleIntE[Pitch] = Limit(AngleIntE[Pitch], -K[PitchIntLimit], K[PitchIntLimit]);
-        Pl  = AngleE[Pitch] * GPitchKp + AngleIntE[Pitch] * GPitchKi + Rate[Pitch] * GPitchKd * dTR;
-        Pl -= ( NavCorr[Pitch] + Comp[BF] );
+    Rl -=  ( NavCorr[Roll] + Comp[LR] );
+    Rl += ControlRoll;
+    
+    Ratep[Roll] = Rate[Roll];
 
-    } else {
-        // Roll
+    // Pitch
 
-        AngleE[Roll] = Limit(Angle[Roll],  -K[RollIntLimit], K[RollIntLimit]);
-        Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi + (Rate[Roll]-Ratep[Roll]) * GRollKd * dTR;
-        Rl -=  ( NavCorr[Roll] + Comp[LR] );
-        Rl *= GS;
+    AngleE[Pitch] = Limit1(Angle[Pitch], K[PitchIntLimit]);
+    Pl  = Rate[Pitch] * GPitchKp + AngleE[Pitch] * GPitchKi; // + ( Rate[Pitch] - Ratep[Pitch] ) * GPitchKd * dTR;
 
-        Rl -= ControlRoll;
+    Pl -= ( NavCorr[Pitch] + Comp[BF] );
+    Pl += ControlPitch;
 
-        ControlRollP = ControlRoll;
-        Ratep[Roll] = Rate[Roll];
-
-        // Pitch
-
-        AngleE[Pitch] = Limit(Angle[Pitch],  -K[PitchIntLimit], K[PitchIntLimit]);
-        Pl  = Rate[Pitch] * GPitchKp + AngleE[Pitch] * GPitchKi + (Rate[Pitch]-Ratep[Pitch]) * GPitchKd * dTR;
-        Pl -= ( NavCorr[Pitch] + Comp[BF] );
-        Pl *= GS;
-
-        Pl -= ControlPitch;
-
-        ControlPitchP = ControlPitch;
-        Ratep[Pitch] = Rate[Pitch];
-    }
+    Ratep[Pitch] = Rate[Pitch];
 
     // Yaw
 
@@ -366,12 +376,16 @@ void DoControl(void) {
 #ifdef TRICOPTER
     Yl = SlewLimit(Ylp, Yl, 2.0);
     Ylp = Yl;
-    Yl = Limit(Yl, -K[YawLimit] * 4.0, K[YawLimit] * 4.0);
+    Yl = Limit1(Yl, K[YawLimit] * 4.0);
 #else
-    Yl = Limit(Yl, -K[YawLimit], K[YawLimit]); // currently 25 default
+    Yl = Limit1(Yl, K[YawLimit]); // currently 25 default
 #endif // TRICOPTER
 
 #endif // SIMULATE 
+
+#ifdef PID_TUNING
+    Pl = Yl = 0.0;
+#endif
 
 } // DoControl
 
@@ -447,7 +461,8 @@ void InitControl(void) {
     for ( i = 0; i < (uint8)3; i++ )
         AngleE[i] = AngleIntE[i] = Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
 
-    Comp[Alt] = AltSum = Ylp = ControlRollP = ControlPitchP = AltitudeP = 0.0;
+    Comp[Alt] = AltSum = Ylp =  AltitudeP = 0.0;
     ControlUpdateTimeuS = 0;
 
 } // InitControl
+
