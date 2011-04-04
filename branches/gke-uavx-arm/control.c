@@ -22,8 +22,6 @@
 
 #include "UAVXArm.h"
 
-real32 PTerm, ITerm, DTerm;
-
 void DoAltitudeHold(void);
 void UpdateAltitudeSource(void);
 void AltitudeHold(void);
@@ -38,8 +36,6 @@ void InitControl(void);
 real32 Angle[3], Anglep[3], Rate[3], Ratep[3]; // Milliradians
 real32 Comp[4];
 real32 DescentComp;
-
-real32 AngleE[3], AngleIntE[3];
 
 real32 GS;
 real32 Rl, Pl, Yl, Ylp;
@@ -259,12 +255,15 @@ void GainSchedule(void) {
 
     GS = 1.0; // Temp
 
-  
+
 
 } // GainSchedule
 
+const real32 RelayKcu = ( 4.0 * 10 )/ ( PI * 0.8235 ); // stimulus 10 => Kcu 15.5
+const real32 RelayPd  = 2.0 * 1.285;
+const real32 RelayStim = 3.0;
+
 real32 RelayA = 0.0;
-real32 RelayStim = 3.0;
 real32 RelayTau = 0.0;
 uint32 RelayIteration = 0;
 real32 RelayP, RelayW;
@@ -310,8 +309,8 @@ void Relay(void) {
 
 void DoControl(void) {
 
-    const real32 RelayKcu = ( 4.0 * 10 )/ ( PI * 0.8235 ); // stimulus 10 => Kcu 15.5
-    const real32 RelayPd  = 2.0 * 1.285;
+    static real32 RateE;
+
 
     GetAttitude();
     AltitudeHold();
@@ -341,29 +340,51 @@ void DoControl(void) {
     NavCorr[Roll] = NavCorr[Pitch] = NavCorr[Yaw] = 0;
 #endif // DISABLE_EXTRAS
 
-    AngleE[Roll] = Limit1(Angle[Roll], K[RollIntLimit]);
-    Rl  = Rate[Roll] * GRollKp + AngleE[Roll] * GRollKi; // + ( Rate[Roll] - Ratep[Roll] ) * GRollKd * dTR;
+    // Roll
 
+#ifdef USE_ANGLE_DERIVED_RATE  // Gyro rate noisy so compute from angle
+    RateE = ( Angle[Roll] - Anglep[Roll] ) * dTR;
+#else
+    RateE = Rate[Roll];
+#endif // USE_ANGLE_DERIVED_RATE
+    Rl  = RateE * GRollKp + Angle[Roll] * GRollKi + ( RateE - Ratep[Roll] ) * GRollKd * dTR;
+    Rl -=  ( NavCorr[Roll] + Comp[LR] );
+
+#ifdef TEST_RIG
 /*
-    PTerm =  Rate[Roll] * GRollKp;
-    ITerm = AngleE[Roll] * GRollKi;
-    DTerm = 0; // ( Rate[Roll] - Ratep[Roll] ) * GRollKd * dTR;
-*/
+    if ( DesiredRoll > 5 )
+        ControlRoll = 15;
+    else
+        ControlRoll = 0;
+        */
+#endif  // TEST_RIG
 
-  //  Rl -=  ( NavCorr[Roll] + Comp[LR] );
     Rl += ControlRoll;
 
+#ifdef USE_ANGLE_DERIVED_RATE
+    Ratep[Roll] = RateE;
+    Anglep[Roll] = Angle[Roll];
+#else
     Ratep[Roll] = Rate[Roll];
+#endif // USE_ANGLE_DERIVED_RATE
 
     // Pitch
 
-    AngleE[Pitch] = Limit1(Angle[Pitch], K[PitchIntLimit]);
-    Pl  = Rate[Pitch] * GPitchKp + AngleE[Pitch] * GPitchKi; // + ( Rate[Pitch] - Ratep[Pitch] ) * GPitchKd * dTR;
-
- //   Pl -= ( NavCorr[Pitch] + Comp[BF] );
+#ifdef USE_ANGLE_DERIVED_RATE // Gyro rate noisy so compute from angle
+    RateE = ( Angle[Pitch] - Anglep[Pitch] ) * dTR;
+#else
+    RateE = Rate[Pitch];
+#endif // USE_ANGLE_DERIVED_RATE
+    Pl  = RateE * GPitchKp + Angle[Pitch] * GPitchKi + ( RateE - Ratep[Pitch] ) * GPitchKd * dTR;
+    Pl -= ( NavCorr[Pitch] + Comp[BF] );
     Pl += ControlPitch;
 
+#ifdef USE_ANGLE_DERIVED_RATE
+    Ratep[Pitch] = RateE;
+    Anglep[Pitch] = Angle[Pitch];
+#else
     Ratep[Pitch] = Rate[Pitch];
+#endif // USE_ANGLE_DERIVED_RATE    
 
     // Yaw
 
@@ -386,9 +407,9 @@ void DoControl(void) {
 
 #endif // SIMULATE 
 
-#ifdef PID_TUNING
-   Pl = Yl = 0.0;
-#endif
+#ifdef TEST_RIG
+    Pl = Yl = 0.0;
+#endif // TEST_RIG
 
 } // DoControl
 
@@ -462,7 +483,7 @@ void InitControl(void) {
     AltuSp = DescentLimiter = 0;
 
     for ( i = 0; i < (uint8)3; i++ )
-        AngleE[i] = AngleIntE[i] = Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
+        Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
 
     Comp[Alt] = AltSum = Ylp =  AltitudeP = 0.0;
     ControlUpdateTimeuS = 0;

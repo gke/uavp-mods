@@ -25,7 +25,18 @@ const real32 GyroToRadian[UnknownGyro] = {
     28.797933,      // IDG300
     17.453293,      // LY530
     11.519173,      // ADXRS300
-    0.000438704 * 2.0,    // ITG3200 16bit 2's complement
+    0.000438704 * 2.0 * 1.31,    // ITG3200 16bit 2's complement
+    1.0             // Infrared Sensors
+    // add others as required
+};
+
+const real32 GyroNoiseRadian[UnknownGyro] = {
+    0.2,       // MLX90609
+    0.2,       // ADXRS150
+    0.2,      // IDG300
+    0.2,      // LY530
+    0.2,      // ADXRS300
+    0.2,    // ITG3200 16bit 2's complement
     1.0             // Infrared Sensors
     // add others as required
 };

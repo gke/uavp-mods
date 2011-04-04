@@ -109,6 +109,7 @@ int main(void) {
 
                         DesiredThrottle = 0;
                         ErectGyros(); // DO NOT MOVE AIRCRAFT!
+                        InitAttitude();
                         ZeroStats();
                         DoStartingBeeps(3);
 
