@@ -5,7 +5,8 @@
 #define SERIAL_TELEMETRY TelemetrySerial
 
 //#define PID_TUNING                                // DO NOT FLY - NO YAW/PITCH - Forces fast output for PID tuning studies < 200Hz
- 
+//#define TEST_RIG                                    // using test rig with roll axis only
+
 #define SW_I2C                                      // define for software I2C - TRAGICALLY SLOW ~100KHz
  
 #define I2C_MAX_RATE_HZ     400000
@@ -21,8 +22,8 @@
 #define ROLL_PITCH_FREQ     (0.5*PWM_UPDATE_HZ)     // must be <= ITG3200 LP filter
 #define ATTITUDE_ANGLE_LIMIT QUARTERPI              // set to PI for aerobatics
                     
-#define SUPPRESS_ACC_FILTERS
-#define ACC_FREQ            (0.5*PWM_UPDATE_HZ)
+//#define SUPPRESS_ACC_FILTERS
+#define ACC_FREQ            5                       //(0.25*PWM_UPDATE_HZ)
 
 //#define SUPPRESS_YAW_GYRO_FILTERS
 //#define USE_FIXED_YAW_FILTER                      // does not rescale LP cutoff with yaw stick  
@@ -31,7 +32,9 @@
 
 // DCM Attitude Estimation
 
-#define INC_ALL_SCHEMES                            // runs all attitude control schemes - use "custom" telemetry
+//#define USE_ANGLE_DERIVED_RATE                    // Gyros have periodic prop noise - define to use rate derived from angle
+
+//#define INC_ALL_SCHEMES                            // runs all attitude control schemes - use "custom" telemetry
 
 // The pitch/roll angle should track CLOSELY with the noise "mostly" tuned out.
 // Jitter in the artificial horizon gives part of the story but better to use the UAVXFC logs.
@@ -462,7 +465,7 @@ typedef struct { // GPS
 // main.c
 
 enum Directions {BF, LR, UD, Alt }; // x forward, y left and z down
-enum Angles { Pitch, Roll, Yaw };   // X, Y, Z
+enum Angles { Roll, Pitch, Yaw };   // X, Y, Z
 
 #define FLAG_BYTES 10
 #define TELEMETRY_FLAG_BYTES 6
@@ -710,8 +713,8 @@ extern real32 RangefinderAltitude;
 
 // attitude.c
 
-enum AttitudeMethods { Integrator, Wolferl,  Complementary, Kalman, PremerlaniDCM,  MadgwickIMU,  
-        MadgwickAHRS, MultiWii, MaxAttitudeScheme};
+enum AttitudeMethods { Integrator, Wolferl,  Complementary, Kalman, PremerlaniDCM,  MadgwickIMU,
+                MadgwickIMU2, MadgwickAHRS, MultiWii,  MaxAttitudeScheme};
 
 extern void AdaptiveYawLPFreq(void);
 extern void GetAttitude(void);
@@ -760,6 +763,7 @@ extern real32 TempM[3][3];
 // IMU & AHRS S.O.H. Madgwick
 
 extern void DoMadgwickIMU(real32, real32, real32, real32, real32, real32);
+extern void DoMadgwickIMU2(real32, real32, real32, real32, real32, real32);
 extern void DoMadgwickAHRS(real32, real32, real32, real32, real32, real32, real32, real32, real32);
 extern void MadgwickEulerAngles(uint8);
 
@@ -973,8 +977,6 @@ extern void DoControl(void);
 extern void LightsAndSirens(void);
 extern void InitControl(void);
 
-extern real32 PTerm, ITerm, DTerm;
-
 extern real32 Angle[3], Anglep[3], Rate[3], Ratep[3];
 extern real32 Comp[4];
 extern real32 DescentComp;
@@ -1118,6 +1120,7 @@ extern void ITG3200Test(void);
 extern boolean ITG3200GyroActive(void);
 
 extern const real32 GyroToRadian[];
+extern const real32 GyroNoiseRadian[];
 extern real32 GyroADC[3], GyroADCp[3], GyroNoise[3], GyroNeutral[3], Gyrop[3], Gyro[3]; // Radians
 extern uint8 GyroType;
 
