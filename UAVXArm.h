@@ -7,7 +7,7 @@
 //#define PID_TUNING                                // DO NOT FLY - NO YAW/PITCH - Forces fast output for PID tuning studies < 200Hz
 //#define TEST_RIG                                    // using test rig with roll axis only
 
-#define SW_I2C                                      // define for software I2C - TRAGICALLY SLOW ~100KHz
+#define SW_I2C                                      // define for software I2C 400KHz
  
 #define I2C_MAX_RATE_HZ     400000
 
@@ -23,7 +23,7 @@
 #define ATTITUDE_ANGLE_LIMIT QUARTERPI              // set to PI for aerobatics
                     
 //#define SUPPRESS_ACC_FILTERS
-#define ACC_FREQ            5                       //(0.25*PWM_UPDATE_HZ)
+#define ACC_FREQ            5                       // could be lower again?
 
 //#define SUPPRESS_YAW_GYRO_FILTERS
 //#define USE_FIXED_YAW_FILTER                      // does not rescale LP cutoff with yaw stick  
