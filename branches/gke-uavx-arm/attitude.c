@@ -154,7 +154,7 @@ void GetAttitude(void) {
         //#define INC_IMU2
         // Madgwick IMU April 30, 2010 Paper Version
 #ifdef INC_IMU2
-        DoMadgwickIMU2(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD]);
+    //    DoMadgwickIMU2(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD]);
 #endif
         // Madgwick AHRS BROKEN
         // DoMadgwickAHRS(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD], Mag[BF].V, Mag[LR].V, -Mag[UD].V);
