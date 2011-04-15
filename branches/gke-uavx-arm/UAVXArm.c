@@ -199,19 +199,14 @@ int main(void) {
 
             MixAndLimitMotors();
             OutSignals();
-            
-            #ifdef PID_TUNING
-            SendPIDTuning();
-            #endif // PID_TUNING
 
             MixAndLimitCam();
 
             GetTemperature();
             GetBattery();
             CheckAlarms();
-            #ifndef PID_TUNING
+
             CheckTelemetry();
-            #endif // PID_TUNING
 
             SensorTrace();
 

@@ -30,17 +30,6 @@ const real32 GyroToRadian[UnknownGyro] = {
     // add others as required
 };
 
-const real32 GyroNoiseRadian[UnknownGyro] = {
-    0.2,       // MLX90609
-    0.2,       // ADXRS150
-    0.2,      // IDG300
-    0.2,      // LY530
-    0.2,      // ADXRS300
-    0.2,    // ITG3200 16bit 2's complement
-    1.0             // Infrared Sensors
-    // add others as required
-};
-
 void ReadGyros(void);
 void GetGyroRates(void);
 void CheckGyroFault(uint8, uint8, uint8);

@@ -70,10 +70,6 @@ void Legacy(void) {
     K[RollIntLimit] *= (DEGRAD * 10.0);
     K[PitchIntLimit] *= (DEGRAD * 10.0);
 
-    K[YawKp] *= 2.6;
-    K[YawKi] *= 4.14; // was 41.4
-    K[YawKd]  = K[YawKd] * 0.0004;
-
     // Inertial Damping
     K[VertDampKp] *= 0.1; // one click/MPS
     K[HorizDampKp] *= 0.1;
@@ -91,7 +87,12 @@ void Legacy(void) {
     
     K[Balance] = ( 128.0 + (float)P[Balance])/128.0;
     
-    K[CompassKp] = P[CompassKp] * 0.1;
+    K[CompassKp] = P[CompassKp] * 0.01;
+    
+    K[YawKp] *= 2.6;
+    K[YawKi] *= 4.14; // was 41.4
+    K[YawKd]  = K[YawKd] * 0.0004;
+    
     K[YawIntLimit] = P[YawIntLimit] * 256.0 /1000.0;
 
     // Camera
