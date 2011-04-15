@@ -33,7 +33,7 @@ void CheckThrottleMoved(void);
 void LightsAndSirens(void);
 void InitControl(void);
 
-real32 Angle[3], Anglep[3], Rate[3], Ratep[3]; // Milliradians
+real32 Angle[3], Anglep[3], Rate[3], Ratep[3], YawRateIntE; 
 real32 Comp[4];
 real32 DescentComp;
 
@@ -158,10 +158,8 @@ void AltitudeHold() {
 } // AltitudeHold
 
 void InertialDamping(void) { // Uses accelerometer to damp disturbances while holding altitude
-    static uint8 i;
-
+ 
     if ( F.AccelerationsValid  && F.NearLevel ) {
-        // Up - Down
 
         Vel[UD] += Acc[UD] * dT;
         Comp[UD] = Vel[UD] * K[VertDampKp];
@@ -169,34 +167,8 @@ void InertialDamping(void) { // Uses accelerometer to damp disturbances while ho
 
         Vel[UD] = DecayX(Vel[UD], K[VertDampDecay]);
 
-        // Lateral compensation only when holding altitude
-        if ( F.HoldingAlt && F.AttitudeHold ) {
-            if ( F.WayPointCentred ) {
-                // Left - Right
-                Vel[LR] += Acc[LR] * dT;
-                Comp[LR] = Vel[LR] * K[HorizDampKp];
-                Comp[LR] = Limit1(Comp[LR], DAMP_HORIZ_LIMIT);
-                Vel[LR] = DecayX(Vel[LR], K[HorizDampDecay]);
-
-                // Back - Front
-                Vel[BF] += Acc[BF] * dT;
-                Comp[BF] = Vel[BF] * K[HorizDampKp];
-                Comp[BF] = Limit1(Comp[BF], DAMP_HORIZ_LIMIT);
-                Vel[BF] = DecayX(Vel[BF], K[HorizDampDecay]);
-            } else {
-                Vel[LR] = Vel[BF] = 0;
-                Comp[LR] = Decay1(Comp[LR]);
-                Comp[BF] = Decay1(Comp[BF]);
-            }
-        } else {
-            Vel[LR] = Vel[BF] = 0;
-
-            Comp[LR] = Decay1(Comp[LR]);
-            Comp[BF] = Decay1(Comp[BF]);
-        }
     } else
-        for ( i = 0; i < (uint8)3; i++ )
-            Comp[i] = Vel[i] = 0.0;
+        Comp[UD] = Vel[UD] = 0.0;
 
 } // InertialDamping
 
@@ -279,7 +251,7 @@ void DoRelayTuning(void) {
 
         RelayTau = RelayIteration * dT;
 
-        RelayP = - (PI * RelayA) / ( 4.0 * RelayStim );
+        RelayP = - (PI * RelayA) / (4.0 * RelayStim);
         RelayW = (2.0 * PI) / RelayTau;
 
 #ifndef PID_RAW
@@ -287,7 +259,6 @@ void DoRelayTuning(void) {
 #endif // PID_RAW
 
         RelayA = 0.0;
-
         RelayIteration = 0;
     }
 
@@ -336,7 +307,7 @@ void DoControl(void) {
 
 #ifdef DISABLE_EXTRAS
     // for commissioning
-    Comp[BF] = Comp[LR] = Comp[UD] = Comp[Alt] = 0;
+    Comp[UD] = Comp[Alt] = 0;
     NavCorr[Roll] = NavCorr[Pitch] = NavCorr[Yaw] = 0;
 #endif // DISABLE_EXTRAS
 
@@ -348,18 +319,7 @@ void DoControl(void) {
     RateE = Rate[Roll];
 #endif // USE_ANGLE_DERIVED_RATE
     Rl  = RateE * GRollKp + Angle[Roll] * GRollKi + ( RateE - Ratep[Roll] ) * GRollKd * dTR;
-    Rl -=  ( NavCorr[Roll] + Comp[LR] );
-
-#ifdef TEST_RIG
-/*
-    if ( DesiredRoll > 5 )
-        ControlRoll = 15;
-    else
-        ControlRoll = 0;
-        */
-#endif  // TEST_RIG
-
-    Rl += ControlRoll;
+    Rl += ControlRoll + NavCorr[Roll];
 
 #ifdef USE_ANGLE_DERIVED_RATE
     Ratep[Roll] = RateE;
@@ -376,8 +336,7 @@ void DoControl(void) {
     RateE = Rate[Pitch];
 #endif // USE_ANGLE_DERIVED_RATE
     Pl  = RateE * GPitchKp + Angle[Pitch] * GPitchKi + ( RateE - Ratep[Pitch] ) * GPitchKd * dTR;
-    Pl -= ( NavCorr[Pitch] + Comp[BF] );
-    Pl += ControlPitch;
+    Pl += ControlPitch + NavCorr[Pitch];
 
 #ifdef USE_ANGLE_DERIVED_RATE
     Ratep[Pitch] = RateE;
@@ -392,10 +351,12 @@ void DoControl(void) {
 
     DoLegacyYawComp(AttitudeMethod); // returns Angle as heading error along with compensated rate
 
-    Yl  = ( Rate[Yaw] + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE ) * K[YawKp] +
-          Angle[Yaw] * K[YawKi] + (Rate[Yaw]-Ratep[Yaw]) * K[YawKd] * dTR;
-
-    Ratep[Yaw] = Rate[Yaw];
+    RateE =  Rate[Yaw] + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;  
+    
+    YawRateIntE += RateE;
+    YawRateIntE = Limit1(YawRateIntE, YawIntLimit); 
+    
+    Yl =  RateE * K[YawKp] + YawRateIntE * K[YawKi];          
 
 #ifdef TRICOPTER
     Yl = SlewLimit(Ylp, Yl, 2.0);
@@ -406,10 +367,6 @@ void DoControl(void) {
 #endif // TRICOPTER
 
 #endif // SIMULATE 
-
-#ifdef TEST_RIG
-    Pl = Yl = 0.0;
-#endif // TEST_RIG
 
 } // DoControl
 
@@ -484,6 +441,8 @@ void InitControl(void) {
 
     for ( i = 0; i < (uint8)3; i++ )
         Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
+        
+    YawRateIntE = 0.0;
 
     Comp[Alt] = AltSum = Ylp =  AltitudeP = 0.0;
     ControlUpdateTimeuS = 0;

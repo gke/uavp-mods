@@ -162,7 +162,7 @@ void CheckTelemetry(void) {
                 break;
             case CustomTelemetry:
                 mS[TelemetryUpdate] = mSClock() + CUSTOM_TEL_INTERVAL_MS;
-                SendCustom();
+                SendPIDTuning();//SendCustom();
                 break;
             case GPSTelemetry:
                 break;
@@ -257,7 +257,6 @@ void SendControlPacket(void) {
 
     ShowAttitude();
 
-    TxESCi16(Rate[Yaw] * 1000.0);
     TxESCi16(Heading * 1000.0);
     TxESCi16(DesiredHeading * 1000.0);
 
@@ -520,13 +519,21 @@ void SendPIDTuning(void) { // user defined telemetry human readable OK for small
     TxESCu8(UAVXCustomPacketTag);
     TxESCu8(1 + 10);
     TxESCu8(5); // how many 16bit elements
-
+/*
     TxESCi16(DesiredRoll);
     TxESCi16(PWM[RightC]);
 
     TxESCi16(Gyro[Roll] * 1000.0);
     TxESCi16(Acc[Roll] * 1000.0);
     TxESCi16(Angle[Roll] * 1000.0 );
+    */
+    
+    TxESCi16(DesiredYaw);
+    TxESCi16(PWM[RightC]);
+
+    TxESCi16(Gyro[Yaw] * 1000.0);
+    TxESCi16(HE * 1000.0);
+    TxESCi16(Angle[Yaw] * 1000.0 );
 
     SendPacketTrailer();
 

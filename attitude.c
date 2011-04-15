@@ -45,13 +45,14 @@ void AdaptiveYawLPFreq(void) { // Filter LP freq is decreased with reduced yaw s
 
 } // AdaptiveYawFilterA
 
+real32 HE;
+    
 void DoLegacyYawComp(uint8 S) {
 
 #define COMPASS_MIDDLE          10                 // yaw stick neutral dead zone
 #define DRIFT_COMP_YAW_RATE     QUARTERPI          // Radians/Sec
 
     static int16 Temp;
-    static real32 HE;
 
     // Yaw Angle here is meant to be interpreted as the Heading Error
 
@@ -74,7 +75,7 @@ void DoLegacyYawComp(uint8 S) {
     }
 
     Angle[Yaw] += Rate[Yaw]*dT;
-    Angle[Yaw] = Limit1(Angle[Yaw], K[YawIntLimit]);
+ //   Angle[Yaw] = Limit1(Angle[Yaw], K[YawIntLimit]);
 
 } // DoLegacyYawComp
 
@@ -111,7 +112,7 @@ void GetAttitude(void) {
 
     Now = uSClock();
     dT = ( Now - uSp)*0.000001;
-    dTOn2 = 0.5*dT;
+    dTOn2 = 0.5 * dT;
     dTR = 1.0 / dT;
     uSp = Now;
 
@@ -149,15 +150,17 @@ void GetAttitude(void) {
         DoMultiWii();
 
         // Madgwick IMU
-        DoMadgwickIMU(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD]);
+        // DoMadgwickIMU(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD]);
 
         //#define INC_IMU2
-        // Madgwick IMU April 30, 2010 Paper Version
+
 #ifdef INC_IMU2
-    //    DoMadgwickIMU2(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD]);
+        DoMadgwickIMU2(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD]);    
+#else
+        Madgwick IMU April 30, 2010 Paper Version
 #endif
         // Madgwick AHRS BROKEN
-        // DoMadgwickAHRS(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD], Mag[BF].V, Mag[LR].V, -Mag[UD].V);
+         DoMadgwickAHRS(Gyro[Roll], Gyro[Pitch], Gyro[Yaw], Acc[BF], -Acc[LR], -Acc[UD], Mag[BF].V, Mag[LR].V, -Mag[UD].V);
 
         // Integrator - REFERENCE/FALLBACK
         DoIntegrator();
@@ -211,13 +214,8 @@ void DoWolferl(void) { // NO YAW ESTIMATE
 
         // Roll
 
-        Grav[LR] = -sin(EstAngle[Roll][Wolferl]); // original used approximation for small angles
-
-#ifdef ENABLE_DYNAMIC_MASS_COMP_ROLL
-        Dyn[LR] = Rate[Roll];   // lateral acceleration due to rate - do later:).
-#else
-        Dyn[LR] = 0.0;
-#endif
+        Grav[LR] = -sin(EstAngle[Roll][Wolferl]);   // original used approximation for small angles
+        Dyn[LR] = 0.0; //Rate[Roll];                // lateral acceleration due to rate - do later:).
 
         Correction[LR] = -Acc[LR] + Grav[LR] + Dyn[LR]; // Acc is reversed
         Correction[LR] = Limit1(Correction[LR], CompStep);
@@ -228,21 +226,19 @@ void DoWolferl(void) { // NO YAW ESTIMATE
         // Pitch
 
         Grav[BF] = -sin(EstAngle[Pitch][Wolferl]);
-
-#ifdef ENABLE_DYNAMIC_MASS_COMP_PITCH
-        Dyn[BF] = Rate[Pitch];
-#else
-        Dyn[BF] = 0.0;
-#endif
+        Dyn[BF] = 0.0; // Rate[Pitch];
 
         Correction[BF] = Acc[BF] + Grav[BF] + Dyn[BF];
         Correction[BF] = Limit1(Correction[BF], CompStep);
 
         EstAngle[Pitch][Wolferl] += Rate[Pitch]*dT;
         EstAngle[Pitch][Wolferl] += Correction[BF];
+        
     } else {
+    
         EstAngle[Roll][Wolferl] += Rate[Roll]*dT;
         EstAngle[Pitch][Wolferl] += Rate[Pitch]*dT;
+        
     }
 
 } // DoWolferl
@@ -793,12 +789,10 @@ real32 KalmanFilter(uint8 a, real32 NewAngle, real32 NewRate) {
     // R represents the measurement covariance noise. In this case,
     // it is a 1x1 matrix that says that we expect AngleR rad jitter
     // from the accelerometer.
-    real32 AngleR;
+    const real32 AngleR = GYRO_PROP_NOISE;
 
     static real32 y, S;
     static real32 K0, K1;
-
-    AngleR = GyroNoiseRadian[GyroType];
 
     AngleKF[a] += (NewRate - BiasKF[a])*dT;
     P00[a] -=  (( P10[a] + P01[a] ) + AngleQ )*dT;
