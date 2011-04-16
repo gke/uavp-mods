@@ -107,7 +107,7 @@ void GetHeading(void) {
         HeadingP = Heading;
     else
         if ( HeadingChange > CompassMaxSlew ) { // Sanity check - discard reading
-            Heading = HeadingP; // SlewLimit(Headingp, -CompassMaxSlew, CompassMaxSlew );    // use previous value
+            Heading =SlewLimit(HeadingP, Heading, CompassMaxSlew ); 
             Stats[CompassFailS]++;
         }
 

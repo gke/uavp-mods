@@ -18,14 +18,12 @@
 //    You should have received a copy of the GNU General Public License along with this program.
 //    If not, see http://www.gnu.org/licenses/
 
-
-
 #include "UAVXArm.h"
 
 void DoAltitudeHold(void);
 void UpdateAltitudeSource(void);
+real32 AltitudeCF( real32, real32);
 void AltitudeHold(void);
-void InertialDamping(void);
 void DoOrientationTransform(void);
 void DoControl(void);
 
@@ -33,7 +31,7 @@ void CheckThrottleMoved(void);
 void LightsAndSirens(void);
 void InitControl(void);
 
-real32 Angle[3], Anglep[3], Rate[3], Ratep[3], YawRateIntE; 
+real32 Angle[3], Anglep[3], Rate[3], Ratep[3], YawRateIntE;
 real32 Comp[4];
 real32 DescentComp;
 
@@ -62,6 +60,39 @@ real32 GRollKp, GRollKi, GRollKd, GPitchKp, GPitchKi, GPitchKd;
 boolean    FirstPass;
 int8 BeepTick = 0;
 
+const real32 AltTauCF = 1.1;
+
+real32 AltCF = 0.0;
+real32 AltF[3] = { 0.0, 0.0, 0.0};
+
+real32 VertVel, VertDist;
+
+real32 AltitudeCF( real32 AltE, real32 dT ) {
+
+// Complementary Filter originally authored by RoyLB
+// http://www.rcgroups.com/forums/showpost.php?p=12082524&postcount=1286
+
+    if ( F.AccelerationsValid && F.NearLevel ) {
+
+        VertVel += Acc[UD] * dT;
+        VertDist += VertVel * dT;
+
+        if ( F.AccMagnitudeOK ) {
+            AltF[0] = (AltE - AltCF) * Sqr(AltTauCF);
+            AltF[2] += AltF[0] * dT;
+            AltF[1] =  AltF[2] + (AltE - AltCF) * 2.0 * AltTauCF + VertDist;
+            AltCF = ( AltF[1] * dT) + AltCF;
+        } else
+            AltCF += VertDist * dT;
+
+        return ( AltCF );
+
+    } else
+        return( AltE ); // no correction
+
+} // AltitudeCF
+
+
 void DoAltitudeHold(void) { // Syncronised to baro intervals independant of active altitude source
 
     static int16 NewAltComp;
@@ -76,7 +107,7 @@ void DoAltitudeHold(void) { // Syncronised to baro intervals independant of acti
     AltdTR = 1.0 / AltdT;
     AltuSp = Now;
 
-    AltE = DesiredAltitude - Altitude;
+    AltE = AltitudeCF( DesiredAltitude - Altitude, AltdT );
     LimAltE = Limit1(AltE, ALT_BAND_M);
 
     AltP = LimAltE * K[AltKp];
@@ -157,20 +188,6 @@ void AltitudeHold() {
     }
 } // AltitudeHold
 
-void InertialDamping(void) { // Uses accelerometer to damp disturbances while holding altitude
- 
-    if ( F.AccelerationsValid  && F.NearLevel ) {
-
-        Vel[UD] += Acc[UD] * dT;
-        Comp[UD] = Vel[UD] * K[VertDampKp];
-        Comp[UD] = Limit(Comp[UD], DAMP_VERT_LIMIT_LOW, DAMP_VERT_LIMIT_HIGH);
-
-        Vel[UD] = DecayX(Vel[UD], K[VertDampDecay]);
-
-    } else
-        Comp[UD] = Vel[UD] = 0.0;
-
-} // InertialDamping
 
 void DoOrientationTransform(void) {
     static real32 OSO, OCO;
@@ -285,7 +302,6 @@ void DoControl(void) {
 
     GetAttitude();
     AltitudeHold();
-    InertialDamping();
 
 #ifdef SIMULATE
 
@@ -351,12 +367,12 @@ void DoControl(void) {
 
     DoLegacyYawComp(AttitudeMethod); // returns Angle as heading error along with compensated rate
 
-    RateE =  Rate[Yaw] + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;  
-    
+    RateE =  Rate[Yaw] + ( DesiredYaw + NavCorr[Yaw] ) * MAX_YAW_RATE;
+
     YawRateIntE += RateE;
-    YawRateIntE = Limit1(YawRateIntE, YawIntLimit); 
-    
-    Yl =  RateE * K[YawKp] + YawRateIntE * K[YawKi];          
+    YawRateIntE = Limit1(YawRateIntE, YawIntLimit);
+
+    Yl =  RateE * K[YawKp] + YawRateIntE * K[YawKi];
 
 #ifdef TRICOPTER
     Yl = SlewLimit(Ylp, Yl, 2.0);
@@ -441,7 +457,7 @@ void InitControl(void) {
 
     for ( i = 0; i < (uint8)3; i++ )
         Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
-        
+
     YawRateIntE = 0.0;
 
     Comp[Alt] = AltSum = Ylp =  AltitudeP = 0.0;

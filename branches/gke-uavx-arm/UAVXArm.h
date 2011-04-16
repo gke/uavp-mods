@@ -966,6 +966,7 @@ extern uint8 CompassType;
 
 extern void DoAltitudeHold(void);
 extern void UpdateAltitudeSource(void);
+extern real32 AltitudeCF( real32, real32);
 extern void AltitudeHold(void);
 
 extern void LimitYawSum(void);
