@@ -17,7 +17,7 @@ There is a simulator firmware that you can install and practice with the UAVXGS 
 
 3. Use the same PC cable as for the UAVPset.
 
-4. Set the same com port in the UAVXGS as you use for the UAVPset.  The UAVX should be defaulted and set to 9600bps to work with the UAVX while it is armed.
+4. Set the same com port in the UAVXGS as you use for the UAVPset.  The UAVXGS should be defaulted and set to 9600bps to work with the UAVX while it is armed.
 
 5. Close all other programs on you PC especially the UAVPset so the com port is free for the UAVXGS to use.
 
