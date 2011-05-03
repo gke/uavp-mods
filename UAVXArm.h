@@ -6,21 +6,23 @@
 
 #define MAX_PID_CYCLE_HZ    200                     // PID cycle rate do not exceed
 #define PID_CYCLE_US        (1000000/MAX_PID_CYCLE_HZ)
+#define PID_CYCLE_MS        (1000/MAX_PID_CYCLE_HZ)
 
 #define PWM_UPDATE_HZ       200                     // reduced for Turnigys - I2C runs at PID loop rate always
-                                                    // MUST BE LESS THAN OR EQUAL TO 450HZ
+// MUST BE LESS THAN OR EQUAL TO 450HZ
+
 // LP filter cutoffs for sensors
 
-//#define SUPPRESS_ROLL_PITCH_GYRO_FILTERS                           
+//#define SUPPRESS_ROLL_PITCH_GYRO_FILTERS
 #define ROLL_PITCH_FREQ     (0.5*PWM_UPDATE_HZ)     // must be <= ITG3200 LP filter
 #define ATTITUDE_ANGLE_LIMIT QUARTERPI              // set to PI for aerobatics
 #define GYRO_PROP_NOISE     0.1                     // largely prop coupled
-                    
+
 //#define SUPPRESS_ACC_FILTERS
 #define ACC_FREQ            5                       // could be lower again?
 
 //#define SUPPRESS_YAW_GYRO_FILTERS
-//#define USE_FIXED_YAW_FILTER                      // does not rescale LP cutoff with yaw stick  
+//#define USE_FIXED_YAW_FILTER                      // does not rescale LP cutoff with yaw stick
 #define MAX_YAW_FREQ            10.0                // <= 10Hz
 #define COMPASS_SANITY_CHECK_RAD_S  TWOPI           // changes greater than this rate ignored
 
@@ -59,6 +61,7 @@ Superstable     0.0014  0.00000015  1.2     0.00005 (200Hz)
 
 //BMP occasional returns bad results - changes outside this rate are deemed sensor/buss errors
 #define BARO_SANITY_CHECK_MPS    10.0       // dm/S 20,40,60,80 or 100
+#define BARO_DT                  0.05
 
 #define SIX_DOF                             // effects acc and gyro addresses
 
@@ -251,23 +254,14 @@ extern Timer timer;
 
 #define ATTITUDE_SCALE                  0.008     // scaling of stick units for attitude angle control 
 
-// Enable "Dynamic mass" compensation Roll and/or Pitch
-// Normally disabled for pitch only
-//#define ENABLE_DYNAMIC_MASS_COMP_ROLL
-//#define ENABLE_DYNAMIC_MASS_COMP_PITCH
 
 // Altitude Hold
 
 #define ALT_HOLD_MAX_ROC_MPS            0.5      // Must be changing altitude at less than this for alt. hold to be detected
 
-// the range within which throttle adjustment is proportional to altitude error
-#define ALT_BAND_M                      5.0     // Metres
-
+#define ALT_MAX_ROC_MPS                 1.0     // Maximum ROC in altitude hold
 #define LAND_M                          3.0     // Metres deemed to have landed when below this height
-
 #define ALT_MAX_THR_COMP                40L     // Stick units was 32
-
-#define ALT_INT_WINDUP_LIMIT            16L
 
 #define ALT_RF_ENABLE_M                 5.0   // altitude below which the rangefiner is selected as the altitude source
 #define ALT_RF_DISABLE_M                6.0    // altitude above which the rangefiner is deselected as the altitude source
@@ -328,6 +322,8 @@ extern Timer timer;
 #define THROTTLE_MIDDLE                 10      // throttle stick dead zone for baro 
 #define THROTTLE_MIN_ALT_HOLD           75      // min throttle stick for altitude lock
 
+#define THROTTLE_MAX_CRUISE             110     // needs tuning
+
 typedef union {
     int16 i16;
     uint16 u16;
@@ -386,11 +382,6 @@ typedef struct { // PPM
     uint8 Head;
     int16 B[4][8];
 } int16x8x4Q;
-
-typedef struct { // Baro
-    uint8 Head, Tail;
-    int24 B[8];
-} int24x8Q;
 
 typedef struct { // GPS
     uint8 Head, Tail;
@@ -711,7 +702,8 @@ extern real32 RangefinderAltitude;
 // attitude.c
 
 enum AttitudeMethods { Integrator, Wolferl,  Complementary, Kalman, PremerlaniDCM,  MadgwickIMU,
-                MadgwickIMU2, MadgwickAHRS, MultiWii,  MaxAttitudeScheme};
+                       MadgwickIMU2, MadgwickAHRS, MultiWii,  MaxAttitudeScheme
+                     };
 
 extern void AdaptiveYawLPFreq(void);
 extern void GetAttitude(void);
@@ -735,6 +727,8 @@ extern real32 HE;
 extern void DoIntegrator(void);
 
 // Wolferl
+
+extern real32 Correction[2];
 
 extern void DoWolferl(void);
 
@@ -833,6 +827,15 @@ extern int24 EastD, EastDiffP, NorthD, NorthDiffP;
 // baro.c
 
 #define BARO_INIT_RETRIES    10    // max number of initialisation retries
+#define BARO_MAX_CHANGE_MPS  10
+
+#define BARO_MIN_CLIMB          150.0    // M minimum available barometer climb from origin
+#define BARO_MIN_DESCENT        -50.0    //M minimum available barometer descent from origin
+
+#define BARO_UPDATE_MS          50
+
+#define MPX4115_BARO_SANITY_CHECK_M        ((BARO_MAX_CHANGE_MPS*PID_CYCLE_MS)/1000L)
+#define BOSCH_BARO_SANITY_CHECK_M        ((BARO_MAX_CHANGE_MPS*BARO_UPDATE_MS)/1000L)
 
 enum BaroTypes { BaroBMP085, BaroSMD500, BaroMPX4115, BaroUnknown };
 
@@ -854,7 +857,7 @@ extern uint8 MCP4725_ID_Actual;
 extern void SetFreescaleMCP4725(int16);
 extern void SetFreescaleOffset(void);
 extern void ReadFreescaleBaro(void);
-extern real32 FreescaleToDM(int24);
+extern real32 FreescaleToM(int24);
 extern void GetFreescaleBaroAltitude(void);
 extern boolean IsFreescaleBaroActive(void);
 extern boolean IdentifyMCP4725(void);
@@ -875,6 +878,7 @@ extern void InitFreescaleBarometer(void);
 
 extern void StartBoschBaroADC(boolean);
 extern void ReadBoschBaro(void);
+extern real32 BoschToM(real32);
 extern int24 CompensatedBoschPressure(uint16, uint16);
 extern void GetBoschBaroAltitude(void);
 extern boolean IsBoschBaroActive(void);
@@ -894,6 +898,9 @@ extern i16u BaroVal;
 extern int8 BaroType;
 extern int16 AltitudeUpdateRate;
 extern int8 BaroRetries;
+
+extern real32 AltCF, AltTauCF;
+extern real32 AltF[3];
 
 extern real32 FakeBaroRelAltitude;
 
@@ -966,7 +973,7 @@ extern uint8 CompassType;
 
 extern void DoAltitudeHold(void);
 extern void UpdateAltitudeSource(void);
-extern real32 AltitudeCF( real32, real32);
+extern real32 AltitudeCF( real32);
 extern void AltitudeHold(void);
 
 extern void LimitYawSum(void);
@@ -978,7 +985,7 @@ extern void LightsAndSirens(void);
 extern void InitControl(void);
 
 extern real32 Angle[3], Anglep[3], Rate[3], Ratep[3], YawRateEp;
-extern real32 Comp[4];
+extern real32 AccAltComp, AltComp;
 extern real32 DescentComp;
 extern real32 Rl, Pl, Yl, Ylp;
 extern real32 GS;
@@ -995,10 +1002,11 @@ extern int16 Trim[3];
 extern real32 GRollKp, GRollKi, GRollKd, GPitchKp, GPitchKi, GPitchKd;
 
 extern int16 AttitudeHoldResetCount;
-extern real32 AltDiffSum, AltD, AltDSum;
-extern real32 DesiredAltitude, Altitude, AltitudeP;
-extern real32 ROC;
+extern real32 DesiredAltitude, Altitude, Altitudep;
+
 extern boolean FirstPass;
+
+extern real32 ROC, ROCIntE, MinROCMPS;
 
 extern uint32 AltuSp;
 extern uint32 ControlUpdateTimeuS;
@@ -1558,70 +1566,70 @@ enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
 enum AFs { QuadAF, TriAF, VTAF, Y6AF, HeliAF, ElevAF, AilAF };
 
 enum Params { // MAX 64
-    RollKp,                // 01
+    RollKp,             // 01
     RollKi,                // 02
     RollKd,                // 03
-    HorizDampKp,           // 04c
-    RollIntLimit,          // 05
-    PitchKp,               // 06
-    PitchKi,               // 07
-    PitchKd,               // 08
-    AltKp,                 // 09c
-    PitchIntLimit,         // 10
+    HorizDampKp,        // 04
+    RollIntLimit,        // 05
+    PitchKp,            // 06
+    PitchKi,            // 07
+    PitchKd,            // 08
+    AltKp,                // 09
+    PitchIntLimit,        // 10
 
     YawKp,                 // 11
-    YawKi,                 // 12
-    YawKd,                 // 13
-    YawLimit,              // 14
-    YawIntLimit,           // 15
-    ConfigBits,            // 16c
-    unused17 ,             // 17 TimeSlots
-    LowVoltThres,          // 18c
-    CamRollKp,             // 19
-    PercentCruiseThr,      // 20c
+    YawKi,                // 12
+    YawKd,                // 13
+    YawLimit,            // 14
+    YawIntLimit,        // 15
+    ConfigBits,            // 16
+    unused17,            // 17 was TimeSlots
+    LowVoltThres,        // 18
+    CamRollKp,            // 19
+    PercentCruiseThr,    // 20
 
-    VertDampKp,            // 21c
-    MiddleUD,              // 22c
-    PercentIdleThr,        // 23c
-    MiddleLR,              // 24c
-    MiddleBF,              // 25c
+    VertDamp,            // 21
+    MiddleUD,            // 22
+    PercentIdleThr,        // 23
+    MiddleLR,            // 24
+    MiddleBF,            // 25
     CamPitchKp,            // 26
-    CompassKp,             // 27
-    AltKi,                 // 28c
-    unused29 ,             // 29 NavRadius
-    NavKi,                 // 30
+    CompassKp,            // 27
+    AltKi,                // 28c
+    NavGPSSlewdM,        // 29 was NavRadius
+    NavKi,                // 30
 
     GSThrottle,            // 31
-    Acro,                  // 32
-    NavRTHAlt,             // 33
-    NavMagVar,             // 34c
-    GyroRollPitchType,     // 35
-    ESCType,               // 36
-    TxRxType,              // 37
-    NeutralRadius,         // 38
-    PercentNavSens6Ch,     // 39
-    CamRollTrim,           // 40
-    NavKd,                 // 41
-    VertDampDecay,         // 42
+    Acro,                // 32
+    NavRTHAlt,            // 33
+    NavMagVar,            // 34
+    DesGyroType,        // 35
+    ESCType,            // 36
+    TxRxType,            // 37
+    NeutralRadius,        // 38
+    PercentNavSens6Ch,    // 39
+    CamRollTrim,        // 40
+    NavKd,                // 41
+    VertDampDecay,        // 42
     HorizDampDecay,        // 43
-    BaroScale,             // 44
-    TelemetryType,         // 45
+    BaroScale,            // 44
+    TelemetryType,        // 45
     MaxDescentRateDmpS,    // 46
-    DescentDelayS,         // 47
-    NavIntLimit,           // 48
-    AltIntLimit,           // 49
-    unused50,              // 50 GravComp
-    unused51 ,             // 51 CompSteps
+    DescentDelayS,        // 47
+    NavIntLimit,        // 48
+    AltIntLimit,        // 49
+    unused50,            // 50 was GravComp
+    unused51,            // 51 was CompSteps
     ServoSense,            // 52
-    CompassOffsetQtr,      // 53
-    BatteryCapacity,       // 54
-    unused55,              // 55 GyroYawType
-    AltKd,                 // 56
+    CompassOffsetQtr,    // 53
+    BatteryCapacity,    // 54
+    unused55,            // 55 was GyroYawType
+    unused56,            // 56 was AltKd
     Orient,                // 57
-    NavYawLimit,           // 58
+    NavYawLimit,        // 58
     Balance                // 59
 
-    // 56 - 64 unused currently
+    // 60 - 64 unused currently
 };
 
 //#define FlyXMode                 0
@@ -1735,7 +1743,8 @@ extern void ShowStats(void);
 enum Statistics {
     GPSAltitudeS, BaroRelAltitudeS, ESCI2CFailS, GPSMinSatsS, MinROCS, MaxROCS, GPSVelS,
     AccFailS, CompassFailS, BaroFailS, GPSInvalidS, GPSMaxSatsS, NavValidS,
-    MinHDiluteS, MaxHDiluteS, RCGlitchesS, GPSBaroScaleS, GyroFailS, RCFailsafesS, I2CFailS, MinTempS, MaxTempS, BadS, BadNumS }; // NO MORE THAN 32 or 64 bytes
+    MinHDiluteS, MaxHDiluteS, RCGlitchesS, GPSBaroScaleS, GyroFailS, RCFailsafesS, I2CFailS, MinTempS, MaxTempS, BadS, BadNumS
+}; // NO MORE THAN 32 or 64 bytes
 
 extern int16 Stats[];
 

@@ -22,7 +22,7 @@
 
 void DoAltitudeHold(void);
 void UpdateAltitudeSource(void);
-real32 AltitudeCF( real32, real32);
+real32 AltitudeCF( real32);
 void AltitudeHold(void);
 void DoOrientationTransform(void);
 void DoControl(void);
@@ -32,7 +32,7 @@ void LightsAndSirens(void);
 void InitControl(void);
 
 real32 Angle[3], Anglep[3], Rate[3], Ratep[3], YawRateIntE;
-real32 Comp[4];
+real32 AccAltComp, AltComp;
 real32 DescentComp;
 
 real32 GS;
@@ -47,9 +47,6 @@ int16 CurrMaxRollPitch;
 int16 Trim[3];
 
 int16 AttitudeHoldResetCount;
-real32 AltDiffSum, AltD, AltDSum;
-real32 DesiredAltitude, Altitude, AltitudeP;
-real32 ROC;
 
 uint32 AltuSp;
 int16 DescentLimiter;
@@ -57,135 +54,86 @@ uint32 ControlUpdateTimeuS;
 
 real32 GRollKp, GRollKi, GRollKd, GPitchKp, GPitchKi, GPitchKd;
 
+real32 DesiredAltitude, Altitude, Altitudep;
+real32 ROC, ROCIntE, MinROCMPS;
+
 boolean    FirstPass;
 int8 BeepTick = 0;
 
-const real32 AltTauCF = 1.1;
+void DoAltitudeHold(void) {    // Syncronised to baro intervals independant of active altitude source
 
-real32 AltCF = 0.0;
-real32 AltF[3] = { 0.0, 0.0, 0.0};
+    static real32 AltE;
+    static real32 ROCE, pROC, iROC, DesiredROC;
+    static real32 NewAltComp;
 
-real32 VertVel, VertDist;
+    AltE = DesiredAltitude - Altitude;
 
-real32 AltitudeCF( real32 AltE, real32 dT ) {
+    DesiredROC = Limit(AltE, MinROCMPS, ALT_MAX_ROC_MPS);
 
-// Complementary Filter originally authored by RoyLB
-// http://www.rcgroups.com/forums/showpost.php?p=12082524&postcount=1286
+    ROCE = DesiredROC - ROC;
+    pROC = ROCE * K[AltKp];
 
-    if ( F.AccelerationsValid && F.NearLevel ) {
+    ROCIntE += ROCE  * K[AltKi];
+    ROCIntE = Limit1(ROCIntE, K[AltIntLimit]);
+    iROC = ROCIntE;
 
-        VertVel += Acc[UD] * dT;
-        VertDist += VertVel * dT;
-
-        if ( F.AccMagnitudeOK ) {
-            AltF[0] = (AltE - AltCF) * Sqr(AltTauCF);
-            AltF[2] += AltF[0] * dT;
-            AltF[1] =  AltF[2] + (AltE - AltCF) * 2.0 * AltTauCF + VertDist;
-            AltCF = ( AltF[1] * dT) + AltCF;
-        } else
-            AltCF += VertDist * dT;
-
-        return ( AltCF );
-
-    } else
-        return( AltE ); // no correction
-
-} // AltitudeCF
-
-
-void DoAltitudeHold(void) { // Syncronised to baro intervals independant of active altitude source
-
-    static int16 NewAltComp;
-    static real32 AltP, AltI, AltD;
-    static real32 LimAltE, AltE;
-    static real32 AltdT, AltdTR;
-    static uint32 Now;
-
-    Now = uSClock();
-    AltdT = ( Now - AltuSp ) * 0.000001;
-    AltdT = Limit(AltdT, 0.01, 0.1); // limit range for restarts
-    AltdTR = 1.0 / AltdT;
-    AltuSp = Now;
-
-    AltE = AltitudeCF( DesiredAltitude - Altitude, AltdT );
-    LimAltE = Limit1(AltE, ALT_BAND_M);
-
-    AltP = LimAltE * K[AltKp];
-    AltP = Limit1(AltP, ALT_MAX_THR_COMP);
-
-    AltDiffSum += LimAltE;
-    AltDiffSum = Limit1(AltDiffSum, ALT_INT_WINDUP_LIMIT);
-    AltI = AltDiffSum * K[AltKi] * AltdT;
-    AltI = Limit1(AltDiffSum, K[AltIntLimit]);
-
-    ROC = ( Altitude - AltitudeP ) * AltdTR; // may neeed filtering - noisy
-    AltitudeP = Altitude;
-
-    AltD = ROC * K[AltKd];
-    AltD = Limit1(AltD, ALT_MAX_THR_COMP);
-
-    if ( ROC < ( -K[MaxDescentRateDmpS] * 10.0 ) ) {
-        DescentLimiter += 1;
-        DescentLimiter = Limit(DescentLimiter, 0, ALT_MAX_THR_COMP * 2.0);
-    } else
-        DescentLimiter = DecayX(DescentLimiter, 1);
-
-    NewAltComp = AltP + AltI + AltD + AltDSum + DescentLimiter;
+    NewAltComp = pROC + iROC;
     NewAltComp = Limit1(NewAltComp, ALT_MAX_THR_COMP);
-    Comp[Alt] = SlewLimit(Comp[Alt], NewAltComp, 1.0);
-
-    if ( ROC > Stats[MaxROCS] )
-        Stats[MaxROCS] = ROC;
-    else
-        if ( ROC < Stats[MinROCS] )
-            Stats[MinROCS] = ROC;
 
 } // DoAltitudeHold
 
-void UpdateAltitudeSource(void) {
-    if ( F.UsingRangefinderAlt )
-        Altitude = RangefinderAltitude;
-    else
-        Altitude = BaroRelAltitude;
+void AltitudeHold() { // relies upon good cross calibration of baro and rangefinder!!!!!!
 
-} // UpdateAltitudeSource
-
-void AltitudeHold() {
     static int16 NewCruiseThrottle;
 
     GetBaroAltitude();
     GetRangefinderAltitude();
     CheckThrottleMoved();
 
+    if ( F.UsingRangefinderAlt )
+        Altitude = RangefinderAltitude;
+    else
+        if ( F.NewBaroValue )
+            Altitude = BaroRelAltitude;
+
     if ( F.AltHoldEnabled ) {
-        if ( F.NewBaroValue  ) { // sync on Baro which MUST be working
-            F.NewBaroValue = false;
+        if ( F.NewBaroValue || F.UsingRangefinderAlt ) {
 
-            UpdateAltitudeSource();
-
-            if ( ( NavState != HoldingStation ) && F.AllowNavAltitudeHold ) { // Navigating - using CruiseThrottle
+            ROC = ( Altitude - Altitudep) * ALT_UPDATE_HZ;
+            Altitudep = Altitude;
+            if ( State == InFlight )
+                if ( ROC > Stats[MaxROCS] )
+                    Stats[MaxROCS] = ROC;
+                else
+                    if ( ROC < Stats[MinROCS] )
+                        Stats[MinROCS] = ROC;
+                        
+            if ( F.ForceFailsafe || (( NavState != HoldingStation ) && F.AllowNavAltitudeHold )) { // Navigating - using CruiseThrottle
                 F.HoldingAlt = true;
                 DoAltitudeHold();
             } else
                 if ( F.ThrottleMoving ) {
-                    F.HoldingAlt = false;
-                    DesiredAltitude = Altitude;
-                    Comp[Alt] = Decay1(Comp[Alt]);
-                } else {
-                    F.HoldingAlt = true;
-                    if ( fabs(ROC) < ALT_HOLD_MAX_ROC_MPS  ) {
-                        NewCruiseThrottle = DesiredThrottle + Comp[Alt];
+                    if ( fabs(ROC) < ALT_HOLD_MAX_ROC_MPS ) {
+                        NewCruiseThrottle = DesiredThrottle + AltComp;
                         CruiseThrottle = HardFilter(CruiseThrottle, NewCruiseThrottle);
-                        CruiseThrottle = Limit( CruiseThrottle , IdleThrottle, MaxCruiseThrottle );
+                        CruiseThrottle = Limit(CruiseThrottle , IdleThrottle, THROTTLE_MAX_CRUISE );
                     }
-                    DoAltitudeHold();
+                    ROCIntE = 0;
+                    F.HoldingAlt = false;
+                    SetDesiredAltitude(Altitude);
+                    AltComp = Decay1(AltComp);
+                } else { // throttle is not moving therefore we are hovering!
+                    F.HoldingAlt = true;
+                    DoAltitudeHold(); // not using cruise throttle
                 }
+            F.NewBaroValue = false;
         }
     } else {
-        Comp[Alt] = Decay1(Comp[Alt]);
-        ROC = 0.0;
+        ROCIntE = 0;
+        AltComp = Decay1(AltComp);
         F.HoldingAlt = false;
     }
+
 } // AltitudeHold
 
 
@@ -323,7 +271,7 @@ void DoControl(void) {
 
 #ifdef DISABLE_EXTRAS
     // for commissioning
-    Comp[UD] = Comp[Alt] = 0;
+    AccAltComp = AltComp = 0.0;
     NavCorr[Roll] = NavCorr[Pitch] = NavCorr[Yaw] = 0;
 #endif // DISABLE_EXTRAS
 
@@ -456,11 +404,13 @@ void InitControl(void) {
     AltuSp = DescentLimiter = 0;
 
     for ( i = 0; i < (uint8)3; i++ )
-        Angle[i] = Anglep[i] = Rate[i] = Vel[i] = Comp[i] = 0.0;
+        Angle[i] = Anglep[i] = Rate[i] = Vel[i] =  0.0;
+
+    AccAltComp = AltComp = 0.0;
 
     YawRateIntE = 0.0;
 
-    Comp[Alt] = AltSum = Ylp =  AltitudeP = 0.0;
+    AltSum = Ylp =  Altitudep = 0.0;
     ControlUpdateTimeuS = 0;
 
 } // InitControl

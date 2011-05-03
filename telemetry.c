@@ -232,10 +232,10 @@ void SendFlightPacket(void) {
 
     ShowAttitude();
 
-    TxESCi8((int8)Comp[LR]);
-    TxESCi8((int8)Comp[BF]);
-    TxESCi8((int8)Comp[UD]);
-    TxESCi8((int8)Comp[Alt]);
+    TxESCi8((int8)Correction[LR]);
+    TxESCi8((int8)Correction[BF]);
+    TxESCi8((int8)AccAltComp);
+    TxESCi8((int8)AltComp);
 
     for ( b = 0; b < 8; b++ )
         TxESCi16((int16)PWM[b]);
@@ -251,14 +251,11 @@ void SendControlPacket(void) {
     SendPacketHeader();
 
     TxESCu8(UAVXControlPacketTag);
-    TxESCu8(52);
+    TxESCu8(48);
 
     TxESCi16(DesiredThrottle);
 
     ShowAttitude();
-
-    TxESCi16(Heading * 1000.0);
-    TxESCi16(DesiredHeading * 1000.0);
 
     TxESCu8(UAVXAirframe | 0x80);
 
@@ -610,13 +607,13 @@ void SensorTrace(void) {
         TxValH16(Acc[DU]);
         TxChar(';');
 
-        TxValH16(Comp[LR]);
+        TxValH16(Correction[LR]);
         TxChar(';');
-        TxValH16(Comp[FB]);
+        TxValH16(Correction[FB]);
         TxChar(';');
-        TxValH16(Comp[DU]);
+        TxValH16(AccAltComp);
         TxChar(';');
-        TxValH16(Comp[Alt]);
+        TxValH16(AltComp);
         TxChar(';');
         TxNextLine();
     }
