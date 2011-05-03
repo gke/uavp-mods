@@ -70,16 +70,9 @@ void Legacy(void) {
     K[RollIntLimit] *= (DEGRAD * 10.0);
     K[PitchIntLimit] *= (DEGRAD * 10.0);
 
-    // Inertial Damping
-    K[VertDampKp] *= 0.1; // one click/MPS
-    K[HorizDampKp] *= 0.1;
-    K[VertDampDecay] *= 0.01;
-    K[HorizDampDecay] *= 0.01;
-
     // Altitude Hold
     K[AltKp] *= 0.625;
     K[AltKi] *= 25.0;
-    K[AltKd] *= 0.125;
 
     // Navigation
     K[NavKi] *= 0.08;
@@ -91,7 +84,6 @@ void Legacy(void) {
     
     K[YawKp] *= 2.6;
     K[YawKi] *= 4.14; // was 41.4
-    K[YawKd]  = K[YawKd] * 0.0004;
     
     K[YawIntLimit] = P[YawIntLimit] * 256.0 /1000.0;
 
@@ -147,6 +139,9 @@ void ReadParameters(void) {
         IdleThrottle = (IdleThrottle * OUT_MAXIMUM )/100L;
         CruiseThrottle = ((int16)P[PercentCruiseThr] * OUT_MAXIMUM )/100L;
         MaxCruiseThrottle = (RC_MAXIMUM * 60L * OUT_MAXIMUM)/100L; // 60%
+        
+        MinROCMPS = (int16)P[MaxDescentRateDmpS] * 0.1;    
+        AltTauCF = K[VertDamp]; 
 
         NavNeutralRadius = Limit((int16)P[NeutralRadius], 0, NAV_MAX_NEUTRAL_RADIUS);
         NavNeutralRadius = ConvertMToGPS(NavNeutralRadius);
@@ -174,7 +169,7 @@ void ReadParameters(void) {
 
         F.UsingTxMode2 = ((P[ConfigBits] & TxMode2Mask) != 0);
 
-        if ( P[GyroRollPitchType] == IRSensors )
+        if ( P[DesGyroType] == IRSensors )
             F.UsingAngleControl = true;
         else
             F.UsingAngleControl = ((P[ConfigBits] & UseAngleControlMask) != 0);

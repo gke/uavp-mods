@@ -155,7 +155,7 @@ void InitGyros(void) {
     if ( ITG3200GyroActive() )
         GyroType = ITG3200Gyro;
     else
-        GyroType = P[GyroRollPitchType];
+        GyroType = P[DesGyroType];
 
     switch ( GyroType ) {
         case ITG3200Gyro:

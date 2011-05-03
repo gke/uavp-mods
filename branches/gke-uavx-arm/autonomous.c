@@ -90,7 +90,7 @@ void DoShutdown(void)
 
 void SetDesiredAltitude(int16 NewDesiredAltitude) { // Metres
     if ( F.AllowNavAltitudeHold && F.AltHoldEnabled ) {
-        AltSum = 0;
+        ROCIntE = 0;
         DesiredAltitude = NewDesiredAltitude * 10L; // Decimetres
     }
 } // SetDesiredAltitude

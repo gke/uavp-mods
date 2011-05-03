@@ -32,6 +32,7 @@ void InitAttitude(void);
 real32 AccMagnitude;
 real32 EstAngle[3][MaxAttitudeScheme];
 real32 EstRate[3][MaxAttitudeScheme];
+real32 Correction[2];
 real32 YawFilterLPFreq;
 real32 dT, dTOn2, dTR, dTmS;
 uint32 uSp;
@@ -202,7 +203,7 @@ void DoWolferl(void) { // NO YAW ESTIMATE
 
     const real32 WKp = 0.13; // 0.1
 
-    static real32 Grav[2], Dyn[2], Correction[2];
+    static real32 Grav[2], Dyn[2];
     static real32 CompStep;
 
     Rate[Roll] = Gyro[Roll];

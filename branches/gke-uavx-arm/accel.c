@@ -165,10 +165,9 @@ void InitAccelerometers(void) {
 
     F.AccelerationsValid = true; // optimistic
 
-    for ( a = 0; a < (uint8)3; a++ ) {
+    for ( a = 0; a < (uint8)3; a++ ) 
         NewAccNeutral[a] = AccADC[a] = AccADCp[a] = AccNoise[a] = Acc[a] = Accp[a] = Vel[a] = 0.0;
-        Comp[a] = 0;
-    }
+
     Acc[2] = Accp[2] = 1.0;
     if ( ADXL345AccActive() ) {
         InitADXL345Acc();

@@ -101,7 +101,7 @@ void GetHeading(void) {
 
     ReadCompass();
 
-    Heading = Make2Pi( MagHeading - MagDeviation - CompassOffset );
+    Heading = Make2Pi( MagHeading + MagDeviation - CompassOffset );
     HeadingChange = fabs( Heading - HeadingP );
     if ( HeadingChange > ONEANDHALFPI ) // wrap 0 -> TwoPI
         HeadingP = Heading;
@@ -354,7 +354,7 @@ void DoHMC5843Test(void) {
     TxVal32(MagHeading * RADDEG * 10.0, 1, ' ');
     TxString("deg (Magnetic)\r\n");
 
-    Heading = HeadingP = Make2Pi( MagHeading - MagDeviation - CompassOffset );
+    Heading = HeadingP = Make2Pi( MagHeading + MagDeviation - CompassOffset );
     TxVal32(Heading * RADDEG * 10.0, 1, ' ');
     TxString("deg (True)\r\n");
 } // DoHMC5843Test

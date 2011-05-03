@@ -172,7 +172,7 @@ void MixAndLimitMotors(void) {
 
 #ifdef MULTICOPTER
     if ( State == InFlight )
-        CurrThrottle += (-Comp[UD] + Comp[Alt]); // vertical compensation not optional
+        CurrThrottle += AltComp; // vertical compensation not optional
 
     Temp = OUT_MAXIMUM * 0.9; // 10% headroom for control
     CurrThrottle = Limit(CurrThrottle, 0, Temp );
