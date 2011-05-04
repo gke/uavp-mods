@@ -2,14 +2,14 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="UAVXGS.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="LogFileFolder" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="COMBaudRate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">9600</Value>
     </Setting>
     <Setting Name="COMPort" Type="System.String" Scope="User">
       <Value Profile="(Default)">COM1:</Value>
+    </Setting>
+    <Setting Name="LogFileDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Program Files\UAVXLogs\</Value>
     </Setting>
   </Settings>
 </SettingsFile>
