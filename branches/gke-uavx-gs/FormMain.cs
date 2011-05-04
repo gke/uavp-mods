@@ -1,5 +1,5 @@
 // =================================================================================================
-// =                                  UAVX Quadrocopter Groundstation                                 =
+// =                                  UAVX Quadrocopter Groundstation                              =
 // =                             Copyright (c) 2008 by Prof. Greg Egan                             =
 // =                         Instruments Copyright (c) 2008 Guillaume Choutea                      =                                        */
 // =                               http://code.google.com/p/uavp-mods/                             =
@@ -47,7 +47,7 @@ namespace UAVXGS
        // const int DefaultBaudRate = 9600;
 
         const Byte RCMaximum = 238;
-        const double OUTMaximumScale = 0.5; // 100/200 % for PWM at least
+        const double OUTMaximumScale = 0.45; // 100.0/222.0; 
 
         const byte UnknownPacketTag = 0;
         const byte RestartPacketTag = 8;
@@ -76,7 +76,7 @@ namespace UAVXGS
         const byte MAXPARAMS = 64;
 
         const float MILLIRADDEG = (float)0.057295;
-        const byte AttitudeToDegrees = 28;
+        const byte AttitudeToDegrees = 100; // Acc is G = 1024 
 
         const int DefaultRangeLimit = 100;
         const int MaximumRangeLimit = 250; // You carry total responsibility if you increase this value
@@ -90,6 +90,37 @@ namespace UAVXGS
         UAVXStatsPacket      
         */
 
+        //should be an enum!!!
+        const byte GPSAltitudeX = 0; 
+        const byte BaroRelAltitudeX = 1;
+        const byte ESCI2CFailX = 2;
+        const byte GPSMinSatsX = 3;
+        const byte MinROCX = 4;
+        const byte MaxROCX = 5;
+        const byte GPSMaxVelX = 6;
+        const byte AccFailsX = 7; 
+        const byte CompassFailsX = 8;
+        const byte BaroFailsX = 9;
+        const byte GPSInvalidX = 10; 
+        const byte GPSMaxSatsX = 11;
+        const byte NavValidX = 12;
+        const byte MinHDiluteX  = 13;
+        const byte MaxHDiluteX= 14;
+        const byte RCGlitchX= 15; 
+        const byte GPSBaroScaleX = 16;
+        const byte GyroFailsX = 17; 
+        const byte RCFailSafesX = 18;
+        const byte I2CFailsX = 19;
+        const byte MinTempX = 20;
+        const byte MaxTempX = 21;
+        const byte BadX = 22;
+        const byte BadNumX = 23;
+    
+        const byte MaxStats = 32;
+
+        short[] Stats = new short[MaxStats];
+
+        /*
         short I2CFailsT;
         short GPSFailsT; 
         short AccFailsT; 
@@ -114,10 +145,12 @@ namespace UAVXGS
         short MaxTempT;
 
         short BadT;
+        short BadNumT;
+        */
+
         short AirframeT;
         short OrientT;
-        short BadNumT;
-
+    
         /*
         UAVXFlightPacket
         
@@ -146,7 +179,7 @@ namespace UAVXGS
             ReturnHome
             Proximity
             CloseProximity
-            UsingGPSAlt
+            UsingAccComp
             UsingRTHAutoDescend
             BaroAltitudeValid
             RangefinderAltitudeValid
@@ -180,7 +213,7 @@ namespace UAVXGS
 		    AltitudeValid		
 		    UsingSerialPPM
 		    UsingTxMode2
-		    Unused0
+		    FailsafesEnabled
 		    
          */
 
@@ -198,18 +231,18 @@ namespace UAVXGS
         short DesiredRollT;             // 19
         short DesiredPitchT;            // 21
         short DesiredYawT;              // 23
-        short RollRateT;                // 25
-        short PitchRateT;               // 27
-        short YawRateT;                 // 29
+        short RollGyroT;                // 25
+        short PitchGyroT;               // 27
+        short YawGyroT;                 // 29
         short RollAngleT;                 // 31
         short PitchAngleT;                // 33
         short YawAngleT;                  // 35
         short LRAccT;                   // 37
         short FBAccT;                   // 39
         short DUAccT;                   // 41
-        short LRCompT;                  // 43
-        short FBCompT;                  // 44
-        short DUCompT;                  // 45
+        short IntCorrRollT;                  // 43
+        short IntCorrPitchT;                  // 44
+        short AccAltCompT;                  // 45
         short AltCompT;                 // 46
         short[] OutputT = new short[8];   // 47
         long MissionTimeMilliSecT;       // 53
@@ -245,6 +278,10 @@ namespace UAVXGS
         MissionTimeMilliSecT
         */
 
+        short YawRateT;
+        short DesiredHeadingT;
+
+
         // UAVXNavPacket
         //byte UAVXNavPacketTag;
         //byte Length;
@@ -255,7 +292,7 @@ namespace UAVXGS
 
         byte CurrWPT;                   // 6
 
-        short BaroROCT;                 // 7 
+        short ROCT;                 // 7 
         int RelBaroAltitudeT;           // 9
 
         short GPSHeadingT;              // 12
@@ -376,7 +413,7 @@ namespace UAVXGS
           string AppLogDir = UAVXGS.Properties.Settings.Default.LogFileDirectory;
           if (!(Directory.Exists(AppLogDir))) {
             string sProgFilesLogDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            sProgFilesLogDir += "\\" + "UAVXGS " + vrs.Major + "." + vrs.Minor;
+            sProgFilesLogDir += "\\" + "UAVXLogs"; // " + vrs.Major + "." + vrs.Minor;
             if (!(Directory.Exists(sProgFilesLogDir))) {
               Directory.CreateDirectory(sProgFilesLogDir);
             }
@@ -581,7 +618,8 @@ namespace UAVXGS
 
         private void WriteTextCustomFileHeader()
         {
-             SaveTextCustomFileStreamWriter.WriteLine("Scheme,Gyro,Acc,Integrate(0),Wolferl(1),DCM(2),MadgwickIMU(3),MadgwickAHRS(4),Kalman(5),CFilter(6),MultiWii(7)");
+             SaveTextCustomFileStreamWriter.WriteLine("Scheme,Unused,Gyro,Acc,Integrate(0),Wolferl(1),CFilter(2),Kalman(3),DCM(4),MadgwickIMU(5),MadgwickIMU2(6),MadgwickAHRS(7),MultiWii(8)");
+             SaveTextCustomFileStreamWriter.WriteLine("Desired,Motor,Gyro,Acc,Angle");
         }
 
         private void WriteTextParamFileHeader()
@@ -679,7 +717,7 @@ namespace UAVXGS
                 "RTH," +
                 "Prox," +
                 "CloseProx," +
-                "UseGPSAlt," +
+                "UseAccComp," +
                 "UseRTHDes," +
                 "BaroVal," +
                 "RFVal," +
@@ -710,7 +748,7 @@ namespace UAVXGS
 		        "AltVal," +		
 		        "UseSerPPM," +
 		        "UseMode2," +
-                "Unused0,");
+                "FSEn,");
 
                 SaveTextLogFileStreamWriter.Write("StateT," +
                 "BattV," +
@@ -721,18 +759,18 @@ namespace UAVXGS
                 "DesRoll," +
                 "DesPitch," +
                 "DesYaw," +
-                "RollRate," +
-                "PitchRate," +
-                "YawRate," +
+                "RollGyro," +
+                "PitchGyro," +
+                "YawGyro," +
                 "RollAngle," +
                 "PitchAngle," +
                 "YawAngle," +
                 "LRAcc," +
                 "FBAcc," +
                 "DUAcc," +
-                "LRComp," +
-                "FBComp," +
-                "DUComp," +
+                "RollComp," +
+                "PitchComp," +
+                "AccAltComp," +
                 "AltComp,");
 
                 SaveTextLogFileStreamWriter.Write("M1,M2,M3,M4,M5,M6,CamP,CamR,"); 
@@ -743,7 +781,7 @@ namespace UAVXGS
                 "GPSSats," +
                 "GPSFix," +
                 "CurrWP," +
-                "BaroROC," +
+                "ROC," +
                 "RelBaroAlt," +
                 "Unused," +
                 "RFAlt," +
@@ -767,27 +805,32 @@ namespace UAVXGS
                 "YCorr,");
 
                 SaveTextLogFileStreamWriter.WriteLine("Stats," +
-                "I2CFails," +
-                "GPSFails," +
-                "AccFails," +
-                "GyroFails," +
-                "CompFails," +
-                "BaroFails," +
-                "I2CESCFails," +
-                "RCFSafes," +
-                "GPSAlt," +
-                "GPSMaxVel," +
-                "GPSMinSats," +
-                "GPSMaxSats," +
-                "GPSMinHD," +
-                "GPSMaxHD," +
-                "BaroRelAlt," +
-                "BaroMinROC," +
-                "BaroMaxROC," +
-                "MinTemp," +
-                "MaxTemp," +
-                "BadReferGKE," +
-                "AFType, Orient, BadNum");
+
+                "GPSAltX," + 
+                "BaroRelAltX," +
+                "ESCI2CFailX," +
+                "GPSMinSatsX," +
+                "MinROCX," +
+                "MaxROCX," +
+                "GPSVelX," +
+                "AccFailsX," +
+                "CompassFailsX," +
+                "BaroFailsX," +
+                "GPSInvalidX," +
+                "GPSMaxSatsX," +
+                "NavValidX," +
+                "MinHDiluteX," +
+                "MaxHDiluteX," +
+                "RCGlitchesX," +
+                "GPSBaroScaleX," +
+                "GyroFailX," +
+                "RCFailsafesX," +
+                "I2CFailX," +
+                "MinTempX," +
+                "MaxTempX," +
+                "BadReferGKEX," +
+                "BadNumX," +
+            "AFType, Orient");
         }  
 
         private void FlyingButton_Click(object sender, EventArgs e)
@@ -1310,10 +1353,20 @@ namespace UAVXGS
             else
                 FocusLockedBox.BackColor = System.Drawing.Color.LightSteelBlue;
 
-            if ((Flags[3] & 0x80) != 0)
-                SticksFrozenBox.BackColor = System.Drawing.Color.Orange;
+            if ((Flags[5] & 0x80) != 0)
+            {
+                SticksFrozenBox.Text = "Sticks Frozen";
+                if ((Flags[3] & 0x80) != 0)
+                    SticksFrozenBox.BackColor = System.Drawing.Color.Orange;
+                else
+                    SticksFrozenBox.BackColor = System.Drawing.Color.Green;
+            }
             else
-                SticksFrozenBox.BackColor = System.Drawing.Color.Green;
+            {
+                SticksFrozenBox.Text = "NO FAILSAFES";
+                SticksFrozenBox.BackColor = System.Drawing.Color.Red;
+            }
+            
         }
 
         void DoOrientation()
@@ -1400,18 +1453,18 @@ namespace UAVXGS
         {
             if (UAVXArm)
             {
-                RollRate.Text = string.Format("{0:n0}", RollRateT * MILLIRADDEG);
-                PitchRate.Text = string.Format("{0:n0}", PitchRateT * MILLIRADDEG);
-                YawRate.Text = string.Format("{0:n0}", YawRateT * MILLIRADDEG);
+                RollGyro.Text = string.Format("{0:n0}", RollGyroT * MILLIRADDEG);
+                PitchGyro.Text = string.Format("{0:n0}", PitchGyroT * MILLIRADDEG);
+                YawGyro.Text = string.Format("{0:n0}", YawGyroT * MILLIRADDEG);
                 RollAngle.Text = string.Format("{0:n0}", RollAngleT * MILLIRADDEG);
                 PitchAngle.Text = string.Format("{0:n0}", PitchAngleT * MILLIRADDEG);
                 YawAngle.Text = string.Format("{0:n0}", YawAngleT * MILLIRADDEG);
             }
             else
             {
-                RollRate.Text = string.Format("{0:n0}", RollRateT);
-                PitchRate.Text = string.Format("{0:n0}", PitchRateT);
-                YawRate.Text = string.Format("{0:n0}", YawRateT);
+                RollGyro.Text = string.Format("{0:n0}", RollGyroT);
+                PitchGyro.Text = string.Format("{0:n0}", PitchGyroT);
+                YawGyro.Text = string.Format("{0:n0}", YawGyroT);
                 RollAngle.Text = string.Format("{0:n0}", -RollAngleT / AttitudeToDegrees);
                 PitchAngle.Text = string.Format("{0:n0}", -PitchAngleT / AttitudeToDegrees);
                 YawAngle.Text = string.Format("{0:n0}", YawAngleT / AttitudeToDegrees);
@@ -1444,17 +1497,17 @@ namespace UAVXGS
         {
             if (UAVXArm)
             {
-                FBCompLabel.Text = "BF";
-                DUCompLabel.Text = "UD";
+                IntCorrPitchLabel.Text = "BF";
+                AccAltCompLabel.Text = "UD";
             }
             else
             {
-                FBCompLabel.Text = "FB";
-                DUCompLabel.Text = "DU";
+                IntCorrPitchLabel.Text = "FB";
+                AccAltCompLabel.Text = "DU";
             }
-            LRComp.Text = string.Format("{0:n0}", LRCompT * OUTMaximumScale);
-            FBComp.Text = string.Format("{0:n0}", FBCompT * OUTMaximumScale);
-            DUComp.Text = string.Format("{0:n0}", DUCompT * OUTMaximumScale);
+            IntCorrRoll.Text = string.Format("{0:n0}", IntCorrRollT * OUTMaximumScale);
+            IntCorrPitch.Text = string.Format("{0:n0}", IntCorrPitchT * OUTMaximumScale);
+            AccAltComp.Text = string.Format("{0:n0}", AccAltCompT * OUTMaximumScale);
             AltComp.Text = string.Format("{0:n0}", AltCompT * OUTMaximumScale);
         }
 
@@ -1612,49 +1665,53 @@ namespace UAVXGS
 
         void UpdateAltitude()
         {
-            BaroROC.Text = string.Format("{0:n1}", (float)BaroROCT * 0.1);
-            RelBaroAltitude.Text = string.Format("{0:n1}", (float)RelBaroAltitudeT * 0.1);
+            ROC.Text = string.Format("{0:n1}", (float)ROCT * 0.01);
+            RelBaroAltitude.Text = string.Format("{0:n1}", (float)RelBaroAltitudeT * 0.01);
 
-            if (RelBaroAltitudeT > (MaximumAltitudeLimit * 10))
+            if ( (RelBaroAltitudeT * 0.01) > MaximumAltitudeLimit)
                 RelBaroAltitude.BackColor = System.Drawing.Color.Orange;
             else
                 RelBaroAltitude.BackColor = AltitudeGroupBox.BackColor;
 
-            if (BaroROCT < -100) // 1M/S
-                BaroROC.BackColor = System.Drawing.Color.Orange;
+            if ( (ROCT * 0.01) < -1) // 1M/S
+                ROC.BackColor = System.Drawing.Color.Orange;
             else
-                BaroROC.BackColor = AltitudeGroupBox.BackColor;
+                ROC.BackColor = AltitudeGroupBox.BackColor;
 
-            if (UAVXArm)
-                RangefinderAltitude.Text = string.Format("{0:n2}", (float)RangefinderAltitudeT * 0.01);
-            else
-                RangefinderAltitude.Text = string.Format("{0:n2}", (float)RangefinderAltitudeT * 0.1);
+            RangefinderAltitude.Text = string.Format("{0:n2}", (float)RangefinderAltitudeT * 0.01);
 
             if ((Flags[2] & 0x80) != 0)
             {
-                CurrAlt = RangefinderAltitudeT / 10;
+                CurrAlt = RangefinderAltitudeT * 0.01;
                 AltitudeSource.Text = "Rangefinder";
             }
             else
-                if (((Flags[2] & 0x08) != 0) && ((Flags[0] & 0x80) != 0))
-                {
-                    CurrAlt = GPSRelAltitudeT;
-                    AltitudeSource.Text = "GPS";
-                }
-                else
-                {
-                    CurrAlt = RelBaroAltitudeT;
-                    AltitudeSource.Text = "Barometer";
-                }
+            {
+                CurrAlt = RelBaroAltitudeT;
+                AltitudeSource.Text = "Barometer";
+            }
 
-            CurrentAltitude.Text = string.Format("{0:n0}", (float)CurrAlt * 0.1);
-            if ((CurrAlt * 0.1) > MaximumAltitudeLimit)
+            if ((Flags[2] & 0x08) != 0)
+            {
+                LRAcc.BackColor = AccelerationsGroupBox.BackColor;
+                FBAcc.BackColor = AccelerationsGroupBox.BackColor;
+                DUAcc.BackColor = AccelerationsGroupBox.BackColor;
+            }
+            else 
+            {
+                LRAcc.BackColor = System.Drawing.Color.Orange;
+                FBAcc.BackColor = System.Drawing.Color.Orange;
+                DUAcc.BackColor = System.Drawing.Color.Orange;
+            }     
+
+            CurrentAltitude.Text = string.Format("{0:n0}", (float)CurrAlt * 0.01);
+            if ((CurrAlt * 0.01) > MaximumAltitudeLimit)
                 CurrentAltitude.BackColor = System.Drawing.Color.Orange;
             else
                 CurrentAltitude.BackColor = NavGroupBox.BackColor;
 
             AltError = CurrAlt - DesiredAltitudeT;
-            AltitudeError.Text = string.Format("{0:n1}", (float)AltError * 0.1);
+            AltitudeError.Text = string.Format("{0:n1}", (float)AltError * 0.01);
         }
 
         void ProcessFrSkyPacket()
@@ -1746,8 +1803,8 @@ namespace UAVXGS
 
                         b = ExtractByte(ref UAVXPacket, 2);
                         for (i = 0; i < b; i++ )
-                            if ( i > 0 )
-                                SaveTextCustomFileStreamWriter.Write(ExtractShort(ref UAVXPacket, (byte)(3 + i * 2)) * MILLIRADDEG + ",");
+                            if ( i > 1 )
+                                SaveTextCustomFileStreamWriter.Write(ExtractShort(ref UAVXPacket, (byte)(3 + i * 2)) * 0.001 + ",");
                             else
                                 SaveTextCustomFileStreamWriter.Write(ExtractShort(ref UAVXPacket, (byte)(3 + i * 2)) + ",");
   
@@ -1777,7 +1834,7 @@ namespace UAVXGS
                     MissionTimeMilliSecT = ExtractInt24(ref UAVXPacket, 38);
 
                     DesiredAltitudeT = 0;
-                    BaroROCT = 0;
+                    ROCT = 0;
 
                     UAVXArm = (AirframeT & 0x80) != 0;
                     AirframeT &= 0x7f;
@@ -1848,62 +1905,39 @@ namespace UAVXGS
                     break;
                 case UAVXStatsPacketTag:
                     StatsPacketsReceived++;
-                    I2CFailsT = ExtractShort(ref UAVXPacket, 2);
-                    GPSFailsT = ExtractShort(ref UAVXPacket, 4);
-                    AccFailsT = ExtractShort(ref UAVXPacket, 6);
-                    GyroFailsT = ExtractShort(ref UAVXPacket, 8);
-                    CompassFailsT = ExtractShort(ref UAVXPacket, 10);
-                    BaroFailsT = ExtractShort(ref UAVXPacket, 12);
-                    I2CESCFailsT = ExtractShort(ref UAVXPacket, 14);
 
-                    RCFailSafesT = ExtractShort(ref UAVXPacket, 16);
-
-                    GPSAltitudeT = ExtractShort(ref UAVXPacket, 18);
-                    GPSMaxVelT = ExtractShort(ref UAVXPacket, 20);
-                    GPSMinSatsT = ExtractShort(ref UAVXPacket, 22);
-                    GPSMaxSatsT = ExtractShort(ref UAVXPacket, 24);
-                    GPSMinHDiluteT = ExtractShort(ref UAVXPacket, 26);
-                    GPSMaxHDiluteT = ExtractShort(ref UAVXPacket, 28);
-
-                    BaroRelAltitudeT = ExtractShort(ref UAVXPacket, 30);
-                    BaroMinROCT = ExtractShort(ref UAVXPacket, 32);
-                    BaroMaxROCT = ExtractShort(ref UAVXPacket, 34);
-
-                    MinTempT = ExtractShort(ref UAVXPacket, 36);
-                    MaxTempT = ExtractShort(ref UAVXPacket, 38);
-
-                    BadT = ExtractShort(ref UAVXPacket, 40);
-                    AirframeT = ExtractByte(ref UAVXPacket, 42);
-
-                    OrientT = ExtractByte(ref UAVXPacket, 43);
-                    BadNumT = ExtractShort(ref UAVXPacket, 44);
+                    for (b = 0; b < MaxStats; b++)
+                        Stats[b] = ExtractShort(ref UAVXPacket, (byte)(b * 2 + 2));
+                   
+                    AirframeT = ExtractByte(ref UAVXPacket, 2 + MaxStats * 2);
+                    OrientT = ExtractByte(ref UAVXPacket, 2 + MaxStats * 2 + 1);
 
                     UAVXArm = (AirframeT & 0x80) != 0;
                     AirframeT &= 0x7f;
 
-                    I2CFailS.Text = string.Format("{0:n0}", I2CFailsT);
-                    GPSFailS.Text = string.Format("{0:n0}", GPSFailsT);
-                    AccFailS.Text = string.Format("{0:n0}", AccFailsT);
-                    GyroFailS.Text = string.Format("{0:n0}", GyroFailsT);
-                    CompassFailS.Text = string.Format("{0:n0}", CompassFailsT);
-                    BaroFailS.Text = string.Format("{0:n0}", BaroFailsT);
-                    I2CESCFailS.Text = string.Format("{0:n0}", I2CESCFailsT);
-                    RCFailSafeS.Text = string.Format("{0:n0}", RCFailSafesT);
+                    I2CFailS.Text = string.Format("{0:n0}", Stats[I2CFailsX]);
+                    GPSFailS.Text = string.Format("{0:n0}", Stats[GPSInvalidX]);
+                    AccFailS.Text = string.Format("{0:n0}", Stats[AccFailsX]);
+                    GyroFailS.Text = string.Format("{0:n0}", Stats[GyroFailsX]);
+                    CompassFailS.Text = string.Format("{0:n0}", Stats[CompassFailsX]);
+                    BaroFailS.Text = string.Format("{0:n0}", Stats[BaroFailsX]);
+                    I2CESCFailS.Text = string.Format("{0:n0}", Stats[ESCI2CFailX]);
+                    RCFailSafeS.Text = string.Format("{0:n0}", Stats[RCFailSafesX]);
 
-                    GPSAltitudeS.Text = string.Format("{0:n1}", (float)GPSAltitudeT * 0.1);
-                    GPSMaxVelS.Text = string.Format("{0:n1}", (float)GPSMaxVelT * 0.1);
-                    GPSMinSatS.Text = string.Format("{0:n0}", GPSMinSatsT);
-                    GPSMaxSatS.Text = string.Format("{0:n0}", GPSMaxSatsT);
-                    GPSMinHDiluteS.Text = string.Format("{0:n2}", (float)GPSMinHDiluteT * 0.01);
-                    GPSMaxHDiluteS.Text = string.Format("{0:n2}", (float)GPSMaxHDiluteT * 0.01);
+                    GPSAltitudeS.Text = string.Format("{0:n1}", (float)Stats[GPSAltitudeX] * 0.01);
+                    GPSMaxVelS.Text = string.Format("{0:n1}", (float)Stats[GPSMaxVelX] * 0.1);
+                    GPSMinSatS.Text = string.Format("{0:n0}", Stats[GPSMinSatsX]);
+                    GPSMaxSatS.Text = string.Format("{0:n0}", Stats[GPSMaxSatsX]);
+                    GPSMinHDiluteS.Text = string.Format("{0:n2}", (float)Stats[MinHDiluteX] * 0.01);
+                    GPSMaxHDiluteS.Text = string.Format("{0:n2}", (float)Stats[MaxHDiluteX] * 0.01);
 
-                    BaroRelAltitudeS.Text = string.Format("{0:n1}", (float)BaroRelAltitudeT * 0.1);
-                    BaroMinROCS.Text = string.Format("{0:n1}", (float)BaroMinROCT * 0.1);
-                    BaroMaxROCS.Text = string.Format("{0:n1}", (float)BaroMaxROCT * 0.1);
-                    MinTempS.Text = string.Format("{0:n1}", (float)MinTempT * 0.1);
-                    MaxTempS.Text = string.Format("{0:n1}", (float)MaxTempT * 0.1);
+                    BaroRelAltitudeS.Text = string.Format("{0:n1}", (float)Stats[BaroRelAltitudeX] * 0.1);
+                    BaroMinROCS.Text = string.Format("{0:n1}", (float)Stats[MinROCX] * 0.01);
+                    BaroMaxROCS.Text = string.Format("{0:n1}", (float)Stats[MaxROCX] * 0.01);
+                    MinTempS.Text = string.Format("{0:n1}", (float)Stats[MinTempX] * 0.1);
+                    MaxTempS.Text = string.Format("{0:n1}", (float)Stats[MaxTempX] * 0.1);
 
-                    BadS.Text = string.Format("{0:n0}", BadT);
+                    BadS.Text = string.Format("{0:n0}", Stats[BadX]);
 
                     UpdateAirframe();
 
@@ -1925,18 +1959,18 @@ namespace UAVXGS
                     DesiredRollT = ExtractShort(ref UAVXPacket, 19);
                     DesiredPitchT = ExtractShort(ref UAVXPacket, 21);
                     DesiredYawT = ExtractShort(ref UAVXPacket, 23);
-                    RollRateT = ExtractShort(ref UAVXPacket, 25);
-                    PitchRateT = ExtractShort(ref UAVXPacket, 27);
-                    YawRateT = ExtractShort(ref UAVXPacket, 29);
+                    RollGyroT = ExtractShort(ref UAVXPacket, 25);
+                    PitchGyroT = ExtractShort(ref UAVXPacket, 27);
+                    YawGyroT = ExtractShort(ref UAVXPacket, 29);
                     RollAngleT = ExtractShort(ref UAVXPacket, 31);
                     PitchAngleT = ExtractShort(ref UAVXPacket, 33);
                     YawAngleT = ExtractShort(ref UAVXPacket, 35);
                     LRAccT = ExtractShort(ref UAVXPacket, 37);
                     FBAccT = ExtractShort(ref UAVXPacket, 39);
                     DUAccT = ExtractShort(ref UAVXPacket, 41);
-                    LRCompT = ExtractSignedByte(ref UAVXPacket, 43);
-                    FBCompT = ExtractSignedByte(ref UAVXPacket, 44);
-                    DUCompT = ExtractSignedByte(ref UAVXPacket, 45);
+                    IntCorrRollT = ExtractSignedByte(ref UAVXPacket, 43);
+                    IntCorrPitchT = ExtractSignedByte(ref UAVXPacket, 44);
+                    AccAltCompT = ExtractSignedByte(ref UAVXPacket, 45);
                     AltCompT = ExtractSignedByte(ref UAVXPacket, 46);
 
                     DoMotorsAndTime(47);
@@ -1971,15 +2005,16 @@ namespace UAVXGS
                     DesiredRollT = ExtractShort(ref UAVXPacket, 4);
                     DesiredPitchT = ExtractShort(ref UAVXPacket, 6);
                     DesiredYawT = ExtractShort(ref UAVXPacket, 8);
-                    RollRateT = ExtractShort(ref UAVXPacket, 10);
-                    PitchRateT = ExtractShort(ref UAVXPacket, 12);
-                    YawRateT = ExtractShort(ref UAVXPacket, 14);
+                    RollGyroT = ExtractShort(ref UAVXPacket, 10);
+                    PitchGyroT = ExtractShort(ref UAVXPacket, 12);
+                    YawGyroT = ExtractShort(ref UAVXPacket, 14);
                     RollAngleT = ExtractShort(ref UAVXPacket, 16);
                     PitchAngleT = ExtractShort(ref UAVXPacket, 18);
                     YawAngleT = ExtractShort(ref UAVXPacket, 20);
                     LRAccT = ExtractShort(ref UAVXPacket, 22);
                     FBAccT = ExtractShort(ref UAVXPacket, 24);
                     DUAccT = ExtractShort(ref UAVXPacket, 26);
+
                     AirframeT = ExtractByte(ref UAVXPacket, 28);
 
                     UAVXArm = (AirframeT & 0x80) != 0;
@@ -1995,6 +2030,8 @@ namespace UAVXGS
 
                     DoAirframeLabels();
 
+                    Heading.Text = string.Format("{0:n0}", (float)HeadingT * MILLIRADDEG);
+
                     MissionTimeSec.Text = string.Format("{0:n3}", MissionTimeMilliSecT * 0.001);
 
                     WriteTextLogFile();
@@ -2008,7 +2045,7 @@ namespace UAVXGS
                     GPSNoOfSatsT = ExtractByte(ref UAVXPacket, 4);
                     GPSFixT = ExtractByte(ref UAVXPacket, 5);
                     CurrWPT = ExtractByte(ref UAVXPacket, 6);
-                    BaroROCT = ExtractShort(ref UAVXPacket, 7);
+                    ROCT = ExtractShort(ref UAVXPacket, 7);
                     RelBaroAltitudeT = ExtractInt24(ref UAVXPacket, 9);
                     GPSHeadingT = ExtractShort(ref UAVXPacket, 12);
                     RangefinderAltitudeT = ExtractShort(ref UAVXPacket, 14);
@@ -2071,7 +2108,7 @@ namespace UAVXGS
                     GPSVel.Text = string.Format("{0:n1}", (double)GPSVelT * 0.1); // dM/Sec
                     //GPSROC.Text = string.Format("{0:n1}", (float)GPSROCT * 0.1);
                     GPSHeading.Text = string.Format("{0:n0}", (float)GPSHeadingT * MILLIRADDEG);
-                    GPSRelAltitude.Text = string.Format("{0:n1}", (double)GPSRelAltitudeT * 0.1);
+                    GPSRelAltitude.Text = string.Format("{0:n1}", (double)GPSRelAltitudeT * 0.01);
                     GPSLongitude.Text = string.Format("{0:n6}", (double)GPSLongitudeT / 6000000.0);
                     GPSLatitude.Text = string.Format("{0:n6}", (double)GPSLatitudeT / 6000000.0);
 
@@ -2225,7 +2262,7 @@ namespace UAVXGS
             (Flags[2] & 0x01) + "," + //ReturnHome
             ((Flags[2] & 0x02) >> 1) + "," + //Proximity
             ((Flags[2] & 0x04) >> 2) + "," + //CloseProximity
-            ((Flags[2] & 0x08) >> 3) + "," + //UsingGPSAlt
+            ((Flags[2] & 0x08) >> 3) + "," + //UsingAccComp
             ((Flags[2] & 0x10) >> 4) + "," + //UsingRTHAutoDescend
             ((Flags[2] & 0x20) >> 5) + "," + //BaroAltitudeValid
             ((Flags[2] & 0x40) >> 6) + "," + //RangefinderAltitudeValid
@@ -2256,7 +2293,7 @@ namespace UAVXGS
             ((Flags[5] & 0x10) >> 4) + "," + // AltitudeValid 
             ((Flags[5] & 0x20) >> 5) + "," + // UsingSerialPPM 
             ((Flags[5] & 0x40) >> 6) + "," + // UsingTxMode2
-            ((Flags[5] & 0x80) >> 7) + ","); // Unused0
+            ((Flags[5] & 0x80) >> 7) + ","); // FailsafesEnabled
 
             SaveTextLogFileStreamWriter.Write(StateT + "," +
             BatteryVoltsT * 0.1 + "," +
@@ -2267,18 +2304,19 @@ namespace UAVXGS
             DesiredRollT + "," +
             DesiredPitchT + "," +
             DesiredYawT + "," +
-            RollRateT * MILLIRADDEG + "," +
-            PitchRateT * MILLIRADDEG + "," +
-            YawRateT * MILLIRADDEG + "," +
+            RollGyroT * MILLIRADDEG + "," +
+            PitchGyroT * MILLIRADDEG + "," +
+
+            YawGyroT * MILLIRADDEG + "," +
             RollAngleT * MILLIRADDEG + "," +
             PitchAngleT * MILLIRADDEG + "," +
             YawAngleT * MILLIRADDEG + "," +
             LRAccT * 0.001 + "," +
             FBAccT * 0.001 + "," +
             DUAccT * 0.001 + "," +
-            LRCompT + "," +
-            FBCompT + "," +
-            DUCompT + "," +
+            IntCorrRollT + "," +
+            IntCorrPitchT + "," +
+            AccAltCompT * 0.01 + "," +
             AltCompT + ",");
 
             for (i = 0; i < NoOfOutputs; i++)
@@ -2292,8 +2330,8 @@ namespace UAVXGS
             GPSNoOfSatsT + "," +
             GPSFixT + "," +
             CurrWPT + "," +
-            BaroROCT * 0.1 + "," +
-            RelBaroAltitudeT * 0.1 + "," +
+            ROCT * 0.01 + "," +
+            RelBaroAltitudeT * 0.01 + "," +
             GPSHeadingT * MILLIRADDEG + "," +
             RangefinderAltitudeT * 0.01 + "," +
             GPSHDiluteT * 0.001 + "," +
@@ -2301,10 +2339,10 @@ namespace UAVXGS
             DesiredCourseT * MILLIRADDEG + "," +
             GPSVelT * 0.1 + "," +
             GPSROCT * 0.1 + "," +
-            GPSRelAltitudeT * 0.1+ "," +
+            GPSRelAltitudeT * 0.01+ "," +
             GPSLatitudeT / 6000000.0 + "," +
             GPSLongitudeT / 6000000.0 + "," +
-            DesiredAltitudeT * 0.1 + "," +
+            DesiredAltitudeT * 0.01 + "," +
             DesiredLatitudeT / 6000000.0 + "," +
             DesiredLongitudeT / 6000000.0 + "," +
             NavStateTimeoutT + "," +
@@ -2316,34 +2354,13 @@ namespace UAVXGS
             NavPCorrT + "," +
             NavYCorrT + ",");
 
-            SaveTextLogFileStreamWriter.WriteLine("Stats," +
-            I2CFailsT + "," +
-            GPSFailsT + "," +
-            AccFailsT + "," +
-            GyroFailsT + "," +
-            CompassFailsT + "," +
-            BaroFailsT + "," +
-            I2CESCFailsT + "," +
-            RCFailSafesT + "," +
+            SaveTextLogFileStreamWriter.Write("Stats,");
 
-            GPSAltitudeT + "," +
-            GPSMaxVelT + "," +
-            GPSMinSatsT + "," +
-            GPSMaxSatsT + "," +
-            GPSMinHDiluteT + "," +
-            GPSMaxHDiluteT + "," +
+            for (i = 0; i < MaxStats; i++)
+            SaveTextLogFileStreamWriter.Write( Stats[i] + ",");
 
-            BaroRelAltitudeT + "," +
-            BaroMinROCT + "," +
-            BaroMaxROCT + "," +
+            SaveTextLogFileStreamWriter.WriteLine( AirframeT + "," + OrientT );
 
-            MinTempT + "," +
-            MaxTempT + "," +
-
-            BadT + "," +
-            AirframeT + "," +
-            OrientT + "," +
-            BadNumT);
 
         }
 
