@@ -33,6 +33,13 @@
             this.logTextBox = new System.Windows.Forms.TextBox();
             this.tabControlParameter = new System.Windows.Forms.TabControl();
             this.tabPageParameterSet1 = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.CameraRollTrim1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.CameraRollTrim1Label = new System.Windows.Forms.Label();
+            this.CameraPitch1Label = new System.Windows.Forms.Label();
+            this.CameraPitch1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.CameraRoll1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.CameraRoll1Label = new System.Windows.Forms.Label();
             this.BatteryBox = new System.Windows.Forms.GroupBox();
             this.BatteryCapacity1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.BatteryValue1Label = new System.Windows.Forms.Label();
@@ -44,27 +51,23 @@
             this.DescentRate1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.AltIntLimit1Label = new System.Windows.Forms.Label();
             this.AltIntLimit1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.AltKd1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.AltKd1Label = new System.Windows.Forms.Label();
             this.AltProp1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.AltProp1Label = new System.Windows.Forms.Label();
             this.AltInt1Label = new System.Windows.Forms.Label();
             this.AltInt1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.DescDelayLabel1 = new System.Windows.Forms.Label();
             this.NavRTHAlt1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.labelNavRTHAlt1 = new System.Windows.Forms.Label();
+            this.DescDelay1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
             this.General1GroupBox = new System.Windows.Forms.GroupBox();
-            this.CameraRollTrim1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.CameraRollTrim1Label = new System.Windows.Forms.Label();
+            this.BaroAccComp1Label = new System.Windows.Forms.Label();
             this.Orientation1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.BaroAccComp1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.Orientation1Label = new System.Windows.Forms.Label();
-            this.CameraRoll1Label = new System.Windows.Forms.Label();
-            this.CameraRoll1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.CompassOffset1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.Sense51Button = new System.Windows.Forms.Button();
             this.CompassOffset1Label = new System.Windows.Forms.Label();
-            this.CameraPitch1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.CameraPitch1Label = new System.Windows.Forms.Label();
             this.Sense41Button = new System.Windows.Forms.Button();
             this.Sense21Button = new System.Windows.Forms.Button();
             this.Sense31Button = new System.Windows.Forms.Button();
@@ -104,9 +107,11 @@
             this.bit01CheckBox = new System.Windows.Forms.CheckBox();
             this.bit0Header1Label = new System.Windows.Forms.Label();
             this.groupBoxGPS1 = new System.Windows.Forms.GroupBox();
+            this.NavGPSSlew1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.NavGPSSlewLabel1 = new System.Windows.Forms.Label();
             this.NavYawLimit1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.NavYawLimit1Label = new System.Windows.Forms.Label();
             this.NavIntLimit1NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.NavYawLimit1Label = new System.Windows.Forms.Label();
             this.NavIntLimit1Label = new System.Windows.Forms.Label();
             this.NavDiff1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.NavDiff1Label = new System.Windows.Forms.Label();
@@ -114,21 +119,11 @@
             this.NavInt1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.NavInt1Label = new System.Windows.Forms.Label();
             this.NavNeutralRadius1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.labelDescDelay1 = new System.Windows.Forms.Label();
-            this.DescDelay1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.linear1GroupBox = new System.Windows.Forms.GroupBox();
-            this.HorizDampingDecay1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.HorizDampingDecay1Label = new System.Windows.Forms.Label();
-            this.VertDampingDecay1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.VertDampingDecay1Label = new System.Windows.Forms.Label();
-            this.HorizDamping1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.HorizDamping1Label = new System.Windows.Forms.Label();
             this.VertAcc1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.VertAcc1Label = new System.Windows.Forms.Label();
-            this.VertDamping1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.PitchAcc1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.PitchAcc1Label = new System.Windows.Forms.Label();
-            this.VertDamping1Label = new System.Windows.Forms.Label();
             this.RollAcc1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.RollAcc1Label = new System.Windows.Forms.Label();
             this.Yaw1GroupBox = new System.Windows.Forms.GroupBox();
@@ -136,8 +131,6 @@
             this.YawLimit1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.YawIntLimit1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.YawLimit1Label = new System.Windows.Forms.Label();
-            this.YawDiff1NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.YawDiff1Label = new System.Windows.Forms.Label();
             this.YawInt1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.YawInt1Label = new System.Windows.Forms.Label();
             this.Compass1Label = new System.Windows.Forms.Label();
@@ -170,12 +163,12 @@
             this.Acro1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.tabPageParameterSet2 = new System.Windows.Forms.TabPage();
             this.groupBoxAltitude2 = new System.Windows.Forms.GroupBox();
+            this.DescDelayLabel2 = new System.Windows.Forms.Label();
+            this.DescDelay2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.DescentRate2Label = new System.Windows.Forms.Label();
             this.DescentRate2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.AltIntLimit2Label = new System.Windows.Forms.Label();
             this.AltIntLimit2NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.AltKd2Label = new System.Windows.Forms.Label();
-            this.AltKd2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.AltProp2Label = new System.Windows.Forms.Label();
             this.AltProp2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.AltInt2Label = new System.Windows.Forms.Label();
@@ -184,6 +177,10 @@
             this.labelNavRTHAlt2 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBoxGPS2 = new System.Windows.Forms.GroupBox();
+            this.NavYawLimit2NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.NavYawLimit2Label = new System.Windows.Forms.Label();
+            this.NavGPSSlew2NumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.NavGPSSlewLabel2 = new System.Windows.Forms.Label();
             this.NavIntLimit2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.NavIntLimit2Label = new System.Windows.Forms.Label();
             this.NavDiff2NumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -197,8 +194,6 @@
             this.YawIntLimit2Label = new System.Windows.Forms.Label();
             this.YawLimit2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.YawLimit2Label = new System.Windows.Forms.Label();
-            this.YawDiff2NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.YawDiff2Label = new System.Windows.Forms.Label();
             this.YawInt2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.YawInt2Label = new System.Windows.Forms.Label();
             this.Compass2NumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -280,46 +275,43 @@
             this.tabPageLog.SuspendLayout();
             this.tabControlParameter.SuspendLayout();
             this.tabPageParameterSet1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.CameraRollTrim1NumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CameraPitch1NumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CameraRoll1NumericUpDown)).BeginInit();
             this.BatteryBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.BatteryCapacity1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Battery1NumericUpDown)).BeginInit();
             this.groupBoxAltitude1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DescentRate1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltIntLimit1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AltKd1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltProp1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltInt1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavRTHAlt1NumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DescDelay1NumericUpDown)).BeginInit();
             this.General1GroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.CameraRollTrim1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Orientation1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CameraRoll1NumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BaroAccComp1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CompassOffset1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CameraPitch1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.GPSGain1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.HoverThrottle1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavMagVar1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.LowMotorRun1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BaroScale1NumericUpDown)).BeginInit();
             this.groupBoxGPS1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NavGPSSlew1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavYawLimit1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavIntLimit1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavDiff1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavInt1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavNeutralRadius1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DescDelay1NumericUpDown)).BeginInit();
             this.linear1GroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.HorizDampingDecay1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.VertDampingDecay1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.HorizDamping1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.VertAcc1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.VertDamping1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PitchAcc1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollAcc1NumericUpDown)).BeginInit();
             this.Yaw1GroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.YawLimit1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawIntLimit1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.YawDiff1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawInt1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Compass1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawProp1NumericUpDown)).BeginInit();
@@ -338,13 +330,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.Acro1NumericUpDown)).BeginInit();
             this.tabPageParameterSet2.SuspendLayout();
             this.groupBoxAltitude2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DescDelay2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DescentRate2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltIntLimit2NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AltKd2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltProp2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltInt2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavRTHAlt2NumericUpDown)).BeginInit();
             this.groupBoxGPS2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NavYawLimit2NumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NavGPSSlew2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavIntLimit2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavDiff2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavInt2NumericUpDown)).BeginInit();
@@ -352,7 +346,6 @@
             this.Yaw2GroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.YawIntLimit2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawLimit2NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.YawDiff2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawInt2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Compass2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawProp2NumericUpDown)).BeginInit();
@@ -495,6 +488,7 @@
             // tabPageParameterSet1
             // 
             this.tabPageParameterSet1.BackColor = System.Drawing.Color.Wheat;
+            this.tabPageParameterSet1.Controls.Add(this.groupBox1);
             this.tabPageParameterSet1.Controls.Add(this.BatteryBox);
             this.tabPageParameterSet1.Controls.Add(this.groupBoxAltitude1);
             this.tabPageParameterSet1.Controls.Add(this.label6);
@@ -508,6 +502,90 @@
             resources.ApplyResources(this.tabPageParameterSet1, "tabPageParameterSet1");
             this.tabPageParameterSet1.Name = "tabPageParameterSet1";
             this.tabPageParameterSet1.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.CameraRollTrim1NumericUpDown);
+            this.groupBox1.Controls.Add(this.CameraRollTrim1Label);
+            this.groupBox1.Controls.Add(this.CameraPitch1Label);
+            this.groupBox1.Controls.Add(this.CameraPitch1NumericUpDown);
+            this.groupBox1.Controls.Add(this.CameraRoll1NumericUpDown);
+            this.groupBox1.Controls.Add(this.CameraRoll1Label);
+            resources.ApplyResources(this.groupBox1, "groupBox1");
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.TabStop = false;
+            // 
+            // CameraRollTrim1NumericUpDown
+            // 
+            resources.ApplyResources(this.CameraRollTrim1NumericUpDown, "CameraRollTrim1NumericUpDown");
+            this.CameraRollTrim1NumericUpDown.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.CameraRollTrim1NumericUpDown.Minimum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            -2147483648});
+            this.CameraRollTrim1NumericUpDown.Name = "CameraRollTrim1NumericUpDown";
+            this.CameraRollTrim1NumericUpDown.Tag = "40";
+            this.CameraRollTrim1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.CameraRollTrim1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.CameraRollTrim1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // CameraRollTrim1Label
+            // 
+            resources.ApplyResources(this.CameraRollTrim1Label, "CameraRollTrim1Label");
+            this.CameraRollTrim1Label.Name = "CameraRollTrim1Label";
+            // 
+            // CameraPitch1Label
+            // 
+            resources.ApplyResources(this.CameraPitch1Label, "CameraPitch1Label");
+            this.CameraPitch1Label.Name = "CameraPitch1Label";
+            // 
+            // CameraPitch1NumericUpDown
+            // 
+            resources.ApplyResources(this.CameraPitch1NumericUpDown, "CameraPitch1NumericUpDown");
+            this.CameraPitch1NumericUpDown.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.CameraPitch1NumericUpDown.Minimum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            -2147483648});
+            this.CameraPitch1NumericUpDown.Name = "CameraPitch1NumericUpDown";
+            this.CameraPitch1NumericUpDown.Tag = "26";
+            this.CameraPitch1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.CameraPitch1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.CameraPitch1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // CameraRoll1NumericUpDown
+            // 
+            resources.ApplyResources(this.CameraRoll1NumericUpDown, "CameraRoll1NumericUpDown");
+            this.CameraRoll1NumericUpDown.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.CameraRoll1NumericUpDown.Minimum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            -2147483648});
+            this.CameraRoll1NumericUpDown.Name = "CameraRoll1NumericUpDown";
+            this.CameraRoll1NumericUpDown.Tag = "19";
+            this.CameraRoll1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.CameraRoll1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.CameraRoll1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // CameraRoll1Label
+            // 
+            resources.ApplyResources(this.CameraRoll1Label, "CameraRoll1Label");
+            this.CameraRoll1Label.Name = "CameraRoll1Label";
             // 
             // BatteryBox
             // 
@@ -577,14 +655,14 @@
             this.groupBoxAltitude1.Controls.Add(this.DescentRate1NumericUpDown);
             this.groupBoxAltitude1.Controls.Add(this.AltIntLimit1Label);
             this.groupBoxAltitude1.Controls.Add(this.AltIntLimit1NumericUpDown);
-            this.groupBoxAltitude1.Controls.Add(this.AltKd1NumericUpDown);
-            this.groupBoxAltitude1.Controls.Add(this.AltKd1Label);
             this.groupBoxAltitude1.Controls.Add(this.AltProp1NumericUpDown);
             this.groupBoxAltitude1.Controls.Add(this.AltProp1Label);
             this.groupBoxAltitude1.Controls.Add(this.AltInt1Label);
             this.groupBoxAltitude1.Controls.Add(this.AltInt1NumericUpDown);
+            this.groupBoxAltitude1.Controls.Add(this.DescDelayLabel1);
             this.groupBoxAltitude1.Controls.Add(this.NavRTHAlt1NumericUpDown);
             this.groupBoxAltitude1.Controls.Add(this.labelNavRTHAlt1);
+            this.groupBoxAltitude1.Controls.Add(this.DescDelay1NumericUpDown);
             resources.ApplyResources(this.groupBoxAltitude1, "groupBoxAltitude1");
             this.groupBoxAltitude1.Name = "groupBoxAltitude1";
             this.groupBoxAltitude1.TabStop = false;
@@ -598,7 +676,7 @@
             // 
             resources.ApplyResources(this.DescentRate1NumericUpDown, "DescentRate1NumericUpDown");
             this.DescentRate1NumericUpDown.Maximum = new decimal(new int[] {
-            99,
+            0,
             0,
             0,
             0});
@@ -622,7 +700,7 @@
             // 
             resources.ApplyResources(this.AltIntLimit1NumericUpDown, "AltIntLimit1NumericUpDown");
             this.AltIntLimit1NumericUpDown.Maximum = new decimal(new int[] {
-            16,
+            40,
             0,
             0,
             0});
@@ -642,30 +720,6 @@
             this.AltIntLimit1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
             this.AltIntLimit1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
             // 
-            // AltKd1NumericUpDown
-            // 
-            resources.ApplyResources(this.AltKd1NumericUpDown, "AltKd1NumericUpDown");
-            this.AltKd1NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.AltKd1NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
-            this.AltKd1NumericUpDown.Name = "AltKd1NumericUpDown";
-            this.AltKd1NumericUpDown.Tag = "56";
-            this.AltKd1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.AltKd1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.AltKd1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // AltKd1Label
-            // 
-            resources.ApplyResources(this.AltKd1Label, "AltKd1Label");
-            this.AltKd1Label.Name = "AltKd1Label";
-            // 
             // AltProp1NumericUpDown
             // 
             resources.ApplyResources(this.AltProp1NumericUpDown, "AltProp1NumericUpDown");
@@ -674,11 +728,6 @@
             0,
             0,
             0});
-            this.AltProp1NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
             this.AltProp1NumericUpDown.Name = "AltProp1NumericUpDown";
             this.AltProp1NumericUpDown.Tag = "9";
             this.AltProp1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
@@ -703,16 +752,16 @@
             0,
             0,
             0});
-            this.AltInt1NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
             this.AltInt1NumericUpDown.Name = "AltInt1NumericUpDown";
             this.AltInt1NumericUpDown.Tag = "28";
             this.AltInt1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
             this.AltInt1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
             this.AltInt1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // DescDelayLabel1
+            // 
+            resources.ApplyResources(this.DescDelayLabel1, "DescDelayLabel1");
+            this.DescDelayLabel1.Name = "DescDelayLabel1";
             // 
             // NavRTHAlt1NumericUpDown
             // 
@@ -733,6 +782,20 @@
             resources.ApplyResources(this.labelNavRTHAlt1, "labelNavRTHAlt1");
             this.labelNavRTHAlt1.Name = "labelNavRTHAlt1";
             // 
+            // DescDelay1NumericUpDown
+            // 
+            resources.ApplyResources(this.DescDelay1NumericUpDown, "DescDelay1NumericUpDown");
+            this.DescDelay1NumericUpDown.Maximum = new decimal(new int[] {
+            90,
+            0,
+            0,
+            0});
+            this.DescDelay1NumericUpDown.Name = "DescDelay1NumericUpDown";
+            this.DescDelay1NumericUpDown.Tag = "47";
+            this.DescDelay1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.DescDelay1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.DescDelay1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
             // label6
             // 
             resources.ApplyResources(this.label6, "label6");
@@ -740,17 +803,13 @@
             // 
             // General1GroupBox
             // 
-            this.General1GroupBox.Controls.Add(this.CameraRollTrim1NumericUpDown);
-            this.General1GroupBox.Controls.Add(this.CameraRollTrim1Label);
+            this.General1GroupBox.Controls.Add(this.BaroAccComp1Label);
             this.General1GroupBox.Controls.Add(this.Orientation1NumericUpDown);
+            this.General1GroupBox.Controls.Add(this.BaroAccComp1NumericUpDown);
             this.General1GroupBox.Controls.Add(this.Orientation1Label);
-            this.General1GroupBox.Controls.Add(this.CameraRoll1Label);
-            this.General1GroupBox.Controls.Add(this.CameraRoll1NumericUpDown);
             this.General1GroupBox.Controls.Add(this.CompassOffset1NumericUpDown);
             this.General1GroupBox.Controls.Add(this.Sense51Button);
             this.General1GroupBox.Controls.Add(this.CompassOffset1Label);
-            this.General1GroupBox.Controls.Add(this.CameraPitch1NumericUpDown);
-            this.General1GroupBox.Controls.Add(this.CameraPitch1Label);
             this.General1GroupBox.Controls.Add(this.Sense41Button);
             this.General1GroupBox.Controls.Add(this.Sense21Button);
             this.General1GroupBox.Controls.Add(this.Sense31Button);
@@ -793,29 +852,10 @@
             this.General1GroupBox.Name = "General1GroupBox";
             this.General1GroupBox.TabStop = false;
             // 
-            // CameraRollTrim1NumericUpDown
+            // BaroAccComp1Label
             // 
-            resources.ApplyResources(this.CameraRollTrim1NumericUpDown, "CameraRollTrim1NumericUpDown");
-            this.CameraRollTrim1NumericUpDown.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.CameraRollTrim1NumericUpDown.Minimum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            -2147483648});
-            this.CameraRollTrim1NumericUpDown.Name = "CameraRollTrim1NumericUpDown";
-            this.CameraRollTrim1NumericUpDown.Tag = "40";
-            this.CameraRollTrim1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.CameraRollTrim1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.CameraRollTrim1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // CameraRollTrim1Label
-            // 
-            resources.ApplyResources(this.CameraRollTrim1Label, "CameraRollTrim1Label");
-            this.CameraRollTrim1Label.Name = "CameraRollTrim1Label";
+            resources.ApplyResources(this.BaroAccComp1Label, "BaroAccComp1Label");
+            this.BaroAccComp1Label.Name = "BaroAccComp1Label";
             // 
             // Orientation1NumericUpDown
             // 
@@ -837,34 +877,30 @@
             this.Orientation1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
             this.Orientation1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
             // 
+            // BaroAccComp1NumericUpDown
+            // 
+            this.BaroAccComp1NumericUpDown.BackColor = System.Drawing.SystemColors.Window;
+            resources.ApplyResources(this.BaroAccComp1NumericUpDown, "BaroAccComp1NumericUpDown");
+            this.BaroAccComp1NumericUpDown.Maximum = new decimal(new int[] {
+            40,
+            0,
+            0,
+            0});
+            this.BaroAccComp1NumericUpDown.Name = "BaroAccComp1NumericUpDown";
+            this.BaroAccComp1NumericUpDown.Tag = "21";
+            this.BaroAccComp1NumericUpDown.Value = new decimal(new int[] {
+            35,
+            0,
+            0,
+            0});
+            this.BaroAccComp1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.BaroAccComp1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.BaroAccComp1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
             // Orientation1Label
             // 
             resources.ApplyResources(this.Orientation1Label, "Orientation1Label");
             this.Orientation1Label.Name = "Orientation1Label";
-            // 
-            // CameraRoll1Label
-            // 
-            resources.ApplyResources(this.CameraRoll1Label, "CameraRoll1Label");
-            this.CameraRoll1Label.Name = "CameraRoll1Label";
-            // 
-            // CameraRoll1NumericUpDown
-            // 
-            resources.ApplyResources(this.CameraRoll1NumericUpDown, "CameraRoll1NumericUpDown");
-            this.CameraRoll1NumericUpDown.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.CameraRoll1NumericUpDown.Minimum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            -2147483648});
-            this.CameraRoll1NumericUpDown.Name = "CameraRoll1NumericUpDown";
-            this.CameraRoll1NumericUpDown.Tag = "19";
-            this.CameraRoll1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.CameraRoll1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.CameraRoll1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
             // 
             // CompassOffset1NumericUpDown
             // 
@@ -892,30 +928,6 @@
             // 
             resources.ApplyResources(this.CompassOffset1Label, "CompassOffset1Label");
             this.CompassOffset1Label.Name = "CompassOffset1Label";
-            // 
-            // CameraPitch1NumericUpDown
-            // 
-            resources.ApplyResources(this.CameraPitch1NumericUpDown, "CameraPitch1NumericUpDown");
-            this.CameraPitch1NumericUpDown.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.CameraPitch1NumericUpDown.Minimum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            -2147483648});
-            this.CameraPitch1NumericUpDown.Name = "CameraPitch1NumericUpDown";
-            this.CameraPitch1NumericUpDown.Tag = "26";
-            this.CameraPitch1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.CameraPitch1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.CameraPitch1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // CameraPitch1Label
-            // 
-            resources.ApplyResources(this.CameraPitch1Label, "CameraPitch1Label");
-            this.CameraPitch1Label.Name = "CameraPitch1Label";
             // 
             // Sense41Button
             // 
@@ -1178,7 +1190,8 @@
             resources.GetString("ESCComboBox1.Items"),
             resources.GetString("ESCComboBox1.Items1"),
             resources.GetString("ESCComboBox1.Items2"),
-            resources.GetString("ESCComboBox1.Items3")});
+            resources.GetString("ESCComboBox1.Items3"),
+            resources.GetString("ESCComboBox1.Items4")});
             this.ESCComboBox1.Name = "ESCComboBox1";
             this.ESCComboBox1.Tag = "36";
             this.ESCComboBox1.SelectedIndexChanged += new System.EventHandler(this.ESCComboBox1_SelectedIndexChanged);
@@ -1307,9 +1320,11 @@
             // 
             // groupBoxGPS1
             // 
+            this.groupBoxGPS1.Controls.Add(this.NavGPSSlew1NumericUpDown);
+            this.groupBoxGPS1.Controls.Add(this.NavGPSSlewLabel1);
             this.groupBoxGPS1.Controls.Add(this.NavYawLimit1NumericUpDown);
-            this.groupBoxGPS1.Controls.Add(this.NavYawLimit1Label);
             this.groupBoxGPS1.Controls.Add(this.NavIntLimit1NumericUpDown);
+            this.groupBoxGPS1.Controls.Add(this.NavYawLimit1Label);
             this.groupBoxGPS1.Controls.Add(this.NavIntLimit1Label);
             this.groupBoxGPS1.Controls.Add(this.NavDiff1NumericUpDown);
             this.groupBoxGPS1.Controls.Add(this.NavDiff1Label);
@@ -1317,11 +1332,38 @@
             this.groupBoxGPS1.Controls.Add(this.NavInt1NumericUpDown);
             this.groupBoxGPS1.Controls.Add(this.NavInt1Label);
             this.groupBoxGPS1.Controls.Add(this.NavNeutralRadius1NumericUpDown);
-            this.groupBoxGPS1.Controls.Add(this.labelDescDelay1);
-            this.groupBoxGPS1.Controls.Add(this.DescDelay1NumericUpDown);
             resources.ApplyResources(this.groupBoxGPS1, "groupBoxGPS1");
             this.groupBoxGPS1.Name = "groupBoxGPS1";
             this.groupBoxGPS1.TabStop = false;
+            // 
+            // NavGPSSlew1NumericUpDown
+            // 
+            resources.ApplyResources(this.NavGPSSlew1NumericUpDown, "NavGPSSlew1NumericUpDown");
+            this.NavGPSSlew1NumericUpDown.Maximum = new decimal(new int[] {
+            90,
+            0,
+            0,
+            0});
+            this.NavGPSSlew1NumericUpDown.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.NavGPSSlew1NumericUpDown.Name = "NavGPSSlew1NumericUpDown";
+            this.NavGPSSlew1NumericUpDown.Tag = "29";
+            this.NavGPSSlew1NumericUpDown.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.NavGPSSlew1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.NavGPSSlew1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.NavGPSSlew1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // NavGPSSlewLabel1
+            // 
+            resources.ApplyResources(this.NavGPSSlewLabel1, "NavGPSSlewLabel1");
+            this.NavGPSSlewLabel1.Name = "NavGPSSlewLabel1";
             // 
             // NavYawLimit1NumericUpDown
             // 
@@ -1342,11 +1384,6 @@
             this.NavYawLimit1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
             this.NavYawLimit1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
             // 
-            // NavYawLimit1Label
-            // 
-            resources.ApplyResources(this.NavYawLimit1Label, "NavYawLimit1Label");
-            this.NavYawLimit1Label.Name = "NavYawLimit1Label";
-            // 
             // NavIntLimit1NumericUpDown
             // 
             resources.ApplyResources(this.NavIntLimit1NumericUpDown, "NavIntLimit1NumericUpDown");
@@ -1360,6 +1397,11 @@
             this.NavIntLimit1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
             this.NavIntLimit1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
             this.NavIntLimit1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // NavYawLimit1Label
+            // 
+            resources.ApplyResources(this.NavYawLimit1Label, "NavYawLimit1Label");
+            this.NavYawLimit1Label.Name = "NavYawLimit1Label";
             // 
             // NavIntLimit1Label
             // 
@@ -1433,116 +1475,17 @@
             this.NavNeutralRadius1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
             this.NavNeutralRadius1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
             // 
-            // labelDescDelay1
-            // 
-            resources.ApplyResources(this.labelDescDelay1, "labelDescDelay1");
-            this.labelDescDelay1.Name = "labelDescDelay1";
-            // 
-            // DescDelay1NumericUpDown
-            // 
-            resources.ApplyResources(this.DescDelay1NumericUpDown, "DescDelay1NumericUpDown");
-            this.DescDelay1NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.DescDelay1NumericUpDown.Name = "DescDelay1NumericUpDown";
-            this.DescDelay1NumericUpDown.Tag = "47";
-            this.DescDelay1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.DescDelay1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.DescDelay1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
             // linear1GroupBox
             // 
-            this.linear1GroupBox.Controls.Add(this.HorizDampingDecay1NumericUpDown);
-            this.linear1GroupBox.Controls.Add(this.HorizDampingDecay1Label);
-            this.linear1GroupBox.Controls.Add(this.VertDampingDecay1NumericUpDown);
-            this.linear1GroupBox.Controls.Add(this.VertDampingDecay1Label);
-            this.linear1GroupBox.Controls.Add(this.HorizDamping1NumericUpDown);
-            this.linear1GroupBox.Controls.Add(this.HorizDamping1Label);
             this.linear1GroupBox.Controls.Add(this.VertAcc1NumericUpDown);
             this.linear1GroupBox.Controls.Add(this.VertAcc1Label);
-            this.linear1GroupBox.Controls.Add(this.VertDamping1NumericUpDown);
             this.linear1GroupBox.Controls.Add(this.PitchAcc1NumericUpDown);
             this.linear1GroupBox.Controls.Add(this.PitchAcc1Label);
-            this.linear1GroupBox.Controls.Add(this.VertDamping1Label);
             this.linear1GroupBox.Controls.Add(this.RollAcc1NumericUpDown);
             this.linear1GroupBox.Controls.Add(this.RollAcc1Label);
             resources.ApplyResources(this.linear1GroupBox, "linear1GroupBox");
             this.linear1GroupBox.Name = "linear1GroupBox";
             this.linear1GroupBox.TabStop = false;
-            // 
-            // HorizDampingDecay1NumericUpDown
-            // 
-            resources.ApplyResources(this.HorizDampingDecay1NumericUpDown, "HorizDampingDecay1NumericUpDown");
-            this.HorizDampingDecay1NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.HorizDampingDecay1NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
-            this.HorizDampingDecay1NumericUpDown.Name = "HorizDampingDecay1NumericUpDown";
-            this.HorizDampingDecay1NumericUpDown.Tag = "43";
-            this.HorizDampingDecay1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.HorizDampingDecay1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.HorizDampingDecay1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // HorizDampingDecay1Label
-            // 
-            resources.ApplyResources(this.HorizDampingDecay1Label, "HorizDampingDecay1Label");
-            this.HorizDampingDecay1Label.Name = "HorizDampingDecay1Label";
-            // 
-            // VertDampingDecay1NumericUpDown
-            // 
-            resources.ApplyResources(this.VertDampingDecay1NumericUpDown, "VertDampingDecay1NumericUpDown");
-            this.VertDampingDecay1NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.VertDampingDecay1NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
-            this.VertDampingDecay1NumericUpDown.Name = "VertDampingDecay1NumericUpDown";
-            this.VertDampingDecay1NumericUpDown.Tag = "42";
-            this.VertDampingDecay1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.VertDampingDecay1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.VertDampingDecay1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // VertDampingDecay1Label
-            // 
-            resources.ApplyResources(this.VertDampingDecay1Label, "VertDampingDecay1Label");
-            this.VertDampingDecay1Label.Name = "VertDampingDecay1Label";
-            // 
-            // HorizDamping1NumericUpDown
-            // 
-            resources.ApplyResources(this.HorizDamping1NumericUpDown, "HorizDamping1NumericUpDown");
-            this.HorizDamping1NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.HorizDamping1NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
-            this.HorizDamping1NumericUpDown.Name = "HorizDamping1NumericUpDown";
-            this.HorizDamping1NumericUpDown.Tag = "4";
-            this.HorizDamping1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.HorizDamping1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.HorizDamping1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // HorizDamping1Label
-            // 
-            resources.ApplyResources(this.HorizDamping1Label, "HorizDamping1Label");
-            this.HorizDamping1Label.Name = "HorizDamping1Label";
             // 
             // VertAcc1NumericUpDown
             // 
@@ -1568,25 +1511,6 @@
             resources.ApplyResources(this.VertAcc1Label, "VertAcc1Label");
             this.VertAcc1Label.Name = "VertAcc1Label";
             // 
-            // VertDamping1NumericUpDown
-            // 
-            resources.ApplyResources(this.VertDamping1NumericUpDown, "VertDamping1NumericUpDown");
-            this.VertDamping1NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.VertDamping1NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
-            this.VertDamping1NumericUpDown.Name = "VertDamping1NumericUpDown";
-            this.VertDamping1NumericUpDown.Tag = "21";
-            this.VertDamping1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.VertDamping1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.VertDamping1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
             // PitchAcc1NumericUpDown
             // 
             resources.ApplyResources(this.PitchAcc1NumericUpDown, "PitchAcc1NumericUpDown");
@@ -1610,11 +1534,6 @@
             // 
             resources.ApplyResources(this.PitchAcc1Label, "PitchAcc1Label");
             this.PitchAcc1Label.Name = "PitchAcc1Label";
-            // 
-            // VertDamping1Label
-            // 
-            resources.ApplyResources(this.VertDamping1Label, "VertDamping1Label");
-            this.VertDamping1Label.Name = "VertDamping1Label";
             // 
             // RollAcc1NumericUpDown
             // 
@@ -1646,8 +1565,6 @@
             this.Yaw1GroupBox.Controls.Add(this.YawLimit1NumericUpDown);
             this.Yaw1GroupBox.Controls.Add(this.YawIntLimit1NumericUpDown);
             this.Yaw1GroupBox.Controls.Add(this.YawLimit1Label);
-            this.Yaw1GroupBox.Controls.Add(this.YawDiff1NumericUpDown);
-            this.Yaw1GroupBox.Controls.Add(this.YawDiff1Label);
             this.Yaw1GroupBox.Controls.Add(this.YawInt1NumericUpDown);
             this.Yaw1GroupBox.Controls.Add(this.YawInt1Label);
             this.Yaw1GroupBox.Controls.Add(this.Compass1Label);
@@ -1715,30 +1632,6 @@
             // 
             resources.ApplyResources(this.YawLimit1Label, "YawLimit1Label");
             this.YawLimit1Label.Name = "YawLimit1Label";
-            // 
-            // YawDiff1NumericUpDown
-            // 
-            resources.ApplyResources(this.YawDiff1NumericUpDown, "YawDiff1NumericUpDown");
-            this.YawDiff1NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.YawDiff1NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
-            this.YawDiff1NumericUpDown.Name = "YawDiff1NumericUpDown";
-            this.YawDiff1NumericUpDown.Tag = "13";
-            this.YawDiff1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.YawDiff1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.YawDiff1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // YawDiff1Label
-            // 
-            resources.ApplyResources(this.YawDiff1Label, "YawDiff1Label");
-            this.YawDiff1Label.Name = "YawDiff1Label";
             // 
             // YawInt1NumericUpDown
             // 
@@ -1856,7 +1749,7 @@
             // 
             resources.ApplyResources(this.PitchIntLimit1NumericUpDown, "PitchIntLimit1NumericUpDown");
             this.PitchIntLimit1NumericUpDown.Maximum = new decimal(new int[] {
-            16,
+            32,
             0,
             0,
             0});
@@ -1975,7 +1868,7 @@
             // 
             resources.ApplyResources(this.RollIntLimit1NumericUpDown, "RollIntLimit1NumericUpDown");
             this.RollIntLimit1NumericUpDown.Maximum = new decimal(new int[] {
-            16,
+            32,
             0,
             0,
             0});
@@ -2125,12 +2018,12 @@
             // 
             // groupBoxAltitude2
             // 
+            this.groupBoxAltitude2.Controls.Add(this.DescDelayLabel2);
+            this.groupBoxAltitude2.Controls.Add(this.DescDelay2NumericUpDown);
             this.groupBoxAltitude2.Controls.Add(this.DescentRate2Label);
             this.groupBoxAltitude2.Controls.Add(this.DescentRate2NumericUpDown);
             this.groupBoxAltitude2.Controls.Add(this.AltIntLimit2Label);
             this.groupBoxAltitude2.Controls.Add(this.AltIntLimit2NumericUpDown);
-            this.groupBoxAltitude2.Controls.Add(this.AltKd2Label);
-            this.groupBoxAltitude2.Controls.Add(this.AltKd2NumericUpDown);
             this.groupBoxAltitude2.Controls.Add(this.AltProp2Label);
             this.groupBoxAltitude2.Controls.Add(this.AltProp2NumericUpDown);
             this.groupBoxAltitude2.Controls.Add(this.AltInt2Label);
@@ -2141,6 +2034,25 @@
             this.groupBoxAltitude2.Name = "groupBoxAltitude2";
             this.groupBoxAltitude2.TabStop = false;
             // 
+            // DescDelayLabel2
+            // 
+            resources.ApplyResources(this.DescDelayLabel2, "DescDelayLabel2");
+            this.DescDelayLabel2.Name = "DescDelayLabel2";
+            // 
+            // DescDelay2NumericUpDown
+            // 
+            resources.ApplyResources(this.DescDelay2NumericUpDown, "DescDelay2NumericUpDown");
+            this.DescDelay2NumericUpDown.Maximum = new decimal(new int[] {
+            90,
+            0,
+            0,
+            0});
+            this.DescDelay2NumericUpDown.Name = "DescDelay2NumericUpDown";
+            this.DescDelay2NumericUpDown.Tag = "47";
+            this.DescDelay2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.DescDelay2NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.DescDelay2NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
             // DescentRate2Label
             // 
             resources.ApplyResources(this.DescentRate2Label, "DescentRate2Label");
@@ -2150,7 +2062,7 @@
             // 
             resources.ApplyResources(this.DescentRate2NumericUpDown, "DescentRate2NumericUpDown");
             this.DescentRate2NumericUpDown.Maximum = new decimal(new int[] {
-            99,
+            0,
             0,
             0,
             0});
@@ -2175,7 +2087,7 @@
             this.AltIntLimit2NumericUpDown.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
             resources.ApplyResources(this.AltIntLimit2NumericUpDown, "AltIntLimit2NumericUpDown");
             this.AltIntLimit2NumericUpDown.Maximum = new decimal(new int[] {
-            16,
+            40,
             0,
             0,
             0});
@@ -2195,30 +2107,6 @@
             this.AltIntLimit2NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
             this.AltIntLimit2NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
             // 
-            // AltKd2Label
-            // 
-            resources.ApplyResources(this.AltKd2Label, "AltKd2Label");
-            this.AltKd2Label.Name = "AltKd2Label";
-            // 
-            // AltKd2NumericUpDown
-            // 
-            resources.ApplyResources(this.AltKd2NumericUpDown, "AltKd2NumericUpDown");
-            this.AltKd2NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.AltKd2NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
-            this.AltKd2NumericUpDown.Name = "AltKd2NumericUpDown";
-            this.AltKd2NumericUpDown.Tag = "56";
-            this.AltKd2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.AltKd2NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.AltKd2NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
             // AltProp2Label
             // 
             resources.ApplyResources(this.AltProp2Label, "AltProp2Label");
@@ -2232,11 +2120,6 @@
             0,
             0,
             0});
-            this.AltProp2NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
             this.AltProp2NumericUpDown.Name = "AltProp2NumericUpDown";
             this.AltProp2NumericUpDown.Tag = "9";
             this.AltProp2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
@@ -2257,11 +2140,6 @@
             0,
             0,
             0});
-            this.AltInt2NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
             this.AltInt2NumericUpDown.Name = "AltInt2NumericUpDown";
             this.AltInt2NumericUpDown.Tag = "28";
             this.AltInt2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
@@ -2295,6 +2173,10 @@
             // groupBoxGPS2
             // 
             resources.ApplyResources(this.groupBoxGPS2, "groupBoxGPS2");
+            this.groupBoxGPS2.Controls.Add(this.NavYawLimit2NumericUpDown);
+            this.groupBoxGPS2.Controls.Add(this.NavYawLimit2Label);
+            this.groupBoxGPS2.Controls.Add(this.NavGPSSlew2NumericUpDown);
+            this.groupBoxGPS2.Controls.Add(this.NavGPSSlewLabel2);
             this.groupBoxGPS2.Controls.Add(this.NavIntLimit2NumericUpDown);
             this.groupBoxGPS2.Controls.Add(this.NavIntLimit2Label);
             this.groupBoxGPS2.Controls.Add(this.NavDiff2NumericUpDown);
@@ -2305,6 +2187,59 @@
             this.groupBoxGPS2.Controls.Add(this.NavInt2Label);
             this.groupBoxGPS2.Name = "groupBoxGPS2";
             this.groupBoxGPS2.TabStop = false;
+            // 
+            // NavYawLimit2NumericUpDown
+            // 
+            resources.ApplyResources(this.NavYawLimit2NumericUpDown, "NavYawLimit2NumericUpDown");
+            this.NavYawLimit2NumericUpDown.Maximum = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            this.NavYawLimit2NumericUpDown.Name = "NavYawLimit2NumericUpDown";
+            this.NavYawLimit2NumericUpDown.Tag = "58";
+            this.NavYawLimit2NumericUpDown.Value = new decimal(new int[] {
+            12,
+            0,
+            0,
+            0});
+            this.NavYawLimit2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.NavYawLimit2NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.NavYawLimit2NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // NavYawLimit2Label
+            // 
+            resources.ApplyResources(this.NavYawLimit2Label, "NavYawLimit2Label");
+            this.NavYawLimit2Label.Name = "NavYawLimit2Label";
+            // 
+            // NavGPSSlew2NumericUpDown
+            // 
+            resources.ApplyResources(this.NavGPSSlew2NumericUpDown, "NavGPSSlew2NumericUpDown");
+            this.NavGPSSlew2NumericUpDown.Maximum = new decimal(new int[] {
+            90,
+            0,
+            0,
+            0});
+            this.NavGPSSlew2NumericUpDown.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.NavGPSSlew2NumericUpDown.Name = "NavGPSSlew2NumericUpDown";
+            this.NavGPSSlew2NumericUpDown.Tag = "29";
+            this.NavGPSSlew2NumericUpDown.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.NavGPSSlew2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
+            this.NavGPSSlew2NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
+            this.NavGPSSlew2NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
+            // 
+            // NavGPSSlewLabel2
+            // 
+            resources.ApplyResources(this.NavGPSSlewLabel2, "NavGPSSlewLabel2");
+            this.NavGPSSlewLabel2.Name = "NavGPSSlewLabel2";
             // 
             // NavIntLimit2NumericUpDown
             // 
@@ -2412,8 +2347,6 @@
             this.Yaw2GroupBox.Controls.Add(this.YawIntLimit2Label);
             this.Yaw2GroupBox.Controls.Add(this.YawLimit2NumericUpDown);
             this.Yaw2GroupBox.Controls.Add(this.YawLimit2Label);
-            this.Yaw2GroupBox.Controls.Add(this.YawDiff2NumericUpDown);
-            this.Yaw2GroupBox.Controls.Add(this.YawDiff2Label);
             this.Yaw2GroupBox.Controls.Add(this.YawInt2NumericUpDown);
             this.Yaw2GroupBox.Controls.Add(this.YawInt2Label);
             this.Yaw2GroupBox.Controls.Add(this.Compass2NumericUpDown);
@@ -2480,30 +2413,6 @@
             // 
             resources.ApplyResources(this.YawLimit2Label, "YawLimit2Label");
             this.YawLimit2Label.Name = "YawLimit2Label";
-            // 
-            // YawDiff2NumericUpDown
-            // 
-            resources.ApplyResources(this.YawDiff2NumericUpDown, "YawDiff2NumericUpDown");
-            this.YawDiff2NumericUpDown.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.YawDiff2NumericUpDown.Minimum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            -2147483648});
-            this.YawDiff2NumericUpDown.Name = "YawDiff2NumericUpDown";
-            this.YawDiff2NumericUpDown.Tag = "13";
-            this.YawDiff2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.YawDiff2NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.YawDiff2NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // YawDiff2Label
-            // 
-            resources.ApplyResources(this.YawDiff2Label, "YawDiff2Label");
-            this.YawDiff2Label.Name = "YawDiff2Label";
             // 
             // YawInt2NumericUpDown
             // 
@@ -3153,6 +3062,11 @@
             this.tabControlParameter.ResumeLayout(false);
             this.tabPageParameterSet1.ResumeLayout(false);
             this.tabPageParameterSet1.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.CameraRollTrim1NumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CameraPitch1NumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CameraRoll1NumericUpDown)).EndInit();
             this.BatteryBox.ResumeLayout(false);
             this.BatteryBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.BatteryCapacity1NumericUpDown)).EndInit();
@@ -3161,17 +3075,15 @@
             this.groupBoxAltitude1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DescentRate1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltIntLimit1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AltKd1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltProp1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltInt1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavRTHAlt1NumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DescDelay1NumericUpDown)).EndInit();
             this.General1GroupBox.ResumeLayout(false);
             this.General1GroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.CameraRollTrim1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Orientation1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CameraRoll1NumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BaroAccComp1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CompassOffset1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CameraPitch1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.GPSGain1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.HoverThrottle1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavMagVar1NumericUpDown)).EndInit();
@@ -3179,26 +3091,21 @@
             ((System.ComponentModel.ISupportInitialize)(this.BaroScale1NumericUpDown)).EndInit();
             this.groupBoxGPS1.ResumeLayout(false);
             this.groupBoxGPS1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NavGPSSlew1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavYawLimit1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavIntLimit1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavDiff1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavInt1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavNeutralRadius1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DescDelay1NumericUpDown)).EndInit();
             this.linear1GroupBox.ResumeLayout(false);
             this.linear1GroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.HorizDampingDecay1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.VertDampingDecay1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.HorizDamping1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.VertAcc1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.VertDamping1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PitchAcc1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollAcc1NumericUpDown)).EndInit();
             this.Yaw1GroupBox.ResumeLayout(false);
             this.Yaw1GroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.YawLimit1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawIntLimit1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.YawDiff1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawInt1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Compass1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawProp1NumericUpDown)).EndInit();
@@ -3221,14 +3128,16 @@
             this.tabPageParameterSet2.PerformLayout();
             this.groupBoxAltitude2.ResumeLayout(false);
             this.groupBoxAltitude2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DescDelay2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DescentRate2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltIntLimit2NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AltKd2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltProp2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AltInt2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavRTHAlt2NumericUpDown)).EndInit();
             this.groupBoxGPS2.ResumeLayout(false);
             this.groupBoxGPS2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NavYawLimit2NumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NavGPSSlew2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavIntLimit2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavDiff2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavInt2NumericUpDown)).EndInit();
@@ -3237,7 +3146,6 @@
             this.Yaw2GroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.YawIntLimit2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawLimit2NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.YawDiff2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawInt2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Compass2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawProp2NumericUpDown)).EndInit();
@@ -3343,8 +3251,6 @@
         private System.Windows.Forms.Label AltProp1Label;
         public System.Windows.Forms.NumericUpDown NavMagVar1NumericUpDown;
         private System.Windows.Forms.Label labelNavMagVar1;
-        public System.Windows.Forms.NumericUpDown HorizDamping1NumericUpDown;
-        private System.Windows.Forms.Label HorizDamping1Label;
         public System.Windows.Forms.NumericUpDown LowMotorRun1NumericUpDown;
         private System.Windows.Forms.Label LowMotorRun1Label;
         public System.Windows.Forms.NumericUpDown BaroScale1NumericUpDown;
@@ -3369,10 +3275,8 @@
         private System.Windows.Forms.GroupBox linear1GroupBox;
         public System.Windows.Forms.NumericUpDown VertAcc1NumericUpDown;
         private System.Windows.Forms.Label VertAcc1Label;
-        public System.Windows.Forms.NumericUpDown VertDamping1NumericUpDown;
         public System.Windows.Forms.NumericUpDown PitchAcc1NumericUpDown;
         private System.Windows.Forms.Label PitchAcc1Label;
-        private System.Windows.Forms.Label VertDamping1Label;
         public System.Windows.Forms.NumericUpDown RollAcc1NumericUpDown;
         private System.Windows.Forms.Label RollAcc1Label;
         private System.Windows.Forms.GroupBox Yaw1GroupBox;
@@ -3380,8 +3284,6 @@
         private System.Windows.Forms.Label YawIntLimit1Label;
         public System.Windows.Forms.NumericUpDown YawLimit1NumericUpDown;
         private System.Windows.Forms.Label YawLimit1Label;
-        public System.Windows.Forms.NumericUpDown YawDiff1NumericUpDown;
-        private System.Windows.Forms.Label YawDiff1Label;
         public System.Windows.Forms.NumericUpDown YawInt1NumericUpDown;
         private System.Windows.Forms.Label YawInt1Label;
         private System.Windows.Forms.Label Compass1Label;
@@ -3431,8 +3333,6 @@
         private System.Windows.Forms.Label YawIntLimit2Label;
         public System.Windows.Forms.NumericUpDown YawLimit2NumericUpDown;
         private System.Windows.Forms.Label YawLimit2Label;
-        public System.Windows.Forms.NumericUpDown YawDiff2NumericUpDown;
-        private System.Windows.Forms.Label YawDiff2Label;
         public System.Windows.Forms.NumericUpDown YawInt2NumericUpDown;
         private System.Windows.Forms.Label YawInt2Label;
         public System.Windows.Forms.NumericUpDown Compass2NumericUpDown;
@@ -3467,21 +3367,13 @@
         private System.Windows.Forms.Label NavDiff1Label;
         public System.Windows.Forms.NumericUpDown NavDiff2NumericUpDown;
         private System.Windows.Forms.Label NavDiff2Label;
-        public System.Windows.Forms.NumericUpDown HorizDampingDecay1NumericUpDown;
-        private System.Windows.Forms.Label HorizDampingDecay1Label;
-        public System.Windows.Forms.NumericUpDown VertDampingDecay1NumericUpDown;
-        private System.Windows.Forms.Label VertDampingDecay1Label;
         private System.Windows.Forms.Label labelTelemetry1;
         public System.Windows.Forms.ComboBox TelemetryComboBox1;
         private System.Windows.Forms.GroupBox groupBoxAltitude1;
         private System.Windows.Forms.GroupBox groupBoxAltitude2;
         public System.Windows.Forms.NumericUpDown ThrottleGS1NumericUpDown;
         private System.Windows.Forms.Label labelThrottleGS1;
-        public System.Windows.Forms.NumericUpDown AltKd1NumericUpDown;
-        private System.Windows.Forms.Label AltKd1Label;
-        private System.Windows.Forms.Label AltKd2Label;
-        public System.Windows.Forms.NumericUpDown AltKd2NumericUpDown;
-        private System.Windows.Forms.Label labelDescDelay1;
+        private System.Windows.Forms.Label DescDelayLabel1;
         public System.Windows.Forms.NumericUpDown DescDelay1NumericUpDown;
         public System.Windows.Forms.NumericUpDown NavIntLimit1NumericUpDown;
         private System.Windows.Forms.Label NavIntLimit1Label;
@@ -3520,6 +3412,17 @@
         public System.Windows.Forms.NumericUpDown Balance1NumericUpDown;
         private System.Windows.Forms.Label BalanceLabel2;
         public System.Windows.Forms.NumericUpDown Balance2NumericUpDown;
+        private System.Windows.Forms.GroupBox groupBox1;
+        public System.Windows.Forms.NumericUpDown BaroAccComp1NumericUpDown;
+        private System.Windows.Forms.Label BaroAccComp1Label;
+        public System.Windows.Forms.NumericUpDown NavGPSSlew1NumericUpDown;
+        private System.Windows.Forms.Label NavGPSSlewLabel1;
+        public System.Windows.Forms.NumericUpDown NavGPSSlew2NumericUpDown;
+        private System.Windows.Forms.Label NavGPSSlewLabel2;
+        private System.Windows.Forms.Label DescDelayLabel2;
+        public System.Windows.Forms.NumericUpDown DescDelay2NumericUpDown;
+        public System.Windows.Forms.NumericUpDown NavYawLimit2NumericUpDown;
+        private System.Windows.Forms.Label NavYawLimit2Label;
 
     }
 }

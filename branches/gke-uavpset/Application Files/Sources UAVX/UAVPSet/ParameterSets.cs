@@ -175,8 +175,11 @@ namespace UAVP.UAVPSet
             {
                 NumericUpDown feld = (NumericUpDown)objekt;
                 // je nach Parameter TAB
+              
                 if (mainForm.tabControlParameter.SelectedIndex == 0) 
                 {
+                   
+                    /*
                     //feld nur setzen wenn Integral Limit OK ist - sonst return ohne update
                     if (feld.Tag.ToString() == "5" || feld.Tag.ToString() == "10" || feld.Tag.ToString() == "15")
                     {
@@ -194,9 +197,12 @@ namespace UAVP.UAVPSet
                             return;
                         }  
                     }
+                  
+                    */
 
                     parameterForm1[Convert.ToInt16(feld.Tag)-1].Value = feld.Value.ToString();
-                    
+                   
+                    /*
                     //IntegralLimit berechnen wenn Integral geändert wurde
                     //Integral limit compensation - reduces limit for larger Ki to keep within 16 bits
                     if (feld.Tag.ToString() == "2" || feld.Tag.ToString() == "7" || feld.Tag.ToString() == "12")
@@ -223,7 +229,8 @@ namespace UAVP.UAVPSet
                             }
                         }
                     }
-                     
+                     */
+
                     // wenn es gleich dem PIC wert ist -> wieder grün
                     //Hier die Idee der Farbdarstellung:
                     //schwarz: wenn noch keine Daten gelesen wurden (dh nicht so wie jetzt wo die Werte ja rot werden und beim Initialwert grün)
@@ -250,6 +257,9 @@ namespace UAVP.UAVPSet
                 } 
                 else
                 {
+
+                    /*
+                     * 
                     //feld nur setzen wenn Integral Limit OK ist - sonst return ohne update
                     if (feld.Tag.ToString() == "5" || feld.Tag.ToString() == "10" || feld.Tag.ToString() == "15")
                     {
@@ -265,9 +275,11 @@ namespace UAVP.UAVPSet
                         }
 
                     }
+                    */
 
                     parameterForm2[Convert.ToInt16(feld.Tag)-1].Value = feld.Value.ToString();
 
+                    /*
                     //IntegralLimit berechnen wenn Integral geändert wurde
                     //Integral limit compensation - reduces limit for larger Ki to keep within 16 bits
                     if (feld.Tag.ToString() == "2" || feld.Tag.ToString() == "7" || feld.Tag.ToString() == "12")
@@ -293,7 +305,9 @@ namespace UAVP.UAVPSet
                                     break;
                             }
                     }
-                                      
+                    
+                    */
+
                     // wenn pic noch nicht gelesen wurde ist Chapter leer
                     if (parameterPic2[Convert.ToInt16(feld.Tag) - 1].Chapter == "ChannelSet")
                         // wenn pic schon gelesen wurde ist ein Vergleich notwendig
@@ -944,9 +958,9 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.RollDiff1NumericUpDown, mainForm);
                             break;
                         case 4:
-                            mainForm.HorizDamping1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                     //       mainForm.HorizDamping1NumericUpDown.Value = Convert.ToInt16(register.Value);
                             parameterForm1[3].Value = register.Value;
-                            feldUpdaten(mainForm.HorizDamping1NumericUpDown, mainForm);
+                     //       feldUpdaten(mainForm.HorizDamping1NumericUpDown, mainForm);
                             break;
                         case 5:
                             if (Convert.ToInt16(register.Value) <= 0) 
@@ -1006,8 +1020,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 13:
                             parameterForm1[12].Value = register.Value;
-                            mainForm.YawDiff1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.YawDiff1NumericUpDown, mainForm);
+                          //  mainForm.YawDiff1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                          //  feldUpdaten(mainForm.YawDiff1NumericUpDown, mainForm);
                             break;
                         case 14:
                             if (Convert.ToInt16(register.Value) <= 0) 
@@ -1142,8 +1156,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 21:
                             parameterForm1[20].Value = register.Value;
-                            mainForm.VertDamping1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.VertDamping1NumericUpDown, mainForm);
+                            mainForm.BaroAccComp1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.BaroAccComp1NumericUpDown, mainForm);
                             break;
                         case 22:
                             parameterForm1[21].Value = register.Value;
@@ -1190,8 +1204,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 29:
                             parameterForm1[28].Value = register.Value;
-                            mainForm.Acro1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.Acro1NumericUpDown, mainForm);
+                            mainForm.NavGPSSlew1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.NavGPSSlew1NumericUpDown, mainForm);
                             break;
                         case 30:
                             parameterForm1[29].Value = register.Value;
@@ -1255,13 +1269,13 @@ namespace UAVP.UAVPSet
                             break;
                         case 42:
                             parameterForm1[41].Value = register.Value;
-                            mainForm.VertDampingDecay1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.VertDampingDecay1NumericUpDown, mainForm);
+                        //    mainForm.VertDampingDecay1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                        //    feldUpdaten(mainForm.VertDampingDecay1NumericUpDown, mainForm);
                             break;
                         case 43:
                             parameterForm1[42].Value = register.Value;
-                            mainForm.HorizDampingDecay1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.HorizDampingDecay1NumericUpDown, mainForm);
+                         //   mainForm.HorizDampingDecay1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                         //   feldUpdaten(mainForm.HorizDampingDecay1NumericUpDown, mainForm);
                             break;
                         case 44:
                             parameterForm1[43].Value = register.Value;
@@ -1334,8 +1348,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 56:
                             parameterForm1[55].Value = register.Value;
-                            mainForm.AltKd1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.AltKd1NumericUpDown, mainForm);
+                       //     mainForm.AltKd1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                       //     feldUpdaten(mainForm.AltKd1NumericUpDown, mainForm);
                             break;
                         case 57:
                             parameterForm1[56].Value = register.Value;
@@ -1434,8 +1448,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 13:
                             parameterForm2[12].Value = register.Value;
-                            mainForm.YawDiff2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.YawDiff2NumericUpDown, mainForm);
+                         //   mainForm.YawDiff2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                         //   feldUpdaten(mainForm.YawDiff2NumericUpDown, mainForm);
                             break;
                         case 14:
                             if (Convert.ToInt16(register.Value) <= 0) 
@@ -1486,9 +1500,9 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.AltInt2NumericUpDown, mainForm);
                             break;
                         case 29:
-                          //  parameterForm2[28].Value = register.Value;
-                          //  mainForm.NavRadius2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                          //  feldUpdaten(mainForm.NavRadius2NumericUpDown, mainForm);
+                            parameterForm1[28].Value = register.Value;
+                            mainForm.NavGPSSlew2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.NavGPSSlew2NumericUpDown, mainForm);
                             break;
                         case 30:
                             parameterForm2[29].Value = register.Value;
@@ -1531,7 +1545,12 @@ namespace UAVP.UAVPSet
                             parameterForm2[45].Value = register.Value;
                             mainForm.DescentRate2NumericUpDown.Value = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.DescentRate2NumericUpDown, mainForm);
-                            break;   
+                            break;
+                        case 47:
+                            parameterForm2[46].Value = register.Value;
+                            mainForm.DescDelay2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.DescDelay2NumericUpDown, mainForm);
+                            break;
                         case 48:
                             parameterForm2[47].Value = register.Value;
                             mainForm.NavIntLimit2NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -1544,8 +1563,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 56:
                             parameterForm2[55].Value = register.Value;
-                            mainForm.AltKd2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.AltKd2NumericUpDown, mainForm);
+                        //    mainForm.AltKd2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                        //    feldUpdaten(mainForm.AltKd2NumericUpDown, mainForm);
                             break;
                         case 59:
                             parameterForm2[58].Value = register.Value;
@@ -1594,7 +1613,7 @@ namespace UAVP.UAVPSet
 
                 mainForm.YawProp1NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawInt1NumericUpDown.ForeColor = farbeElement;
-                mainForm.YawDiff1NumericUpDown.ForeColor = farbeElement;
+             //   mainForm.YawDiff1NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawLimit1NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawIntLimit1NumericUpDown.ForeColor = farbeElement;
 
@@ -1608,7 +1627,7 @@ namespace UAVP.UAVPSet
 
                 mainForm.Battery1NumericUpDown.ForeColor = farbeElement;
 
-                mainForm.VertDamping1NumericUpDown.ForeColor = farbeElement;
+             //   mainForm.VertDamping1NumericUpDown.ForeColor = farbeElement;
                 mainForm.VertAcc1NumericUpDown.ForeColor = farbeElement;
 
                 mainForm.LowMotorRun1NumericUpDown.ForeColor = farbeElement;
@@ -1639,7 +1658,7 @@ namespace UAVP.UAVPSet
 
                 mainForm.YawProp2NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawInt2NumericUpDown.ForeColor = farbeElement;
-                mainForm.YawDiff2NumericUpDown.ForeColor = farbeElement;
+               // mainForm.YawDiff2NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawLimit2NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawIntLimit2NumericUpDown.ForeColor = farbeElement;
 

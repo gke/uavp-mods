@@ -63,10 +63,10 @@ namespace UAVP.UAVPSet
                     Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
                     break;
                 case "german":
-                    Thread.CurrentThread.CurrentUICulture = new CultureInfo("de");
+                    Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
                     break;
                 case "french":
-                    Thread.CurrentThread.CurrentUICulture = new CultureInfo("fr");
+                    Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
                    break;
            }
 
@@ -170,8 +170,11 @@ namespace UAVP.UAVPSet
                     labelGPSGain1.Visible = true;
                     GPSGain1NumericUpDown.Visible = true;
 
-                    labelDescDelay1.Visible = true;
+                    DescDelayLabel1.Visible = true;
                     DescDelay1NumericUpDown.Visible = true;
+
+                    DescDelayLabel2.Visible = true;
+                    DescDelay2NumericUpDown.Visible = true;
 
                     LabelHoverThrottle1.Visible = true;
                     HoverThrottle1NumericUpDown.Visible = true;
@@ -185,7 +188,7 @@ namespace UAVP.UAVPSet
                     CameraPitch1Label.Visible = true;
                     CameraPitch1NumericUpDown.Visible = true;
 
-                    labelDescDelay1.Visible = true;
+                    DescDelayLabel1.Visible = true;
                     DescDelay1NumericUpDown.Visible = true;
 
                     labelThrottleGS1.Visible = true;
@@ -214,6 +217,21 @@ namespace UAVP.UAVPSet
 
                     NavYawLimit1Label.Visible = true;
                     NavYawLimit1NumericUpDown.Visible = true;
+
+                    NavYawLimit2Label.Visible = true;
+                    NavYawLimit2NumericUpDown.Visible = true;
+
+               //     HorizDamping1NumericUpDown.Visible = false;
+              //      HorizDamping1Label.Visible = false;
+
+              //      HorizDampingDecay1NumericUpDown.Visible = false;
+              //      HorizDampingDecay1Label.Visible = false;
+
+              //      YawDiff1NumericUpDown.Visible = false;
+              //      YawDiff1Label.Visible = false;
+
+              //      YawDiff2NumericUpDown.Visible = false;
+              //      YawDiff2Label.Visible = false;
 
                     break;
                 case "UAVXLight":
@@ -271,7 +289,7 @@ namespace UAVP.UAVPSet
                     labelGPSGain1.Visible = false;
                     GPSGain1NumericUpDown.Visible = false;
 
-                    labelDescDelay1.Visible = true;
+                    DescDelayLabel1.Visible = true;
                     DescDelay1NumericUpDown.Visible = true;
 
                     LabelHoverThrottle1.Visible = true;
@@ -286,7 +304,7 @@ namespace UAVP.UAVPSet
                     CameraPitch1Label.Visible = false; 
                     CameraPitch1NumericUpDown.Visible = false;
 
-                    labelDescDelay1.Visible = false;
+                    DescDelayLabel1.Visible = false;
                     DescDelay1NumericUpDown.Visible = false;
 
                     labelThrottleGS1.Visible = false;
@@ -309,6 +327,18 @@ namespace UAVP.UAVPSet
 
                     BatteryCapacity1Label.Visible = false;
                     BatteryCapacity1NumericUpDown.Visible = false;
+
+                 //   HorizDamping1NumericUpDown.Visible = false;
+                 //   HorizDamping1Label.Visible = false;
+
+                //    HorizDampingDecay1NumericUpDown.Visible = false;
+                //    HorizDampingDecay1Label.Visible = false;
+
+                //    YawDiff1NumericUpDown.Visible = false;
+                 //   YawDiff1Label.Visible = false;
+
+                //    YawDiff2NumericUpDown.Visible = false;
+                //    YawDiff2Label.Visible = false;
 
                     break;
             }
@@ -489,7 +519,7 @@ namespace UAVP.UAVPSet
                 labelNavRTHAlt2.Visible = false;
 
                 DescDelay1NumericUpDown.Visible = false;
-                labelDescDelay1.Visible = false;
+                DescDelayLabel1.Visible = false;
 
                 groupBoxGPS1.Visible = false;
                 groupBoxGPS2.Visible = false;
@@ -510,7 +540,7 @@ namespace UAVP.UAVPSet
                 labelNavRTHAlt2.Visible = true;
 
                 DescDelay1NumericUpDown.Visible = true;
-                labelDescDelay1.Visible = true;
+                DescDelayLabel1.Visible = true;
 
                 groupBoxGPS1.Visible = true;
                 groupBoxGPS2.Visible = true;
@@ -865,7 +895,8 @@ namespace UAVP.UAVPSet
             parameterSets.feldUpdaten(sender, this);
         }
 
-
-  
+    
+     
+      
     }
 }
