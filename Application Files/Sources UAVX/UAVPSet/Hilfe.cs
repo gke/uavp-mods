@@ -59,22 +59,14 @@ namespace UAVP.UAVPSet
                 // Yaw
                 if (mainForm.YawProp1NumericUpDown.Focused || mainForm.YawProp2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("Proportional");
-                if (mainForm.YawDiff1NumericUpDown.Focused || mainForm.YawDiff2NumericUpDown.Focused)
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("Differential");
+              
                 if (mainForm.YawInt1NumericUpDown.Focused || mainForm.YawInt2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("Integral");
                 if (mainForm.YawLimit1NumericUpDown.Focused || mainForm.YawLimit2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("Limiter");
                 if (mainForm.YawIntLimit1NumericUpDown.Focused || mainForm.YawIntLimit2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("IntegralLimiter");
-                if (mainForm.VertDamping1NumericUpDown.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("VerticalDamping");
-                if (mainForm.VertDampingDecay1NumericUpDown.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("VerticalDampingDecay");
-                if (mainForm.HorizDamping1NumericUpDown.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("HorizontalDamping");
-                if (mainForm.HorizDampingDecay1NumericUpDown.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("HorizontalDampingDecay");
+              
                 if (mainForm.VertAcc1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("Neutral");
 
@@ -133,12 +125,12 @@ namespace UAVP.UAVPSet
                 if (mainForm.Acro1NumericUpDown.Focused || mainForm.Acro2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("Acro");
 
-                if (mainForm.DescDelay1NumericUpDown.Focused)
+                if (mainForm.DescDelay1NumericUpDown.Focused || mainForm.DescDelay2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("DescentDelay");
                 if (mainForm.DescentRate1NumericUpDown.Focused || mainForm.DescentRate2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("DescentRate");
-                if (mainForm.AltKd1NumericUpDown.Focused || mainForm.AltKd2NumericUpDown.Focused)
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("AltKd");
+                if (mainForm.BaroAccComp1NumericUpDown.Focused )
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("BaroFilter");
 
                 if (mainForm.GPSGain1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("GPSGain");
@@ -168,7 +160,10 @@ namespace UAVP.UAVPSet
                 if (mainForm.NavMagVar1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavMagVar");
 
-                if (mainForm.NavYawLimit1NumericUpDown.Focused)
+                if (mainForm.NavGPSSlew1NumericUpDown.Focused || mainForm.NavGPSSlew2NumericUpDown.Focused)
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("NavGPSSlew");
+
+                if (mainForm.NavYawLimit1NumericUpDown.Focused || mainForm.NavYawLimit2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavTurnLimit");
         }
     }
