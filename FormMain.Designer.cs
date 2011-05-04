@@ -40,9 +40,9 @@ namespace UAVXGS
             this.DesiredRoll = new System.Windows.Forms.TextBox();
             this.DesiredPitch = new System.Windows.Forms.TextBox();
             this.DesiredYaw = new System.Windows.Forms.TextBox();
-            this.YawRate = new System.Windows.Forms.TextBox();
-            this.PitchRate = new System.Windows.Forms.TextBox();
-            this.RollRate = new System.Windows.Forms.TextBox();
+            this.YawGyro = new System.Windows.Forms.TextBox();
+            this.PitchGyro = new System.Windows.Forms.TextBox();
+            this.RollGyro = new System.Windows.Forms.TextBox();
             this.LRAcc = new System.Windows.Forms.TextBox();
             this.YawAngle = new System.Windows.Forms.TextBox();
             this.DUAcc = new System.Windows.Forms.TextBox();
@@ -61,7 +61,7 @@ namespace UAVXGS
             this.RangefinderAltitude = new System.Windows.Forms.TextBox();
             this.RelBaroAltitude = new System.Windows.Forms.TextBox();
             this.GPSFix = new System.Windows.Forms.TextBox();
-            this.BaroROC = new System.Windows.Forms.TextBox();
+            this.ROC = new System.Windows.Forms.TextBox();
             this.GPSNoOfSats = new System.Windows.Forms.TextBox();
             this.FailState = new System.Windows.Forms.TextBox();
             this.GPSRelAltitude = new System.Windows.Forms.TextBox();
@@ -74,9 +74,9 @@ namespace UAVXGS
             this.FailStateLabel = new System.Windows.Forms.Label();
             this.GPSAltLabel = new System.Windows.Forms.Label();
             this.BaroAltitudeLabel = new System.Windows.Forms.Label();
-            this.YawRateLabel = new System.Windows.Forms.Label();
-            this.PitchRateLabel = new System.Windows.Forms.Label();
-            this.RollRateLabel = new System.Windows.Forms.Label();
+            this.YawGyroLabel = new System.Windows.Forms.Label();
+            this.PitchGyroLabel = new System.Windows.Forms.Label();
+            this.RollGyroLabel = new System.Windows.Forms.Label();
             this.RxTypeErr = new System.Windows.Forms.TextBox();
             this.RxCSumErr = new System.Windows.Forms.TextBox();
             this.RxLenErr = new System.Windows.Forms.TextBox();
@@ -165,14 +165,14 @@ namespace UAVXGS
             this.WhereBearingLabel = new System.Windows.Forms.Label();
             this.WhereDistanceLabel = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.LRComp = new System.Windows.Forms.TextBox();
-            this.LRCompLabel = new System.Windows.Forms.Label();
+            this.IntCorrRoll = new System.Windows.Forms.TextBox();
+            this.IntCorrRollLabel = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.AltComp = new System.Windows.Forms.TextBox();
-            this.FBComp = new System.Windows.Forms.TextBox();
-            this.DUComp = new System.Windows.Forms.TextBox();
-            this.FBCompLabel = new System.Windows.Forms.Label();
-            this.DUCompLabel = new System.Windows.Forms.Label();
+            this.IntCorrPitch = new System.Windows.Forms.TextBox();
+            this.AccAltComp = new System.Windows.Forms.TextBox();
+            this.IntCorrPitchLabel = new System.Windows.Forms.Label();
+            this.AccAltCompLabel = new System.Windows.Forms.Label();
             this.AltCompLabel = new System.Windows.Forms.Label();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.SimulationTextBox = new System.Windows.Forms.TextBox();
@@ -386,32 +386,32 @@ namespace UAVXGS
             this.DesiredYaw.TabIndex = 14;
             this.DesiredYaw.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // YawRate
+            // YawGyro
             // 
-            this.YawRate.Location = new System.Drawing.Point(40, 71);
-            this.YawRate.Name = "YawRate";
-            this.YawRate.ReadOnly = true;
-            this.YawRate.Size = new System.Drawing.Size(32, 20);
-            this.YawRate.TabIndex = 17;
-            this.YawRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.YawGyro.Location = new System.Drawing.Point(40, 71);
+            this.YawGyro.Name = "YawGyro";
+            this.YawGyro.ReadOnly = true;
+            this.YawGyro.Size = new System.Drawing.Size(32, 20);
+            this.YawGyro.TabIndex = 17;
+            this.YawGyro.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // PitchRate
+            // PitchGyro
             // 
-            this.PitchRate.Location = new System.Drawing.Point(40, 45);
-            this.PitchRate.Name = "PitchRate";
-            this.PitchRate.ReadOnly = true;
-            this.PitchRate.Size = new System.Drawing.Size(32, 20);
-            this.PitchRate.TabIndex = 16;
-            this.PitchRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.PitchGyro.Location = new System.Drawing.Point(40, 45);
+            this.PitchGyro.Name = "PitchGyro";
+            this.PitchGyro.ReadOnly = true;
+            this.PitchGyro.Size = new System.Drawing.Size(32, 20);
+            this.PitchGyro.TabIndex = 16;
+            this.PitchGyro.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // RollRate
+            // RollGyro
             // 
-            this.RollRate.Location = new System.Drawing.Point(40, 16);
-            this.RollRate.Name = "RollRate";
-            this.RollRate.ReadOnly = true;
-            this.RollRate.Size = new System.Drawing.Size(32, 20);
-            this.RollRate.TabIndex = 15;
-            this.RollRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.RollGyro.Location = new System.Drawing.Point(40, 16);
+            this.RollGyro.Name = "RollGyro";
+            this.RollGyro.ReadOnly = true;
+            this.RollGyro.Size = new System.Drawing.Size(32, 20);
+            this.RollGyro.TabIndex = 15;
+            this.RollGyro.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // LRAcc
             // 
@@ -575,14 +575,14 @@ namespace UAVXGS
             this.GPSFix.TabIndex = 51;
             this.GPSFix.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // BaroROC
+            // ROC
             // 
-            this.BaroROC.Location = new System.Drawing.Point(84, 55);
-            this.BaroROC.Name = "BaroROC";
-            this.BaroROC.ReadOnly = true;
-            this.BaroROC.Size = new System.Drawing.Size(32, 20);
-            this.BaroROC.TabIndex = 49;
-            this.BaroROC.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.ROC.Location = new System.Drawing.Point(84, 55);
+            this.ROC.Name = "ROC";
+            this.ROC.ReadOnly = true;
+            this.ROC.Size = new System.Drawing.Size(32, 20);
+            this.ROC.TabIndex = 49;
+            this.ROC.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // GPSNoOfSats
             // 
@@ -693,32 +693,32 @@ namespace UAVXGS
             this.BaroAltitudeLabel.TabIndex = 75;
             this.BaroAltitudeLabel.Text = "Baro";
             // 
-            // YawRateLabel
+            // YawGyroLabel
             // 
-            this.YawRateLabel.AutoSize = true;
-            this.YawRateLabel.Location = new System.Drawing.Point(6, 74);
-            this.YawRateLabel.Name = "YawRateLabel";
-            this.YawRateLabel.Size = new System.Drawing.Size(28, 13);
-            this.YawRateLabel.TabIndex = 78;
-            this.YawRateLabel.Text = "Yaw";
+            this.YawGyroLabel.AutoSize = true;
+            this.YawGyroLabel.Location = new System.Drawing.Point(6, 74);
+            this.YawGyroLabel.Name = "YawGyroLabel";
+            this.YawGyroLabel.Size = new System.Drawing.Size(28, 13);
+            this.YawGyroLabel.TabIndex = 78;
+            this.YawGyroLabel.Text = "Yaw";
             // 
-            // PitchRateLabel
+            // PitchGyroLabel
             // 
-            this.PitchRateLabel.AutoSize = true;
-            this.PitchRateLabel.Location = new System.Drawing.Point(6, 48);
-            this.PitchRateLabel.Name = "PitchRateLabel";
-            this.PitchRateLabel.Size = new System.Drawing.Size(31, 13);
-            this.PitchRateLabel.TabIndex = 77;
-            this.PitchRateLabel.Text = "Pitch";
+            this.PitchGyroLabel.AutoSize = true;
+            this.PitchGyroLabel.Location = new System.Drawing.Point(6, 48);
+            this.PitchGyroLabel.Name = "PitchGyroLabel";
+            this.PitchGyroLabel.Size = new System.Drawing.Size(31, 13);
+            this.PitchGyroLabel.TabIndex = 77;
+            this.PitchGyroLabel.Text = "Pitch";
             // 
-            // RollRateLabel
+            // RollGyroLabel
             // 
-            this.RollRateLabel.AutoSize = true;
-            this.RollRateLabel.Location = new System.Drawing.Point(6, 22);
-            this.RollRateLabel.Name = "RollRateLabel";
-            this.RollRateLabel.Size = new System.Drawing.Size(25, 13);
-            this.RollRateLabel.TabIndex = 76;
-            this.RollRateLabel.Text = "Roll";
+            this.RollGyroLabel.AutoSize = true;
+            this.RollGyroLabel.Location = new System.Drawing.Point(6, 22);
+            this.RollGyroLabel.Name = "RollGyroLabel";
+            this.RollGyroLabel.Size = new System.Drawing.Size(25, 13);
+            this.RollGyroLabel.TabIndex = 76;
+            this.RollGyroLabel.Text = "Roll";
             // 
             // RxTypeErr
             // 
@@ -795,12 +795,12 @@ namespace UAVXGS
             // 
             // GyroGroupBox
             // 
-            this.GyroGroupBox.Controls.Add(this.RollRate);
-            this.GyroGroupBox.Controls.Add(this.PitchRate);
-            this.GyroGroupBox.Controls.Add(this.YawRate);
-            this.GyroGroupBox.Controls.Add(this.RollRateLabel);
-            this.GyroGroupBox.Controls.Add(this.PitchRateLabel);
-            this.GyroGroupBox.Controls.Add(this.YawRateLabel);
+            this.GyroGroupBox.Controls.Add(this.RollGyro);
+            this.GyroGroupBox.Controls.Add(this.PitchGyro);
+            this.GyroGroupBox.Controls.Add(this.YawGyro);
+            this.GyroGroupBox.Controls.Add(this.RollGyroLabel);
+            this.GyroGroupBox.Controls.Add(this.PitchGyroLabel);
+            this.GyroGroupBox.Controls.Add(this.YawGyroLabel);
             this.GyroGroupBox.Location = new System.Drawing.Point(12, 187);
             this.GyroGroupBox.Name = "GyroGroupBox";
             this.GyroGroupBox.Size = new System.Drawing.Size(77, 99);
@@ -1111,7 +1111,7 @@ namespace UAVXGS
             this.SticksFrozenBox.ReadOnly = true;
             this.SticksFrozenBox.Size = new System.Drawing.Size(109, 20);
             this.SticksFrozenBox.TabIndex = 126;
-            this.SticksFrozenBox.Text = "Rx Active";
+            this.SticksFrozenBox.Text = "Sticks Frozen";
             this.SticksFrozenBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // LowBatteryBox
@@ -1332,7 +1332,7 @@ namespace UAVXGS
             this.AltitudeGroupBox.Controls.Add(this.RelAltitudeLabel);
             this.AltitudeGroupBox.Controls.Add(this.RangefinderAltitude);
             this.AltitudeGroupBox.Controls.Add(this.GPSRelAltitude);
-            this.AltitudeGroupBox.Controls.Add(this.BaroROC);
+            this.AltitudeGroupBox.Controls.Add(this.ROC);
             this.AltitudeGroupBox.Controls.Add(this.RelBaroAltitude);
             this.AltitudeGroupBox.Controls.Add(this.GPSAltLabel);
             this.AltitudeGroupBox.Controls.Add(this.BaroAltitudeLabel);
@@ -1678,39 +1678,39 @@ namespace UAVXGS
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.LRComp);
-            this.groupBox1.Controls.Add(this.LRCompLabel);
+            this.groupBox1.Controls.Add(this.IntCorrRoll);
+            this.groupBox1.Controls.Add(this.IntCorrRollLabel);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.AltComp);
-            this.groupBox1.Controls.Add(this.FBComp);
-            this.groupBox1.Controls.Add(this.DUComp);
-            this.groupBox1.Controls.Add(this.FBCompLabel);
-            this.groupBox1.Controls.Add(this.DUCompLabel);
+            this.groupBox1.Controls.Add(this.IntCorrPitch);
+            this.groupBox1.Controls.Add(this.AccAltComp);
+            this.groupBox1.Controls.Add(this.IntCorrPitchLabel);
+            this.groupBox1.Controls.Add(this.AccAltCompLabel);
             this.groupBox1.Controls.Add(this.AltCompLabel);
             this.groupBox1.Location = new System.Drawing.Point(178, 381);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(139, 57);
             this.groupBox1.TabIndex = 103;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Compensation (%)";
+            this.groupBox1.Text = "Compensation";
             // 
-            // LRComp
+            // IntCorrRoll
             // 
-            this.LRComp.Location = new System.Drawing.Point(8, 29);
-            this.LRComp.Name = "LRComp";
-            this.LRComp.ReadOnly = true;
-            this.LRComp.Size = new System.Drawing.Size(26, 20);
-            this.LRComp.TabIndex = 59;
-            this.LRComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.IntCorrRoll.Location = new System.Drawing.Point(8, 29);
+            this.IntCorrRoll.Name = "IntCorrRoll";
+            this.IntCorrRoll.ReadOnly = true;
+            this.IntCorrRoll.Size = new System.Drawing.Size(26, 20);
+            this.IntCorrRoll.TabIndex = 59;
+            this.IntCorrRoll.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // LRCompLabel
+            // IntCorrRollLabel
             // 
-            this.LRCompLabel.AutoSize = true;
-            this.LRCompLabel.Location = new System.Drawing.Point(9, 13);
-            this.LRCompLabel.Name = "LRCompLabel";
-            this.LRCompLabel.Size = new System.Drawing.Size(21, 13);
-            this.LRCompLabel.TabIndex = 65;
-            this.LRCompLabel.Text = "LR";
+            this.IntCorrRollLabel.AutoSize = true;
+            this.IntCorrRollLabel.Location = new System.Drawing.Point(9, 13);
+            this.IntCorrRollLabel.Name = "IntCorrRollLabel";
+            this.IntCorrRollLabel.Size = new System.Drawing.Size(25, 13);
+            this.IntCorrRollLabel.TabIndex = 65;
+            this.IntCorrRollLabel.Text = "Roll";
             // 
             // label3
             // 
@@ -1729,41 +1729,41 @@ namespace UAVXGS
             this.AltComp.TabIndex = 43;
             this.AltComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // FBComp
+            // IntCorrPitch
             // 
-            this.FBComp.Location = new System.Drawing.Point(40, 29);
-            this.FBComp.Name = "FBComp";
-            this.FBComp.ReadOnly = true;
-            this.FBComp.Size = new System.Drawing.Size(26, 20);
-            this.FBComp.TabIndex = 58;
-            this.FBComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.IntCorrPitch.Location = new System.Drawing.Point(40, 29);
+            this.IntCorrPitch.Name = "IntCorrPitch";
+            this.IntCorrPitch.ReadOnly = true;
+            this.IntCorrPitch.Size = new System.Drawing.Size(26, 20);
+            this.IntCorrPitch.TabIndex = 58;
+            this.IntCorrPitch.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // DUComp
+            // AccAltComp
             // 
-            this.DUComp.Location = new System.Drawing.Point(72, 29);
-            this.DUComp.Name = "DUComp";
-            this.DUComp.ReadOnly = true;
-            this.DUComp.Size = new System.Drawing.Size(27, 20);
-            this.DUComp.TabIndex = 46;
-            this.DUComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.AccAltComp.Location = new System.Drawing.Point(72, 29);
+            this.AccAltComp.Name = "AccAltComp";
+            this.AccAltComp.ReadOnly = true;
+            this.AccAltComp.Size = new System.Drawing.Size(27, 20);
+            this.AccAltComp.TabIndex = 46;
+            this.AccAltComp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // FBCompLabel
+            // IntCorrPitchLabel
             // 
-            this.FBCompLabel.AutoSize = true;
-            this.FBCompLabel.Location = new System.Drawing.Point(41, 13);
-            this.FBCompLabel.Name = "FBCompLabel";
-            this.FBCompLabel.Size = new System.Drawing.Size(20, 13);
-            this.FBCompLabel.TabIndex = 74;
-            this.FBCompLabel.Text = "FB";
+            this.IntCorrPitchLabel.AutoSize = true;
+            this.IntCorrPitchLabel.Location = new System.Drawing.Point(40, 13);
+            this.IntCorrPitchLabel.Name = "IntCorrPitchLabel";
+            this.IntCorrPitchLabel.Size = new System.Drawing.Size(31, 13);
+            this.IntCorrPitchLabel.TabIndex = 74;
+            this.IntCorrPitchLabel.Text = "Pitch";
             // 
-            // DUCompLabel
+            // AccAltCompLabel
             // 
-            this.DUCompLabel.AutoSize = true;
-            this.DUCompLabel.Location = new System.Drawing.Point(76, 13);
-            this.DUCompLabel.Name = "DUCompLabel";
-            this.DUCompLabel.Size = new System.Drawing.Size(23, 13);
-            this.DUCompLabel.TabIndex = 75;
-            this.DUCompLabel.Text = "DU";
+            this.AccAltCompLabel.AutoSize = true;
+            this.AccAltCompLabel.Location = new System.Drawing.Point(73, 13);
+            this.AccAltCompLabel.Name = "AccAltCompLabel";
+            this.AccAltCompLabel.Size = new System.Drawing.Size(26, 13);
+            this.AccAltCompLabel.TabIndex = 75;
+            this.AccAltCompLabel.Text = "Acc";
             // 
             // AltCompLabel
             // 
@@ -2397,7 +2397,7 @@ namespace UAVXGS
             "128000"});
             this.COMBaudRateComboBox.Name = "COMBaudRateComboBox";
             this.COMBaudRateComboBox.Size = new System.Drawing.Size(75, 21);
-            this.COMBaudRateComboBox.Text = "115200";
+            this.COMBaudRateComboBox.Text = "9600";
             this.COMBaudRateComboBox.SelectedIndexChanged += new System.EventHandler(this.COMBaudRateComboBox_SelectedIndexChanged);
             // 
             // toolsToolStripMenuItem
@@ -2800,9 +2800,9 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox DesiredRoll;
         private System.Windows.Forms.TextBox DesiredPitch;
         private System.Windows.Forms.TextBox DesiredYaw;
-        private System.Windows.Forms.TextBox YawRate;
-        private System.Windows.Forms.TextBox PitchRate;
-        private System.Windows.Forms.TextBox RollRate;
+        private System.Windows.Forms.TextBox YawGyro;
+        private System.Windows.Forms.TextBox PitchGyro;
+        private System.Windows.Forms.TextBox RollGyro;
         private System.Windows.Forms.TextBox LRAcc;
         private System.Windows.Forms.TextBox YawAngle;
         private System.Windows.Forms.TextBox DUAcc;
@@ -2821,7 +2821,7 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox RangefinderAltitude;
         private System.Windows.Forms.TextBox RelBaroAltitude;
         private System.Windows.Forms.TextBox GPSFix;
-        private System.Windows.Forms.TextBox BaroROC;
+        private System.Windows.Forms.TextBox ROC;
         private System.Windows.Forms.TextBox GPSNoOfSats;
         private System.Windows.Forms.TextBox FailState;
         private System.Windows.Forms.TextBox GPSRelAltitude;
@@ -2834,9 +2834,9 @@ namespace UAVXGS
         private System.Windows.Forms.Label FailStateLabel;
         private System.Windows.Forms.Label GPSAltLabel;
         private System.Windows.Forms.Label BaroAltitudeLabel;
-        private System.Windows.Forms.Label YawRateLabel;
-        private System.Windows.Forms.Label PitchRateLabel;
-        private System.Windows.Forms.Label RollRateLabel;
+        private System.Windows.Forms.Label YawGyroLabel;
+        private System.Windows.Forms.Label PitchGyroLabel;
+        private System.Windows.Forms.Label RollGyroLabel;
         private System.Windows.Forms.TextBox RxTypeErr;
         private System.Windows.Forms.TextBox RxCSumErr;
         private System.Windows.Forms.TextBox RxLenErr;
@@ -2907,14 +2907,14 @@ namespace UAVXGS
         private System.Windows.Forms.Label WhereBearingLabel;
         private System.Windows.Forms.Label WhereDistanceLabel;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox LRComp;
-        private System.Windows.Forms.Label LRCompLabel;
+        private System.Windows.Forms.TextBox IntCorrRoll;
+        private System.Windows.Forms.Label IntCorrRollLabel;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox AltComp;
-        private System.Windows.Forms.TextBox FBComp;
-        private System.Windows.Forms.TextBox DUComp;
-        private System.Windows.Forms.Label FBCompLabel;
-        private System.Windows.Forms.Label DUCompLabel;
+        private System.Windows.Forms.TextBox IntCorrPitch;
+        private System.Windows.Forms.TextBox AccAltComp;
+        private System.Windows.Forms.Label IntCorrPitchLabel;
+        private System.Windows.Forms.Label AccAltCompLabel;
         private System.Windows.Forms.Label AltCompLabel;
         private System.Windows.Forms.Label NavStateTimeoutLabel;
         private System.Windows.Forms.TextBox NavStateTimeout;
