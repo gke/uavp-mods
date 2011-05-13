@@ -2,14 +2,14 @@
 
 === Introduction ===
 
-You must first load the DEBUG version of the software. This version has been modified so the motors should not start for safety reasons. You are advised however to disable the motors by removing the propellors or disconnecting two motor wires on each motor. 
+You must first load the DEBUG or Testfirmware versions of the software. These versions have been modified so the motors should not start for safety reasons. You are advised however to disable the motors by removing the propellors or disconnecting two motor wires on each motor. 
 
 Once you have done this:
    * Launch UAVPSet.
    * Select Tools->Sensor Test Graphic. In the older versions of UAVPSet go to the unnamed (blank) option also in the Tools pulldown menu.
    * ARM the quadrocopter.
    * Click on the Connect/Start menu item.
-   * Advance the throttle and the traces should progressively appear. If the motors start you have loaded the wrong software (see above).
+   * Advance the throttle and the traces should progressively appear. *WARNING:* If the motors start you have loaded the wrong software (see above).
 
 Once you have successfully obtained traces you may modify which traces to display:
 
