@@ -1,4 +1,4 @@
-#summary Provides an overview of the current recommended mods for all UAVP board owners.
+#summary Provides an overview of the current recommended mods for all of the original older UAVP board owners.  The newer boards being sold by www.quadroufo.com already incorporate these modifications.
 
 Over time the group has come up with a set of recommended modifications. Here's an overview.
 
