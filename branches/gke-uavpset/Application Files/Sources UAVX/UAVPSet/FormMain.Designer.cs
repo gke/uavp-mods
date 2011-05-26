@@ -224,9 +224,6 @@
             this.RollInt2Label = new System.Windows.Forms.Label();
             this.RollProp2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.RollProp2Label = new System.Windows.Forms.Label();
-            this.configToolStrip = new System.Windows.Forms.ToolStrip();
-            this.comPortToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
-            this.versionToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
@@ -234,6 +231,9 @@
             this.BurnPICToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
             this.set1Set2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.configToolStrip = new System.Windows.Forms.ToolStrip();
+            this.comPortToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
+            this.versionToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.statusStripMainWindow = new System.Windows.Forms.StatusStrip();
             this.infoleisteToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
@@ -362,8 +362,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.RollDiff2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollInt2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollProp2NumericUpDown)).BeginInit();
-            this.configToolStrip.SuspendLayout();
             this.toolStripMain.SuspendLayout();
+            this.configToolStrip.SuspendLayout();
             this.statusStripMainWindow.SuspendLayout();
             this.menuStripMainWindow.SuspendLayout();
             this.SuspendLayout();
@@ -380,8 +380,8 @@
             // 
             // toolStripContainerMainWindow.TopToolStripPanel
             // 
-            this.toolStripContainerMainWindow.TopToolStripPanel.Controls.Add(this.toolStripMain);
             this.toolStripContainerMainWindow.TopToolStripPanel.Controls.Add(this.configToolStrip);
+            this.toolStripContainerMainWindow.TopToolStripPanel.Controls.Add(this.toolStripMain);
             // 
             // splitContainer1
             // 
@@ -886,10 +886,15 @@
             0,
             0,
             0});
+            this.BaroAccComp1NumericUpDown.Minimum = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
             this.BaroAccComp1NumericUpDown.Name = "BaroAccComp1NumericUpDown";
             this.BaroAccComp1NumericUpDown.Tag = "21";
             this.BaroAccComp1NumericUpDown.Value = new decimal(new int[] {
-            35,
+            7,
             0,
             0,
             0});
@@ -1176,7 +1181,8 @@
             resources.GetString("GyroComboBox1.Items4"),
             resources.GetString("GyroComboBox1.Items5"),
             resources.GetString("GyroComboBox1.Items6"),
-            resources.GetString("GyroComboBox1.Items7")});
+            resources.GetString("GyroComboBox1.Items7"),
+            resources.GetString("GyroComboBox1.Items8")});
             this.GyroComboBox1.Name = "GyroComboBox1";
             this.GyroComboBox1.Tag = "35";
             this.GyroComboBox1.SelectedIndexChanged += new System.EventHandler(this.GyroComboBox1_SelectedIndexChanged);
@@ -1584,7 +1590,7 @@
             // 
             resources.ApplyResources(this.YawLimit1NumericUpDown, "YawLimit1NumericUpDown");
             this.YawLimit1NumericUpDown.Maximum = new decimal(new int[] {
-            32,
+            90,
             0,
             0,
             0});
@@ -1608,7 +1614,7 @@
             // 
             resources.ApplyResources(this.YawIntLimit1NumericUpDown, "YawIntLimit1NumericUpDown");
             this.YawIntLimit1NumericUpDown.Maximum = new decimal(new int[] {
-            16,
+            90,
             0,
             0,
             0});
@@ -2389,7 +2395,7 @@
             // 
             resources.ApplyResources(this.YawLimit2NumericUpDown, "YawLimit2NumericUpDown");
             this.YawLimit2NumericUpDown.Maximum = new decimal(new int[] {
-            32,
+            90,
             0,
             0,
             0});
@@ -2773,32 +2779,6 @@
             resources.ApplyResources(this.RollProp2Label, "RollProp2Label");
             this.RollProp2Label.Name = "RollProp2Label";
             // 
-            // configToolStrip
-            // 
-            resources.ApplyResources(this.configToolStrip, "configToolStrip");
-            this.configToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.comPortToolStripComboBox,
-            this.versionToolStripComboBox});
-            this.configToolStrip.Name = "configToolStrip";
-            // 
-            // comPortToolStripComboBox
-            // 
-            this.comPortToolStripComboBox.Name = "comPortToolStripComboBox";
-            resources.ApplyResources(this.comPortToolStripComboBox, "comPortToolStripComboBox");
-            this.comPortToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.comPortToolStripComboBox_SelectedIndexChanged);
-            // 
-            // versionToolStripComboBox
-            // 
-            this.versionToolStripComboBox.AutoCompleteCustomSource.AddRange(new string[] {
-            resources.GetString("versionToolStripComboBox.AutoCompleteCustomSource"),
-            resources.GetString("versionToolStripComboBox.AutoCompleteCustomSource1")});
-            this.versionToolStripComboBox.Items.AddRange(new object[] {
-            resources.GetString("versionToolStripComboBox.Items"),
-            resources.GetString("versionToolStripComboBox.Items1")});
-            this.versionToolStripComboBox.Name = "versionToolStripComboBox";
-            resources.ApplyResources(this.versionToolStripComboBox, "versionToolStripComboBox");
-            this.versionToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.versionToolStripComboBox_SelectedIndexChanged);
-            // 
             // toolStripMain
             // 
             resources.ApplyResources(this.toolStripMain, "toolStripMain");
@@ -2855,6 +2835,32 @@
             this.set1Set2ToolStripMenuItem.Name = "set1Set2ToolStripMenuItem";
             resources.ApplyResources(this.set1Set2ToolStripMenuItem, "set1Set2ToolStripMenuItem");
             this.set1Set2ToolStripMenuItem.Click += new System.EventHandler(this.set1Set2ToolStripMenuItem_Click);
+            // 
+            // configToolStrip
+            // 
+            resources.ApplyResources(this.configToolStrip, "configToolStrip");
+            this.configToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.comPortToolStripComboBox,
+            this.versionToolStripComboBox});
+            this.configToolStrip.Name = "configToolStrip";
+            // 
+            // comPortToolStripComboBox
+            // 
+            this.comPortToolStripComboBox.Name = "comPortToolStripComboBox";
+            resources.ApplyResources(this.comPortToolStripComboBox, "comPortToolStripComboBox");
+            this.comPortToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.comPortToolStripComboBox_SelectedIndexChanged);
+            // 
+            // versionToolStripComboBox
+            // 
+            this.versionToolStripComboBox.AutoCompleteCustomSource.AddRange(new string[] {
+            resources.GetString("versionToolStripComboBox.AutoCompleteCustomSource"),
+            resources.GetString("versionToolStripComboBox.AutoCompleteCustomSource1")});
+            this.versionToolStripComboBox.Items.AddRange(new object[] {
+            resources.GetString("versionToolStripComboBox.Items"),
+            resources.GetString("versionToolStripComboBox.Items1")});
+            this.versionToolStripComboBox.Name = "versionToolStripComboBox";
+            resources.ApplyResources(this.versionToolStripComboBox, "versionToolStripComboBox");
+            this.versionToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.versionToolStripComboBox_SelectedIndexChanged);
             // 
             // statusStripMainWindow
             // 
@@ -3164,10 +3170,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.RollDiff2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollInt2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollProp2NumericUpDown)).EndInit();
-            this.configToolStrip.ResumeLayout(false);
-            this.configToolStrip.PerformLayout();
             this.toolStripMain.ResumeLayout(false);
             this.toolStripMain.PerformLayout();
+            this.configToolStrip.ResumeLayout(false);
+            this.configToolStrip.PerformLayout();
             this.statusStripMainWindow.ResumeLayout(false);
             this.statusStripMainWindow.PerformLayout();
             this.menuStripMainWindow.ResumeLayout(false);
