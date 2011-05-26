@@ -76,7 +76,7 @@ namespace UAVXGS
         const byte MAXPARAMS = 64;
 
         const float MILLIRADDEG = (float)0.057295;
-        const byte AttitudeToDegrees = 100; // Acc is G = 1024 
+        const double AttitudeToDegrees = 100.0; // Acc is G = 1024 
 
         const int DefaultRangeLimit = 100;
         const int MaximumRangeLimit = 250; // You carry total responsibility if you increase this value
@@ -2303,15 +2303,30 @@ namespace UAVXGS
             DesiredThrottleT + "," +
             DesiredRollT + "," +
             DesiredPitchT + "," +
-            DesiredYawT + "," +
-            RollGyroT * MILLIRADDEG + "," +
-            PitchGyroT * MILLIRADDEG + "," +
+            DesiredYawT + "," );
 
-            YawGyroT * MILLIRADDEG + "," +
-            RollAngleT * MILLIRADDEG + "," +
-            PitchAngleT * MILLIRADDEG + "," +
-            YawAngleT * MILLIRADDEG + "," +
-            LRAccT * 0.001 + "," +
+            if ( UAVXArm )
+            {
+                SaveTextLogFileStreamWriter.Write(RollGyroT * MILLIRADDEG + "," +
+                PitchGyroT * MILLIRADDEG + "," +
+
+                YawGyroT * MILLIRADDEG + "," +
+                RollAngleT * MILLIRADDEG + "," +
+                PitchAngleT * MILLIRADDEG + "," +
+                YawAngleT * MILLIRADDEG + ",");
+            }
+            else
+            {
+                SaveTextLogFileStreamWriter.Write(RollGyroT / AttitudeToDegrees + "," +
+                PitchGyroT / AttitudeToDegrees + "," +
+
+                YawGyroT / AttitudeToDegrees + "," +
+                RollAngleT / AttitudeToDegrees + "," +
+                PitchAngleT * MILLIRADDEG + "," +
+                YawAngleT / AttitudeToDegrees + ",");
+            }
+
+            SaveTextLogFileStreamWriter.Write(LRAccT * 0.001 + "," +
             FBAccT * 0.001 + "," +
             DUAccT * 0.001 + "," +
             IntCorrRollT + "," +

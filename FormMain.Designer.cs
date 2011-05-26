@@ -1759,11 +1759,11 @@ namespace UAVXGS
             // AccAltCompLabel
             // 
             this.AccAltCompLabel.AutoSize = true;
-            this.AccAltCompLabel.Location = new System.Drawing.Point(73, 13);
+            this.AccAltCompLabel.Location = new System.Drawing.Point(71, 13);
             this.AccAltCompLabel.Name = "AccAltCompLabel";
-            this.AccAltCompLabel.Size = new System.Drawing.Size(26, 13);
+            this.AccAltCompLabel.Size = new System.Drawing.Size(32, 13);
             this.AccAltCompLabel.TabIndex = 75;
-            this.AccAltCompLabel.Text = "Acc";
+            this.AccAltCompLabel.Text = "AltCF";
             // 
             // AltCompLabel
             // 
