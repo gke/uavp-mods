@@ -234,7 +234,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj0yLjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAADC
-        MgAAAk1TRnQBSQFMAgEBBgEAAVQBAwFUAQMBMAEAATABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        MgAAAk1TRnQBSQFMAgEBBgEAAaQBAwGkAQMBMAEAATABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABwAMAAWADAAEBAQABCAYAAUgYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -1308,7 +1308,7 @@
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="DescDelay1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>76, 118</value>
+    <value>78, 118</value>
   </data>
   <data name="DescDelay1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -2427,12 +2427,15 @@
     <value>ADXRS300/610</value>
   </data>
   <data name="GyroComboBox1.Items5" xml:space="preserve">
-    <value>ITG3200</value>
+    <value>ITG3200 &amp; SF-6DOF</value>
   </data>
   <data name="GyroComboBox1.Items6" xml:space="preserve">
-    <value>IRSensors</value>
+    <value>ITG3200 &amp; SF-9DOFStick</value>
   </data>
   <data name="GyroComboBox1.Items7" xml:space="preserve">
+    <value>IRSensors</value>
+  </data>
+  <data name="GyroComboBox1.Items8" xml:space="preserve">
     <value>Reserved</value>
   </data>
   <data name="GyroComboBox1.Location" type="System.Drawing.Point, System.Drawing">
@@ -5298,7 +5301,7 @@
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="YawLimit2NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>64, 119</value>
+    <value>64, 94</value>
   </data>
   <data name="YawLimit2NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -5328,7 +5331,7 @@
     <value>NoControl</value>
   </data>
   <data name="YawLimit2Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 122</value>
+    <value>7, 96</value>
   </data>
   <data name="YawLimit2Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>37, 13</value>
@@ -6383,11 +6386,62 @@
   <data name="toolStripContainerMainWindow.Text" xml:space="preserve">
     <value>toolStripContainer1</value>
   </data>
+  <metadata name="configToolStrip.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="configToolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>3, 0</value>
+  </metadata>
+  <data name="configToolStrip.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="comPortToolStripComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 25</value>
+  </data>
+  <data name="versionToolStripComboBox.AutoCompleteCustomSource" xml:space="preserve">
+    <value>UAVX</value>
+  </data>
+  <data name="versionToolStripComboBox.AutoCompleteCustomSource1" xml:space="preserve">
+    <value>UAVXLight</value>
+  </data>
+  <data name="versionToolStripComboBox.Items" xml:space="preserve">
+    <value>UAVX</value>
+  </data>
+  <data name="versionToolStripComboBox.Items1" xml:space="preserve">
+    <value>UAVXLight</value>
+  </data>
+  <data name="versionToolStripComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 25</value>
+  </data>
+  <data name="versionToolStripComboBox.Text" xml:space="preserve">
+    <value>UAVX</value>
+  </data>
+  <data name="configToolStrip.Location" type="System.Drawing.Point, System.Drawing">
+    <value>137, 0</value>
+  </data>
+  <data name="configToolStrip.Size" type="System.Drawing.Size, System.Drawing">
+    <value>256, 25</value>
+  </data>
+  <data name="configToolStrip.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;configToolStrip.Name" xml:space="preserve">
+    <value>configToolStrip</value>
+  </data>
+  <data name="&gt;&gt;configToolStrip.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStrip, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;configToolStrip.Parent" xml:space="preserve">
+    <value>toolStripContainerMainWindow.TopToolStripPanel</value>
+  </data>
+  <data name="&gt;&gt;configToolStrip.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <metadata name="toolStripMain.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <metadata name="toolStripMain.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>3, 0</value>
+    <value>259, 0</value>
   </metadata>
   <data name="toolStripMain.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>None</value>
@@ -6477,57 +6531,6 @@
     <value>toolStripContainerMainWindow.TopToolStripPanel</value>
   </data>
   <data name="&gt;&gt;toolStripMain.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <metadata name="configToolStrip.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="configToolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>137, 0</value>
-  </metadata>
-  <data name="configToolStrip.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>None</value>
-  </data>
-  <data name="comPortToolStripComboBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>121, 25</value>
-  </data>
-  <data name="versionToolStripComboBox.AutoCompleteCustomSource" xml:space="preserve">
-    <value>UAVX</value>
-  </data>
-  <data name="versionToolStripComboBox.AutoCompleteCustomSource1" xml:space="preserve">
-    <value>UAVXLight</value>
-  </data>
-  <data name="versionToolStripComboBox.Items" xml:space="preserve">
-    <value>UAVX</value>
-  </data>
-  <data name="versionToolStripComboBox.Items1" xml:space="preserve">
-    <value>UAVXLight</value>
-  </data>
-  <data name="versionToolStripComboBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>121, 25</value>
-  </data>
-  <data name="versionToolStripComboBox.Text" xml:space="preserve">
-    <value>UAVX</value>
-  </data>
-  <data name="configToolStrip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>137, 0</value>
-  </data>
-  <data name="configToolStrip.Size" type="System.Drawing.Size, System.Drawing">
-    <value>256, 25</value>
-  </data>
-  <data name="configToolStrip.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;configToolStrip.Name" xml:space="preserve">
-    <value>configToolStrip</value>
-  </data>
-  <data name="&gt;&gt;configToolStrip.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStrip, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;configToolStrip.Parent" xml:space="preserve">
-    <value>toolStripContainerMainWindow.TopToolStripPanel</value>
-  </data>
-  <data name="&gt;&gt;configToolStrip.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
   <data name="&gt;&gt;toolStripContainerMainWindow.TopToolStripPanel.Name" xml:space="preserve">
@@ -6952,18 +6955,6 @@
   <data name="&gt;&gt;imageListJobs.Type" xml:space="preserve">
     <value>System.Windows.Forms.ImageList, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;comPortToolStripComboBox.Name" xml:space="preserve">
-    <value>comPortToolStripComboBox</value>
-  </data>
-  <data name="&gt;&gt;comPortToolStripComboBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;versionToolStripComboBox.Name" xml:space="preserve">
-    <value>versionToolStripComboBox</value>
-  </data>
-  <data name="&gt;&gt;versionToolStripComboBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="&gt;&gt;toolStripButton1.Name" xml:space="preserve">
     <value>toolStripButton1</value>
   </data>
@@ -6999,6 +6990,18 @@
   </data>
   <data name="&gt;&gt;set1Set2ToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comPortToolStripComboBox.Name" xml:space="preserve">
+    <value>comPortToolStripComboBox</value>
+  </data>
+  <data name="&gt;&gt;comPortToolStripComboBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;versionToolStripComboBox.Name" xml:space="preserve">
+    <value>versionToolStripComboBox</value>
+  </data>
+  <data name="&gt;&gt;versionToolStripComboBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;infoleisteToolStripStatusLabel.Name" xml:space="preserve">
     <value>infoleisteToolStripStatusLabel</value>
