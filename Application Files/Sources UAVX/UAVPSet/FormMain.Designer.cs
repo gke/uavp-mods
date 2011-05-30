@@ -74,7 +74,7 @@
             this.Sense11Button = new System.Windows.Forms.Button();
             this.PWMSenseLabel = new System.Windows.Forms.Label();
             this.Sense01Button = new System.Windows.Forms.Button();
-            this.labelGPSGain1 = new System.Windows.Forms.Label();
+            this.GPSGain1Label = new System.Windows.Forms.Label();
             this.labelTelemetry1 = new System.Windows.Forms.Label();
             this.TelemetryComboBox1 = new System.Windows.Forms.ComboBox();
             this.bit11CheckBox = new System.Windows.Forms.CheckBox();
@@ -115,10 +115,8 @@
             this.NavIntLimit1Label = new System.Windows.Forms.Label();
             this.NavDiff1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.NavDiff1Label = new System.Windows.Forms.Label();
-            this.labelNavNeutralRadius1 = new System.Windows.Forms.Label();
             this.NavInt1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.NavInt1Label = new System.Windows.Forms.Label();
-            this.NavNeutralRadius1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.linear1GroupBox = new System.Windows.Forms.GroupBox();
             this.VertAcc1NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.VertAcc1Label = new System.Windows.Forms.Label();
@@ -185,9 +183,7 @@
             this.NavIntLimit2Label = new System.Windows.Forms.Label();
             this.NavDiff2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.NavDiff2Label = new System.Windows.Forms.Label();
-            this.labelNavNeutralRadius2 = new System.Windows.Forms.Label();
             this.NavInt2NumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.NavNeutralRadius2NumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.NavInt2Label = new System.Windows.Forms.Label();
             this.Yaw2GroupBox = new System.Windows.Forms.GroupBox();
             this.YawIntLimit2NumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -304,7 +300,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.NavIntLimit1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavDiff1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavInt1NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NavNeutralRadius1NumericUpDown)).BeginInit();
             this.linear1GroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VertAcc1NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PitchAcc1NumericUpDown)).BeginInit();
@@ -342,7 +337,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.NavIntLimit2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavDiff2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavInt2NumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NavNeutralRadius2NumericUpDown)).BeginInit();
             this.Yaw2GroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.YawIntLimit2NumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.YawLimit2NumericUpDown)).BeginInit();
@@ -816,7 +810,7 @@
             this.General1GroupBox.Controls.Add(this.Sense11Button);
             this.General1GroupBox.Controls.Add(this.PWMSenseLabel);
             this.General1GroupBox.Controls.Add(this.Sense01Button);
-            this.General1GroupBox.Controls.Add(this.labelGPSGain1);
+            this.General1GroupBox.Controls.Add(this.GPSGain1Label);
             this.General1GroupBox.Controls.Add(this.labelTelemetry1);
             this.General1GroupBox.Controls.Add(this.TelemetryComboBox1);
             this.General1GroupBox.Controls.Add(this.bit11CheckBox);
@@ -980,11 +974,11 @@
             this.Sense01Button.UseVisualStyleBackColor = false;
             this.Sense01Button.Click += new System.EventHandler(this.SenseButton0_Click);
             // 
-            // labelGPSGain1
+            // GPSGain1Label
             // 
-            resources.ApplyResources(this.labelGPSGain1, "labelGPSGain1");
-            this.labelGPSGain1.ForeColor = System.Drawing.Color.Black;
-            this.labelGPSGain1.Name = "labelGPSGain1";
+            resources.ApplyResources(this.GPSGain1Label, "GPSGain1Label");
+            this.GPSGain1Label.ForeColor = System.Drawing.Color.Black;
+            this.GPSGain1Label.Name = "GPSGain1Label";
             // 
             // labelTelemetry1
             // 
@@ -1334,10 +1328,8 @@
             this.groupBoxGPS1.Controls.Add(this.NavIntLimit1Label);
             this.groupBoxGPS1.Controls.Add(this.NavDiff1NumericUpDown);
             this.groupBoxGPS1.Controls.Add(this.NavDiff1Label);
-            this.groupBoxGPS1.Controls.Add(this.labelNavNeutralRadius1);
             this.groupBoxGPS1.Controls.Add(this.NavInt1NumericUpDown);
             this.groupBoxGPS1.Controls.Add(this.NavInt1Label);
-            this.groupBoxGPS1.Controls.Add(this.NavNeutralRadius1NumericUpDown);
             resources.ApplyResources(this.groupBoxGPS1, "groupBoxGPS1");
             this.groupBoxGPS1.Name = "groupBoxGPS1";
             this.groupBoxGPS1.TabStop = false;
@@ -1438,11 +1430,6 @@
             resources.ApplyResources(this.NavDiff1Label, "NavDiff1Label");
             this.NavDiff1Label.Name = "NavDiff1Label";
             // 
-            // labelNavNeutralRadius1
-            // 
-            resources.ApplyResources(this.labelNavNeutralRadius1, "labelNavNeutralRadius1");
-            this.labelNavNeutralRadius1.Name = "labelNavNeutralRadius1";
-            // 
             // NavInt1NumericUpDown
             // 
             resources.ApplyResources(this.NavInt1NumericUpDown, "NavInt1NumericUpDown");
@@ -1466,20 +1453,6 @@
             // 
             resources.ApplyResources(this.NavInt1Label, "NavInt1Label");
             this.NavInt1Label.Name = "NavInt1Label";
-            // 
-            // NavNeutralRadius1NumericUpDown
-            // 
-            resources.ApplyResources(this.NavNeutralRadius1NumericUpDown, "NavNeutralRadius1NumericUpDown");
-            this.NavNeutralRadius1NumericUpDown.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.NavNeutralRadius1NumericUpDown.Name = "NavNeutralRadius1NumericUpDown";
-            this.NavNeutralRadius1NumericUpDown.Tag = "38";
-            this.NavNeutralRadius1NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.NavNeutralRadius1NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.NavNeutralRadius1NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
             // 
             // linear1GroupBox
             // 
@@ -2187,9 +2160,7 @@
             this.groupBoxGPS2.Controls.Add(this.NavIntLimit2Label);
             this.groupBoxGPS2.Controls.Add(this.NavDiff2NumericUpDown);
             this.groupBoxGPS2.Controls.Add(this.NavDiff2Label);
-            this.groupBoxGPS2.Controls.Add(this.labelNavNeutralRadius2);
             this.groupBoxGPS2.Controls.Add(this.NavInt2NumericUpDown);
-            this.groupBoxGPS2.Controls.Add(this.NavNeutralRadius2NumericUpDown);
             this.groupBoxGPS2.Controls.Add(this.NavInt2Label);
             this.groupBoxGPS2.Name = "groupBoxGPS2";
             this.groupBoxGPS2.TabStop = false;
@@ -2301,11 +2272,6 @@
             resources.ApplyResources(this.NavDiff2Label, "NavDiff2Label");
             this.NavDiff2Label.Name = "NavDiff2Label";
             // 
-            // labelNavNeutralRadius2
-            // 
-            resources.ApplyResources(this.labelNavNeutralRadius2, "labelNavNeutralRadius2");
-            this.labelNavNeutralRadius2.Name = "labelNavNeutralRadius2";
-            // 
             // NavInt2NumericUpDown
             // 
             this.NavInt2NumericUpDown.AllowDrop = true;
@@ -2325,21 +2291,6 @@
             this.NavInt2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
             this.NavInt2NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
             this.NavInt2NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
-            // 
-            // NavNeutralRadius2NumericUpDown
-            // 
-            this.NavNeutralRadius2NumericUpDown.AllowDrop = true;
-            resources.ApplyResources(this.NavNeutralRadius2NumericUpDown, "NavNeutralRadius2NumericUpDown");
-            this.NavNeutralRadius2NumericUpDown.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.NavNeutralRadius2NumericUpDown.Name = "NavNeutralRadius2NumericUpDown";
-            this.NavNeutralRadius2NumericUpDown.Tag = "38";
-            this.NavNeutralRadius2NumericUpDown.ValueChanged += new System.EventHandler(this.feldUpdaten_Click_KeyDown);
-            this.NavNeutralRadius2NumericUpDown.Enter += new System.EventHandler(this.infoGetFocus);
-            this.NavNeutralRadius2NumericUpDown.KeyDown += new System.Windows.Forms.KeyEventHandler(this.feldUpdaten_KeyDown);
             // 
             // NavInt2Label
             // 
@@ -3102,7 +3053,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.NavIntLimit1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavDiff1NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavInt1NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NavNeutralRadius1NumericUpDown)).EndInit();
             this.linear1GroupBox.ResumeLayout(false);
             this.linear1GroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.VertAcc1NumericUpDown)).EndInit();
@@ -3147,7 +3097,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.NavIntLimit2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavDiff2NumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavInt2NumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NavNeutralRadius2NumericUpDown)).EndInit();
             this.Yaw2GroupBox.ResumeLayout(false);
             this.Yaw2GroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.YawIntLimit2NumericUpDown)).EndInit();
@@ -3270,8 +3219,6 @@
         public System.Windows.Forms.CheckBox bit01CheckBox;
         private System.Windows.Forms.Label bit0Header1Label;
         private System.Windows.Forms.GroupBox groupBoxGPS1;
-        private System.Windows.Forms.Label labelNavNeutralRadius1;
-        public System.Windows.Forms.NumericUpDown NavNeutralRadius1NumericUpDown;
         public System.Windows.Forms.NumericUpDown NavInt1NumericUpDown;
         private System.Windows.Forms.Label NavInt1Label;
         public System.Windows.Forms.NumericUpDown Acro1NumericUpDown;
@@ -3324,8 +3271,6 @@
         public System.Windows.Forms.TabPage tabPageParameterSet2;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.GroupBox groupBoxGPS2;
-        public System.Windows.Forms.NumericUpDown NavNeutralRadius2NumericUpDown;
-        private System.Windows.Forms.Label labelNavNeutralRadius2;
         public System.Windows.Forms.NumericUpDown NavRTHAlt2NumericUpDown;
         private System.Windows.Forms.Label labelNavRTHAlt2;
         public System.Windows.Forms.NumericUpDown NavInt2NumericUpDown;
@@ -3365,7 +3310,7 @@
         private System.Windows.Forms.Label RollProp2Label;
         public System.Windows.Forms.CheckBox bit11CheckBox;
         private System.Windows.Forms.Label bit1Header1Label;
-        private System.Windows.Forms.Label labelGPSGain1;
+        private System.Windows.Forms.Label GPSGain1Label;
         public System.Windows.Forms.NumericUpDown GPSGain1NumericUpDown;
         public System.Windows.Forms.NumericUpDown CameraRollTrim1NumericUpDown;
         private System.Windows.Forms.Label CameraRollTrim1Label;

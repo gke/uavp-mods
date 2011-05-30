@@ -147,8 +147,6 @@ namespace UAVP.UAVPSet
   
                 //GPS
 
-                if (mainForm.NavNeutralRadius1NumericUpDown.Focused || mainForm.NavNeutralRadius2NumericUpDown.Focused)
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("NavNeutralRadius");
                 if (mainForm.NavInt1NumericUpDown.Focused || mainForm.NavInt2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavInt");
                 if (mainForm.NavDiff1NumericUpDown.Focused || mainForm.NavDiff2NumericUpDown.Focused)

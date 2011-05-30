@@ -1248,9 +1248,9 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.TxRxComboBox1, mainForm);
                             break;
                         case 38:
-                            parameterForm1[37].Value = register.Value;
-                            mainForm.NavNeutralRadius1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.NavNeutralRadius1NumericUpDown, mainForm);
+                         //   parameterForm1[37].Value = register.Value;
+                         //   mainForm.GPSUpdateRate1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                        //    feldUpdaten(mainForm.GPSUpdateRate1NumericUpDown, mainForm);
                             break;
                         case 39:
                             parameterForm1[38].Value = register.Value;
@@ -1526,9 +1526,9 @@ namespace UAVP.UAVPSet
                             break;
                        
                         case 38:
-                            parameterForm2[37].Value = register.Value;
-                            mainForm.NavNeutralRadius2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.NavNeutralRadius2NumericUpDown, mainForm);
+                         //   parameterForm2[37].Value = register.Value;
+                         //   mainForm.NavNeutralRadius2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                         //   feldUpdaten(mainForm.NavNeutralRadius2NumericUpDown, mainForm);
                             break;
                        
                         case 40:
@@ -1638,8 +1638,7 @@ namespace UAVP.UAVPSet
                 mainForm.Compass1NumericUpDown.ForeColor = farbeElement;
                 mainForm.AltInt1NumericUpDown.ForeColor = farbeElement;
 
-                mainForm.Acro1NumericUpDown.ForeColor = farbeElement;
-                mainForm.NavNeutralRadius1NumericUpDown.ForeColor = farbeElement;
+                mainForm.Acro1NumericUpDown.ForeColor = farbeElement;     
                 mainForm.NavInt1NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavRTHAlt1NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavMagVar1NumericUpDown.ForeColor = farbeElement;
@@ -1665,7 +1664,6 @@ namespace UAVP.UAVPSet
                 mainForm.Compass2NumericUpDown.ForeColor = farbeElement;
                 mainForm.AltInt2NumericUpDown.ForeColor = farbeElement;
 
-                mainForm.NavNeutralRadius2NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavInt2NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavRTHAlt2NumericUpDown.ForeColor = farbeElement;
 
