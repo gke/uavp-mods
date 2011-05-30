@@ -2053,7 +2053,7 @@ namespace UAVXGS
                     HeadingT = ExtractShort(ref UAVXPacket, 18);
                     DesiredCourseT = ExtractShort(ref UAVXPacket, 20);
                     GPSVelT = ExtractShort(ref UAVXPacket, 22);
-                    GPSROCT = ExtractShort(ref UAVXPacket, 24);
+                    GPSROCT = 0;//ExtractShort(ref UAVXPacket, 24);
                     GPSRelAltitudeT = ExtractInt24(ref UAVXPacket, 26);
                     GPSLatitudeT = ExtractInt(ref UAVXPacket, 29);
                     GPSLongitudeT = ExtractInt(ref UAVXPacket, 33);
