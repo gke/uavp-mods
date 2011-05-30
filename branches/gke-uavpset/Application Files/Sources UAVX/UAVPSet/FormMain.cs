@@ -127,7 +127,7 @@ namespace UAVP.UAVPSet
                     groupBoxGPS1.Visible = true;
                     groupBoxGPS2.Visible = true;
 
-                    labelGPSGain1.Visible = true;
+                    GPSGain1Label.Visible = true;
                     GPSGain1NumericUpDown.Visible = true;
 
                     labelThrottleGS1.Visible = true;
@@ -167,7 +167,7 @@ namespace UAVP.UAVPSet
                     Compass2label.Visible = true;
                     Compass2NumericUpDown.Visible = true;
 
-                    labelGPSGain1.Visible = true;
+                    GPSGain1Label.Visible = true;
                     GPSGain1NumericUpDown.Visible = true;
 
                     DescDelayLabel1.Visible = true;
@@ -243,7 +243,7 @@ namespace UAVP.UAVPSet
                     groupBoxGPS1.Visible = false;
                     groupBoxGPS2.Visible = false;
 
-                    labelGPSGain1.Visible = false;
+                    GPSGain1Label.Visible = false;
                     GPSGain1NumericUpDown.Visible = false;
 
                     labelThrottleGS1.Visible = false;
@@ -286,7 +286,7 @@ namespace UAVP.UAVPSet
                     Compass1Label.Visible = false;
                     Compass1NumericUpDown.Visible = false;
 
-                    labelGPSGain1.Visible = false;
+                    GPSGain1Label.Visible = false;
                     GPSGain1NumericUpDown.Visible = false;
 
                     DescDelayLabel1.Visible = true;
