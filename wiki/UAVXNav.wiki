@@ -9,6 +9,38 @@ GPS, altimeter, waypoint coordinates, aircraft coordinates and position and alti
 
 After the flight statistics may be read showing any sensor failures along with Rx errors etc.
 
+== Tx setup ==
+
+The waypoint feature is triggered by ch5 being set to the middle of the pulse.  So ideally you should assign a 3-position switch to ch 5 to use the waypoint feature.  So the ch5 switch would do Position hold(PH)=low, Waypoints(WP)=middle, and Return to home(RTH)=high EPAs.  These values must be checked using the UAVPset Tx/Rx test graphic to make sure they are correct.  Always do a stir the sticks, switches, and posts test to make sure the green LED stays on after making any changes to your Tx EPAs, Expo, Rates, or Subtrims!
+
+== Simulation firmware ==
+
+You should load the UAVX Simulation firmware Hex and fly the course to become familiar with the application.  It will also help you become familiar with the mission planning and Tx ch5 switch positions.
+
+== Using UAVXNav ==
+
+ - As recommended, start with your UAVX simulator firmware loaded.
+
+ - Hook up your UAVX PC cable and insure the comport is correct.
+
+ - The UAVXNsv will read sensor data when disarmed and will read real-time when armed. 
+
+ - While attached to the Internet do a search on your location to load the correct Google maps.
+
+ - When you click on the map you will add a waypoint.
+
+ - After adding your mission, then write it to the UAVX and then to a read to make sure it is the UAVX memory. 
+ 
+ - *WARNING: Even though you have loaded the simulation firwmare and the motors are disabled, it is good practice to always securely tie down your model or remove the props.*
+
+ - Arm the UAVX and take off and go to a hove altitude of 20M and let the UAVX do an altitude hold.
+
+ - Put the ch5 switch in the middle position and it will fly the route.  If your put it in PH it will hold.  If you put it in RTH it will RTH.  If you let it run the full mission, it will auto-land.  Note: If it auto lands, you must disarm the UAVX and remove and re-apply power to fly again.
+
+ - Use your ch7 GPS sensitivity knob to fine tune and control route speed and accuracy at the turn points.
+
+ - Fly safe!
+
 == Video ==
 
 Video shows UAVXNav waypoint navigation and auto-land. Starts with the setting of the last of 4 waypoints; manual takeoff with climb to 35M and 5 Sec loiter at waypoint 2; returning to land after 10 sec hold at the launch point. 
