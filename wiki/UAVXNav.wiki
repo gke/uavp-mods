@@ -41,7 +41,7 @@ You should load the UAVX Simulation firmware Hex and fly the course to become fa
 
  - Note 2: If you terminate the mission by going to PH before it auto-lands, then you can re-run or repeat the mission by going back again to WP.
 
-- Note 3: At any time during the mission, you can select PH or RTH.  After doing so and going back to WP, it will go back to the beginning WP and repeat the mission from there.
+ - Note 3: At any time during the mission, you can select PH or RTH.  After doing so and going back to WP, it will go back to the beginning WP and repeat the mission from there.
 
  - Note 4: Use your ch7 GPS sensitivity knob to fine tune and control route speed and accuracy at the turn points.
 
