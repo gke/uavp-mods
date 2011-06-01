@@ -11,7 +11,7 @@ After the flight statistics may be read showing any sensor failures along with R
 
 == Tx setup ==
 
-The waypoint feature is triggered by ch5 being set to the middle of the pulse.  So ideally you should assign a 3-position switch to ch 5 to use the waypoint feature.  So the ch5 switch would do Position hold(PH)=low, Waypoints(WP)=middle, and Return to home(RTH)=high EPAs.  These values must be checked using the UAVPset Tx/Rx test graphic to make sure they are correct.  Always do a stir the sticks, switches, and posts test to make sure the green LED stays on after making any changes to your Tx EPAs, Expo, Rates, or Subtrims!
+The waypoint feature is triggered by ch5 being set to the middle of the pulse.  So ideally you should assign a 3-position switch to ch 5 to use the waypoint feature.  So the ch5 switch would do Position hold(PH)=low, Waypoints(WP)=middle, and Return to home(RTH)=high EPAs.  These values must be checked using the UAVPset Tx/Rx test graphic to make sure they are correct.  Always do a stir the sticks, switches, and pots test to make sure the green LED stays on after making any changes to your Tx EPAs, Expo, Rates, or Subtrims!
 
 == Simulation firmware ==
 
