@@ -1,5 +1,5 @@
 #labels Featured,UAVX,gke
-#UAVX PIC V2 and UAVXArm use a direct channel assignment scheme. This Wiki gives the current known channel orders. 
+#Summary UAVX PIC V2 and UAVXArm use a direct channel assignment scheme. This Wiki gives the current known channel orders. 
 
 = Introduction =
 
