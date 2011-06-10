@@ -205,7 +205,7 @@ void Navigate(int32 NavLatitude, int32 NavLongitude )
 	#ifndef TESTING // not used for testing - make space!
 
 	static int16 SinHeading, CosHeading;
-    static int24 Radius;
+    static int32 Radius;
 	static int24 AltE;
 	static int32 EastDiff, NorthDiff;
 	static int16 RelHeading;
@@ -250,14 +250,14 @@ void Navigate(int32 NavLatitude, int32 NavLongitude )
 		SinHeading = int16sin(RelHeading);
 		CosHeading = int16cos(RelHeading);
 		
-		NavE[Roll] = SRS32( NAV_MAX_ROLL_PITCH * SinHeading, 8); // was Radius
-		NavE[Pitch] = -SRS32( NAV_MAX_ROLL_PITCH * CosHeading, 8);
+		NavE[Roll] = SRS32( Radius * SinHeading, 8); 
+		NavE[Pitch] = -SRS32( Radius * CosHeading, 8);
 		
 		// Roll & Pitch
 		
 		for ( a = 0; a < (uint8)2 ; a++ )
 		{
-			NavP = NavE[a];
+			NavP = Limit1(NavE[a], NAV_MAX_ROLL_PITCH);
 		
 			NavIntE[a] += NavE[a];
 			NavIntE[a] = Limit1(NavIntE[a], (int16)P[NavIntLimit]);
@@ -448,7 +448,6 @@ void DoNavigation(void)
 	#endif // ENABLE_STICK_CHANGE_FAILSAFE
 		else // kill nav correction immediately
 		 	NavCorr[Pitch] = NavCorr[Roll] = NavCorr[Yaw] = 0; // zzz
-
 
 	F.NewCommands = false;	// Navigate modifies Desired Roll, Pitch and Yaw values.
 

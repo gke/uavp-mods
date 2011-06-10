@@ -100,7 +100,7 @@ void DoAltitudeHold(int24 Altitude, int16 ROC)
 	NewAltComp = AltP + AltI + AltD + AltDSum;
 	NewAltComp = Limit1(NewAltComp, ALT_MAX_THR_COMP);
 	
-	Comp[Alt] = SlewLimit(Comp[Alt], NewAltComp, 1);
+	CompAlt = SlewLimit(CompAlt, NewAltComp, 1);
 		
 	#ifdef ALT_SCRATCHY_BEEPER
 	if ( (BeepTick <= 0) && !F.BeeperInUse) 
@@ -152,14 +152,14 @@ void AltitudeHold()
 				{
 					F.HoldingAlt = false;
 					DesiredAltitude = Altitude;
-					Comp[Alt] = Decay1(Comp[Alt]);
+					CompAlt = Decay1(CompAlt);
 				}
 				else
 				{
 					F.HoldingAlt = true;
 					if ( Abs(ROC) < ALT_HOLD_MAX_ROC_DMPS  ) 
 					{
-						NewCruiseThrottle = DesiredThrottle + Comp[Alt];
+						NewCruiseThrottle = DesiredThrottle + CompAlt;
 						CruiseThrottle = HardFilter(CruiseThrottle, NewCruiseThrottle);
 						CruiseThrottle = Limit(CruiseThrottle , IdleThrottle, THROTTLE_MAX_CRUISE );
 					}
@@ -168,7 +168,7 @@ void AltitudeHold()
 		}
 		else
 		{
-			Comp[Alt] = Decay1(Comp[Alt]);
+			CompAlt = Decay1(CompAlt);
 			F.HoldingAlt = false;
 		}	
 	}
@@ -322,7 +322,7 @@ void DoControl(void)
 
 	Rl  = SRS16(Rate[Roll] * P[RollKp] + (Ratep[Roll]-Rate[Roll]) * P[RollKd], 5);
 	Rl += SRS16(Angle[Roll] * (int16)P[RollKi], 9); 
-	Rl -= NavCorr[Roll] - Comp[LR];
+	Rl -= NavCorr[Roll];
 
 	Rl = SRS32((int32)Rl * GS, 8);
 
@@ -336,7 +336,7 @@ void DoControl(void)
 
 	Pl  = SRS16(Rate[Pitch] * P[PitchKp] + (Ratep[Pitch]-Rate[Pitch]) * P[PitchKd], 5);
 	Pl += SRS16(Angle[Pitch] * (int16)P[PitchKi], 9);
-	Pl -= NavCorr[Pitch] - Comp[FB];
+	Pl -= NavCorr[Pitch];
 
 	Pl = SRS32((int32)Pl * GS, 8);
 
@@ -450,7 +450,7 @@ void InitControl(void)
 	CameraRollAngle = CameraPitchAngle = 0;
 	ControlRollP = ControlPitchP = 0;
 	Ylp = 0;
-	Comp[Alt] = Comp[DU] = Comp[LR] = Comp[FB] = Vel[DU] = Vel[LR] = Vel[FB] = YawRateF.i32 = 0;	
+	CompAlt = YawRateF.i32 = 0;	
 	AltSum = 0;
 } // InitControl
 

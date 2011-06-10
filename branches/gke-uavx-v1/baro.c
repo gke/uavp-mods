@@ -639,7 +639,7 @@ void GetBaroAltitude(void)
 		{
 			if ( ++SimulateCycles >= AltitudeUpdateRate )
 			{
-				FakeBaroRelAltitude += ( DesiredThrottle - CruiseThrottle ) + Comp[Alt];
+				FakeBaroRelAltitude += ( DesiredThrottle - CruiseThrottle ) + CompAlt;
 				if ( FakeBaroRelAltitude < -50 ) 
 					FakeBaroRelAltitude = 0;
 			
@@ -688,7 +688,7 @@ void InitBarometer(void)
 	BaroRelAltitude = BaroRelAltitudeP = BaroROC = CompBaroPressure = OriginBaroPressure = SimulateCycles = 0;
 	BaroType = BaroUnknown;
 
-	Comp[Alt] = AltDiffSum = AltDSum = 0;
+	CompAlt = AltDiffSum = AltDSum = 0;
 	F.BaroAltitudeValid= true; // optimistic
 
 	if ( IsFreescaleBaroActive() )	

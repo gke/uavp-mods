@@ -139,10 +139,10 @@ void SendFlightPacket(void)
 
 	ShowAttitude();
 
-	TxESCi8((int8)Comp[LR]);
-	TxESCi8((int8)Comp[FB]);
-	TxESCi8((int8)Comp[DU]);
-	TxESCi8((int8)Comp[Alt]);
+	TxESCi8(0);
+	TxESCi8(0);
+	TxESCi8(0);
+	TxESCi8((int8)CompAlt);
 
 	for ( b = 0; b < 6; b++ ) // motor/servo channels
 	 	TxESCu8((uint8)PWM[b]);
@@ -453,10 +453,10 @@ void SensorTrace(void)
 		TxValH16(Acc[FB]); TxChar(';');
 		TxValH16(Acc[DU]); TxChar(';');
 
-		TxValH16(Comp[LR]); TxChar(';');
-		TxValH16(Comp[FB]); TxChar(';');
-		TxValH16(Comp[DU]); TxChar(';');
-		TxValH16(Comp[Alt]); TxChar(';');
+		TxValH16(0); TxChar(';');
+		TxValH16(0); TxChar(';');
+		TxValH16(0); TxChar(';');
+		TxValH16(CompAlt); TxChar(';');
 		TxNextLine();
 	} 
 	#endif // TESTING
