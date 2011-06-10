@@ -29,7 +29,6 @@ namespace UAVXGS
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.FlyingButton = new System.Windows.Forms.Button();
             this.RollAngle = new System.Windows.Forms.TextBox();
             this.PitchAngle = new System.Windows.Forms.TextBox();
@@ -157,7 +156,7 @@ namespace UAVXGS
             this.CurrentAltitude = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.AltitudeSource = new System.Windows.Forms.TextBox();
-            this.GoogleButton = new System.Windows.Forms.Button();
+            this.NavButton = new System.Windows.Forms.Button();
             this.MessageTextBox = new System.Windows.Forms.TextBox();
             this.LocationBox = new System.Windows.Forms.GroupBox();
             this.WhereDistance = new System.Windows.Forms.TextBox();
@@ -296,9 +295,9 @@ namespace UAVXGS
             // 
             this.FlyingButton.BackColor = System.Drawing.Color.Red;
             this.FlyingButton.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.FlyingButton.Location = new System.Drawing.Point(653, 0);
+            this.FlyingButton.Location = new System.Drawing.Point(629, 0);
             this.FlyingButton.Name = "FlyingButton";
-            this.FlyingButton.Size = new System.Drawing.Size(91, 23);
+            this.FlyingButton.Size = new System.Drawing.Size(69, 23);
             this.FlyingButton.TabIndex = 0;
             this.FlyingButton.Text = "Disconnected";
             this.FlyingButton.UseVisualStyleBackColor = false;
@@ -930,7 +929,7 @@ namespace UAVXGS
             // MissionTimeSecLabel
             // 
             this.MissionTimeSecLabel.AutoSize = true;
-            this.MissionTimeSecLabel.Location = new System.Drawing.Point(524, 5);
+            this.MissionTimeSecLabel.Location = new System.Drawing.Point(499, 5);
             this.MissionTimeSecLabel.Name = "MissionTimeSecLabel";
             this.MissionTimeSecLabel.Size = new System.Drawing.Size(46, 13);
             this.MissionTimeSecLabel.TabIndex = 163;
@@ -938,7 +937,7 @@ namespace UAVXGS
             // 
             // MissionTimeSec
             // 
-            this.MissionTimeSec.Location = new System.Drawing.Point(576, 2);
+            this.MissionTimeSec.Location = new System.Drawing.Point(551, 2);
             this.MissionTimeSec.Name = "MissionTimeSec";
             this.MissionTimeSec.ReadOnly = true;
             this.MissionTimeSec.Size = new System.Drawing.Size(70, 20);
@@ -1606,16 +1605,17 @@ namespace UAVXGS
             this.AltitudeSource.Text = "Barometer";
             this.AltitudeSource.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // GoogleButton
+            // NavButton
             // 
-            this.GoogleButton.BackColor = System.Drawing.Color.Silver;
-            this.GoogleButton.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.GoogleButton.Location = new System.Drawing.Point(745, 0);
-            this.GoogleButton.Name = "GoogleButton";
-            this.GoogleButton.Size = new System.Drawing.Size(91, 23);
-            this.GoogleButton.TabIndex = 108;
-            this.GoogleButton.Text = "Google";
-            this.GoogleButton.UseVisualStyleBackColor = false;
+            this.NavButton.BackColor = System.Drawing.Color.Silver;
+            this.NavButton.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.NavButton.Location = new System.Drawing.Point(704, 0);
+            this.NavButton.Name = "NavButton";
+            this.NavButton.Size = new System.Drawing.Size(63, 23);
+            this.NavButton.TabIndex = 108;
+            this.NavButton.Text = "Nav";
+            this.NavButton.UseVisualStyleBackColor = false;
+            this.NavButton.Click += new System.EventHandler(this.NavButton_Click);
             // 
             // MessageTextBox
             // 
@@ -2416,7 +2416,7 @@ namespace UAVXGS
             // 
             // ReplayButton
             // 
-            this.ReplayButton.Location = new System.Drawing.Point(288, 0);
+            this.ReplayButton.Location = new System.Drawing.Point(275, 0);
             this.ReplayButton.Name = "ReplayButton";
             this.ReplayButton.Size = new System.Drawing.Size(75, 23);
             this.ReplayButton.TabIndex = 164;
@@ -2426,9 +2426,9 @@ namespace UAVXGS
             // 
             // ReplayProgressBar
             // 
-            this.ReplayProgressBar.Location = new System.Drawing.Point(381, 0);
+            this.ReplayProgressBar.Location = new System.Drawing.Point(352, 0);
             this.ReplayProgressBar.Name = "ReplayProgressBar";
-            this.ReplayProgressBar.Size = new System.Drawing.Size(82, 23);
+            this.ReplayProgressBar.Size = new System.Drawing.Size(94, 23);
             this.ReplayProgressBar.TabIndex = 165;
             // 
             // Airframe
@@ -2444,7 +2444,7 @@ namespace UAVXGS
             // 
             // ReplayNumericUpDown
             // 
-            this.ReplayNumericUpDown.Location = new System.Drawing.Point(477, 3);
+            this.ReplayNumericUpDown.Location = new System.Drawing.Point(452, 2);
             this.ReplayNumericUpDown.Maximum = new decimal(new int[] {
             20,
             0,
@@ -2691,6 +2691,7 @@ namespace UAVXGS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(848, 633);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.FrSkyBox);
@@ -2712,7 +2713,7 @@ namespace UAVXGS
             this.Controls.Add(this.SimulationTextBox);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.MessageTextBox);
-            this.Controls.Add(this.GoogleButton);
+            this.Controls.Add(this.NavButton);
             this.Controls.Add(this.AltitudeSource);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.CurrentAltitude);
@@ -2732,7 +2733,6 @@ namespace UAVXGS
             this.Controls.Add(this.attitudeIndicatorInstrumentControl1);
             this.Controls.Add(this.FlyingButton);
             this.Controls.Add(this.menuStrip1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormMain";
             this.Text = "UAVXGS";
@@ -2901,8 +2901,7 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox CurrentAltitude;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox AltitudeSource;
-        private System.Windows.Forms.Button GoogleButton;
-        private System.Windows.Forms.TextBox MessageTextBox;
+        private System.Windows.Forms.Button NavButton;
         private System.Windows.Forms.GroupBox LocationBox;
         private System.Windows.Forms.Label WhereBearingLabel;
         private System.Windows.Forms.Label WhereDistanceLabel;
@@ -3025,6 +3024,7 @@ namespace UAVXGS
         private System.Windows.Forms.ToolStripMenuItem testsoftwareToolStripMenuItem;
         private System.Windows.Forms.TextBox OutputTot;
         private System.Windows.Forms.Label OutputTotalLabel;
+        public System.Windows.Forms.TextBox MessageTextBox;
     }
 }
 
