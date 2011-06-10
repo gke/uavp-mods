@@ -112,7 +112,10 @@ void ReadParametersEE(void)
 
 		NavYCorrLimit = Limit((int16)P[NavYawLimit], 5, 50);
 
-		CompassOffset = ((((int16)P[CompassOffsetQtr] * 90L + (int16)P[NavMagVar])*MILLIPI)/180L);
+		NavSensitivity = ((int24)P[PercentNavSens6Ch] * RC_MAXIMUM) /100;
+		NavSensitivity = Limit(NavSensitivity, 0, RC_MAXIMUM);
+
+		CompassOffset = ((((int16)P[CompassOffsetQtr] * 90L - (int16)P[NavMagVar])*MILLIPI)/180L);
 
 		#ifdef MULTICOPTER
 			Orientation = P[Orient];

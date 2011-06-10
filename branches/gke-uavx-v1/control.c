@@ -23,7 +23,6 @@
 void DoAltitudeHold(int24, int16);
 void UpdateAltitudeSource(void);
 void AltitudeHold(void);
-void InertialDamping(void);
 void LimitRollAngle(void);
 void LimitPitchAngle(void);
 void LimitYawAngle(void);
@@ -176,74 +175,6 @@ void AltitudeHold()
 
 } // AltitudeHold
 
-void InertialDamping(void)
-{ // Uses accelerometer to damp disturbances while holding altitude
-	static int16 Temp;
-
-	if ( F.AccelerationsValid ) 
-	{
-		// Down - Up
-		// Empirical - acceleration changes at ~approx Sum/8 for small angles
-		Vel[DU] += Acc[DU] + SRS16( Abs(Angle[Roll]) + Abs(Angle[Pitch]), 3);		
-		Vel[DU] = Limit1(Vel[DU] , 16383); 			
-		Temp = SRS32(SRS16(Vel[DU], 4) * (int32)P[VertDampKp], 13);
-		if( Temp > Comp[DU] ) 
-			Comp[DU]++;
-		else
-			if( Temp < Comp[DU] )
-				Comp[DU]--;			
-		Comp[DU] = Limit(Comp[DU], DAMP_VERT_LIMIT_LOW, DAMP_VERT_LIMIT_HIGH); 
-		Vel[DU] = DecayX(Vel[DU], (int16)P[VertDampDecay]);
-	
-		// Lateral compensation only when holding altitude?	
-		if ( F.HoldingAlt && F.AttitudeHold ) 
-		{
-	 		if ( F.WayPointCentred )
-			{
-				// Left - Right
-				Vel[LR] += Acc[LR];
-				Vel[LR] = Limit1(Vel[LR] , 16383);  	
-				Temp = SRS32(SRS16(Vel[LR], 4) * (int32)P[HorizDampKp], 13);
-				if( Temp > Comp[LR] ) 
-					Comp[LR]++;
-				else
-					if( Temp < Comp[LR] )
-						Comp[LR]--;
-				Comp[LR] = Limit1(Comp[LR], DAMP_HORIZ_LIMIT);
-				Vel[LR] = DecayX(Vel[LR], (int16)P[HorizDampDecay]);
-		
-				// Front - Back
-				Vel[FB] += Acc[FB];
-				Vel[FB] = Limit1(Vel[FB] , 16383);  
-				Temp = SRS32(SRS16(Vel[FB], 4) * (int32)P[HorizDampKp], 13);
-				if( Temp > Comp[FB] ) 
-					Comp[FB]++;
-				else
-					if( Temp < Comp[FB] )
-						Comp[FB]--;
-				Comp[FB] = Limit1(Comp[FB], DAMP_HORIZ_LIMIT);
-				Vel[FB] = DecayX(Vel[FB], (int16)P[HorizDampDecay]);
-			}
-			else
-			{
-				Vel[LR] = Vel[FB] = 0;
-				Comp[LR] = Decay1(Comp[LR]);
-				Comp[FB] = Decay1(Comp[FB]);
-			}
-		}
-		else
-		{
-			Vel[LR] = Vel[FB] = 0;
-	
-			Comp[LR] = Decay1(Comp[LR]);
-			Comp[FB] = Decay1(Comp[FB]);
-		}
-	}
-	else
-		Comp[LR] = Comp[FB] = Comp[DU] = Vel[LR] = Vel[FB] = Vel[DU] = 0;
-
-} // InertialDamping	
-
 void LimitRollAngle(void)
 {
 	// Caution: Angle[Roll] is positive left which is the opposite sense to the roll angle
@@ -364,14 +295,12 @@ void DoControl(void)
 
 	CalculateGyroRates();
 	CompensateRollPitchGyros();	
-    InertialDamping();
-
 	DoOrientationTransform();
 
 	#ifdef SIMULATE
 
-	FakeDesiredRoll = ControlRoll;
-	FakeDesiredPitch = ControlPitch;
+	FakeDesiredRoll = ControlRoll + NavCorr[Roll];
+	FakeDesiredPitch = ControlPitch + NavCorr[Pitch];
 	FakeDesiredYaw =  DesiredYaw + NavCorr[Yaw];
 	Angle[Roll] = SlewLimit(Angle[Roll], -FakeDesiredRoll * 16, 4);
 	Angle[Pitch] = SlewLimit(Angle[Pitch], -FakeDesiredPitch * 16, 4);

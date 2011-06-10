@@ -37,7 +37,7 @@
 	{2,0},	 			// YawIntLimit,		15
 	{2,true}, 			// ConfigBits,		16c
 	{0,true},			// was TimeSlots,	17c
-	{48,true}, 			// LowVoltThres,	18c
+	{51,true}, 			// LowVoltThres,	18c
 	{20,true}, 			// CamRollKp,		19c
 	{45,true}, 			// PercentCruiseThr,20c 
 	
