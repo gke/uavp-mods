@@ -60,6 +60,7 @@ namespace UAVXGS
         const byte UAVXArmParamsPacketTag = 19;
         const byte UAVXStickPacketTag = 20;
         const byte UAVXCustomPacketTag = 21;
+        const byte UAVXWPPacketTag = 22;
 
         const byte FrSkyPacketTag = 99;
 
@@ -76,7 +77,7 @@ namespace UAVXGS
         const byte MAXPARAMS = 64;
 
         const float MILLIRADDEG = (float)0.057295;
-        const double AttitudeToDegrees = 100.0; // Acc is G = 1024 
+        const double AttitudeToDegrees = 78.0; // Acc is G = 1024 
 
         const int DefaultRangeLimit = 100;
         const int MaximumRangeLimit = 250; // You carry total responsibility if you increase this value
@@ -278,8 +279,8 @@ namespace UAVXGS
         MissionTimeMilliSecT
         */
 
-        short YawRateT;
-        short DesiredHeadingT;
+    //    short YawRateT;
+    //    short DesiredHeadingT;
 
 
         // UAVXNavPacket
@@ -368,6 +369,8 @@ namespace UAVXGS
         double[,] Params = new double[2,MAXPARAMS];
         int[] Sticks = new int[16];
 
+        UAVXNavForm NavForm = new UAVXNavForm();
+
         byte RCControls = 0;
         byte RxCheckSum;
 
@@ -418,27 +421,9 @@ namespace UAVXGS
               Directory.CreateDirectory(sProgFilesLogDir);
             }
             UAVXGS.Properties.Settings.Default.LogFileDirectory = sProgFilesLogDir;
-
           } 
         }
-/*
-        public FormMain()
-        {
-            InitializeComponent();
 
-            // COMSelectComboBox.Items.Add("Select COM Port");
-            string[] AvailableCOMPorts = ComPorts.readPorts();
-            foreach (string AvailableCOMPort in AvailableCOMPorts)
-                COMSelectComboBox.Items.Add(AvailableCOMPort);
-            COMSelectComboBox.Text = UAVXGS.Properties.Settings.Default.COMPort;
-            COMBaudRateComboBox.Text = string.Format("{0:n0}", UAVXGS.Properties.Settings.Default.COMBaudRate);
-
-            Version vrs = new Version(Application.ProductVersion);
-            this.Text = this.Text + " v" + vrs.Major + "." + vrs.Minor + "." + vrs.Build;
-
-            ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
-        }
-*/
         public static class ComPorts
         {
             public static string[] readPorts()
@@ -759,8 +744,8 @@ namespace UAVXGS
                 "DesRoll," +
                 "DesPitch," +
                 "DesYaw," +
-                "RollGyro," +
-                "PitchGyro," +
+                "RollGyro/RawAngle," +
+                "PitchGyro/RawAngle," +
                 "YawGyro," +
                 "RollAngle," +
                 "PitchAngle," +
@@ -1484,9 +1469,9 @@ namespace UAVXGS
             }
             else
             {
-                LRAcc.Text = string.Format("{0:n2}", (float)LRAccT / 1024.0);
-                FBAcc.Text = string.Format("{0:n2}", (float)FBAccT / 1024.0);
-                DUAcc.Text = string.Format("{0:n2}", (float)DUAccT / 1024.0);
+                LRAcc.Text = string.Format("{0:n2}", (float)LRAccT * 0.000976);
+                FBAcc.Text = string.Format("{0:n2}", (float)FBAccT * 0.000976);
+                DUAcc.Text = string.Format("{0:n2}", (float)DUAccT * 0.000976);
 
                 FBAccLabel.Text = "FB";
                 DUAccLabel.Text = "DU";
@@ -1494,17 +1479,7 @@ namespace UAVXGS
         }
 
         void UpdateCompensation()
-        {
-            if (UAVXArm)
-            {
-                IntCorrPitchLabel.Text = "BF";
-                AccAltCompLabel.Text = "UD";
-            }
-            else
-            {
-                IntCorrPitchLabel.Text = "FB";
-                AccAltCompLabel.Text = "DU";
-            }
+        {    
             IntCorrRoll.Text = string.Format("{0:n0}", IntCorrRollT * OUTMaximumScale);
             IntCorrPitch.Text = string.Format("{0:n0}", IntCorrPitchT * OUTMaximumScale);
             AccAltComp.Text = string.Format("{0:n0}", AccAltCompT * OUTMaximumScale);
@@ -1811,7 +1786,14 @@ namespace UAVXGS
                         SaveTextCustomFileStreamWriter.WriteLine();
                      
                     break;
-                case UAVXMinPacketTag:
+
+                    case UAVXWPPacketTag:
+
+                        // accept WPs one at a time and copy to mission on WP=255
+
+                    break;
+
+                    case UAVXMinPacketTag:
 
                     for (i = 2; i < (NoOfFlagBytes + 2); i++)
                         Flags[i - 2] = ExtractByte(ref UAVXPacket, i);
@@ -2322,17 +2304,26 @@ namespace UAVXGS
 
                 YawGyroT / AttitudeToDegrees + "," +
                 RollAngleT / AttitudeToDegrees + "," +
-                PitchAngleT * MILLIRADDEG + "," +
+                PitchAngleT / AttitudeToDegrees + "," +
                 YawAngleT / AttitudeToDegrees + ",");
             }
 
-            SaveTextLogFileStreamWriter.Write(LRAccT * 0.001 + "," +
-            FBAccT * 0.001 + "," +
-            DUAccT * 0.001 + "," +
-            IntCorrRollT + "," +
-            IntCorrPitchT + "," +
-            AccAltCompT * 0.01 + "," +
-            AltCompT + ",");
+            if (UAVXArm)
+            {
+                SaveTextLogFileStreamWriter.Write(LRAccT * 0.001 + "," +
+                FBAccT * 0.001 + "," +
+                DUAccT * 0.001 + "," );
+            }
+            else
+            {
+                SaveTextLogFileStreamWriter.Write(LRAccT * 0.000976 + "," +
+                FBAccT * 0.000976 + "," +
+                DUAccT * 0.000976 + "," );
+            }
+             SaveTextLogFileStreamWriter.Write(IntCorrRollT + "," +
+             IntCorrPitchT + "," +
+             AccAltCompT * 0.01 + "," +
+             AltCompT + ",");
 
             for (i = 0; i < NoOfOutputs; i++)
                 SaveTextLogFileStreamWriter.Write(OutputT[i] + ",");
@@ -2467,7 +2458,10 @@ namespace UAVXGS
             ReplayDelay = 20 - Convert.ToInt16(ReplayNumericUpDown.Text);
         }
 
-        
-    
+        private void NavButton_Click(object sender, EventArgs e)
+        {
+            NavForm.Show();
+        }
+   
     }
 }
