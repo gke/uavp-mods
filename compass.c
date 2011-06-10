@@ -37,7 +37,7 @@ int16 	MagHeading;
 
 void GetHeading(void)
 {
-	static int16 HeadingChange;
+	static int16 HeadingChange, Temp;
 
 	if( F.CompassValid ) // continuous mode but Compass only updates avery 50mS
 	{
@@ -49,7 +49,7 @@ void GetHeading(void)
 	        HeadingValF.iw1 = Heading;
 	    else
 	        if ( HeadingChange > COMPASS_MAX_SLEW ) { // Sanity check - discard reading
-	            Heading = HeadingValF.iw1; // SlewLimit(Headingp, -CompassMaxSlew, CompassMaxSlew );    // use previous value
+	     		Heading = SlewLimit(HeadingValF.iw1, Heading, COMPASS_MAX_SLEW);    
 	            Stats[CompassFailS]++;
 	        }
 			
@@ -57,20 +57,30 @@ void GetHeading(void)
 	}
 	
 	#ifdef SIMULATE
-		#if ( defined AILERON | defined ELEVON )
-			if ( State == InFlight )
-				FakeHeading -= FakeDesiredRoll/5 + FakeDesiredYaw/5;
-		#else
-			if ( State == InFlight )
-			{
-				if ( Abs(FakeDesiredYaw) > 5 )
-					FakeHeading -= FakeDesiredYaw/5;
-			}
-	
-		FakeHeading = Make2Pi((int16)FakeHeading);
-		Heading = FakeHeading;
-		#endif // AILERON | ELEVON
+	if ( mSClock() > mS[CompassUpdate] )
+	{
+		mS[CompassUpdate] += COMPASS_TIME_MS;
+		if ( State == InFlight )
+		{
+			#ifdef NAV_WING
+				Temp = ( (int24)( FakeDesiredRoll/2 + FakeDesiredYaw ) * SIM_WING_YAW_RATE_DPS * MILLIRAD )/
+						( COMPASS_UPDATE_HZ * NAV_MAX_ROLL_PITCH );
 
+				if ( (Abs(FakeDesiredYaw) + Abs(FakeDesiredRoll)) > 2 )
+					FakeHeading += Limit1(Temp, NAV_MAX_ROLL_PITCH);
+			#else
+				Temp = ( (int24)FakeDesiredYaw * SIM_MULTI_YAW_RATE_DPS * MILLIRAD )/
+						( COMPASS_UPDATE_HZ * NAV_MAX_ROLL_PITCH );	
+
+				if ( Abs(FakeDesiredYaw) > 2 )
+					FakeHeading += Limit1(Temp, NAV_MAX_ROLL_PITCH);				
+			#endif // NAV_WING
+	
+			FakeHeading = Make2Pi((int16)FakeHeading);
+		}
+	}
+
+	Heading = FakeHeading;
 	#endif // SIMULATE
 
 } // GetHeading
@@ -368,7 +378,9 @@ void DoCompassTest(void)
 
 	Delay1mS(COMPASS_TIME_MS);
 
-    GetHeading();
+  	for ( i = 0; i < 200; i++) 
+    	GetHeading();
+
 	if ( F.CompassMissRead ) goto CTerror;
 
     TxVal32(ConvertMPiToDDeg(MagHeading), 1, 0);

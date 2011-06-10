@@ -28,7 +28,7 @@
 	//#define USE_ARDU
 	//#define RX6CH
 	//#define EXPERIMENTAL
-//	#define TESTING						
+	//#define TESTING						
 	//#define SIMULATE
 	#define QUADROCOPTER
 	//#define TRICOPTER
@@ -207,6 +207,11 @@
 // reads $GPGGA sentence - all others discarded
 
 #ifdef SIMULATE
+
+#define SIM_CRUISE_MPS				8		// M/S
+#define	GPS_UPDATE_HZ				5		// Hz - can obtain from GPS updates
+#define	SIM_WING_YAW_RATE_DPS		10		// Deg/S
+#define	SIM_MULTI_YAW_RATE_DPS		45		// Deg/S	
 
 #define	GPS_MIN_SATELLITES			4		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX					1		// must be 1 or 2 
@@ -732,6 +737,7 @@ extern int24 FakeBaroRelAltitude;
 #define COMPASS_MAXDEV		30			// maximum yaw compensation of compass heading 
 #define COMPASS_MIDDLE		10			// yaw stick neutral dead zone
 #define COMPASS_TIME_MS		50			// 20Hz
+#define COMPASS_UPDATE_HZ	(1000/COMPASS_TIME_MS)
 
 #define COMPASS_MAX_SLEW	(6L*COMPASS_TIME_MS) //((TW0MILLIPI * COMPASS_TIME_MS)/1000)
 
@@ -761,7 +767,6 @@ extern void AltitudeHold(void);
 extern void LimitRollSum(void);
 extern void LimitPitchSum(void);
 extern void LimitYawSum(void);
-extern void InertialDamping(void);
 extern void DoOrientationTransform(void);
 extern void GainSchedule(void);
 extern void DoControl(void);
@@ -1075,8 +1080,8 @@ extern const rom uint8 RxChMnem[];
 // outputs.c
 
 #define OUT_MINIMUM			1			// Required for PPM timing loops
-#define OUT_MAXIMUM			200			// to reduce Rx capture and servo pulse output interaction
-#define OUT_NEUTRAL			105			// 1.503mS @ 105 16MHz
+#define OUT_MAXIMUM			210 //222			// to reduce Rx capture and servo pulse output interaction
+#define OUT_NEUTRAL			111			// 1.503mS @ 105 16MHz
 #define OUT_HOLGER_MAXIMUM	225
 #define OUT_YGEI2C_MAXIMUM	240
 #define OUT_X3D_MAXIMUM		200
@@ -1261,10 +1266,6 @@ extern void CheckThrottleMoved(void);
 extern const rom boolean PPMPosPolarity[];
 extern const rom uint8 Map[CustomTxRx+1][CONTROLS];
 extern int8 RMap[];
-
-#define PPMQMASK 3
-extern int16 PPMQSum[];
-extern int16x8x4Q PPMQ;
 
 //__________________________________________________________________________________________
 

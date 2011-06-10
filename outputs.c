@@ -238,27 +238,18 @@ void MixAndLimitCam(void)
 	static i24u Temp;
 	static int32 NewCamRoll, NewCamPitch;
 
-	#define TARRO_CAM
-	#ifdef TARRO_CAM
-	// use only roll/pitch angle estimates
-	Temp.i24 = (int24)CameraRollAngle * P[CamRollKp];
-	NewCamRoll =  SRS32((int32)Temp.i2_1 * Limit(DesiredCamPitchTrim, 0, 128 ), 7);
-	NewCamRoll += (int16)P[CamRollTrim]; 
-	NewCamRoll *= PWMSense[CamRollC];
-	NewCamRoll += OUT_NEUTRAL;
-	PWM[CamRollC] = SlewLimit( PWM[CamRollC], NewCamRoll, 2);
-	#else
+
 	// use only roll/pitch angle estimates
 	Temp.i24 = (int24)CameraRollAngle * P[CamRollKp];
 	NewCamRoll = Temp.i2_1 + (int16)P[CamRollTrim];
 	NewCamRoll = PWMSense[CamRollC] * NewCamRoll + OUT_NEUTRAL;
 	PWM[CamRollC] = SlewLimit( PWM[CamRollC], NewCamRoll, 2);
-	#endif // TARRO_CAM
 
 	Temp.i24 = (int24)CameraPitchAngle * P[CamPitchKp];
-	NewCamPitch = Temp.i2_1 + SRS16( DesiredCamPitchTrim * 3, 1 );
+	NewCamPitch = Temp.i2_1 + SRS16(DesiredCamPitchTrim * 3, 1);
 	NewCamPitch = PWMSense[CamPitchC] * NewCamPitch + OUT_NEUTRAL; 
 	PWM[CamPitchC] = SlewLimit( PWM[CamPitchC], NewCamPitch, 2);
+
 	#endif // !Y6COPTER			
 
 } // MixAndLimitCam

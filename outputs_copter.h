@@ -47,6 +47,7 @@ void OutSignals(void)
 	#else
 		PWM[BackC] = TC(PWM[BackC]);
 	#endif
+
 	PWM[CamRollC] = Limit(PWM[CamRollC], 1, OUT_MAXIMUM);
 	PWM[CamPitchC] = Limit(PWM[CamPitchC], 1, OUT_MAXIMUM);
 
@@ -99,7 +100,7 @@ void OutSignals(void)
 		_endasm
 
 		SyncToTimer0AndDisableInterrupts();
-	
+
 		if( ServoToggle == 0 )	// driver cam servos only every 2nd pulse
 		{
 			PORTB |= 0x3f;
@@ -180,10 +181,12 @@ OS006:
 		
 		EnableInterrupts;
 		SyncToTimer0AndDisableInterrupts();	
+
 	} 
 	else
 	{ // I2C ESCs
-			if( ServoToggle == 0 )	// driver cam servos only every 2nd pulse
+
+		if( ServoToggle == 0 )	// driver cam servos only every 2nd pulse
 		{
 			#ifdef TRICOPTER
 				PORTB |= 0x38;
@@ -227,43 +230,43 @@ OS006:
 				ESCI2CStop();
 			}
 		else
-			if ( P[ESCType] == ESCYGEI2C )
-				for ( m = 0 ; m < NoOfI2CESCOutputs ; m++ )
-				{
-					ESCI2CStart();
-					r = WriteESCI2CByte(0x62 + ( m*2) );	// one cmd, one data byte per motor
-					r += WriteESCI2CByte( PWM[m]>>1 );
-					ESCI2CFail[m] += r;
-					ESCI2CStop();
-				}
-			else
-				if ( P[ESCType] == ESCX3D )
-				{
-					ESCI2CStart();
-					r = WriteESCI2CByte(0x10);				// one command, 4 data bytes
-					r += WriteESCI2CByte( PWM[FrontC] ); 
-					r += WriteESCI2CByte( PWM[BackC] );
-					r += WriteESCI2CByte( PWM[LeftC] );
-					r += WriteESCI2CByte( PWM[RightC] );
-					ESCI2CFail[0] += r;
-					ESCI2CStop();
-				}
-				else
-				if ( P[ESCType] == ESCLRCI2C )
-					for ( m = 0 ; m < NoOfPWMOutputs ; m++ )
+				if ( P[ESCType] == ESCYGEI2C )
+					for ( m = 0 ; m < NoOfI2CESCOutputs ; m++ )
 					{
 						ESCI2CStart();
-						r = WriteESCI2CByte(0xd0 + ( m*2 ));	// one cmd, one data byte per motor
-						r += WriteESCI2CByte(0xa2);
-						r += WriteESCI2CByte(PWM[m]);
-						ESCI2CFail[m] += r; 
+						r = WriteESCI2CByte(0x62 + ( m*2) );	// one cmd, one data byte per motor
+						r += WriteESCI2CByte( PWM[m]>>1 );
+						ESCI2CFail[m] += r;
 						ESCI2CStop();
 					}
+				else
+					if ( P[ESCType] == ESCX3D )
+					{
+						ESCI2CStart();
+						r = WriteESCI2CByte(0x10);				// one command, 4 data bytes
+						r += WriteESCI2CByte( PWM[FrontC] ); 
+						r += WriteESCI2CByte( PWM[BackC] );
+						r += WriteESCI2CByte( PWM[LeftC] );
+						r += WriteESCI2CByte( PWM[RightC] );
+						ESCI2CFail[0] += r;
+						ESCI2CStop();
+					}
+					else
+					if ( P[ESCType] == ESCLRCI2C )
+						for ( m = 0 ; m < NoOfPWMOutputs ; m++ )
+						{
+							ESCI2CStart();
+							r = WriteESCI2CByte(0xd0 + ( m*2 ));	// one cmd, one data byte per motor
+							r += WriteESCI2CByte(0xa2);
+							r += WriteESCI2CByte(PWM[m]);
+							ESCI2CFail[m] += r; 
+							ESCI2CStop();
+						}
 		#endif //  MULTICOPTER
 	}
-
+	
 	if ( ServoToggle == 0 )
-	{	
+	{
 		_asm
 		MOVLB	0
 OS001:
@@ -303,10 +306,9 @@ OS0011:
 			Delay1TCY(); 
 		#endif // !TRICOPTER
  
+		Delay1TCY();	
 		Delay1TCY();
-		Delay1TCY(); 
-		Delay1TCY();
-	
+
 		#ifdef CLOCK_40MHZ
 			Delay10TCYx(2); 
 			Delay1TCY(); 
@@ -330,7 +332,7 @@ OS002:
 
 	FastWriteTimer0(SaveTimer0.u16);
 
-	// add in period mS Clock was disabled
+	// add in period mS Clock was disabled - this is tending to advance the clock too far!
 	if ( P[ESCType] == ESCPPM )
 		if ( ServoToggle == 0 )
 			Clock[mS] = SaveClockmS + 3;
@@ -344,6 +346,7 @@ OS002:
 
 	if ( ++ServoToggle == ServoInterval )
 		ServoToggle = 0;
+
 	INTCONbits.TMR0IE = true;
 	EnableInterrupts;
 
@@ -363,6 +366,9 @@ OS002:
 	#endif // !(SIMULATE | TESTING)
 
 } // OutSignals
+
+
+
 
 
 

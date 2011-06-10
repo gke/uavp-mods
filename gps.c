@@ -198,10 +198,7 @@ void ParseGPGGASentence(void)
 	if ( State == InFlight )
 	{
 		if ( GPSHDilute > Stats[MaxHDiluteS] )
-		{ 
 			Stats[MaxHDiluteS] = GPSHDilute;
-			F.GPSFailure = GPSHDilute > 150; 
-		}
 		else 
 			if ( GPSHDilute < Stats[MinHDiluteS] ) 
 				Stats[MinHDiluteS] = GPSHDilute;
@@ -211,6 +208,8 @@ void ParseGPGGASentence(void)
 		else
 			if ( GPSNoOfSats < Stats[GPSMinSatsS] )
 				Stats[GPSMinSatsS] = GPSNoOfSats; 
+
+		F.GPSFailure = GPSHDilute > 150; 
 	}
 } // ParseGPGGASentence
 
@@ -356,19 +355,30 @@ void ParseGPSSentence(void)
 		{  // don't bother with GPS longitude correction for now?
 			CosH = int16cos(Heading);
 			SinH = int16sin(Heading);
-			GPSLongitude = FakeGPSLongitude + ((int32)(-FakeDesiredPitch) * SinH)/SCALE_VEL;
-			GPSLatitude = FakeGPSLatitude + ((int32)(-FakeDesiredPitch) * CosH)/SCALE_VEL;
-								
-			A = Make2Pi(Heading + HALFMILLIPI);
-			CosH = int16cos(A);
-			SinH = int16sin(A);
-			GPSLongitude += ((int32)FakeDesiredRoll * SinH) / SCALE_VEL;
-			GPSLongitude += FAKE_EAST_WIND; // wind	
-			GPSLatitude += ((int32)FakeDesiredRoll * CosH) / SCALE_VEL;
-			GPSLatitude += FAKE_NORTH_WIND; // wind
+
+			#ifdef NAV_WING
+
+				FakeGPSLongitude += ConvertMToGPS(SIM_CRUISE_MPS*SinH)/(GPS_UPDATE_HZ*256);
+				FakeGPSLatitude += ConvertMToGPS(SIM_CRUISE_MPS*CosH)/(GPS_UPDATE_HZ*256);
+
+			#else
+	
+				FakeGPSLongitude += ((int32)(-FakeDesiredPitch) * SinH)/SCALE_VEL;
+				FakeGPSLatitude += ((int32)(-FakeDesiredPitch) * CosH)/SCALE_VEL;
+									
+				A = Make2Pi(Heading + HALFMILLIPI);
+				CosH = int16cos(A);
+				SinH = int16sin(A);
+				FakeGPSLongitude += ((int32)FakeDesiredRoll * SinH) / SCALE_VEL;
+				FakeGPSLatitude += ((int32)FakeDesiredRoll * CosH) / SCALE_VEL;
+
+			#endif // NAV_WING
+
+			FakeGPSLongitude += FAKE_EAST_WIND; 
+			FakeGPSLatitude += FAKE_NORTH_WIND; 
 		
-			FakeGPSLongitude = GPSLongitude;
-			FakeGPSLatitude = GPSLatitude;
+			GPSLongitude = FakeGPSLongitude;
+			GPSLatitude = FakeGPSLatitude;
 
 			GPSRelAltitude = BaroRelAltitude;
 		}

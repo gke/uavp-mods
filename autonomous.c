@@ -230,7 +230,7 @@ void Navigate(int32 NavLatitude, int32 NavLongitude )
 	WayHeading = Make2Pi(int32atan2((int32)EastDiff, (int32)NorthDiff));
 	RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
 
-	if ( ( NavSensitivity > NAV_SENS_THRESHOLD ) && !F.WayPointCentred )
+	if (  NavSensitivity > NAV_SENS_THRESHOLD ) //&& !F.WayPointCentred )
 	{	
 		#ifdef NAV_WING
 		
@@ -250,14 +250,14 @@ void Navigate(int32 NavLatitude, int32 NavLongitude )
 		SinHeading = int16sin(RelHeading);
 		CosHeading = int16cos(RelHeading);
 		
-		NavE[Roll] = SRS32( Radius * SinHeading, 8);
-		NavE[Pitch] = -SRS32( Radius * CosHeading, 8);
+		NavE[Roll] = SRS32( NAV_MAX_ROLL_PITCH * SinHeading, 8); // was Radius
+		NavE[Pitch] = -SRS32( NAV_MAX_ROLL_PITCH * CosHeading, 8);
 		
 		// Roll & Pitch
 		
 		for ( a = 0; a < (uint8)2 ; a++ )
 		{
-			NavP = Limit1(NavE[a], NAV_MAX_ROLL_PITCH);
+			NavP = NavE[a];
 		
 			NavIntE[a] += NavE[a];
 			NavIntE[a] = Limit1(NavIntE[a], (int16)P[NavIntLimit]);
@@ -457,7 +457,6 @@ void DoNavigation(void)
 
 void CheckFailsafeAbort(void)
 {
-
 	#ifndef TESTING
 
 	if ( mSClock() > mS[AbortTimeout] )
