@@ -16,3 +16,21 @@ C:\Flight\Code\UAVXNav\obj\Release\UAVXNav 1.02.exe.manifest
 C:\Flight\Code\UAVXNav\obj\Release\UAVXNav 1.02.application
 C:\Flight\Code\UAVXNav\obj\Release\UAVXNav 1.02.exe
 C:\Flight\Code\UAVXNav\obj\Release\UAVXNav 1.02.pdb
+C:\Users\gke\Desktop\Google UAVXNav\bin\Release\UAVXNav 1.3.exe.config
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\Interop.EARTHLib.dll
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav.csproj.ResolveComReference.cache
+C:\Users\gke\Desktop\Google UAVXNav\bin\Release\UAVXNav 1.3.exe.manifest
+C:\Users\gke\Desktop\Google UAVXNav\bin\Release\UAVXNav 1.3.application
+C:\Users\gke\Desktop\Google UAVXNav\bin\Release\UAVXNav 1.3.exe
+C:\Users\gke\Desktop\Google UAVXNav\bin\Release\UAVXNav 1.3.pdb
+C:\Users\gke\Desktop\Google UAVXNav\bin\Release\Interop.EARTHLib.dll
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\ResolveAssemblyReference.cache
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav.AvionicsInstrumentsControls.AvionicsInstrumentsControlsResources.resources
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav.Form1.resources
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav.options_form.resources
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav.Properties.Resources.resources
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav.csproj.GenerateResource.Cache
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav 1.3.exe.manifest
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav 1.3.application
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav 1.3.exe
+C:\Users\gke\Desktop\Google UAVXNav\obj\Release\UAVXNav 1.3.pdb

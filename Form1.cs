@@ -16,7 +16,6 @@ using System.Net;
 
 using EARTHLib;
 
-
 namespace UAVXNav
 { // Rewritten and extended for UAVX by by Greg Egan (C) 2010.
   // Based originally on ArduPilotConfigTool(C) 2009 by By Jordi Muñoz && HappyKillmore,
@@ -35,11 +34,22 @@ namespace UAVXNav
         const byte NAK = 21;
         const byte ESC = 27;
 
+        const byte RCMaximum = 238;
+        const double OUTMaximumScale = 0.5; // 100/200 % for PWM at least
+
         const byte UnknownPacketTag = 0;
         const byte RestartPacketTag = 8;
         const byte UAVXFlightPacketTag = 13;
         const byte UAVXNavPacketTag = 14;
         const byte UAVXStatsPacketTag = 15;
+        const byte UAVXControlPacketTag = 16;
+        const byte UAVXParamsPacketTag = 17;
+        const byte UAVXMinPacketTag = 18;
+        const byte UAVXArmParamsPacketTag = 19;
+        const byte UAVXStickPacketTag = 20;
+        const byte UAVXCustomPacketTag = 21;
+
+        const byte FrSkyPacketTag = 99;
 
         const byte WaitRxSentinel = 0;
         const byte WaitRxBody = 1;
@@ -49,19 +59,28 @@ namespace UAVXNav
         const byte WaitUPTag = 5;
         const byte WaitUPLength = 6;
         const byte WaitUPBody = 7;
+        const byte WaitRxTag = 8;
 
-        const byte DefaultAttitudeToDegrees = 35;
-        byte AttitudeToDegrees;
+        const byte MAXPARAMS = 64;
+
+        const float MILLIRADDEG = (float)0.057295;
+        const float AttitudeToDegrees = 78.0f;
 
         const int DefaultRangeLimit = 100;
         const int MaximumRangeLimit = 250; // You carry total responsibility if you increase this value
         const int MaximumAltitudeLimit = 121; // You carry total responsibility if you increase this value 
 
-        const double CurrentSensorMax = 50; // depends on current ADC used - possible needs calibration box?
+        const double CurrentSensorMax = 50.0; // depends on current ADC used - needs calibration box?
+        const double YawGyroRate = 400.0;
+        const double RollPitchGyroRate = 400.0;
+
 
         /*
+        UAVXFlightPacket
+        
+        Flags bit values
         Flags[0]
-            NavAltitudeHold	
+            AltHoldEnabled	// stick programmed	
             TurnToWP	    // stick programmed		
             GyroFailure
             LostModel
@@ -84,7 +103,7 @@ namespace UAVXNav
             ReturnHome
             Proximity
             CloseProximity
-            UsingGPSAlt
+            UsingAccComp
             UsingRTHAutoDescend
             BaroAltitudeValid
             RangefinderAltitudeValid
@@ -93,15 +112,15 @@ namespace UAVXNav
         Flags[3]
 		    AllowNavAltitudeHold	// stick programmed
 		    UsingPositionHoldLock
-		    LockHoldPosition
+		    Ch5Active
 		    Simulation
 		    AcquireNewPosition 
 		    MotorsArmed
-		    u1
-		    u2
+			NavigationActive
+		    ForceFailsafe
 
          Flags[4]
-		    Signal
+            Signal
 		    RCFrameOK
 		    ParametersValid
 		    RCNewValues
@@ -109,17 +128,19 @@ namespace UAVXNav
 		    AccelerationsValid
 		    CompassValid
 		    CompassMissRead
-       
+
         Flags[5]
-		    UsingFlatAcc
+		    UsingPolarCoordinates
 		    ReceivingGPS
-		    GPSSentenceReceived
+		    PacketReceived
 		    NavComputed
 		    AltitudeValid		
 		    UsingSerialPPM
 		    UsingTxMode2
-		    UsingAltOrientation
-        */
+		    FailsafesEnabled
+		    
+         */
+
         bool SimulationB;
 
         // struct not used - just to document packet format
@@ -151,6 +172,40 @@ namespace UAVXNav
         short AltCompT;                 // 46
         byte[] PWMT = new byte[6];      // 47
         int MissionTimeMilliSecT;       // 53
+
+        /*
+UAVXStatsPacket      
+*/
+
+        //should be an enum!!!
+        const byte GPSAltitudeX = 0;
+        const byte BaroRelAltitudeX = 1;
+        const byte ESCI2CFailX = 2;
+        const byte GPSMinSatsX = 3;
+        const byte MinROCX = 4;
+        const byte MaxROCX = 5;
+        const byte GPSMaxVelX = 6;
+        const byte AccFailsX = 7;
+        const byte CompassFailsX = 8;
+        const byte BaroFailsX = 9;
+        const byte GPSInvalidX = 10;
+        const byte GPSMaxSatsX = 11;
+        const byte NavValidX = 12;
+        const byte MinHDiluteX = 13;
+        const byte MaxHDiluteX = 14;
+        const byte RCGlitchX = 15;
+        const byte GPSBaroScaleX = 16;
+        const byte GyroFailsX = 17;
+        const byte RCFailSafesX = 18;
+        const byte I2CFailsX = 19;
+        const byte MinTempX = 20;
+        const byte MaxTempX = 21;
+        const byte BadX = 22;
+        const byte BadNumX = 23;
+
+        const byte MaxStats = 32;
+
+        short[] Stats = new short[MaxStats];
 
         // UAVXNavPacket
         //byte UAVXNavPacketTag;
@@ -185,12 +240,16 @@ namespace UAVXNav
         int GPSMissionTimeT;            // 53
 
         bool WPInvalid;
+        bool UAVXArm;
+        short AirframeT;
 
         int PrevGPSLat=0, PrevGPSLon=0;
         int AltError, CurrAlt;
         double EastDiff, NorthDiff, LongitudeCorrection, WhereDirection;
         double Distance;
         int RangeLimit = DefaultRangeLimit;
+
+        byte[] FrSkyPacket = new byte[16];
 
         const short RxQueueLength = 8192;
         const short RxQueueMask = RxQueueLength - 1;
@@ -203,9 +262,19 @@ namespace UAVXNav
         bool PacketReceived = false;
 
         bool CheckSumError;
-        short RxLengthErrors = 0, RxCheckSumErrors = 0, RxIllegalErrors = 0;
+        short RxLengthErrors = 0, RxCheckSumErrors = 0, RxIllegalErrors = 0, RxFrSkyErrors = 0;
 
         byte RxCheckSum;
+
+        long FrSkyPacketsReceived = 0;
+        long TopMotor;
+        double TotalOutput;
+
+        short ParamSet, ParamNo;
+
+        short FrSkyRxPacketByteCount;
+        short FrSkyRxPacketTag, FrSkyReceivedPacketTag, FrSkyPacketRxState;
+        bool FrSkyPacketReceived = false;
 
         System.IO.FileStream SaveLogFileStream;
         System.IO.BinaryWriter SaveLogFileBinaryWriter;
@@ -244,7 +313,7 @@ namespace UAVXNav
 
         SerialPort serialPort2 = new SerialPort();
         byte[] Nav = new byte[256];
-        byte[] Stats = new byte[256];
+        byte[] StatsBytes = new byte[256];
         byte[] ReadBuff = new byte[256];
         byte[] UAVXPacket = new byte[256];
         private const byte start_byte = 24;
@@ -306,7 +375,7 @@ namespace UAVXNav
         {
             string FileName;
 
-            FileName = "C:/Documents and Settings/All Users/Desktop/UAVX_" +
+            FileName = "C:\\Program Files\\UAVXLogs\\UAVXNav_" +
                 DateTime.Now.Year +
                 DateTime.Now.Month +
                 DateTime.Now.Day + "_" +
@@ -505,82 +574,75 @@ namespace UAVXNav
             }
             else
                 UAVXReadStats();
- 
-            /*Now Updating data*/
-            if (ExtractShort(ref Stats, 11) > 1)
-                GPSAltitudeS.Text = string.Format("{0:n0}", ExtractShort(ref Stats, 0) / 10);
+         
+            if (ExtractShort(ref StatsBytes, 11) > 1)
+                GPSAltitudeS.Text = string.Format("{0:n0}", ExtractShort(ref StatsBytes, 0) / 10);
             else
                 GPSAltitudeS.Text = "?";
 
-            RelBaroAltitudeS.Text = string.Format("{0:n0}", ExtractShort(ref Stats, 2) / 10); 
-            RelBaroPressureS.Text = Convert.ToString(ExtractShort(ref Stats, 6));
+            BaroRelAltitudeS.Text = string.Format("{0:n0}", ExtractShort(ref StatsBytes, 2) / 10); 
+            RelBaroPressureS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 6));
 
-            MinGPSNoOfSatsS.Text = Convert.ToString(ExtractShort(ref Stats, 6));
-            if ( ExtractShort(ref Stats, 6) < 6 )
-                MinGPSNoOfSatsS.BackColor = System.Drawing.Color.Red;
+            GPSMinSatS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 6));
+            if ( ExtractShort(ref StatsBytes, 6) < 6 )
+                GPSMinSatS.BackColor = System.Drawing.Color.Red;
             else
-                MinGPSNoOfSatsS.BackColor = GPSStatsGroupBox.BackColor;
+                GPSMinSatS.BackColor = GPSStatsGroupBox.BackColor;
 
-            MinBaroROCS.Text = string.Format("{0:n1}", ExtractShort(ref Stats, 8) / 100.0);
-            MaxBaroROCS.Text = string.Format("{0:n1}", ExtractShort(ref Stats, 10) / 100.0);
+            BaroMinROCS.Text = string.Format("{0:n1}", ExtractShort(ref StatsBytes, 8) / 100.0);
+            BaroMaxROCS.Text = string.Format("{0:n1}", ExtractShort(ref StatsBytes, 10) / 100.0);
 
-            GPSVelS.Text = string.Format("{0:n1}", ExtractShort(ref Stats, 12) / 100.0);
+            GPSVelS.Text = string.Format("{0:n1}", ExtractShort(ref StatsBytes, 12) / 100.0);
 
-            AccFailS.Text = Convert.ToString(ExtractShort(ref Stats, 14));
-            if (ExtractShort(ref Stats, 14) > 0)
+            AccFailS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 14));
+            if (ExtractShort(ref StatsBytes, 14) > 0)
                 AccFailS.BackColor = System.Drawing.Color.Red;
             else
                 AccFailS.BackColor = GPSStatsGroupBox.BackColor;
 
-            CompassFailS.Text = Convert.ToString(ExtractShort(ref Stats, 16));
-            if (ExtractShort(ref Stats, 16) > 0)
+            CompassFailS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 16));
+            if (ExtractShort(ref StatsBytes, 16) > 0)
                 CompassFailS.BackColor = System.Drawing.Color.Red;
             else
                 CompassFailS.BackColor = GPSStatsGroupBox.BackColor;
 
-            BaroFailS.Text = Convert.ToString(ExtractShort(ref Stats, 18));
-            if (ExtractShort(ref Stats, 18) > 0)
+            BaroFailS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 18));
+            if (ExtractShort(ref StatsBytes, 18) > 0)
                 BaroFailS.BackColor = System.Drawing.Color.Red;
             else
                 BaroFailS.BackColor = GPSStatsGroupBox.BackColor;
 
-            GPSFailS.Text = Convert.ToString(ExtractShort(ref Stats, 20));
-            if (ExtractShort(ref Stats, 20) > 20)
+            GPSFailS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 20));
+            if (ExtractShort(ref StatsBytes, 20) > 20)
                 GPSFailS.BackColor = System.Drawing.Color.Red;
             else
                 GPSFailS.BackColor = GPSStatsGroupBox.BackColor;
 
-            MaxGPSNoOfSatsS.Text = Convert.ToString(ExtractShort(ref Stats, 22));
+            GPSMaxSatS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 22));
 
-            if ( ExtractShort(ref Stats, 22) > 1 ) NavValidS.Text = "true"; else NavValidS.Text = "false";
-            if (ExtractShort(ref Stats, 22) == 0 )
-                NavValidS.BackColor = System.Drawing.Color.Red;
+            GPSMinHDiluteS.Text = string.Format("{0:n1}", ExtractShort(ref StatsBytes, 26) / 100.0);
+
+            GPSMaxHDiluteS.Text = string.Format("{0:n1}", ExtractShort(ref StatsBytes, 28) / 100.0);
+            if (ExtractShort(ref StatsBytes, 28) > 150)
+                GPSMaxHDiluteS.BackColor = System.Drawing.Color.Red;
             else
-                NavValidS.BackColor = System.Drawing.Color.Green;
+                GPSMaxHDiluteS.BackColor = GPSStatsGroupBox.BackColor;
 
-            MinHDiluteS.Text = string.Format("{0:n1}", ExtractShort(ref Stats, 26) / 100.0);
-
-            MaxHDiluteS.Text = string.Format("{0:n1}", ExtractShort(ref Stats, 28) / 100.0);
-            if (ExtractShort(ref Stats, 28) > 150)
-                MaxHDiluteS.BackColor = System.Drawing.Color.Red;
-            else
-                MaxHDiluteS.BackColor = GPSStatsGroupBox.BackColor;
-
-            RCGlitchesS.Text = Convert.ToString(ExtractShort(ref Stats, 30));
-            if (ExtractShort(ref Stats, 30) > 20)
+            RCGlitchesS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 30));
+            if (ExtractShort(ref StatsBytes, 30) > 20)
                 RCGlitchesS.BackColor = System.Drawing.Color.Red;
             else
                 RCGlitchesS.BackColor = GPSStatsGroupBox.BackColor;
 
-            GPSBaroScaleS.Text = Convert.ToString(ExtractShort(ref Stats, 32));
+            GPSBaroScaleS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 32));
 
-            GyroFailS.Text = Convert.ToString(ExtractShort(ref Stats, 34));
-            if (ExtractShort(ref Stats, 34) > 0)
+            GyroFailS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 34));
+            if (ExtractShort(ref StatsBytes, 34) > 0)
                 GyroFailS.BackColor = System.Drawing.Color.Orange;
             else
                 GyroFailS.BackColor = GPSStatsGroupBox.BackColor;
 
-         //   RCFailsafesS.Text = Convert.ToString(ExtractShort(ref Stats, 36));
+            RCFailSafeS.Text = Convert.ToString(ExtractShort(ref StatsBytes, 36));
 
             ProximityRadius.Text = string.Format("{0:n0}", UAVXProximityRadius);
             ProximityAlt.Text = string.Format("{0:n0}", UAVXProximityAlt);
@@ -739,7 +801,7 @@ namespace UAVXNav
                     FlyingButton.Text = "Landed";
                     FlyingButton.BackColor = System.Drawing.Color.Red;
 
-                    SetSerialPort(Convert.ToString(cboComSelect.SelectedItem), UAVXNav.Properties.Settings.Default.COMDisarmedBaudRate, ref sError);
+                    SetSerialPort(UAVXNav.Properties.Settings.Default.COMPort, UAVXNav.Properties.Settings.Default.COMDisarmedBaudRate, ref sError);
 
                     progressBar1.Value = progressBar1.Value + 10;
                     if (sError != "")
@@ -1816,7 +1878,7 @@ namespace UAVXNav
                 if (serialPort2.BytesToRead >= 1)
                     one = (byte)serialPort2.ReadByte();
 
-                if (++wait > 1000)
+                if (++wait > 10000)
                 {
                     OK = false;
                     break;
@@ -1984,7 +2046,7 @@ namespace UAVXNav
                     //" Byte=" + Convert.ToString(0x10));
 
                     for (int y = 0; y < 64; y++)
-                        Stats[y] = ReadBuff[y];
+                        StatsBytes[y] = ReadBuff[y];
 
                     UAVXOnReadOK(EventArgs.Empty);
                 }
@@ -2030,15 +2092,15 @@ namespace UAVXNav
                     InFlight = false;
                 }
 
-               // webBrowser1.Document.GetElementById("clearTravelButton").InvokeMember("click");
+               webBrowser1.Document.GetElementById("clearTravelButton").InvokeMember("click");
             }
-
+/*
             if (InFlight)
             {
-                MinGPSFixS.Visible = false;
-                MinGPSNoOfSatsS.Visible = false;
-                MinHDiluteS.Visible = false;
-                MaxBaroROCS.Visible = false;
+                GPSMinFixS.Visible = false;
+                GPSMinSatS.Visible = false;
+                GPSMinHDiluteS.Visible = false;
+                BaroMaxROCS.Visible = false;
 
                 GPSBaroScaleSLabel.Visible = false;
                 GPSBaroScaleS.Visible = false;
@@ -2048,10 +2110,10 @@ namespace UAVXNav
             }
             else
             {
-                MinGPSFixS.Visible = true;
-                MinGPSNoOfSatsS.Visible = true;
-                MinHDiluteS.Visible = true;
-                MaxBaroROCS.Visible = true;
+                GPSMinFixS.Visible = true;
+                GPSMinSatS.Visible = true;
+                GPSMinHDiluteS.Visible = true;
+                BaroMaxROCS.Visible = true;
 
                 GPSBaroScaleSLabel.Visible = true;
                 GPSBaroScaleS.Visible = true;
@@ -2059,6 +2121,7 @@ namespace UAVXNav
                 RelBaroPressureSLabel.Visible = true;
                 RelBaroPressureS.Visible = true;
             }
+*/
         }
 
         void PollTelemetry()
@@ -2108,90 +2171,415 @@ namespace UAVXNav
             if (RxPacketByteCount == 1)
             {
                 RxPacketTag = ch;
-                switch ( RxPacketTag ) {
-                case UAVXFlightPacketTag: PacketLength = 54; break;
-                case UAVXNavPacketTag: PacketLength = 55; break;
-                case UAVXStatsPacketTag: PacketLength = 44; break;
-                default:
-                    RxIllegalErrors++;
-                    RxPacketTag=UnknownPacketTag;  
-                    break;
-                } // switch
-                if (RxPacketTag==UnknownPacketTag)
-                    PacketRxState=WaitRxSentinel;
-                else
-                    PacketRxState=WaitRxBody;
+                PacketRxState = WaitRxBody;
             }
             else
                 if (RxPacketByteCount == 2)
                 {
-                    RxPacketLength = ch; // ignore
+                    RxPacketLength = ch;
                     PacketRxState = WaitRxBody;
                 }
                 else
-                    if(RxPacketByteCount >= 250 ) // zzzsizeof(Packet)) // packet too long for buffer
+                    if (RxPacketByteCount >= (RxPacketLength + 3))
                     {
-                        RxLengthErrors++;
+                        RxPacketError = RxCheckSum != 0;
+
+                        CheckSumError = RxPacketError;
+
+                        if (CheckSumError)
+                            RxCheckSumErrors++;
+
+                        if (!RxPacketError)
+                        {
+                            PacketReceived = true;
+                            ReceivedPacketTag = RxPacketTag;
+                        }
                         PacketRxState = WaitRxSentinel;
+                        //   InitPollPacket(); 
                     }
                     else
-                        if (RxPacketByteCount >= (PacketLength+3))
-                        {
-                            RxPacketError = RxCheckSum != 0;
-
-                            CheckSumError = RxPacketError;
-                            if (CheckSumError)
-                                RxCheckSumErrors++;
-
-                            RxPacketError=false;
-                            if (!RxPacketError)
-                            {
-                                PacketReceived = true;
-                                ReceivedPacketTag=RxPacketTag;   
-                            }
-                            PacketRxState = WaitRxSentinel;
-                        }
-                        else
-                            PacketRxState = WaitRxBody;         
+                        PacketRxState = WaitRxBody;
         }
 
-        void ParsePacket(byte ch) 
+        void ParseFrSkyPacket(byte ch)
         {
-            switch (PacketRxState) {
-            case WaitRxSentinel:
-                if (ch == SOH)
-                {
-                    InitPollPacket();
-                    CheckSumError = false;
-                    PacketRxState = WaitRxBody;
-                }
-                break;
-            case WaitRxBody:
-               if (ch == ESC)
-                   PacketRxState = WaitRxESC;
-                else
-                    if (ch == SOH) // unexpected start of packet
+            switch (FrSkyPacketRxState)
+            {
+                case WaitRxSentinel:
+                    if (ch == 0x7e)
                     {
-                        RxLengthErrors++;
+                        FrSkyRxPacketTag = FrSkyPacketTag;
+                        FrSkyPacketRxState = WaitRxTag;
+                    }
+                    break;
+                case WaitRxTag:
+                    if (ch != 0x7e)
+                    {
+                        FrSkyReceivedPacketTag = ch;
+                        FrSkyRxPacketByteCount = 0;
+                        FrSkyPacketRxState = WaitRxBody;
+                    }
+                    break;
+                case WaitRxBody:
+                    if (((ch == 0x7d) || (ch == 0x7e)) && (FrSkyRxPacketByteCount != 8))
+                        FrSkyPacketRxState = WaitRxESC;
+                    else
+                    {
+                        FrSkyPacket[FrSkyRxPacketByteCount++] = ch;
+                        if (FrSkyRxPacketByteCount == 9)
+                        {
+                            if (ch != 0x7e)
+                                RxFrSkyErrors++;
+                            else
+                                FrSkyPacketReceived = true;
+                            FrSkyPacketRxState = WaitRxSentinel;
+                        }
+                    }
+                    break;
+                case WaitRxESC:
+                    ch ^= 0x20;
+                    FrSkyPacket[FrSkyRxPacketByteCount++] = ch;
+                    FrSkyPacketRxState = WaitRxBody;
+                    break;
 
+                default: FrSkyPacketRxState = WaitRxSentinel; break;
+            }
+        }
+
+        void ParsePacket(byte ch)
+        {
+            RxCheckSum ^= ch;
+            switch (PacketRxState)
+            {
+                case WaitRxSentinel:
+                    if (ch == SOH)
+                    {
                         InitPollPacket();
+                        CheckSumError = false;
                         PacketRxState = WaitRxBody;
                     }
+                    break;
+                case WaitRxBody:
+                    if (ch == ESC)
+                        PacketRxState = WaitRxESC;
                     else
-                        if (ch == EOT) // unexpected end of packet 
+                        if (ch == SOH) // unexpected start of packet
                         {
                             RxLengthErrors++;
-                            PacketRxState = WaitRxSentinel;
+
+                            InitPollPacket();
+                            PacketRxState = WaitRxBody;
                         }
                         else
-                            AddToBuffer(ch); 
-                break;
-            case WaitRxESC:
-                AddToBuffer(ch);
-                break;
-            default: PacketRxState = WaitRxSentinel; break; 
-            } 
+                            if (ch == EOT) // unexpected end of packet 
+                            {
+                                RxLengthErrors++;
+                                PacketRxState = WaitRxSentinel;
+                            }
+                            else
+                                AddToBuffer(ch);
+                    break;
+                case WaitRxESC:
+                    AddToBuffer(ch);
+                    break;
+                default: PacketRxState = WaitRxSentinel; break;
+            }
         }
+
+        public void DoAirframeLabels()
+        {
+            
+        }
+
+        void UpdateFlags()
+        {
+
+            if ((Flags[0] & 0x01) != 0)
+                AltHoldEnabledBox.BackColor = System.Drawing.Color.Green;
+            else
+                AltHoldEnabledBox.BackColor = System.Drawing.Color.Red;
+            if ((Flags[0] & 0x02) != 0)
+                TurnToWPBox.BackColor = System.Drawing.Color.Green;
+            else
+                TurnToWPBox.BackColor = ErrorStatsGroupBox.BackColor;
+
+            if ((Flags[0] & 0x01) != 0)
+                AltHoldEnabledBox.BackColor = System.Drawing.Color.Green;
+            else
+                AltHoldEnabledBox.BackColor = System.Drawing.Color.Red;
+            if ((Flags[0] & 0x02) != 0)
+                TurnToWPBox.BackColor = System.Drawing.Color.Green;
+            else
+                TurnToWPBox.BackColor = ErrorStatsGroupBox.BackColor;
+
+            if ((Flags[0] & 0x20) != 0)
+            {
+                BatteryVolts.BackColor = System.Drawing.Color.Red;
+                GyroFailS.BackColor = System.Drawing.Color.Red;
+            }
+            else
+            {
+                BatteryVolts.BackColor = BatteryGroupBox.BackColor;
+                GyroFailS.BackColor = ErrorStatsGroupBox.BackColor;
+            }
+            if ((Flags[0] & 0x40) != 0)
+                GPSFailS.BackColor = ErrorStatsGroupBox.BackColor;
+            else
+                GPSFailS.BackColor = System.Drawing.Color.Red;
+
+            if ((Flags[1] & 0x01) != 0)
+                BaroFailS.BackColor = System.Drawing.Color.Red;
+            else
+                BaroFailS.BackColor = BaroStatsGroupBox.BackColor;
+            if ((Flags[1] & 0x02) != 0)
+                AccFailS.BackColor = System.Drawing.Color.Red;
+            else
+                AccFailS.BackColor = ErrorStatsGroupBox.BackColor;
+            if ((Flags[1] & 0x04) != 0)
+                CompassFailS.BackColor = System.Drawing.Color.Red;
+            else
+                CompassFailS.BackColor = ErrorStatsGroupBox.BackColor;
+
+            if ((Flags[1] & 0x10) != 0)
+                AttitudeHoldBox.BackColor = System.Drawing.Color.Green;
+            else
+                AttitudeHoldBox.BackColor = System.Drawing.Color.Red;
+            /*
+            if ((Flags[1] & 0x20) != 0)
+                ThrottleMovingBox.BackColor = System.Drawing.Color.LightSteelBlue;
+            else
+                ThrottleMovingBox.BackColor = FlagsGroupBox.BackColor;
+            */
+            if ((Flags[1] & 0x40) != 0)
+                HoldingAltBox.BackColor = System.Drawing.Color.Green;
+            else
+                HoldingAltBox.BackColor = ErrorStatsGroupBox.BackColor;
+            if ((Flags[1] & 0x80) != 0)
+                NavigateBox.BackColor = System.Drawing.Color.Green;
+            else
+                NavigateBox.BackColor = ErrorStatsGroupBox.BackColor;
+
+            if ((Flags[2] & 0x01) != 0)
+                ReturnHomeBox.BackColor = System.Drawing.Color.Green;
+            else
+                ReturnHomeBox.BackColor = ErrorStatsGroupBox.BackColor;
+
+            if ((Flags[2] & 0x02) != 0)
+                ProximityBox.BackColor = System.Drawing.Color.Green;
+            else
+                ProximityBox.BackColor = ErrorStatsGroupBox.BackColor;
+
+            if ((Flags[2] & 0x04) != 0)
+                CloseProximityBox.BackColor = System.Drawing.Color.Green;
+            else
+                CloseProximityBox.BackColor = ErrorStatsGroupBox.BackColor;
+
+            if ((Flags[2] & 0x10) != 0)
+                UseRTHAutoDescendBox.BackColor = System.Drawing.Color.Green;
+            else
+                UseRTHAutoDescendBox.BackColor = ErrorStatsGroupBox.BackColor;
+
+            if ((Flags[2] & 0x20) != 0)
+                BaroAltValidBox.BackColor = System.Drawing.Color.Green;
+            else
+                BaroAltValidBox.BackColor = ErrorStatsGroupBox.BackColor;
+            /*
+                if ((Flags[2] & 0x40) != 0)
+                    RangefinderValidBox.BackColor = System.Drawing.Color.Green;
+                else
+                    RangefinderValidBox.BackColor = ErrorStatsGroupBox.BackColor;
+            */
+            if ((Flags[2] & 0x80) != 0)
+                UsingRangefinderBox.BackColor = System.Drawing.Color.Silver;
+            else
+                UsingRangefinderBox.BackColor = NavGroupBox.BackColor;
+
+        }
+
+        void DoOrientation()
+        {
+            /*
+            //  do it all of the time in case some one changes orientation but does not shutdown GS if (!DoneOrientation)
+            {
+                if ((Flags[3] & 0x08) != 0)
+                    FlightHeadingOffset = 0.0;
+                else
+                    FlightHeadingOffset = (OrientT * Math.PI) / 24.0;
+
+                OSO = Math.Sin(FlightHeadingOffset);
+                OCO = Math.Cos(FlightHeadingOffset);
+            }
+             * */
+        }
+
+        void UpdateFlightState()
+        {
+            /*
+            switch (StateT)
+            {
+                case 0: FlightState.Text = "Starting"; break;
+                case 1: FlightState.Text = "Landing"; break;
+                case 2: FlightState.Text = "Landed"; break;
+                case 3: FlightState.Text = "Shutdown"; break;
+                case 4: FlightState.Text = "Flying"; break;
+                default: FlightState.Text = "Unknown"; break;
+            } // switch
+             */
+        }
+
+        void UpdateNavState()
+        {
+
+            switch (NavStateT)
+            {
+                case 0: NavState.Text = "Holding";
+                    NavState.BackColor = System.Drawing.Color.LightSteelBlue;
+                    break;
+                case 1: NavState.Text = "Returning";
+                    NavState.BackColor = System.Drawing.Color.Lime;
+                    break;
+                case 2: NavState.Text = "@Home";
+                    NavState.BackColor = System.Drawing.Color.Green;
+                    break;
+                case 3: NavState.Text = "Descending";
+                    NavState.BackColor = System.Drawing.Color.Orange;
+                    break;
+                case 4: NavState.Text = "Touchdown!";
+                    NavState.BackColor = System.Drawing.Color.RosyBrown;
+                    break;
+                case 5: NavState.Text = "Navigating";
+                    NavState.BackColor = System.Drawing.Color.Silver;
+                    break;
+                case 6: NavState.Text = "Loitering";
+                    NavState.BackColor = System.Drawing.Color.Gold;
+                    break;
+                default: NavState.Text = "Unknown"; break;
+            } // switch
+        }
+
+        void UpdateAirframe()
+        {
+            if (UAVXArm)
+                switch (AirframeT)
+                {
+                    case 0: Airframe.Text = "Arm Quadrocopter"; break;
+                    case 1: Airframe.Text = "Arm Tricopter"; break;
+                    case 2: Airframe.Text = "Arm VTCopter"; break;
+                    case 3: Airframe.Text = "Arm Y6Copter"; break;
+                    case 4: Airframe.Text = "Arm Helicopter"; break;
+                    case 5: Airframe.Text = "Arm Flying Wing"; break;
+                    case 6: Airframe.Text = "Arm Conventional"; break;
+                    case 7: Airframe.Text = "Arm Hexacopter"; break;
+                }
+            else
+                switch (AirframeT)
+                {
+                    case 0: Airframe.Text = "Quadrocopter"; break;
+                    case 1: Airframe.Text = "Tricopter"; break;
+                    case 2: Airframe.Text = "VTcopter"; break;
+                    case 3: Airframe.Text = "Y6copter"; break;
+                    case 4: Airframe.Text = "Helicopter"; break;
+                    case 5: Airframe.Text = "Flying Wing"; break;
+                    case 6: Airframe.Text = "Conventional"; break;
+                    case 7: Airframe.Text = "Hexacopter"; break;
+                }
+        }
+
+       
+
+        void UpdateFailState()
+        {
+            switch (FailStateT)
+            {
+                case 0: FailState.Text = "Monitor Rx";
+                    FailState.BackColor = System.Drawing.Color.Green;
+                    break;
+                case 1: FailState.Text = "Aborting";
+                    FailState.BackColor = System.Drawing.Color.Orange;
+                    break;
+                case 2: FailState.Text = "Terminating";
+                    FailState.BackColor = System.Drawing.Color.Orange;
+                    break;
+                case 3: FailState.Text = "Terminated";
+                    FailState.BackColor = System.Drawing.Color.Red;
+                    break;
+                case 4: FailState.Text = "Terminating";
+                    FailState.BackColor = System.Drawing.Color.Orange;
+                    break;
+                default: FailState.Text = "Unknown"; break;
+            } // switch
+        }
+
+        void UpdateAttitude()
+        {
+            /*
+            if (UAVXArm)
+            {
+                RollGyro.Text = string.Format("{0:n0}", RollGyroT * MILLIRADDEG);
+                PitchGyro.Text = string.Format("{0:n0}", PitchGyroT * MILLIRADDEG);
+                YawGyro.Text = string.Format("{0:n0}", YawGyroT * MILLIRADDEG);
+                RollAngle.Text = string.Format("{0:n0}", RollAngleT * MILLIRADDEG);
+                PitchAngle.Text = string.Format("{0:n0}", PitchAngleT * MILLIRADDEG);
+                YawAngle.Text = string.Format("{0:n0}", YawAngleT * MILLIRADDEG);
+            }
+            else
+            {
+                RollGyro.Text = string.Format("{0:n0}", RollGyroT);
+                PitchGyro.Text = string.Format("{0:n0}", PitchGyroT);
+                YawGyro.Text = string.Format("{0:n0}", YawGyroT);
+                RollAngle.Text = string.Format("{0:n0}", -RollAngleT / AttitudeToDegrees);
+                PitchAngle.Text = string.Format("{0:n0}", -PitchAngleT / AttitudeToDegrees);
+                YawAngle.Text = string.Format("{0:n0}", YawAngleT / AttitudeToDegrees);
+            }
+             */
+        }
+
+        void UpdateAccelerations()
+        {
+            /*
+            if (UAVXArm)
+            {
+                LRAcc.Text = string.Format("{0:n2}", (float)LRAccT * 0.001);
+                FBAcc.Text = string.Format("{0:n2}", (float)FBAccT * 0.001);
+                DUAcc.Text = string.Format("{0:n2}", (float)DUAccT * 0.001);
+
+                FBAccLabel.Text = "BF";
+                DUAccLabel.Text = "UD";
+            }
+            else
+            {
+                LRAcc.Text = string.Format("{0:n2}", (float)LRAccT / 1024.0);
+                FBAcc.Text = string.Format("{0:n2}", (float)FBAccT / 1024.0);
+                DUAcc.Text = string.Format("{0:n2}", (float)DUAccT / 1024.0);
+
+                FBAccLabel.Text = "FB";
+                DUAccLabel.Text = "DU";
+            }
+             */
+        }
+
+        void UpdateCompensation()
+        {
+            /*
+            if (UAVXArm)
+            {
+                IntCorrPitchLabel.Text = "BF";
+                AccAltCompLabel.Text = "UD";
+            }
+            else
+            {
+                IntCorrPitchLabel.Text = "FB";
+                AccAltCompLabel.Text = "DU";
+            }
+            IntCorrRoll.Text = string.Format("{0:n0}", IntCorrRollT * OUTMaximumScale);
+            IntCorrPitch.Text = string.Format("{0:n0}", IntCorrPitchT * OUTMaximumScale);
+            AccAltComp.Text = string.Format("{0:n0}", AccAltCompT * OUTMaximumScale);
+            AltComp.Text = string.Format("{0:n0}", AltCompT * OUTMaximumScale);
+             */
+        }
+
+   
+
 
         public void UAVXReadTelemetry()
         {
@@ -2216,140 +2604,184 @@ namespace UAVXNav
                 {
                     PacketReceived = false;
 
-                    AttitudeToDegrees = 35; // Convert.ToByte(UserAttitudeToDegrees.Text);
-
                     switch (RxPacketTag)
                     {
+                        case UAVXCustomPacketTag:
+                            break;
+                        case UAVXMinPacketTag:
+                            for (i = 2; i < (NoOfFlagBytes + 2); i++)
+                                Flags[i - 2] = ExtractByte(ref UAVXPacket, i);
+
+                            UpdateFlags();
+
+                            StateT = ExtractByte(ref UAVXPacket, 8);
+                            NavStateT = ExtractByte(ref UAVXPacket, 9);
+                            FailStateT = ExtractByte(ref UAVXPacket, 10);
+                            BatteryVoltsT = ExtractShort(ref UAVXPacket, 11);
+                            BatteryCurrentT = ExtractShort(ref UAVXPacket, 13);
+                            BatteryChargeT = ExtractShort(ref UAVXPacket, 15);
+                          //  RollAngleT = ExtractShort(ref UAVXPacket, 17);
+                          //  PitchAngleT = ExtractShort(ref UAVXPacket, 19);
+                            RelBaroAltitudeT = ExtractInt24(ref UAVXPacket, 21);
+                            RangefinderAltitudeT = ExtractShort(ref UAVXPacket, 24);
+                            HeadingT = ExtractShort(ref UAVXPacket, 26);
+                            GPSLatitudeT = ExtractInt(ref UAVXPacket, 28);
+                            GPSLongitudeT = ExtractInt(ref UAVXPacket, 32);
+                            AirframeT = ExtractByte(ref UAVXPacket, 36);
+                          //  OrientT = ExtractByte(ref UAVXPacket, 37);
+                            MissionTimeMilliSecT = ExtractInt24(ref UAVXPacket, 38);
+
+                            DesiredAltitudeT = 0;
+                          //  ROCT = 0;
+
+                            UAVXArm = (AirframeT & 0x80) != 0;
+                            AirframeT &= 0x7f;
+
+                            UpdateFlightState();
+                            UpdateNavState();
+                            UpdateFailState();
+                       //     UpdateBattery();
+                       //     UpdateWhere();
+                            UpdateFlags();
+                            UpdateAirframe();
+
+                        //    UpdateAltitude();
+                            UpdateAttitude();
+
+                            DoOrientation();
+/*
+                            Heading.Text = string.Format("{0:n0}", (float)HeadingT * MILLIRADDEG);
+
+                            GPSLongitude.Text = string.Format("{0:n6}", (double)GPSLongitudeT / 6000000.0);
+                           GPSLatitude.Text = string.Format("{0:n6}", (double)GPSLatitudeT / 6000000.0);
+
+                            if ((Flags[0] & 0x40) != 0) // GPSValid
+                            {
+                                GPSLongitude.BackColor = NavGroupBox.BackColor;
+                                GPSLatitude.BackColor = NavGroupBox.BackColor;
+                            }
+                            else
+                            {
+                                GPSLongitude.BackColor = System.Drawing.Color.Orange;
+                                GPSLatitude.BackColor = System.Drawing.Color.Orange;
+                            }
+
+                            if (FirstGPSCoordinates && ((Flags[0] & 0x80) != 0))
+                            {
+                                FirstGPSCoordinates = false;
+                                OriginLatitude = GPSLatitudeT;
+                                OriginLongitude = GPSLongitudeT;
+                            }
+ */
+
+                     //       MissionTimeSec.Text = string.Format("{0:n3}", MissionTimeMilliSecT * 0.001);
+                          
+                            break;
+                        case UAVXParamsPacketTag:
+                        
+                            break;
+                        case UAVXStickPacketTag:
+                          
+                            break;
                         case UAVXStatsPacketTag:
+                           // StatsPacketsReceived++;
+
+                            for (b = 0; b < MaxStats; b++)
+                                Stats[b] = ExtractShort(ref UAVXPacket, (byte)(b * 2 + 2));
+                            ExtractShort(ref UAVXPacket, 37);
+
+                            AirframeT = ExtractByte(ref UAVXPacket, 2 + MaxStats * 2);
+                        //    OrientT = ExtractByte(ref UAVXPacket, 2 + MaxStats * 2 + 1);
+
+                            UAVXArm = (AirframeT & 0x80) != 0;
+                            AirframeT &= 0x7f;
+
+                            I2CFailS.Text = string.Format("{0:n0}", Stats[I2CFailsX]);
+                            GPSFailS.Text = string.Format("{0:n0}", Stats[GPSInvalidX]);
+                            AccFailS.Text = string.Format("{0:n0}", Stats[AccFailsX]);
+                            GyroFailS.Text = string.Format("{0:n0}", Stats[GyroFailsX]);
+                            CompassFailS.Text = string.Format("{0:n0}", Stats[CompassFailsX]);
+                            BaroFailS.Text = string.Format("{0:n0}", Stats[BaroFailsX]);
+                         //  I2CESCFailS.Text = string.Format("{0:n0}", Stats[ESCI2CFailX]);
+                           RCFailSafeS.Text = string.Format("{0:n0}", Stats[RCFailSafesX]);
+
+                            GPSAltitudeS.Text = string.Format("{0:n1}", (float)Stats[GPSAltitudeX] * 0.01);
+                        //    GPSMaxVelS.Text = string.Format("{0:n1}", (float)Stats[GPSMaxVelX] * 0.1);
+                            GPSMinSatS.Text = string.Format("{0:n0}", Stats[GPSMinSatsX]);
+                            GPSMaxSatS.Text = string.Format("{0:n0}", Stats[GPSMaxSatsX]);
+                            GPSMinHDiluteS.Text = string.Format("{0:n2}", (float)Stats[MinHDiluteX] * 0.01);
+                            GPSMaxHDiluteS.Text = string.Format("{0:n2}", (float)Stats[MaxHDiluteX] * 0.01);
+                           
+                            BaroRelAltitudeS.Text = string.Format("{0:n1}", (float)Stats[BaroRelAltitudeX] * 0.1);
+                            BaroMinROCS.Text = string.Format("{0:n1}", (float)Stats[MinROCX] * 0.01);
+                            BaroMaxROCS.Text = string.Format("{0:n1}", (float)Stats[MaxROCX] * 0.01);
+                       //     MinTempS.Text = string.Format("{0:n1}", (float)Stats[MinTempX] * 0.1);
+                       //     MaxTempS.Text = string.Format("{0:n1}", (float)Stats[MaxTempX] * 0.1);
+
+                            RCFailSafeS.Text = string.Format("{0:n0}", Stats[RCFailSafesX]);
+
+                            UpdateAirframe();
+
+                            //DoOrientation();
+
+                            if (Stats[GPSMaxSatsX] < 6)
+                                GPSMaxSatS.BackColor = System.Drawing.Color.Red;
+                            else
+                                GPSMaxSatS.BackColor = GPSStatsGroupBox.BackColor;
+
+                            if (Stats[AccFailsX] > 0)
+                                AccFailS.BackColor = System.Drawing.Color.Red;
+                            else
+                                AccFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                            if (Stats[CompassFailsX] > 0)
+                                CompassFailS.BackColor = System.Drawing.Color.Red;
+                            else
+                                CompassFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                            if (Stats[BaroFailsX] > 0)
+                                BaroFailS.BackColor = System.Drawing.Color.Red;
+                            else
+                                BaroFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                            if (Stats[GPSInvalidX] > 20)
+                                GPSFailS.BackColor = System.Drawing.Color.Red;
+                            else
+                                GPSFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                            if (Stats[MaxHDiluteX] > 150)
+                                GPSMaxHDiluteS.BackColor = System.Drawing.Color.Red;
+                            else
+                                GPSMaxHDiluteS.BackColor = GPSStatsGroupBox.BackColor;
+
+                            if (Stats[RCFailSafesX] > 20)
+                                RCGlitchesS.BackColor = System.Drawing.Color.Red;
+                            else
+                                RCGlitchesS.BackColor = GPSStatsGroupBox.BackColor;
+
+                            if (Stats[GyroFailsX] > 0)
+                                GyroFailS.BackColor = System.Drawing.Color.Orange;
+                            else
+                                GyroFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                            break;
+                        case UAVXControlPacketTag:
                             break;
                         case UAVXFlightPacketTag:
 
                             for (i = 2; i < (NoOfFlagBytes + 2); i++)
                                 Flags[i - 2] = ExtractByte(ref UAVXPacket, i);
-                           
-                            if ((Flags[0] & 0x01) != 0)
-                                RTHAltHoldBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                RTHAltHoldBox.BackColor = System.Drawing.Color.Red;
-                            if ((Flags[0] & 0x02) != 0)
-                                TurnToWPBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                TurnToWPBox.BackColor = ErrorStatsGroupBox.BackColor;
-                            /*
-                           if ((Flags[0] & 0x04) != 0)
-                               MotorsArmedBox.BackColor = System.Drawing.Color.Green;
-                           else
-                               MotorsArmedBox.BackColor = FlagsGroupBox.BackColor;
-                           if ((Flags[0] & 0x08) != 0)
-                               LostModelBox.BackColor = System.Drawing.Color.Red;
-                           else
-                               LostModelBox.BackColor = FlagsGroupBox.BackColor;
-                           if ((Flags[0] & 0x10) != 0)
-                               NearLevelBox.BackColor = System.Drawing.Color.Green;
-                           else
-                               NearLevelBox.BackColor = FlagsGroupBox.BackColor;
-                            */
-                            if ((Flags[0] & 0x20) != 0)
-                            {
-                                BatteryVolts.BackColor = System.Drawing.Color.Red;
-                                GyroFailS.BackColor = System.Drawing.Color.Red;
-                            }
-                            else
-                            {
-                                BatteryVolts.BackColor = BatteryGroupBox.BackColor;
-                                GyroFailS.BackColor = ErrorStatsGroupBox.BackColor;
-                            }
-                            if ((Flags[0] & 0x40) != 0)
-                                GPSFailS.BackColor = ErrorStatsGroupBox.BackColor;
-                            else
-                                GPSFailS.BackColor = System.Drawing.Color.Red;
-                            if ((Flags[1] & 0x01) != 0)
-                                BaroFailS.BackColor = System.Drawing.Color.Red;
-                            else
-                                BaroFailS.BackColor = BaroStatsGroupBox.BackColor;
-                            if ((Flags[1] & 0x02) != 0)
-                                AccFailS.BackColor = System.Drawing.Color.Red;
-                            else
-                                AccFailS.BackColor = ErrorStatsGroupBox.BackColor;
-                            if ((Flags[1] & 0x04) != 0)
-                                CompassFailS.BackColor = System.Drawing.Color.Red;
-                            else
-                                CompassFailS.BackColor = ErrorStatsGroupBox.BackColor;
-                            if ((Flags[1] & 0x08) != 0) // GPSFail
-                            {
-                                NavValidS.BackColor = System.Drawing.Color.Orange;
-                                NavValidS.Text = "false";
-                            }
-                            else
-                            {
-                                NavValidS.BackColor = System.Drawing.Color.Green;
-                                NavValidS.Text = "true";
-                            }
-                            if ((Flags[1] & 0x10) != 0)
-                                AttitudeHoldBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                AttitudeHoldBox.BackColor = System.Drawing.Color.Red;
-                            /*
-                            if ((Flags[1] & 0x20) != 0)
-                                ThrottleMovingBox.BackColor = System.Drawing.Color.LightSteelBlue;
-                            else
-                                ThrottleMovingBox.BackColor = FlagsGroupBox.BackColor;
-                            */
-                            if ((Flags[1] & 0x40) != 0)
-                                HoldingAltBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                HoldingAltBox.BackColor = ErrorStatsGroupBox.BackColor;
-                            if ((Flags[1] & 0x80) != 0)
-                                NavigateBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                NavigateBox.BackColor = ErrorStatsGroupBox.BackColor;
 
-                            if ((Flags[2] & 0x01) != 0)
-                                ReturnHomeBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                ReturnHomeBox.BackColor = ErrorStatsGroupBox.BackColor;
+                            UpdateFlags();
 
-                            if ((Flags[2] & 0x02) != 0)
-                                ProximityBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                ProximityBox.BackColor = ErrorStatsGroupBox.BackColor;
-                            if ((Flags[2] & 0x04) != 0)
-                                CloseProximityBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                CloseProximityBox.BackColor = ErrorStatsGroupBox.BackColor;
-                            if ((Flags[2] & 0x08) != 0)
-                                UsingGPSAltBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                UsingGPSAltBox.BackColor = ErrorStatsGroupBox.BackColor;
-                            if ((Flags[2] & 0x10) != 0)
-                                UseRTHAutoDescendBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                UseRTHAutoDescendBox.BackColor = ErrorStatsGroupBox.BackColor;
-                            /*
-                            if ((Flags[2] & 0x20) != 0)
-                                BaroAltValidBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                BaroAltValidBox.BackColor = FlagsGroupBox.BackColor;
-                            */
-                            if ((Flags[2] & 0x40) != 0)
-                                RangefinderValidBox.BackColor = System.Drawing.Color.Green;
-                            else
-                                RangefinderValidBox.BackColor = ErrorStatsGroupBox.BackColor;
-                            /*
-                            if ((Flags[2] & 0x80) != 0)
-                                UsingRangeFinderBox.BackColor = System.Drawing.Color.Silver;
-                            else
-                                UsingRangeFinderBox.BackColor = NavGroupBox.BackColor;
-                            */                     
-                           
-                            SimulationB = (Flags[3] & 0x10) !=0;
+                            SimulationB = (Flags[3] & 0x08) != 0;
                             if ( SimulationB )
                             {
                                 FlyingButton.BackColor = System.Drawing.Color.LightSteelBlue;
                                 FlyingButton.Text = "Simulation";
                             }
                             
-                            /*
+                           
                             StateT = ExtractByte(ref UAVXPacket, 8);
                             switch (StateT)
                             {
@@ -2360,7 +2792,7 @@ namespace UAVXNav
                                 case 4: FlightState.Text = "Flying"; break;
                                 default: FlightState.Text = "Unknown"; break;
                             } // switch
-                            */
+                            
 
                             BatteryVoltsT = ExtractShort(ref UAVXPacket, 9);
                             BatteryCurrentT = ExtractShort(ref UAVXPacket, 11);
@@ -2453,22 +2885,8 @@ namespace UAVXNav
                             } // switch
                            
                             FailStateT = ExtractByte(ref UAVXPacket, 3);
-                            switch (FailStateT)
-                            {
-                                case 0: FailState.Text = "Monitor Rx";
-                                        FailState.BackColor =  System.Drawing.Color.Green;
-                                        break;
-                                case 1: FailState.Text = "Aborting"; 
-                                        FailState.BackColor = System.Drawing.Color.Orange;  
-                                        break;
-                                case 2: FailState.Text = "Terminating"; 
-                                        FailState.BackColor = System.Drawing.Color.Orange;
-                                        break;
-                                case 3: FailState.Text = "Terminated"; 
-                                        FailState.BackColor = System.Drawing.Color.Red;
-                                        break;
-                                default: FailState.Text = "Unknown"; break;
-                            } // switch
+                            UpdateFailState();
+
                             GPSNoOfSatsT = ExtractByte(ref UAVXPacket, 4);
                             GPSFixT = ExtractByte(ref UAVXPacket, 5);
                             CurrWPT = ExtractByte(ref UAVXPacket, 6);
@@ -2485,7 +2903,6 @@ namespace UAVXNav
                             GPSRelAltitudeT = ExtractInt24(ref UAVXPacket, 26);
                             GPSLatitudeT = ExtractInt(ref UAVXPacket, 29);
                             GPSLongitudeT = ExtractInt(ref UAVXPacket, 33);
-
                             DesiredAltitudeT = ExtractInt24(ref UAVXPacket, 37);
                             DesiredLatitudeT = ExtractInt(ref UAVXPacket, 40);
                             DesiredLongitudeT = ExtractInt(ref UAVXPacket, 44);
@@ -2495,29 +2912,29 @@ namespace UAVXNav
                             AmbientTempT = ExtractShort(ref UAVXPacket, 51);
                             GPSMissionTimeT = ExtractInt(ref UAVXPacket, 53);
 
-                            MaxGPSNoOfSatsS.Text = string.Format("{0:n0}", GPSNoOfSatsT);
+                            GPSNoOfSats.Text = string.Format("{0:n0}", GPSNoOfSatsT);
                             if (GPSNoOfSatsT < 6)
-                                MaxGPSNoOfSatsS.BackColor = System.Drawing.Color.Orange;
+                                GPSNoOfSats.BackColor = System.Drawing.Color.Orange;
                             else
-                                MaxGPSNoOfSatsS.BackColor = GPSStatsGroupBox.BackColor;
+                                GPSNoOfSats.BackColor = NavGroupBox.BackColor;
 
-                            MaxGPSFixS.Text = string.Format("{0:n0}", GPSFixT);
-                            if (GPSFixT < 2)
-                                MaxGPSFixS.BackColor = System.Drawing.Color.Orange;
+                           GPSFix.Text = string.Format("{0:n0}", GPSFixT);
+                           if (GPSFixT < 2)
+                               GPSFix.BackColor = System.Drawing.Color.Orange;
                             else
-                                MaxGPSFixS.BackColor = GPSStatsGroupBox.BackColor;
+                               GPSFix.BackColor = GPSStatsGroupBox.BackColor;
 
-                            MaxHDiluteS.Text = string.Format("{0:n2}", (float)GPSHDiluteT * 0.01);
+                            GPSHDilute.Text = string.Format("{0:n2}", (float)GPSHDiluteT * 0.01);
                             if (GPSHDiluteT > 130)
-                                MaxHDiluteS.BackColor = System.Drawing.Color.Orange;
+                                GPSHDilute.BackColor = System.Drawing.Color.Orange;
                             else
-                                MaxHDiluteS.BackColor = GPSStatsGroupBox.BackColor;
-
+                                GPSHDilute.BackColor = NavGroupBox.BackColor;
+                          
                             CurrWP.Text = string.Format("{0:n0}", CurrWPT);
                             //pad1.Text = string.Format("{0:n0}", ExtractByte(ref UAVXPacket, 7));
 
-                            MinBaroROCS.Text = string.Format("{0:n1}", (float)BaroROCT * 0.1);
-                            RelBaroAltitudeS.Text = string.Format("{0:n1}", (float)RelBaroAltitudeT * 0.1);
+                            //BaroMinROCS.Text = string.Format("{0:n1}", (float)BaroROCT * 0.1);
+                            //BaroRelAltitudeS.Text = string.Format("{0:n1}", (float)RelBaroAltitudeT * 0.1);
 
                             // MaxRangefinderROCS.Text = string.Format("{0:n1}", (float)RangefinderROCT * 0.01);
                             // RangefinderAltitude.Text = string.Format("{0:n1}", (float)RangefinderAltitudeT * 0.01);
@@ -2632,7 +3049,7 @@ namespace UAVXNav
                             headingIndicatorInstrumentControl1.SetHeadingIndicatorParameters(
                                 ((HeadingT * 180) / 3142));
 
-                            if (SimulationB) // Prohibit real-time navigation of UAVs using Google Maps/Earth
+                         //   if (SimulationB) // Prohibit real-time navigation of UAVs using Google Maps/Earth
                                 if (DistanceBetween(PrevGPSLat, PrevGPSLon, GPSLatitudeT, GPSLongitudeT) > 2.5)
                                 {
                                     webBrowser1.Document.GetElementById("segmentLat").SetAttribute("value",
@@ -2663,17 +3080,18 @@ namespace UAVXNav
                 SaveLogFileStream.Close();
             }
             InFlight = false;
-
-            MinGPSFixS.Visible = true;
-            MinGPSNoOfSatsS.Visible = true;
-            MinHDiluteS.Visible = true;
-            MaxBaroROCS.Visible = true;
+/*
+            GPSMinFixS.Visible = true;
+            GPSMinSatS.Visible = true;
+            GPSMinHDiluteS.Visible = true;
+            BaroMaxROCS.Visible = true;
 
             GPSBaroScaleSLabel.Visible = true;
             GPSBaroScaleS.Visible = true;
 
             RelBaroPressureSLabel.Visible = true;
             RelBaroPressureS.Visible = true;
+*/
         }
 
         //----------------------------------------------------------------------- 
@@ -2924,6 +3342,9 @@ namespace UAVXNav
         {
 
         }
+
+    
+       
       
     }
 }
