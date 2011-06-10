@@ -39,23 +39,6 @@ void GetHeading(void)
 {
 	static int16 HeadingChange, Temp;
 
-	if( F.CompassValid ) // continuous mode but Compass only updates avery 50mS
-	{
-		MagHeading = GetCompass();
-		Heading = Make2Pi(MagHeading - CompassOffset);
-
-		HeadingChange = Abs( Heading - HeadingValF.iw1 );
-	    if ( HeadingChange > MILLIPI )// wrap 0 -> TwoPI
-	        HeadingValF.iw1 = Heading;
-	    else
-	        if ( HeadingChange > COMPASS_MAX_SLEW ) { // Sanity check - discard reading
-	     		Heading = SlewLimit(HeadingValF.iw1, Heading, COMPASS_MAX_SLEW);    
-	            Stats[CompassFailS]++;
-	        }
-			
-	    LPFilter16(&Heading, &HeadingValF, YawFilterA);
-	}
-	
 	#ifdef SIMULATE
 	if ( mSClock() > mS[CompassUpdate] )
 	{
@@ -81,6 +64,25 @@ void GetHeading(void)
 	}
 
 	Heading = FakeHeading;
+	#else
+
+	if( F.CompassValid ) // continuous mode but Compass only updates avery 50mS
+	{
+		MagHeading = GetCompass();
+		Heading = Make2Pi(MagHeading - CompassOffset);
+
+		HeadingChange = Abs( Heading - HeadingValF.iw1 );
+	    if ( HeadingChange > MILLIPI )// wrap 0 -> TwoPI
+	        HeadingValF.iw1 = Heading;
+	    else
+	        if ( HeadingChange > COMPASS_MAX_SLEW ) { // Sanity check - discard reading
+	     		Heading = SlewLimit(HeadingValF.iw1, Heading, COMPASS_MAX_SLEW);    
+	            Stats[CompassFailS]++;
+	        }
+			
+	    LPFilter16(&Heading, &HeadingValF, YawFilterA);
+	}
+
 	#endif // SIMULATE
 
 } // GetHeading

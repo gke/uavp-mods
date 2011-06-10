@@ -236,7 +236,7 @@ void SendStatsPacket(void)
     for ( i = 0; i < (uint8)MAX_STATS ; i++)
         TxESCi16(Stats[i]);
 
-    TxESCu8(UAVXAirframe | 0x80);
+    TxESCu8(UAVXAirframe);
     TxESCu8(Orientation);
 
 	SendPacketTrailer();
