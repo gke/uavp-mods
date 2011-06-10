@@ -33,7 +33,7 @@ namespace UAVP.UAVPSet
         {
             // alle Parameter werden vorbereitet
             //TODO: Erweitern wenn neue Parameter hinzukommen
-            for (int i = 0; i < parameterForm1.Length; i++) 
+            for (int i = 0; i < parameterForm1.Length; i++)
             {
                 parameterForm1[i].Chapter = "";
                 parameterForm2[i].Chapter = "";
@@ -68,7 +68,7 @@ namespace UAVP.UAVPSet
                         break;
 
                 }
-                parameterForm1[i].Command = "Register " + (i+1).ToString();
+                parameterForm1[i].Command = "Register " + (i + 1).ToString();
                 parameterForm2[i].Command = "Register " + (i + 1).ToString();
                 parameterPic1[i].Command = "Register " + (i + 1).ToString();
                 parameterPic2[i].Command = "Register " + (i + 1).ToString();
@@ -79,9 +79,9 @@ namespace UAVP.UAVPSet
             }
 
         }
-            
+
         // farben um die Felder bei update zu markieren
-        public enum Farbe {black, green, orange, red};
+        public enum Farbe { black, green, orange, red };
 
         public struct ParameterSetsStruc
         {
@@ -112,12 +112,12 @@ namespace UAVP.UAVPSet
                                     "u40","u41","u42","u43","u44","u45","u46","u47","u48","u49",
                                     "u50","u51","u52","u53","u54","u55","u56","u57","u58","u59",
                                     "u60","u61","u62","u63","u64"};
-  
- 
+
+
         public void laden(string pfad, FormMain mainForm)
         {
             // try / catch wenn fehler beim öffnen oder interpretieren der datei
-            try 
+            try
             {
                 IniReader iniReader = new IniReader(pfad);
                 // log schreiben bei debug
@@ -125,8 +125,8 @@ namespace UAVP.UAVPSet
                 ParameterSetsStruc[] registers = iniReader.GetChapter("ChannelSet");
                 // alle Felder auf rot setzen
                 updateForm(registers, mainForm);
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 MessageBox.Show(e.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Log.write(mainForm, "Wrong Parameter File!", 0);
@@ -135,8 +135,8 @@ namespace UAVP.UAVPSet
 
         public void speichern(string pfad, FormMain mainForm)
         {
-            StreamWriter sw = new StreamWriter(pfad, false, Encoding.GetEncoding("windows-1252")); 
-            try 
+            StreamWriter sw = new StreamWriter(pfad, false, Encoding.GetEncoding("windows-1252"));
+            try
             {
                 // header für Datei
                 sw.WriteLine("[ChannelSet]");
@@ -153,13 +153,13 @@ namespace UAVP.UAVPSet
                         if (register.Command != null)
                             sw.WriteLine(register.Command + "=" + register.Value);
                 }
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 MessageBox.Show(e.ToString(), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Log.write(mainForm, e.ToString(), 1);
-            } 
-            finally 
+            }
+            finally
             {
                 // datei schließen
                 sw.Close();
@@ -171,14 +171,14 @@ namespace UAVP.UAVPSet
         public void feldUpdaten(Object objekt, FormMain mainForm)
         {
             // wenn es sich um ein Parameter feld handelt
-            if (objekt.GetType().Name == "NumericUpDown") 
+            if (objekt.GetType().Name == "NumericUpDown")
             {
                 NumericUpDown feld = (NumericUpDown)objekt;
                 // je nach Parameter TAB
-              
-                if (mainForm.tabControlParameter.SelectedIndex == 0) 
+
+                if (mainForm.tabControlParameter.SelectedIndex == 0)
                 {
-                   
+
                     /*
                     //feld nur setzen wenn Integral Limit OK ist - sonst return ohne update
                     if (feld.Tag.ToString() == "5" || feld.Tag.ToString() == "10" || feld.Tag.ToString() == "15")
@@ -200,8 +200,8 @@ namespace UAVP.UAVPSet
                   
                     */
 
-                    parameterForm1[Convert.ToInt16(feld.Tag)-1].Value = feld.Value.ToString();
-                   
+                    parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value = feld.Value.ToString();
+
                     /*
                     //IntegralLimit berechnen wenn Integral geändert wurde
                     //Integral limit compensation - reduces limit for larger Ki to keep within 16 bits
@@ -237,7 +237,7 @@ namespace UAVP.UAVPSet
                     //orange: wenn Pic schon gelesen wurde und die Werte ungeleich den Werten des PICs sind
                     //grün: wenn Pic gelesen wurde und die Werte gleich dem PIC sind
                     //rot: wenn Pic geschrieben wurde und die Werte nach nochmaligem lesen nicht gleich sind
-                    
+
                     // wenn pic noch nicht gelesen wurde ist Chapter leer
                     if (parameterPic1[Convert.ToInt16(feld.Tag) - 1].Chapter == "ChannelSet")
                         // wenn pic schon gelesen wurde ist ein Vergleich notwendig
@@ -252,9 +252,9 @@ namespace UAVP.UAVPSet
                             else
                                 feld.ForeColor = Color.Orange;
                     else
-                    // dann wird feld auf black gesetzt
+                        // dann wird feld auf black gesetzt
                         feld.ForeColor = Color.Black;
-                } 
+                }
                 else
                 {
 
@@ -277,7 +277,7 @@ namespace UAVP.UAVPSet
                     }
                     */
 
-                    parameterForm2[Convert.ToInt16(feld.Tag)-1].Value = feld.Value.ToString();
+                    parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value = feld.Value.ToString();
 
                     /*
                     //IntegralLimit berechnen wenn Integral geändert wurde
@@ -319,7 +319,7 @@ namespace UAVP.UAVPSet
                             // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                             if (mainForm.writeUpdate == true)
                                 feld.ForeColor = Color.Red;
-                            else 
+                            else
                                 feld.ForeColor = Color.Orange;
                     else
                         // dann wird feld auf black gesetzt
@@ -438,21 +438,17 @@ namespace UAVP.UAVPSet
                                     parameterForm1[51].Value = (Convert.ToInt16(parameterForm1[51].Value) & 247).ToString();
                                     feld.BackColor = Color.White;
                                 }
-                            // wenn pic noch nicht gelesen wurde ist Chapter leer
+
                             if (parameterPic1[51].Chapter == "ChannelSet")
-                                // wenn pic schon gelesen wurde ist ein Vergleich notwendig
                                 if ((Convert.ToInt16(parameterForm1[51].Value) & 8) ==
                                     (Convert.ToInt16(parameterPic1[51].Value) & 8))
                                     feld.ForeColor = Color.Green;
-                                // wenn wert nicht mit PIC ident
                                 else
-                                    // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                                     if (mainForm.writeUpdate == true)
                                         feld.ForeColor = Color.Red;
                                     else
                                         feld.ForeColor = Color.Orange;
                             else
-                                // dann wird feld auf black gesetzt
                                 feld.ForeColor = Color.Black;
 
                             break;
@@ -469,27 +465,23 @@ namespace UAVP.UAVPSet
                                     parameterForm1[51].Value = (Convert.ToInt16(parameterForm1[51].Value) & 239).ToString();
                                     feld.BackColor = Color.White;
                                 }
-                            // wenn pic noch nicht gelesen wurde ist Chapter leer
+
                             if (parameterPic1[51].Chapter == "ChannelSet")
-                                // wenn pic schon gelesen wurde ist ein Vergleich notwendig
                                 if ((Convert.ToInt16(parameterForm1[51].Value) & 16) ==
                                     (Convert.ToInt16(parameterPic1[51].Value) & 16))
                                     feld.ForeColor = Color.Green;
-                                // wenn wert nicht mit PIC ident
                                 else
-                                    // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                                     if (mainForm.writeUpdate == true)
                                         feld.ForeColor = Color.Red;
                                     else
                                         feld.ForeColor = Color.Orange;
                             else
-                                // dann wird feld auf black gesetzt
                                 feld.ForeColor = Color.Black;
                             break;
 
                         case "Sense51Button":
                             if (mainForm.writeUpdate == false)
-                                if ( mainForm.SenseButton[5] )
+                                if (mainForm.SenseButton[5])
                                 {
                                     parameterForm1[51].Value = (Convert.ToInt16(parameterForm1[51].Value) | 32).ToString();
                                     feld.BackColor = Color.LightGray;
@@ -500,447 +492,398 @@ namespace UAVP.UAVPSet
                                     feld.BackColor = Color.White;
                                 }
 
-                            // wenn pic noch nicht gelesen wurde ist Chapter leer
                             if (parameterPic1[51].Chapter == "ChannelSet")
-                                // wenn pic schon gelesen wurde ist ein Vergleich notwendig
                                 if ((Convert.ToInt16(parameterForm1[51].Value) & 32) ==
                                     (Convert.ToInt16(parameterPic1[51].Value) & 32))
                                     feld.ForeColor = Color.Green;
-                                // wenn wert nicht mit PIC ident
                                 else
-                                    // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                                     if (mainForm.writeUpdate == true)
                                         feld.ForeColor = Color.Red;
                                     else
                                         feld.ForeColor = Color.Orange;
                             else
-                                // dann wird feld auf black gesetzt
+                                feld.ForeColor = Color.Black;
+                            break;
+                        case "PPMPolarityButton":
+                            if (mainForm.writeUpdate == false)
+                                if (mainForm.SenseButton[6])
+                                {
+                                    parameterForm1[51].Value = (Convert.ToInt16(parameterForm1[51].Value) | 64).ToString();
+                                    feld.BackColor = Color.Blue;
+                                }
+                                else
+                                {
+                                    parameterForm1[51].Value = (Convert.ToInt16(parameterForm1[51].Value) & 191).ToString();
+                                    feld.BackColor = Color.White;
+                                }
+
+                            if (parameterPic1[51].Chapter == "ChannelSet")
+                                if ((Convert.ToInt16(parameterForm1[51].Value) & 64) ==
+                                   (Convert.ToInt16(parameterPic1[51].Value) & 64))
+                                    feld.ForeColor = Color.Green;
+                                else
+                                    if (mainForm.writeUpdate == true)
+                                        feld.ForeColor = Color.Red;
+                                    else
+                                        feld.ForeColor = Color.Orange;
+                            else
                                 feld.ForeColor = Color.Black;
                             break;
                     }
                 }
                 else
-                if (objekt.GetType().Name == "CheckBox")
-                {
-                CheckBox feld = (CheckBox)objekt;
+                    if (objekt.GetType().Name == "CheckBox")
+                    {
+                        CheckBox feld = (CheckBox)objekt;
 
-                // welches BIT ist betroffen?
-                switch (feld.Name) 
-                {
-                    case "bit01CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 1).ToString();
-                            else
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 254).ToString();
+                        switch (feld.Name)
+                        {
+                            case "bit01CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 1).ToString();
+                                    else
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 254).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic1[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm1[15].Value) & 1) ==
-                                (Convert.ToInt16(parameterPic1[15].Value) & 1))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic1[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm1[15].Value) & 1) ==
+                                        (Convert.ToInt16(parameterPic1[15].Value) & 1))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
+                                    feld.ForeColor = Color.Black;
 
-                        break;
-                    case "bit11CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 2).ToString();
-                            else
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 253).ToString();
+                                break;
+                            case "bit11CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 2).ToString();
+                                    else
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 253).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic1[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm1[15].Value) & 2) ==
-                                (Convert.ToInt16(parameterPic1[15].Value) & 2))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic1[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm1[15].Value) & 2) ==
+                                        (Convert.ToInt16(parameterPic1[15].Value) & 2))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
+                                    feld.ForeColor = Color.Black;
 
-                        break;
-                    case "bit21CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 4).ToString();
-                            else
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 251).ToString();
+                                break;
+                            case "bit21CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 4).ToString();
+                                    else
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 251).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic1[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm1[15].Value) & 4) ==
-                                (Convert.ToInt16(parameterPic1[15].Value) & 4))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic1[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm1[15].Value) & 4) ==
+                                        (Convert.ToInt16(parameterPic1[15].Value) & 4))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
+                                    feld.ForeColor = Color.Black;
 
-                        break;
-                    case "bit31CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 8).ToString();
-                            else
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 247).ToString();
+                                break;
+                            case "bit31CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 8).ToString();
+                                    else
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 247).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic1[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm1[15].Value) & 8) ==
-                                (Convert.ToInt16(parameterPic1[15].Value) & 8))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic1[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm1[15].Value) & 8) ==
+                                        (Convert.ToInt16(parameterPic1[15].Value) & 8))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
+                                    feld.ForeColor = Color.Black;
 
-                        break;
-                    case "bit41CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 16).ToString();
-                            else
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 239).ToString();
+                                break;
+                            case "bit41CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 16).ToString();
+                                    else
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 239).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic1[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm1[15].Value) & 16) ==
-                                (Convert.ToInt16(parameterPic1[15].Value) & 16))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic1[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm1[15].Value) & 16) ==
+                                        (Convert.ToInt16(parameterPic1[15].Value) & 16))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
+                                    feld.ForeColor = Color.Black;
+                                break;
 
-                    case "bit51CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 32).ToString();
-                            else
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 223).ToString();
+                            case "bit51CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 32).ToString();
+                                    else
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 223).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic1[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm1[15].Value) & 32) ==
-                                (Convert.ToInt16(parameterPic1[15].Value) & 32))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic1[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm1[15].Value) & 32) ==
+                                        (Convert.ToInt16(parameterPic1[15].Value) & 32))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
+                                    // dann wird feld auf black gesetzt
+                                    feld.ForeColor = Color.Black;
+                                break;
 
-                    case "bit61CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 64).ToString();
-                            else
-                                parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 191).ToString();
+                            case "bit61CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) | 64).ToString();
+                                    else
+                                        parameterForm1[15].Value = (Convert.ToInt16(parameterForm1[15].Value) & 191).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic1[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm1[15].Value) & 64) ==
-                                (Convert.ToInt16(parameterPic1[15].Value) & 64))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                // wenn pic noch nicht gelesen wurde ist Chapter leer
+                                if (parameterPic1[15].Chapter == "ChannelSet")
+                                    // wenn pic schon gelesen wurde ist ein Vergleich notwendig
+                                    if ((Convert.ToInt16(parameterForm1[15].Value) & 64) ==
+                                        (Convert.ToInt16(parameterPic1[15].Value) & 64))
+                                        feld.ForeColor = Color.Green;
+                                    // wenn wert nicht mit PIC ident
+                                    else
+                                        // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
+                                    // dann wird feld auf black gesetzt
+                                    feld.ForeColor = Color.Black;
+                                break;
 
-                    case "bit02CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 1).ToString();
-                            else
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 254).ToString();
+                            case "bit02CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 1).ToString();
+                                    else
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 254).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic2[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm2[15].Value) & 1) ==
-                                (Convert.ToInt16(parameterPic2[15].Value) & 1))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic2[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm2[15].Value) & 1) ==
+                                        (Convert.ToInt16(parameterPic2[15].Value) & 1))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
+                                    feld.ForeColor = Color.Black;
+                                break;
 
-                    case "bit12CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 2).ToString();
-                            else
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 253).ToString();
+                            case "bit12CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 2).ToString();
+                                    else
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 253).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic2[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm2[15].Value) & 2) ==
-                                (Convert.ToInt16(parameterPic2[15].Value) & 2))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic2[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm2[15].Value) & 2) ==
+                                        (Convert.ToInt16(parameterPic2[15].Value) & 2))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
+                                    feld.ForeColor = Color.Black;
+                                break;
 
-                    case "bit22CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 4).ToString();
-                            else
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 251).ToString();
+                            case "bit22CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 4).ToString();
+                                    else
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 251).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic2[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm2[15].Value) & 4) ==
-                                (Convert.ToInt16(parameterPic2[15].Value) & 4))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic2[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm2[15].Value) & 4) ==
+                                        (Convert.ToInt16(parameterPic2[15].Value) & 4))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
+                                    feld.ForeColor = Color.Black;
+                                break;
 
-                    case "bit32CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 8).ToString();
-                            else
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 247).ToString();
+                            case "bit32CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 8).ToString();
+                                    else
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 247).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic2[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm2[15].Value) & 8) ==
-                                (Convert.ToInt16(parameterPic2[15].Value) & 8))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                // wenn pic noch nicht gelesen wurde ist Chapter leer
+                                if (parameterPic2[15].Chapter == "ChannelSet")
+                                    // wenn pic schon gelesen wurde ist ein Vergleich notwendig
+                                    if ((Convert.ToInt16(parameterForm2[15].Value) & 8) ==
+                                        (Convert.ToInt16(parameterPic2[15].Value) & 8))
+                                        feld.ForeColor = Color.Green;
+                                    // wenn wert nicht mit PIC ident
+                                    else
+                                        // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                        // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
+                                    // dann wird feld auf black gesetzt
+                                    feld.ForeColor = Color.Black;
+                                break;
 
-                    case "bit42CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 16).ToString();
-                            else
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 239).ToString();
+                            case "bit42CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 16).ToString();
+                                    else
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 239).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic2[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm2[15].Value) & 16) ==
-                                (Convert.ToInt16(parameterPic2[15].Value) & 16))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic2[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm2[15].Value) & 16) ==
+                                        (Convert.ToInt16(parameterPic2[15].Value) & 16))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
+                                    feld.ForeColor = Color.Black;
+                                break;
 
-                    case "bit52CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 32).ToString();
-                            else
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 223).ToString();
+                            case "bit52CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 32).ToString();
+                                    else
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 223).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic2[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm2[15].Value) & 32) ==
-                                (Convert.ToInt16(parameterPic2[15].Value) & 32))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                if (parameterPic2[15].Chapter == "ChannelSet")
+                                    if ((Convert.ToInt16(parameterForm2[15].Value) & 32) ==
+                                        (Convert.ToInt16(parameterPic2[15].Value) & 32))
+                                        feld.ForeColor = Color.Green;
+                                    else
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
-                    case "bit62CheckBox":
-                        if (mainForm.writeUpdate == false)
-                            if (feld.Checked == true)
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 64).ToString();
-                            else
-                                parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 191).ToString();
+                                    // dann wird feld auf black gesetzt
+                                    feld.ForeColor = Color.Black;
+                                break;
+                            case "bit62CheckBox":
+                                if (mainForm.writeUpdate == false)
+                                    if (feld.Checked == true)
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) | 64).ToString();
+                                    else
+                                        parameterForm2[15].Value = (Convert.ToInt16(parameterForm2[15].Value) & 191).ToString();
 
-                        // wenn pic noch nicht gelesen wurde ist Chapter leer
-                        if (parameterPic2[15].Chapter == "ChannelSet")
-                            // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                            if ((Convert.ToInt16(parameterForm2[15].Value) & 64) ==
-                                (Convert.ToInt16(parameterPic2[15].Value) & 64))
-                                feld.ForeColor = Color.Green;
-                            // wenn wert nicht mit PIC ident
-                            else
-                                // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                                if (mainForm.writeUpdate == true)
-                                    feld.ForeColor = Color.Red;
+                                // wenn pic noch nicht gelesen wurde ist Chapter leer
+                                if (parameterPic2[15].Chapter == "ChannelSet")
+                                    // wenn pic schon gelesen wurde ist ein Vergleich notwendig
+                                    if ((Convert.ToInt16(parameterForm2[15].Value) & 64) ==
+                                        (Convert.ToInt16(parameterPic2[15].Value) & 64))
+                                        feld.ForeColor = Color.Green;
+                                    // wenn wert nicht mit PIC ident
+                                    else
+                                        // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
+                                        if (mainForm.writeUpdate == true)
+                                            feld.ForeColor = Color.Red;
+                                        else
+                                            feld.ForeColor = Color.Orange;
                                 else
-                                    feld.ForeColor = Color.Orange;
-                        else
-                            // dann wird feld auf black gesetzt
-                            feld.ForeColor = Color.Black;
-                        break;
-                }
-                
-
-            }
-            else
-            {
-                ComboBox feld = (ComboBox)objekt;
-
-                if (mainForm.tabControlParameter.SelectedIndex == 0)
-                {
-                    parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value = feld.SelectedIndex.ToString();
-                    if (parameterPic1[Convert.ToInt16(feld.Tag) - 1].Chapter == "ChannelSet")
-                        // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                        if (parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value ==
-                            parameterPic1[Convert.ToInt16(feld.Tag) - 1].Value)
-                            feld.ForeColor = Color.Green;
-                        // wenn wert nicht mit PIC ident
-                        else
-                            // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                            if (mainForm.writeUpdate == true)
-                                feld.ForeColor = Color.Red;
-                            else
-                                feld.ForeColor = Color.Orange;
+                                    // dann wird feld auf black gesetzt
+                                    feld.ForeColor = Color.Black;
+                                break;
+                        }
+                    }
                     else
-                        // dann wird feld auf black gesetzt
-                        feld.ForeColor = Color.Black;
-                }
-                else
-                {
-                    parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value = feld.SelectedIndex.ToString();
-                    if (parameterPic2[Convert.ToInt16(feld.Tag) - 1].Chapter == "ChannelSet")
-                        // wenn pic schon gelesen wurde ist ein Vergleich notwendig
-                        if (parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value ==
-                            parameterPic2[Convert.ToInt16(feld.Tag) - 1].Value)
-                            feld.ForeColor = Color.Green;
-                        // wenn wert nicht mit PIC ident
-                        else
-                            // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
-                            if (mainForm.writeUpdate == true)
-                                feld.ForeColor = Color.Red;
+                    {
+                        ComboBox feld = (ComboBox)objekt;
+
+                        if (mainForm.tabControlParameter.SelectedIndex == 0)
+                        {
+                            parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value = feld.SelectedIndex.ToString();
+                            if (parameterPic1[Convert.ToInt16(feld.Tag) - 1].Chapter == "ChannelSet")
+                                if (parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value ==
+                                    parameterPic1[Convert.ToInt16(feld.Tag) - 1].Value)
+                                    feld.ForeColor = Color.Green;
+                                else
+                                    if (mainForm.writeUpdate == true)
+                                        feld.ForeColor = Color.Red;
+                                    else
+                                        feld.ForeColor = Color.Orange;
                             else
-                                feld.ForeColor = Color.Orange;
-                    else
-                        // dann wird feld auf black gesetzt
-                        feld.ForeColor = Color.Black;
-                }
-            }
+                                feld.ForeColor = Color.Black;
+                        }
+                        else
+                        {
+                            parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value = feld.SelectedIndex.ToString();
+                            if (parameterPic2[Convert.ToInt16(feld.Tag) - 1].Chapter == "ChannelSet")
+                                if (parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value ==
+                                    parameterPic2[Convert.ToInt16(feld.Tag) - 1].Value)
+                                    feld.ForeColor = Color.Green;
+                                else
+                                    if (mainForm.writeUpdate == true)
+                                        feld.ForeColor = Color.Red;
+                                    else
+                                        feld.ForeColor = Color.Orange;
+                            else
+                                feld.ForeColor = Color.Black;
+                        }
+                    }
         }
 
-        /// <summary>
-        /// Update der Felder in der Form
-        /// </summary>
-        /// <param name="registers">Structur der Registerwerte</param>
-        ///// <param name="mainForm">Mainform</param>
+
         public void updateForm(ParameterSetsStruc[] registers, FormMain mainForm)
         {
 
             farbenSetzen(mainForm, Farbe.black);
 
-            //TODO: hier case für neuen Parameter hinzufügen
-            // alle Parameter durchgehen und lt. array setzen
-            foreach (ParameterSetsStruc register in registers) 
+
+            foreach (ParameterSetsStruc register in registers)
             {
-                if (mainForm.tabControlParameter.SelectedIndex == 0) 
+                if (mainForm.tabControlParameter.SelectedIndex == 0)
                 {
-                    switch (Convert.ToInt16(register.Command.Substring(8))) 
+                    switch (Convert.ToInt16(register.Command.Substring(8)))
                     {
                         case 1:
                             parameterForm1[0].Value = register.Value;
@@ -958,17 +901,17 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.RollDiff1NumericUpDown, mainForm);
                             break;
                         case 4:
-                     //       mainForm.HorizDamping1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            parameterForm1[3].Value = register.Value;
-                     //       feldUpdaten(mainForm.HorizDamping1NumericUpDown, mainForm);
+                            parameterForm1[3].Value = register.Value; 
+                            mainForm.NeutralRadius1NumericUpDown.Value = Convert.ToInt16(register.Value);        
+                            feldUpdaten(mainForm.NeutralRadius1NumericUpDown, mainForm);
                             break;
                         case 5:
-                            if (Convert.ToInt16(register.Value) <= 0) 
+                            if (Convert.ToInt16(register.Value) <= 0)
                             {
                                 parameterForm1[4].Value = register.Value;
                                 mainForm.RollIntLimit1NumericUpDown.Value = 1;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 parameterForm1[4].Value = register.Value;
                                 mainForm.RollIntLimit1NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -996,12 +939,12 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.AltProp1NumericUpDown, mainForm);
                             break;
                         case 10:
-                            if (Convert.ToInt16(register.Value) <= 0) 
+                            if (Convert.ToInt16(register.Value) <= 0)
                             {
                                 parameterForm1[9].Value = register.Value;
                                 mainForm.PitchIntLimit1NumericUpDown.Value = 1;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 parameterForm1[9].Value = register.Value;
                                 mainForm.PitchIntLimit1NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -1020,16 +963,16 @@ namespace UAVP.UAVPSet
                             break;
                         case 13:
                             parameterForm1[12].Value = register.Value;
-                          //  mainForm.YawDiff1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                          //  feldUpdaten(mainForm.YawDiff1NumericUpDown, mainForm);
+                            //  mainForm.YawDiff1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            //  feldUpdaten(mainForm.YawDiff1NumericUpDown, mainForm);
                             break;
                         case 14:
-                            if (Convert.ToInt16(register.Value) <= 0) 
+                            if (Convert.ToInt16(register.Value) <= 0)
                             {
                                 parameterForm1[13].Value = register.Value;
                                 mainForm.YawLimit1NumericUpDown.Value = 1;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 parameterForm1[13].Value = register.Value;
                                 mainForm.YawLimit1NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -1037,12 +980,12 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.YawLimit1NumericUpDown, mainForm);
                             break;
                         case 15:
-                            if (Convert.ToInt16(register.Value) <= 0) 
+                            if (Convert.ToInt16(register.Value) <= 0)
                             {
                                 parameterForm1[14].Value = register.Value;
                                 mainForm.YawIntLimit1NumericUpDown.Value = 1;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 parameterForm1[14].Value = register.Value;
                                 mainForm.YawIntLimit1NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -1054,22 +997,22 @@ namespace UAVP.UAVPSet
                             if (temp == -1)
                                 temp = 0;
 
-                            if ((temp & 1) == 1) 
+                            if ((temp & 1) == 1)
                             {
                                 mainForm.bit01CheckBox.Checked = true;
                                 feldUpdaten(mainForm.bit01CheckBox, mainForm);
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 mainForm.bit01CheckBox.Checked = false;
                                 feldUpdaten(mainForm.bit01CheckBox, mainForm);
                             }
-                            if ((temp & 2) == 2) 
+                            if ((temp & 2) == 2)
                             {
                                 mainForm.bit11CheckBox.Checked = true;
                                 feldUpdaten(mainForm.bit11CheckBox, mainForm);
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 mainForm.bit11CheckBox.Checked = false;
                                 feldUpdaten(mainForm.bit11CheckBox, mainForm);
@@ -1084,22 +1027,22 @@ namespace UAVP.UAVPSet
                                 mainForm.bit21CheckBox.Checked = false;
                                 feldUpdaten(mainForm.bit21CheckBox, mainForm);
                             }
-                            if ((temp & 8) == 8) 
+                            if ((temp & 8) == 8)
                             {
                                 mainForm.bit31CheckBox.Checked = true;
                                 feldUpdaten(mainForm.bit31CheckBox, mainForm);
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 mainForm.bit31CheckBox.Checked = false;
                                 feldUpdaten(mainForm.bit31CheckBox, mainForm);
                             }
-                            if ((temp & 16) == 16) 
+                            if ((temp & 16) == 16)
                             {
                                 mainForm.bit41CheckBox.Checked = true;
                                 feldUpdaten(mainForm.bit41CheckBox, mainForm);
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 mainForm.bit41CheckBox.Checked = false;
                                 feldUpdaten(mainForm.bit41CheckBox, mainForm);
@@ -1127,9 +1070,9 @@ namespace UAVP.UAVPSet
                             //parameterForm1[15].Value = temp.ToString();
                             break;
                         case 17:
-                            parameterForm1[16].Value = "8";
-                            mainForm.BaroScale1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.BaroScale1NumericUpDown, mainForm);
+                            parameterForm1[16].Value = register.Value;
+                            mainForm.Ch1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch1NumericUpDown, mainForm);
                             break;
                         case 18:
                             if (Convert.ToInt16(register.Value) < 0)
@@ -1165,12 +1108,12 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.VertAcc1NumericUpDown, mainForm);
                             break;
                         case 23:
-                            if (Convert.ToInt16(register.Value) < 5) 
+                            if (Convert.ToInt16(register.Value) < 5)
                             {
                                 parameterForm1[22].Value = register.Value;
                                 mainForm.LowMotorRun1NumericUpDown.Value = 5;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 parameterForm1[22].Value = register.Value;
                                 mainForm.LowMotorRun1NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -1234,7 +1177,7 @@ namespace UAVP.UAVPSet
                             break;
                         case 35:
                             parameterForm1[34].Value = register.Value;
-                            mainForm.GyroComboBox1.SelectedIndex = Convert.ToInt16(register.Value);  
+                            mainForm.GyroComboBox1.SelectedIndex = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.GyroComboBox1, mainForm);
                             break;
                         case 36:
@@ -1243,14 +1186,14 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.ESCComboBox1, mainForm);
                             break;
                         case 37:
-                            parameterForm1[36].Value = register.Value;
-                            mainForm.TxRxComboBox1.SelectedIndex = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.TxRxComboBox1, mainForm);
+                            //         parameterForm1[36].Value = register.Value;
+                            //          mainForm.TxRxComboBox1.SelectedIndex = Convert.ToInt16(register.Value);
+                            //         feldUpdaten(mainForm.TxRxComboBox1, mainForm);
                             break;
                         case 38:
-                         //   parameterForm1[37].Value = register.Value;
-                         //   mainForm.GPSUpdateRate1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                        //    feldUpdaten(mainForm.GPSUpdateRate1NumericUpDown, mainForm);
+                            parameterForm1[37].Value = register.Value;
+                            mainForm.Ch2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch2NumericUpDown, mainForm);
                             break;
                         case 39:
                             parameterForm1[38].Value = register.Value;
@@ -1269,13 +1212,13 @@ namespace UAVP.UAVPSet
                             break;
                         case 42:
                             parameterForm1[41].Value = register.Value;
-                        //    mainForm.VertDampingDecay1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                        //    feldUpdaten(mainForm.VertDampingDecay1NumericUpDown, mainForm);
+                            mainForm.Ch3NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch3NumericUpDown, mainForm);
                             break;
                         case 43:
                             parameterForm1[42].Value = register.Value;
-                         //   mainForm.HorizDampingDecay1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                         //   feldUpdaten(mainForm.HorizDampingDecay1NumericUpDown, mainForm);
+                            mainForm.Ch4NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch4NumericUpDown, mainForm);
                             break;
                         case 44:
                             parameterForm1[43].Value = register.Value;
@@ -1308,10 +1251,14 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.AltIntLimit1NumericUpDown, mainForm);
                             break;
                         case 50:
-                            parameterForm1[49].Value = "11"; // GravComp
+                            parameterForm1[49].Value = register.Value;
+                            mainForm.Ch5NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch5NumericUpDown, mainForm);
                             break;
                         case 51:
-                            parameterForm1[50].Value = "01"; // GravSteps
+                            parameterForm1[50].Value = register.Value;
+                            mainForm.Ch6NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch6NumericUpDown, mainForm);
                             break;
                         case 52:
                             parameterForm1[51].Value = register.Value;
@@ -1342,14 +1289,14 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.BatteryCapacity1NumericUpDown, mainForm);
                             break;
                         case 55:
-                            parameterForm1[54].Value = "0"; //Nav Radius
-                          //  mainForm.Balance1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                          //  feldUpdaten(mainForm.Balance1NumericUpDown, mainForm);
+                            parameterForm1[54].Value = register.Value;
+                            mainForm.Ch7NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch7NumericUpDown, mainForm);
                             break;
                         case 56:
                             parameterForm1[55].Value = register.Value;
-                       //     mainForm.AltKd1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                       //     feldUpdaten(mainForm.AltKd1NumericUpDown, mainForm);
+                            mainForm.Ch8NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch8NumericUpDown, mainForm);
                             break;
                         case 57:
                             parameterForm1[56].Value = register.Value;
@@ -1366,13 +1313,18 @@ namespace UAVP.UAVPSet
                             mainForm.Balance1NumericUpDown.Value = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.Balance1NumericUpDown, mainForm);
                             break;
-                        
+                        case 60:
+                            parameterForm1[59].Value = register.Value;
+                            mainForm.Ch9NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.Ch9NumericUpDown, mainForm);
+                            break;
+
                         default: break; // up to case 64 available
                     }
-                } 
-                else 
+                }
+                else
                 {
-                    switch (Convert.ToInt16(register.Command.Substring(9))) 
+                    switch (Convert.ToInt16(register.Command.Substring(9)))
                     {
                         case 1:
                             mainForm.RollProp2NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -1389,14 +1341,18 @@ namespace UAVP.UAVPSet
                             mainForm.RollDiff2NumericUpDown.Value = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.RollDiff2NumericUpDown, mainForm);
                             break;
-
+                        case 4:
+                            parameterForm2[3].Value = register.Value;
+                            mainForm.NeutralRadius2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.NeutralRadius2NumericUpDown, mainForm);
+                            break;
                         case 5:
-                            if (Convert.ToInt16(register.Value) <= 0) 
+                            if (Convert.ToInt16(register.Value) <= 0)
                             {
                                 parameterForm2[4].Value = register.Value;
                                 mainForm.RollIntLimit2NumericUpDown.Value = 1;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 parameterForm2[4].Value = register.Value;
                                 mainForm.RollIntLimit2NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -1424,12 +1380,12 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.AltProp2NumericUpDown, mainForm);
                             break;
                         case 10:
-                            if (Convert.ToInt16(register.Value) <= 0) 
+                            if (Convert.ToInt16(register.Value) <= 0)
                             {
                                 parameterForm2[9].Value = register.Value;
                                 mainForm.PitchIntLimit2NumericUpDown.Value = 1;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 parameterForm2[9].Value = register.Value;
                                 mainForm.PitchIntLimit2NumericUpDown.Value = Convert.ToInt16(register.Value);
@@ -1448,16 +1404,16 @@ namespace UAVP.UAVPSet
                             break;
                         case 13:
                             parameterForm2[12].Value = register.Value;
-                         //   mainForm.YawDiff2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                         //   feldUpdaten(mainForm.YawDiff2NumericUpDown, mainForm);
+                            //   mainForm.YawDiff2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            //   feldUpdaten(mainForm.YawDiff2NumericUpDown, mainForm);
                             break;
                         case 14:
-                            if (Convert.ToInt16(register.Value) <= 0) 
+                            if (Convert.ToInt16(register.Value) <= 0)
                             {
                                 mainForm.YawLimit2NumericUpDown.Value = 1;
                                 parameterForm2[13].Value = register.Value;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 mainForm.YawLimit2NumericUpDown.Value = Convert.ToInt16(register.Value);
                                 parameterForm2[13].Value = register.Value;
@@ -1465,29 +1421,29 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.YawLimit2NumericUpDown, mainForm);
                             break;
                         case 15:
-                            if (Convert.ToInt16(register.Value) <= 0) 
+                            if (Convert.ToInt16(register.Value) <= 0)
                             {
                                 parameterForm2[14].Value = register.Value;
                                 mainForm.YawIntLimit2NumericUpDown.Value = 1;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 parameterForm2[14].Value = register.Value;
                                 mainForm.YawIntLimit2NumericUpDown.Value = Convert.ToInt16(register.Value);
                             }
                             feldUpdaten(mainForm.YawIntLimit2NumericUpDown, mainForm);
                             break;
-                        
+
                         case 19:
-                          //  parameterForm2[18].Value = register.Value;
-                          //  mainForm.CameraRoll2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                          //  feldUpdaten(mainForm.CameraRoll2NumericUpDown, mainForm);
+                            //  parameterForm2[18].Value = register.Value;
+                            //  mainForm.CameraRoll2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            //  feldUpdaten(mainForm.CameraRoll2NumericUpDown, mainForm);
                             break;
-                        
+
                         case 26:
-                          //  parameterForm2[25].Value = register.Value;
-                          //  mainForm.CameraPitch2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                          //  feldUpdaten(mainForm.CameraPitch2NumericUpDown, mainForm);
+                            //  parameterForm2[25].Value = register.Value;
+                            //  mainForm.CameraPitch2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            //  feldUpdaten(mainForm.CameraPitch2NumericUpDown, mainForm);
                             break;
                         case 27:
                             parameterForm2[26].Value = register.Value;
@@ -1524,17 +1480,17 @@ namespace UAVP.UAVPSet
                             mainForm.NavRTHAlt2NumericUpDown.Value = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.NavRTHAlt2NumericUpDown, mainForm);
                             break;
-                       
+
                         case 38:
-                         //   parameterForm2[37].Value = register.Value;
-                         //   mainForm.NavNeutralRadius2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                         //   feldUpdaten(mainForm.NavNeutralRadius2NumericUpDown, mainForm);
+                            //   parameterForm2[37].Value = register.Value;
+                            //   mainForm.NavNeutralRadius2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            //   feldUpdaten(mainForm.NavNeutralRadius2NumericUpDown, mainForm);
                             break;
-                       
+
                         case 40:
-                          //  parameterForm2[39].Value = register.Value;
-                          //  mainForm.CameraRollTrim2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                          //  feldUpdaten(mainForm.CameraRollTrim2NumericUpDown, mainForm);
+                            //  parameterForm2[39].Value = register.Value;
+                            //  mainForm.CameraRollTrim2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            //  feldUpdaten(mainForm.CameraRollTrim2NumericUpDown, mainForm);
                             break;
                         case 41:
                             parameterForm2[40].Value = register.Value;
@@ -1563,15 +1519,15 @@ namespace UAVP.UAVPSet
                             break;
                         case 56:
                             parameterForm2[55].Value = register.Value;
-                        //    mainForm.AltKd2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                        //    feldUpdaten(mainForm.AltKd2NumericUpDown, mainForm);
+                            //    mainForm.AltKd2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            //    feldUpdaten(mainForm.AltKd2NumericUpDown, mainForm);
                             break;
                         case 59:
                             parameterForm2[58].Value = register.Value;
                             mainForm.Balance2NumericUpDown.Value = Convert.ToInt16(register.Value);
                             feldUpdaten(mainForm.Balance2NumericUpDown, mainForm);
                             break;
-                        
+
                         default: break; // up to case 64 available
                     }
                 }
@@ -1579,13 +1535,13 @@ namespace UAVP.UAVPSet
         }
 
         public void farbenSetzen(FormMain mainForm, Farbe farbe)
-        { 
-            
+        {
+
             Color farbeElement = Color.Black;
-            switch (farbe) 
-            { 
+            switch (farbe)
+            {
                 case Farbe.red:
-                   farbeElement = Color.Red;
+                    farbeElement = Color.Red;
                     break;
                 case Farbe.green:
                     farbeElement = Color.Green;
@@ -1599,7 +1555,7 @@ namespace UAVP.UAVPSet
             }
 
             //TODO: hier Parameter hinzufügen wenn neu
-            if (mainForm.tabControlParameter.SelectedIndex == 0) 
+            if (mainForm.tabControlParameter.SelectedIndex == 0)
             {
                 mainForm.RollProp1NumericUpDown.ForeColor = farbeElement;
                 mainForm.RollInt1NumericUpDown.ForeColor = farbeElement;
@@ -1613,7 +1569,7 @@ namespace UAVP.UAVPSet
 
                 mainForm.YawProp1NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawInt1NumericUpDown.ForeColor = farbeElement;
-             //   mainForm.YawDiff1NumericUpDown.ForeColor = farbeElement;
+                //   mainForm.YawDiff1NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawLimit1NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawIntLimit1NumericUpDown.ForeColor = farbeElement;
 
@@ -1627,7 +1583,7 @@ namespace UAVP.UAVPSet
 
                 mainForm.Battery1NumericUpDown.ForeColor = farbeElement;
 
-             //   mainForm.VertDamping1NumericUpDown.ForeColor = farbeElement;
+                //   mainForm.VertDamping1NumericUpDown.ForeColor = farbeElement;
                 mainForm.VertAcc1NumericUpDown.ForeColor = farbeElement;
 
                 mainForm.LowMotorRun1NumericUpDown.ForeColor = farbeElement;
@@ -1638,12 +1594,12 @@ namespace UAVP.UAVPSet
                 mainForm.Compass1NumericUpDown.ForeColor = farbeElement;
                 mainForm.AltInt1NumericUpDown.ForeColor = farbeElement;
 
-                mainForm.Acro1NumericUpDown.ForeColor = farbeElement;     
+                mainForm.Acro1NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavInt1NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavRTHAlt1NumericUpDown.ForeColor = farbeElement;
                 mainForm.NavMagVar1NumericUpDown.ForeColor = farbeElement;
-            } 
-            else 
+            }
+            else
             {
                 mainForm.RollProp2NumericUpDown.ForeColor = farbeElement;
                 mainForm.RollInt2NumericUpDown.ForeColor = farbeElement;
@@ -1657,7 +1613,7 @@ namespace UAVP.UAVPSet
 
                 mainForm.YawProp2NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawInt2NumericUpDown.ForeColor = farbeElement;
-               // mainForm.YawDiff2NumericUpDown.ForeColor = farbeElement;
+                // mainForm.YawDiff2NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawLimit2NumericUpDown.ForeColor = farbeElement;
                 mainForm.YawIntLimit2NumericUpDown.ForeColor = farbeElement;
 

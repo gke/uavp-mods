@@ -137,11 +137,10 @@ namespace UAVP.UAVPSet
 
                 if (mainForm.GyroComboBox1.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("GyroType");
+
                 if (mainForm.ESCComboBox1.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("ESCType");
-                if (mainForm.TxRxComboBox1.Focused )
-                    mainForm.infoTextBox.Text = mainForm.help.GetString("TxRxType");
-
+       
                 if (mainForm.TelemetryComboBox1.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("TelemetryType");
   
@@ -163,6 +162,9 @@ namespace UAVP.UAVPSet
 
                 if (mainForm.NavYawLimit1NumericUpDown.Focused || mainForm.NavYawLimit2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavTurnLimit");
+
+                if (mainForm.NeutralRadius1NumericUpDown.Focused || mainForm.NeutralRadius2NumericUpDown.Focused)
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("NeutralRadius");
         }
     }
 }

@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UAVP.UAVPSet</RootNamespace>
-    <AssemblyName>UAVPSet 5.1 %28UAVX%29</AssemblyName>
+    <AssemblyName>UAVPSet 6.1 %28UAVX%29</AssemblyName>
     <ApplicationIcon>uavpset.ico</ApplicationIcon>
     <ManifestCertificateThumbprint>2916BEED45BB4736F71C17E3B5B8BF2942A547A9</ManifestCertificateThumbprint>
     <ManifestKeyFile>UAVPSet_3_TemporaryKey.pfx</ManifestKeyFile>
@@ -37,12 +37,12 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <TargetCulture>en</TargetCulture>
-    <ProductName>UAVPset 5.1</ProductName>
+    <ProductName>UAVPset 6.1</ProductName>
     <PublisherName>UAVX</PublisherName>
     <SuiteName>UAVX</SuiteName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>29</ApplicationRevision>
-    <ApplicationVersion>5.1.0.%2a</ApplicationVersion>
+    <ApplicationRevision>10</ApplicationRevision>
+    <ApplicationVersion>6.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>

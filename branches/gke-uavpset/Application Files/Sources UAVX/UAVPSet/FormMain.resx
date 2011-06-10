@@ -234,7 +234,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj0yLjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAADC
-        MgAAAk1TRnQBSQFMAgEBBgEAAbQBAwG0AQMBMAEAATABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        MgAAAk1TRnQBSQFMAgEBBgEAAVwBBAFcAQQBMAEAATABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABwAMAAWADAAEBAQABCAYAAUgYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -1388,6 +1388,546 @@
   <data name="&gt;&gt;label6.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
+  <data name="Ch9NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch9NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>433, 67</value>
+  </data>
+  <data name="Ch9NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 20</value>
+  </data>
+  <data name="Ch9NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>134</value>
+  </data>
+  <data name="Ch9NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch9NumericUpDown.Name" xml:space="preserve">
+    <value>Ch9NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch9NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch9NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch9NumericUpDown.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="Ch9Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="Ch9Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="Ch9Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>385, 69</value>
+  </data>
+  <data name="Ch9Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>20, 13</value>
+  </data>
+  <data name="Ch9Label.TabIndex" type="System.Int32, mscorlib">
+    <value>133</value>
+  </data>
+  <data name="Ch9Label.Text" xml:space="preserve">
+    <value>S2</value>
+  </data>
+  <data name="&gt;&gt;Ch9Label.Name" xml:space="preserve">
+    <value>Ch9Label</value>
+  </data>
+  <data name="&gt;&gt;Ch9Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch9Label.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch9Label.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="Ch8NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch8NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>342, 67</value>
+  </data>
+  <data name="Ch8NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 20</value>
+  </data>
+  <data name="Ch8NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>132</value>
+  </data>
+  <data name="Ch8NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch8NumericUpDown.Name" xml:space="preserve">
+    <value>Ch8NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch8NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch8NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch8NumericUpDown.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="Ch8Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="Ch8Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="Ch8Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>297, 69</value>
+  </data>
+  <data name="Ch8Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>20, 13</value>
+  </data>
+  <data name="Ch8Label.TabIndex" type="System.Int32, mscorlib">
+    <value>131</value>
+  </data>
+  <data name="Ch8Label.Text" xml:space="preserve">
+    <value>S1</value>
+  </data>
+  <data name="&gt;&gt;Ch8Label.Name" xml:space="preserve">
+    <value>Ch8Label</value>
+  </data>
+  <data name="&gt;&gt;Ch8Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch8Label.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch8Label.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="PPMPolarityButton.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="PPMPolarityButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Off</value>
+  </data>
+  <data name="PPMPolarityButton.Location" type="System.Drawing.Point, System.Drawing">
+    <value>423, 121</value>
+  </data>
+  <data name="PPMPolarityButton.Size" type="System.Drawing.Size, System.Drawing">
+    <value>13, 15</value>
+  </data>
+  <data name="PPMPolarityButton.TabIndex" type="System.Int32, mscorlib">
+    <value>130</value>
+  </data>
+  <data name="&gt;&gt;PPMPolarityButton.Name" xml:space="preserve">
+    <value>PPMPolarityButton</value>
+  </data>
+  <data name="&gt;&gt;PPMPolarityButton.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;PPMPolarityButton.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;PPMPolarityButton.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="Ch6NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch6NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>433, 41</value>
+  </data>
+  <data name="Ch6NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 20</value>
+  </data>
+  <data name="Ch6NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>127</value>
+  </data>
+  <data name="Ch6NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch6NumericUpDown.Name" xml:space="preserve">
+    <value>Ch6NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch6NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch6NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch6NumericUpDown.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="Ch3NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch3NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>433, 15</value>
+  </data>
+  <data name="Ch3NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 20</value>
+  </data>
+  <data name="Ch3NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>126</value>
+  </data>
+  <data name="Ch3NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch3NumericUpDown.Name" xml:space="preserve">
+    <value>Ch3NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch3NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch3NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch3NumericUpDown.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="Ch6Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="Ch6Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="Ch6Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>385, 43</value>
+  </data>
+  <data name="Ch6Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>48, 13</value>
+  </data>
+  <data name="Ch6Label.TabIndex" type="System.Int32, mscorlib">
+    <value>125</value>
+  </data>
+  <data name="Ch6Label.Text" xml:space="preserve">
+    <value>CamTrim</value>
+  </data>
+  <data name="&gt;&gt;Ch6Label.Name" xml:space="preserve">
+    <value>Ch6Label</value>
+  </data>
+  <data name="&gt;&gt;Ch6Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch6Label.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch6Label.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="Ch3Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="Ch3Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="Ch3Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>385, 17</value>
+  </data>
+  <data name="Ch3Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>31, 13</value>
+  </data>
+  <data name="Ch3Label.TabIndex" type="System.Int32, mscorlib">
+    <value>124</value>
+  </data>
+  <data name="Ch3Label.Text" xml:space="preserve">
+    <value>Pitch</value>
+  </data>
+  <data name="&gt;&gt;Ch3Label.Name" xml:space="preserve">
+    <value>Ch3Label</value>
+  </data>
+  <data name="&gt;&gt;Ch3Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch3Label.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch3Label.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="Ch5NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch5NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>342, 41</value>
+  </data>
+  <data name="Ch5NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 20</value>
+  </data>
+  <data name="Ch5NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>123</value>
+  </data>
+  <data name="Ch5NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch5NumericUpDown.Name" xml:space="preserve">
+    <value>Ch5NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch5NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch5NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch5NumericUpDown.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="Ch2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch2NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>342, 15</value>
+  </data>
+  <data name="Ch2NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 20</value>
+  </data>
+  <data name="Ch2NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>122</value>
+  </data>
+  <data name="Ch2NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch2NumericUpDown.Name" xml:space="preserve">
+    <value>Ch2NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch2NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch2NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch2NumericUpDown.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="Ch5Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="Ch5Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="Ch5Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>297, 43</value>
+  </data>
+  <data name="Ch5Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>27, 13</value>
+  </data>
+  <data name="Ch5Label.TabIndex" type="System.Int32, mscorlib">
+    <value>121</value>
+  </data>
+  <data name="Ch5Label.Text" xml:space="preserve">
+    <value>Nav</value>
+  </data>
+  <data name="&gt;&gt;Ch5Label.Name" xml:space="preserve">
+    <value>Ch5Label</value>
+  </data>
+  <data name="&gt;&gt;Ch5Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch5Label.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch5Label.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="RollChLabel.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="RollChLabel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="RollChLabel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>296, 17</value>
+  </data>
+  <data name="RollChLabel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>25, 13</value>
+  </data>
+  <data name="RollChLabel.TabIndex" type="System.Int32, mscorlib">
+    <value>120</value>
+  </data>
+  <data name="RollChLabel.Text" xml:space="preserve">
+    <value>Roll</value>
+  </data>
+  <data name="&gt;&gt;RollChLabel.Name" xml:space="preserve">
+    <value>RollChLabel</value>
+  </data>
+  <data name="&gt;&gt;RollChLabel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;RollChLabel.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;RollChLabel.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="Ch7NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch7NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>253, 65</value>
+  </data>
+  <data name="Ch7NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>34, 20</value>
+  </data>
+  <data name="Ch7NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>118</value>
+  </data>
+  <data name="Ch7NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch7NumericUpDown.Name" xml:space="preserve">
+    <value>Ch7NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch7NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch7NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch7NumericUpDown.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="Ch4NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch4NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>253, 41</value>
+  </data>
+  <data name="Ch4NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>34, 20</value>
+  </data>
+  <data name="Ch4NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>117</value>
+  </data>
+  <data name="Ch4NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch4NumericUpDown.Name" xml:space="preserve">
+    <value>Ch4NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch4NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch4NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch4NumericUpDown.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="Ch1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="Ch1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>253, 15</value>
+  </data>
+  <data name="Ch1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>34, 20</value>
+  </data>
+  <data name="Ch1NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>116</value>
+  </data>
+  <data name="Ch1NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;Ch1NumericUpDown.Name" xml:space="preserve">
+    <value>Ch1NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;Ch1NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch1NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch1NumericUpDown.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="Ch4Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="Ch4Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="Ch4Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>201, 43</value>
+  </data>
+  <data name="Ch4Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>28, 13</value>
+  </data>
+  <data name="Ch4Label.TabIndex" type="System.Int32, mscorlib">
+    <value>115</value>
+  </data>
+  <data name="Ch4Label.Text" xml:space="preserve">
+    <value>Yaw</value>
+  </data>
+  <data name="&gt;&gt;Ch4Label.Name" xml:space="preserve">
+    <value>Ch4Label</value>
+  </data>
+  <data name="&gt;&gt;Ch4Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch4Label.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch4Label.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="ThrottleChLabel.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ThrottleChLabel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ThrottleChLabel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>201, 17</value>
+  </data>
+  <data name="ThrottleChLabel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>43, 13</value>
+  </data>
+  <data name="ThrottleChLabel.TabIndex" type="System.Int32, mscorlib">
+    <value>114</value>
+  </data>
+  <data name="ThrottleChLabel.Text" xml:space="preserve">
+    <value>Throttle</value>
+  </data>
+  <data name="&gt;&gt;ThrottleChLabel.Name" xml:space="preserve">
+    <value>ThrottleChLabel</value>
+  </data>
+  <data name="&gt;&gt;ThrottleChLabel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;ThrottleChLabel.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;ThrottleChLabel.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="Ch7Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="Ch7Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="Ch7Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>201, 67</value>
+  </data>
+  <data name="Ch7Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>54, 13</value>
+  </data>
+  <data name="Ch7Label.TabIndex" type="System.Int32, mscorlib">
+    <value>113</value>
+  </data>
+  <data name="Ch7Label.Text" xml:space="preserve">
+    <value>NavSens.</value>
+  </data>
+  <data name="&gt;&gt;Ch7Label.Name" xml:space="preserve">
+    <value>Ch7Label</value>
+  </data>
+  <data name="&gt;&gt;Ch7Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Ch7Label.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;Ch7Label.ZOrder" xml:space="preserve">
+    <value>18</value>
+  </data>
   <data name="BaroAccComp1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -1395,7 +1935,7 @@
     <value>NoControl</value>
   </data>
   <data name="BaroAccComp1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 252</value>
+    <value>6, 252</value>
   </data>
   <data name="BaroAccComp1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>54, 13</value>
@@ -1416,13 +1956,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;BaroAccComp1Label.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>19</value>
   </data>
   <data name="Orientation1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="Orientation1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 93</value>
+    <value>147, 116</value>
   </data>
   <data name="Orientation1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -1443,13 +1983,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Orientation1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>20</value>
   </data>
   <data name="BaroAccComp1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="BaroAccComp1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 250</value>
+    <value>146, 249</value>
   </data>
   <data name="BaroAccComp1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -1470,7 +2010,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;BaroAccComp1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>21</value>
   </data>
   <data name="Orientation1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1479,7 +2019,7 @@
     <value>NoControl</value>
   </data>
   <data name="Orientation1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 95</value>
+    <value>6, 119</value>
   </data>
   <data name="Orientation1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>79, 13</value>
@@ -1500,13 +2040,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Orientation1Label.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>22</value>
   </data>
   <data name="CompassOffset1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="CompassOffset1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 145</value>
+    <value>147, 168</value>
   </data>
   <data name="CompassOffset1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -1527,7 +2067,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;CompassOffset1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>23</value>
   </data>
   <data name="Sense51Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1536,7 +2076,7 @@
     <value>Off</value>
   </data>
   <data name="Sense51Button.Location" type="System.Drawing.Point, System.Drawing">
-    <value>434, 119</value>
+    <value>442, 91</value>
   </data>
   <data name="Sense51Button.Size" type="System.Drawing.Size, System.Drawing">
     <value>24, 19</value>
@@ -1557,7 +2097,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense51Button.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>24</value>
   </data>
   <data name="CompassOffset1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1566,7 +2106,7 @@
     <value>NoControl</value>
   </data>
   <data name="CompassOffset1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 147</value>
+    <value>6, 171</value>
   </data>
   <data name="CompassOffset1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>94, 13</value>
@@ -1587,7 +2127,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;CompassOffset1Label.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>25</value>
   </data>
   <data name="Sense41Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1596,7 +2136,7 @@
     <value>Off</value>
   </data>
   <data name="Sense41Button.Location" type="System.Drawing.Point, System.Drawing">
-    <value>404, 119</value>
+    <value>412, 91</value>
   </data>
   <data name="Sense41Button.Size" type="System.Drawing.Size, System.Drawing">
     <value>24, 19</value>
@@ -1617,7 +2157,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense41Button.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>26</value>
   </data>
   <data name="Sense21Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1626,7 +2166,7 @@
     <value>Off</value>
   </data>
   <data name="Sense21Button.Location" type="System.Drawing.Point, System.Drawing">
-    <value>344, 119</value>
+    <value>352, 91</value>
   </data>
   <data name="Sense21Button.Size" type="System.Drawing.Size, System.Drawing">
     <value>24, 19</value>
@@ -1647,7 +2187,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense21Button.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>27</value>
   </data>
   <data name="Sense31Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1656,7 +2196,7 @@
     <value>Off</value>
   </data>
   <data name="Sense31Button.Location" type="System.Drawing.Point, System.Drawing">
-    <value>374, 119</value>
+    <value>382, 91</value>
   </data>
   <data name="Sense31Button.Size" type="System.Drawing.Size, System.Drawing">
     <value>24, 19</value>
@@ -1677,7 +2217,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense31Button.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>28</value>
   </data>
   <data name="Sense11Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1686,7 +2226,7 @@
     <value>Off</value>
   </data>
   <data name="Sense11Button.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 119</value>
+    <value>323, 91</value>
   </data>
   <data name="Sense11Button.Size" type="System.Drawing.Size, System.Drawing">
     <value>24, 19</value>
@@ -1707,7 +2247,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense11Button.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>29</value>
   </data>
   <data name="PWMSenseLabel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1716,7 +2256,7 @@
     <value>NoControl</value>
   </data>
   <data name="PWMSenseLabel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 122</value>
+    <value>201, 94</value>
   </data>
   <data name="PWMSenseLabel.Size" type="System.Drawing.Size, System.Drawing">
     <value>68, 13</value>
@@ -1737,13 +2277,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;PWMSenseLabel.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>30</value>
   </data>
   <data name="Sense01Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="Sense01Button.Location" type="System.Drawing.Point, System.Drawing">
-    <value>285, 119</value>
+    <value>293, 91</value>
   </data>
   <data name="Sense01Button.Size" type="System.Drawing.Size, System.Drawing">
     <value>24, 19</value>
@@ -1764,7 +2304,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense01Button.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>31</value>
   </data>
   <data name="GPSGain1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1773,7 +2313,7 @@
     <value>NoControl</value>
   </data>
   <data name="GPSGain1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 174</value>
+    <value>6, 198</value>
   </data>
   <data name="GPSGain1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>83, 13</value>
@@ -1794,7 +2334,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;GPSGain1Label.ZOrder" xml:space="preserve">
-    <value>13</value>
+    <value>32</value>
   </data>
   <data name="labelTelemetry1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1803,7 +2343,7 @@
     <value>NoControl</value>
   </data>
   <data name="labelTelemetry1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 95</value>
+    <value>201, 252</value>
   </data>
   <data name="labelTelemetry1.Size" type="System.Drawing.Size, System.Drawing">
     <value>39, 13</value>
@@ -1824,7 +2364,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;labelTelemetry1.ZOrder" xml:space="preserve">
-    <value>14</value>
+    <value>33</value>
   </data>
   <data name="TelemetryComboBox1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1851,7 +2391,7 @@
     <value>Custom</value>
   </data>
   <data name="TelemetryComboBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>258, 92</value>
+    <value>258, 249</value>
   </data>
   <data name="TelemetryComboBox1.Size" type="System.Drawing.Size, System.Drawing">
     <value>210, 21</value>
@@ -1872,7 +2412,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;TelemetryComboBox1.ZOrder" xml:space="preserve">
-    <value>15</value>
+    <value>34</value>
   </data>
   <data name="bit11CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1884,7 +2424,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit11CheckBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 254</value>
+    <value>301, 222</value>
   </data>
   <data name="bit11CheckBox.Size" type="System.Drawing.Size, System.Drawing">
     <value>75, 17</value>
@@ -1905,7 +2445,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit11CheckBox.ZOrder" xml:space="preserve">
-    <value>16</value>
+    <value>35</value>
   </data>
   <data name="bit6Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1914,7 +2454,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit6Header1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 221</value>
+    <value>201, 189</value>
   </data>
   <data name="bit6Header1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>57, 13</value>
@@ -1935,13 +2475,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit6Header1Label.ZOrder" xml:space="preserve">
-    <value>17</value>
+    <value>36</value>
   </data>
   <data name="GPSGain1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="GPSGain1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 172</value>
+    <value>147, 195</value>
   </data>
   <data name="GPSGain1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -1962,7 +2502,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;GPSGain1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>18</value>
+    <value>37</value>
   </data>
   <data name="bit61CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1974,7 +2514,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit61CheckBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 220</value>
+    <value>301, 188</value>
   </data>
   <data name="bit61CheckBox.Size" type="System.Drawing.Size, System.Drawing">
     <value>79, 17</value>
@@ -1995,7 +2535,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit61CheckBox.ZOrder" xml:space="preserve">
-    <value>19</value>
+    <value>38</value>
   </data>
   <data name="bit1Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2004,7 +2544,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit1Header1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 255</value>
+    <value>201, 223</value>
   </data>
   <data name="bit1Header1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>86, 13</value>
@@ -2025,13 +2565,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit1Header1Label.ZOrder" xml:space="preserve">
-    <value>20</value>
+    <value>39</value>
   </data>
   <data name="HoverThrottle1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="HoverThrottle1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 41</value>
+    <value>146, 91</value>
   </data>
   <data name="HoverThrottle1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -2052,7 +2592,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;HoverThrottle1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>21</value>
+    <value>40</value>
   </data>
   <data name="LabelHoverThrottle1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2061,7 +2601,7 @@
     <value>NoControl</value>
   </data>
   <data name="LabelHoverThrottle1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 45</value>
+    <value>6, 94</value>
   </data>
   <data name="LabelHoverThrottle1.Size" type="System.Drawing.Size, System.Drawing">
     <value>99, 13</value>
@@ -2082,7 +2622,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;LabelHoverThrottle1.ZOrder" xml:space="preserve">
-    <value>22</value>
+    <value>41</value>
   </data>
   <data name="bit2Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2091,7 +2631,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit2Header1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 170</value>
+    <value>201, 138</value>
   </data>
   <data name="bit2Header1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 13</value>
@@ -2112,7 +2652,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit2Header1Label.ZOrder" xml:space="preserve">
-    <value>23</value>
+    <value>42</value>
   </data>
   <data name="bit21CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2124,7 +2664,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit21CheckBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 169</value>
+    <value>301, 137</value>
   </data>
   <data name="bit21CheckBox.Size" type="System.Drawing.Size, System.Drawing">
     <value>68, 17</value>
@@ -2145,121 +2685,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit21CheckBox.ZOrder" xml:space="preserve">
-    <value>24</value>
-  </data>
-  <data name="LabelTxRx1.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="LabelTxRx1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="LabelTxRx1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 43</value>
-  </data>
-  <data name="LabelTxRx1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>37, 13</value>
-  </data>
-  <data name="LabelTxRx1.TabIndex" type="System.Int32, mscorlib">
-    <value>47</value>
-  </data>
-  <data name="LabelTxRx1.Text" xml:space="preserve">
-    <value>Tx/Rx</value>
-  </data>
-  <data name="&gt;&gt;LabelTxRx1.Name" xml:space="preserve">
-    <value>LabelTxRx1</value>
-  </data>
-  <data name="&gt;&gt;LabelTxRx1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;LabelTxRx1.Parent" xml:space="preserve">
-    <value>General1GroupBox</value>
-  </data>
-  <data name="&gt;&gt;LabelTxRx1.ZOrder" xml:space="preserve">
-    <value>25</value>
-  </data>
-  <data name="TxRxComboBox1.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
-  </data>
-  <data name="TxRxComboBox1.Items" xml:space="preserve">
-    <value>Futaba Thr3/ Turnigy 9X</value>
-  </data>
-  <data name="TxRxComboBox1.Items1" xml:space="preserve">
-    <value>Futaba Thr2 </value>
-  </data>
-  <data name="TxRxComboBox1.Items2" xml:space="preserve">
-    <value>Futaba 9C DM8/AR7000</value>
-  </data>
-  <data name="TxRxComboBox1.Items3" xml:space="preserve">
-    <value>JR XP8103/R700 PPM</value>
-  </data>
-  <data name="TxRxComboBox1.Items4" xml:space="preserve">
-    <value>JR 9XII  DM9/AR7000</value>
-  </data>
-  <data name="TxRxComboBox1.Items5" xml:space="preserve">
-    <value>JR DSX12/AR7000</value>
-  </data>
-  <data name="TxRxComboBox1.Items6" xml:space="preserve">
-    <value>Spektrum DX7/AR7000</value>
-  </data>
-  <data name="TxRxComboBox1.Items7" xml:space="preserve">
-    <value>Spektrum DX7/AR6200</value>
-  </data>
-  <data name="TxRxComboBox1.Items8" xml:space="preserve">
-    <value>Futaba Thr3 Sw 6&amp;7</value>
-  </data>
-  <data name="TxRxComboBox1.Items9" xml:space="preserve">
-    <value>Spektrum DX7/AR6000</value>
-  </data>
-  <data name="TxRxComboBox1.Items10" xml:space="preserve">
-    <value>Graupner MX16S</value>
-  </data>
-  <data name="TxRxComboBox1.Items11" xml:space="preserve">
-    <value>Spektrum DX6i/AR6200</value>
-  </data>
-  <data name="TxRxComboBox1.Items12" xml:space="preserve">
-    <value>Futaba Thr3/R617FS (6ch only)</value>
-  </data>
-  <data name="TxRxComboBox1.Items13" xml:space="preserve">
-    <value>Spektrum DX7a/AR7000</value>
-  </data>
-  <data name="TxRxComboBox1.Items14" xml:space="preserve">
-    <value>External Decoder (Fut Th3 6/7 Sw)</value>
-  </data>
-  <data name="TxRxComboBox1.Items15" xml:space="preserve">
-    <value>FrSky DJT/D8R-SP (Th1 Comp.)</value>
-  </data>
-  <data name="TxRxComboBox1.Items16" xml:space="preserve">
-    <value>NOT SET YET</value>
-  </data>
-  <data name="TxRxComboBox1.Items17" xml:space="preserve">
-    <value>Custom</value>
-  </data>
-  <data name="TxRxComboBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>258, 40</value>
-  </data>
-  <data name="TxRxComboBox1.MaxDropDownItems" type="System.Int32, mscorlib">
-    <value>12</value>
-  </data>
-  <data name="TxRxComboBox1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>210, 21</value>
-  </data>
-  <data name="TxRxComboBox1.TabIndex" type="System.Int32, mscorlib">
-    <value>46</value>
-  </data>
-  <data name="TxRxComboBox1.Text" xml:space="preserve">
-    <value>unknown</value>
-  </data>
-  <data name="&gt;&gt;TxRxComboBox1.Name" xml:space="preserve">
-    <value>TxRxComboBox1</value>
-  </data>
-  <data name="&gt;&gt;TxRxComboBox1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TxRxComboBox1.Parent" xml:space="preserve">
-    <value>General1GroupBox</value>
-  </data>
-  <data name="&gt;&gt;TxRxComboBox1.ZOrder" xml:space="preserve">
-    <value>26</value>
+    <value>43</value>
   </data>
   <data name="bit5Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2268,7 +2694,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit5Header1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 187</value>
+    <value>201, 155</value>
   </data>
   <data name="bit5Header1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>48, 13</value>
@@ -2289,7 +2715,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit5Header1Label.ZOrder" xml:space="preserve">
-    <value>27</value>
+    <value>44</value>
   </data>
   <data name="bit51CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2301,7 +2727,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit51CheckBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 186</value>
+    <value>301, 154</value>
   </data>
   <data name="bit51CheckBox.Size" type="System.Drawing.Size, System.Drawing">
     <value>72, 17</value>
@@ -2322,7 +2748,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit51CheckBox.ZOrder" xml:space="preserve">
-    <value>28</value>
+    <value>45</value>
   </data>
   <data name="labelGyros1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2331,7 +2757,7 @@
     <value>NoControl</value>
   </data>
   <data name="labelGyros1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 15</value>
+    <value>6, 17</value>
   </data>
   <data name="labelGyros1.Size" type="System.Drawing.Size, System.Drawing">
     <value>34, 13</value>
@@ -2352,7 +2778,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;labelGyros1.ZOrder" xml:space="preserve">
-    <value>29</value>
+    <value>46</value>
   </data>
   <data name="labelESC1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2361,7 +2787,7 @@
     <value>NoControl</value>
   </data>
   <data name="labelESC1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 69</value>
+    <value>6, 43</value>
   </data>
   <data name="labelESC1.Size" type="System.Drawing.Size, System.Drawing">
     <value>33, 13</value>
@@ -2382,7 +2808,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;labelESC1.ZOrder" xml:space="preserve">
-    <value>30</value>
+    <value>47</value>
   </data>
   <data name="GyroComboBox1.AutoCompleteCustomSource" xml:space="preserve">
     <value>MLX90609-R2</value>
@@ -2439,10 +2865,10 @@
     <value>Reserved</value>
   </data>
   <data name="GyroComboBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>258, 12</value>
+    <value>46, 14</value>
   </data>
   <data name="GyroComboBox1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>208, 21</value>
+    <value>149, 21</value>
   </data>
   <data name="GyroComboBox1.TabIndex" type="System.Int32, mscorlib">
     <value>39</value>
@@ -2460,7 +2886,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;GyroComboBox1.ZOrder" xml:space="preserve">
-    <value>31</value>
+    <value>48</value>
   </data>
   <data name="ESCComboBox1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2481,10 +2907,10 @@
     <value>LRCI2C</value>
   </data>
   <data name="ESCComboBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>258, 66</value>
+    <value>45, 40</value>
   </data>
   <data name="ESCComboBox1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>210, 21</value>
+    <value>150, 21</value>
   </data>
   <data name="ESCComboBox1.TabIndex" type="System.Int32, mscorlib">
     <value>38</value>
@@ -2502,13 +2928,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;ESCComboBox1.ZOrder" xml:space="preserve">
-    <value>32</value>
+    <value>49</value>
   </data>
   <data name="NavMagVar1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="NavMagVar1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 119</value>
+    <value>147, 142</value>
   </data>
   <data name="NavMagVar1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -2529,7 +2955,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;NavMagVar1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>33</value>
+    <value>50</value>
   </data>
   <data name="labelNavMagVar1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2538,7 +2964,7 @@
     <value>NoControl</value>
   </data>
   <data name="labelNavMagVar1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 121</value>
+    <value>6, 145</value>
   </data>
   <data name="labelNavMagVar1.Size" type="System.Drawing.Size, System.Drawing">
     <value>92, 13</value>
@@ -2559,13 +2985,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;labelNavMagVar1.ZOrder" xml:space="preserve">
-    <value>34</value>
+    <value>51</value>
   </data>
   <data name="LowMotorRun1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="LowMotorRun1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 15</value>
+    <value>146, 65</value>
   </data>
   <data name="LowMotorRun1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -2586,7 +3012,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;LowMotorRun1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>35</value>
+    <value>52</value>
   </data>
   <data name="LowMotorRun1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2595,7 +3021,7 @@
     <value>NoControl</value>
   </data>
   <data name="LowMotorRun1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 19</value>
+    <value>6, 68</value>
   </data>
   <data name="LowMotorRun1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>80, 13</value>
@@ -2616,13 +3042,13 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;LowMotorRun1Label.ZOrder" xml:space="preserve">
-    <value>36</value>
+    <value>53</value>
   </data>
   <data name="BaroScale1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
   <data name="BaroScale1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
-    <value>124, 224</value>
+    <value>146, 223</value>
   </data>
   <data name="BaroScale1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
@@ -2643,7 +3069,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;BaroScale1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>37</value>
+    <value>54</value>
   </data>
   <data name="BaroScale1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2652,7 +3078,7 @@
     <value>NoControl</value>
   </data>
   <data name="BaroScale1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 226</value>
+    <value>6, 226</value>
   </data>
   <data name="BaroScale1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>56, 13</value>
@@ -2673,7 +3099,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;BaroScale1Label.ZOrder" xml:space="preserve">
-    <value>38</value>
+    <value>55</value>
   </data>
   <data name="bit41CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2685,7 +3111,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit41CheckBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 203</value>
+    <value>301, 171</value>
   </data>
   <data name="bit41CheckBox.Size" type="System.Drawing.Size, System.Drawing">
     <value>86, 17</value>
@@ -2706,7 +3132,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit41CheckBox.ZOrder" xml:space="preserve">
-    <value>39</value>
+    <value>56</value>
   </data>
   <data name="bit4Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2715,7 +3141,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit4Header1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 204</value>
+    <value>201, 172</value>
   </data>
   <data name="bit4Header1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>90, 13</value>
@@ -2736,7 +3162,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit4Header1Label.ZOrder" xml:space="preserve">
-    <value>40</value>
+    <value>57</value>
   </data>
   <data name="bit31CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2748,7 +3174,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit31CheckBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 151</value>
+    <value>301, 119</value>
   </data>
   <data name="bit31CheckBox.Size" type="System.Drawing.Size, System.Drawing">
     <value>105, 17</value>
@@ -2769,7 +3195,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit31CheckBox.ZOrder" xml:space="preserve">
-    <value>41</value>
+    <value>58</value>
   </data>
   <data name="bit3Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2778,7 +3204,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit3Header1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 152</value>
+    <value>201, 120</value>
   </data>
   <data name="bit3Header1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>64, 13</value>
@@ -2799,7 +3225,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit3Header1Label.ZOrder" xml:space="preserve">
-    <value>42</value>
+    <value>59</value>
   </data>
   <data name="bit01CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2811,7 +3237,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit01CheckBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 237</value>
+    <value>301, 205</value>
   </data>
   <data name="bit01CheckBox.Size" type="System.Drawing.Size, System.Drawing">
     <value>78, 17</value>
@@ -2832,7 +3258,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit01CheckBox.ZOrder" xml:space="preserve">
-    <value>43</value>
+    <value>60</value>
   </data>
   <data name="bit0Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2841,7 +3267,7 @@
     <value>NoControl</value>
   </data>
   <data name="bit0Header1Label.Location" type="System.Drawing.Point, System.Drawing">
-    <value>215, 238</value>
+    <value>201, 206</value>
   </data>
   <data name="bit0Header1Label.Size" type="System.Drawing.Size, System.Drawing">
     <value>56, 13</value>
@@ -2862,7 +3288,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit0Header1Label.ZOrder" xml:space="preserve">
-    <value>44</value>
+    <value>61</value>
   </data>
   <data name="General1GroupBox.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt</value>
@@ -2891,6 +3317,63 @@
   <data name="&gt;&gt;General1GroupBox.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
+  <data name="NeutralRadius1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="NeutralRadius1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>72, 118</value>
+  </data>
+  <data name="NeutralRadius1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>49, 20</value>
+  </data>
+  <data name="NeutralRadius1NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>94</value>
+  </data>
+  <data name="NeutralRadius1NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius1NumericUpDown.Name" xml:space="preserve">
+    <value>NeutralRadius1NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius1NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius1NumericUpDown.Parent" xml:space="preserve">
+    <value>groupBoxGPS1</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius1NumericUpDown.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="NeutralRadius1Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="NeutralRadius1Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="NeutralRadius1Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 120</value>
+  </data>
+  <data name="NeutralRadius1Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>66, 13</value>
+  </data>
+  <data name="NeutralRadius1Label.TabIndex" type="System.Int32, mscorlib">
+    <value>93</value>
+  </data>
+  <data name="NeutralRadius1Label.Text" xml:space="preserve">
+    <value>N.Radius(M)</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius1Label.Name" xml:space="preserve">
+    <value>NeutralRadius1Label</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius1Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius1Label.Parent" xml:space="preserve">
+    <value>groupBoxGPS1</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius1Label.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <data name="NavGPSSlew1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
@@ -2916,7 +3399,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavGPSSlew1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>2</value>
   </data>
   <data name="NavGPSSlewLabel1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2946,7 +3429,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavGPSSlewLabel1.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="NavYawLimit1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2973,7 +3456,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavYawLimit1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
   <data name="NavIntLimit1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -3000,7 +3483,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavIntLimit1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="NavYawLimit1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3030,7 +3513,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavYawLimit1Label.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
   <data name="NavIntLimit1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3060,7 +3543,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavIntLimit1Label.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>7</value>
   </data>
   <data name="NavDiff1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -3087,7 +3570,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavDiff1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>8</value>
   </data>
   <data name="NavDiff1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3117,7 +3600,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavDiff1Label.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>9</value>
   </data>
   <data name="NavInt1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -3144,7 +3627,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavInt1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>10</value>
   </data>
   <data name="NavInt1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3174,7 +3657,7 @@
     <value>groupBoxGPS1</value>
   </data>
   <data name="&gt;&gt;NavInt1Label.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>11</value>
   </data>
   <data name="groupBoxGPS1.Location" type="System.Drawing.Point, System.Drawing">
     <value>382, 22</value>
@@ -4814,6 +5297,63 @@
   <data name="groupBoxGPS2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>None</value>
   </data>
+  <data name="NeutralRadius2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="NeutralRadius2NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>71, 118</value>
+  </data>
+  <data name="NeutralRadius2NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>49, 20</value>
+  </data>
+  <data name="NeutralRadius2NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>98</value>
+  </data>
+  <data name="NeutralRadius2NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius2NumericUpDown.Name" xml:space="preserve">
+    <value>NeutralRadius2NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius2NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius2NumericUpDown.Parent" xml:space="preserve">
+    <value>groupBoxGPS2</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius2NumericUpDown.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="NeutralRadius2Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="NeutralRadius2Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="NeutralRadius2Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 122</value>
+  </data>
+  <data name="NeutralRadius2Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>69, 13</value>
+  </data>
+  <data name="NeutralRadius2Label.TabIndex" type="System.Int32, mscorlib">
+    <value>97</value>
+  </data>
+  <data name="NeutralRadius2Label.Text" xml:space="preserve">
+    <value>N. Radius(M)</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius2Label.Name" xml:space="preserve">
+    <value>NeutralRadius2Label</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius2Label.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius2Label.Parent" xml:space="preserve">
+    <value>groupBoxGPS2</value>
+  </data>
+  <data name="&gt;&gt;NeutralRadius2Label.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <data name="NavYawLimit2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
@@ -4839,7 +5379,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavYawLimit2NumericUpDown.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>2</value>
   </data>
   <data name="NavYawLimit2Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4869,7 +5409,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavYawLimit2Label.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="NavGPSSlew2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -4896,7 +5436,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavGPSSlew2NumericUpDown.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
   <data name="NavGPSSlewLabel2.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4926,7 +5466,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavGPSSlewLabel2.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="NavIntLimit2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -4953,7 +5493,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavIntLimit2NumericUpDown.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
   <data name="NavIntLimit2Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4983,7 +5523,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavIntLimit2Label.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>7</value>
   </data>
   <data name="NavDiff2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -5010,7 +5550,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavDiff2NumericUpDown.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>8</value>
   </data>
   <data name="NavDiff2Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5040,7 +5580,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavDiff2Label.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>9</value>
   </data>
   <data name="NavInt2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -5067,7 +5607,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavInt2NumericUpDown.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>10</value>
   </data>
   <data name="NavInt2Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5097,7 +5637,7 @@
     <value>groupBoxGPS2</value>
   </data>
   <data name="&gt;&gt;NavInt2Label.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>11</value>
   </data>
   <data name="groupBoxGPS2.Location" type="System.Drawing.Point, System.Drawing">
     <value>380, 22</value>
@@ -6272,57 +6812,6 @@
   <data name="toolStripContainerMainWindow.Text" xml:space="preserve">
     <value>toolStripContainer1</value>
   </data>
-  <metadata name="configToolStrip.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="configToolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>3, 0</value>
-  </metadata>
-  <data name="configToolStrip.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>None</value>
-  </data>
-  <data name="comPortToolStripComboBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>121, 25</value>
-  </data>
-  <data name="versionToolStripComboBox.AutoCompleteCustomSource" xml:space="preserve">
-    <value>UAVX</value>
-  </data>
-  <data name="versionToolStripComboBox.AutoCompleteCustomSource1" xml:space="preserve">
-    <value>UAVXLight</value>
-  </data>
-  <data name="versionToolStripComboBox.Items" xml:space="preserve">
-    <value>UAVX</value>
-  </data>
-  <data name="versionToolStripComboBox.Items1" xml:space="preserve">
-    <value>UAVXLight</value>
-  </data>
-  <data name="versionToolStripComboBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>121, 25</value>
-  </data>
-  <data name="versionToolStripComboBox.Text" xml:space="preserve">
-    <value>UAVX</value>
-  </data>
-  <data name="configToolStrip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>137, 0</value>
-  </data>
-  <data name="configToolStrip.Size" type="System.Drawing.Size, System.Drawing">
-    <value>256, 25</value>
-  </data>
-  <data name="configToolStrip.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;configToolStrip.Name" xml:space="preserve">
-    <value>configToolStrip</value>
-  </data>
-  <data name="&gt;&gt;configToolStrip.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStrip, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;configToolStrip.Parent" xml:space="preserve">
-    <value>toolStripContainerMainWindow.TopToolStripPanel</value>
-  </data>
-  <data name="&gt;&gt;configToolStrip.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <metadata name="toolStripMain.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
@@ -6417,6 +6906,57 @@
     <value>toolStripContainerMainWindow.TopToolStripPanel</value>
   </data>
   <data name="&gt;&gt;toolStripMain.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="configToolStrip.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="configToolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>3, 0</value>
+  </metadata>
+  <data name="configToolStrip.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="comPortToolStripComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 25</value>
+  </data>
+  <data name="versionToolStripComboBox.AutoCompleteCustomSource" xml:space="preserve">
+    <value>UAVX</value>
+  </data>
+  <data name="versionToolStripComboBox.AutoCompleteCustomSource1" xml:space="preserve">
+    <value>UAVXLight</value>
+  </data>
+  <data name="versionToolStripComboBox.Items" xml:space="preserve">
+    <value>UAVX</value>
+  </data>
+  <data name="versionToolStripComboBox.Items1" xml:space="preserve">
+    <value>UAVXLight</value>
+  </data>
+  <data name="versionToolStripComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 25</value>
+  </data>
+  <data name="versionToolStripComboBox.Text" xml:space="preserve">
+    <value>UAVX</value>
+  </data>
+  <data name="configToolStrip.Location" type="System.Drawing.Point, System.Drawing">
+    <value>137, 0</value>
+  </data>
+  <data name="configToolStrip.Size" type="System.Drawing.Size, System.Drawing">
+    <value>256, 25</value>
+  </data>
+  <data name="configToolStrip.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;configToolStrip.Name" xml:space="preserve">
+    <value>configToolStrip</value>
+  </data>
+  <data name="&gt;&gt;configToolStrip.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStrip, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;configToolStrip.Parent" xml:space="preserve">
+    <value>toolStripContainerMainWindow.TopToolStripPanel</value>
+  </data>
+  <data name="&gt;&gt;configToolStrip.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
   <data name="&gt;&gt;toolStripContainerMainWindow.TopToolStripPanel.Name" xml:space="preserve">
@@ -6441,7 +6981,37 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;toolStripContainerMainWindow.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
+  </data>
+  <data name="ColourButton.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="ColourButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>Off</value>
+  </data>
+  <data name="ColourButton.Location" type="System.Drawing.Point, System.Drawing">
+    <value>588, 4</value>
+  </data>
+  <data name="ColourButton.Size" type="System.Drawing.Size, System.Drawing">
+    <value>48, 19</value>
+  </data>
+  <data name="ColourButton.TabIndex" type="System.Int32, mscorlib">
+    <value>131</value>
+  </data>
+  <data name="ColourButton.Text" xml:space="preserve">
+    <value>Skin</value>
+  </data>
+  <data name="&gt;&gt;ColourButton.Name" xml:space="preserve">
+    <value>ColourButton</value>
+  </data>
+  <data name="&gt;&gt;ColourButton.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;ColourButton.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ColourButton.ZOrder" xml:space="preserve">
+    <value>0</value>
   </data>
   <metadata name="statusStripMainWindow.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
@@ -6483,7 +7053,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;statusStripMainWindow.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>3</value>
   </data>
   <metadata name="menuStripMainWindow.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>0, 0</value>
@@ -6523,6 +7093,12 @@
   </data>
   <data name="miscellaneousToolStripMenuItem.Text" xml:space="preserve">
     <value>Miscellaneous</value>
+  </data>
+  <data name="coloursToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>139, 22</value>
+  </data>
+  <data name="coloursToolStripMenuItem.Text" xml:space="preserve">
+    <value>Colours</value>
   </data>
   <data name="configurationToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>84, 20</value>
@@ -6630,22 +7206,22 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;menuStripMainWindow.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>4</value>
   </data>
   <metadata name="parameterOpenFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>237, 5</value>
   </metadata>
   <metadata name="parameterSaveFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>415, 5</value>
+    <value>482, 7</value>
   </metadata>
   <metadata name="hexOpenFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>590, 5</value>
+    <value>669, 4</value>
   </metadata>
   <metadata name="colorDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>168, 728</value>
+    <value>185, 42</value>
   </metadata>
   <metadata name="imageList1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>281, 728</value>
+    <value>298, 42</value>
   </metadata>
   <data name="imageList1.ImageSize" type="System.Drawing.Size, System.Drawing">
     <value>16, 16</value>
@@ -6657,13 +7233,13 @@
     <value>True</value>
   </data>
   <data name="label1.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Microsoft Sans Serif, 10pt</value>
+    <value>Tahoma, 8.25pt</value>
   </data>
   <data name="label1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>583, 4</value>
+    <value>642, 7</value>
   </data>
   <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>213, 17</value>
+    <value>158, 13</value>
   </data>
   <data name="label1.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -6681,8 +7257,11 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;label1.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
+  <metadata name="colorDialog2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>826, 3</value>
+  </metadata>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
@@ -6833,13 +7412,25 @@
     <value>CenterScreen</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
-    <value>UAVPSet 5.1 (UAVX)</value>
+    <value>UAVPSet 6.1 (UAVX)</value>
   </data>
   <data name="&gt;&gt;imageListJobs.Name" xml:space="preserve">
     <value>imageListJobs</value>
   </data>
   <data name="&gt;&gt;imageListJobs.Type" xml:space="preserve">
     <value>System.Windows.Forms.ImageList, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comPortToolStripComboBox.Name" xml:space="preserve">
+    <value>comPortToolStripComboBox</value>
+  </data>
+  <data name="&gt;&gt;comPortToolStripComboBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;versionToolStripComboBox.Name" xml:space="preserve">
+    <value>versionToolStripComboBox</value>
+  </data>
+  <data name="&gt;&gt;versionToolStripComboBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;toolStripButton1.Name" xml:space="preserve">
     <value>toolStripButton1</value>
@@ -6876,18 +7467,6 @@
   </data>
   <data name="&gt;&gt;set1Set2ToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comPortToolStripComboBox.Name" xml:space="preserve">
-    <value>comPortToolStripComboBox</value>
-  </data>
-  <data name="&gt;&gt;comPortToolStripComboBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;versionToolStripComboBox.Name" xml:space="preserve">
-    <value>versionToolStripComboBox</value>
-  </data>
-  <data name="&gt;&gt;versionToolStripComboBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;infoleisteToolStripStatusLabel.Name" xml:space="preserve">
     <value>infoleisteToolStripStatusLabel</value>
@@ -6941,6 +7520,12 @@
     <value>miscellaneousToolStripMenuItem</value>
   </data>
   <data name="&gt;&gt;miscellaneousToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;coloursToolStripMenuItem.Name" xml:space="preserve">
+    <value>coloursToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;coloursToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;befehleToolStripMenuItem.Name" xml:space="preserve">
@@ -7050,6 +7635,12 @@
   </data>
   <data name="&gt;&gt;imageList1.Type" xml:space="preserve">
     <value>System.Windows.Forms.ImageList, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;colorDialog2.Name" xml:space="preserve">
+    <value>colorDialog2</value>
+  </data>
+  <data name="&gt;&gt;colorDialog2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ColorDialog, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>FormMain</value>

@@ -57,22 +57,16 @@ namespace UAVP.UAVPSet
             // sprache übersteuern
             // wenn auto dann bestriebssystem einstellungen
 
-            switch (Properties.Settings.Default.language)
-            { 
-                case "english":
-                    Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
-                    break;
-                case "german":
-                    Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
-                    break;
-                case "french":
-                    Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
-                   break;
-           }
-
+          
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
+ 
             InitializeComponent();
 
             Properties.Settings.Default.language = "English";
+
+            tabPageParameterSet1.BackColor = 
+            tabPageParameterSet2.BackColor = 
+            Properties.Settings.Default.Colour;
 
             //com Ports zuweisen zu pull-down
             string [] aviableComPorts = ComPorts.readPorts();
@@ -111,9 +105,6 @@ namespace UAVP.UAVPSet
           //  this.Text = this.Text + " v" + vrs.Major + "." + vrs.Minor + "." + vrs.Build;
          }
 
-        /// <summary>
-        /// Umstellen der Oberfläche je Version
-        /// </summary>
         public void ChangeVersion()
         {
             switch (Properties.Settings.Default.version)
@@ -155,6 +146,7 @@ namespace UAVP.UAVPSet
                     Sense31Button.Visible = true;
                     Sense41Button.Visible = true;
                     Sense51Button.Visible = true;
+                    PPMPolarityButton.Visible = true;
 
                     labelNavMagVar1.Visible = true;
                     NavMagVar1NumericUpDown.Visible = true;
@@ -197,9 +189,7 @@ namespace UAVP.UAVPSet
                     labelESC1.Visible = true;
                     ESCComboBox1.Visible = true;
 
-                    LabelTxRx1.Visible = true;
-                    TxRxComboBox1.Visible = true;
-
+  
                     labelTelemetry1.Visible = true;
                     TelemetryComboBox1.Visible = true;
 
@@ -221,11 +211,12 @@ namespace UAVP.UAVPSet
                     NavYawLimit2Label.Visible = true;
                     NavYawLimit2NumericUpDown.Visible = true;
 
-               //     HorizDamping1NumericUpDown.Visible = false;
-              //      HorizDamping1Label.Visible = false;
+                    Ch9NumericUpDown.Visible = false;
+                    Ch9Label.Visible = false;
 
-              //      HorizDampingDecay1NumericUpDown.Visible = false;
-              //      HorizDampingDecay1Label.Visible = false;
+                    Ch8NumericUpDown.Visible = false;
+                    Ch8Label.Visible = false;
+
 
               //      YawDiff1NumericUpDown.Visible = false;
               //      YawDiff1Label.Visible = false;
@@ -313,9 +304,6 @@ namespace UAVP.UAVPSet
                     labelESC1.Visible = true;
                     ESCComboBox1.Visible = true;
 
-                    LabelTxRx1.Visible = true;
-                    TxRxComboBox1.Visible = true;
-
                     labelTelemetry1.Visible = true;
                     TelemetryComboBox1.Visible = true;
 
@@ -360,12 +348,6 @@ namespace UAVP.UAVPSet
             }
         }
 
-
-        /// <summary>
-        /// Speichern des Layouts wenn Form geschlossen
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             Properties.Settings.Default.mainFormHeight = this.Height;
@@ -374,11 +356,6 @@ namespace UAVP.UAVPSet
             Properties.Settings.Default.Save();
         }
 
-        /// <summary>
-        /// wenn in der ListView ein element angeklickt wurde
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void listViewJobs_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listViewJobs.SelectedItems.Count == 0) return;
@@ -403,11 +380,7 @@ namespace UAVP.UAVPSet
                 picConnect.receiver(this);
 
         }
-   
-        /// <summary>
-        /// Funktion um die Labels bei den Checkboxen Zentral zu ändern
-        /// </summary>
-        /// <param name="changeBox">zu ändernde Checkbox als Object</param>
+
         private void bitTextWechsel(Object changeBoxObject)
         {
             CheckBox changeBox = (CheckBox)changeBoxObject;
@@ -488,6 +461,23 @@ namespace UAVP.UAVPSet
 
         private void bit31CheckBox_CheckedChanged(object sender, EventArgs e)
         {
+            if (bit31CheckBox.Checked)
+            {
+
+                Ch9NumericUpDown.Visible = true;
+                Ch9Label.Visible = true;
+
+                Ch8NumericUpDown.Visible = true;
+                Ch8Label.Visible = true;
+            }
+            else
+            {
+                Ch9NumericUpDown.Visible = false;
+                Ch9Label.Visible = false;
+
+                Ch8NumericUpDown.Visible = false;
+                Ch8Label.Visible = false;
+            }
             bitTextWechsel(sender);
         }
 
@@ -591,12 +581,6 @@ namespace UAVP.UAVPSet
             configwindow.ShowDialog();
         }
 
-        
-        /// <summary>
-        /// Laden der Parameterwerte
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void configLadenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //Filter auf Setupdateien
@@ -611,34 +595,19 @@ namespace UAVP.UAVPSet
             }
         }
 
-        /// <summary>
-        /// allgemeine Funktion um alle Felder upzudaten
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private void feldUpdaten_Click_KeyDown(object sender, EventArgs e)
         {
             parameterSets.feldUpdaten(sender, this);
             BatteryValue1Label.Text = (Decimal.Round(Battery1NumericUpDown.Value * 0.2m, 1)).ToString(); // 0.2V units
         }
 
-
-        /// <summary>
-        /// allgemeine Funktion um alle Felder upzudaten
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void feldUpdaten_KeyDown(object sender, KeyEventArgs e)
         {
             parameterSets.feldUpdaten(sender, this);
             BatteryValue1Label.Text = (Decimal.Round(Battery1NumericUpDown.Value * 0.2m, 1)).ToString(); // 0.2V units
         }
 
-        /// <summary>
-        /// speichern der Parameter
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void configSpeichernToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //Filter auf Setupdateine
@@ -652,23 +621,13 @@ namespace UAVP.UAVPSet
                 Properties.Settings.Default.saveFolder = parameterSaveFileDialog.InitialDirectory;
             }
         }
-
-        /// <summary>
-        /// anzeige von Programminfos
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+ 
         private void infoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Info info = new Info();
             info.ShowDialog();
         }
 
-        /// <summary>
-        /// anzeige der Hilfe für die Werte
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void infoGetFocus(object sender, EventArgs e)
         {
             Hilfe.info(this);
@@ -679,11 +638,6 @@ namespace UAVP.UAVPSet
             }
         }
 
-        /// <summary>
-        /// anzeige der Configuration
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void logLevelToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Configuration configwindow = new Configuration(this);
@@ -739,9 +693,6 @@ namespace UAVP.UAVPSet
                 burn();
         }
         
-        /// <summary>
-        /// auslager für brunPicToolStripMenuItem_Click
-        /// </summary>
         void burn()
         {
             //Hex laden
@@ -851,8 +802,6 @@ namespace UAVP.UAVPSet
 
         }
 
-      
-
         private void SenseButton0_Click(object sender, EventArgs e)
         {
             SenseButton[0] = !SenseButton[0];
@@ -895,7 +844,32 @@ namespace UAVP.UAVPSet
             parameterSets.feldUpdaten(sender, this);
         }
 
-    
+        private void PPMPolarityButton_Click(object sender, EventArgs e)
+        {
+            SenseButton[6] = !SenseButton[6];
+            infoTextBox.Text = "Blue is negative polarity";
+            parameterSets.feldUpdaten(sender, this);
+        }
+
+        private void ColourButton_Click(object sender, System.EventArgs e)
+        {
+            ColorDialog MyDialog = new ColorDialog();
+            // Keeps the user from selecting a custom color.
+            //MyDialog.AllowFullOpen = false;
+            // Allows the user to get help. (The default is false.)
+            MyDialog.ShowHelp = true;
+            // Sets the initial color select to the current text color.
+            MyDialog.Color = tabPageParameterSet1.BackColor;
+
+            if (MyDialog.ShowDialog() == DialogResult.OK)
+            {
+                tabPageParameterSet1.BackColor = MyDialog.Color;
+                tabPageParameterSet2.BackColor = MyDialog.Color;
+                Properties.Settings.Default.Colour = MyDialog.Color;
+            }
+        }
+
+      
      
       
     }
