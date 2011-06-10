@@ -29,7 +29,7 @@
 	//#define RX6CH
 	//#define EXPERIMENTAL
 	//#define TESTING						
-	//#define SIMULATE
+	#define SIMULATE
 	#define QUADROCOPTER
 	//#define TRICOPTER
 	//#define Y6COPTER
@@ -478,7 +478,7 @@ typedef struct { // GPS
 #define MAX_PARAMETERS		64		// parameters in EEPROM start at zero
 
 #define STATS_ADDR_EE	 	( PARAMS_ADDR_EE + (MAX_PARAMETERS *2) )
-#define MAX_STATS			64
+#define MAX_STATS			32 // 64
 
 // uses second Page of EEPROM
 #define NAV_ADDR_EE			256L

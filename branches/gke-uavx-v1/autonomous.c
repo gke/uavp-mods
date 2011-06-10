@@ -204,7 +204,7 @@ void Navigate(int32 NavLatitude, int32 NavLongitude )
 
 	#ifndef TESTING // not used for testing - make space!
 
-	static int16 SinHeading, CosHeading;
+	static int16 SinHeading, CosHeading, NavRadius;
     static int32 Radius;
 	static int24 AltE;
 	static int32 EastDiff, NorthDiff;
@@ -250,14 +250,16 @@ void Navigate(int32 NavLatitude, int32 NavLongitude )
 		SinHeading = int16sin(RelHeading);
 		CosHeading = int16cos(RelHeading);
 		
-		NavE[Roll] = SRS32( Radius * SinHeading, 8); 
-		NavE[Pitch] = -SRS32( Radius * CosHeading, 8);
+		NavRadius = Limit1(Radius, NAV_MAX_ROLL_PITCH);
+
+		NavE[Roll] = SRS32( NavRadius * SinHeading, 8); 
+		NavE[Pitch] = -SRS32( NavRadius * CosHeading, 8);
 		
 		// Roll & Pitch
 		
 		for ( a = 0; a < (uint8)2 ; a++ )
 		{
-			NavP = Limit1(NavE[a], NAV_MAX_ROLL_PITCH);
+			NavP = NavE[a];
 		
 			NavIntE[a] += NavE[a];
 			NavIntE[a] = Limit1(NavIntE[a], (int16)P[NavIntLimit]);
