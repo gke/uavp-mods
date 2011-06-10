@@ -607,7 +607,7 @@ extern void ReadLISLAcc(void);
 extern i16u Ax, Ay, Az;
 extern int8 IntCorr[3];
 extern int8 AccNeutral[3];
-extern int16 Vel[3], Acc[3], Comp[4];
+extern int16 Acc[3], CompAlt;
 extern int8 AccType;
 
 //______________________________________________________________________________________________

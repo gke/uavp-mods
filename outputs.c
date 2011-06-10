@@ -186,7 +186,7 @@ void MixAndLimitMotors(void)
 
 	#ifdef MULTICOPTER
 		if ( State == InFlight )
-			 CurrThrottle += (Comp[DU] + Comp[Alt]); // vertical compensation not optional
+			 CurrThrottle += CompAlt; // vertical compensation not optional
 			
 		Temp = (int16)(OUT_MAXIMUM * 90 + 50) / 100; // 10% headroom for control
 		CurrThrottle = Limit(CurrThrottle, 0, Temp ); 
@@ -215,7 +215,7 @@ void MixAndLimitMotors(void)
 			#endif // Y6COPTER
 		}
 	#else
-		CurrThrottle += Comp[Alt]; // simple - faster to climb with no elevator yet
+		CurrThrottle += CompAlt; // simple - faster to climb with no elevator yet
 		
 		PWM[ThrottleC] = CurrThrottle;
 		PWM[RudderC] = PWMSense[RudderC] * Yl + OUT_NEUTRAL;
