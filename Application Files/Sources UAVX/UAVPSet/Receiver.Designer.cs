@@ -53,6 +53,12 @@ namespace UAVP.UAVPSet
             this.NavSLabel = new System.Windows.Forms.Label();
             this.CamPitchTrimValue = new System.Windows.Forms.Label();
             this.NavSValue = new System.Windows.Forms.Label();
+            this.Ch8TrackBar = new System.Windows.Forms.TrackBar();
+            this.Ch9TrackBar = new System.Windows.Forms.TrackBar();
+            this.Ch9Value = new System.Windows.Forms.Label();
+            this.Ch8Value = new System.Windows.Forms.Label();
+            this.Ch8Label = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ThrottleTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RollTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PitchTrackBar)).BeginInit();
@@ -60,6 +66,8 @@ namespace UAVP.UAVPSet
             ((System.ComponentModel.ISupportInitialize)(this.RTHTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CamPitchTrimTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavSTrackBar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ch8TrackBar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ch9TrackBar)).BeginInit();
             this.SuspendLayout();
             // 
             // ThrottleTrackBar
@@ -111,7 +119,7 @@ namespace UAVP.UAVPSet
             // 
             resources.ApplyResources(this.ThrottleValue, "ThrottleValue");
             this.ThrottleValue.Name = "ThrottleValue";
-            this.ThrottleValue.TextChanged += new System.EventHandler(this.gasLabel_TextChanged);
+            this.ThrottleValue.TextChanged += new System.EventHandler(this.ThrottleLabel_TextChanged);
             // 
             // RollValue
             // 
@@ -214,10 +222,56 @@ namespace UAVP.UAVPSet
             this.NavSValue.Name = "NavSValue";
             this.NavSValue.TextChanged += new System.EventHandler(this.ch7Label_TextChanged);
             // 
+            // Ch8TrackBar
+            // 
+            resources.ApplyResources(this.Ch8TrackBar, "Ch8TrackBar");
+            this.Ch8TrackBar.LargeChange = 10;
+            this.Ch8TrackBar.Maximum = 125;
+            this.Ch8TrackBar.Minimum = -25;
+            this.Ch8TrackBar.Name = "Ch8TrackBar";
+            this.Ch8TrackBar.TickFrequency = 10;
+            // 
+            // Ch9TrackBar
+            // 
+            resources.ApplyResources(this.Ch9TrackBar, "Ch9TrackBar");
+            this.Ch9TrackBar.LargeChange = 10;
+            this.Ch9TrackBar.Maximum = 125;
+            this.Ch9TrackBar.Minimum = -25;
+            this.Ch9TrackBar.Name = "Ch9TrackBar";
+            this.Ch9TrackBar.TickFrequency = 10;
+            // 
+            // Ch9Value
+            // 
+            resources.ApplyResources(this.Ch9Value, "Ch9Value");
+            this.Ch9Value.Name = "Ch9Value";
+            this.Ch9Value.TextChanged += new System.EventHandler(this.Ch9Label_TextChanged);
+            // 
+            // Ch8Value
+            // 
+            resources.ApplyResources(this.Ch8Value, "Ch8Value");
+            this.Ch8Value.Name = "Ch8Value";
+            this.Ch8Value.TextChanged += new System.EventHandler(this.Ch8Label_TextChanged);
+            // 
+            // Ch8Label
+            // 
+            resources.ApplyResources(this.Ch8Label, "Ch8Label");
+            this.Ch8Label.Name = "Ch8Label";
+            // 
+            // label4
+            // 
+            resources.ApplyResources(this.label4, "label4");
+            this.label4.Name = "label4";
+            // 
             // Receiver
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.Ch8Label);
+            this.Controls.Add(this.Ch9Value);
+            this.Controls.Add(this.Ch8Value);
+            this.Controls.Add(this.Ch9TrackBar);
+            this.Controls.Add(this.Ch8TrackBar);
             this.Controls.Add(this.NavSValue);
             this.Controls.Add(this.CamPitchTrimValue);
             this.Controls.Add(this.NavSLabel);
@@ -252,6 +306,8 @@ namespace UAVP.UAVPSet
             ((System.ComponentModel.ISupportInitialize)(this.RTHTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CamPitchTrimTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NavSTrackBar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ch8TrackBar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ch9TrackBar)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -282,6 +338,12 @@ namespace UAVP.UAVPSet
         private System.Windows.Forms.Label NavSLabel;
         public System.Windows.Forms.Label CamPitchTrimValue;
         public System.Windows.Forms.Label NavSValue;
+        private System.Windows.Forms.TrackBar Ch8TrackBar;
+        private System.Windows.Forms.TrackBar Ch9TrackBar;
+        public System.Windows.Forms.Label Ch9Value;
+        public System.Windows.Forms.Label Ch8Value;
+        private System.Windows.Forms.Label Ch8Label;
+        private System.Windows.Forms.Label label4;
 
     }
 }
