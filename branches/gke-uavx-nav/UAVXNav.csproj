@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UAVXNav</RootNamespace>
-    <AssemblyName>UAVXNav 1.02</AssemblyName>
+    <AssemblyName>UAVXNav 1.3</AssemblyName>
     <ApplicationIcon>uavpset.ico</ApplicationIcon>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -18,11 +18,11 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <ManifestCertificateThumbprint>9EDD257F12BF8F7140AFC1945DC5BAB91537359A</ManifestCertificateThumbprint>
-    <ManifestKeyFile>ArduPilotConfigToolUAVX_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestCertificateThumbprint>EDF35E8E1AC342131F0857E2DD311CE977EA3E26</ManifestCertificateThumbprint>
+    <ManifestKeyFile>UAVXNav_TemporaryKey.pfx</ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
     <SignManifests>true</SignManifests>
-    <PublishUrl>C:\Program Files\UAVXNav 1.02\</PublishUrl>
+    <PublishUrl>C:\Program Files\UAVXNav Publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -33,12 +33,12 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <TargetCulture>en-AU</TargetCulture>
-    <ProductName>UAVXNav 1.02</ProductName>
+    <ProductName>UAVXNav 1.3</ProductName>
     <PublisherName>gke</PublisherName>
     <SuiteName>UAVX</SuiteName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>7</ApplicationRevision>
-    <ApplicationVersion>1.2.0.%2a</ApplicationVersion>
+    <ApplicationRevision>13</ApplicationRevision>
+    <ApplicationVersion>1.3.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -136,6 +136,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="UAVXNav_TemporaryKey.pfx" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
