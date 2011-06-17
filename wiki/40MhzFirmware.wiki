@@ -1,11 +1,9 @@
-#labels UAVX,GKE,40MHZ
+#labels UAVX,gke,jesolins,40MHz
 = 40MHz Versions of UAVX =
 
 == WARNING - READ THIS OR YOU MAY TRASH YOUR UAVP BOARD ==
 
-Do not load load versions of UAVX with "40" in the name if you are still using the original 16Mhz crystal. If you do *YOU WILL NOT BE ABLE TO COMMUNICATE WITH UAVX*.  If you make this mistake will require a PIC programmer to reload A 16Mhz version OF UAVX onto the PIC.
-
-The reason for this is the bootloader cannot determine the correct speed to talk to UAVPSet.
+Do not load load versions of UAVX with "40" in the name if you are still using the original 16Mhz crystal. If you do *YOU WILL NOT BE ABLE TO COMMUNICATE WITH UAVX*.  If you make this mistake will require a PIC programmer to reload A 16Mhz version of UAVX onto the PIC.
 
 === Using the 40MHz Version ===
 
