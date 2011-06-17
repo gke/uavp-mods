@@ -7,7 +7,7 @@ UAVX PIC V2 and UAVXArm use a direct channel assignment scheme. This Wiki gives 
 
 === Tx/Rx Channel Ordering ===
 
-There are many different orderings of the Rx channels and we need to convert them to a single reference ordering which for UAVX is JR or:
+There are many different orderings of the Tx/Rx channels and to use them we need to convert them to a single reference ordering which for UAVX is:
 
   * 1: Throttle
   * 2: Aileron
@@ -16,8 +16,8 @@ There are many different orderings of the Rx channels and we need to convert the
   * 5: Gear
   * 6: Aux1
   * 7: Aux2
-
-We need to tell UAVX what the actual order is for the particular Tx/Rx combination we are using so let us use Futaba Ch3 as an example
+  * etc.
+Using Futaba Ch3 as an example
 
   * Futaba Th 3 	{2,3,1,4,5,6,7} connect {2, 1, 5, 7} N
 
