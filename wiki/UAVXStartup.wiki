@@ -142,7 +142,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 
 === Tx/Rx in UAVX V2 ===
 
-UAVX V2 uses a more general scheme for setting up the Tx/Rx. You should read TxRxChannelAssignments.
+UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You should read TxRxChannelAssignments.
 
 === Lights and Sirens! ===
   * All of the LEDs are on: Your PIC has no parameters loaded yet. Use Tools->Test Software->D command in UAVPSet to load a default set of parameters. 
