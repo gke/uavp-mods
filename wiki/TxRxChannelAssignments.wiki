@@ -27,7 +27,7 @@ So the 7 channels in the first {} are what you would normally enter in order in 
 
 === UAVP Parallel Decoder ===
 
-The Rx output channels shown in {} after "connect" MUST be used for parallel connections from the Rx to the UAVP board. The order of the channels does not matter but if you use other channels it will simply not work. 
+The Rx output channels shown in {} after "connect" MUST be used for parallel connections from the Rx to the UAVP board. The order of the channels does not matter but if you use any other channels it will simply not work. 
 
 === External Decoder ===
 
