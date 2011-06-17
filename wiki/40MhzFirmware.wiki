@@ -12,7 +12,7 @@ In order to use the 40Mhz UAVX firmware, you MUST do two things:
   # remove the 16MHz crystal and replace it with a 10MHz crystal and
   # use a PIC programmer to do the first load of a 40MHz version.
 
-The 40MHz versions while not extensively tested will give better performance particularly for smaller (decreased motor spacing) more agile quads.
+The 40MHz versions, while not extensively tested, are likely to give better performance particularly for smaller (decreased motor spacing) more agile quads.
 
 See the "File Versions" paragraph in the UAVXStartup document in the WIKI for further details on the naming of the UAVX hex files.
 
