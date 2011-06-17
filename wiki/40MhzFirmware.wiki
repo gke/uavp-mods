@@ -3,7 +3,7 @@
 
 == WARNING - READ THIS OR YOU MAY TRASH YOUR UAVP BOARD ==
 
-Do not load load versions of UAVX with "40" in the name if you are still using the original 16Mhz crystal. If you do *YOU WILL NOT BE ABLE TO COMMUNICATE WITH UAVX*.  If you make this mistake will require a PIC programmer to reload A 16Mhz version of UAVX onto the PIC.
+Do not load load versions of UAVX with "40" in the name if you are still using the original 16Mhz crystal. If you do *YOU WILL NOT BE ABLE TO COMMUNICATE WITH UAVX*.  If you make this mistake you will require a PIC programmer to reload A 16Mhz version of UAVX onto the PIC.
 
 === Using the 40MHz Version ===
 
