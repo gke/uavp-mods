@@ -10,7 +10,7 @@ Do not load load versions of UAVX with "40" in the name if you are still using t
 In order to use the 40Mhz UAVX firmware, you MUST do two things:
 
   # remove the 16MHz crystal and replace it with a 10MHz crystal and
-  # use a PIC programmer to do the first load of a 40MHz version.
+  # use a PIC programmer to do the first load of a 40MHz version onto your PIC ( or obtain one ready programmed from www.quadroufo.com ).
 
 The 40MHz versions, while not extensively tested, are likely to give better performance particularly for smaller (decreased motor spacing) more agile quads.
 
