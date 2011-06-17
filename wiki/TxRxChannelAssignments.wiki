@@ -17,9 +17,9 @@ There are many different orderings of the Rx channels and we need to convert the
   * 6: Aux1
   * 7: Aux2
 
-We need to tell UAVX what the actual order is so let us use Futaba Ch3 as an example
+We need to tell UAVX what the actual order is for the particular Tx/Rx combination we are using so let us use Futaba Ch3 as an example
 
-Futaba Th 3 	{2,3,1,4,5,6,7} connect {2, 1, 5, 7} N
+  * Futaba Th 3 	{2,3,1,4,5,6,7} connect {2, 1, 5, 7} N
 
 The channel order is {2,3,1,4,5,6,7} or Aileron, Elevator, Throttle, Rudder etc.
 
