@@ -140,6 +140,10 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 
   * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will need to set the GPS Navigation sensitivity using UAVPSet and will not be able to change it when in flight. You may have to mix Aux1 to Rudder to obtain Yaw control. Be sure to ground the remaining UAVX Rx wire to a ground on your Rx.
 
+=== Tx/Rx in UAVX V2 ===
+
+UAVX V2 uses a more general scheme for setting up the Tx/Rx. You should read TxRxChannelAssignments.
+
 === Lights and Sirens! ===
   * All of the LEDs are on: Your PIC has no parameters loaded yet. Use Tools->Test Software->D command in UAVPSet to load a default set of parameters. 
 
