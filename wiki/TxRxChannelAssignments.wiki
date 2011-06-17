@@ -5,7 +5,7 @@
 
 UAVX PIC V2 and UAVXArm use a direct channel assignment scheme. This Wiki gives the current known channel orders.
 
-== What Does This Mean ==
+=== Tx/Rx Channel Ordering ===
 
 There are many different orderings of the Rx channels and we need to convert them to a single reference ordering which for UAVX is JR or:
 
@@ -39,7 +39,7 @@ The N/P indicates the polarity of signals for composite PPM input.
 
 It is relatively easy to add additional channels to the UAVP board and most external decoders have more. UAVX does not currently require additional channels but has provision for 9 channels in the V2 release. 
 
-== Known Tx/Rx Channel Orderings ==
+=== Known Tx/Rx Channel Orderings ===
 
 Futaba Th 3 	{2,3,1,4,5,6,7} connect {2, 1, 5, 7} N
 
