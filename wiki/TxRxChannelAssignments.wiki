@@ -31,7 +31,7 @@ The Rx output channels shown in {} after "connect" MUST be used for parallel con
 
 === External Decoder ===
 
-There are a number of external decoders which may be connected to any of the UAVX Rx input signal pins. These decoders produce a "packet" of channel values. 
+There are a number of external decoders which may be connected to any of the UAVX Rx input signal pins. These decoders produce composite PPM or a "packet" of channel values. 
 
 The N/P indicates the polarity of signals for composite PPM input.
 
