@@ -1258,30 +1258,37 @@ namespace UAVXGS
                 BaroFailBox.BackColor = System.Drawing.Color.Red;
             else
                 BaroFailBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[1] & 0x02) != 0)
                 AccFailBox.BackColor = System.Drawing.Color.Red;
             else
                 AccFailBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[1] & 0x04) != 0)
                 CompassFailBox.BackColor = System.Drawing.Color.Red;
             else
                 CompassFailBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[1] & 0x08) != 0)
                 GPSFailBox.BackColor = System.Drawing.Color.Red;
             else
                 GPSFailBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[1] & 0x10) != 0)
                 AttitudeHoldBox.BackColor = System.Drawing.Color.Green;
             else
                 AttitudeHoldBox.BackColor = System.Drawing.Color.LightSteelBlue;
+
             if ((Flags[1] & 0x20) != 0)
                 ThrottleMovingBox.BackColor = System.Drawing.Color.LightSteelBlue;
             else
                 ThrottleMovingBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[1] & 0x40) != 0)
                 HoldingAltBox.BackColor = System.Drawing.Color.Green;
             else
                 HoldingAltBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[1] & 0x80) != 0)
                 NavigateBox.BackColor = System.Drawing.Color.Green;
             else
@@ -1296,18 +1303,22 @@ namespace UAVXGS
                 ProximityBox.BackColor = System.Drawing.Color.Green;
             else
                 ProximityBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[2] & 0x04) != 0)
                 CloseProximityBox.BackColor = System.Drawing.Color.Green;
             else
                 CloseProximityBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[2] & 0x10) != 0)
                 UseRTHAutoDescendBox.BackColor = System.Drawing.Color.Green;
             else
                 UseRTHAutoDescendBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[2] & 0x20) != 0)
                 BaroAltValidBox.BackColor = System.Drawing.Color.Green;
             else
                 BaroAltValidBox.BackColor = FlagsGroupBox.BackColor;
+
             if ((Flags[2] & 0x40) != 0)
             {
                 RangefinderAltValidBox.BackColor = System.Drawing.Color.Green;
@@ -1344,7 +1355,7 @@ namespace UAVXGS
                 if ((Flags[3] & 0x80) != 0)
                     SticksFrozenBox.BackColor = System.Drawing.Color.Orange;
                 else
-                    SticksFrozenBox.BackColor = System.Drawing.Color.Green;
+                    SticksFrozenBox.BackColor = FlagsGroupBox.BackColor;
             }
             else
             {
@@ -1642,7 +1653,6 @@ namespace UAVXGS
         {
             ROC.Text = string.Format("{0:n1}", (float)ROCT * 0.01);
             RelBaroAltitude.Text = string.Format("{0:n1}", (float)RelBaroAltitudeT * 0.01);
-
             if ( (RelBaroAltitudeT * 0.01) > MaximumAltitudeLimit)
                 RelBaroAltitude.BackColor = System.Drawing.Color.Orange;
             else
@@ -1654,10 +1664,9 @@ namespace UAVXGS
                 ROC.BackColor = AltitudeGroupBox.BackColor;
 
             RangefinderAltitude.Text = string.Format("{0:n2}", (float)RangefinderAltitudeT * 0.01);
-
             if ((Flags[2] & 0x80) != 0)
             {
-                CurrAlt = RangefinderAltitudeT * 0.01;
+                CurrAlt = RangefinderAltitudeT;
                 AltitudeSource.Text = "Rangefinder";
             }
             else
@@ -1913,7 +1922,7 @@ namespace UAVXGS
                     GPSMinHDiluteS.Text = string.Format("{0:n2}", (float)Stats[MinHDiluteX] * 0.01);
                     GPSMaxHDiluteS.Text = string.Format("{0:n2}", (float)Stats[MaxHDiluteX] * 0.01);
 
-                    BaroRelAltitudeS.Text = string.Format("{0:n1}", (float)Stats[BaroRelAltitudeX] * 0.1);
+                    BaroRelAltitudeS.Text = string.Format("{0:n1}", (float)Stats[BaroRelAltitudeX] * 0.01);
                     BaroMinROCS.Text = string.Format("{0:n1}", (float)Stats[MinROCX] * 0.01);
                     BaroMaxROCS.Text = string.Format("{0:n1}", (float)Stats[MaxROCX] * 0.01);
                     MinTempS.Text = string.Format("{0:n1}", (float)Stats[MinTempX] * 0.1);
@@ -1925,6 +1934,53 @@ namespace UAVXGS
 
                     DoOrientation();
 
+                    if (Stats[AccFailsX] > 0)
+                        AccFailS.BackColor = System.Drawing.Color.Red;
+                    else
+                        AccFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                    if (Stats[GyroFailsX] > 0)
+                        GyroFailS.BackColor = System.Drawing.Color.Orange;
+                    else
+                        GyroFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                    if (Stats[CompassFailsX] > 50)
+                        CompassFailS.BackColor = System.Drawing.Color.Red;
+                    else
+                        if (Stats[CompassFailsX] > 5)
+                            CompassFailS.BackColor = System.Drawing.Color.Orange;
+                        else
+                            CompassFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                    if (Stats[BaroFailsX] > 50)
+                        BaroFailS.BackColor = System.Drawing.Color.Red;
+                    else
+                        if (Stats[BaroFailsX] > 5)
+                            BaroFailS.BackColor = System.Drawing.Color.Orange;
+                        else
+                            BaroFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                    if (Stats[GPSInvalidX] > 20)
+                        GPSFailS.BackColor = System.Drawing.Color.Red;
+                    else
+                        if (Stats[GPSInvalidX] > 5)
+                            GPSFailS.BackColor = System.Drawing.Color.Orange;
+                        else
+                            GPSFailS.BackColor = GPSStatsGroupBox.BackColor;
+
+                    if (Stats[MaxHDiluteX] > 150)
+                        GPSMaxHDiluteS.BackColor = System.Drawing.Color.Red;
+                    else
+                        GPSMaxHDiluteS.BackColor = GPSStatsGroupBox.BackColor;
+/*
+                    if (Stats[RCFailSafesX] > 20)
+                        RCGlitchesS.BackColor = System.Drawing.Color.Red;
+                    else
+                        if (Stats[RCFailSafesX] > 5)
+                            RCGlitchesS.BackColor = System.Drawing.Color.Orange;
+                        else
+                            RCGlitchesS.BackColor = GPSStatsGroupBox.BackColor;
+*/
                     break;
                 case UAVXFlightPacketTag:
                     FlightPacketsReceived++;
@@ -2075,10 +2131,13 @@ namespace UAVXGS
                         GPSFix.BackColor = GPSStatBox.BackColor;
 
                     GPSHDilute.Text = string.Format("{0:n2}", (float)GPSHDiluteT * 0.01);
-                    if (GPSHDiluteT > 130)
-                        GPSHDilute.BackColor = System.Drawing.Color.Orange;
+                    if (GPSHDiluteT > 150)
+                        GPSHDilute.BackColor = System.Drawing.Color.Red;
                     else
-                        GPSHDilute.BackColor = GPSStatBox.BackColor;
+                        if (GPSHDiluteT > 130)
+                            GPSHDilute.BackColor = System.Drawing.Color.Orange;
+                        else
+                            GPSHDilute.BackColor = GPSStatBox.BackColor;
 
                     CurrWP.Text = string.Format("{0:n0}", CurrWPT);
                     //pad1.Text = string.Format("{0:n0}", ExtractByte(ref UAVXPacket, 7));
@@ -2088,7 +2147,7 @@ namespace UAVXGS
                     UpdateAltitude();
 
                     GPSVel.Text = string.Format("{0:n1}", (double)GPSVelT * 0.1); // dM/Sec
-                    //GPSROC.Text = string.Format("{0:n1}", (float)GPSROCT * 0.1);
+                    //GPSROC.Text = string.Format("{0:n1}", (float)GPSROCT * 0.01);
                     GPSHeading.Text = string.Format("{0:n0}", (float)GPSHeadingT * MILLIRADDEG);
                     GPSRelAltitude.Text = string.Format("{0:n1}", (double)GPSRelAltitudeT * 0.01);
                     GPSLongitude.Text = string.Format("{0:n6}", (double)GPSLongitudeT / 6000000.0);
@@ -2344,7 +2403,7 @@ namespace UAVXGS
             HeadingT * MILLIRADDEG + "," +
             DesiredCourseT * MILLIRADDEG + "," +
             GPSVelT * 0.1 + "," +
-            GPSROCT * 0.1 + "," +
+            GPSROCT * 0.01 + "," +
             GPSRelAltitudeT * 0.01+ "," +
             GPSLatitudeT / 6000000.0 + "," +
             GPSLongitudeT / 6000000.0 + "," +
@@ -2462,6 +2521,22 @@ namespace UAVXGS
         {
             NavForm.Show();
         }
-   
+
+        private void ColourButton_Click(object sender, System.EventArgs e)
+        {
+            ColorDialog MyDialog = new ColorDialog();
+            // Keeps the user from selecting a custom color.
+            //MyDialog.AllowFullOpen = false;
+            // Allows the user to get help. (The default is false.)
+            MyDialog.ShowHelp = true;
+            // Sets the initial color select to the current text color.
+            MyDialog.Color = this.BackColor;
+
+            if (MyDialog.ShowDialog() == DialogResult.OK)
+            {
+                this.BackColor = MyDialog.Color;
+                Properties.Settings.Default.Colour = MyDialog.Color;
+            }
+        }
     }
 }
