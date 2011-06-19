@@ -80,6 +80,7 @@ namespace UAVXNav
             this.StatusGroupBox = new System.Windows.Forms.GroupBox();
             this.cmdWrite = new System.Windows.Forms.Button();
             this.cmdRead = new System.Windows.Forms.Button();
+            this.Airframe = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.statusLabel = new System.Windows.Forms.Label();
             this.ClickMapLabel = new System.Windows.Forms.Label();
@@ -197,11 +198,11 @@ namespace UAVXNav
             this.SaveLogFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.OpenLogFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.eventLog1 = new System.Diagnostics.EventLog();
-            this.Airframe = new System.Windows.Forms.Label();
             this.FlightState = new System.Windows.Forms.Label();
             this.NavState = new System.Windows.Forms.TextBox();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
+            this.ColourButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.M)).BeginInit();
             this.MenuMain.SuspendLayout();
             this.OriginGroupBox.SuspendLayout();
@@ -654,6 +655,16 @@ namespace UAVXNav
             this.cmdRead.UseVisualStyleBackColor = true;
             this.cmdRead.Click += new System.EventHandler(this.cmdRead_Click);
             // 
+            // Airframe
+            // 
+            this.Airframe.AutoSize = true;
+            this.Airframe.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Airframe.Location = new System.Drawing.Point(314, 46);
+            this.Airframe.Name = "Airframe";
+            this.Airframe.Size = new System.Drawing.Size(60, 13);
+            this.Airframe.TabIndex = 152;
+            this.Airframe.Text = "Unknown";
+            // 
             // progressBar1
             // 
             this.progressBar1.Location = new System.Drawing.Point(10, 25);
@@ -714,9 +725,9 @@ namespace UAVXNav
             // 
             // RangeLimitSetting
             // 
-            this.RangeLimitSetting.Location = new System.Drawing.Point(72, 64);
+            this.RangeLimitSetting.Location = new System.Drawing.Point(67, 64);
             this.RangeLimitSetting.Name = "RangeLimitSetting";
-            this.RangeLimitSetting.Size = new System.Drawing.Size(28, 20);
+            this.RangeLimitSetting.Size = new System.Drawing.Size(33, 20);
             this.RangeLimitSetting.TabIndex = 58;
             this.RangeLimitSetting.Text = "100";
             this.RangeLimitSetting.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -1875,16 +1886,6 @@ namespace UAVXNav
             // 
             this.eventLog1.SynchronizingObject = this;
             // 
-            // Airframe
-            // 
-            this.Airframe.AutoSize = true;
-            this.Airframe.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Airframe.Location = new System.Drawing.Point(314, 46);
-            this.Airframe.Name = "Airframe";
-            this.Airframe.Size = new System.Drawing.Size(60, 13);
-            this.Airframe.TabIndex = 152;
-            this.Airframe.Text = "Unknown";
-            // 
             // FlightState
             // 
             this.FlightState.AutoSize = true;
@@ -1923,12 +1924,24 @@ namespace UAVXNav
             this.attitudeIndicatorInstrumentControl1.TabIndex = 59;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
             // 
+            // ColourButton
+            // 
+            this.ColourButton.BackColor = System.Drawing.Color.White;
+            this.ColourButton.Location = new System.Drawing.Point(832, 0);
+            this.ColourButton.Name = "ColourButton";
+            this.ColourButton.Size = new System.Drawing.Size(70, 23);
+            this.ColourButton.TabIndex = 156;
+            this.ColourButton.Text = "Colour";
+            this.ColourButton.UseVisualStyleBackColor = false;
+            this.ColourButton.Click += new System.EventHandler(this.ColourButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1014, 659);
+            this.Controls.Add(this.ColourButton);
             this.Controls.Add(this.NavState);
             this.Controls.Add(this.FlightState);
             this.Controls.Add(this.WhereGroupBox);
@@ -2163,6 +2176,7 @@ namespace UAVXNav
         private System.Windows.Forms.Label GPSFixLabel;
         private System.Windows.Forms.Label GPSFix;
         private System.Windows.Forms.TextBox NavState;
+        private System.Windows.Forms.Button ColourButton;
     }
 }
 
