@@ -1,0 +1,19 @@
+C:\Users\gke\Desktop\Google GS\obj\Release\ResolveAssemblyReference.cache
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS.AvionicsInstrumentsControls.AvionicsInstrumentsControlsResources.resources
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS.FormMain.resources
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS.Properties.Resources.resources
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS.csproj.GenerateResource.Cache
+C:\Users\gke\Desktop\Google GS\bin\Release\UAVXGS 1.10.exe.config
+C:\Users\gke\Desktop\Google GS\bin\Release\UAVXGS 1.10.exe.manifest
+C:\Users\gke\Desktop\Google GS\bin\Release\UAVXGS 1.10.application
+C:\Users\gke\Desktop\Google GS\bin\Release\UAVXGS 1.10.exe
+C:\Users\gke\Desktop\Google GS\bin\Release\UAVXGS 1.10.pdb
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS 1.10.TrustInfo.xml
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS 1.10.exe.manifest
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS 1.10.application
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS 1.10.exe
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS 1.10.pdb
+C:\Users\gke\Desktop\Google GS\obj\Release\Interop.EARTHLib.dll
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS.csproj.ResolveComReference.cache
+C:\Users\gke\Desktop\Google GS\obj\Release\UAVXGS.UAVXNavForm.resources
+C:\Users\gke\Desktop\Google GS\bin\Release\Interop.EARTHLib.dll

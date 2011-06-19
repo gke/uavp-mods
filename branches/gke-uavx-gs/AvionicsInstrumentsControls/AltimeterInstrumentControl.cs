@@ -109,7 +109,7 @@ namespace Instruments
         /// Define the physical value to be displayed on the indicator
         /// </summary>
         /// <param name="aircraftAltitude">The aircraft altitude in ft</param>
-        public void SetAlimeterParameters(int aircraftAltitude)
+        public void SetAltimeterParameters(int aircraftAltitude)
         {
             altitude = aircraftAltitude;
 

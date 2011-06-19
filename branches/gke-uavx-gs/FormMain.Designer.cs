@@ -266,6 +266,7 @@ namespace UAVXGS
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
+            this.ColourButton = new System.Windows.Forms.Button();
             this.GyroGroupBox.SuspendLayout();
             this.ControlsGroupBox.SuspendLayout();
             this.AttitudeGroupBox.SuspendLayout();
@@ -2687,12 +2688,25 @@ namespace UAVXGS
             this.attitudeIndicatorInstrumentControl1.TabIndex = 3;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
             // 
+            // ColourButton
+            // 
+            this.ColourButton.BackColor = System.Drawing.Color.White;
+            this.ColourButton.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.ColourButton.Location = new System.Drawing.Point(776, 0);
+            this.ColourButton.Name = "ColourButton";
+            this.ColourButton.Size = new System.Drawing.Size(63, 23);
+            this.ColourButton.TabIndex = 171;
+            this.ColourButton.Text = "Colour";
+            this.ColourButton.UseVisualStyleBackColor = false;
+            this.ColourButton.Click += new System.EventHandler(this.ColourButton_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(848, 633);
+            this.Controls.Add(this.ColourButton);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.FrSkyBox);
             this.Controls.Add(this.NavCompBox);
@@ -3025,6 +3039,7 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox OutputTot;
         private System.Windows.Forms.Label OutputTotalLabel;
         public System.Windows.Forms.TextBox MessageTextBox;
+        private System.Windows.Forms.Button ColourButton;
     }
 }
 
