@@ -461,23 +461,7 @@ namespace UAVP.UAVPSet
 
         private void bit31CheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (bit31CheckBox.Checked)
-            {
 
-                Ch9NumericUpDown.Visible = true;
-                Ch9Label.Visible = true;
-
-                Ch8NumericUpDown.Visible = true;
-                Ch8Label.Visible = true;
-            }
-            else
-            {
-                Ch9NumericUpDown.Visible = false;
-                Ch9Label.Visible = false;
-
-                Ch8NumericUpDown.Visible = false;
-                Ch8Label.Visible = false;
-            }
             bitTextWechsel(sender);
         }
 
@@ -869,8 +853,70 @@ namespace UAVP.UAVPSet
             }
         }
 
-      
-     
+        private void RxChannels_Changed(object sender, System.EventArgs e)
+        {
+            int Odd;
+
+            Ch6NumericUpDown.Visible = false;
+            Ch6Label.Visible = false;
+
+            Ch7NumericUpDown.Visible = false;
+            Ch7Label.Visible = false;
+
+            Ch8NumericUpDown.Visible = false;
+            Ch8Label.Visible = false;
+
+            Ch9NumericUpDown.Visible = false;
+            Ch9Label.Visible = false;
+
+            RxChannels1NumericUpDown.BackColor = System.Drawing.Color.White;
+
+            if (bit31CheckBox.Checked)
+            {
+                if (RxChannels1NumericUpDown.Value > 5)
+                {
+                    Ch6NumericUpDown.Visible = true;
+                    Ch6Label.Visible = true;
+                }
+                if (RxChannels1NumericUpDown.Value > 6)
+                {
+                    Ch7NumericUpDown.Visible = true;
+                    Ch7Label.Visible = true;
+                }
+                if (RxChannels1NumericUpDown.Value > 7)
+                {
+                    Ch8NumericUpDown.Visible = true;
+                    Ch8Label.Visible = true;
+                }
+                if (RxChannels1NumericUpDown.Value > 8)
+                {
+                    Ch9NumericUpDown.Visible = true;
+                    Ch9Label.Visible = true;
+                }
+
+            }
+            else
+            {
+                Odd = (int)RxChannels1NumericUpDown.Value - ((int)RxChannels1NumericUpDown.Value/2)*2;
+                if ( Odd  == 0 )
+                    RxChannels1NumericUpDown.BackColor = System.Drawing.Color.Orange;
+
+                if (RxChannels1NumericUpDown.Value > 6)
+                {
+                    Ch6NumericUpDown.Visible = true;
+                    Ch6Label.Visible = true;
+                    Ch7NumericUpDown.Visible = true;
+                    Ch7Label.Visible = true;
+                }
+                if (RxChannels1NumericUpDown.Value > 8)
+                {
+                    Ch8NumericUpDown.Visible = true;
+                    Ch8Label.Visible = true;
+                    Ch9NumericUpDown.Visible = true;
+                    Ch9Label.Visible = true;
+                }
+            }
+        }
       
     }
 }

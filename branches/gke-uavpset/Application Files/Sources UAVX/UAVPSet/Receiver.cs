@@ -132,7 +132,7 @@ namespace UAVP.UAVPSet
             // vorherige bereits abgearbeitet ist
             if (work == false)
             {
-                work = true; // auf true setzten damit der timer die funktion nicht paralell ausführt
+                work = true; 
                 ret = picConnect.askPic(mainForm, "R");
                 if (ret.Count == 0)
                 {

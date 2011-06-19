@@ -234,7 +234,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj0yLjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAADC
-        MgAAAk1TRnQBSQFMAgEBBgEAAVwBBAFcAQQBMAEAATABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        MgAAAk1TRnQBSQFMAgEBBgEAAeQBBAHkAQQBMAEAATABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABwAMAAWADAAEBAQABCAYAAUgYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -1388,6 +1388,33 @@
   <data name="&gt;&gt;label6.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
+  <data name="RxChannels1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
+  </data>
+  <data name="RxChannels1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+    <value>435, 118</value>
+  </data>
+  <data name="RxChannels1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 20</value>
+  </data>
+  <data name="RxChannels1NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+    <value>135</value>
+  </data>
+  <data name="RxChannels1NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+    <value>Right</value>
+  </data>
+  <data name="&gt;&gt;RxChannels1NumericUpDown.Name" xml:space="preserve">
+    <value>RxChannels1NumericUpDown</value>
+  </data>
+  <data name="&gt;&gt;RxChannels1NumericUpDown.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;RxChannels1NumericUpDown.Parent" xml:space="preserve">
+    <value>General1GroupBox</value>
+  </data>
+  <data name="&gt;&gt;RxChannels1NumericUpDown.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <data name="Ch9NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
@@ -1413,7 +1440,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch9NumericUpDown.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="Ch9Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1443,7 +1470,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch9Label.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
   </data>
   <data name="Ch8NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1470,7 +1497,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch8NumericUpDown.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="Ch8Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1500,7 +1527,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch8Label.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>4</value>
   </data>
   <data name="PPMPolarityButton.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1509,7 +1536,7 @@
     <value>Off</value>
   </data>
   <data name="PPMPolarityButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>423, 121</value>
+    <value>412, 121</value>
   </data>
   <data name="PPMPolarityButton.Size" type="System.Drawing.Size, System.Drawing">
     <value>13, 15</value>
@@ -1527,7 +1554,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;PPMPolarityButton.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>5</value>
   </data>
   <data name="Ch6NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1554,7 +1581,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch6NumericUpDown.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>6</value>
   </data>
   <data name="Ch3NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1581,7 +1608,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch3NumericUpDown.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>7</value>
   </data>
   <data name="Ch6Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1611,7 +1638,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch6Label.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>8</value>
   </data>
   <data name="Ch3Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1641,7 +1668,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch3Label.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>9</value>
   </data>
   <data name="Ch5NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1668,7 +1695,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch5NumericUpDown.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>10</value>
   </data>
   <data name="Ch2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1695,7 +1722,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch2NumericUpDown.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>11</value>
   </data>
   <data name="Ch5Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1725,7 +1752,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch5Label.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>12</value>
   </data>
   <data name="RollChLabel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1755,7 +1782,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;RollChLabel.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>13</value>
   </data>
   <data name="Ch7NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1782,7 +1809,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch7NumericUpDown.ZOrder" xml:space="preserve">
-    <value>13</value>
+    <value>14</value>
   </data>
   <data name="Ch4NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1809,7 +1836,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch4NumericUpDown.ZOrder" xml:space="preserve">
-    <value>14</value>
+    <value>15</value>
   </data>
   <data name="Ch1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1836,7 +1863,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>15</value>
+    <value>16</value>
   </data>
   <data name="Ch4Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1866,7 +1893,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch4Label.ZOrder" xml:space="preserve">
-    <value>16</value>
+    <value>17</value>
   </data>
   <data name="ThrottleChLabel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1896,7 +1923,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;ThrottleChLabel.ZOrder" xml:space="preserve">
-    <value>17</value>
+    <value>18</value>
   </data>
   <data name="Ch7Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1926,7 +1953,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Ch7Label.ZOrder" xml:space="preserve">
-    <value>18</value>
+    <value>19</value>
   </data>
   <data name="BaroAccComp1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1956,7 +1983,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;BaroAccComp1Label.ZOrder" xml:space="preserve">
-    <value>19</value>
+    <value>20</value>
   </data>
   <data name="Orientation1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -1983,7 +2010,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Orientation1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>20</value>
+    <value>21</value>
   </data>
   <data name="BaroAccComp1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2010,7 +2037,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;BaroAccComp1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>21</value>
+    <value>22</value>
   </data>
   <data name="Orientation1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2040,7 +2067,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Orientation1Label.ZOrder" xml:space="preserve">
-    <value>22</value>
+    <value>23</value>
   </data>
   <data name="CompassOffset1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2067,7 +2094,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;CompassOffset1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>23</value>
+    <value>24</value>
   </data>
   <data name="Sense51Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2097,7 +2124,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense51Button.ZOrder" xml:space="preserve">
-    <value>24</value>
+    <value>25</value>
   </data>
   <data name="CompassOffset1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2127,7 +2154,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;CompassOffset1Label.ZOrder" xml:space="preserve">
-    <value>25</value>
+    <value>26</value>
   </data>
   <data name="Sense41Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2157,7 +2184,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense41Button.ZOrder" xml:space="preserve">
-    <value>26</value>
+    <value>27</value>
   </data>
   <data name="Sense21Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2187,7 +2214,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense21Button.ZOrder" xml:space="preserve">
-    <value>27</value>
+    <value>28</value>
   </data>
   <data name="Sense31Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2217,7 +2244,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense31Button.ZOrder" xml:space="preserve">
-    <value>28</value>
+    <value>29</value>
   </data>
   <data name="Sense11Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2247,7 +2274,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense11Button.ZOrder" xml:space="preserve">
-    <value>29</value>
+    <value>30</value>
   </data>
   <data name="PWMSenseLabel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2277,7 +2304,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;PWMSenseLabel.ZOrder" xml:space="preserve">
-    <value>30</value>
+    <value>31</value>
   </data>
   <data name="Sense01Button.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2304,7 +2331,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;Sense01Button.ZOrder" xml:space="preserve">
-    <value>31</value>
+    <value>32</value>
   </data>
   <data name="GPSGain1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2334,7 +2361,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;GPSGain1Label.ZOrder" xml:space="preserve">
-    <value>32</value>
+    <value>33</value>
   </data>
   <data name="labelTelemetry1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2364,7 +2391,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;labelTelemetry1.ZOrder" xml:space="preserve">
-    <value>33</value>
+    <value>34</value>
   </data>
   <data name="TelemetryComboBox1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2412,7 +2439,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;TelemetryComboBox1.ZOrder" xml:space="preserve">
-    <value>34</value>
+    <value>35</value>
   </data>
   <data name="bit11CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2445,7 +2472,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit11CheckBox.ZOrder" xml:space="preserve">
-    <value>35</value>
+    <value>36</value>
   </data>
   <data name="bit6Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2475,7 +2502,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit6Header1Label.ZOrder" xml:space="preserve">
-    <value>36</value>
+    <value>37</value>
   </data>
   <data name="GPSGain1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2502,7 +2529,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;GPSGain1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>37</value>
+    <value>38</value>
   </data>
   <data name="bit61CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2535,7 +2562,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit61CheckBox.ZOrder" xml:space="preserve">
-    <value>38</value>
+    <value>39</value>
   </data>
   <data name="bit1Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2565,7 +2592,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit1Header1Label.ZOrder" xml:space="preserve">
-    <value>39</value>
+    <value>40</value>
   </data>
   <data name="HoverThrottle1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2592,7 +2619,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;HoverThrottle1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>40</value>
+    <value>41</value>
   </data>
   <data name="LabelHoverThrottle1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2622,7 +2649,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;LabelHoverThrottle1.ZOrder" xml:space="preserve">
-    <value>41</value>
+    <value>42</value>
   </data>
   <data name="bit2Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2652,7 +2679,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit2Header1Label.ZOrder" xml:space="preserve">
-    <value>42</value>
+    <value>43</value>
   </data>
   <data name="bit21CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2685,7 +2712,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit21CheckBox.ZOrder" xml:space="preserve">
-    <value>43</value>
+    <value>44</value>
   </data>
   <data name="bit5Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2715,7 +2742,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit5Header1Label.ZOrder" xml:space="preserve">
-    <value>44</value>
+    <value>45</value>
   </data>
   <data name="bit51CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2748,7 +2775,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit51CheckBox.ZOrder" xml:space="preserve">
-    <value>45</value>
+    <value>46</value>
   </data>
   <data name="labelGyros1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2778,7 +2805,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;labelGyros1.ZOrder" xml:space="preserve">
-    <value>46</value>
+    <value>47</value>
   </data>
   <data name="labelESC1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2808,7 +2835,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;labelESC1.ZOrder" xml:space="preserve">
-    <value>47</value>
+    <value>48</value>
   </data>
   <data name="GyroComboBox1.AutoCompleteCustomSource" xml:space="preserve">
     <value>MLX90609-R2</value>
@@ -2886,7 +2913,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;GyroComboBox1.ZOrder" xml:space="preserve">
-    <value>48</value>
+    <value>49</value>
   </data>
   <data name="ESCComboBox1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2928,7 +2955,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;ESCComboBox1.ZOrder" xml:space="preserve">
-    <value>49</value>
+    <value>50</value>
   </data>
   <data name="NavMagVar1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -2955,7 +2982,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;NavMagVar1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>50</value>
+    <value>51</value>
   </data>
   <data name="labelNavMagVar1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2985,7 +3012,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;labelNavMagVar1.ZOrder" xml:space="preserve">
-    <value>51</value>
+    <value>52</value>
   </data>
   <data name="LowMotorRun1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -3012,7 +3039,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;LowMotorRun1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>52</value>
+    <value>53</value>
   </data>
   <data name="LowMotorRun1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3042,7 +3069,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;LowMotorRun1Label.ZOrder" xml:space="preserve">
-    <value>53</value>
+    <value>54</value>
   </data>
   <data name="BaroScale1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
@@ -3069,7 +3096,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;BaroScale1NumericUpDown.ZOrder" xml:space="preserve">
-    <value>54</value>
+    <value>55</value>
   </data>
   <data name="BaroScale1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3099,7 +3126,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;BaroScale1Label.ZOrder" xml:space="preserve">
-    <value>55</value>
+    <value>56</value>
   </data>
   <data name="bit41CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3132,7 +3159,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit41CheckBox.ZOrder" xml:space="preserve">
-    <value>56</value>
+    <value>57</value>
   </data>
   <data name="bit4Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3162,7 +3189,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit4Header1Label.ZOrder" xml:space="preserve">
-    <value>57</value>
+    <value>58</value>
   </data>
   <data name="bit31CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3195,7 +3222,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit31CheckBox.ZOrder" xml:space="preserve">
-    <value>58</value>
+    <value>59</value>
   </data>
   <data name="bit3Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3225,7 +3252,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit3Header1Label.ZOrder" xml:space="preserve">
-    <value>59</value>
+    <value>60</value>
   </data>
   <data name="bit01CheckBox.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3258,7 +3285,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit01CheckBox.ZOrder" xml:space="preserve">
-    <value>60</value>
+    <value>61</value>
   </data>
   <data name="bit0Header1Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3288,7 +3315,7 @@
     <value>General1GroupBox</value>
   </data>
   <data name="&gt;&gt;bit0Header1Label.ZOrder" xml:space="preserve">
-    <value>61</value>
+    <value>62</value>
   </data>
   <data name="General1GroupBox.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt</value>
@@ -6816,7 +6843,7 @@
     <value>True</value>
   </metadata>
   <metadata name="toolStripMain.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>259, 0</value>
+    <value>3, 0</value>
   </metadata>
   <data name="toolStripMain.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>None</value>
@@ -6912,7 +6939,7 @@
     <value>True</value>
   </metadata>
   <metadata name="configToolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>3, 0</value>
+    <value>137, 0</value>
   </metadata>
   <data name="configToolStrip.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>None</value>
@@ -6999,7 +7026,7 @@
     <value>131</value>
   </data>
   <data name="ColourButton.Text" xml:space="preserve">
-    <value>Skin</value>
+    <value>Colour</value>
   </data>
   <data name="&gt;&gt;ColourButton.Name" xml:space="preserve">
     <value>ColourButton</value>
@@ -7420,18 +7447,6 @@
   <data name="&gt;&gt;imageListJobs.Type" xml:space="preserve">
     <value>System.Windows.Forms.ImageList, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;comPortToolStripComboBox.Name" xml:space="preserve">
-    <value>comPortToolStripComboBox</value>
-  </data>
-  <data name="&gt;&gt;comPortToolStripComboBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;versionToolStripComboBox.Name" xml:space="preserve">
-    <value>versionToolStripComboBox</value>
-  </data>
-  <data name="&gt;&gt;versionToolStripComboBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="&gt;&gt;toolStripButton1.Name" xml:space="preserve">
     <value>toolStripButton1</value>
   </data>
@@ -7467,6 +7482,18 @@
   </data>
   <data name="&gt;&gt;set1Set2ToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comPortToolStripComboBox.Name" xml:space="preserve">
+    <value>comPortToolStripComboBox</value>
+  </data>
+  <data name="&gt;&gt;comPortToolStripComboBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;versionToolStripComboBox.Name" xml:space="preserve">
+    <value>versionToolStripComboBox</value>
+  </data>
+  <data name="&gt;&gt;versionToolStripComboBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;infoleisteToolStripStatusLabel.Name" xml:space="preserve">
     <value>infoleisteToolStripStatusLabel</value>
