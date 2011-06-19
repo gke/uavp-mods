@@ -143,6 +143,9 @@ namespace UAVP.UAVPSet
        
                 if (mainForm.TelemetryComboBox1.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("TelemetryType");
+
+                if (mainForm.RxChannels1NumericUpDown.Focused )
+                    mainForm.infoTextBox.Text = mainForm.help.GetString("RxChannels");
   
                 //GPS
 

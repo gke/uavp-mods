@@ -31,8 +31,6 @@ namespace UAVP.UAVPSet
 
         public ParameterSets()
         {
-            // alle Parameter werden vorbereitet
-            //TODO: Erweitern wenn neue Parameter hinzukommen
             for (int i = 0; i < parameterForm1.Length; i++)
             {
                 parameterForm1[i].Chapter = "";
@@ -80,7 +78,6 @@ namespace UAVP.UAVPSet
 
         }
 
-        // farben um die Felder bei update zu markieren
         public enum Farbe { black, green, orange, red };
 
         public struct ParameterSetsStruc
@@ -91,16 +88,12 @@ namespace UAVP.UAVPSet
             public string Chapter;
         }
 
-        //TODO: Array erweitern wenn neue Parameter hinzukommen
-        // Parameter Sets erzeugen für Form
         public ParameterSetsStruc[] parameterForm1 = new ParameterSetsStruc[64];
         public ParameterSetsStruc[] parameterForm2 = new ParameterSetsStruc[64];
-        // für PIC Register 1 und 2
+
         public ParameterSetsStruc[] parameterPic1 = new ParameterSetsStruc[64]; //zzz
         public ParameterSetsStruc[] parameterPic2 = new ParameterSetsStruc[64];
 
-        //namen der Parameter für kurz-Ausgabe
-        //TODO: Array erweitern wenn neue Parameter hinzukommen
         string[] kurzParameter = { "RP","RI","RD","RL","RIL",
                                     "\r\nNP","NI","ND","NL","NIL",
                                     "\r\nGP","GI","GD","GL","GIL",
@@ -116,14 +109,11 @@ namespace UAVP.UAVPSet
 
         public void laden(string pfad, FormMain mainForm)
         {
-            // try / catch wenn fehler beim öffnen oder interpretieren der datei
             try
             {
                 IniReader iniReader = new IniReader(pfad);
-                // log schreiben bei debug
                 Log.write(mainForm, "Load Parameterset: " + pfad, 1);
                 ParameterSetsStruc[] registers = iniReader.GetChapter("ChannelSet");
-                // alle Felder auf rot setzen
                 updateForm(registers, mainForm);
             }
             catch (Exception e)
@@ -138,9 +128,8 @@ namespace UAVP.UAVPSet
             StreamWriter sw = new StreamWriter(pfad, false, Encoding.GetEncoding("windows-1252"));
             try
             {
-                // header für Datei
+
                 sw.WriteLine("[ChannelSet]");
-                // es wird immer das aktive Tab gespeichert
                 if (mainForm.tabControlParameter.SelectedIndex == 0)
                 {
                     foreach (ParameterSetsStruc register in parameterForm1)
@@ -161,178 +150,57 @@ namespace UAVP.UAVPSet
             }
             finally
             {
-                // datei schließen
                 sw.Close();
             }
-            // log schreiben bei debug
             Log.write(mainForm, "Write Parameterset: " + pfad, 1);
         }
 
         public void feldUpdaten(Object objekt, FormMain mainForm)
         {
-            // wenn es sich um ein Parameter feld handelt
+
             if (objekt.GetType().Name == "NumericUpDown")
             {
                 NumericUpDown feld = (NumericUpDown)objekt;
-                // je nach Parameter TAB
 
                 if (mainForm.tabControlParameter.SelectedIndex == 0)
                 {
-
-                    /*
-                    //feld nur setzen wenn Integral Limit OK ist - sonst return ohne update
-                    if (feld.Tag.ToString() == "5" || feld.Tag.ToString() == "10" || feld.Tag.ToString() == "15")
-                    {
-                        //integral Limit errechnen
-                        int tempValue = Convert.ToInt32(parameterForm1[Convert.ToInt16(feld.Tag) - 4].Value);
-                        if (tempValue < 0)
-                            tempValue = tempValue * -1;
-                        int limitTemp = (int)Math.Floor(127.0 / Convert.ToDouble(tempValue));
-                        
-                        if (limitTemp < Convert.ToInt32(feld.Value))
-                        {
-                            if(limitTemp >= feld.Minimum && limitTemp <= feld.Maximum)
-                                feld.Value = Convert.ToDecimal(parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value);
- 
-                            return;
-                        }  
-                    }
-                  
-                    */
-
                     parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value = feld.Value.ToString();
 
-                    /*
-                    //IntegralLimit berechnen wenn Integral geändert wurde
-                    //Integral limit compensation - reduces limit for larger Ki to keep within 16 bits
-                    if (feld.Tag.ToString() == "2" || feld.Tag.ToString() == "7" || feld.Tag.ToString() == "12")
-                    {
-                        //integral Limit errechnen
-                        int tempValue = Convert.ToInt32(parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value);
-                        if (tempValue < 0)
-                            tempValue = tempValue * -1;
-                        int limitTemp = (int) Math.Floor(127.0 / Convert.ToDouble(tempValue));
-                        
-                        if (limitTemp > 0 && limitTemp < Convert.ToInt32(parameterForm1[Convert.ToInt16(feld.Tag) + 2].Value))
-                        { 
-                            switch (feld.Tag.ToString())
-                            {
-                                case "2":
-                                    mainForm.RollIntLimit1NumericUpDown.Value = limitTemp;
-                                    break;
-                                case "7":
-                                    mainForm.PitchIntLimit1NumericUpDown.Value = limitTemp;
-                                    break;
-                                case "12":
-                                    mainForm.YawIntLimit1NumericUpDown.Value = limitTemp;
-                                    break;
-                            }
-                        }
-                    }
-                     */
 
-                    // wenn es gleich dem PIC wert ist -> wieder grün
-                    //Hier die Idee der Farbdarstellung:
-                    //schwarz: wenn noch keine Daten gelesen wurden (dh nicht so wie jetzt wo die Werte ja rot werden und beim Initialwert grün)
-                    //orange: wenn Pic schon gelesen wurde und die Werte ungeleich den Werten des PICs sind
-                    //grün: wenn Pic gelesen wurde und die Werte gleich dem PIC sind
-                    //rot: wenn Pic geschrieben wurde und die Werte nach nochmaligem lesen nicht gleich sind
-
-                    // wenn pic noch nicht gelesen wurde ist Chapter leer
                     if (parameterPic1[Convert.ToInt16(feld.Tag) - 1].Chapter == "ChannelSet")
-                        // wenn pic schon gelesen wurde ist ein Vergleich notwendig
                         if (parameterForm1[Convert.ToInt16(feld.Tag) - 1].Value ==
                             parameterPic1[Convert.ToInt16(feld.Tag) - 1].Value)
                             feld.ForeColor = Color.Green;
-                        // wenn wert nicht mit PIC ident
                         else
-                            // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                             if (mainForm.writeUpdate == true)
                                 feld.ForeColor = Color.Red;
                             else
                                 feld.ForeColor = Color.Orange;
                     else
-                        // dann wird feld auf black gesetzt
                         feld.ForeColor = Color.Black;
                 }
                 else
                 {
-
-                    /*
-                     * 
-                    //feld nur setzen wenn Integral Limit OK ist - sonst return ohne update
-                    if (feld.Tag.ToString() == "5" || feld.Tag.ToString() == "10" || feld.Tag.ToString() == "15")
-                    {
-                        //integral Limit errechnen
-                        int tempValue = Convert.ToInt32(parameterForm2[Convert.ToInt16(feld.Tag) - 4].Value);
-                        if (tempValue < 0)
-                            tempValue = tempValue * -1;
-                        int limitTemp = (int)Math.Floor(127.0 / Convert.ToDouble(tempValue));
-                        if (limitTemp < Convert.ToInt32(feld.Value))
-                        {
-                            feld.Value = Convert.ToDecimal(parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value);
-                            return;
-                        }
-
-                    }
-                    */
-
                     parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value = feld.Value.ToString();
 
-                    /*
-                    //IntegralLimit berechnen wenn Integral geändert wurde
-                    //Integral limit compensation - reduces limit for larger Ki to keep within 16 bits
-                    if (feld.Tag.ToString() == "2" || feld.Tag.ToString() == "7" || feld.Tag.ToString() == "12")
-                    {
-                        //integral Limit errechnen
-
-                        int tempValue = Convert.ToInt32(parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value);
-                        if (tempValue < 0)
-                            tempValue = tempValue * -1;
-                        int limitTemp = (int)Math.Floor(127.0 / Convert.ToDouble(tempValue));
-                        
-                        if (limitTemp > 0 && limitTemp < Convert.ToInt32(parameterForm2[Convert.ToInt16(feld.Tag) + 2].Value))
-                            switch (feld.Tag.ToString())
-                            {
-                                case "2":
-                                    mainForm.RollIntLimit2NumericUpDown.Value = limitTemp;
-                                    break;
-                                case "7":
-                                    mainForm.PitchIntLimit2NumericUpDown.Value = limitTemp;
-                                    break;
-                                case "12":
-                                    mainForm.YawIntLimit2NumericUpDown.Value = limitTemp;
-                                    break;
-                            }
-                    }
-                    
-                    */
-
-                    // wenn pic noch nicht gelesen wurde ist Chapter leer
                     if (parameterPic2[Convert.ToInt16(feld.Tag) - 1].Chapter == "ChannelSet")
-                        // wenn pic schon gelesen wurde ist ein Vergleich notwendig
                         if (parameterForm2[Convert.ToInt16(feld.Tag) - 1].Value ==
                             parameterPic2[Convert.ToInt16(feld.Tag) - 1].Value)
                             feld.ForeColor = Color.Green;
-                        // wenn wert nicht mit PIC ident
                         else
-                            // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                             if (mainForm.writeUpdate == true)
                                 feld.ForeColor = Color.Red;
                             else
                                 feld.ForeColor = Color.Orange;
                     else
-                        // dann wird feld auf black gesetzt
                         feld.ForeColor = Color.Black;
                 }
             }
-            // wenn es ein BIT Wert ist muss der Parameter Wert errechnet werden
             else
                 if (objekt.GetType().Name == "Button")
                 {
                     Button feld = (Button)objekt;
 
-                    // welches BIT ist betroffen?
                     switch (feld.Name)
                     {
                         case "Sense01Button": // Throttle
@@ -348,21 +216,16 @@ namespace UAVP.UAVPSet
                                     feld.BackColor = Color.White;
                                 }
 
-                            // wenn pic noch nicht gelesen wurde ist Chapter leer
                             if (parameterPic1[51].Chapter == "ChannelSet")
-                                // wenn pic schon gelesen wurde ist ein Vergleich notwendig
                                 if ((Convert.ToInt16(parameterForm1[51].Value) & 1) ==
                                     (Convert.ToInt16(parameterPic1[51].Value) & 1))
                                     feld.ForeColor = Color.Green;
-                                // wenn wert nicht mit PIC ident
                                 else
-                                    // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                                     if (mainForm.writeUpdate == true)
                                         feld.ForeColor = Color.Red;
                                     else
                                         feld.ForeColor = Color.Orange;
                             else
-                                // dann wird feld auf black gesetzt
                                 feld.ForeColor = Color.Black;
 
                             break;
@@ -378,21 +241,16 @@ namespace UAVP.UAVPSet
                                     parameterForm1[51].Value = (Convert.ToInt16(parameterForm1[51].Value) & 253).ToString();
                                     feld.BackColor = Color.White;
                                 }
-                            // wenn pic noch nicht gelesen wurde ist Chapter leer
                             if (parameterPic1[51].Chapter == "ChannelSet")
-                                // wenn pic schon gelesen wurde ist ein Vergleich notwendig
                                 if ((Convert.ToInt16(parameterForm1[51].Value) & 2) ==
                                     (Convert.ToInt16(parameterPic1[51].Value) & 2))
                                     feld.ForeColor = Color.Green;
-                                // wenn wert nicht mit PIC ident
                                 else
-                                    // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                                     if (mainForm.writeUpdate == true)
                                         feld.ForeColor = Color.Red;
                                     else
                                         feld.ForeColor = Color.Orange;
                             else
-                                // dann wird feld auf black gesetzt
                                 feld.ForeColor = Color.Black;
 
                             break;
@@ -408,21 +266,16 @@ namespace UAVP.UAVPSet
                                     parameterForm1[51].Value = (Convert.ToInt16(parameterForm1[51].Value) & 251).ToString();
                                     feld.BackColor = Color.White;
                                 }
-                            // wenn pic noch nicht gelesen wurde ist Chapter leer
                             if (parameterPic1[51].Chapter == "ChannelSet")
-                                // wenn pic schon gelesen wurde ist ein Vergleich notwendig
                                 if ((Convert.ToInt16(parameterForm1[51].Value) & 4) ==
                                     (Convert.ToInt16(parameterPic1[51].Value) & 4))
                                     feld.ForeColor = Color.Green;
-                                // wenn wert nicht mit PIC ident
                                 else
-                                    // wird das Feld beim schreiben upgedatet dann ist das Feld bei fehler rot
                                     if (mainForm.writeUpdate == true)
                                         feld.ForeColor = Color.Red;
                                     else
                                         feld.ForeColor = Color.Orange;
                             else
-                                // dann wird feld auf black gesetzt
                                 feld.ForeColor = Color.Black;
 
                             break;
@@ -1186,9 +1039,9 @@ namespace UAVP.UAVPSet
                             feldUpdaten(mainForm.ESCComboBox1, mainForm);
                             break;
                         case 37:
-                            //         parameterForm1[36].Value = register.Value;
-                            //          mainForm.TxRxComboBox1.SelectedIndex = Convert.ToInt16(register.Value);
-                            //         feldUpdaten(mainForm.TxRxComboBox1, mainForm);
+                            parameterForm1[36].Value = register.Value;
+                            mainForm.RxChannels1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.RxChannels1NumericUpDown, mainForm);
                             break;
                         case 38:
                             parameterForm1[37].Value = register.Value;
@@ -1521,6 +1374,11 @@ namespace UAVP.UAVPSet
                             parameterForm2[55].Value = register.Value;
                             //    mainForm.AltKd2NumericUpDown.Value = Convert.ToInt16(register.Value);
                             //    feldUpdaten(mainForm.AltKd2NumericUpDown, mainForm);
+                            break;
+                        case 58:
+                            parameterForm1[57].Value = register.Value;
+                            mainForm.NavYawLimit2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.NavYawLimit2NumericUpDown, mainForm);
                             break;
                         case 59:
                             parameterForm2[58].Value = register.Value;
