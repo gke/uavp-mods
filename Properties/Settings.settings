@@ -14,5 +14,8 @@
     <Setting Name="COMArmedBaudRate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">9600</Value>
     </Setting>
+    <Setting Name="Colour" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Silver</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
