@@ -5,6 +5,8 @@
 
 UAVX PIC V2 and UAVXArm use a direct channel assignment scheme. This Wiki gives the current known channel orders.
 
+For the initial setup you must *DISARM* the aircraft it is best not to have your Rx connected. This will prevent the stick programming feature from flipping between parameter sets - specifically from parameter set #1 to parameter #2 where the Tx/Rx configuration is not available. 
+
 Make sure the Rx Graphic in UAVPSet shows all of your channels working as you expect *BEFORE ARMING* as having throttle assigned incorrectly can be *DANGEROUS*.
 
 === Tx/Rx Channel Ordering ===
