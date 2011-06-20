@@ -33,7 +33,7 @@ For the Parallel Decoder the Rx must send out its control pulses in order with n
 
 === External Decoder ===
 
-There are a number of external decoders which may be connected to any of the UAVX Rx input signal pins. These decoders produce composite PPM or a "packet" of channel values. 
+There are a number of external decoders which may be connected to any of the UAVX Rx input signal pins. These decoders produce composite PPM or a "packet" of channel values. In this case you can connect the output of the decoder to any of the UAVP signal inputs.
 
 The Neg./Pos. indicates the polarity of signals for composite PPM input. 
 
