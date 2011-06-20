@@ -20,6 +20,7 @@ There are many different orderings of the Tx/Rx channels and to use them we need
 
 Using a Futaba example:
 
+||Tx/Rx||Time Order||Select||Connect||PPM Polarity||
 ||Futaba DM8 & AR7000 	||R,E,A,1,T,G,2||5,3,2,1,6,4,7||R,A,T,2 ||Pos||
 
 So the 5th channel is Throttle, the 3rd is Aileron, the 2nd is Elevator etc.
