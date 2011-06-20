@@ -2726,12 +2726,12 @@ UAVXStatsPacket
                             if (Stats[AccFailsX] > 0)
                                 AccFailS.BackColor = System.Drawing.Color.Red;
                             else
-                                AccFailS.BackColor = GPSStatsGroupBox.BackColor;
+                                AccFailS.BackColor = ErrorStatsGroupBox.BackColor;
 
                             if (Stats[GyroFailsX] > 0)
                                 GyroFailS.BackColor = System.Drawing.Color.Orange;
                             else
-                                GyroFailS.BackColor = GPSStatsGroupBox.BackColor;
+                                GyroFailS.BackColor = ErrorStatsGroupBox.BackColor;
 
                             if (Stats[CompassFailsX] > 50)
                                 CompassFailS.BackColor = System.Drawing.Color.Red;
@@ -2739,7 +2739,7 @@ UAVXStatsPacket
                                 if (Stats[CompassFailsX] > 5)
                                     CompassFailS.BackColor = System.Drawing.Color.Orange;
                                 else
-                                    CompassFailS.BackColor = GPSStatsGroupBox.BackColor;
+                                    CompassFailS.BackColor = ErrorStatsGroupBox.BackColor;
 
                             if (Stats[BaroFailsX] > 50)
                                 BaroFailS.BackColor = System.Drawing.Color.Red;
@@ -2747,7 +2747,7 @@ UAVXStatsPacket
                                 if (Stats[BaroFailsX] > 5)
                                     BaroFailS.BackColor = System.Drawing.Color.Orange;
                                 else
-                                    BaroFailS.BackColor = GPSStatsGroupBox.BackColor;
+                                    BaroFailS.BackColor = ErrorStatsGroupBox.BackColor;
 
                             if (Stats[GPSInvalidX] > 20)
                                 GPSFailS.BackColor = System.Drawing.Color.Red;
@@ -2755,20 +2755,20 @@ UAVXStatsPacket
                                 if (Stats[GPSInvalidX] > 5)
                                     GPSFailS.BackColor = System.Drawing.Color.Orange;
                                 else
-                                    GPSFailS.BackColor = GPSStatsGroupBox.BackColor;
+                                    GPSFailS.BackColor = ErrorStatsGroupBox.BackColor;
 
                             if (Stats[MaxHDiluteX] > 150)
                                 GPSMaxHDiluteS.BackColor = System.Drawing.Color.Red;
                             else
                                 GPSMaxHDiluteS.BackColor = GPSStatsGroupBox.BackColor;
 
-                            if (Stats[RCFailSafesX] > 20)
-                                RCGlitchesS.BackColor = System.Drawing.Color.Red;
+                            if (Stats[RCFailSafesX] > 10)
+                                RCFailSafeS.BackColor = System.Drawing.Color.Red;
                             else
-                                if (Stats[RCFailSafesX] > 5)
-                                    RCGlitchesS.BackColor = System.Drawing.Color.Orange;
+                                if (Stats[RCFailSafesX] > 2)
+                                    RCFailSafeS.BackColor = System.Drawing.Color.Orange;
                                 else
-                                    RCGlitchesS.BackColor = GPSStatsGroupBox.BackColor;
+                                    RCFailSafeS.BackColor = ErrorStatsGroupBox.BackColor;
 
                             break;
                         case UAVXControlPacketTag:
@@ -2831,10 +2831,13 @@ UAVXStatsPacket
                             BatteryCharge.Text = string.Format("{0:n0}", (float)BatteryChargeT); // mAH // converted as it is used on board
 
                             RCGlitchesS.Text = string.Format("{0:n0}", RCGlitchesT);
-                            if ( RCGlitchesT > 20 )
-                                RCGlitchesS.BackColor = System.Drawing.Color.Orange;
+                            if (RCGlitchesT > 20)
+                                RCGlitchesS.BackColor = System.Drawing.Color.Red;
                             else
-                                RCGlitchesS.BackColor = ErrorStatsGroupBox.BackColor;
+                                if (RCGlitchesT > 5)
+                                    RCGlitchesS.BackColor = System.Drawing.Color.Orange;
+                                else
+                                    RCGlitchesS.BackColor = ErrorStatsGroupBox.BackColor;
 
                             /*
                             DesiredThrottle.Text = string.Format("{0:n0}", ((float)DesiredThrottleT * 100.0) / RCMaximum);
