@@ -5,6 +5,8 @@
 
 UAVX PIC V2 and UAVXArm use a direct channel assignment scheme. This Wiki gives the current known channel orders.
 
+Make sure the Rx Graphic in UAVPSet shows all of your channels working as you expect *BEFORE ARMING* as having throttle assigned incorrectly can be *DANGEROUS*.
+
 === Tx/Rx Channel Ordering ===
 
 There are many different orderings of the Tx/Rx channels and to use them we need to convert them to a single reference ordering which for UAVX is:
