@@ -449,7 +449,7 @@ TTH is not active within the closing distance, or radius, of the Origin nor is i
 
 Tx (Mode 2) labeled with Stick and channel options: 
 
-http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3523854-10-UAVX%20Tx%20Stick%20Selections%20jesolins.jpg?d=1286599281 
+http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a4097162-82-UAVX%20Tx%20Stick%20Selections_1.161%20and%20higher%20jesolins.jpg
 
 === Pre-Flight Safety Checklist ===
   * Please review the checklist found in our WIKI and note all warnings prior to flight: [http://code.google.com/p/uavp-mods/wiki/UAVPandUAVXFlightChecklist UAVX Flight Checklist]  
