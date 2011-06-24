@@ -217,18 +217,18 @@ UAVXStatsPacket
 
         byte CurrWPT;                   // 6
 
-        short BaroROCT;                 // 7 
+        int ROCT;                     // 7 
         int RelBaroAltitudeT;           // 9
 
-        short RangefinderROCT;          // 12
-        short RangefinderAltitudeT;     // 14
+        int CruiseThrottleT;          // 12
+        int RangefinderAltitudeT;     // 14
 
         short GPSHDiluteT;              // 16
         short HeadingT;                 // 18
         short DesiredCourseT;           // 20
 
         short GPSVelT;                  // 22
-        short GPSROCT;                  // 24
+        short GPSHeadingT;              // 24
         int GPSRelAltitudeT;            // 26
         int GPSLatitudeT;               // 29
         int GPSLongitudeT;              // 33
@@ -2838,9 +2838,9 @@ UAVXStatsPacket
                                     RCGlitchesS.BackColor = System.Drawing.Color.Orange;
                                 else
                                     RCGlitchesS.BackColor = ErrorStatsGroupBox.BackColor;
-
+ 
+                            DesiredThrottle.Text = string.Format("{0:n0}", (float)DesiredThrottleT * 0.5); //100.0) / RCMaximum);
                             /*
-                            DesiredThrottle.Text = string.Format("{0:n0}", ((float)DesiredThrottleT * 100.0) / RCMaximum);
                             DesiredRoll.Text = string.Format("{0:n0}", ((float)DesiredRollT * 200.0) / RCMaximum);
                             DesiredPitch.Text = string.Format("{0:n0}", ((float)DesiredPitchT * 200.0) / RCMaximum);
                             DesiredYaw.Text = string.Format("{0:n0}", ((float)DesiredYawT * 200.0) / RCMaximum);
@@ -2864,62 +2864,43 @@ UAVXStatsPacket
                         case UAVXNavPacketTag:
 
                             NavStateT = ExtractByte(ref UAVXPacket, 2);
-                            switch (NavStateT)
-                            {
-                                case 0: NavState.Text = "Holding";
-                                        NavState.BackColor = System.Drawing.Color.LightSteelBlue; 
-                                        break;
-                                case 1: NavState.Text = "Returning";
-                                        NavState.BackColor = System.Drawing.Color.Lime;
-                                        break;
-                                case 2: NavState.Text = "Home";
-                                        NavState.BackColor = System.Drawing.Color.Green; 
-                                        break;
-                                case 3: NavState.Text = "Descending";
-                                        NavState.BackColor = System.Drawing.Color.Orange; 
-                                        break;
-                                case 4: NavState.Text = "Touchdown!"; 
-                                        NavState.BackColor = System.Drawing.Color.RosyBrown; 
-                                        break;
-                                case 5: NavState.Text = "Navigating"; 
-                                        NavState.BackColor = System.Drawing.Color.Silver; 
-                                        break;
-                                case 6: NavState.Text = "Loitering"; 
-                                        NavState.BackColor = System.Drawing.Color.Gold; 
-                                        break;
-                                case 7: NavState.Text = "Terminating"; 
-                                        NavState.BackColor = System.Drawing.Color.Red; 
-                                        break;
-                                default: NavState.Text = "Unknown"; break;
-                            } // switch
-                           
                             FailStateT = ExtractByte(ref UAVXPacket, 3);
+
                             UpdateFailState();
+                            UpdateNavState();
 
                             GPSNoOfSatsT = ExtractByte(ref UAVXPacket, 4);
                             GPSFixT = ExtractByte(ref UAVXPacket, 5);
                             CurrWPT = ExtractByte(ref UAVXPacket, 6);
-                            BaroROCT = ExtractShort(ref UAVXPacket, 7);
+                            ROCT = ((int)ROCT * 7 + (int)ExtractShort(ref UAVXPacket, 7)) / 8;
                             RelBaroAltitudeT = ExtractInt24(ref UAVXPacket, 9);
-                            RangefinderROCT = ExtractShort(ref UAVXPacket, 12);
+                            CruiseThrottleT = ExtractShort(ref UAVXPacket, 12);
                             RangefinderAltitudeT = ExtractShort(ref UAVXPacket, 14);
                             GPSHDiluteT = ExtractShort(ref UAVXPacket, 16);
                             HeadingT = ExtractShort(ref UAVXPacket, 18);
                             DesiredCourseT = ExtractShort(ref UAVXPacket, 20);
-
                             GPSVelT = ExtractShort(ref UAVXPacket, 22);
-                            GPSROCT = ExtractShort(ref UAVXPacket, 24);
+                            GPSHeadingT = ExtractShort(ref UAVXPacket, 24);
                             GPSRelAltitudeT = ExtractInt24(ref UAVXPacket, 26);
                             GPSLatitudeT = ExtractInt(ref UAVXPacket, 29);
                             GPSLongitudeT = ExtractInt(ref UAVXPacket, 33);
                             DesiredAltitudeT = ExtractInt24(ref UAVXPacket, 37);
                             DesiredLatitudeT = ExtractInt(ref UAVXPacket, 40);
                             DesiredLongitudeT = ExtractInt(ref UAVXPacket, 44);
-
                             NavStateTimeoutT = ExtractInt24(ref UAVXPacket, 48);
 
                             AmbientTempT = ExtractShort(ref UAVXPacket, 51);
                             GPSMissionTimeT = ExtractInt(ref UAVXPacket, 53);
+
+                            ROC.Text = string.Format("{0:n1}", (float)ROCT * 0.01);
+
+                            if (Math.Abs(DesiredThrottleT - CruiseThrottleT) < 3)
+                                DesiredThrottle.BackColor = System.Drawing.Color.Green;
+                            else
+                                if (Math.Abs(DesiredThrottleT - CruiseThrottleT) < 7)
+                                    DesiredThrottle.BackColor = System.Drawing.Color.LightGreen;
+                                else
+                                    DesiredThrottle.BackColor = NavGroupBox.BackColor;
 
                            GPSNoOfSats.Text = string.Format("{0:n0}", GPSNoOfSatsT);
                            if (GPSNoOfSatsT < 6)
@@ -3371,6 +3352,6 @@ UAVXStatsPacket
                 Properties.Settings.Default.Colour = MyDialog.Color;
             }
         }
-      
+
     }
 }
