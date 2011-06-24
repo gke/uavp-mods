@@ -64,7 +64,6 @@ namespace UAVXGS
             this.GPSNoOfSats = new System.Windows.Forms.TextBox();
             this.FailState = new System.Windows.Forms.TextBox();
             this.GPSRelAltitude = new System.Windows.Forms.TextBox();
-            this.RelAltitudeLabel = new System.Windows.Forms.Label();
             this.ROCLabel = new System.Windows.Forms.Label();
             this.HDiluteLabel = new System.Windows.Forms.Label();
             this.RangefinderAltLabel = new System.Windows.Forms.Label();
@@ -264,9 +263,9 @@ namespace UAVXGS
             this.FrSkyA2 = new System.Windows.Forms.TextBox();
             this.FrSkyA1 = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.ColourButton = new System.Windows.Forms.Button();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
-            this.ColourButton = new System.Windows.Forms.Button();
             this.GyroGroupBox.SuspendLayout();
             this.ControlsGroupBox.SuspendLayout();
             this.AttitudeGroupBox.SuspendLayout();
@@ -550,19 +549,19 @@ namespace UAVXGS
             // 
             // RangefinderAltitude
             // 
-            this.RangefinderAltitude.Location = new System.Drawing.Point(122, 29);
+            this.RangefinderAltitude.Location = new System.Drawing.Point(113, 31);
             this.RangefinderAltitude.Name = "RangefinderAltitude";
             this.RangefinderAltitude.ReadOnly = true;
-            this.RangefinderAltitude.Size = new System.Drawing.Size(32, 20);
+            this.RangefinderAltitude.Size = new System.Drawing.Size(40, 20);
             this.RangefinderAltitude.TabIndex = 43;
             this.RangefinderAltitude.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // RelBaroAltitude
             // 
-            this.RelBaroAltitude.Location = new System.Drawing.Point(84, 29);
+            this.RelBaroAltitude.Location = new System.Drawing.Point(59, 31);
             this.RelBaroAltitude.Name = "RelBaroAltitude";
             this.RelBaroAltitude.ReadOnly = true;
-            this.RelBaroAltitude.Size = new System.Drawing.Size(32, 20);
+            this.RelBaroAltitude.Size = new System.Drawing.Size(48, 20);
             this.RelBaroAltitude.TabIndex = 46;
             this.RelBaroAltitude.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -577,11 +576,14 @@ namespace UAVXGS
             // 
             // ROC
             // 
-            this.ROC.Location = new System.Drawing.Point(84, 55);
+            this.ROC.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ROC.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ROC.Location = new System.Drawing.Point(512, 73);
             this.ROC.Name = "ROC";
             this.ROC.ReadOnly = true;
-            this.ROC.Size = new System.Drawing.Size(32, 20);
+            this.ROC.Size = new System.Drawing.Size(54, 23);
             this.ROC.TabIndex = 49;
+            this.ROC.Text = "0";
             this.ROC.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // GPSNoOfSats
@@ -604,28 +606,20 @@ namespace UAVXGS
             // 
             // GPSRelAltitude
             // 
-            this.GPSRelAltitude.Location = new System.Drawing.Point(46, 29);
+            this.GPSRelAltitude.Location = new System.Drawing.Point(6, 31);
             this.GPSRelAltitude.Name = "GPSRelAltitude";
             this.GPSRelAltitude.ReadOnly = true;
-            this.GPSRelAltitude.Size = new System.Drawing.Size(32, 20);
+            this.GPSRelAltitude.Size = new System.Drawing.Size(47, 20);
             this.GPSRelAltitude.TabIndex = 58;
             this.GPSRelAltitude.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // RelAltitudeLabel
-            // 
-            this.RelAltitudeLabel.AutoSize = true;
-            this.RelAltitudeLabel.Location = new System.Drawing.Point(9, 29);
-            this.RelAltitudeLabel.Name = "RelAltitudeLabel";
-            this.RelAltitudeLabel.Size = new System.Drawing.Size(22, 13);
-            this.RelAltitudeLabel.TabIndex = 62;
-            this.RelAltitudeLabel.Text = "Alt.";
             // 
             // ROCLabel
             // 
             this.ROCLabel.AutoSize = true;
-            this.ROCLabel.Location = new System.Drawing.Point(6, 58);
+            this.ROCLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ROCLabel.Location = new System.Drawing.Point(536, 57);
             this.ROCLabel.Name = "ROCLabel";
-            this.ROCLabel.Size = new System.Drawing.Size(30, 13);
+            this.ROCLabel.Size = new System.Drawing.Size(33, 13);
             this.ROCLabel.TabIndex = 65;
             this.ROCLabel.Text = "ROC";
             // 
@@ -641,7 +635,7 @@ namespace UAVXGS
             // RangefinderAltLabel
             // 
             this.RangefinderAltLabel.AutoSize = true;
-            this.RangefinderAltLabel.Location = new System.Drawing.Point(132, 13);
+            this.RangefinderAltLabel.Location = new System.Drawing.Point(125, 13);
             this.RangefinderAltLabel.Name = "RangefinderAltLabel";
             this.RangefinderAltLabel.Size = new System.Drawing.Size(21, 13);
             this.RangefinderAltLabel.TabIndex = 67;
@@ -678,7 +672,7 @@ namespace UAVXGS
             // GPSAltLabel
             // 
             this.GPSAltLabel.AutoSize = true;
-            this.GPSAltLabel.Location = new System.Drawing.Point(48, 13);
+            this.GPSAltLabel.Location = new System.Drawing.Point(17, 13);
             this.GPSAltLabel.Name = "GPSAltLabel";
             this.GPSAltLabel.Size = new System.Drawing.Size(29, 13);
             this.GPSAltLabel.TabIndex = 74;
@@ -687,7 +681,7 @@ namespace UAVXGS
             // BaroAltitudeLabel
             // 
             this.BaroAltitudeLabel.AutoSize = true;
-            this.BaroAltitudeLabel.Location = new System.Drawing.Point(87, 13);
+            this.BaroAltitudeLabel.Location = new System.Drawing.Point(74, 13);
             this.BaroAltitudeLabel.Name = "BaroAltitudeLabel";
             this.BaroAltitudeLabel.Size = new System.Drawing.Size(29, 13);
             this.BaroAltitudeLabel.TabIndex = 75;
@@ -1328,18 +1322,15 @@ namespace UAVXGS
             // 
             // AltitudeGroupBox
             // 
-            this.AltitudeGroupBox.Controls.Add(this.ROCLabel);
-            this.AltitudeGroupBox.Controls.Add(this.RelAltitudeLabel);
             this.AltitudeGroupBox.Controls.Add(this.RangefinderAltitude);
             this.AltitudeGroupBox.Controls.Add(this.GPSRelAltitude);
-            this.AltitudeGroupBox.Controls.Add(this.ROC);
             this.AltitudeGroupBox.Controls.Add(this.RelBaroAltitude);
             this.AltitudeGroupBox.Controls.Add(this.GPSAltLabel);
             this.AltitudeGroupBox.Controls.Add(this.BaroAltitudeLabel);
             this.AltitudeGroupBox.Controls.Add(this.RangefinderAltLabel);
-            this.AltitudeGroupBox.Location = new System.Drawing.Point(12, 292);
+            this.AltitudeGroupBox.Location = new System.Drawing.Point(12, 316);
             this.AltitudeGroupBox.Name = "AltitudeGroupBox";
-            this.AltitudeGroupBox.Size = new System.Drawing.Size(160, 83);
+            this.AltitudeGroupBox.Size = new System.Drawing.Size(160, 59);
             this.AltitudeGroupBox.TabIndex = 102;
             this.AltitudeGroupBox.TabStop = false;
             this.AltitudeGroupBox.Text = "Altitude";
@@ -1578,9 +1569,9 @@ namespace UAVXGS
             this.CurrentAltitude.BackColor = System.Drawing.SystemColors.Control;
             this.CurrentAltitude.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.CurrentAltitude.Font = new System.Drawing.Font("Microsoft Sans Serif", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CurrentAltitude.Location = new System.Drawing.Point(369, 56);
+            this.CurrentAltitude.Location = new System.Drawing.Point(378, 57);
             this.CurrentAltitude.Name = "CurrentAltitude";
-            this.CurrentAltitude.Size = new System.Drawing.Size(159, 46);
+            this.CurrentAltitude.Size = new System.Drawing.Size(141, 46);
             this.CurrentAltitude.TabIndex = 103;
             this.CurrentAltitude.Text = "-1";
             this.CurrentAltitude.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -2672,6 +2663,18 @@ namespace UAVXGS
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Camera";
             // 
+            // ColourButton
+            // 
+            this.ColourButton.BackColor = System.Drawing.Color.White;
+            this.ColourButton.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.ColourButton.Location = new System.Drawing.Point(776, 0);
+            this.ColourButton.Name = "ColourButton";
+            this.ColourButton.Size = new System.Drawing.Size(63, 23);
+            this.ColourButton.TabIndex = 171;
+            this.ColourButton.Text = "Colour";
+            this.ColourButton.UseVisualStyleBackColor = false;
+            this.ColourButton.Click += new System.EventHandler(this.ColourButton_Click);
+            // 
             // headingIndicatorInstrumentControl1
             // 
             this.headingIndicatorInstrumentControl1.Location = new System.Drawing.Point(369, 368);
@@ -2688,27 +2691,17 @@ namespace UAVXGS
             this.attitudeIndicatorInstrumentControl1.TabIndex = 3;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
             // 
-            // ColourButton
-            // 
-            this.ColourButton.BackColor = System.Drawing.Color.White;
-            this.ColourButton.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.ColourButton.Location = new System.Drawing.Point(776, 0);
-            this.ColourButton.Name = "ColourButton";
-            this.ColourButton.Size = new System.Drawing.Size(63, 23);
-            this.ColourButton.TabIndex = 171;
-            this.ColourButton.Text = "Colour";
-            this.ColourButton.UseVisualStyleBackColor = false;
-            this.ColourButton.Click += new System.EventHandler(this.ColourButton_Click);
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(848, 633);
+            this.Controls.Add(this.ROCLabel);
             this.Controls.Add(this.ColourButton);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.FrSkyBox);
+            this.Controls.Add(this.ROC);
             this.Controls.Add(this.NavCompBox);
             this.Controls.Add(this.ReplayNumericUpDown);
             this.Controls.Add(this.Airframe);
@@ -2839,7 +2832,6 @@ namespace UAVXGS
         private System.Windows.Forms.TextBox GPSNoOfSats;
         private System.Windows.Forms.TextBox FailState;
         private System.Windows.Forms.TextBox GPSRelAltitude;
-        private System.Windows.Forms.Label RelAltitudeLabel;
         private System.Windows.Forms.Label ROCLabel;
         private System.Windows.Forms.Label HDiluteLabel;
         private System.Windows.Forms.Label RangefinderAltLabel;

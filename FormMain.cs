@@ -47,7 +47,7 @@ namespace UAVXGS
        // const int DefaultBaudRate = 9600;
 
         const Byte RCMaximum = 238;
-        const double OUTMaximumScale = 0.45; // 100.0/222.0; 
+        const double OUTMaximumScale = 0.5; // 100.0/222.0; 
 
         const byte UnknownPacketTag = 0;
         const byte RestartPacketTag = 8;
@@ -293,10 +293,10 @@ namespace UAVXGS
 
         byte CurrWPT;                   // 6
 
-        short ROCT;                 // 7 
+        int ROCT;                     // 7 
         int RelBaroAltitudeT;           // 9
 
-        short GPSHeadingT;              // 12
+        short CruiseThrottleT;          // 12
         short RangefinderAltitudeT;     // 14
 
         short GPSHDiluteT;              // 16
@@ -304,7 +304,7 @@ namespace UAVXGS
         short DesiredCourseT;           // 20
 
         short GPSVelT;                  // 22
-        short GPSROCT;                  // 24
+        short GPSHeadingT;                  // 24
         int GPSRelAltitudeT;            // 26
         int GPSLatitudeT;               // 29
         int GPSLongitudeT;              // 33
@@ -768,13 +768,13 @@ namespace UAVXGS
                 "CurrWP," +
                 "ROC," +
                 "RelBaroAlt," +
-                "Unused," +
+                "CruiseThrottle," +
                 "RFAlt," +
                 "GPSHD," +
                 "Heading," +
                 "DesCourse," +
                 "GPSVel," +
-                "Unused," +
+                "GPSHeading," +
                 "GPSRelAlt," +
                 "GPSLat," +
                 "GPSLon," +
@@ -1576,7 +1576,7 @@ namespace UAVXGS
 
         void UpdateControls()
         {
-            DesiredThrottle.Text = string.Format("{0:n0}", ((float)DesiredThrottleT * 100.0) / RCMaximum);
+            DesiredThrottle.Text = string.Format("{0:n0}", (float)DesiredThrottleT * 0.5 ); //100.0) / RCMaximum);
             DesiredRoll.Text = string.Format("{0:n0}", ((float)DesiredRollT * 200.0) / RCMaximum);
             DesiredPitch.Text = string.Format("{0:n0}", ((float)DesiredPitchT * 200.0) / RCMaximum);
             DesiredYaw.Text = string.Format("{0:n0}", ((float)DesiredYawT * 200.0) / RCMaximum);
@@ -2083,15 +2083,15 @@ namespace UAVXGS
                     GPSNoOfSatsT = ExtractByte(ref UAVXPacket, 4);
                     GPSFixT = ExtractByte(ref UAVXPacket, 5);
                     CurrWPT = ExtractByte(ref UAVXPacket, 6);
-                    ROCT = ExtractShort(ref UAVXPacket, 7);
+                    ROCT = ((int)ROCT * 7 + (int)ExtractShort(ref UAVXPacket, 7))/8;
                     RelBaroAltitudeT = ExtractInt24(ref UAVXPacket, 9);
-                    GPSHeadingT = ExtractShort(ref UAVXPacket, 12);
+                    CruiseThrottleT = ExtractShort(ref UAVXPacket, 12);
                     RangefinderAltitudeT = ExtractShort(ref UAVXPacket, 14);
                     GPSHDiluteT = ExtractShort(ref UAVXPacket, 16);
                     HeadingT = ExtractShort(ref UAVXPacket, 18);
                     DesiredCourseT = ExtractShort(ref UAVXPacket, 20);
                     GPSVelT = ExtractShort(ref UAVXPacket, 22);
-                    GPSROCT = 0;//ExtractShort(ref UAVXPacket, 24);
+                    GPSHeadingT = ExtractShort(ref UAVXPacket, 24);
                     GPSRelAltitudeT = ExtractInt24(ref UAVXPacket, 26);
                     GPSLatitudeT = ExtractInt(ref UAVXPacket, 29);
                     GPSLongitudeT = ExtractInt(ref UAVXPacket, 33);
@@ -2117,6 +2117,14 @@ namespace UAVXGS
                         OriginLatitude = GPSLatitudeT;
                         OriginLongitude = GPSLongitudeT;
                     }
+
+                    if ( Math.Abs(DesiredThrottleT - CruiseThrottleT) < 3 )
+                        DesiredThrottle.BackColor = System.Drawing.Color.Green;
+                    else
+                        if (Math.Abs(DesiredThrottleT - CruiseThrottleT) < 7)
+                            DesiredThrottle.BackColor = System.Drawing.Color.LightGreen;
+                        else
+                            DesiredThrottle.BackColor = ControlsGroupBox.BackColor;
 
                     GPSNoOfSats.Text = string.Format("{0:n0}", GPSNoOfSatsT);
                     if (GPSNoOfSatsT < 6)
@@ -2397,13 +2405,13 @@ namespace UAVXGS
             CurrWPT + "," +
             ROCT * 0.01 + "," +
             RelBaroAltitudeT * 0.01 + "," +
-            GPSHeadingT * MILLIRADDEG + "," +
+            CruiseThrottleT + "," +
             RangefinderAltitudeT * 0.01 + "," +
             GPSHDiluteT * 0.001 + "," +
             HeadingT * MILLIRADDEG + "," +
             DesiredCourseT * MILLIRADDEG + "," +
             GPSVelT * 0.1 + "," +
-            GPSROCT * 0.01 + "," +
+            GPSHeadingT * MILLIRADDEG + "," +
             GPSRelAltitudeT * 0.01+ "," +
             GPSLatitudeT / 6000000.0 + "," +
             GPSLongitudeT / 6000000.0 + "," +
