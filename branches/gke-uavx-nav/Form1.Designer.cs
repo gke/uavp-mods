@@ -200,9 +200,13 @@ namespace UAVXNav
             this.eventLog1 = new System.Diagnostics.EventLog();
             this.FlightState = new System.Windows.Forms.Label();
             this.NavState = new System.Windows.Forms.TextBox();
+            this.ColourButton = new System.Windows.Forms.Button();
+            this.ROC = new System.Windows.Forms.Label();
+            this.ROCLabel2 = new System.Windows.Forms.Label();
+            this.DesiredThrottle = new System.Windows.Forms.Label();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
-            this.ColourButton = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.M)).BeginInit();
             this.MenuMain.SuspendLayout();
             this.OriginGroupBox.SuspendLayout();
@@ -1025,7 +1029,7 @@ namespace UAVXNav
             this.GPSStatsGroupBox.Controls.Add(this.GPSMaxSatS);
             this.GPSStatsGroupBox.Location = new System.Drawing.Point(7, 415);
             this.GPSStatsGroupBox.Name = "GPSStatsGroupBox";
-            this.GPSStatsGroupBox.Size = new System.Drawing.Size(175, 78);
+            this.GPSStatsGroupBox.Size = new System.Drawing.Size(175, 57);
             this.GPSStatsGroupBox.TabIndex = 54;
             this.GPSStatsGroupBox.TabStop = false;
             this.GPSStatsGroupBox.Text = "GPS Stats";
@@ -1588,9 +1592,9 @@ namespace UAVXNav
             // CurrentAltitude
             // 
             this.CurrentAltitude.Font = new System.Drawing.Font("Microsoft Sans Serif", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CurrentAltitude.Location = new System.Drawing.Point(473, 438);
+            this.CurrentAltitude.Location = new System.Drawing.Point(471, 449);
             this.CurrentAltitude.Name = "CurrentAltitude";
-            this.CurrentAltitude.Size = new System.Drawing.Size(137, 61);
+            this.CurrentAltitude.Size = new System.Drawing.Size(94, 46);
             this.CurrentAltitude.TabIndex = 51;
             this.CurrentAltitude.Text = "-1";
             this.CurrentAltitude.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1822,7 +1826,7 @@ namespace UAVXNav
             this.AltitudeSource.BackColor = System.Drawing.SystemColors.Control;
             this.AltitudeSource.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.AltitudeSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AltitudeSource.Location = new System.Drawing.Point(494, 419);
+            this.AltitudeSource.Location = new System.Drawing.Point(474, 435);
             this.AltitudeSource.Name = "AltitudeSource";
             this.AltitudeSource.ReadOnly = true;
             this.AltitudeSource.Size = new System.Drawing.Size(99, 16);
@@ -1908,6 +1912,47 @@ namespace UAVXNav
             this.NavState.Text = "Unknown";
             this.NavState.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // ColourButton
+            // 
+            this.ColourButton.BackColor = System.Drawing.Color.White;
+            this.ColourButton.Location = new System.Drawing.Point(832, 0);
+            this.ColourButton.Name = "ColourButton";
+            this.ColourButton.Size = new System.Drawing.Size(70, 23);
+            this.ColourButton.TabIndex = 156;
+            this.ColourButton.Text = "Colour";
+            this.ColourButton.UseVisualStyleBackColor = false;
+            this.ColourButton.Click += new System.EventHandler(this.ColourButton_Click);
+            // 
+            // ROC
+            // 
+            this.ROC.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ROC.Location = new System.Drawing.Point(563, 473);
+            this.ROC.Name = "ROC";
+            this.ROC.Size = new System.Drawing.Size(47, 22);
+            this.ROC.TabIndex = 157;
+            this.ROC.Text = "-1";
+            this.ROC.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // ROCLabel2
+            // 
+            this.ROCLabel2.AutoSize = true;
+            this.ROCLabel2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ROCLabel2.Location = new System.Drawing.Point(577, 459);
+            this.ROCLabel2.Name = "ROCLabel2";
+            this.ROCLabel2.Size = new System.Drawing.Size(33, 13);
+            this.ROCLabel2.TabIndex = 158;
+            this.ROCLabel2.Text = "ROC";
+            // 
+            // DesiredThrottle
+            // 
+            this.DesiredThrottle.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DesiredThrottle.Location = new System.Drawing.Point(579, 431);
+            this.DesiredThrottle.Name = "DesiredThrottle";
+            this.DesiredThrottle.Size = new System.Drawing.Size(31, 22);
+            this.DesiredThrottle.TabIndex = 159;
+            this.DesiredThrottle.Text = "0";
+            this.DesiredThrottle.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // headingIndicatorInstrumentControl1
             // 
             this.headingIndicatorInstrumentControl1.Location = new System.Drawing.Point(874, 415);
@@ -1924,16 +1969,15 @@ namespace UAVXNav
             this.attitudeIndicatorInstrumentControl1.TabIndex = 59;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
             // 
-            // ColourButton
+            // label1
             // 
-            this.ColourButton.BackColor = System.Drawing.Color.White;
-            this.ColourButton.Location = new System.Drawing.Point(832, 0);
-            this.ColourButton.Name = "ColourButton";
-            this.ColourButton.Size = new System.Drawing.Size(70, 23);
-            this.ColourButton.TabIndex = 156;
-            this.ColourButton.Text = "Colour";
-            this.ColourButton.UseVisualStyleBackColor = false;
-            this.ColourButton.Click += new System.EventHandler(this.ColourButton_Click);
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(572, 418);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(42, 13);
+            this.label1.TabIndex = 160;
+            this.label1.Text = "THR%";
             // 
             // Form1
             // 
@@ -1941,6 +1985,10 @@ namespace UAVXNav
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1014, 659);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.DesiredThrottle);
+            this.Controls.Add(this.ROCLabel2);
+            this.Controls.Add(this.ROC);
             this.Controls.Add(this.ColourButton);
             this.Controls.Add(this.NavState);
             this.Controls.Add(this.FlightState);
@@ -2177,6 +2225,10 @@ namespace UAVXNav
         private System.Windows.Forms.Label GPSFix;
         private System.Windows.Forms.TextBox NavState;
         private System.Windows.Forms.Button ColourButton;
+        private System.Windows.Forms.Label ROC;
+        private System.Windows.Forms.Label ROCLabel2;
+        private System.Windows.Forms.Label DesiredThrottle;
+        private System.Windows.Forms.Label label1;
     }
 }
 
