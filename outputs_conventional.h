@@ -23,13 +23,13 @@ void OutSignals(void) {
     static int8 m;
     static uint8 r;
 
-    for ( m = 0; m < (uint8)6; m++ )
-        PWM[m] = Limit(PWM[m], ESCMin, ESCMax);
-
-#if !( defined SIMULATE | defined TESTING )
-
     if ( !F.MotorsArmed )
         StopMotors();
+
+    for ( m = 0; m < (uint8)6; m++ )
+        PWM[m] = Limit(PWM[m], 0, ESCMax);
+
+#if !( defined SIMULATE | defined TESTING )
 
 #ifdef ELEVON
     Out0.pulsewidth_us(1000 + (int16)( PWM[ThrottleC] * PWMScale ) );
@@ -44,11 +44,5 @@ void OutSignals(void) {
 #endif
 
 } // OutSignals
-
-
-
-
-
-
 
 

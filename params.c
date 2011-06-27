@@ -73,6 +73,7 @@ void Legacy(void) {
     // Altitude Hold
     K[AltKp] *= 0.625;
     K[AltKi] *= 25.0;
+    K[AltIntLimit] *= DEGRAD;
 
     // Navigation
     K[NavKi] *= 0.08;

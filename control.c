@@ -22,7 +22,6 @@
 
 void DoAltitudeHold(void);
 void UpdateAltitudeSource(void);
-real32 AltitudeCF( real32);
 void AltitudeHold(void);
 void DoOrientationTransform(void);
 void DoControl(void);
@@ -57,7 +56,7 @@ real32 GRollKp, GRollKi, GRollKd, GPitchKp, GPitchKi, GPitchKd;
 real32 DesiredAltitude, Altitude, Altitudep;
 real32 ROC, ROCIntE, MinROCMPS;
 
-boolean    FirstPass;
+boolean FirstPass;
 int8 BeepTick = 0;
 
 void DoAltitudeHold(void) {    // Syncronised to baro intervals independant of active altitude source

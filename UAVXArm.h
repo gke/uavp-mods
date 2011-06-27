@@ -886,7 +886,7 @@ extern void InitBoschBarometer(void);
 
 extern void GetBaroAltitude(void);
 extern void InitBarometer(void);
-
+extern real32 AltitudeCF(real32);
 extern void ShowBaroType(void);
 extern void BaroTest(void);
 
@@ -1521,6 +1521,10 @@ extern void StopMotors(void);
 extern void ExercisePWM(void);
 extern void InitMotors(void);
 
+extern void WriteT580ESC(uint8, uint8, uint8);
+extern void WriteT580ESCs(uint8,  uint8, uint8, uint8, uint8);
+extern void T580ESCs(uint8, uint8, uint8, uint8);
+
 // Using clockwise numbering - NOT the same as UAVXPIC
 enum PWMCamTags { CamRollC = 6, CamPitchC = 7 };
 enum PWMQuadTags {FrontC=0, RightC, BackC, LeftC }; // order is important for X3D & Holger ESCs
@@ -1562,7 +1566,7 @@ enum TxRxTypes {
     DX7aAR7000, ExternalDecoder, FrSkyDJT_D8R, UnknownTxRx, CustomTxRx
 };
 enum RCControls {ThrottleRC, RollRC, PitchRC, YawRC, RTHRC, CamPitchRC, NavGainRC};
-enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C };
+enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C, ESCLRCI2C };
 enum AFs { QuadAF, TriAF, VTAF, Y6AF, HeliAF, ElevAF, AilAF };
 
 enum Params { // MAX 64

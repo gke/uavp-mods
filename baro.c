@@ -23,8 +23,8 @@
 // Barometers Freescale TI ADC and Bosch BMP085 3.8MHz, Bosch SMD500 400KHz
 
 void GetBaroAltitude(void);
+real32 AltitudeCF(real32);
 void InitBarometer(void);
-
 void ShowBaroType(void);
 void BaroTest(void);
 
@@ -177,22 +177,25 @@ void InitBarometer(void) {
 
 real32 AltitudeCF(real32 Alt) {   // Complementary Filter originally authored by RoyLB for attitude estimation
     // http://www.rcgroups.com/forums/showpost.php?p=12082524&postcount=1286
-    // adapted for baro compensation by G.K. Egan 2011 using acceleration as an alias
-    // for diplacement to avoid integration windup of vertical displacement estimate
+    // adapted for baro compensation by G.K. Egan 2011 using acceleration
+    
+    static real32 AltD;
 
     if ( F.AccelerationsValid && F.NearLevel ) {
+    
+        AltD = Alt - AltCF;
 
-        AltF[0] = (Alt - AltCF) * Sqr(AltTauCF);
+        AltF[0] = AltD * Sqr(AltTauCF);
         AltF[2] = AltF[2] + AltF[0] * BARO_DT;
-        AltF[1] =  AltF[2] + (Alt - AltCF)*2.0*AltTauCF; // + 0.5*(Acc[UD] - 1.0)*BARO_DT*BARO_DT;
+        AltF[1] =  AltF[2] + AltD * 2.0 * AltTauCF; // + 0.5*(Acc[UD] - 1.0)*BARO_DT*BARO_DT;
         AltCF = AltCF + AltF[1] * BARO_DT;
 
     } else
         AltCF = Altitude;
 
-    AccAltComp = AltCF;// - AltE; // for debugging
+    AccAltComp = AltCF - Alt; // for debugging
 
-    return( Alt ); // AltCF );
+    return( AltCF );
 
 } // AltitudeCF
 
@@ -515,7 +518,7 @@ BoschError:
 
 real32 BoschToM(real32 p) { // decreasing pressure is increase in altitude negate and rescale to metre altitude
 
-    return(-((int24)p * 2.45) / K[BaroScale]);
+    return(-(p * 2.45) / K[BaroScale]);
 }  // BoschToM
 
 #define BOSCH_BMP085_TEMP_COEFF        62L
