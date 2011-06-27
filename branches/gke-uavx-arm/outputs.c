@@ -44,7 +44,7 @@ int16 ESCMin, ESCMax;
 
 #ifdef MULTICOPTER
 
-uint8 TC(int16 T) {
+uint8 TXC(int16 T) {
     return ( Limit(T, ESCMin, ESCMax) );
 } // TC
 
@@ -218,18 +218,18 @@ void MixAndLimitMotors(void) {
 void MixAndLimitCam(void) {
 
     static real32 NewCamRoll, NewCamPitch;
-    
-    PWMSense[CamRollC] = 1.0; 
+
+    PWMSense[CamRollC] = 1.0;
     PWMSense[CamPitchC] = 1.0;
- 
+
     NewCamRoll = CameraRollAngle * K[CamRollKp] + K[CamRollTrim];
     NewCamRoll = PWMSense[CamRollC] * NewCamRoll + OUT_NEUTRAL;
-    PWM[CamRollC] = SlewLimit( PWM[CamRollC], NewCamRoll, 2); // change to 10Hz filter
+    PWM[CamRollC] = SlewLimit( PWM[CamRollC], NewCamRoll, 2.0); // change to 10Hz filter
 
-    NewCamPitch = CameraPitchAngle * K[CamPitchKp] + DesiredCamPitchTrim;
-    NewCamPitch = PWMSense[CamPitchC] * NewCamPitch + OUT_NEUTRAL; 
-    PWM[CamPitchC] = SlewLimit( PWM[CamPitchC], NewCamPitch, 2.0); // change to 10Hz filter
- 
+    NewCamPitch = CameraPitchAngle * K[CamPitchKp] + DesiredCamPitchTrim * 1.5;
+    NewCamPitch = PWMSense[CamPitchC] * NewCamPitch + OUT_NEUTRAL;
+    PWM[CamPitchC] = SlewLimit(PWM[CamPitchC], NewCamPitch, 2.0); // change to 10Hz filter
+
     CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
     CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
 
@@ -250,16 +250,19 @@ void InitI2CESCs(void) {
     static uint8 r;
 
 #ifdef MULTICOPTER
-    if ( P[ESCType] ==  ESCHolger )
-        for ( m = 0 ; m < NoOfI2CESCOutputs ; m++ ) {
-            I2CESC.start();
-            r = I2CESC.write(0x52 + ( m*2 ));        // one cmd, one data byte per motor
-            r += I2CESC.write(0);
-            ESCI2CFail[m] += r;
-            I2CESC.stop();
-        }
-    else
-        if ( P[ESCType] == ESCYGEI2C )
+    switch ( P[ESCType]) {
+        case ESCHolger:
+            for ( m = 0 ; m < NoOfI2CESCOutputs ; m++ ) {
+                I2CESC.start();
+                r = I2CESC.write(0x52 + ( m*2 ));        // one cmd, one data byte per motor
+                r += I2CESC.write(0);
+                ESCI2CFail[m] += r;
+                I2CESC.stop();
+            }
+            break;
+        case ESCLRCI2C:
+            break;
+        case ESCYGEI2C:
             for ( m = 0 ; m < NoOfI2CESCOutputs ; m++ ) {
                 I2CESC.start();
                 r = I2CESC.write(0x62 + ( m*2 ));    // one cmd, one data byte per motor
@@ -267,17 +270,20 @@ void InitI2CESCs(void) {
                 ESCI2CFail[m] += r;
                 I2CESC.stop();
             }
-        else
-            if ( P[ESCType] == ESCX3D ) {
-                I2CESC.start();
-                r = I2CESC.write(0x10);            // one command, 4 data bytes
-                r += I2CESC.write(0);
-                r += I2CESC.write(0);
-                r += I2CESC.write(0);
-                r += I2CESC.write(0);
-                ESCI2CFail[0] += r;
-                I2CESC.stop();
-            }
+            break;
+        case  ESCX3D:
+            I2CESC.start();
+            r = I2CESC.write(0x10);            // one command, 4 data bytes
+            r += I2CESC.write(0);
+            r += I2CESC.write(0);
+            r += I2CESC.write(0);
+            r += I2CESC.write(0);
+            ESCI2CFail[0] += r;
+            I2CESC.stop();
+            break;
+        default:
+            break;
+    } // switch
 #endif // MULTICOPTER
 } // InitI2CESCs
 
@@ -285,7 +291,7 @@ void StopMotors(void) {
 #ifdef MULTICOPTER
 #ifdef Y6COPTER
     PWM[FrontTC] = PWM[LeftTC] = PWM[RightTC] =
-    PWM[FrontBC] = PWM[LeftBC] = PWM[RightBC] = ESCMin;
+                                     PWM[FrontBC] = PWM[LeftBC] = PWM[RightBC] = ESCMin;
 #else
     PWM[FrontC] = PWM[LeftC] = PWM[RightC] = ESCMin;
 #ifndef TRICOPTER
@@ -300,9 +306,9 @@ void StopMotors(void) {
     Out1.pulsewidth_us(1000 + (int16)( PWM[1] * PWMScale ) );
     Out2.pulsewidth_us(1000 + (int16)( PWM[2] * PWMScale ) );
     Out3.pulsewidth_us(1000 + (int16)( PWM[3] * PWMScale ) );
-    
- //   Out4.pulsewidth_us(1000 + (int16)( PWM[4] * PWMScale ) );
- //   Out5.pulsewidth_us(1000 + (int16)( PWM[5] * PWMScale ) );
+
+//   Out4.pulsewidth_us(1000 + (int16)( PWM[4] * PWMScale ) );
+//   Out5.pulsewidth_us(1000 + (int16)( PWM[5] * PWMScale ) );
 
     F.MotorsArmed = false;
 } // StopMotors
@@ -320,7 +326,7 @@ void InitMotors(void) {
     PWM[CamRollC] = OUT_NEUTRAL;
     PWM[CamPitchC] = OUT_NEUTRAL;
     CamRollPulseWidth = 1000 + (int16)( PWM[CamRollC] * PWMScale );
-    CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );    
+    CamPitchPulseWidth = 1000 + (int16)( PWM[CamPitchC] * PWMScale );
 #endif // Y6COPTER
 
 } // InitMotors
