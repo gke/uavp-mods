@@ -173,7 +173,7 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
 
 ==== Special Alarms In Flight ====
 
-  * I occasionaly hear a single beep particularly when I let the sticks go back to neutral: This indicates that the aircraft has captured a new desired GPS position hold point.
+  * I occasionally hear a single beep particularly when I let the sticks go back to neutral: This indicates that the aircraft has captured a new desired GPS position hold point.
 
   * I hear the beeper sounding once every second: This is the flight battery alarm. You should LAND immediately.
 
@@ -187,7 +187,7 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
 === Setting Parameters ===
   * Setting Default Parameter Values: Use Tools->Test Software->"Shift D" command in UAVPSet. The D command is sent directly to UAVX which uses the defaults stored within UAVX. You must do a Read from UAVX after you have done this to see the parameter values which have been used. To go to param 2 you must use the pitch/roll stick to select it first, use either upper right for RTH altitude off, or lower left for RTH altitude on, then do a read.
 
-  * Can I use my old UAVX parameter files: Unfortunately there are new paramters still being added so when there is a change to the UAVPSet release you should expect the parameters to have also changed.  Take a note of your particular settings (screen dump is fastest) and then  load the defaults using the D command (see above). This will ensure the additional parameters of UAVX are given sensible values. You can then update the parameters with your favourite settings and save them to a file. The download notes tell you which versions of UAVX, UAVPSet are cross compatible.
+  * Can I use my old UAVX parameter files: Unfortunately there are new parameters still being added so when there is a change to the UAVPSet release you should expect the parameters to have also changed.  Take a note of your particular settings (screen dump is fastest) and then  load the defaults using the D command (see above). This will ensure the additional parameters of UAVX are given sensible values. You can then update the parameters with your favorite settings and save them to a file. The download notes tell you which versions of UAVX, UAVPSet are cross compatible.
 
   * Setting your own Parameters: There is a large amount of information on parameter values on the threads. Both parameter sets must be programmed - you switch between parameter sets using stick programming (See below). Parameters go ORANGE when changed in UAVPSet and should go GREEN after you do a Write. If they go RED then the Write was unsuccessful or the values were rejected as invalid. You should always do your read after writing parameters to double check that UAVX has received them. 
 
@@ -254,7 +254,7 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
 
 http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3536269-132-minigps_uavx_setup_jesolins.png?d=1287141967
 
-  * Can I connect my GPS directly to the UAVP Board: The PIC requires 5V TTL signalling and so you will need a 3.3V to 5V level converter for most GPS units which use 3.3V signalling even if the say they are compatible with 5V.
+  * Can I connect my GPS directly to the UAVP Board: The PIC requires 5V TTL signaling and so you will need a 3.3V to 5V level converter for most GPS units which use 3.3V signaling even if the say they are compatible with 5V.
 
   * Can I use the UAVP board to Connect my GPS to my PC: Yes. You remove the PIC and swap the Tx and Rx leads of the level translator you have used for your GPS. This is a last option as it is better to have a dedicated connection to your PC. There are numerous TTL to USB adapters available.
 
@@ -271,6 +271,9 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
   
  * More info on wiring it with GPS here: http://www.rcgroups.com/forums/showt...6#post12936706 UAVX GPS Wiring 101] and [http://www.rcgroups.com/forums/showpost.php?p=13927790&postcount=1070 UAVX GPS programming 101]
 
+ * *GPS Initial Flight Testing:* Please start out slowly!  First test the GPS using the simulator hex and UAVXNav.  When you are totally familiar with the functions and features proceed to an outdoor hand test to make sure it tilts in the proper directions when position hold and RTH and waypoints if used are engaged. The ch7 POTI must be above 10% for altitude hold and above 20% to engage GPS. To initially test your GPS do a walk-around hand test using below hover power and see how it responds with your ch7 sensitivity set between 12 and 1 O'Clock as you are walking around with it after it takes its firs home fix.  Vary your distance about 10-20M from the home position.  Do the same with the RTH and waypoints to gain confidence.  For hand testing the RTH and waypoints use the upper left while disarmed stick movement to disable the altitude climb feature for RTH.  I always recommend using an old lipo hooked up to the UAVX when you get to your flying area while it is in open space for 5-15 minutes to get a good initial GPS fix.  This will also give the GPS time to update its satellite ephemeris data http://www.how-gps-works.com/glossary/ephemeris-data.shtml if it has not been powered on within a few days. Of course then put on a new lipo after that to begin flying.
+
+
  * *Note:* The GPS from www.quadroufo.com does not require a level converter and has provisions for USB serial TTL communication to a PC.  See here for more info: http://www.quadroufo.com/download/gps-uavx.zip You must also install a 3v battery backup for changes to the GPS setup to hold.  Use the MiniGPS application to setup the GPS. Here: http://www.dpcav.com/data_sheets/gps_mini.zip
 
 
@@ -282,7 +285,7 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
 
   * Download the latest Beta UAVX v1.xxxx and save to a directory you can find again. Unzip the files. Then unzip the folder with the 16Mhz firmware. Using the latest UAVPset v4.xx. Either press the burn icon, or go to the menu Commands/Burn PIC and load the test quad hex. Use the hexfile with 16 in its name if you have not changed the UAVP board's original 16MHz crystal and 40 if you changed the board's crystal to a 10MHz.
 
-  * You must first load the testfirmware and use the UAVPset to do the initial setup. Make absolutely sure you select the firmware for your set that you will be loading. Pay attention to the number 16 and 40 in the firmware name. The "16"Mhz is the firmware for a board that has not had the original 16Mhz crystal replaced with a 10MHz crystal which is necessary to use the "40"Mhz firmware. So, for example, if you are loading a quad firmware and will use a 7 channel Tx/Rx, you will load: UAVX-V1.xxxgke-18F2620-16-TEST.hex for the test firmware and UAVX-V1.xxxgke-18F2620-16-QUAD.hex for the flight firmware. Then open UAVPset and the menu Tools/Testfirmware/Rx test to get all the channels to pass with low or no glitch count. You must first set your Tx/Rx set type and mode and Rx to either "odd channels" for connecting the odd Rx channels per the order in the info window of the UAVPset for your model of Tx/Rx, or use the "All channels" for a Rx that outputs a standard PPM composite signal or a PPM adapter board that can do so.  With a PPM adapter board, you might have to rearange the signal pins from th Rx to the adapter board to get the UAVPset Tx/Rx test graphic to move the correct sliders for the proper channel order for yours Tx/Rx.  After you select the correect values make sure you do a write with the UAVPset. Follow the instructions in the Tx/Rx setup to complete the initial setup. 
+  * You must first load the testfirmware and use the UAVPset to do the initial setup. Make absolutely sure you select the firmware for your set that you will be loading. Pay attention to the number 16 and 40 in the firmware name. The "16"Mhz is the firmware for a board that has not had the original 16Mhz crystal replaced with a 10MHz crystal which is necessary to use the "40"Mhz firmware. So, for example, if you are loading a quad firmware and will use a 7 channel Tx/Rx, you will load: UAVX-V1.xxxgke-18F2620-16-TEST.hex for the test firmware and UAVX-V1.xxxgke-18F2620-16-QUAD.hex for the flight firmware. Then open UAVPset and the menu Tools/Testfirmware/Rx test to get all the channels to pass with low or no glitch count. You must first set your Tx/Rx set type and mode and Rx to either "odd channels" for connecting the odd Rx channels per the order in the info window of the UAVPset for your model of Tx/Rx, or use the "All channels" for a Rx that outputs a standard PPM composite signal or a PPM adapter board that can do so.  With a PPM adapter board, you might have to rearrange the signal pins from th Rx to the adapter board to get the UAVPset Tx/Rx test graphic to move the correct sliders for the proper channel order for yours Tx/Rx.  After you select the correct values make sure you do a write with the UAVPset. Follow the instructions in the Tx/Rx setup to complete the initial setup. 
 
   *  After loading the testfirmware or a updated flight firmware, go to the UAVPset/Tools/Testfirmware and do a "Shift D" to load the default parameters.  Then do a read to check parm 1 values and then put the Tx pitch and roll stick to the bottom right to select parm 2 and do a read to check that those parameters are all populated.
 
@@ -303,18 +306,18 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
 
   * Which hex file do I use: Tags within the UAVX hex file names tells you what it contains:
     
-    * 16: 16Mhz firmware for the orignal boards with a 16Mhz crystal installed.
+    * 16: 16Mhz firmware for the original boards with a 16Mhz crystal installed.
     * 40: 40Mhz firmware for boards that have replaced the 16Mhz crystal with a 10MHz crystal. Using this firmware requires a PIC programmer for the first time load. *Warning: Do not install this 40Mhz firmware if you have the 16MHz crystal.  If you do you will then need a separate PIC programmer to reprogram it for the 16MHz firmware!*
     * QUAD: four motor quadrocopter.
     * TRI: three motor tricopter.
     * VT: four motor tricopter with two V apposed steering motors.
     * HELI: for helicopter IMU usage.
     * 6CH: for use with 6ch Rx. The navigation sensitivity (below) must be set using UAVPSet rather than the Ch7 pot.
-    * TEST: for UAVX v1.1049 and above to load for the initial setup for Tx/Rx and compass and any follow on testing. Also for use with the sensor trace (see SensorTest Wiki) to debug sensors and for getting graphs of the sensor behaviour. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
+    * TEST: for UAVX v1.1049 and above to load for the initial setup for Tx/Rx and compass and any follow on testing. Also for use with the sensor trace (see SensorTest Wiki) to debug sensors and for getting graphs of the sensor behavior. The motors are disabled for this version for safety reasons but you can get plots of the computed motor throttle values and your stick inputs as well as the main sensor values.
     * SIMULATOR: from R9xx onwards (See UAVXSimulator Wiki).
 
 === ESC Setup ===
-*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's peformance and decrease PPM signal quality and model safety.*
+*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's performance and decrease PPM signal quality and model safety.*
 
 *Note 1:* This checklist only needs to be accomplished for new ESC's 
 during the initial setup.
@@ -382,7 +385,7 @@ and Tricopter Mega Link Index]
 
 *WARNING:*  *As it was with the UAVP, a proper Tx/Rx setup is extremely important for both safety and proper flight operation.  Always setup your Tx/Rx with the quadrocopter tied or weighted down and or props removed or motors disabled.  It is strongly advised that you remove props or disable the motors by removing one or two of the three wires before proceeding with the Tx/Rx setup!*
 
-*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's peformance and decrease PPM signal quality and model safety.*
+*WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's performance and decrease PPM signal quality and model safety.*
 
 *WARNING: It is a requirement that your particular Rx's failsafe is properly set up so that the UAVX will remain safe (See UAVXFailsafes Wiki).  If the Rx's failsafe is not properly set up then on loss of signal the multicopter could potentially and dangerously go to full throttle.
 
@@ -394,7 +397,7 @@ The setup procedure:
 
   * Go to the Tool->Testsoftware and do the Rx test and see that all channels pass.  If not then the Tx EPAs (End Point Adjustment) must be adjusted here first.  Note that the Rx Test displays the channels in the order they are received by UAVX. Each channel is marked with the control function corresponding to the Tx/Rx combination you have selected. You should expect the channels corresponding to pitch, roll and yaw to have a value of approximately 0%. If you do not see this pattern then you may have the wrong Tx/Rx combination selected. For most cases, simply setting channel 5 lower EPA to 80% and upper EPA to 75% will get a pass on all channels that the Tx/Rx combination allows, i.e., either 5 or 7.  The next channels to adjust if you still do not get a pass are setting channels 6 and 7 to 75% upper and lower.  Note that the first indication of all channels passing while you adjust your EPA's will be the illumination of the UAVP board's green LED.  If you still cannot get the channels to pass, then post in the forum for additional help. Here: [http://www.rcgroups.com/forums/showthread.php?t=1093510]
 
-  * After you get the channels to pass, go to the Tx/Rx graphic. Now set the channels which are represented in the graphic as "Roll, Pitch, Yaw" for EPA's of about 90 upper and -90 for the lower values *_using the values on the graphic_*. Try to make the EPA for "CamTrim" symetrical around 0% as it is the Flap trim on some Txs and may have a limited range. On some Tx's you can extend the ch6 range in the Tx menu in order to get a full range for ch6.  Set channels "Throttle, NavS" for lower EPA of 4  and upper EPA of 95. Set "RTH" for lower 10 and upper 90 that you set up using the EPA's. Now set your sub-trims to make the graphic read 4% for "Throttle,  and 5% for NavS" and 0% for channels "Roll, Pitch, Yaw, CamTrim". *NOTE*: The RTH, CamTrim and NavS - correspond to Ch 5,6 and 7 in the UAVPSet. 
+  * After you get the channels to pass, go to the Tx/Rx graphic. Now set the channels which are represented in the graphic as "Roll, Pitch, Yaw" for EPA's of about 90 upper and -90 for the lower values *_using the values on the graphic_*. Try to make the EPA for "CamTrim" symmetrical around 0% as it is the Flap trim on some Txs and may have a limited range. On some Tx's you can extend the ch6 range in the Tx menu in order to get a full range for ch6.  Set channels "Throttle, NavS" for lower EPA of 4  and upper EPA of 95. Set "RTH" for lower 10 and upper 90 that you set up using the EPA's. Now set your sub-trims to make the graphic read 4% for "Throttle,  and 5% for NavS" and 0% for channels "Roll, Pitch, Yaw, CamTrim". *NOTE*: The RTH, CamTrim and NavS - correspond to Ch 5,6 and 7 in the UAVPSet. 
 
   * When setup correctly your NEUTRAL, LOWER and UPPER UAVPset Tx/Rx graphic should look like the following captures +/- a value of 1:
   
@@ -427,7 +430,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVX_high_TxRx_graphi
 
   * If your Tx/Rx supports it you should consider changing the Pitch and Roll stick sensitivity/rates on your Tx (not UAVX) to around 70% (or less) with an exponential to -40%. This will make the quadrocopter much more controllable. The Yaw Tx control is ususally fine for most without any Tx exponential or rate adjustments. You may wish to adjust the Tx exponential or rate to increase the yaw speed with positive values.
 
-  * Now that you have gotten this far with the testfirmware is is time to load the flight firmware version you will need for your particular model.  See "File Versions" defiinitions above.  Since you now have already with the perevious testfirmware setup procedures loaded your "Shift D" initial values and setup your Tx, Rx and ESCs, compass and accelerometer, you will only have to double-check that all the values on both parameter tables are still proper and in-place.  Keep safety in mind!  With the flight firmware installed, the motors can start if the throttle is up.  Take care and leave the props off until you are satisfied that the Tx/Rx is properly setup by doing yet another Tx/Rx graphic check and a good SSSPT check to make sure green LED always stays on.
+  * Now that you have gotten this far with the testfirmware it is time to load the flight firmware version you will need for your particular model.  See "File Versions" definitions above.  Since you now have already with the previous testfirmware setup procedures loaded your "Shift D" initial values and setup your Tx, Rx and ESCs, compass and accelerometer, you will only have to double-check that all the values on both parameter tables are still proper and in-place.  Keep safety in mind!  With the flight firmware installed, the motors can start if the throttle is up.  Take care and leave the props off until you are satisfied that the Tx/Rx is properly setup by doing yet another Tx/Rx graphic check and a good SSSPT check to make sure green LED always stays on.
 
   * *Set your Rx failsafe!*  The UAVX has a failsafe built-in that will go to hover throttle and then land if the Rx signals are lost for 2 seconds when GPS is not installed.  If GPS is installed and Rx signal loss is detected, then at 6 seconds it will RTH and auto-land.  Most modern Rx's have their own failsafe.  If possible, then disable the Rx failsafe so that the UAVX can use its built-in failsafe.  If you can not disable the Rx failsafe, then set the Rx failsafe's throttle to just below what it would take to hover with a full lipo and set ch5 to the high/RTH position.  You should then test the Rx failsafe by holding the model down securely while hooked up to the UAVPset with the Tx/Rx graphic displayed. With the UAVX disarmed, turn off your Tx and note how the Tx/Rx graphic sliders change.  What you want to see is the throttle going to just below hover power and the ch5 going to the high/RTH position with the pitch, roll and yaw going to the neutral positions.  Some adjust your particular Rx failsafe positions must be done for this to work properly and safely!  If the Rx failsafe inputs bad pitch and roll or yaw angles on loss of Tx signals, then the outcome would not be successful.  See your Rx instructions on how to set its failsafe and make sure that it is done correctly! *Read the UAVXFailsafe Wiki*.
 
@@ -465,21 +468,21 @@ Using UAVPSet V3.0 or later:
 
   * Select UAVX in the pulldown. 
 
-  * Initialise your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. If you choose to use the D command you need to do a read params to update the UAVPSet screen. See the FAQs above.
+  * Initialize your flight parameters from a saved UAVP V3.15 file or using the Tools->Testsoftware->D command in UAVPSet. If you choose to use the D command you need to do a read params to update the UAVPSet screen. See the FAQs above.
 
-  * Select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between paramter set 1 & 2. This is done using stick programming (see the  gpsNavigation page ) once UAVX is successfully talking to your Tx/Rx.
+  * Select the Tx/Rx, Gyro and ESCs you are using from the appropriate pulldowns and write the config to parameter set #1. Be aware that the Gear switch is no longer used to switch between parameter set 1 & 2. This is done using stick programming (see the  gpsNavigation page ) once UAVX is successfully talking to your Tx/Rx.
  
   * Just as for UAVP use Tools->Testsoftware to ensure your Rx signals are being received correctly. Verify this in the Rx Graphic which now displays in % units. *Read and accomplish the TX/RX setup instructions above.*
 
   * Save your parameters to a file. UAVX will accept V3.15 parameter files but files written by UAVX are not compatible with V3.15.
 
-  * Initialise the accelerometer neutrals as for UAVP.
+  * Initialize the accelerometer neutrals as for UAVP.
 
   * Set up parameter set 2. You will see that many of the parameters are not displayed on the Parameter Set 2 page as these are now common to both parameter sets.
 
-  * While you steady your nerves go into the Tools menu and check out some of the many tests available because at about this point you will realise you have not calibrated your compass, checked your baro etc.! The now inbuilt test software has some sanity checks on voltages etc and may detect problems with sensors. In particular look at the Setup display which now has an extended summary of what UAVX "thinks" you have connected in the way of sensors etc. and whether they may be working or not.
+  * While you steady your nerves go into the Tools menu and check out some of the many tests available because at about this point you will realize you have not calibrated your compass, checked your baro etc.! The now inbuilt test software has some sanity checks on voltages etc and may detect problems with sensors. In particular look at the Setup display which now has an extended summary of what UAVX "thinks" you have connected in the way of sensors etc. and whether they may be working or not.
 
-  * Arm the quadrocopter and observe that the Red LED will blink several times at about one second intervals as the Gyros are initialised - this is the first difference from UAVP. The quadrocopter MUST NOT be moved while the Red LED is blinking otherwise you may have a large drift offset! The quadrocopter does not need to be level - just stationary. Once the gyros are initialised you will should hear 3 short beeps and one long beep at which point the throttle is finally armed.
+  * Arm the quadrocopter and observe that the Red LED will blink several times at about one second intervals as the Gyros are initialized - this is the first difference from UAVP. The quadrocopter MUST NOT be moved while the Red LED is blinking otherwise you may have a large drift offset! The quadrocopter does not need to be level - just stationary. Once the gyros are initialized you will should hear 3 short beeps and one long beep at which point the throttle is finally armed.
 
   * Ensure that the response of the quadrocopter is acceptable using the normal pre-flight checks. You will see that UAVPSet no longer communicates with UAVX once the quadrocopter is armed. If you need to modify parameters you will need to disarm.
 
@@ -496,7 +499,7 @@ Using the UAVX capable version of UAVPSet:
 
   * Set the GPS related parameters (notes below to follow).
 
-  * Turn the Pot/Knob connected to Channel 7 to minimum Tthis will disable GPS support and in firmwares since UAVX v1.1174 when below 10% it will turn off the baro hover/altitude hold. 
+  * Turn the Pot/Knob connected to Channel 7 to minimum or below 20%. This will disable GPS support and in firmwares since UAVX v1.1174 when below 10% it will also turn off the baro hover/altitude hold. 
  
   * Select off/minimum using your Gear switch on Channel 5 (this turns RTH off). If you fail to do this a beeper alarm will sound.
 
@@ -504,11 +507,13 @@ Using the UAVX capable version of UAVPSet:
 
   * The quadrocopter can return home maintaining its current heading, pitching and/or rolling as required to move towards the Origin, or it can turn towards the Origin using pitch control only. This may also be set with Stick Programming.
 
-  * Arm the quadrocopter and after the initial blinking Red LED as the Gyros are initialised you should see the Blue LED blinking at the update rate of your GPS. At this point the Red LED will stay lit until UAVX is happy with the GPS accuracy. This may take anything up to 5 minutes particularly on the first flight in a new location. Once the Red LED goes out a satisfactory "Origin" location has been recorded. Currently the flight software does not prevent you from taking off before the Red LED goes out but be aware the Origin value may be somewhere (anywhere) along your flight path. Be patient and wait.
+  * Arm the quadrocopter and after the initial blinking Red LED as the Gyros are initialized you should see the Blue LED blinking at the update rate of your GPS. At this point the Red LED will stay lit until UAVX is happy with the GPS accuracy. This may take anything up to 5 minutes particularly on the first flight in a new location. Once the Red LED goes out a satisfactory "Origin" location has been recorded. Currently the flight software does not prevent you from taking off before the Red LED goes out but be aware the Origin value may be somewhere (anywhere) along your flight path. Be patient and wait.
+
+ * *GPS Initial Flight Testing:* Please start out slowly!  First test the GPS using the simulator hex and UAVXNav.  When you are totally familiar with the functions and features proceed to an outdoor hand test to make sure it tilts in the proper directions when position hold and RTH and waypoints if used are engaged. The ch7 POTI must be above 10% for altitude hold and above 20% to engage GPS. To initially test your GPS do a walk-around hand test using below hover power and see how it responds with your ch7 sensitivity set between 12 and 1 O'Clock as you are walking around with it after it takes its firs home fix.  Vary your distance about 10-20M from the home position.  Do the same with the RTH and waypoints to gain confidence.  For hand testing the RTH and waypoints use the upper left while disarmed stick movement to disable the altitude climb feature for RTH.  I always recommend using an old lipo hooked up to the UAVX when you get to your flying area while it is in open space for 5-15 minutes to get a good initial GPS fix.  This will also give the GPS time to update its satellite ephemeris data http://www.how-gps-works.com/glossary/ephemeris-data.shtml if it has not been powered on within a few days. Of course then put on a new lipo after that to begin flying.
  
   * Takeoff and fly to a safe height and away from you 30M/100'. Check to see that you have a good hover. This initial hover is *important* as it and subsequent hovers adaptively establish the hover throttle setting used by the RTH altitude hold function. You can read what hover throttle has been used after a flight by reading the parameters. Other statistics are tracked and may be accessed using Tools->TestSoftware->X. Please note that the GPS software is not active until 30 seconds after takeoff. 
 
-  * Engage RTH using the Gear switch. You should see no change in the behaviour of the quadrocopter. It is important that you HAVE disabled the RTH altitude hold (see above) otherwise you will have no throttle control.
+  * Engage RTH using the Gear switch. You should see no change in the behavior of the quadrocopter. It is important that you HAVE disabled the RTH altitude hold (see above) otherwise you will have no throttle control.
 
   * Slowly increase the setting of the Channel 7 Pot and you should see the quadrocopter start to tilt towards the Origin position (where the GPS location was acquired after arming). You should still have control of pitch, roll, yaw and throttle and can overcome the corrections being applied by the GPS. If Channel 7 is below around 20% GPS assistance is disabled. 
 
@@ -539,7 +544,7 @@ The steps are:
 
 Start with an RTH altitude setting which is reasonably high (say 30M) to allow you time to respond.
 
-If you enable RTH Descend in UAVPSet then thirty seconds after you have arrived within the  selected radius of the Origin position with RTH still engaged the quadrocopter should start to descend at around 1 Meter/Sec slowing in the last 15M.  Disengaging RTH will cause the quadrocopter to revert to GPS assisted position hold but you must control the altitude manually. This is the reason that moving the throttle up 10% after engaging RTH may be a good strategy to have as it will arrest the fall if you disengage and hopefully give you enough time to re-establish hover.
+If you enable RTH Descend in UAVPSet then thirty seconds after you have arrived within the selected radius of the Origin position with RTH still engaged the quadrocopter should start to descend at around 1 Meter/Sec slowing in the last 15M.  Disengaging RTH will cause the quadrocopter to revert to GPS assisted position hold but you must control the altitude manually. This is the reason that moving the throttle up 10% after engaging RTH may be a good strategy to have as it will arrest the fall if you disengage and hopefully give you enough time to re-establish hover.
 
 The auto descend feature is the logical extension of using RTH primarily as failsafe support. We suggest RTH altitude enabled (the default) be adopted with you Rx failsafes set appropriately to advantage of this. 
 
@@ -574,12 +579,12 @@ An option is to use Parameter set #1 for still conditions and #2 for windy condi
 
 === WARNING: electrically powered aircraft ===
 
-It is very important that you follow the normal safety procedures for electrically powered aircraft with propellor(s). 
+It is very important that you follow the normal safety procedures for electrically powered aircraft with propeller(s). 
   * You *MUST* check that the radio control link is functioning correctly before you apply power to the motor(s). 
 
   * You *MUST* conduct a radio range check before every flight. 
 
-  * The aircraft *MUST* be restrained when power is applied and you *MUST* be clear of the propellor(s) at all times.
+  * The aircraft *MUST* be restrained when power is applied and you *MUST* be clear of the propeller(s) at all times.
 
 The motors(s) can start immediately in all electric aircraft when the battery is connected and you should *NEVER* rely on arming switches which are fitted to many aircraft.  
 
