@@ -43,7 +43,9 @@ It is assumed you:
   * What modifications do I need to make to the board for 40MHz: Replace the Crystal with a 10MHz version.
 
 === Board Diagram ===
-  *  Board connections:
+  * *Note 1:* The flight controller board requires 12v power to the board and at least the K1 ESC hooked to it and also powered.
+
+  * Board connections:
 
 http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top%20board%20jesolins.jpg?d=1288234002
 
@@ -99,6 +101,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options2_
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_jesolins.png
 
   * *Notes:*
+  * The flight controller board requires 12v power to the board and at least the K1 ESC hooked to it and also powered.
   * K1, K2, K3, K4 refers to motor connection.  
   * The control board "front" must ALWAYS point TOWARD the K1 motor(s).
   * Motors are always in the same relative position which is K2, K1, K3, K4 with K4 being replaced by the steering servo for tricopters.
@@ -291,6 +294,7 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
 
   
   * *Notes*
+    * The flight controller board requires 12v power to the board and at least the K1 ESC hooked to it and also powered.
     * When does UAVX respond to UAVPSet commands: Unlike UAVP, UAVX talks to UAVPSet *ONLY* when the quadrocopter is disarmed.
     * The procedure to change values in the UAVPset is to first select the parm table you want to change with the Tx sticks, then do a read on the UAVPset, make your changes, do a write, then again a read to confirm the changes.
    * Do I need to do a Write after I change any of the box values in UAVPSet: Yes.
@@ -330,8 +334,10 @@ range as this is not compatible with multicopter boards.
 *Note 3:* Many of these ESC's can be modified for I2c communications or fast PWM 
 which the UAVP board can also use if desired.  If you have the skills 
 and are interested in doing this please see the ESC conversion 
-paragraph in the [http://www.rcgroups.com/forums/showthread.php?t=1097355 Quadrocopter 
-and Tricopter Mega Link Index]
+paragraph in the [http://www.rcgroups.com/forums/showthread.php?t=1097355 Quadrocopter and Tricopter Mega Link Index]
+
+*Note 4:* The flight controller board requires 12v power to the board and at least the K1 ESC hooked to it and also powered.
+
 
 
 *1. Recommended ESC's:
