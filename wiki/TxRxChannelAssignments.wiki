@@ -31,6 +31,8 @@ The channels in the *select* column are what you would normally enter in order i
 
 It is possible to change this order but usually you would only change the order of the last three channels to put the RTH/Nav, Sensitivity and Camera trim on more appropriate Tx controls. For example selecting waypoint navigation means the RTH/Nav switch needs to be in the centre position. 
 
+It is important to understand that when we refer to the odd channel scheme it means the odd numbered channel in the time ordering *NOT* the number of the channel on the Rx.
+
 === UAVP Parallel Decoder ===
 
 For the Parallel Decoder the Rx must send out its control pulses in order with no overlaps. The *time order* column is the order in which the signals appear (the first letter of the channel name is used with 1&2 meaning Aux1 and Aux2). The *connect* column is gives the signals which *MUST* be used for parallel connections from the Rx to the UAVP board. The order of the channels does not matter but if you use any other channels it will simply not work. You must specify an ODD number of channels for this decoder even if your Rx has an EVEN number of channels - usually one less.
