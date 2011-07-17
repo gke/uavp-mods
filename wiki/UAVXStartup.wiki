@@ -125,14 +125,32 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 
 *WARNING: In order for the UAVX built in failsafe to work properly, you must pay attention to how your particular Rx failsafe operates and set it up so that it works safely with the UAVX.  See the Tx/Rx setup instructions for failsafe below!
 
-  * My Tx/Rx combination is not listed: The Rx lead connections you used for UAVP remain *identical* for UAVX. *All* Tx/Rx combinations which were supported by UAVP are supported by UAVX. Click once on the Tx/Rx box  and look at the information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pull-down box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx. Some substitutions follow:
-   * Graupner MX16s use JR XP8103/R700-PPM
-   * DX7/AR6000 use JR XP8103/R700-PPM
-   * JR8103 with a Spektrum module /AR7000 use Futaba 9C DM8/AR7000
+  * The following list of Tx/Rx combinations are know to work using the UAVPset odd channel selection and can be selected in the pull-down menu:
+
+   * Futaba Thr3/ Turnigy 9X - Aileron, Elevator, Gear, Aux2 (also Turnigy 9X)
+   * Futaba Thr2 - Aileron, Rudder, Gear, Aux2
+   * Futaba 9C DM8/AR7000 - Throttle, Aileron, Rudder, Aux2
+   * JR XP8103/R700 PPM - Throttle, Elevator, Gear, Aux2
+   * JR 9XII  DM9/AR7000 - Throttle, Elevator, Gear, Aux2
+   * JR DSX12/AR7000 - Aileron, Rudder, Gear, Aux2
+   * Spektrum DX7/AR7000 - Aileron, Rudder, Gear, Aux2 
+   * Spektrum DX7/AR6200 - Throttle, Elevator, Gear (Mix Rudder to Aux1)
+   * Futaba Thr3 Sw 6&7 - Aileron, Elevator, Gear, Aux2
+   * Spektrum DX7/AR6000 - Throttle, Elevator, Gear, Aux2
+   * Graupner MX16S - Throttle, Elevator, Gear, Aux2
+   * Spektrum DX6i/AR6200 - Aileron, Elevator, Throttle (6ch version only)
+   * Futaba Thr3/R617FS (6ch only) - Aileron, Throttle, Ch5 (6ch version only)
+   * Spektrum DX7a/AR7000 - Throttle, Elevator, Gear, Aux2 
+   * External Decoder (Fut Th3 6/7 Sw)
+   * FrSky DJT/D8R-SP (Th1 Comp.)
+   * NOT SET YET - You have not set the Tx/Rx combination you are using
+   * Custom - for self compiled firmware channel order
+
+  *  Click once on the Tx/Rx box and look at the bottom UAVPset information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pull-down box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx. 
 
   * If your Tx/Rx combination is not currently supported then you should check the following site [http://www.rcgroups.com/forums/showthread.php?t=1171547 Logic Analyzer Displays of PPM Rx Channels]. The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
 
-  * If your Tx/Rx is not listed then you can always use a separate PPM adapter board and then select the "all channels" box in the UAVPset.
+  * If your Tx/Rx is not listed, or when scoping the Rx signals in the [http://www.rcgroups.com/forums/showthread.php?t=1171547 Logic Analyzer Displays of PPM Rx Channels], then you can always use a separate PPM adapter board and then select the "all channels" box in the UAVPset.  When using a PPM adapter such as the $25 DIYDrones PPM adapter, you can use any Tx/Rx combination.
 
 
   * I have a Futaba and only Ch6 is connected to a Pot so how do I swap Ch6 and Ch7: Try the "Custom" Rx/Tx config in the UAVPSet pulldown. UAVX can map any input sequence order to any other order provided that the Rx pulses do not overlap and are emitted by the Rx with no gaps. You need to change the *custom* setting definition in the source program to achieve this (uavx.c). 
@@ -145,7 +163,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 
 === Tx/Rx in UAVX V2 ===
 
-UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You should read TxRxChannelAssignments.
+UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You should read [http://code.google.com/p/uavp-mods/wiki/TxRxChannelAssignments TxRxChannelAssignments}
 
 === Lights and Sirens! ===
   * All of the LEDs are on: Your PIC has no parameters loaded yet. Use Tools->Test Software->D command in UAVPSet to load a default set of parameters. 
