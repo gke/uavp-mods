@@ -269,7 +269,7 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
   * When is the rangefinder: UAVX detects that the rangefinder reading is within range when the aircraft falls below the best range of the rangefinder and uses that altitude value instead.  There is some overlap to allow UAVX to decide when to switch back to the barometer for altitude readings.
 
 === GPS ===
-*Warning: Do not use GPS position hold indoors when flying multicopters! For the UAVX when flying indoors, turn the ch7 GPS sensitivity knob to below 20% to turn off the GPS.  The GPS signal indoors is not reliable without an expensive GPS signal repeater. Using GPS indoors can result in random position data that can cause your model to move suddenly and unexpectedly. Indoor flight use of GPS is not approved and can be dangerous!*
+*Warning: Do not use GPS position hold or return to home while flying indoors when flying multicopters! For the UAVX when flying indoors, turn the ch7 GPS sensitivity knob to below 20% to turn off the GPS.  The GPS signal indoors is not reliable without an expensive GPS signal repeater. Using GPS indoors can result in random position data that can cause your model to move suddenly and unexpectedly. Indoor flight use of GPS is not approved and can be dangerous!*
 
   * Should I connect both the GPS Rx and Tx line: No you should connect only the GPS Tx signal. If you connected the GPS Rx line the signals that UAVX sends to UAVPSet will also be received by the GPS and may change the GPS settings. 
 
@@ -518,7 +518,7 @@ Using UAVPSet V3.0 or later:
 
 This is new territory and you will need to do some homework for your location particularly the Magnetic Variation. Read the GPS Navigation page carefully.
 
-*Warning: Do not use GPS position hold indoors when flying multicopters! For the UAVX when flying indoors, turn the ch7 GPS sensitivity knob to below 20% to turn off the GPS.  The GPS signal indoors is not reliable without an expensive GPS signal repeater. Using GPS indoors can result in random position data that can cause your model to move suddenly and unexpectedly. Indoor flight use of GPS is not approved and can be dangerous!*
+*Warning: Do not use GPS position hold or return to home while indoors when flying multicopters! For the UAVX when flying indoors, turn the ch7 GPS sensitivity knob to below 20% to turn off the GPS.  The GPS signal indoors is not reliable without an expensive GPS signal repeater. Using GPS indoors can result in random position data that can cause your model to move suddenly and unexpectedly. Indoor flight use of GPS is not approved and can be dangerous!*
 
 *WARNING* - If you are using a 6 channel Rx then you do not have control over the GPS gain (see below) - do not proceed if you are unsure. You may still choose to fly with the GPS disconnected.
 
