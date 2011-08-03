@@ -269,6 +269,8 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
   * When is the rangefinder: UAVX detects that the rangefinder reading is within range when the aircraft falls below the best range of the rangefinder and uses that altitude value instead.  There is some overlap to allow UAVX to decide when to switch back to the barometer for altitude readings.
 
 === GPS ===
+*Warning: Do not use GPS position hold indoors when flying multicopters! For the UAVX when flying indoors, turn the ch7 GPS sensitivity knob to below 20% to turn off the GPS.  The GPS signal indoors is not reliable without an expensive GPS signal repeater. Using GPS indoors can result in random position data that can cause your model to move suddenly and unexpectedly. Indoor flight use of GPS is not approved and can be dangerous!*
+
   * Should I connect both the GPS Rx and Tx line: No you should connect only the GPS Tx signal. If you connected the GPS Rx line the signals that UAVX sends to UAVPSet will also be received by the GPS and may change the GPS settings. 
 
   * What Settings should I use with my GPS: Your GPS should preferably have the ability to update at 5Hz. Lower update rates will work but not as well. If you use only $GPGGA then you may use the 5Hz update rate. If you are using $GPGGA, $GPRMC and $GPGSV set the update at 3-4Hz maximum because of the additional processing load; yes it takes processing time to throw away stuff! MiniGPS dwonload: http://www.dpcav.com/data_sheets/gps_mini.zip Read [http://code.google.com/p/uavp-mods/wiki/GpsNavigation GpsNavigation] and [http://www.rcgroups.com/forums/showpost.php?p=13927790&postcount=1070 Programming GPS's 101].
