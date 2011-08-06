@@ -54,7 +54,7 @@ It is relatively easy to add additional channels to the UAVP board and most exte
 ||Futaba Th 2 	||A,T,R,E,G,1,2||2,1,4,3,5,6,7||A,R,G,2 ||Neg||
 ||Futaba DM8 & AR7000 	||R,E,A,1,T,G,2||5,3,2,1,6,4,7||R,A,T,2 ||Pos||
 ||JR PPM 	||T,A,E,R,G,1,2||1,2,3,4,5,6,7||T,E,G,2 ||Pos||
-||JR DM9 & AR7000 	||A,2,G,E,1,R,T||7,1,4,6,3,5,2||A,G,1,T ||Pos||
+||JR DM9 & AR7000 	||R,E,A,1,T,G,2||5,3,2,1,6,4,7||R,A,T,2 ||Pos||
 ||JR DSX12 & AR7000 	||A,1,G,E,2,T,R||6,1,4,7,3,2,5||A,G,2,R ||Pos||
 ||Spektrum DX7 & AR7000 	||A,1,G,E,2,T,R||6,1,4,7,3,2,5||A,G,2,R ||Pos||
 ||Spektrum DX7 & AR6200 	||A,1,G,E,T,R,2||5,1,4,6,3,2,7||A,G,T,2 ||Pos||
