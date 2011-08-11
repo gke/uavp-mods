@@ -1000,8 +1000,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 29:
                             parameterForm1[28].Value = register.Value;
-                            mainForm.NavGPSSlew1NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.NavGPSSlew1NumericUpDown, mainForm);
+                            mainForm.NavSlew1NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.NavSlew1NumericUpDown, mainForm);
                             break;
                         case 30:
                             parameterForm1[29].Value = register.Value;
@@ -1310,8 +1310,8 @@ namespace UAVP.UAVPSet
                             break;
                         case 29:
                             parameterForm1[28].Value = register.Value;
-                            mainForm.NavGPSSlew2NumericUpDown.Value = Convert.ToInt16(register.Value);
-                            feldUpdaten(mainForm.NavGPSSlew2NumericUpDown, mainForm);
+                            mainForm.NavSlew2NumericUpDown.Value = Convert.ToInt16(register.Value);
+                            feldUpdaten(mainForm.NavSlew2NumericUpDown, mainForm);
                             break;
                         case 30:
                             parameterForm2[29].Value = register.Value;

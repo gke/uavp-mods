@@ -160,7 +160,7 @@ namespace UAVP.UAVPSet
                 if (mainForm.NavMagVar1NumericUpDown.Focused )
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavMagVar");
 
-                if (mainForm.NavGPSSlew1NumericUpDown.Focused || mainForm.NavGPSSlew2NumericUpDown.Focused)
+                if (mainForm.NavSlew1NumericUpDown.Focused || mainForm.NavSlew2NumericUpDown.Focused)
                     mainForm.infoTextBox.Text = mainForm.help.GetString("NavGPSSlew");
 
                 if (mainForm.NavYawLimit1NumericUpDown.Focused || mainForm.NavYawLimit2NumericUpDown.Focused)
