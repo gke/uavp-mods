@@ -234,7 +234,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj0yLjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAADC
-        MgAAAk1TRnQBSQFMAgEBBgEAAQQBBQEEAQUBMAEAATABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        MgAAAk1TRnQBSQFMAgEBBgEAATQBBQE0AQUBMAEAATABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABwAMAAWADAAEBAQABCAYAAUgYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -3401,61 +3401,61 @@
   <data name="&gt;&gt;NeutralRadius1Label.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="NavGPSSlew1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="NavSlew1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
-  <data name="NavGPSSlew1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="NavSlew1NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
     <value>73, 144</value>
   </data>
-  <data name="NavGPSSlew1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="NavSlew1NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
   </data>
-  <data name="NavGPSSlew1NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+  <data name="NavSlew1NumericUpDown.TabIndex" type="System.Int32, mscorlib">
     <value>92</value>
   </data>
-  <data name="NavGPSSlew1NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+  <data name="NavSlew1NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
     <value>Right</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlew1NumericUpDown.Name" xml:space="preserve">
-    <value>NavGPSSlew1NumericUpDown</value>
+  <data name="&gt;&gt;NavSlew1NumericUpDown.Name" xml:space="preserve">
+    <value>NavSlew1NumericUpDown</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlew1NumericUpDown.Type" xml:space="preserve">
+  <data name="&gt;&gt;NavSlew1NumericUpDown.Type" xml:space="preserve">
     <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlew1NumericUpDown.Parent" xml:space="preserve">
+  <data name="&gt;&gt;NavSlew1NumericUpDown.Parent" xml:space="preserve">
     <value>groupBoxGPS1</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlew1NumericUpDown.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;NavSlew1NumericUpDown.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="NavGPSSlewLabel1.AutoSize" type="System.Boolean, mscorlib">
+  <data name="NavSlewLabel1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="NavGPSSlewLabel1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="NavSlewLabel1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="NavGPSSlewLabel1.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="NavSlewLabel1.Location" type="System.Drawing.Point, System.Drawing">
     <value>8, 146</value>
   </data>
-  <data name="NavGPSSlewLabel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>68, 13</value>
+  <data name="NavSlewLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 13</value>
   </data>
-  <data name="NavGPSSlewLabel1.TabIndex" type="System.Int32, mscorlib">
+  <data name="NavSlewLabel1.TabIndex" type="System.Int32, mscorlib">
     <value>91</value>
   </data>
-  <data name="NavGPSSlewLabel1.Text" xml:space="preserve">
-    <value>GPS  (dM/S)</value>
+  <data name="NavSlewLabel1.Text" xml:space="preserve">
+    <value>Nav Slew</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlewLabel1.Name" xml:space="preserve">
-    <value>NavGPSSlewLabel1</value>
+  <data name="&gt;&gt;NavSlewLabel1.Name" xml:space="preserve">
+    <value>NavSlewLabel1</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlewLabel1.Type" xml:space="preserve">
+  <data name="&gt;&gt;NavSlewLabel1.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlewLabel1.Parent" xml:space="preserve">
+  <data name="&gt;&gt;NavSlewLabel1.Parent" xml:space="preserve">
     <value>groupBoxGPS1</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlewLabel1.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;NavSlewLabel1.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
   <data name="NavYawLimit1NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
@@ -5438,61 +5438,61 @@
   <data name="&gt;&gt;NavYawLimit2Label.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="NavGPSSlew2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="NavSlew2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8.25pt, style=Bold</value>
   </data>
-  <data name="NavGPSSlew2NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="NavSlew2NumericUpDown.Location" type="System.Drawing.Point, System.Drawing">
     <value>71, 145</value>
   </data>
-  <data name="NavGPSSlew2NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="NavSlew2NumericUpDown.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
   </data>
-  <data name="NavGPSSlew2NumericUpDown.TabIndex" type="System.Int32, mscorlib">
+  <data name="NavSlew2NumericUpDown.TabIndex" type="System.Int32, mscorlib">
     <value>94</value>
   </data>
-  <data name="NavGPSSlew2NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
+  <data name="NavSlew2NumericUpDown.TextAlign" type="System.Windows.Forms.HorizontalAlignment, System.Windows.Forms">
     <value>Right</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlew2NumericUpDown.Name" xml:space="preserve">
-    <value>NavGPSSlew2NumericUpDown</value>
+  <data name="&gt;&gt;NavSlew2NumericUpDown.Name" xml:space="preserve">
+    <value>NavSlew2NumericUpDown</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlew2NumericUpDown.Type" xml:space="preserve">
+  <data name="&gt;&gt;NavSlew2NumericUpDown.Type" xml:space="preserve">
     <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlew2NumericUpDown.Parent" xml:space="preserve">
+  <data name="&gt;&gt;NavSlew2NumericUpDown.Parent" xml:space="preserve">
     <value>groupBoxGPS2</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlew2NumericUpDown.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;NavSlew2NumericUpDown.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
-  <data name="NavGPSSlewLabel2.AutoSize" type="System.Boolean, mscorlib">
+  <data name="NavSlewLabel2.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="NavGPSSlewLabel2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="NavSlewLabel2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="NavGPSSlewLabel2.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="NavSlewLabel2.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 148</value>
   </data>
-  <data name="NavGPSSlewLabel2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>68, 13</value>
+  <data name="NavSlewLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 13</value>
   </data>
-  <data name="NavGPSSlewLabel2.TabIndex" type="System.Int32, mscorlib">
+  <data name="NavSlewLabel2.TabIndex" type="System.Int32, mscorlib">
     <value>93</value>
   </data>
-  <data name="NavGPSSlewLabel2.Text" xml:space="preserve">
-    <value>GPS  (dM/S)</value>
+  <data name="NavSlewLabel2.Text" xml:space="preserve">
+    <value>Nav Slew</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlewLabel2.Name" xml:space="preserve">
-    <value>NavGPSSlewLabel2</value>
+  <data name="&gt;&gt;NavSlewLabel2.Name" xml:space="preserve">
+    <value>NavSlewLabel2</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlewLabel2.Type" xml:space="preserve">
+  <data name="&gt;&gt;NavSlewLabel2.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlewLabel2.Parent" xml:space="preserve">
+  <data name="&gt;&gt;NavSlewLabel2.Parent" xml:space="preserve">
     <value>groupBoxGPS2</value>
   </data>
-  <data name="&gt;&gt;NavGPSSlewLabel2.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;NavSlewLabel2.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
   <data name="NavIntLimit2NumericUpDown.Font" type="System.Drawing.Font, System.Drawing">
@@ -7439,7 +7439,7 @@
     <value>CenterScreen</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
-    <value>UAVPSet 6.2 (UAVX)</value>
+    <value>UAVPSet 6.3 (UAVX)</value>
   </data>
   <data name="&gt;&gt;imageListJobs.Name" xml:space="preserve">
     <value>imageListJobs</value>
