@@ -252,7 +252,7 @@ namespace UAVXGS
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.FrSkycheckBox1 = new System.Windows.Forms.CheckBox();
+            this.FrSkyCheckBox = new System.Windows.Forms.CheckBox();
             this.FrSkyBox = new System.Windows.Forms.GroupBox();
             this.FrSkyErrLabel = new System.Windows.Forms.Label();
             this.RxFrSkyErr = new System.Windows.Forms.TextBox();
@@ -266,6 +266,7 @@ namespace UAVXGS
             this.ColourButton = new System.Windows.Forms.Button();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
+            this.RawCheckBox = new System.Windows.Forms.CheckBox();
             this.GyroGroupBox.SuspendLayout();
             this.ControlsGroupBox.SuspendLayout();
             this.AttitudeGroupBox.SuspendLayout();
@@ -2057,6 +2058,7 @@ namespace UAVXGS
             // 
             // ErrorStatsGroupBox
             // 
+            this.ErrorStatsGroupBox.Controls.Add(this.RawCheckBox);
             this.ErrorStatsGroupBox.Controls.Add(this.RCGlitches);
             this.ErrorStatsGroupBox.Controls.Add(this.BadS);
             this.ErrorStatsGroupBox.Controls.Add(this.RCGlitchesLabel);
@@ -2551,20 +2553,20 @@ namespace UAVXGS
             this.label8.TabIndex = 67;
             this.label8.Text = "Yaw";
             // 
-            // FrSkycheckBox1
+            // FrSkyCheckBox
             // 
-            this.FrSkycheckBox1.AutoSize = true;
-            this.FrSkycheckBox1.Location = new System.Drawing.Point(6, 31);
-            this.FrSkycheckBox1.Name = "FrSkycheckBox1";
-            this.FrSkycheckBox1.Size = new System.Drawing.Size(15, 14);
-            this.FrSkycheckBox1.TabIndex = 168;
-            this.FrSkycheckBox1.UseVisualStyleBackColor = true;
+            this.FrSkyCheckBox.AutoSize = true;
+            this.FrSkyCheckBox.Location = new System.Drawing.Point(6, 31);
+            this.FrSkyCheckBox.Name = "FrSkyCheckBox";
+            this.FrSkyCheckBox.Size = new System.Drawing.Size(15, 14);
+            this.FrSkyCheckBox.TabIndex = 168;
+            this.FrSkyCheckBox.UseVisualStyleBackColor = true;
             // 
             // FrSkyBox
             // 
             this.FrSkyBox.Controls.Add(this.FrSkyErrLabel);
             this.FrSkyBox.Controls.Add(this.RxFrSkyErr);
-            this.FrSkyBox.Controls.Add(this.FrSkycheckBox1);
+            this.FrSkyBox.Controls.Add(this.FrSkyCheckBox);
             this.FrSkyBox.Controls.Add(this.FrSkyLQLabel);
             this.FrSkyBox.Controls.Add(this.FrSkyA2Label);
             this.FrSkyBox.Controls.Add(this.FrSkyA1Label);
@@ -2690,6 +2692,15 @@ namespace UAVXGS
             this.attitudeIndicatorInstrumentControl1.Size = new System.Drawing.Size(258, 259);
             this.attitudeIndicatorInstrumentControl1.TabIndex = 3;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
+            // 
+            // RawCheckBox
+            // 
+            this.RawCheckBox.AutoSize = true;
+            this.RawCheckBox.Location = new System.Drawing.Point(286, 55);
+            this.RawCheckBox.Name = "RawCheckBox";
+            this.RawCheckBox.Size = new System.Drawing.Size(15, 14);
+            this.RawCheckBox.TabIndex = 169;
+            this.RawCheckBox.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
@@ -3011,7 +3022,7 @@ namespace UAVXGS
         private System.Windows.Forms.Label Output0Label;
         private System.Windows.Forms.Label GPSHeadingLabel;
         private System.Windows.Forms.TextBox GPSHeading;
-        private System.Windows.Forms.CheckBox FrSkycheckBox1;
+        private System.Windows.Forms.CheckBox FrSkyCheckBox;
         private System.Windows.Forms.GroupBox FrSkyBox;
         private System.Windows.Forms.Label FrSkyLQLabel;
         private System.Windows.Forms.Label FrSkyA2Label;
@@ -3032,6 +3043,7 @@ namespace UAVXGS
         private System.Windows.Forms.Label OutputTotalLabel;
         public System.Windows.Forms.TextBox MessageTextBox;
         private System.Windows.Forms.Button ColourButton;
+        private System.Windows.Forms.CheckBox RawCheckBox;
     }
 }
 

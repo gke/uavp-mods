@@ -1132,9 +1132,9 @@ namespace UAVXGS
                 {
                     case 0:
                         Output0Label.Text = "F";
-                        Output1Label.Text = "B";
+                        Output1Label.Text = "L";
                         Output2Label.Text = "R";
-                        Output3Label.Text = "L";
+                        Output3Label.Text = "B";
                         Output4Label.Visible = false;
                         Output5Label.Visible = false;
                         OutputT4.Visible = false;
@@ -1576,7 +1576,7 @@ namespace UAVXGS
 
         void UpdateControls()
         {
-            DesiredThrottle.Text = string.Format("{0:n0}", (float)DesiredThrottleT * 0.5 ); //100.0) / RCMaximum);
+            DesiredThrottle.Text = string.Format("{0:n0}", ((float)DesiredThrottleT * 100.0) / RCMaximum);
             DesiredRoll.Text = string.Format("{0:n0}", ((float)DesiredRollT * 200.0) / RCMaximum);
             DesiredPitch.Text = string.Format("{0:n0}", ((float)DesiredPitchT * 200.0) / RCMaximum);
             DesiredYaw.Text = string.Format("{0:n0}", ((float)DesiredYawT * 200.0) / RCMaximum);
@@ -2206,7 +2206,7 @@ namespace UAVXGS
 
                     AmbientTemp.Text = string.Format("{0:n1}", AmbientTempT * 0.1);
 
-                    NavSensitivity.Text = string.Format("{0:n0}", NavSensitivityT * OUTMaximumScale);
+                    NavSensitivity.Text = string.Format("{0:n0}", (NavSensitivityT * 100.0) / RCMaximum);
                     NavRCorr.Text = string.Format("{0:n0}", NavRCorrT * OUTMaximumScale);
                     NavPCorr.Text = string.Format("{0:n0}", NavPCorrT * OUTMaximumScale);
                     NavYCorr.Text = string.Format("{0:n0}", NavYCorrT * OUTMaximumScale);
@@ -2263,7 +2263,7 @@ namespace UAVXGS
                 RxHead++;
                 RxHead &= RxQueueMask;
 
-                if (FrSkycheckBox1.Checked)
+                if (FrSkyCheckBox.Checked)
                 {
                     ParseFrSkyPacket(b);
                     if (FrSkyPacketReceived)
@@ -2345,8 +2345,10 @@ namespace UAVXGS
             ((Flags[5] & 0x80) >> 7) + ","); // FailsafesEnabled
 
             SaveTextLogFileStreamWriter.Write(StateT + "," +
+
             BatteryVoltsT * 0.1 + "," +
             BatteryCurrentT * 0.1 + "," +
+
             BatteryChargeT + "," +
             RCGlitchesT + "," +
             DesiredThrottleT + "," +
@@ -2366,13 +2368,26 @@ namespace UAVXGS
             }
             else
             {
-                SaveTextLogFileStreamWriter.Write(RollGyroT / AttitudeToDegrees + "," +
-                PitchGyroT / AttitudeToDegrees + "," +
+                if (RawCheckBox.Checked)
+                {
+                    SaveTextLogFileStreamWriter.Write(RollGyroT / AttitudeToDegrees + "," +
+                    PitchGyroT + "," +
 
-                YawGyroT / AttitudeToDegrees + "," +
-                RollAngleT / AttitudeToDegrees + "," +
-                PitchAngleT / AttitudeToDegrees + "," +
-                YawAngleT / AttitudeToDegrees + ",");
+                    YawGyroT + "," +
+                    RollAngleT + "," +
+                    PitchAngleT + "," +
+                    YawAngleT + ",");
+                }
+                else
+                {
+                    SaveTextLogFileStreamWriter.Write(RollGyroT / AttitudeToDegrees + "," +
+                    PitchGyroT / AttitudeToDegrees + "," +
+
+                    YawGyroT / AttitudeToDegrees + "," +
+                    RollAngleT / AttitudeToDegrees + "," +
+                    PitchAngleT / AttitudeToDegrees + "," +
+                    YawAngleT / AttitudeToDegrees + ",");
+                }
             }
 
             if (UAVXArm)
@@ -2383,10 +2398,20 @@ namespace UAVXGS
             }
             else
             {
-                SaveTextLogFileStreamWriter.Write(LRAccT * 0.000976 + "," +
-                FBAccT * 0.000976 + "," +
-                DUAccT * 0.000976 + "," );
+                if (RawCheckBox.Checked) 
+                {
+                    SaveTextLogFileStreamWriter.Write(LRAccT + "," +
+                    FBAccT + "," +
+                    DUAccT + "," );
+                } 
+                else 
+                {
+                    SaveTextLogFileStreamWriter.Write(LRAccT * 0.000976 + "," +
+                    FBAccT * 0.000976 + "," +
+                    DUAccT * 0.000976 + "," );
+                }
             }
+
              SaveTextLogFileStreamWriter.Write(IntCorrRollT + "," +
              IntCorrPitchT + "," +
              AccAltCompT * 0.01 + "," +
@@ -2403,6 +2428,7 @@ namespace UAVXGS
             GPSNoOfSatsT + "," +
             GPSFixT + "," +
             CurrWPT + "," +
+
             ROCT * 0.01 + "," +
             RelBaroAltitudeT * 0.01 + "," +
             CruiseThrottleT + "," +
@@ -2420,6 +2446,7 @@ namespace UAVXGS
             DesiredLongitudeT / 6000000.0 + "," +
             NavStateTimeoutT + "," +
             AmbientTempT * 0.1 + "," +
+
             GPSMissionTimeT + "," +
 
             NavSensitivityT + "," +
