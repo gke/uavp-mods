@@ -198,6 +198,8 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
 
   * I hear the beeper sounding once every second: This is the flight battery alarm. You should LAND immediately.
 
+  * When the barometer is holding altitude, the onboard LEDs will flash in sequence.  You will also hear the beeper make a scratchy sound.  You can also hook up the AUX LEDs to the appropriate K13 pins to use as additional LED hover indicators.  Pin8 is positive(anode) and pins 1-7 are negative(cathode). To use this you must use an appropriate ballast resistor for the LEDs type and color you choose.  Caution: Do not exceed 500ma total!
+
   * I hear the beeper sounding twice every second and the aircraft is coming down really quickly: This is a *failsafe alarm* and UAVX has lost the RC comms link and is doing an auto-land (See UAVXFailsafe Wiki).
 
   * My aircraft is sitting on the ground and has started making beep noises every six seconds: the aircraft thinks it is unloved and lost and starts the *lost model alarm* after sitting around for 2-3 minutes or more likely you forgot to disarm the aircraft and make it safe after landing.
@@ -242,6 +244,8 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
   * Do I need to calibrate the Barometer: No this is done automatically each flight.
  
   * Does wind or light effect the Barometer: Yes it does. You need to wrap the Barometer in foam which does not have closed cells (the air has to get through not surprisingly) or use some other light and wind masking arrangement of your choosing. You must avoid strong light falling directly on the sensor inlet hole or water droplets from rain blocking this hole.
+
+  * When the barometer is holding altitude, the onboard LEDs will flash in sequence.  You will also hear the beeper make a scratchy sound.  You can also hook up the AUX LEDs to the appropriate K13 pins to use as additional LED hover indicators.  Pin8 is positive(anode) and pins 1-7 are negative(cathode). To use this you must use an appropriate ballast resistor for the LEDs type and color you choose.  Caution: Do not exceed 500ma total!
  
 === Accelerometers ===
   * Is an Accelerometer required: While it is just possible to fly a quadrocopter without accelerometers you must have them for GPS navigation.
@@ -405,6 +409,21 @@ paragraph in the [http://www.rcgroups.com/forums/showthread.php?t=1097355 Quadro
      * K4 ESC rear Motor
      * K5 camera gyro stabilized servo pitch
      * K6 camera gyro stabilized servo roll
+
+*4. I2c ESC Setup:
+
+*Note 1:* This paragraph is only important if you plan to use I²C ESC's.
+
+*Note 2:* The I²C controllers do not work with a PPM pulse length, but with a I²C data interface. All four controllers must be connected to one bus, which is comprised of two servo outputs (K2 and K3). Using I2c ESCs will provide faster ESC responses and give better stability performance on multicopters that are smaller than appoximately 30cm in diameter.  
+
+*Note 3:* Some I²C controllers do not offer a 5 volts BEC source. The quadroufo flight controllers since 2009 include a separate onboard 5v power source.  All older flight controller boards must have a separate BEC added by the user if the ESC, such as the Holger ESCs, do not provide one.
+
+  * To enable communication on the I²C bus, a clock and a data line is needed. The data line is pin 1 of connector K2, the clock line is pin1 of K3. To make it work properly, two additional pull-up 4k7 SMT 0805 size resistors must be mounted to the traces on the pads near the PIC pin22 and pin23. These are located on the bottom of the UAVX board sold by quadroufo since 2009 and are approximately between the markings of R26 and C1.  For the UAVP boards older than 2009, please see the original UAVP manual in the UAVX Google Code downloads area.
+
+  * To set the I²C adresses, use the UAVX tesfirmware and the UAVPset/Tools/Testsoftware/I2c setup tool.
+
+  * Select I2c ESCs in the UAVPset and write the values to the UAVX.
+
 
 
 === Tx/Rx Setup ===
