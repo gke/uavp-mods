@@ -5,7 +5,7 @@
 
 UAVX was released for Beta testing on the 15 August 2009 Australian EST. The normal caveats apply in that use of UAVX and these instructions is entirely at your own risk - see the GNU License. 
 
-This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software. UAVX also combines test and flight software. Despite the internal differences a significant amount of effort has made to render the transition from UAVP to UAVX as painless as possible by preserving the validity of most parameter values and a familiar user interface. UAVPSet (V3.0 on-wards also in this repository) has been extended to include the new features supported by UAVX.
+This is intended to be a brief introduction to the steps you may wish to take when first using UAVX. Internally UAVX is completely different to UAVP flight software.  Despite the internal differences a significant amount of effort has made to render the transition from UAVP to UAVX as painless as possible by preserving the validity of most parameter values and a familiar user interface. UAVPSet (V3.0 on-wards also in this repository) has been extended to include the new features supported by UAVX.
 
 You should NOT use GPS for your first test flights of UAVX regardless of how tempting it may be to do so. UAVX only requires GPS for navigation functions and may be flown without GPS if desired.
 
@@ -34,13 +34,13 @@ It is assumed you:
 
   * Which version of UAVX do I Use: See File Versions below. 
  
-  * I have my own PIC: UAVX has its own bootloader which is not compatible with the original UAVP bootloader. You will need to use a PIC programmer to write a copy of UAVX to the PIC.
+  * I have my own upgrade raw 18F2620 PIC: UAVX has its own bootloader which is not compatible with the original UAVP bootloader. You will need to use a PIC programmer to write a copy of UAVX to the PIC.
 
-  * Can I just load the bootloader onto the PIC first: The bootloader is integrated with all versions of UAVX. Once loaded onto the PIC the bootloader will not allow itself to be overwritten but can be used to load later versions of UAVX using UAVPSet.
+  * Can I just load the bootloader onto the PIC first: The bootloader is integrated with all versions of UAVX. Once initially loaded using a programmer onto the PIC, the bootloader will not allow itself to be overwritten but can be used to load later versions of UAVX using UAVPSet and a normal serial cable.
 
   * Can the bootloader for the 16MHz version of UAVX load the 40MHz version of UAVX: Unfortunately no. You will have to use a PIC programmer to write the 40MHz version for the first time.
 
-  * What modifications do I need to make to the board for 40MHz: Replace the Crystal with a 10MHz version.
+  * What modifications do I need to make to the board for 40MHz: Replace the original 16Mhz crystal with a 10MHz version.
 
 === Board Diagram ===
   * *Note 1:* The flight controller board requires 12v power to the board and at least the K1 ESC hooked to it and also powered.
@@ -118,14 +118,18 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
   * For the tricopter firmware, you must solder a bridge/wire between the K3 and K4 middle 5v pins to provide power to the mechanical servo.  You should remove this bridge if you decide to use the board for any other firmware that does not use the K4 for a mechanical servo.
  
 === Tx/Rx ===
-  * Also read the Tx/Rx Setup paragraph.
-  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
-
 *WARNING: Do not power the Rx separately using one of the motor ESC's.  Always power it from the filtered power from the flight controller board, or if desired a separate lipo that is grounded to the board, or a separate BEC.  An ESC BEC improperly used that directly powers the Rx can have negative effects on the Rx and board's performance and decrease PPM signal quality and model safety.*
 
 *WARNING: In order for the UAVX built in failsafe to work properly, you must pay attention to how your particular Rx failsafe operates and set it up so that it works safely with the UAVX.  See the Tx/Rx setup instructions for failsafe below!
 
-  * The following list of Tx/Rx combinations are know to work using the UAVPset odd channel selection and can be selected in the pull-down menu:
+
+*Note 1:* UAVX firmware V2.xxx and UAVXArm use a more direct scheme for setting up the Tx/Rx. You should read [http://code.google.com/p/uavp-mods/wiki/TxRxChannelAssignments TxRxChannelAssignments}
+
+*Note 2:* Also read the Tx/Rx Setup paragraph.
+
+  * Do I need to set up my Tx/Rx properly: *Nothing will work* unless your UAVX is successfully receiving your Rx signal and in fact it may be *dangerous* - (see Tx/Rx Setup below). 
+
+  * The following list of UAVX v1.xxxx Tx/Rx combinations are know to work using the UAVPset v4.xx odd channel selection and can be selected in the pull-down menu:
 
    * Futaba Thr3/ Turnigy 9X - Aileron, Elevator, Gear, Aux2 (also Turnigy 9X)
    * Futaba Thr2 - Aileron, Rudder, Gear, Aux2
@@ -146,12 +150,13 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
    * NOT SET YET - You have not set the Tx/Rx combination you are using
    * Custom - for self compiled firmware channel order
 
-  *  Click once on the Tx/Rx box and look at the bottom UAVPset information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pull-down box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx. 
+  *  For UAVX v1.xxxx and UAVPset v4.xx, click once on the Tx/Rx box and look at the bottom UAVPset information window. Find the one that matches your Rx connection to the UAVP board (you may need to scroll down) and select it in the Tx/Rx pull-down box. You may also need to select Mode 2 if your throttle is on the left hand side of your Tx. 
 
   * If your Tx/Rx combination is not currently supported then you should check the following site [http://www.rcgroups.com/forums/showthread.php?t=1171547 Logic Analyzer Displays of PPM Rx Channels]. The Rx signal decoding used by UAVX/UAVP requires that the pulses emitted by the Rx do not overlap and there are no gaps between the pulses.
 
   * If your Tx/Rx is not listed, or when scoping the Rx signals in the [http://www.rcgroups.com/forums/showthread.php?t=1171547 Logic Analyzer Displays of PPM Rx Channels], then you can always use a separate PPM adapter board and then select the "all channels" box in the UAVPset.  When using a PPM adapter such as the $25 DIYDrones PPM adapter, you can use any Tx/Rx combination.
 
+  * For UAVX v2.xxxx and UAVPset v4.xx see *Note 1* in this paragraph.
 
   * I have a Futaba and only Ch6 is connected to a Pot so how do I swap Ch6 and Ch7: Try the "Custom" Rx/Tx config in the UAVPSet pulldown. UAVX can map any input sequence order to any other order provided that the Rx pulses do not overlap and are emitted by the Rx with no gaps. You need to change the *custom* setting definition in the source program to achieve this (uavx.c). 
 
@@ -161,9 +166,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/1/UAVX_octo_options3_
 
   * I have a 6 Channel Receiver: Use the versions with 6CH in the file name. You will need to set the GPS Navigation sensitivity using UAVPSet and will not be able to change it when in flight. You may have to mix Aux1 to Rudder to obtain Yaw control. Be sure to ground the remaining UAVX Rx wire to a ground on your Rx.
 
-=== Tx/Rx in UAVX V2 ===
-
-UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You should read [http://code.google.com/p/uavp-mods/wiki/TxRxChannelAssignments TxRxChannelAssignments}
+  * UAVX firmware V2.xxx and UAVXArm use a more direct scheme for setting up the Tx/Rx. You should read [http://code.google.com/p/uavp-mods/wiki/TxRxChannelAssignments TxRxChannelAssignments}
 
 === Lights and Sirens! ===
   * All of the LEDs are on: Your PIC has no parameters loaded yet. Use Tools->Test Software->D command in UAVPSet to load a default set of parameters. 
@@ -193,12 +196,11 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
   * From UAVX v1.1247 onward the aircraft will not arm unless the accelerometer is ONLINE. The LED indication for failed Acc is both Yellow and Red LEDs flashing. 
 
 ==== Special Alarms In Flight ====
+  * When the barometer is holding altitude, the onboard LEDs will flash in sequence.  You will also hear the beeper make a scratchy sound.  You can also hook up the AUX LEDs to the appropriate K13 pins to use as additional LED hover indicators.  Pin8 is positive(anode) and pins 1-7 are negative(cathode). To use this you must use an appropriate ballast resistor for the LEDs type and color you choose.  Caution: Do not exceed 500ma total!
 
   * I occasionally hear a single beep particularly when I let the sticks go back to neutral: This indicates that the aircraft has captured a new desired GPS position hold point.
 
   * I hear the beeper sounding once every second: This is the flight battery alarm. You should LAND immediately.
-
-  * When the barometer is holding altitude, the onboard LEDs will flash in sequence.  You will also hear the beeper make a scratchy sound.  You can also hook up the AUX LEDs to the appropriate K13 pins to use as additional LED hover indicators.  Pin8 is positive(anode) and pins 1-7 are negative(cathode). To use this you must use an appropriate ballast resistor for the LEDs type and color you choose.  Caution: Do not exceed 500ma total!
 
   * I hear the beeper sounding twice every second and the aircraft is coming down really quickly: This is a *failsafe alarm* and UAVX has lost the RC comms link and is doing an auto-land (See UAVXFailsafe Wiki).
 
@@ -264,7 +266,7 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
 
 === Rangefinder ===
 
-  * How do I connect the rangefinder: The rangefinder uses Pin 5 on the PIC. Pin 5 may be connected to a 3.3V-5v supply on the original UAVP boards sold prior to 2009.  On the boards www.quadroufo.com has sold since 2009, there is a rangefinder connector at K18 which on the older boards was for thee IDG gyro.  Simply remove the jumper and connect the rangefinder positive, negative and signal wires to the proper pins: pin 1, Inboard is ground; pin 2 is +5v; pin 3 closest to the K18 marking is rangefinder signal input.  For the original older UAVP boards simply cut the track and connect the signal line of the rangefinder to the pin.  See the WIKI UAVXRangefindersetup for more infomation: http://code.google.com/p/uavp-mods/wiki/UAVXRangefindersetup
+  * How do I connect the rangefinder: The rangefinder uses Pin 5 on the PIC. Pin 5 may be connected to a 3.3v-5v supply on the original UAVP boards sold prior to 2009.  On the boards www.quadroufo.com has sold since 2009, there is a rangefinder connector at K18 which on the older boards was for the IDG300 gyro.  Simply remove the jumper and connect the rangefinder positive, negative and signal wires to the proper pins: pin 1, Inboard is ground; pin 2 is +5v; pin 3 closest to the K18 marking is rangefinder signal input.  For the original older UAVP boards simply cut the track and connect the signal line of the rangefinder to the pin.  See the WIKI UAVXRangefindersetup for more infomation: http://code.google.com/p/uavp-mods/wiki/UAVXRangefindersetup
 
   * What if do not want to connect the rangefinder: If you have made the wiring modification but wish to remove the rangefinder you need to connect Pin 5 to 5V.  For the flight controller boards sold after 2009, simply attach the jumper to the 2 pins closest to the K18 marking. 
 
@@ -306,6 +308,11 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
 
 
 === UAVPset General ===
+
+*Note 1:* UAVPset v4.xx supports UAVX v1.xxxx.  UAVPset v6.xx supports UAVX v2.xxxx.
+
+*Note 2:* The instructions for the Rx channel setup for UAVX V2 using UAVPset v6.xx is in the WIKI: http://code.google.com/p/uavp-mods/wiki/TxRxChannelAssignments
+
   * Check your PC's baud rate for the com port you are using for the UAVPset. If it is at the default of 9600bps for that com port, then set it to 115.2Kbps. Go to: My Computer/Properties/Hardware/Device Manager/Ports, then "your com device name"/Port settings and set Bits per second at 115200, 8, none, 1, and flow control none. This is your PC's com port setting. Note: If your com port is set to 9600bps there will be connection and parameter write problems. Only set the UAVPset com port to the one your PC is using and leave the rest of the UAVPset com port settings at their defaults. 
 
   * Download and install the latest UAVPset and UAVX firmware from: http://code.google.com/p/uavp-mods/downloads/list. The Beta firmware has been flight tested.  Tha Alpha UAVX firmware is in the process of being flight tested and may contain bugs so if interested in helping with flight testing, then take care!  
@@ -331,8 +338,9 @@ http://static.rcgroups.com/forums/attachments/1/4/0/5/4/1/a2740282-155-UAVX%20GP
    * For the ASUS eee set the display to 1024x768.
 
 === File Versions ===
+*Note:* For UAVX v1.xxxx use UAVPset v4.xx. For UAVX v2.xxxx use UAVPset v6.xx.
 
-  * Which hex file do I use: Tags within the UAVX hex file names tells you what it contains:
+*Which hex file do I use: Tags within the UAVX hex file names tells you what it contains:*
     
     * 16: 16Mhz firmware for the original boards with a 16Mhz crystal installed.
     * 40: 40Mhz firmware for boards that have replaced the 16Mhz crystal with a 10MHz crystal. Using this firmware requires a PIC programmer for the first time load. *Warning: Do not install this 40Mhz firmware if you have the 16MHz crystal.  If you do you will then need a separate PIC programmer to reprogram it for the 16MHz firmware!*
