@@ -264,13 +264,13 @@ UAVX V2 and UAVXArm use a more direct scheme for setting up the Tx/Rx. You shoul
 
 === Rangefinder ===
 
-  * How do I connect the rangefinder: The rangefinder uses Pin 5 on the PIC. Pin 5 may be connected to the 3.3V supply on earlier boards. Simply cut the track and connect the signal line of the rangefinder to the pin.
+  * How do I connect the rangefinder: The rangefinder uses Pin 5 on the PIC. Pin 5 may be connected to a 3.3V-5v supply on the original UAVP boards sold prior to 2009.  On the boards www.quadroufo.com has sold since 2009, there is a rangefinder connector at K18 which on the older boards was for thee IDG gyro.  Simply remove the jumper and connect the rangefinder positive, negative and signal wires to the proper pins: pin 1, Inboard is ground; pin 2 is +5v; pin 3 closest to the K18 marking is rangefinder signal input.  For the original older UAVP boards simply cut the track and connect the signal line of the rangefinder to the pin.  See the WIKI UAVXRangefindersetup for more infomation: http://code.google.com/p/uavp-mods/wiki/UAVXRangefindersetup
 
-  * What if do not want to connect the rangefinder: If you have made the wiring modification but wish to remove the rangefinder you need to connect Pin 5 to 5V.
+  * What if do not want to connect the rangefinder: If you have made the wiring modification but wish to remove the rangefinder you need to connect Pin 5 to 5V.  For the flight controller boards sold after 2009, simply attach the jumper to the 2 pins closest to the K18 marking. 
 
   * How does UAVX know to use the rangefinder: The signal on Pin 5 is checked when UAVX first starts. Connecting Pin 5 to 3.3V or higher tells UAVX that there is no rangefinder as the voltage should be much lower when the aircraft is on the ground.
 
-  * When is the rangefinder: UAVX detects that the rangefinder reading is within range when the aircraft falls below the best range of the rangefinder and uses that altitude value instead.  There is some overlap to allow UAVX to decide when to switch back to the barometer for altitude readings.
+  * When is the rangefinder being used: UAVX detects that the rangefinder reading is within range when the aircraft falls below the best range of the rangefinder and uses that altitude value instead.  There is some overlap to allow UAVX to decide when to switch back to the barometer for altitude readings. The Rangefinder operates from zero to about 20ft/3M. 
 
 === GPS ===
 *Warning: Do not use GPS position hold or return to home while flying indoors when flying multicopters! For the UAVX when flying indoors, turn the ch7 GPS sensitivity knob to below 20% to turn off the GPS.  The GPS signal indoors is not reliable without an expensive GPS signal repeater. Using GPS indoors can result in random position data that can cause your model to move suddenly and unexpectedly. Indoor flight use of GPS is not approved and can be dangerous!*
