@@ -619,6 +619,24 @@ Note that the cam servos are powered by the ESC's from K3 for servo power to K6 
 
 *Warning: Do not attempt to provide power to the servos from the Rx pins by using an unused channel.  There is not enough power provided by the board's 5v source to power the servos.  A digital servo will have higher power requirements and if it is directly connected to the Rx will cause the board to lose enough power to function and result in a crash. Do not power any servo directly from the Rx if the Rx is powered from the board as it normally is.*
 
+=== Optional LED connection ===
+For LEDs the K15 is for an always on LED and the K13 connections are duplicates of the LEDs on board and some auxiliary pins.
+
+====LED K13 connector:====
+ * pin1= Aux2 outside edge
+ * pin2= blue repeater
+ * pin3= red repeater
+ * pin4= green repeater
+ * pin5= Aux1
+ * pin6= yellow repeater
+ * pin7= Aux3
+ * pin8= +5v inside edge
+
+If you want to use additional LEDs, you can use connector K13. There are 7 power LED outputs available. You do have to calculate the value for the current-limiting resistor for each LED (check LED nominal current and battery voltage). The positive leads (anodes) of all LEDs are common to Pin 8 of K13. The negative leads (cathodes) of each LED are connected to pins 1 to 7 respectively, the signal running through the individual LED’s current limiter resistors. In addition, any type of LED can be used to denote the "front“ of the quadrocopter. Connect this LED to K15.
+A current limiting resistor (R16) is already installed (100kohms). The LED is fed through the BEC in all of the options, so note that the total current *draw must not exceed 500ma!* If you require more current then go directly either from your lipo with a separate BEC using the proper voltage and current-limiting resistor for your color and type of LED, or direct from one of your ESC BECs.
+
+
+
 === Other Stuff === 
 
 There are many other things we can try/abandon including:
@@ -641,16 +659,12 @@ An option is to use Parameter set #1 for still conditions and #2 for windy condi
 
 === WARNING: electrically powered aircraft ===
 
-It is very important that you follow the normal safety procedures for electrically powered aircraft with propeller(s). 
+====It is very important that you follow the normal safety procedures for electrically powered aircraft with propeller(s).==== 
   * You *MUST* check that the radio control link is functioning correctly before you apply power to the motor(s). 
-
   * You *MUST* conduct a radio range check before every flight. 
-
   * The aircraft *MUST* be restrained when power is applied and you *MUST* be clear of the propeller(s) at all times.
-
-The motors(s) can start immediately in all electric aircraft when the battery is connected and you should *NEVER* rely on arming switches which are fitted to many aircraft.  
-
-If your *Tx is OFF* or the aircraft is out of radio range PPM receivers can, and do, receive radio noise which they interpret as valid signals; this includes throttle commands. PCM receivers with incorrectly set failsafes can also apply *full throttle* or maintain current throttle which may not be zero if the transmitter signal is lost.
-
-This does not apply just to UAVP/UAVX and other quadrocopters. It applies to ALL electric aircraft. 
+====The motors(s) can start immediately in all electric aircraft when the battery is connected and you should *NEVER* rely on arming switches which are fitted to many aircraft.====
+====If your *Tx is OFF* or the aircraft is out of radio range PPM receivers can, and do, receive radio noise which they interpret as valid signals; this includes throttle commands.====
+====PCM receivers with incorrectly set failsafes can also apply *full throttle* or maintain current throttle which may not be zero if the transmitter signal is lost. Make sure that you read and fully understand the UAVX Failsafe WIKI and the proper Tx/Rx setup procedures in this document.====
+====This does not apply just to UAVP/UAVX and other quadrocopters. It applies to ALL electric aircraft.====
   
