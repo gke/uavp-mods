@@ -1,9 +1,12 @@
 #labels UAVX,gke,jesolins,40MHz
 = 40MHz Versions of UAVX =
 
-== WARNING - READ THIS OR YOU MAY TRASH YOUR UAVP BOARD ==
+== WARNING - READ THIS OR YOU WILL LOSE COMMUNICATION WITH YOUR UAVP BOARD ==
 
 Do not load load versions of UAVX with "40" in the name if you are still using the original 16Mhz crystal. If you do *YOU WILL NOT BE ABLE TO COMMUNICATE WITH UAVX*.  If you make this mistake you will require a PIC programmer to reload A 16Mhz version of UAVX onto the PIC.
+
+You *must* do the first 40Mhz UAVX firmware load with a PIC programmer because this loads a different boot sector code which requires the PIC programmer. So *do not* do the first load of the 40Mhz firmware via the UAVPset with or without the crystal change. This will stop further communication with the PIC until you properly program it initially with a PIC programmer.
+
 
 === Using the 40MHz Version ===
 
