@@ -203,6 +203,7 @@ namespace UAVXGS
             this.BaroRelAltitudeS = new System.Windows.Forms.Label();
             this.BaroMinROCS = new System.Windows.Forms.Label();
             this.ErrorStatsGroupBox = new System.Windows.Forms.GroupBox();
+            this.RawCheckBox = new System.Windows.Forms.CheckBox();
             this.BadS = new System.Windows.Forms.Label();
             this.BadSLabel = new System.Windows.Forms.Label();
             this.FailsafeSLabel = new System.Windows.Forms.Label();
@@ -266,7 +267,6 @@ namespace UAVXGS
             this.ColourButton = new System.Windows.Forms.Button();
             this.headingIndicatorInstrumentControl1 = new Instruments.HeadingIndicatorInstrumentControl();
             this.attitudeIndicatorInstrumentControl1 = new Instruments.AttitudeIndicatorInstrumentControl();
-            this.RawCheckBox = new System.Windows.Forms.CheckBox();
             this.GyroGroupBox.SuspendLayout();
             this.ControlsGroupBox.SuspendLayout();
             this.AttitudeGroupBox.SuspendLayout();
@@ -296,9 +296,9 @@ namespace UAVXGS
             // 
             this.FlyingButton.BackColor = System.Drawing.Color.Red;
             this.FlyingButton.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.FlyingButton.Location = new System.Drawing.Point(629, 0);
+            this.FlyingButton.Location = new System.Drawing.Point(613, 0);
             this.FlyingButton.Name = "FlyingButton";
-            this.FlyingButton.Size = new System.Drawing.Size(69, 23);
+            this.FlyingButton.Size = new System.Drawing.Size(85, 23);
             this.FlyingButton.TabIndex = 0;
             this.FlyingButton.Text = "Disconnected";
             this.FlyingButton.UseVisualStyleBackColor = false;
@@ -925,7 +925,7 @@ namespace UAVXGS
             // MissionTimeSecLabel
             // 
             this.MissionTimeSecLabel.AutoSize = true;
-            this.MissionTimeSecLabel.Location = new System.Drawing.Point(499, 5);
+            this.MissionTimeSecLabel.Location = new System.Drawing.Point(478, 5);
             this.MissionTimeSecLabel.Name = "MissionTimeSecLabel";
             this.MissionTimeSecLabel.Size = new System.Drawing.Size(46, 13);
             this.MissionTimeSecLabel.TabIndex = 163;
@@ -933,7 +933,7 @@ namespace UAVXGS
             // 
             // MissionTimeSec
             // 
-            this.MissionTimeSec.Location = new System.Drawing.Point(551, 2);
+            this.MissionTimeSec.Location = new System.Drawing.Point(530, 2);
             this.MissionTimeSec.Name = "MissionTimeSec";
             this.MissionTimeSec.ReadOnly = true;
             this.MissionTimeSec.Size = new System.Drawing.Size(70, 20);
@@ -2086,6 +2086,15 @@ namespace UAVXGS
             this.ErrorStatsGroupBox.TabStop = false;
             this.ErrorStatsGroupBox.Text = "Error Stats";
             // 
+            // RawCheckBox
+            // 
+            this.RawCheckBox.AutoSize = true;
+            this.RawCheckBox.Location = new System.Drawing.Point(286, 55);
+            this.RawCheckBox.Name = "RawCheckBox";
+            this.RawCheckBox.Size = new System.Drawing.Size(15, 14);
+            this.RawCheckBox.TabIndex = 169;
+            this.RawCheckBox.UseVisualStyleBackColor = true;
+            // 
             // BadS
             // 
             this.BadS.Location = new System.Drawing.Point(269, 15);
@@ -2410,7 +2419,7 @@ namespace UAVXGS
             // 
             // ReplayButton
             // 
-            this.ReplayButton.Location = new System.Drawing.Point(275, 0);
+            this.ReplayButton.Location = new System.Drawing.Point(250, 1);
             this.ReplayButton.Name = "ReplayButton";
             this.ReplayButton.Size = new System.Drawing.Size(75, 23);
             this.ReplayButton.TabIndex = 164;
@@ -2420,7 +2429,7 @@ namespace UAVXGS
             // 
             // ReplayProgressBar
             // 
-            this.ReplayProgressBar.Location = new System.Drawing.Point(352, 0);
+            this.ReplayProgressBar.Location = new System.Drawing.Point(331, 0);
             this.ReplayProgressBar.Name = "ReplayProgressBar";
             this.ReplayProgressBar.Size = new System.Drawing.Size(94, 23);
             this.ReplayProgressBar.TabIndex = 165;
@@ -2438,7 +2447,7 @@ namespace UAVXGS
             // 
             // ReplayNumericUpDown
             // 
-            this.ReplayNumericUpDown.Location = new System.Drawing.Point(452, 2);
+            this.ReplayNumericUpDown.Location = new System.Drawing.Point(431, 1);
             this.ReplayNumericUpDown.Maximum = new decimal(new int[] {
             20,
             0,
@@ -2692,15 +2701,6 @@ namespace UAVXGS
             this.attitudeIndicatorInstrumentControl1.Size = new System.Drawing.Size(258, 259);
             this.attitudeIndicatorInstrumentControl1.TabIndex = 3;
             this.attitudeIndicatorInstrumentControl1.Text = "attitudeIndicatorInstrumentControl1";
-            // 
-            // RawCheckBox
-            // 
-            this.RawCheckBox.AutoSize = true;
-            this.RawCheckBox.Location = new System.Drawing.Point(286, 55);
-            this.RawCheckBox.Name = "RawCheckBox";
-            this.RawCheckBox.Size = new System.Drawing.Size(15, 14);
-            this.RawCheckBox.TabIndex = 169;
-            this.RawCheckBox.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 

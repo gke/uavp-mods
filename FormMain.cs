@@ -180,7 +180,7 @@ namespace UAVXGS
             ReturnHome
             Proximity
             CloseProximity
-            UsingAccComp
+            NormalFlightMode
             UsingRTHAutoDescend
             BaroAltitudeValid
             RangefinderAltitudeValid
@@ -1120,11 +1120,17 @@ namespace UAVXGS
                     break;
                 case 7: // Hexacopter
                     Output0Label.Text = "F";
-                    Output1Label.Text = "FR";
-                    Output2Label.Text = "BR";
-                    Output3Label.Text = "B";
-                    Output4Label.Text = "BL";
-                    Output5Label.Text = "FL";
+                    Output1Label.Text = "FL";
+                    Output2Label.Text = "FR";
+                    Output3Label.Text = "BL";
+                    Output4Label.Text = "BR";
+                    Output5Label.Text = "B";
+                    break;
+                case 8: // VTOL/Can/Sphere
+                    Output0Label.Text = "Th";
+                    Output1Label.Text = "RPY";
+                    Output2Label.Text = "LPY";
+                    Output3Label.Text = "R";
                     break;
                 }
             else
@@ -1167,6 +1173,12 @@ namespace UAVXGS
                         Output3Label.Text = "BF";
                         Output4Label.Text = "BL";
                         Output5Label.Text = "BR";
+
+                        Output4Label.Visible = true;
+                        Output5Label.Visible = true;
+                        OutputT4.Visible = true;
+                        OutputT5.Visible = true;
+
                         Output6Label.Visible = false;
                         Output7Label.Visible = false;
                         OutputT6.Visible = false;
@@ -1177,6 +1189,7 @@ namespace UAVXGS
                         Output1Label.Text = "R";
                         Output2Label.Text = "P";
                         Output3Label.Text = "Y";
+
                         Output4Label.Visible = false;
                         Output5Label.Visible = false;
                         OutputT4.Visible = false;
@@ -1197,12 +1210,40 @@ namespace UAVXGS
                         Output1Label.Text = "A";
                         Output2Label.Text = "E";
                         Output3Label.Text = "R";
+
                         Output4Label.Visible = false;
                         Output5Label.Visible = false;
                         OutputT4.Visible = false;
                         OutputT5.Visible = false;
                         break;
                     case 7: // Hexacopter
+                        Output0Label.Text = "F";
+                        Output1Label.Text = "FL";
+                        Output2Label.Text = "FR";
+                        Output3Label.Text = "BL";
+                        Output4Label.Text = "BR";
+                        Output5Label.Text = "B";
+
+                        Output4Label.Visible = true;
+                        Output5Label.Visible = true;
+                        OutputT4.Visible = true;
+                        OutputT5.Visible = true;
+
+                        Output6Label.Visible = false;
+                        Output7Label.Visible = false;
+                        OutputT6.Visible = false;
+                        OutputT7.Visible = false;
+
+                        break;
+                    case 8: // VTOL/Can/Sphere
+                        Output0Label.Text = "Th";
+                        Output1Label.Text = "RPY";
+                        Output2Label.Text = "LPY";
+                        Output3Label.Text = "R";
+                        Output4Label.Visible = false;
+                        Output5Label.Visible = false;
+                        OutputT4.Visible = false;
+                        OutputT5.Visible = false;
                         break;
                 }
         }
@@ -1348,6 +1389,19 @@ namespace UAVXGS
                 FocusLockedBox.BackColor = System.Drawing.Color.Green;
             else
                 FocusLockedBox.BackColor = System.Drawing.Color.LightSteelBlue;
+
+            if ((Flags[2] & 0x08) != 0)
+            {
+                AccelerationsGroupBox.Visible = true;
+                RollAngle.BackColor = AttitudeGroupBox.BackColor;
+                PitchAngle.BackColor = AttitudeGroupBox.BackColor;
+            }
+            else
+            {
+                AccelerationsGroupBox.Visible = false;
+                RollAngle.BackColor = System.Drawing.Color.Orange;
+                PitchAngle.BackColor = System.Drawing.Color.Orange;
+            }
 
             if ((Flags[5] & 0x80) != 0)
             {
@@ -1510,6 +1564,7 @@ namespace UAVXGS
                     case 5: Airframe.Text = "Arm Flying Wing"; break;
                     case 6: Airframe.Text = "Arm Conventional"; break;
                     case 7: Airframe.Text = "Arm Hexacopter"; break;
+                    case 8: Airframe.Text = "Arm VTOL"; break;
                 }
             else
                 switch (AirframeT)
@@ -1522,6 +1577,7 @@ namespace UAVXGS
                     case 5: Airframe.Text = "Flying Wing"; break;
                     case 6: Airframe.Text = "Conventional"; break;
                     case 7: Airframe.Text = "Hexacopter"; break;
+                    case 8: Airframe.Text = "VTOL"; break;
                 }
           }
 
@@ -1612,7 +1668,7 @@ namespace UAVXGS
                 if ((AirframeT == 4) || (AirframeT == 5) || (AirframeT == 6)) // One motor
                     TopMotor = 0;
                 else
-                    if (AirframeT == 3) // Y6
+                    if ((AirframeT == 3)||( AirframeT == 7)) // Y6 | Hexacopter
                         TopMotor = 5;
                     else
                         TopMotor = 3;
@@ -2384,8 +2440,8 @@ namespace UAVXGS
                     PitchGyroT / AttitudeToDegrees + "," +
 
                     YawGyroT / AttitudeToDegrees + "," +
-                    RollAngleT / AttitudeToDegrees + "," +
-                    PitchAngleT / AttitudeToDegrees + "," +
+                    RollAngleT / AttitudeToDegrees + "," + 
+                    PitchAngleT / AttitudeToDegrees + "," + 
                     YawAngleT / AttitudeToDegrees + ",");
                 }
             }
