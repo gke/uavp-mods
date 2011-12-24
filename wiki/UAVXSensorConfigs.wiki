@@ -1,0 +1,48 @@
+#Details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
+
+= Introduction =
+
+This Wiki details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
+
+
+= UAVXArm =
+
+== Gyros ==
+
+* all 16MHz gyros
+* ITG3200
+
+== Accelerometers ==
+
+
+
+== IMU Boards
+
+
+= UAVX 18F2620 PIC @ 40MHz
+
+== Gyros ==
+
+* all 16MHz gyros
+* ITG3200
+
+== Accelerometers ==
+
+
+
+== IMU Boards
+
+
+= UAVX 18F2620 PIC @ 16MHz
+
+Notionally superseded with a simple upgrade to 40MHz by replacing the 16MHz crystal with a 10MHz crystal and re-burning the PIC with any 40MHz version of the UAVX firmware after which UAVPset can be used to load further 40MHz versions.
+
+== Gyros ==
+
+== Accelerometers ==
+
+== IMU Boards ==
+
+
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
