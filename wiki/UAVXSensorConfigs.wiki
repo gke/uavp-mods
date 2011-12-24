@@ -38,15 +38,15 @@ UAVX will fly with gyros only but and accelerometer is recommended. Compass and 
 ||*X*||*Y*||*Y*||LIS3LV02DQ||ST||SPI||legacy but OK||
 ||Baro||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
-||*Y*||*Y*||*-*||BMP085||Bosch||I2C||recommended 12/2011||
-||*Y*||*Y*||*-*||MS5611||Measurement Systems||I2C||slow stabilisation||
+||*Y*||*Y*||*-*||BMP085||Bosch||I2C||still recommended 12/2011||
+||*Y*||*Y*||*-*||MS5611||Measurement Systems||I2C||slow stabilisation but has promise||
 ||*Y*||*P*||*-*||MPX4115||Freescale||Analog||prototype||
 ||*X*||*Y*||*Y*||SMD500||Bosch||I2C||legacy - not recommended||
 ||Mag||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
 ||*Y*||*Y*||*-*||HMC5883L||Honeywell||I2C||recommended 12/2011||
 ||*X*||*Y*||*-*||HMC5843||Honeywell||I2C||superseded DO NOT BUY||
-||*X*||*Y*||*Y*||HMC6352||Honeywell||I2C||legacy compass DO NOT BUY||
+||*X*||*Y*||*Y*||HMC6352||Honeywell||I2C100||legacy compass DO NOT BUY||
 
 === Multi Sensor Boards ===
 
