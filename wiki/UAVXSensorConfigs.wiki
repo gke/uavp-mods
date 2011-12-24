@@ -22,6 +22,8 @@ Y is included and X deleted. 16&40MHz are for the PIC version of UAVX.
 
 UAVX will fly with gyros only but and accelerometer is recommended. Compass and barometer are only required for navigation and altitude hold.
 
+There is some argument that the analog gyros still have the edge over the gyros that use I2C/SPI comms. UAVXArm will support both as the current UAVX does.
+
 ||Gyro||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
 ||*Y*||*Y*||*-*||ITG3200||Invensense||I2C||-||
