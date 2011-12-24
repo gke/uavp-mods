@@ -5,20 +5,23 @@
 
 This Wiki details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
 
+||Arm||40MHz||16MHz||Type||Manufacturer||Notes||
+||Y||Y||Y||Gyro||MLX90609-R2||
+||Y||Y||Y||Gyro||ADXRS150/613||Analog Devices||||
+||||||Y||Gyro||IDG300||Invensense||||
+||Y||Y||Y||Gyro||LY530||||||
+||Y||Y||Y||Gyro||ADXRS300/610||Analog Devices|| 
+||Y||Y||||Gyro||ITG3200
+||Y||Y||Y||Acc||LIS3L (legacy UAVP)
+||Y||Y||||Acc||ADXL345 Analog Devices  
+||Y||Y||||Acc||BMA180 ??? ( recommended currently 12/2011 )
+||Y||Y||||Gyro/Acc||MPU6050||Invensense||||
 
-=== UAVXArm ===
+||Y||Y||||Baro||SMD500||Bosch||||
+||Y||Y||||Baro||BMP085||Bosch||||recommended currently 12/2011||
+||Y||Y||||Baro||MPX4115||Freescale||
+||Y||Y||||Baro||MS5611||Measurement Systems|| 
 
-==== Gyros ====
-
-
-=== Accelerometers ===
-
-
-
-==== IMU Boards ====
-
-
-=== UAVX 18F2620 PIC @ 40MHz ===
 
 40MHz is the preferred clock rate for UAVX PIC.
 
@@ -38,17 +41,7 @@ This Wiki details the sensors currently supported for each of the major versions
 
 ==== Accelerometers ====
 
-  *LIS3L (legacy UAVP)
-  *ADXL345 Analog Devices  
-  *BMA180 ??? ( recommended currently 12/2011 )
-  *MPU6050
 
-==== Barometer ====
-
-*SMD500 Bosch
-*BMP085 Bosch ( recommended currently 12/2011 )
-*MPX4115 Freescale
-*MS5611 Measurement Systems 
 
 ==== Compass/Magnetometer ====
 
