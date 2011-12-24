@@ -21,37 +21,38 @@ The recommended clock rate for the UAVX PIC version is 40MHz. Converting from 16
 
 
 ||Gyro||
-||*Y*||*Y*||*-*||ITG3200||Invensense||I2C||||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
+||*Y*||*Y*||*-*||ITG3200||Invensense||I2C||-||
 ||*Y*||*Y*||*Y*||MLX90609-R2||Melexis||Analog||-||
-||*Y*||*Y*||*Y*||LY530ALH||ST||Analog||QuadroUFO standard||
 ||*Y*||*Y*||*Y*||ADXRS300/610||Analog Devices||Analog||-||
-||*Y*||*Y*||*Y*||ADXRS150/613||Analog Devices||Analog||-||
-||*-*||*Y*||*Y*||IDG300||Invensense||Analog||legacy||
+||*Y*||*Y*||*Y*||LY530ALH||ST||Analog||QuadroUFO standard||
+||*X*||*Y*||*Y*||ADXRS150/613||Analog Devices||Analog||legacy||
+||*X*||*Y*||*Y*||IDG300||Invensense||Analog||legacy||
 
 ||Acc||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
 ||*Y*||*Y*||*-*||BMA180||-||I2C||recommended 12/2011||
 ||*Y*||*Y*||*-*||MPU6050||Invensense||I2C||-||
-||*Y*||*Y*||*-*||ADXL345||Analog Devices||I2C||lower resolution||  
-||*-*||*Y*||*Y*||LIS3LV02DQ||ST||SPI||legacy UAVP||
+||*Y*||*Y*||*-*||ADXL345||Analog Devices||I2C||low resolution(200/G)||  
+||*X*||*Y*||*Y*||LIS3LV02DQ||ST||SPI||legacy but OK||
 ||Baro||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
 ||*Y*||*Y*||*-*||BMP085||Bosch||I2C||recommended 12/2011||
 ||*Y*||*Y*||*-*||MS5611||Measurement Systems||I2C||slow stabilisation||
 ||*Y*||*P*||*-*||MPX4115||Freescale||Analog||prototype||
-||*-*||*Y*||*Y*||SMD500||Bosch||I2C||Legacy - not recommended||
+||*X*||*Y*||*Y*||SMD500||Bosch||I2C||legacy - not recommended||
 ||Mag||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
 ||*Y*||*Y*||*-*||HMC5883L||Honeywell||I2C||recommended 12/2011||
-||*Y*||*Y*||*-*||HMC5843||Honeywell||I2C||superseded||
-||*-*||*Y*||*Y*||HMC6352||Honeywell||I2C||legacy compass DO NOT BUY||
+||*Y*||*Y*||*-*||HMC5843||Honeywell||I2C||superseded DO NOT BUY||
+||*X*||*Y*||*Y*||HMC6352||Honeywell||I2C||legacy compass DO NOT BUY||
 
 
 ||Sensor||
 ||*Arm*||*40MHz*||*16MHz*||Board*||*Manufacturer*||*Gyro*||*Acc*||*Mag*||*Baro*||
-||*Y*||*Y*||*Y*||MPU6050||QuadroUFO||MPU6050||MPU6050||||BMP085||
-||*Y*||*Y*||*Y*||10DOF||Drotek||ITG3200||BMA180||BMP085||HMC5883XL||
-||*Y*||*Y*||*Y*||10DOF||FreeIMU||ITG3200||BMA180||MS5611||HMC5883L||
-||*Y*||*Y*||*Y*||6DOF||SparkFun||ITG3200||ADXL345||-||-||
-||*Y*||*Y*||*Y*||9DOF Sensor||SparkFun||ITG3200||ADXL345||HMC5843||-|| 
+||*Y*||*Y*||*-*||MPU6050||QuadroUFO||MPU6050||MPU6050||||BMP085||
+||*Y*||*Y*||*-*||10DOF||Drotek||ITG3200||BMA180||BMP085||HMC5883XL||
+||*Y*||*Y*||*-*||10DOF||FreeIMU||ITG3200||BMA180||MS5611||HMC5883L||
+||*-*||*Y*||*-*||9DOF Stick||SparkFun||ITG3200||ADXL345||HMC5843||ADXL345 low res.|| 
+||*X*||*Y*||*-*||6DOF||SparkFun||ITG3200||ADXL345||-||ADXL345 low res.||
+||*X*||*Y*||*Y*||3DOF||SparkFun||ITG3200||-||-||-||
