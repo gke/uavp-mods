@@ -3,11 +3,11 @@
 
 === Introduction ===
 
-This Wiki Offers some guidance on the sensors supported by the various versions of UAVX and the intentions for future support with UAVXArm.
+This Wiki offers some guidance on the sensors supported by the various versions of UAVX and the intentions for future support with UAVXArm.
 
 === Recommendation to Upgrade to 40MHz Clock ===
 
-The recommended clock rate for the UAVX PIC version is 40MHz. Converting from 16MHz to 40Hz is a simple modification achieved by replacing the 16MHz crystal with a 10MHz crystal and re-burning the PIC with any 40MHz version of the UAVX firmware after which UAVPset can be used to load further 40MHz versions.
+The recommended clock rate for the UAVX PIC version is now 40MHz. Converting from 16MHz to 40Hz is a simple modification achieved by replacing the 16MHz crystal with a 10MHz crystal and re-burning the PIC with any 40MHz version of the UAVX firmware after which UAVPset can be used to load further 40MHz versions.
 
 ==== PID Update Rates ====
 
