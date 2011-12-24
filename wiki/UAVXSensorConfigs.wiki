@@ -5,24 +5,24 @@
 
 This Wiki details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
 
-||Arm/40/16MHz||Type||Manufacturer||Notes||
-||.||.||.||Gyro||MLX90609-R2||
+||Arm||40||16||Type||Manufacturer||Notes||
+||Y||Y||Y||Gyro||MLX90609-R2||
 ||Y||Y||Y||Gyro||ADXRS150/613||Analog Devices||||
-||Y||Y||Y||Gyro||IDG300||Invensense||||
-||Y||Y||Y||Gyro||LY530||||||
+||-||Y||Y||Gyro||IDG300||Invensense||||
+||Y||Y||Y||Gyro||LY530ALH||||||
 ||Y||Y||Y||Gyro||ADXRS300/610||Analog Devices|| 
 ||Y||Y||-||Gyro||ITG3200||
 ||-||Y||Y||Acc||LIS3L||||legacy UAVP||
-||Y||Y||Y||Acc||ADXL345|| Analog Devices||||  
-||Y||Y||Y||Acc||BMA180 ??? ( recommended 12/2011 )
+||Y||Y||-||Acc||ADXL345|| Analog Devices||||  
+||Y||Y||-||Acc||BMA180 ??? ( recommended 12/2011 )
 ||Y||Y||Y||Gyro/Acc||MPU6050||Invensense||||
-||Y||Y||-||Baro||SMD500||Bosch||||
-||Y||Y||-||Baro||BMP085||Bosch||||recommended 12/2011||
+||-||Y||Y||Baro||SMD500||Bosch||||
+||Y||Y||Y||Baro||BMP085||Bosch||||recommended 12/2011||
 ||Y||Y||-||Baro||MPX4115||Freescale||
 ||Y||Y||-||Baro||MS5611||Measurement Systems|| 
-||Y||Y||Y||Magnetometer||HMC5883L||Honeywell||recommended 12/2011||
-||Y||Y||Y||Magnetometer||HMC5843||Honeywell||superseded||
-||Y||Y||Y||Compass||HMC6352||Honeywell||legacy compass but 100KHz I2C DO NOT BUY||
+||Y||Y||-||Magnetometer||HMC5883L||Honeywell||recommended 12/2011||
+||Y||Y||-||Magnetometer||HMC5843||Honeywell||superseded||
+||-||Y||Y||Compass||HMC6352||Honeywell||legacy compass but 100KHz I2C DO NOT BUY||
 
 
   *250 Hz or 500Hz with I2CESCs
