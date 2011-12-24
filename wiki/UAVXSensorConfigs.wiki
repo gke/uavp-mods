@@ -1,34 +1,32 @@
 #labels Featured,Phase-Deploy,gke
 #Details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
 
-= Introduction =
+== Introduction ==
 
 This Wiki details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
 
 
-= UAVXArm =
+=== UAVXArm ===
 
-== Gyros ==
+==== Gyros ====
 
-* all 16MHz gyros
-* ITG3200
 
-== Accelerometers ==
+=== Accelerometers ===
 
 
 
-== IMU Boards
+==== IMU Boards ====
 
 
-= UAVX 18F2620 PIC @ 40MHz
+=== UAVX 18F2620 PIC @ 40MHz ===
 
 40MHz is the preferred clock rate for UAVX PIC.
 
-=== PID Update Rate ===
+==== PID Update Rate ====
 
-*250 Hz
+*250 Hz or 500Hz with I2CESCs
 
-== Gyros ==
+==== Gyros ====
 
 *MLX90609-R2
 *ADXRS150/613
@@ -38,59 +36,59 @@ This Wiki details the sensors currently supported for each of the major versions
 *ITG3200
 *MPU6050
 
-== Accelerometers ==
+==== Accelerometers ====
 
 *LIS3L
 *ADXL345
 *BMA180
-*MPU8050
+*MPU6050
 
-=== Barometer ===
+==== Barometer ====
 
 *SMD500 Bosch
 *BMP085 Bosch
-*MPX4115
+*MPX4115 Freescale
 *MS5611 Measurement Systems 
 
-=== Compass/Magnetometer ===
+==== Compass/Magnetometer ====
 
 HMC5883L Honeywell (preferred)
 HMC5843 Honeywell (superseded)
-HMC6352 Honeywell (legacy compass but 100KHz I2C)
+HMC6352 Honeywell (legacy compass but 100KHz I2C DO NOT BUY)
 
-=== IMU Boards ===
+==== IMU Boards ====
 
 *QuadroUFO MPU6050 ( MPU6050, BMP085 )
-*Drotek 10DOF ( ITG3200, BMA180, HMC5883XL, BMP085 )
-*FreeIMU ( ITG3200, BMA180, MS5611 )
+*Drotek 10DOF ( ITG3200, BMA180, BMP085, HMC5883XL )
+*FreeIMU ( ITG3200, BMA180, MS5611, HMC5883L )
 *SparkFun 6DOF ( ITG3200, ADXL345)
 *SparkFun 9DOF Sensor Stick ( ITG3200, ADXL345, HMC5843 )
 
-== UAVX 18F2620 PIC @ 16MHz ==
+=== UAVX 18F2620 PIC @ 16MHz ===
 
 Notionally superseded with a simple upgrade to 40MHz by replacing the 16MHz crystal with a 10MHz crystal and re-burning the PIC with any 40MHz version of the UAVX firmware after which UAVPset can be used to load further 40MHz versions.
 
-=== PID Update Rate ===
+==== PID Update Rate ====
 
 *125 Hz
 
-=== Gyros ===
+==== Gyros ====
 
-*MLX90609-R2
-*ADXRS150/613
-*IDG300
-*LY530
-*ADXRS300/610 
+*MLX90609-R2 Melexis
+*ADXRS150/613 Analog Devices
+*IDG300 Invensense (legacy - not recommended)
+*LY530ALH ST
+*ADXRS300/610 Analog Devices
 
-== Accelerometers ==
+==== Accelerometers ====
 
-*LIS3L
+*LIS3LV02DQ ST
 
-=== Barometer ===
+==== Barometer ====
 
-*Bosch SMD500
-*Bosch BMP085
+*SMD500 Bosch
+*BMP085 Bosch
 
-=== Compass ===
+==== Compass ====
 
-*Honeywell HMC6352
+*HMC6352 Honeywell
