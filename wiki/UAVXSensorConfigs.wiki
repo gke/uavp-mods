@@ -51,7 +51,7 @@ UAVX will fly with gyros only but and accelerometer is recommended. Compass and 
 
 ||Sensor||
 ||*Arm*||*40MHz*||*16MHz*||Board*||*Manufacturer*||*Gyro*||*Acc*||*Mag*||*Baro*||
-||*Y*||*Y*||*-*||MPU6050||QuadroUFO||MPU6050||MPU6050||||BMP085||
+||*Y*||*Y*||*-*||MPU6050||QuadroUFO||MPU6050||MPU6050||-||BMP085||
 ||*Y*||*Y*||*-*||10DOF||Drotek||ITG3200||BMA180||BMP085||HMC5883XL||
 ||*Y*||*Y*||*-*||10DOF||FreeIMU||ITG3200||BMA180||MS5611||HMC5883L||
 ||*-*||*Y*||*-*||9DOF Stick||SparkFun||ITG3200||ADXL345||HMC5843||ADXL345 low res.|| 
