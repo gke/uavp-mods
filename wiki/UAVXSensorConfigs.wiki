@@ -3,7 +3,7 @@
 
 === Introduction ===
 
-This Wiki Offers guidance on the sensors supported by the various versions of UAVX and the intentions for future support with UAVXArm.
+This Wiki Offers some guidance on the sensors supported by the various versions of UAVX and the intentions for future support with UAVXArm.
 
 === Recommendation to Upgrade to 40MHz Clock ===
 
