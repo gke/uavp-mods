@@ -52,7 +52,7 @@ UAVX will fly with gyros only but and accelerometer is recommended. Compass and 
 
 There are MANY boards out there that use some combination of the sensors above. 
 
-There will be many more and my prediction is that the direction will be towards devices like the MPU6050 with sensor fusion math thrown in. Cross calibration of the sensors is a big deal and there are motivations to do this and motion tracking easily and cheaply.
+There will be many more and my prediction is that the direction will be towards devices like the MPU6050 with sensor fusion math thrown in. Cross calibration of the sensors is a big deal and there are motivations ($s) to do this and motion tracking easily and cheaply.
 
 A common sensor combination currently is ITG3200, BMA180, HMC5883L and BMP085. The MS5611 has some supporters but startup drift seems to be an issue. An MPX4115 proto by Steve (Kisssys) gives great performance. The MPU6050 has appeared in the FreeIMU. The MPU6050 gyro is functionally the ITG3200.   
 
