@@ -9,12 +9,12 @@ This Wiki details the sensors currently supported for each of the major versions
 ||*Y*||*Y*||*Y*||Gyro||MLX90609-R2||Analog||||
 ||*Y*||*Y*||*Y*||Gyro||ADXRS150/613||Analog Devices||Analog||||
 ||*-*||*Y*||*Y*||Gyro||IDG300||Invensense||Analog||||
-||*Y*||*Y*||*Y*||Gyro||LY530ALH||||Analog||||
+||*Y*||*Y*||*Y*||Gyro||LY530ALH||xxx||Analog||||
 ||*Y*||*Y*||*Y*||Gyro||ADXRS300/610||Analog Devices||Analog|||| 
 ||*Y*||*Y*||*Y*||Gyro||ITG3200||Invensense||I2C||||
 ||*Y*||*Y*||*Y*||Acc||LIS3L||xxx||SPI||legacy UAVP||
-||*Y*||*Y*||*Y*||Acc||ADXL345||||Analog Devices||I2C||||  
-||*Y*||*Y*||*Y*||Acc||BMA180||I2C||||recommended 12/2011 )
+||*Y*||*Y*||*Y*||Acc||ADXL345||Analog Devices||I2C||||  
+||*Y*||*Y*||*Y*||Acc||BMA180||||I2C||recommended 12/2011||
 ||*Y*||*Y*||*Y*||Gyro/Acc||MPU6050||Invensense||||
 ||*Y*||*Y*||*Y*||Baro||SMD500||Bosch||||
 ||*Y*||*Y*||*Y*||Baro||BMP085||Bosch||||recommended 12/2011||
