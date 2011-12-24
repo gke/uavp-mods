@@ -18,7 +18,7 @@ The recommended clock rate for the UAVX PIC version is 40MHz. Converting from 16
 
 === Supported Sensors ====
 
-
+Y is included and X deleted. 16&40MHz are for the PIC version of UAVX.
 
 ||Gyro||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
