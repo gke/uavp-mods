@@ -11,31 +11,24 @@ This Wiki details the sensors currently supported for each of the major versions
 ||-||Y||Y||Gyro||IDG300||Invensense||||
 ||Y||Y||Y||Gyro||LY530ALH||||||
 ||Y||Y||Y||Gyro||ADXRS300/610||Analog Devices|| 
-||Y||Y||-||Gyro||ITG3200||
+||Y||Y||-||Gyro||ITG3200||||||
 ||-||Y||Y||Acc||LIS3L||||legacy UAVP||
-||Y||Y||-||Acc||ADXL345|| Analog Devices||||  
-||Y||Y||-||Acc||BMA180 ??? ( recommended 12/2011 )
+||Y||Y||-||Acc||ADXL345||||Analog Devices||||  
+||Y||Y||-||Acc||BMA180||||recommended 12/2011 )
 ||Y||Y||Y||Gyro/Acc||MPU6050||Invensense||||
 ||-||Y||Y||Baro||SMD500||Bosch||||
 ||Y||Y||Y||Baro||BMP085||Bosch||||recommended 12/2011||
-||Y||Y||-||Baro||MPX4115||Freescale||
-||Y||Y||-||Baro||MS5611||Measurement Systems|| 
+||Y||Y||-||Baro||MPX4115||Freescale||||
+||Y||Y||-||Baro||MS5611||Measurement Systems||||
 ||Y||Y||-||Magnetometer||HMC5883L||Honeywell||recommended 12/2011||
 ||Y||Y||-||Magnetometer||HMC5843||Honeywell||superseded||
 ||-||Y||Y||Compass||HMC6352||Honeywell||legacy compass but 100KHz I2C DO NOT BUY||
 
 
   *250 Hz or 500Hz with I2CESCs
+||Arm||40||16||Board||Manufacturer||Gyro||Acc||Mag||Baro||
 
-==== Compass/Magnetometer ====
-
-HMC5883L Honeywell (preferred)
-HMC5843 Honeywell (superseded)
-HMC6352 Honeywell (legacy compass but 100KHz I2C DO NOT BUY)
-
-==== IMU Boards ====
-
-*QuadroUFO MPU6050 ( MPU6050, BMP085 )
+||-||Y||Y||MPU6050|| QuadroUFO||( MPU6050, BMP085 )||
 *Drotek 10DOF ( ITG3200, BMA180, BMP085, HMC5883XL )
 *FreeIMU ( ITG3200, BMA180, MS5611, HMC5883L )
 *SparkFun 6DOF ( ITG3200, ADXL345)
