@@ -20,6 +20,8 @@ The recommended clock rate for the UAVX PIC version is 40MHz. Converting from 16
 
 Y is included and X deleted. 16&40MHz are for the PIC version of UAVX.
 
+UAVX will fly with gyros only but and accelerometer is recommended. Compass and barometer are only required for navigation and altitude hold.
+
 ||Gyro||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
 ||*Y*||*Y*||*-*||ITG3200||Invensense||I2C||-||
@@ -28,7 +30,6 @@ Y is included and X deleted. 16&40MHz are for the PIC version of UAVX.
 ||*Y*||*Y*||*Y*||LY530ALH||ST||Analog||QuadroUFO standard||
 ||*X*||*Y*||*Y*||ADXRS150/613||Analog Devices||Analog||legacy||
 ||*X*||*Y*||*Y*||IDG300||Invensense||Analog||legacy||
-
 ||Acc||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
 ||*Y*||*Y*||*-*||BMA180||-||I2C||recommended 12/2011||
