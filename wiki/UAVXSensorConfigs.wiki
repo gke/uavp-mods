@@ -1,38 +1,38 @@
 #labels Featured,Phase-Deploy,gke
-#Details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
+#Summary Details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
 
 == Introduction ==
 
 This Wiki details the sensors currently supported for each of the major versions of UAVX and UAVXArm.
 
-||Arm||40||16||Type||Manufacturer||Notes||
-||Y||Y||Y||Gyro||MLX90609-R2||
-||Y||Y||Y||Gyro||ADXRS150/613||Analog Devices||||
-||-||Y||Y||Gyro||IDG300||Invensense||||
-||Y||Y||Y||Gyro||LY530ALH||||||
-||Y||Y||Y||Gyro||ADXRS300/610||Analog Devices|| 
-||Y||Y||-||Gyro||ITG3200||||||
-||-||Y||Y||Acc||LIS3L||||legacy UAVP||
-||Y||Y||-||Acc||ADXL345||||Analog Devices||||  
-||Y||Y||-||Acc||BMA180||||recommended 12/2011 )
-||Y||Y||Y||Gyro/Acc||MPU6050||Invensense||||
-||-||Y||Y||Baro||SMD500||Bosch||||
-||Y||Y||Y||Baro||BMP085||Bosch||||recommended 12/2011||
-||Y||Y||-||Baro||MPX4115||Freescale||||
-||Y||Y||-||Baro||MS5611||Measurement Systems||||
-||Y||Y||-||Magnetometer||HMC5883L||Honeywell||recommended 12/2011||
-||Y||Y||-||Magnetometer||HMC5843||Honeywell||superseded||
-||-||Y||Y||Compass||HMC6352||Honeywell||legacy compass but 100KHz I2C DO NOT BUY||
+||*Arm*||*40*||*16*||*Type*||*Product*||*Manufacturer*||*Interface*||*Notes*||
+||*Y*||*Y*||*Y*||Gyro||MLX90609-R2||Analog||||
+||*Y*||*Y*||*Y*||Gyro||ADXRS150/613||Analog Devices||Analog||||
+||*-*||*Y*||*Y*||Gyro||IDG300||Invensense||Analog||||
+||*Y*||*Y*||*Y*||Gyro||LY530ALH||||Analog||||
+||*Y*||*Y*||*Y*||Gyro||ADXRS300/610||Analog Devices||Analog|||| 
+||*Y*||*Y*||*Y*||Gyro||ITG3200||Invensense||I2C||||
+||*Y*||*Y*||*Y*||Acc||LIS3L||xxx||SPI||legacy UAVP||
+||*Y*||*Y*||*Y*||Acc||ADXL345||||Analog Devices||I2C||||  
+||*Y*||*Y*||*Y*||Acc||BMA180||I2C||||recommended 12/2011 )
+||*Y*||*Y*||*Y*||Gyro/Acc||MPU6050||Invensense||||
+||*Y*||*Y*||*Y*||Baro||SMD500||Bosch||||
+||*Y*||*Y*||*Y*||Baro||BMP085||Bosch||||recommended 12/2011||
+||*Y*||*Y*||*Y*||Baro||MPX4115||Freescale||||
+||*Y*||*Y*||*Y*||Baro||MS5611||Measurement Systems||||
+||*Y*||*Y*||*Y*||Magnetometer||HMC5883L||Honeywell||I2C||recommended 12/2011||
+||*Y*||*Y*||*Y*||Magnetometer||HMC5843||Honeywell||I2C||superseded||
+||*-*||*Y*||*Y*||Compass||HMC6352||Honeywell||I2C||legacy compass DO NOT BUY||
 
 
   *250 Hz or 500Hz with I2CESCs
-||Arm||40||16||Board||Manufacturer||Gyro||Acc||Mag||Baro||
 
-||-||Y||Y||MPU6050|| QuadroUFO||( MPU6050, BMP085 )||
-*Drotek 10DOF ( ITG3200, BMA180, BMP085, HMC5883XL )
-*FreeIMU ( ITG3200, BMA180, MS5611, HMC5883L )
-*SparkFun 6DOF ( ITG3200, ADXL345)
-*SparkFun 9DOF Sensor Stick ( ITG3200, ADXL345, HMC5843 )
+||*Arm*||*40*||*16*||Board*||*Manufacturer*||*Gyro*||*Acc*||*Mag*||*Baro*||
+||*Y*||*Y*||*Y*||MPU6050|| QuadroUFO||MPU6050||MPU6050||||BMP085||
+||*Y*||*Y*||*Y*||10DOF||Drotke||ITG3200||BMA180||BMP085||HMC5883XL||
+||*Y*||*Y*||*Y*||FreeIMU||||ITG3200||BMA180||MS5611||HMC5883L||
+||*Y*||*Y*||*Y*||6DOF||SparkFun ITG3200, ADXL345)
+||*Y*||*Y*||*Y*||9DOF Sensor Stick||SparkFun||ITG3200||ADXL345||||HMC5843||
 
 === UAVX 18F2620 PIC @ 16MHz ===
 
