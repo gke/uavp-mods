@@ -64,3 +64,9 @@ A common sensor combination currently is ITG3200, BMA180, HMC5883L and BMP085. T
 ||*X*||*Y*||*-*||9DOF Stick||SparkFun||ITG3200||ADXL345||HMC5843||ADXL345 low res.|| 
 ||*X*||*Y*||*-*||6DOF||SparkFun||ITG3200||ADXL345||-||ADXL345 low res.||
 ||*X*||*Y*||*Y*||3DOF||SparkFun||ITG3200||-||-||-||
+
+=== Sensor Board Orientation ===
+
+There is almost no consistency in placing the sensors on the boards so their axes are oriented coherently. UAVX and all other FC codes map the sensor axes to that of the aircraft.  For UAVX it is assumed the boards above are mounted components up with the board edge with the pins to the front.
+
+I don't have all of the boards so if the mappings are wrong tell me. Use the artificial horizon is stable and moves in the right direction. I would need to know for pitch and roll right what the accelerometer values are and and what sign the gyro rates are. Pitch up, roll right and yaw CW should be positive.
