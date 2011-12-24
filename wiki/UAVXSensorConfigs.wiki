@@ -65,7 +65,7 @@ A common sensor combination currently is ITG3200, BMA180, HMC5883L and BMP085. T
 ||*Y*||*Y*||*-*||10DOF||FreeIMU||ITG3200||BMA180||MS5611||HMC5883L||
 ||*X*||*Y*||*-*||9DOF Stick||SparkFun||ITG3200||ADXL345||HMC5843||ADXL345 low res.|| 
 ||*X*||*Y*||*-*||6DOF||SparkFun||ITG3200||ADXL345||-||ADXL345 low res.||
-||*X*||*Y*||*Y*||3DOF||SparkFun||ITG3200||-||-||-||
+||*X*||*Y*||*Y*||3DOF||SparkFun||ITG3200||-||-||potential analog gyro replacement||
 
 === Sensor Board Orientation ===
 
