@@ -32,7 +32,7 @@ UAVX will fly with gyros only but and accelerometer is recommended. Compass and 
 ||*X*||*Y*||*Y*||IDG300||Invensense||Analog||legacy||
 ||Acc||
 ||*Arm*||*40MHz*||*16MHz*||*Product*||*Manufacturer*||*Interface*||*Notes*||
-||*Y*||*Y*||*-*||BMA180||-||I2C||recommended 12/2011||
+||*Y*||*Y*||*-*||BMA180||Bosch||I2C||recommended 12/2011||
 ||*Y*||*Y*||*-*||MPU6050||Invensense||I2C||-||
 ||*Y*||*Y*||*-*||ADXL345||Analog Devices||I2C||low resolution(200/G)||  
 ||*X*||*Y*||*Y*||LIS3LV02DQ||ST||SPI||legacy but OK||
