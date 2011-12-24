@@ -24,29 +24,29 @@ This Wiki details the sensors currently supported for each of the major versions
 
 ==== PID Update Rate ====
 
-*250 Hz or 500Hz with I2CESCs
+  *250 Hz or 500Hz with I2CESCs
 
 ==== Gyros ====
 
-*MLX90609-R2
-*ADXRS150/613
-*IDG300
-*LY530
-*ADXRS300/610 Analog Devices
-*ITG3200
-*MPU6050
+  *MLX90609-R2
+  *ADXRS150/613
+  *IDG300
+  *LY530
+  *ADXRS300/610 Analog Devices
+  *ITG3200
+  *MPU6050
 
 ==== Accelerometers ====
 
-*LIS3L
-*ADXL345
-*BMA180
-*MPU6050
+  *LIS3L (legacy UAVP)
+  *ADXL345 Analog Devices  
+  *BMA180 ??? ( recommended currently 12/2011 )
+  *MPU6050
 
 ==== Barometer ====
 
 *SMD500 Bosch
-*BMP085 Bosch
+*BMP085 Bosch ( recommended currently 12/2011 )
 *MPX4115 Freescale
 *MS5611 Measurement Systems 
 
