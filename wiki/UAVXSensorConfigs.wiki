@@ -9,7 +9,7 @@ This Wiki offers some guidance on the sensors supported by the various versions 
 
 The recommended clock rate for the UAVX PIC version is now 40MHz. Converting from 16MHz to 40Hz is a simple modification achieved by replacing the 16MHz crystal with a 10MHz crystal and re-burning the PIC with any 40MHz version of the UAVX firmware after which UAVPset can be used to load further 40MHz versions. Ken at QuadroUFO can also send you 40MHz PIC at a nominal cost.
 
-See: http://code.google.com/p/uavp-mods/wiki/40MhzFirmware?ts=1324808309&updated=40MhzFirmware
+See 40MhzFirmware
 
 ==== PID Update Rates ====
 
