@@ -1,5 +1,5 @@
 #summary offers some guidance on the sensors supported by the various versions of UAVX and the intentions for future support with UAVXArm.
-#labels Featured,Phase-Deploy,gke
+#labels Featured,gke,UAVX,UAVPSet,Multicopter,UAVP
 
 === Introduction ===
 
