@@ -1,6 +1,8 @@
 #labels UAVX,gke,jesolins,40MHz
 = 40MHz Versions of UAVX =
 
+The 40MHz version of UAVX is now the default and has been shown to give much better performance.
+
 == WARNING - READ THIS OR YOU WILL LOSE COMMUNICATION WITH YOUR UAVP BOARD ==
 
 Do not load load versions of UAVX with "40" in the name if you are still using the original 16Mhz crystal. If you do *YOU WILL NOT BE ABLE TO COMMUNICATE WITH UAVX*.  If you make this mistake you will require a PIC programmer to reload A 16Mhz version of UAVX onto the PIC.
