@@ -112,11 +112,7 @@ void ShowSetup(void)
 		TxString("\r\nWARNING - EXPERIMENTAL");
 	#endif // EXPERIMENTAL
 
-	#ifdef CLOCK_16MHZ
-		TxString("\r\nClock: 16MHz");
-	#else // CLOCK_40MHZ
-		TxString("\r\nClock: 40MHz");
-	#endif // CLOCK_16MHZ
+	TxString("\r\nClock: 40MHz");
 
 	TxString("\r\nAircraft: "); ShowAFType();
 
@@ -409,28 +405,11 @@ void ProcessCommand(void)
 			case '7':
 			case '8':
 				TxString("\r\nOutput test\r\n");
-				#ifndef CLOCK_40MHZ
-				TxChar(ch);
-				TxChar(':');
-				switch( ch ) {
-					case '1': TxString("Aux2");  break;
-					case '2': TxString("Blue");  break;
-					case '3': TxString("Red");   break;
-					case '4': TxString("Green"); break;
-					case '5': TxString("Aux1");  break;
-					case '6': TxString("Yellow");break;
-					case '7': TxString("Aux3");  break;
-					case '8': TxString("Beeper");  break;
-				}
-				TxNextLine();
-				PowerOutput(ch-'1');
-				#else
 				TxString("Test deleted - no space\r\n");
-				#endif // !CLOCK_40MHZ
 				ShowPrompt();
 				break;
 			case 'T':
-				LEDsAndBuzzer();
+				TxString("Test deleted - no space\r\n");
 				ShowPrompt();
 				break;
 			#endif // TESTING

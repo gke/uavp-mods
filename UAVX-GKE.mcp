@@ -61,8 +61,6 @@ file_033=.
 file_034=.
 file_035=.
 file_036=.
-file_037=.
-file_038=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -101,8 +99,6 @@ file_033=no
 file_034=no
 file_035=no
 file_036=no
-file_037=no
-file_038=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -141,8 +137,6 @@ file_033=no
 file_034=no
 file_035=no
 file_036=no
-file_037=no
-file_038=no
 [FILE_INFO]
 file_000=utils.c
 file_001=accel.c
@@ -177,12 +171,10 @@ file_029=uavx_aileron.h
 file_030=uavx_elevon.h
 file_031=uavx_helicopter.h
 file_032=gyro_analog.h
-file_033=outputs_copter.h
-file_034=outputs_conventional.h
-file_035=gyro_i2c.h
-file_036=mpu6050.h
-file_037=outputs_40.h
-file_038=outputs_i2c.h
+file_033=gyro_i2c.h
+file_034=mpu6050.h
+file_035=outputs_40.h
+file_036=outputs_i2c.h
 [SUITE_INFO]
 suite_guid={5B7D72DD-9861-47BD-9F60-2BE967BF8416}
 suite_state=

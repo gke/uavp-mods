@@ -33,7 +33,7 @@ void InitControl(void);
 AxisStruct A[3];
 #pragma udata
 
-uint8 PIDCyclemS, PIDCycleShift;
+uint8 PIDCyclemS;
 
 #pragma udata hist
 uint32 CycleHist[16];

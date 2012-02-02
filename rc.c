@@ -79,13 +79,10 @@ void MapRC(void) // re-arrange arithmetic reduces from 736uS to 207uS @ 40MHz
 	for (c = 0 ; c < (uint8)NoOfControls ; c++) 
 	{
 		i = Map[c];
-		#ifdef CLOCK_16MHZ
-			Temp = PPM[i].b0; // clip to bottom byte 0..255
-		#else // CLOCK_40MHZ
-			//Temp = ((int32)PPM[i].i16 * RC_MAXIMUM + 625L)/1250L; // scale to 4uS res. for now
-			Temp2.i32 = ((int32)PPM[i].i16 * (RC_MAXIMUM*53L)  );
-			Temp = Temp2.iw1;
-		#endif // CLOCK_16MHZ
+
+		//Temp = ((int32)PPM[i].i16 * RC_MAXIMUM + 625L)/1250L; // scale to 4uS res. for now
+		Temp2.i32 = ((int32)PPM[i].i16 * (RC_MAXIMUM*53L)  );
+		Temp = Temp2.iw1;
 
 		RC[c] = RxFilter(RC[c], Temp);			
 	}

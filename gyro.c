@@ -187,49 +187,38 @@ void InitGyros(void)
 {
 F.UsingAnalogGyros = false;
 	switch ( P[SensorHint]){
-	#ifdef CLOCK_16MHZ
-		case ITG3200Gyro:
-		case SFDOF6: // ITG3200
-		case SFDOF9:
-		case FreeIMU:
-		case Drotek:
-		case MPU6050:
+	case ITG3200Gyro:
+	case SFDOF6: // ITG3200
+	case SFDOF9:
+	case FreeIMU:
+	case Drotek:
+		INVGyroAddress = INV_GX_H;
+		if (InvenSenseGyroActive())
+		{
+			GyroType = ITG3200Gyro;
+			InitInvenSenseGyro();
+		}
+		break;
+	#ifdef INC_MPU6050
+	case MPU6050:
+		INVGyroAddress = MPU6050_GYRO_XOUT_H;
+		if (InvenSenseGyroActive())
+		{
+			GyroType = MPU6050;
+			InitInvenSenseGyro();
+		}
+		else
 			GyroType = GyroUnknown;
-			break;
+		break;
 	#else
-		case ITG3200Gyro:
-		case SFDOF6: // ITG3200
-		case SFDOF9:
-		case FreeIMU:
-		case Drotek:
-			INVGyroAddress = INV_GX_H;
-			if (InvenSenseGyroActive())
-			{
-				GyroType = ITG3200Gyro;
-				InitInvenSenseGyro();
-			}
-			break;
-		#ifdef INC_MPU6050
-		case MPU6050:
-			INVGyroAddress = MPU6050_GYRO_XOUT_H;
-			if (InvenSenseGyroActive())
-			{
-				GyroType = MPU6050;
-				InitInvenSenseGyro();
-			}
-			else
-				GyroType = GyroUnknown;
-			break;
-		#else
-		case MPU6050:
-			GyroType = GyroUnknown;
-			break;
-		#endif // INC_MPU6050
-	#endif // CLOCK_16MHZ
+	case MPU6050:
+		GyroType = GyroUnknown;
+		break;
+	#endif // INC_MPU6050
 	default:
 		InitAnalogGyros();
 		GyroType = P[SensorHint];
-F.UsingAnalogGyros = true;
+     	F.UsingAnalogGyros = true;
 		break;
 	} // switch
 

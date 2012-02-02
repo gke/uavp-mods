@@ -92,15 +92,11 @@ void ReadParametersEE(void)
 		#ifdef TESTING
 			F.NormalFlightMode = true;
 		#else
-			#ifdef CLOCK_40MHZ
-				#ifdef MULTICOPTER
-					F.NormalFlightMode = ParamSet == (uint8)1;
-				#else
-					F.NormalFlightMode = true;
-				#endif
+			#ifdef MULTICOPTER
+				F.NormalFlightMode = ParamSet == (uint8)1;
 			#else
 				F.NormalFlightMode = true;
-			#endif // CLOCK_40MHZ
+			#endif
 		#endif // TESTING
 
 		ESCMax = ESCLimits[P[ESCType]];
@@ -114,15 +110,7 @@ void ReadParametersEE(void)
 		InitGyros();
 		InitAccelerometers();
 
-		#ifdef CLOCK_16MHZ
-			PIDCycleShift = PID_16MHZ_SHIFT;
-		#else
-			if ( P[ESCType] == ESCPPM )
-				PIDCycleShift = PID_40MHZ_SHIFT; 
-			else
-				PIDCycleShift = PID_40MHZ_I2CESC_SHIFT; 
-		#endif // CLOCK_16MHZ
-		PIDCyclemS = PID_BASE_CYCLE_MS * ((int8)1 << PIDCycleShift);
+		PIDCyclemS = PID_CYCLE_MS;
 
 		ServoInterval = ((SERVO_UPDATE_INTERVAL+PIDCyclemS/2)/PIDCyclemS);
 

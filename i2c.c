@@ -57,39 +57,21 @@ boolean UseI2C100KHz;
 	#define I2C_CIO_SW			TRISBbits.TRISB7
 #endif // UAVX_HW
 
-#ifdef CLOCK_16MHZ
-	#define T_LOW_STA		//if(UseI2C100KHz){Delay10TCYx(2);}	
-	#define T_HD_STA		if(UseI2C100KHz)Delay10TCYx(2);else{Delay1TCY();Delay1TCY();}	// 4.0/0.6uS
-	#define T_HD_DAT		//if(UseI2C100KHz)Delay10TCYx(5)	// 5.0/0.0uS
-	#define T_SU_DAT									// 250/100nS
+#define T_LOW_STA		if(UseI2C100KHz){Delay10TCYx(2);}	
+#define T_HD_STA		if(UseI2C100KHz){Delay10TCYx(2);}else{Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.0/0.6uS
+#define T_HD_DAT		if(UseI2C100KHz)Delay10TCYx(5)	// 5.0/0.0uS
+#define T_SU_DAT									// 250/100nS
 
-	#define T_HIGH_R		if(UseI2C100KHz){Delay1TCY();}	// 4.0/0.6uS	
-	#define T_LOW_R			if(UseI2C100KHz){Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.7/1.3uS
-	#define T_HIGH_W		if(UseI2C100KHz){Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.0/0.6uS
-	#define T_LOW_W			if(UseI2C100KHz){Delay1TCY();}	// 4.7/1.3uS
+#define T_HIGH_R		if(UseI2C100KHz){Delay10TCYx(2);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.0/0.6uS	
+#define T_LOW_R			if(UseI2C100KHz){Delay10TCYx(3);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.7/1.3uS
+#define T_HIGH_W		if(UseI2C100KHz){Delay10TCYx(3);Delay1TCY();Delay1TCY();}	// 4.0/0.6uS
+#define T_LOW_W			if(UseI2C100KHz){Delay10TCYx(2);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.7/1.3uS
 
-	#define T_HIGH_ACK_R	if(UseI2C100KHz){Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}		
-	#define T_HIGH_ACK_W	if(UseI2C100KHz){}
-	#define T_LOW_STP		if(UseI2C100KHz){Delay10TCYx(1);}	
-	#define T_SU_STO		if(UseI2C100KHz){Delay10TCYx(2);}
-	#define T_BUF			Delay10TCYx(2)
-#else
-	#define T_LOW_STA		if(UseI2C100KHz){Delay10TCYx(2);}	
-	#define T_HD_STA		if(UseI2C100KHz){Delay10TCYx(2);}else{Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.0/0.6uS
-	#define T_HD_DAT		if(UseI2C100KHz)Delay10TCYx(5)	// 5.0/0.0uS
-	#define T_SU_DAT									// 250/100nS
-
-	#define T_HIGH_R		if(UseI2C100KHz){Delay10TCYx(2);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.0/0.6uS	
-	#define T_LOW_R			if(UseI2C100KHz){Delay10TCYx(3);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.7/1.3uS
-	#define T_HIGH_W		if(UseI2C100KHz){Delay10TCYx(3);Delay1TCY();Delay1TCY();}	// 4.0/0.6uS
-	#define T_LOW_W			if(UseI2C100KHz){Delay10TCYx(2);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.7/1.3uS
-
-	#define T_HIGH_ACK_R	if(UseI2C100KHz){Delay10TCYx(3);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}		
-	#define T_HIGH_ACK_W	if(UseI2C100KHz){Delay10TCYx(2);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}
-	#define T_LOW_STP		if(UseI2C100KHz){Delay10TCYx(2);}	
-	#define T_SU_STO		if(UseI2C100KHz){Delay10TCYx(3);}else{Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}
-	#define T_BUF			Delay10TCYx(5)
-#endif // CLOCK_16MHZ
+#define T_HIGH_ACK_R	if(UseI2C100KHz){Delay10TCYx(3);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}		
+#define T_HIGH_ACK_W	if(UseI2C100KHz){Delay10TCYx(2);Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}
+#define T_LOW_STP		if(UseI2C100KHz){Delay10TCYx(2);}	
+#define T_SU_STO		if(UseI2C100KHz){Delay10TCYx(3);}else{Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}
+#define T_BUF			Delay10TCYx(5)
 
 #define I2C_DATA_LOW	{I2C_SDA_SW=0;I2C_DIO_SW=I2C_OUT;}
 #define I2C_DATA_FLOAT	{I2C_DIO_SW=I2C_IN;}

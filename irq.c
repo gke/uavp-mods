@@ -22,12 +22,7 @@
 
 #include "uavx.h"
 
-#ifdef CLOCK_16MHZ
-#define MIN_PPM_SYNC_PAUSE 1200  	// 1200 *2us = 2.4ms // was 5ms reduced for Futaba composite
-#else // CLOCK_40MHZ
 #define MIN_PPM_SYNC_PAUSE 3750  	// 3000 *0.8us = 2.4ms // was 6250 5mS
-#endif //  CLOCK_16MHZ
-// no less than 1500 ?? 
 
 void SyncToTimer0AndDisableInterrupts(void);
 void ReceivingGPSOnly(uint8);
@@ -77,13 +72,8 @@ void ReceivingGPSOnly(boolean r)
 		F.ReceivingGPS = r;
 
 		if ( F.ReceivingGPS )			
-			#ifdef CLOCK_16MHZ
-			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
-				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B9600);
-			#else // CLOCK_40MHZ
 			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_LOW, _B9600);
-			#endif // CLOCK_16MHZ
 		else
 			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
@@ -95,11 +85,7 @@ void InitTimersAndInterrupts(void)
 {
 	static uint8 i;
 
-	#ifdef CLOCK_16MHZ
-	OpenTimer0(TIMER_INT_OFF&T0_8BIT&T0_SOURCE_INT&T0_PS_1_16);
-	#else // CLOCK_40MHZ
 	OpenTimer0(TIMER_INT_OFF&T0_16BIT&T0_SOURCE_INT&T0_PS_1_16); 	
-	#endif // CLOCK_16MHZ
 
 	OpenTimer1(T1_16BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
@@ -156,20 +142,14 @@ void high_isr_handler(void)
 		else 
 			if (PPM_Index < NoOfControls)
 			{
-				#ifdef CLOCK_16MHZ	
-					Width.i16 >>= 1; 				// Width in 4us ticks.	
-					if ( Width.b1 == (uint8)1 ) 	// Check pulse is 1.024 to 2.048mS
-						PPM[PPM_Index].i16 = (int16) Width.i16;	
-				#else // CLOCK_40MHZ
-					if ( (Width.i16 >= 1250 ) && (Width.i16 <= 2500) ) // Width in 0.8uS ticks 	
-						PPM[PPM_Index].i16 = (int16) Width.i16 - 1250;	
-				#endif // CLOCK_16MHZ	
-					else
-					{
-						// preserve old value i.e. default hold
-						RCGlitches++;
-						F.RCFrameOK = false;
-					}
+				if ( (Width.i16 >= 1250 ) && (Width.i16 <= 2500) ) // Width in 0.8uS ticks 	
+					PPM[PPM_Index].i16 = (int16) Width.i16 - 1250;	
+				else
+				{
+					// preserve old value i.e. default hold
+					RCGlitches++;
+					F.RCFrameOK = false;
+				}
 				
 				PPM_Index++;
 				// MUST demand rock solid RC frames for autonomous functions not
@@ -285,13 +265,9 @@ void high_isr_handler(void)
 
 	if ( INTCONbits.T0IF )  
 	{
-		#ifdef CLOCK_16MHZ
-			// do nothing - just let TMR0 wrap around for 1.024mS intervals
-		#else // CLOCK_40MHZ
-			Timer0.u16 = TMR0_1MS;
-			TMR0H = Timer0.b1;
-			TMR0L = Timer0.b0;
-		#endif // CLOCK_40MHZ
+		Timer0.u16 = TMR0_1MS;
+		TMR0H = Timer0.b1;
+		TMR0L = Timer0.b0;
 
 		MilliSec++;
 

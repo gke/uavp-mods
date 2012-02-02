@@ -18,11 +18,8 @@
 //    You should have received a copy of the GNU General Public License along with this program.  
 //    If not, see http://www.gnu.org/licenses/
 
-#ifdef CLOCK_40MHZ
+
 #pragma	config OSC=HSPLL, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC, XINST = OFF
-#else
-#pragma	config OSC=HS, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC, XINST = OFF  
-#endif
 
 #include "uavx.h"
 
@@ -232,14 +229,10 @@ void main(void)
 			DisableInterrupts; // protect 1mS clock
 				WaitingForSync = true;
 				Now = MilliSec;
-				#ifdef CLOCK_16MHZ
+				if ( F.NormalFlightMode )		
 					PIDUpdate = Now + PIDCyclemS;
-				#else
-					if ( F.NormalFlightMode )		
-						PIDUpdate = Now + PIDCyclemS;
-					else
-						PIDUpdate = Now + 0; // fast as possible but with jitter		
-				#endif // CLOCK_16MHZ
+				else
+					PIDUpdate = Now + 0; // fast as possible but with jitter		
 			EnableInterrupts;
 
 			DoControl();
