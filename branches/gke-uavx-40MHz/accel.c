@@ -177,62 +177,44 @@ void InitAccelerometers(void)
 	F.AccelerationsValid = false;
 
 	switch ( P[SensorHint]){
-	#ifdef CLOCK_16MHZ
-		case SFDOF6: // ITG3200
-		case SFDOF9:
-		case FreeIMU:
-		case Drotek:
-		case MPU6050:
-			AccType = AccUnknown;
-			break;
-		case ITG3200Gyro:
-		default:	
+	#ifdef INC_ADXL345
+	case SFDOF6: // ITG3200
+	case SFDOF9:
+		if ( ADXL345AccActive() )
+		{
+			AccType = ADXL345Acc;
+			InitADXL345Acc();
+		}
+		break;
+	#endif // ADXL345
+	#ifdef INC_BMA180
+	case FreeIMU:
+	case Drotek:
+		if ( BMA180AccActive() )
+		{
+			AccType = BMA180Acc;
+			InitBMA180Acc();
+		}
+		break;
+	#endif // INC_BMA_180
+	#ifdef INC_MPU6050
+	case MPU6050:
+		INV_ID = INV_ID_MPU6050;
+		if ( MPU6050AccActive() )
+		{
+			AccType = MPU6050Acc;
+			InitMPU6050Acc();
+		}
+		break;
+	#endif // INC_MPU6050
+	case ITG3200Gyro:
+	default:	
 		if ( LISLAccActive() )
 		{
 			AccType = LISLAcc;
 			InitLISLAcc();
 		}
 		break;
-	#else
-		#ifdef INC_ADXL345
-		case SFDOF6: // ITG3200
-		case SFDOF9:
-			if ( ADXL345AccActive() )
-			{
-				AccType = ADXL345Acc;
-				InitADXL345Acc();
-			}
-			break;
-		#endif // ADXL345
-		#ifdef INC_BMA180
-		case FreeIMU:
-		case Drotek:
-			if ( BMA180AccActive() )
-			{
-				AccType = BMA180Acc;
-				InitBMA180Acc();
-			}
-			break;
-		#endif // INC_BMA_180
-		#ifdef INC_MPU6050
-		case MPU6050:
-			INV_ID = INV_ID_MPU6050;
-			if ( MPU6050AccActive() )
-			{
-				AccType = MPU6050Acc;
-				InitMPU6050Acc();
-			}
-			break;
-		#endif // INC_MPU6050
-		case ITG3200Gyro:
-		default:	
-			if ( LISLAccActive() )
-			{
-				AccType = LISLAcc;
-				InitLISLAcc();
-			}
-			break;
-	#endif // CLOCK_16MHZ
 	} // switch
 
 	if( F.AccelerationsValid )
@@ -487,13 +469,8 @@ void ShowBMA180State(void)
 
 // LISL Acc
 
-#ifdef CLOCK_16MHZ
-	#define SPI_HI_DELAY Delay10TCY()
-	#define SPI_LO_DELAY Delay10TCY()
-#else // CLOCK_40MHZ
-	#define SPI_HI_DELAY Delay10TCYx(2)
-	#define SPI_LO_DELAY Delay10TCYx(2)
-#endif // CLOCK_16MHZ
+#define SPI_HI_DELAY Delay10TCYx(2)
+#define SPI_LO_DELAY Delay10TCYx(2)
 
 // LISL-Register mapping
 

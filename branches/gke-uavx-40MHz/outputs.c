@@ -301,14 +301,7 @@ void MixAndLimitCam(void)
 } // MixAndLimitCam
 
 #include "outputs_i2c.h"
-
-#if defined CLOCK_40MHZ
-	#include "outputs_40.h"
-#elif defined MULTICOPTER
-	#include "outputs_copter.h"
-#else
-	#include "outputs_conventional.h"
-#endif // CLOCK_40MHZ
+#include "outputs_40.h"
 
 void StopMotors(void)
 {

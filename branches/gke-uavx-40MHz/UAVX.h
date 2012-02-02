@@ -1,12 +1,3 @@
-
-#define INC_HMC6352			// SLOW 100KHz I2C preferably REPLACE with HMC5883L
-
-//#define FLAT_LISL_ACC		// LISL acc lying flat components up pins forward
-
-//#define INC_RAW_ANGLES
-
-//#define HAVE_CUTOFF_SW		// Pin11 (RC0) short to ground when landed otherwise 10K pullup.
-
 // ===============================================================================================
 // =                                UAVX Quadrocopter Controller                                 =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
@@ -27,9 +18,21 @@
 //    You should have received a copy of the GNU General Public License along with this program.  
 //    If not, see http://www.gnu.org/licenses/
 
+// Misc defines for testing
+
+#define INC_HMC6352				// SLOW 100KHz I2C preferably REPLACE with HMC5883L
+
+//#define FLAT_LISL_ACC			// LISL acc lying flat components up pins forward
+//#define USE_I2C_ESCS_ONLY		// Flat chat 500KHz update rate - as good as it gets on a PIC!
+
+//#define INC_RAW_ANGLES		// for debugging only
+
+//#define HAVE_CUTOFF_SW		// Pin11 (RC0) short to ground when landed otherwise 10K pullup.
+
+
 #ifndef BATCHMODE
 	//#define EXPERIMENTAL
-	#define TESTING
+	//#define TESTING
 	//#define FULL_TEST			// extended compass test etc.
 	//#define FORCE_NAV					
 	//#define SIMULATE
@@ -57,36 +60,25 @@
 	//#define FULL_COMPASS_TEST
 #endif // FULL_TEST
 
-#ifdef CLOCK_16MHZ
-#define DEG_TO_ANGLE_UNITS		78L	// very approximate - needs measuring
-#else
 #define DEG_TO_ANGLE_UNITS		156L
-#endif // CLOCK_16MHZ
 
 #define MAX_BANK_ANGLE_DEG		45L
 
-#ifdef CLOCK_16MHZ
-	#define INC_HMC6352			// must NOT be deselected ONLY device supported at 16MHz
-	#define USE_I2C100KHZ		// uses slow I2C routines because of HMC6352
-	#define FULL_BARO_TEST
-	#define INC_CYCLE_STATS		// tracks actual PID cycle times achieved - view in Setup
+#define INC_MS5611			// FreeIMU etc.
+#define INC_BMA180			// include BMA180 accelerometer code
+#define INC_ADXL345			// include ADXL345 accelerometer code SF6DOF/9DOF	
+#define INC_HMC58X3			// preferable Honeywell magnetometer
+
+#ifdef INC_HMC6352
+	#define USE_I2C100KHZ			// uses slow I2C routines because of HMC6352
 #else
-	#define INC_MS5611			// FreeIMU etc.
-	#define INC_BMA180			// include BMA180 accelerometer code
-	#define INC_ADXL345			// include ADXL345 accelerometer code SF6DOF/9DOF	
-	#define INC_HMC58X3			// preferable Honeywell magnetometer
+	#define INC_CYCLE_STATS	// tracks actual PID cycle times achieved - view in Setup
+#endif // INC_HMC6352
 
-	#ifdef INC_HMC6352
-		#define USE_I2C100KHZ			// uses slow I2C routines because of HMC6352
-	#else
-		#define INC_CYCLE_STATS	// tracks actual PID cycle times achieved - view in Setup
-	#endif // INC_HMC6352
-
-	// Desperate for space!!!!!
-	#ifndef VTCOPTER		
-		#define INC_MPU6050		// include MPU6050 accelerometer/gyros
-	#endif 
-#endif // CLOCK_16MHZ
+// Desperate for space!!!!!
+#ifndef VTCOPTER		
+	#define INC_MPU6050		// include MPU6050 accelerometer/gyros
+#endif 
 
 #ifdef INC_HMC6352
 #endif // INC_HMC6352
@@ -138,19 +130,16 @@
 
 // Rescale angle to accelerometer units 
 // MAGIC numbers assume 5mS for 40MHz and 8mS for 16MHz
-#ifdef CLOCK_16MHZ
-	#define RESCALE_TO_ACC				51		// 256/5   36 // (256/7.16)
-#else
-	#define RESCALE_TO_ACC				26
-#endif // CLOCK_16MHZ
+
+#define RESCALE_TO_ACC				26
 
 #define ANGLE_LIMIT					28000	// make large otherwise angle estimate latches up!!
-	
-#define PID_BASE_CYCLE_MS			2		// 500KHz flat chat with I2C ESCs
-// Shifts MUST be <=2
-#define PID_40MHZ_I2CESC_SHIFT		0
-#define PID_40MHZ_SHIFT				1
-#define PID_16MHZ_SHIFT				2
+
+#ifdef USE_I2C_ESCS_ONLY
+	#define PID_CYCLE_MS			2		// 500KHz flat chat with I2C ESCs
+#else	
+	#define PID_CYCLE_MS			4		// 250KHz
+#endif // USE_I2C_ESCS_ONLY
 	
 // DISABLED AS UNSAFE ON BENCH 
 #define ENABLE_STICK_CHANGE_FAILSAFE
@@ -505,31 +494,19 @@ typedef struct {
 #define InterruptsEnabled 	(INTCONbits.GIEH)
 
 // Clock
-#ifdef CLOCK_16MHZ
-	#define	TMR0_1MS		0
-#else // CLOCK_40MHZ
-	#define	TMR0_1MS		(65536-640) // actually 1.0248mS to clear PW 
-#endif // CLOCK_16MHZ
+
+#define	TMR0_1MS		(65536-640) // actually 1.0248mS to clear PW 
 
 // Parameters for UART port ClockHz/(16*(BaudRate+1))
-#ifdef CLOCK_16MHZ
-#define _B9600			104 			// 105 -> 9.434Kb, 104 -> 9.615Kb
-#define _B38400			26 
-#else // CLOCK_40MHZ
+
 #define _B9600			65
 #define _B38400			65
-#endif // CLOCK_16MHZ
 
 // This is messy - trial and error to determine worst case interrupt latency!
-#ifdef CLOCK_16MHZ
-	#define INT_LATENCY		(uint16)(256 - 35) // x 4uS 
-	#define FastWriteTimer0(t) TMR0L=(uint8)t
-	#define GetTimer0		Timer0.u16=(uint16)TMR0L
-#else // CLOCK_40MHZ
-	#define INT_LATENCY		(uint16)(65536 - 35) // x 1.6uS
-	#define FastWriteTimer0(t) Timer0.u16=t;TMR0H=Timer0.b1;TMR0L=Timer0.b0
-	#define GetTimer0		{Timer0.b0=TMR0L;Timer0.b1=TMR0H;}	
-#endif // CLOCK_16MHZ
+
+#define INT_LATENCY		(uint16)(65536 - 35) // x 1.6uS
+#define FastWriteTimer0(t) Timer0.u16=t;TMR0H=Timer0.b1;TMR0L=Timer0.b0
+#define GetTimer0		{Timer0.b0=TMR0L;Timer0.b1=TMR0H;}	
 
 // Bit definitions
 #define Armed			(PORTAbits.RA4)
@@ -907,7 +884,7 @@ extern void GainSchedule(void);
 extern void DoControl(void);
 extern void InitControl(void);
 
-extern uint8 PIDCyclemS, PIDCycleShift, ServoInterval;
+extern uint8 PIDCyclemS, ServoInterval;
 extern uint32 LastPIDUpdatemS;
 extern uint32 CycleHist[];
 
@@ -1038,11 +1015,7 @@ extern int32 NoAccCorr;
 
 #define RC_MINIMUM			0
 
-#ifdef CLOCK_16MHZ
-	#define RC_MAXIMUM		238
-#else
-	#define RC_MAXIMUM		240	// adjust for faster arithmetic in RCMap
-#endif // CLOCK_40MHZ
+#define RC_MAXIMUM		240	// adjust for faster arithmetic in RCMap
 
 #define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
 	
@@ -1231,6 +1204,7 @@ extern const rom uint8 RxChMnem[];
 // outputs.c
 
 // The minimum value for PW width is 1 for the pulse generators
+
 #define OUT_MAXIMUM			208	//210 222	//  to reduce Rx capture and servo pulse output interaction
 #define OUT_NEUTRAL			111			//  1.503mS @ 105 16MHz
 
@@ -1537,8 +1511,6 @@ extern int16 AmbientTemperature;
 
 extern void DoLEDs(void);
 extern void ReceiverTest(void);
-extern void PowerOutput(int8);
-extern void LEDsAndBuzzer(void);
 extern void BatteryTest(void);
 
 //______________________________________________________________________________________________
@@ -1580,8 +1552,6 @@ extern void BootStart(void);
 
 extern void DoLEDs(void);
 extern void ReceiverTest(void);
-extern void PowerOutput(int8);
-extern void LEDsAndBuzzer(void);
 extern void BatteryTest(void);
 
 //______________________________________________________________________________________________
