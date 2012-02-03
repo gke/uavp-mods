@@ -126,7 +126,8 @@ void ShowAttitude(void) {
 
 	#endif // INC_RAW_ANGLES
 
-	TxESCi16(A[Yaw].RateEp); // rate error as analogue for heading arror
+//	TxESCi16(A[Yaw].RateEp); // rate error as analogue for heading error
+	TxESCi16(aaa);// zzz
 
 	TxESCi16(A[Roll].Acc);
     TxESCi16(A[Pitch].Acc);
