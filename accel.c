@@ -97,6 +97,7 @@ void ReadAccelerations(void)
 		A[Roll].AccADC = -SRS16(RawAcc[X], 4); 
 		A[Pitch].AccADC = SRS16(RawAcc[Y], 4);
 		A[Yaw].AccADC = SRS16(RawAcc[Z], 4);
+		break;
 	case Drotek:
 		ReadBMA180Acc();
 		A[Roll].AccADC = SRS16(RawAcc[Y], 4); 
@@ -124,7 +125,6 @@ void ReadAccelerations(void)
 			A[Pitch].AccADC = RawAcc[Z];
 			A[Yaw].AccADC = RawAcc[Y];
 		#endif //FLAT_LISL_ACC
-
 		break;
 	} // switch
 

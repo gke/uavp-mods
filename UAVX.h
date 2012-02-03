@@ -1074,6 +1074,8 @@ extern void CompensateYawGyro(void);
 extern void DoAttitudeAngles(void);
 extern void GetAttitude(void);
 
+static int16 HEp;
+
 //______________________________________________________________________________________________
 
 // i2c.c
