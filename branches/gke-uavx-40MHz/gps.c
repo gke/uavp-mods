@@ -36,11 +36,6 @@ void ParseGPSSentence(void);
 void InitGPS(void);
 void UpdateGPS(void);
 
-// Defines
-// Moving average of coordinates needed - or Kalman Estimator probably
-
-#define GPSVelocityFilter SoftFilterU		// done after position filter
-
 const uint8 NMEATags[MAX_NMEA_SENTENCES][5]= {
     // NMEA
     {'G','P','G','G','A'}, // full positioning fix
@@ -83,19 +78,16 @@ int32 ConvertGPSToM(int32 c)
 	return ( ((int32)c * (int32)1855)/((int32)100000) );
 } // ConvertGPSToM
 
-int32 ConvertGPSTodM(int32 c)
-{	
+int32 ConvertGPSTodM(int32 c) {	
 	// conversion max is 21Km
 	return ( ((int32)c * (int32)1855)/((int32)10000) );
 } // ConvertGPSTodM
 
-int32 ConvertMToGPS(int32 c)
-{
+int32 ConvertMToGPS(int32 c) {
 	return ( ((int32)c * (int32)100000)/((int32)1855) );
 } // ConvertMToGPS
 
-int24 ConvertInt(uint8 lo, uint8 hi)
-{
+int24 ConvertInt(uint8 lo, uint8 hi) {
 	static uint8 i;
 	static int24 r;
 
@@ -107,8 +99,8 @@ int24 ConvertInt(uint8 lo, uint8 hi)
 	return (r);
 } // ConvertInt
 
-int32 ConvertLatLonM(uint8 lo, uint8 hi)
-{ 	// NMEA coordinates normally assumed as DDDMM.MMMMM ie 5 decimal minute digits
+int32 ConvertLatLonM(uint8 lo, uint8 hi) {
+ 	// NMEA coordinates normally assumed as DDDMM.MMMMM ie 5 decimal minute digits
 	// but code can deal with 4 and 5 decimal minutes 
 	// Positions are stored at 5 decimal minute NMEA resolution which is
 	// approximately 1.855 cm per LSD at the Equator.
@@ -134,8 +126,7 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi)
 	return(r);
 } // ConvertLatLonM
 
-int32 ConvertUTime(uint8 lo, uint8 hi)
-{
+int32 ConvertUTime(uint8 lo, uint8 hi) {
 	static int32 ival;
 	
 	ival=0;
@@ -162,9 +153,7 @@ void UpdateField(void)
 	EmptyField = hi < lo;
 } // UpdateField
 
-void ParseGPGGASentence(void)
-{ 	// full position $GPGGA fix
-	// 0.745mS @ 16Mhz
+void ParseGPGGASentence(void) { // full position $GPGGA fix
 	// 0.29mS @ 40MHz 
 
     UpdateField();
@@ -211,9 +200,8 @@ void ParseGPGGASentence(void)
 	}
 } // ParseGPGGASentence
 
-void ParseGPRMCSentence() 
-{ 	// main current position and heading
-	// 0.28mS @ 16MHz
+void ParseGPRMCSentence() { 	
+	// main current position and heading
 	// 0.1mS @ 40MHz
 
 	static i32u Temp32;
@@ -267,8 +255,7 @@ void ParseGPRMCSentence()
 
 } // ParseGPRMCSentence
 
-void SetGPSOrigin(void)
-{
+void SetGPSOrigin(void) {
 	static int32 Temp;
 
 	if ( ( ValidGPSSentences == GPS_ORIGIN_SENTENCES ) && F.GPSValid )
@@ -307,8 +294,7 @@ void SetGPSOrigin(void)
 	}
 } // SetGPSOrigin
 
-void ParseGPSSentence(void)
-{
+void ParseGPSSentence(void) {
 	// 0.94mS @ 16MHz GPGGA
 	// 0.37mS @ 40MHz GPGGA
 
@@ -438,8 +424,8 @@ void ParseGPSSentence(void)
 
 } // ParseGPSSentence
 
-void UpdateGPS(void)
-{
+void UpdateGPS(void) {
+
 	if ( SpareSlotTime && F.NormalFlightMode )
 		if ( F.PacketReceived )
 		{
@@ -470,8 +456,7 @@ void UpdateGPS(void)
 
 } // UpdateGPS
 
-void InitGPS(void)
-{
+void InitGPS(void) {
 	cc = 0;
 
 	GPSLongitudeCorrection = 256; // 1.0

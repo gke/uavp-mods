@@ -45,9 +45,6 @@ void OutSignals(void)
 	// interrupts.  We do this because there appears to be no atomic method of detecting the 
 	// remaining time AND conditionally disabling the interrupt. 
 
-	// Unfortunately we are limited to 1 in 255 resolution because the pulse width counters 
-	// in the inline assembly code are bytes :(
-
 	static uint8 d;
 	static i16u SaveTimer0;
 	static uint24 SaveClockmS;
@@ -63,20 +60,20 @@ void OutSignals(void)
 
 	#else
 
-	DisableInterrupts;
-
-	SaveClockmS = MilliSec;
-	GetTimer0;
-	SaveTimer0.u16 = Timer0.u16;
-	FastWriteTimer0(TMR0_1MS);
-
-	// dead timing code to reduce pre-pulse to 1mS - caution
-	Delay10TCYx(30); // 1uS per click
-
-	EnableInterrupts;
-
 	if ( P[ESCType] == ESCPPM )
 	{
+		DisableInterrupts;
+	
+		SaveClockmS = MilliSec;
+		GetTimer0;
+		SaveTimer0.u16 = Timer0.u16;
+		FastWriteTimer0(TMR0_1MS);
+	
+		// dead timing code to reduce pre-pulse to 1mS - caution
+		Delay10TCYx(30); // 1uS per click
+	
+		EnableInterrupts;
+
 		if ( ServoUpdate <= 0 )
 		{
 			PORTB = (MOTOR_MASK | SERVO_MASK);

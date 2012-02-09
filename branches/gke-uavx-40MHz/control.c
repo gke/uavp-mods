@@ -33,11 +33,11 @@ void InitControl(void);
 AxisStruct A[3];
 #pragma udata
 
-uint8 PIDCyclemS;
-
 #pragma udata hist
 uint32 CycleHist[16];
 #pragma udata
+
+uint8 PIDCyclemS, PIDCycleShift;
 		
 int16 CameraAngle[3];
 
@@ -167,27 +167,8 @@ void AltitudeHold()
 	}
 } // AltitudeHold
 
-void YawControl(void) {
-	static int16 RateE;
-	static int24 Temp;
-		
-	RateE = A[Yaw].Rate + ( A[Yaw].Desired + A[Yaw].NavCorr );
-	Temp  = SRS32((int24)RateE * (int16)A[Yaw].Kp, 4);	
-		
-	#if defined TRICOPTER
-		Temp = SlewLimit(A[Yaw].Outp, Temp, 2);				
-		A[Yaw].Outp = Temp;
-		A[Yaw].Out = Limit1(Temp,(int16)P[YawLimit]);
-	#else
-		A[Yaw].Out = Limit1(Temp, (int16)P[YawLimit]);
-	#endif // TRICOPTER
-
-	A[Yaw].RateEp = RateE;
-
-} // YawControl
-
 void DoOrientationTransform(void) {
-	static i24u Temp;
+	static i24u Temp24;
 
 	OSO = OSin[Orientation];
 	OCO = OCos[Orientation];
@@ -196,12 +177,12 @@ void DoOrientationTransform(void) {
 		A[Roll].NavCorr = A[Pitch].NavCorr = A[Yaw].NavCorr = 0;
 
 	// -PS+RC
-	Temp.i24 = -A[Pitch].Desired * OSO + A[Roll].Desired * OCO;
-	A[Roll].Control = Temp.i2_1;
+	Temp24.i24 = -A[Pitch].Desired * OSO + A[Roll].Desired * OCO;
+	A[Roll].Control = Temp24.i2_1;
 		
 	// PC+RS
-	Temp.i24 = A[Pitch].Desired * OCO + A[Roll].Desired * OSO;
-	A[Pitch].Control = Temp.i2_1; 
+	Temp24.i24 = A[Pitch].Desired * OCO + A[Roll].Desired * OSO;
+	A[Pitch].Control = Temp24.i2_1;
 
 } // DoOrientationTransform
 
@@ -243,9 +224,9 @@ void GainSchedule(void)
 
 #endif // TESTING
 
-void Do_Wolf_Rate(AxisStruct *C) { // Original by Wolfgang Mahringer
-	static i24u Temp24;
+void Do_Wolf_Rate(AxisStruct *C) { // Origins Dr. Wolfgang Mahringer
 	static int32 Temp, r;
+	static i24u Temp24;
 
 	r =  SRS32((int32)C->Rate * C->Kp - (int32)(C->Rate - C->Ratep) * C->Kd, 5);
     Temp = SRS32((int32)C->Angle * C->Ki , 9);
@@ -262,20 +243,18 @@ void Do_Wolf_Rate(AxisStruct *C) { // Original by Wolfgang Mahringer
 
 #define D_LIMIT 32*32
 
-void Do_PD_P_Angle(AxisStruct *C)
-{
-	static int32 p, d, DesRate, AngleE, AngleEp, AngleIntE, RateE;
+void Do_PD_P_Angle(AxisStruct *C) {	// with Dr. Ming Liu
+	static int32 p, d, DesRate, AngleE, AngleEp, RateE;
 
 	AngleEp = C->AngleE;
-	AngleIntE = C->AngleIntE;
-
 	AngleE = C->Control * RC_STICK_ANGLE_SCALE - C->Angle;
 	AngleE = Limit1(AngleE, MAX_BANK_ANGLE_DEG * DEG_TO_ANGLE_UNITS); // limit maximum demanded angle
 
 	p = -SRS32(AngleE * C->Kp, 10);
 
 	d = SRS32((AngleE - AngleEp) * C->Kd, 8);
-//	d = Limit1(d, D_LIMIT);
+
+	d = Limit1(d, D_LIMIT);
 
 	DesRate = p + d;
 
@@ -284,9 +263,28 @@ void Do_PD_P_Angle(AxisStruct *C)
 	C->Out = SRS32(RateE * C->Kp2, 5);
 
 	C->AngleE = AngleE;
-	C->AngleIntE = AngleIntE;
 
 } // Do_PD_P_Angle
+
+
+void YawControl(void) { // with Dr. Ming Liu
+	static int16 YawControl, RateE;
+	static int24 Temp;
+
+	RateE = Smooth16x16(&YawF, A[Yaw].Rate);
+	
+	Temp  = SRS32((int24)RateE * (int16)A[Yaw].Kp, 4);
+			
+	Temp = SlewLimit(A[Yaw].Outp, Temp, 1);	
+	A[Yaw].Outp = Temp;
+	A[Yaw].Out = Limit1(Temp, (int16)P[YawLimit]);
+
+	YawControl = (A[Yaw].Desired + A[Yaw].NavCorr);
+	if ( Abs(YawControl) > 5 )
+		A[Yaw].Out -= YawControl;
+
+} // YawControl
+
 
 void DoControl(void)
 {

@@ -33,10 +33,10 @@
         include "general.asm"
 
 		; need to include clock for baud calculation
-
 _BAUDRATE		equ		65 
+
 _RestoreVec		equ		0
-_MaxRxBuffer	equ		80	;normal max 64 hex chars + tags
+_MaxRxBuffer		equ		80	;normal max 64 hex chars + tags
 
 		; RAM variables all in Bank 0
 		cblock 16

@@ -24,6 +24,8 @@
 
 #define MIN_PPM_SYNC_PAUSE 3750  	// 3000 *0.8us = 2.4ms // was 6250 5mS
 
+// no less than 1500 ?? 
+
 void SyncToTimer0AndDisableInterrupts(void);
 void ReceivingGPSOnly(uint8);
 void InitTimersAndInterrupts(void);
@@ -143,7 +145,7 @@ void high_isr_handler(void)
 			if (PPM_Index < NoOfControls)
 			{
 				if ( (Width.i16 >= 1250 ) && (Width.i16 <= 2500) ) // Width in 0.8uS ticks 	
-					PPM[PPM_Index].i16 = (int16) Width.i16 - 1250;	
+					PPM[PPM_Index].i16 = (int16) Width.i16 - 1250;		
 				else
 				{
 					// preserve old value i.e. default hold

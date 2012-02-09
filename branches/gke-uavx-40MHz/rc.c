@@ -68,8 +68,7 @@ void InitRC(void)
 	PPM_Index = PrevEdge = RCGlitches = 0;
 } // InitRC
 
-void MapRC(void) // re-arrange arithmetic reduces from 736uS to 207uS @ 40MHz
-{  // re-maps captured PPM to Rx channel sequence
+void MapRC(void) {  // re-maps captured PPM to Rx channel sequence
 	static uint8 c, i;
 	static int16 LastThrottle, Temp;
 	static i32u Temp2;
@@ -79,12 +78,9 @@ void MapRC(void) // re-arrange arithmetic reduces from 736uS to 207uS @ 40MHz
 	for (c = 0 ; c < (uint8)NoOfControls ; c++) 
 	{
 		i = Map[c];
-
 		//Temp = ((int32)PPM[i].i16 * RC_MAXIMUM + 625L)/1250L; // scale to 4uS res. for now
 		Temp2.i32 = ((int32)PPM[i].i16 * (RC_MAXIMUM*53L)  );
-		Temp = Temp2.iw1;
-
-		RC[c] = RxFilter(RC[c], Temp);			
+		RC[c] = RxFilter(RC[c], Temp2.iw1);			
 	}
 
 	if ( THROTTLE_SLEW_LIMIT > 0 )

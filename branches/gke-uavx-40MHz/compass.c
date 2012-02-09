@@ -50,7 +50,7 @@ uint8 	CompassType;
 uint8 	MagRetries;
 
 const rom char * CompassName[CompassUnknown+1] = {
-		"HMC5883L","HMC5843?","HMC6352","no compass?"
+		"HMC5883L","HMC5843?","HMC6352","unsupported or no compass?"
 		};
 
 void ShowCompassType(void)
@@ -79,6 +79,7 @@ void GetHeading(void)
 
 	if ( SpareSlotTime && F.NormalFlightMode && ( mSClock() >= mS[CompassUpdate] ))
 	{
+		F.NewCompassValue = true;
 		SpareSlotTime = false;
 		mS[CompassUpdate] = mSClock() + COMPASS_TIME_MS;
 
@@ -112,17 +113,10 @@ void GetHeading(void)
 
 		Heading = Make2Pi(MagHeading - CompassOffset);
 
-		if ( A[Yaw].Hold <= COMPASS_MIDDLE )
-		{	
-			HeadingChange = Abs( Heading - HeadingP );
-			if ( HeadingChange < MILLIPI )		
-			{
-				if (( HeadingChange > COMPASS_MAX_SLEW ) && ( State == InFlight )) 
-				     Heading = SlewLimit(HeadingP, Heading, COMPASS_MAX_SLEW);    
-				Heading = HeadingFilter(HeadingP, Heading);
-				Heading = Make2Pi(Heading);
-			}
-		}
+		HeadingChange = Abs( Heading - HeadingP );
+		if (( HeadingChange < MILLIPI ) && ( HeadingChange > COMPASS_MAX_SLEW ))  
+			Stats[CompassFailS]++;
+
 		HeadingP = Heading;
 	}	
 
@@ -143,12 +137,13 @@ int16 MinimumTurn(int16 A ) {
 void InitHeading(void)
 {
 	MagHeading = GetCompass();
-	Heading = HeadingP = Make2Pi( MagHeading - CompassOffset );
+	Heading = Make2Pi( MagHeading - CompassOffset );
 
 	#ifdef SIMULATE
 		FakeMagHeading = Heading = 0;
 	#endif // SIMULATE
-	DesiredHeading = Heading;
+	DesiredHeading = HeadingP = Heading;
+	A[Yaw].DriftCorr = 0;
 
 } // InitHeading
 
@@ -254,7 +249,7 @@ int16 GetHMC58X3Magnetometer(void) {
 			Mag[Z].G = b[Z];
 		}
 
-		for ( a = X; a<=(uint8)Z; a++ ) // 127uS @ 40MHz - OK
+		for ( a = X; a<=(uint8)Z; a++ ) 
 		{
 			M = &Mag[a];
 			Temp = Min(M->Min, b[a]);

@@ -97,7 +97,6 @@ void ReadAccelerations(void)
 		A[Roll].AccADC = -SRS16(RawAcc[X], 4); 
 		A[Pitch].AccADC = SRS16(RawAcc[Y], 4);
 		A[Yaw].AccADC = SRS16(RawAcc[Z], 4);
-		break;
 	case Drotek:
 		ReadBMA180Acc();
 		A[Roll].AccADC = SRS16(RawAcc[Y], 4); 
@@ -125,6 +124,7 @@ void ReadAccelerations(void)
 			A[Pitch].AccADC = RawAcc[Z];
 			A[Yaw].AccADC = RawAcc[Y];
 		#endif //FLAT_LISL_ACC
+
 		break;
 	} // switch
 
@@ -177,44 +177,44 @@ void InitAccelerometers(void)
 	F.AccelerationsValid = false;
 
 	switch ( P[SensorHint]){
-	#ifdef INC_ADXL345
-	case SFDOF6: // ITG3200
-	case SFDOF9:
-		if ( ADXL345AccActive() )
-		{
-			AccType = ADXL345Acc;
-			InitADXL345Acc();
-		}
-		break;
-	#endif // ADXL345
-	#ifdef INC_BMA180
-	case FreeIMU:
-	case Drotek:
-		if ( BMA180AccActive() )
-		{
-			AccType = BMA180Acc;
-			InitBMA180Acc();
-		}
-		break;
-	#endif // INC_BMA_180
-	#ifdef INC_MPU6050
-	case MPU6050:
-		INV_ID = INV_ID_MPU6050;
-		if ( MPU6050AccActive() )
-		{
-			AccType = MPU6050Acc;
-			InitMPU6050Acc();
-		}
-		break;
-	#endif // INC_MPU6050
-	case ITG3200Gyro:
-	default:	
-		if ( LISLAccActive() )
-		{
-			AccType = LISLAcc;
-			InitLISLAcc();
-		}
-		break;
+		#ifdef INC_ADXL345
+		case SFDOF6: // ITG3200
+		case SFDOF9:
+			if ( ADXL345AccActive() )
+			{
+				AccType = ADXL345Acc;
+				InitADXL345Acc();
+			}
+			break;
+		#endif // ADXL345
+		#ifdef INC_BMA180
+		case FreeIMU:
+		case Drotek:
+			if ( BMA180AccActive() )
+			{
+				AccType = BMA180Acc;
+				InitBMA180Acc();
+			}
+			break;
+		#endif // INC_BMA_180
+		#ifdef INC_MPU6050
+		case MPU6050:
+			INV_ID = INV_ID_MPU6050;
+			if ( MPU6050AccActive() )
+			{
+				AccType = MPU6050Acc;
+				InitMPU6050Acc();
+			}
+			break;
+		#endif // INC_MPU6050
+		case ITG3200Gyro:
+		default:	
+			if ( LISLAccActive() )
+			{
+				AccType = LISLAcc;
+				InitLISLAcc();
+			}
+			break;
 	} // switch
 
 	if( F.AccelerationsValid )

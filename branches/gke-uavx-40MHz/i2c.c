@@ -42,7 +42,6 @@ boolean I2CResponse(uint8);
 boolean UseI2C100KHz;
 
 // These routine need much better tailoring to the I2C bus spec.
-// 16MHz 0.25uS/Cycle
 // 40MHz 0.1uS/Cycle
 
 #ifdef UAVX_HW
@@ -56,6 +55,17 @@ boolean UseI2C100KHz;
 	#define I2C_SCL_SW			PORTBbits.RB7
 	#define I2C_CIO_SW			TRISBbits.TRISB7
 #endif // UAVX_HW
+
+#define I2C_DATA_LOW	{I2C_SDA_SW=0;I2C_DIO_SW=I2C_OUT;}
+#define I2C_DATA_FLOAT	{I2C_DIO_SW=I2C_IN;}
+#define I2C_CLK_LOW		{I2C_SCL_SW=0;I2C_CIO_SW=I2C_OUT;}
+#define I2C_CLK_FLOAT	{I2C_CIO_SW=I2C_IN;} 
+
+void InitI2C(void) {
+	UseI2C100KHz = false;
+} // InitI2C
+
+#ifdef I2C100KHZ  // No 100KHz I2C devices (HMC6352)
 
 #define T_LOW_STA		if(UseI2C100KHz){Delay10TCYx(2);}	
 #define T_HD_STA		if(UseI2C100KHz){Delay10TCYx(2);}else{Delay1TCY();Delay1TCY();Delay1TCY();}	// 4.0/0.6uS
@@ -73,20 +83,7 @@ boolean UseI2C100KHz;
 #define T_SU_STO		if(UseI2C100KHz){Delay10TCYx(3);}else{Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();Delay1TCY();}
 #define T_BUF			Delay10TCYx(5)
 
-#define I2C_DATA_LOW	{I2C_SDA_SW=0;I2C_DIO_SW=I2C_OUT;}
-#define I2C_DATA_FLOAT	{I2C_DIO_SW=I2C_IN;}
-#define I2C_CLK_LOW		{I2C_SCL_SW=0;I2C_CIO_SW=I2C_OUT;}
-#define I2C_CLK_FLOAT	{I2C_CIO_SW=I2C_IN;} 
-
-void InitI2C(void)
-{
-	UseI2C100KHz = false;
-} // InitI2C
-
-#ifdef USE_I2C100KHZ
-
-boolean I2CWaitClkHi(void)
-{
+boolean I2CWaitClkHi(void) {
 	static uint8 s;
 
 	Delay1TCY(); // setup
@@ -104,8 +101,7 @@ boolean I2CWaitClkHi(void)
 	return( true );
 } // I2CWaitClkHi
 
-void I2CStart(void)
-{
+void I2CStart(void) {
 	static boolean r;
 	
 	I2C_DATA_FLOAT;
@@ -117,8 +113,7 @@ void I2CStart(void)
 
 } // I2CStart
 
-void I2CStop(void)
-{
+void I2CStop(void) {
 	static boolean r;
 
 	T_LOW_STP;
@@ -131,8 +126,7 @@ void I2CStop(void)
 
 } // I2CStop 
 
-uint8 ReadI2CByte(uint8 r)
-{
+uint8 ReadI2CByte(uint8 r) {
 	static uint8 s, d;
 
 	I2C_DATA_FLOAT;
@@ -171,8 +165,7 @@ uint8 ReadI2CByte(uint8 r)
 	
 } // ReadI2CByte
 
-uint8 WriteI2CByte(uint8 d)
-{
+uint8 WriteI2CByte(uint8 d) {
 	static uint8 s, dd;
 
 	dd = d;  // a little faster
@@ -215,8 +208,7 @@ uint8 WriteI2CByte(uint8 d)
 
 // Squeek out to 333KHz if there are no 100KHz devices installed
 
-boolean I2CWaitClkHi(void)
-{
+boolean I2CWaitClkHi(void) {
 	static uint8 s;
 
 	Delay1TCY();Delay1TCY();//Delay1TCY();Delay1TCY(); // tSU:DAT + call
@@ -231,8 +223,7 @@ boolean I2CWaitClkHi(void)
 	return( true );
 } // I2CWaitClkHi
 
-void I2CStart(void)
-{
+void I2CStart(void) {
 	static boolean r;
 
 	I2C_DATA_FLOAT; // should be floating after previous TBuf
@@ -242,8 +233,7 @@ void I2CStart(void)
 	I2C_CLK_LOW;
 } // I2CStart
 
-void I2CStop(void)
-{
+void I2CStop(void) {
 	static boolean r;
 
 	I2C_DATA_LOW;
@@ -255,8 +245,7 @@ void I2CStop(void)
 
 } // I2CStop 
 
-uint8 ReadI2CByte(uint8 r)
-{
+uint8 ReadI2CByte(uint8 r) {
 	static uint8 s, d;
 
 	I2C_DATA_FLOAT;
@@ -292,8 +281,7 @@ uint8 ReadI2CByte(uint8 r)
 	
 } // ReadI2CByte
 
-uint8 WriteI2CByte(uint8 d)
-{
+uint8 WriteI2CByte(uint8 d) {
 	static uint8 s, dd;
 
 	dd = d;  // a little faster
@@ -330,10 +318,9 @@ uint8 WriteI2CByte(uint8 d)
 	return(s);
 } // WriteI2CByte
 
-#endif // USE_I2C100KHZ
+#endif // I2C100KHZ
 
-uint8 ReadI2CByteAtAddr(uint8 d, uint8 address)
-{
+uint8 ReadI2CByteAtAddr(uint8 d, uint8 address) {
 	static uint8 data;
 		
 	I2CStart();
@@ -352,8 +339,7 @@ IRerror:
 	return (0);
 } // ReadI2CByteAtAddr
 
-void WriteI2CByteAtAddr(uint8 d, uint8 address, uint8 v)
-{
+void WriteI2CByteAtAddr(uint8 d, uint8 address, uint8 v) {
 	I2CStart();	// restart
 		if( WriteI2CByte(d) != I2C_ACK ) goto IWerror;
 		if( WriteI2CByte(address) != I2C_ACK ) goto IWerror;
@@ -367,8 +353,7 @@ IWerror:
 	return;
 } // WriteI2CByteAtAddr
 
-boolean ReadI2Ci16vAtAddr(uint8 d, uint8 cmd, int16 *v, uint8 l, boolean h)
-{
+boolean ReadI2Ci16vAtAddr(uint8 d, uint8 cmd, int16 *v, uint8 l, boolean h) {
 	static uint8 b, c;
 	static uint8 S[16];
 
@@ -410,8 +395,7 @@ IRSerror:
 
 } // ReadI2Ci16vAtAddr
 
-boolean I2CResponse(uint8 d)
-{
+boolean I2CResponse(uint8 d) {
 	static boolean r;
 
     I2CStart();
@@ -445,8 +429,7 @@ void ConfigureESCs(void);
 #define ESC_CLK_LOW		{ESC_SCL=0;ESC_CIO=I2C_OUT;}
 #define ESC_CLK_FLOAT	{ESC_CIO=I2C_IN;}
 
-boolean ESCWaitClkHi(void)
-{
+boolean ESCWaitClkHi(void) {
 	static uint8 s;
 
 	Delay1TCY();Delay1TCY();Delay1TCY(); // TSU:DAT + Call
@@ -458,8 +441,7 @@ boolean ESCWaitClkHi(void)
 	return ( true );
 } // ESCWaitClkHi
 
-void ESCI2CStart(void)
-{
+void ESCI2CStart(void) {
 	static uint8 r;
 
 	ESC_DATA_FLOAT;
@@ -469,8 +451,7 @@ void ESCI2CStart(void)
 	ESC_CLK_LOW;				
 } // ESCI2CStart
 
-void ESCI2CStop(void)
-{
+void ESCI2CStop(void) {
 	ESC_DATA_LOW;
 	ESCWaitClkHi();
 	Delay1TCY();Delay1TCY();Delay1TCY(); // tsu:STO
@@ -480,8 +461,7 @@ void ESCI2CStop(void)
 
 } // ESCI2CStop
 
-uint8 WriteESCI2CByte(uint8 d)
-{ // ~320KHz @ 40MHz
+uint8 WriteESCI2CByte(uint8 d) { // ~320KHz @ 40MHz
 	static uint8 s, dd;
 
 	dd = d; // a little faster
@@ -565,8 +545,7 @@ void ShowI2CDeviceName(uint8 d) {
 
 } // ShowI2CDeviceName
 
-uint8 ScanI2CBus(void)
-{
+uint8 ScanI2CBus(void) {
 	uint8 s;
 	uint8 d;
 
@@ -617,8 +596,7 @@ uint8 ScanI2CBus(void)
 	return(d);
 } // ScanI2CBus
 
-void ProgramSlaveAddress(uint8 addr)
-{
+void ProgramSlaveAddress(uint8 addr) {
 	static uint8 s;
 
 	for (s = 0x10 ; s < 0xf0 ; s += 2 )
@@ -652,8 +630,7 @@ void ProgramSlaveAddress(uint8 addr)
 	TxString(" no response - check cabling and pullup resistors!\r\n");
 } // ProgramSlaveAddress
 
-void ConfigureESCs(void)
-{
+void ConfigureESCs(void) {
 	static uint8 m;
 
 	if ( (int8)P[ESCType] == ESCYGEI2C )		

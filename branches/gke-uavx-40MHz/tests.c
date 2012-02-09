@@ -24,6 +24,8 @@
 
 void DoLEDs(void);
 void ReceiverTest(void);
+void PowerOutput(int8);
+void LEDsAndBuzzer(void);
 void BatteryTest(void);
 
 void DoLEDs(void)
@@ -91,6 +93,11 @@ void ReceiverTest(void)
 	TxNextLine();
 
 } // ReceiverTest
+
+void LEDsAndBuzzer(void)
+{
+	TxString("Test deleted - no space\r\n");
+} // LEDsAndBuzzer
 
 #endif // TESTING
 
