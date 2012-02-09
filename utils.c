@@ -31,8 +31,8 @@ void CheckAlarms(void);
 int32 SlewLimit(int32, int32, int32);
 int32 ProcLimit(int32, int32, int32);
 int16 DecayX(int16, int16);
-void LPFilter16(int16*, i32u*, int16);
-void LPFilter24(int24* i, i32u* iF, int16 FilterA);
+void InitSmooth16x816(int16x16Q * F);
+int16 Smooth16x16(int16x16Q *, int16);
 
 int8 BatteryVolts;
 int16 BatteryVoltsADC, BatteryCurrentADC, BatteryVoltsLimitADC, BatteryCurrentADCEstimated, BatteryChargeUsedmAH;
@@ -157,12 +157,12 @@ void InitMisc(void)
 	for ( i = 0; i < (uint8)FLAG_BYTES ; i++ )
 		F.AllFlags[i] = false;
 
-	#ifdef INC_CYCLE_STATS
-	for (i = 0 ; i <(uint8)16; i++ )
-		CycleHist[i] = 0;
-	#endif // INC_CYCLE_STATS
- 
 	F.ParametersValid = F.AcquireNewPosition = F.AllowNavAltitudeHold = true;
+
+        #ifdef INC_CYCLE_STATS
+        for (i = 0 ; i <(uint8)16; i++ )
+                CycleHist[i] = 0;
+        #endif // INC_CYCLE_STATS
 
 	#ifdef SIMULATE
 	F.Simulation = true;
@@ -333,35 +333,43 @@ int32 SlewLimit(int32 Old, int32 New, int32 Slew)
   return(( New < Low ) ? Low : (( New > High ) ? High : New));
 } // SlewLimit
 
-/* abandon filters in favour of simple weighted averaging on last two samples
-
-void LPFilter16(int16* i, i32u* iF, int16 FilterA)
-{
-	static i24u Temp;
-
-	Temp.b0 = 0;
-	Temp.i2_1 = *i;
-	iF->i32 += ((int32)Temp.i24 - iF->i3_1) * FilterA;
-	*i = iF->iw1;
-
-} // LPFilter16
-
-void LPFilter24(int24* i, i32u* iF, int16 FilterA)
-{
-	static i32u Temp;
-
-	Temp.b0 = 0;
-	Temp.i3_1 = *i;
-	iF->i32 += ((int32)Temp.i32 - iF->i3_1) * FilterA;
-	*i = iF->iw1;
-
-} // LPFilter24
-
-LPFilter16(&Heading, &HeadingValF, HeadingFilterA);
-
-*/
-int32 Abs(int32 n)
+int32 Abs(int32 n)
 {
 	return(n<0 ? -n : n);
-} // Abs
+} // Abs
+
+void InitSmooth16x16(int16x16Q * F) {
+	F->Prime = true;
+} // InitSmooth16x16
+
+int16 Smooth16x16(int16x16Q * F, int16 v) {
+	static uint8 i;
+	static uint8 p;
+
+	if ( F->Prime )
+	{
+		for ( i = 0; i < (uint8)16; i++ )
+			F->B[i] = v;
+
+		F->Head = 0;
+		F->Tail = 15;
+
+		F->S = (int32)v * 16;
+		F->Prime = false;
+	}
+	else
+	{
+		p = F->Head;
+		F->S -= F->B[p];
+		F->Head = (p + 1) & 15;
+		p = F->Tail;
+		p = (p + 1) & 15;
+		F->B[p] = v;
+		F->Tail = p;
+		F->S += v;
+	}
+
+	return ( (int16)(SRS32(F->S, 4))); 
+
+} // Smooth16x16
 

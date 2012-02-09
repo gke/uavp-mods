@@ -18,7 +18,6 @@
 //    You should have received a copy of the GNU General Public License along with this program.  
 //    If not, see http://www.gnu.org/licenses/
 
-
 #pragma	config OSC=HSPLL, WDT=OFF, PWRT=ON, MCLRE=OFF, LVP=OFF, PBADEN=OFF, CCP2MX = PORTC, XINST = OFF
 
 #include "uavx.h"
@@ -128,6 +127,7 @@ void main(void)
 				case Landed:
 					DesiredThrottle = 0;
 					GetBaroAltitude();
+					InitHeading();
 					if ( mSClock() > mS[ArmedTimeout] )
 						DoShutdown();
 					else	
@@ -217,7 +217,7 @@ void main(void)
 				GetHeading();
 	
 			#ifndef TESTING
-		if ( F.AccelerometersEnabled )
+			if ( F.AccelerometersEnabled )
 			#endif // !TESTING
 					CheckTelemetry();
 
@@ -246,7 +246,7 @@ void main(void)
 				CycleHist[CyclemS]++;
 			}
 			#endif // INC_CYCLE_STATS
-		
+	
 		} // flight while armed
 	}
 

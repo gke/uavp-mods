@@ -120,6 +120,8 @@ int8 	SimulateCycles;
 
 uint8 	BaroPressureCycles;
 
+int16x16Q BaroROCF;
+
 int24 AltCF;
 int16 TauCF = 7; // 5 FOR BMP085 increasing value reduces filtering
 int32 AltF[3] = { 0, 0, 0};
@@ -150,9 +152,8 @@ int24 AltitudeCF(int24 Alt)
 	AltCF = Temp.i3_1;
 
 	BaroROC = ( AltCF - AltCFp) * ALT_UPDATE_HZ; 
-	BaroROC = MediumFilter(BaroROCp, BaroROC);
+	BaroROC = Smooth16x16(&BaroROCF, BaroROC);
 	BaroROC = Limit1(BaroROC, 800);
-	// BaroROC = HardFilter(BaroROCp, BaroROC);
 	BaroROCp = BaroROC;
 
 	AccAltComp = AltCF - Alt; // for debugging
@@ -309,6 +310,8 @@ void InitBarometer(void)
 	BaroStable = BaroError[BaroType];
 	BaroPressureCycles = 0;
 	AltCF = AltF[0] = AltF[1] = AltF[2] = 0;
+
+	InitSmooth16x16(&BaroROCF);
 
 	F.BaroAltitudeValid = true; // optimistic
 

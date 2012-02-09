@@ -84,7 +84,8 @@ void ReadParametersEE(void)
 		A[Pitch].AccOffset = (int16)P[MiddleFB];
 		
 		A[Yaw].Kp = P[YawKp];
-		A[Yaw].Ki = P[YawKi];
+		//A[Yaw].Ki = P[YawKi];
+		//A[Yaw].IntLimit = P[YawIntLimit];
 		//A[Yaw].Kd = P[YawKd];
 		A[Yaw].Limiter = P[YawLimit];
 		A[Yaw].AccOffset = (int16)P[MiddleDU];
@@ -110,9 +111,14 @@ void ReadParametersEE(void)
 		InitGyros();
 		InitAccelerometers();
 
-		PIDCyclemS = PID_CYCLE_MS;
+		if ( P[ESCType] == ESCPPM )
+			PIDCycleShift = PID_40MHZ_SHIFT; 
+		else
+			PIDCycleShift = PID_40MHZ_I2CESC_SHIFT; 
 
+		PIDCyclemS = PID_BASE_CYCLE_MS * ((int8)1 << PIDCycleShift);
 		ServoInterval = ((SERVO_UPDATE_INTERVAL+PIDCyclemS/2)/PIDCyclemS);
+		EffAccTrack = P[AccTrack] >> (2-PIDCycleShift);
 
 		b = P[ServoSense];
 		for ( i = 0; i < (uint8)6; i++ )

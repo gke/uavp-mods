@@ -34,6 +34,7 @@ void InitGyros(void);
 uint8 GyroType;
 int16 RawGyro[3];
 int32 NoAccCorr;
+int16x16Q YawF;
 
 #include "MPU6050.h"
 
@@ -185,7 +186,9 @@ void GetGyroValues(void)
 
 void InitGyros(void)
 {
-F.UsingAnalogGyros = false;
+	InitSmooth16x16(&YawF);
+	F.UsingAnalogGyros = false;
+
 	switch ( P[SensorHint]){
 	case ITG3200Gyro:
 	case SFDOF6: // ITG3200
@@ -218,7 +221,7 @@ F.UsingAnalogGyros = false;
 	default:
 		InitAnalogGyros();
 		GyroType = P[SensorHint];
-     	F.UsingAnalogGyros = true;
+		F.UsingAnalogGyros = true;
 		break;
 	} // switch
 

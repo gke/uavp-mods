@@ -126,8 +126,7 @@ void ShowAttitude(void) {
 
 	#endif // INC_RAW_ANGLES
 
-//	TxESCi16(A[Yaw].RateEp); // rate error as analogue for heading error
-	TxESCi16(aaa);// zzz
+	TxESCi16(A[Yaw].RateEp); // rate error as analogue for heading error
 
 	TxESCi16(A[Roll].Acc);
     TxESCi16(A[Pitch].Acc);
@@ -156,8 +155,8 @@ void SendFlightPacket(void) {
 
 	ShowAttitude();
 
-	TxESCi8((int8)A[Roll].AngleCorr);
-	TxESCi8((int8)A[Pitch].AngleCorr);
+	TxESCi8((int8)A[Roll].DriftCorr);
+	TxESCi8((int8)A[Pitch].DriftCorr);
 	TxESCi8((int8)AccAltComp);
 	TxESCi8((int8)AltComp);
 
@@ -321,9 +320,7 @@ void SendParameters(uint8 s) {
 	SendParamPacket(0, MAX_PARAMETERS);
 } // SendParameters
 
-void SendCycle(void) 
-{	// 
-	// 0.8mS at 40MHz
+void SendCycle(void) { // 0.8mS at 40MHz
 	
 	switch ( UAVXCurrPacketTag ) {
 	case UAVXFlightPacketTag:
@@ -358,15 +355,15 @@ void SendCustom(void) {
 	// -> 
 
 	// add user specific code
-	TxVal32(mSClock(),0,',');
-	TxVal32(aaa,0,',');
-	TxVal32(bbb,0,',');
-	TxVal32(ccc,0,',');
-	TxVal32(ddd,0,',');
-	TxVal32(eee,0,',');
-	TxVal32(fff,0,',');
-	TxVal32(ggg,0,',');
-	TxVal32(hhh,0,',');
+//	TxVal32(mSClock(),0,',');
+//	TxVal32(aaa,0,',');
+//	TxVal32(bbb,0,',');
+//	TxVal32(ccc,0,',');
+//	TxVal32(ddd,0,',');
+//	TxVal32(eee,0,',');
+//	TxVal32(fff,0,',');
+//	TxVal32(ggg,0,',');
+//	TxVal32(hhh,0,',');
 	// <-
 
 	TxChar(CR);

@@ -108,9 +108,7 @@ void ShowSetup(void)
 	TxNextLine();
 	TxString(SerHello);
 
-	#ifdef EXPERIMENTAL
-		TxString("\r\nWARNING - EXPERIMENTAL");
-	#endif // EXPERIMENTAL
+	#ifndef MAKE_SPACE
 
 	TxString("\r\nClock: 40MHz");
 
@@ -177,6 +175,8 @@ void ShowSetup(void)
 		TxString("Tx Mode 2");
 	else
 		TxString("Tx Mode 1");
+
+	#endif 	// MAKE_SPACE
 
 	TxString("\r\nParam set: "); // must be exactly this string as UAVPSet expects it
 	TxChar('0' + ParamSet);	
@@ -292,7 +292,7 @@ void ProcessCommand(void)
 				dd = RxNumS();
 				d = Limit(dd, -128, 127);
 				PTemp[p] = d;
-				if ( p == (MAX_PARAMETERS-1))
+				if ( ( p == (MAX_PARAMETERS-1)) && ( P[RollKp] == 0 ) )
 				{
 					for (p = 0; p<MAX_PARAMETERS;p++)
 						if( ParamSet == (uint8)1 )
@@ -409,7 +409,7 @@ void ProcessCommand(void)
 				ShowPrompt();
 				break;
 			case 'T':
-				TxString("Test deleted - no space\r\n");
+				LEDsAndBuzzer();
 				ShowPrompt();
 				break;
 			#endif // TESTING

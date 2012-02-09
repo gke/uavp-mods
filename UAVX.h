@@ -1,3 +1,11 @@
+//#define MAKE_SPACE // zzz
+
+//#define FLAT_LISL_ACC		// LISL acc lying flat components up pins forward
+
+//#define INC_RAW_ANGLES
+
+//#define HAVE_CUTOFF_SW		// Pin11 (RC0) short to ground when landed otherwise 10K pullup.
+
 // ===============================================================================================
 // =                                UAVX Quadrocopter Controller                                 =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
@@ -18,19 +26,8 @@
 //    You should have received a copy of the GNU General Public License along with this program.  
 //    If not, see http://www.gnu.org/licenses/
 
-// Misc defines for testing
-
-#define INC_HMC6352				// SLOW 100KHz I2C preferably REPLACE with HMC5883L
-
-//#define FLAT_LISL_ACC			// LISL acc lying flat components up pins forward
-//#define USE_I2C_ESCS_ONLY		// Flat chat 500KHz update rate - as good as it gets on a PIC!
-
-//#define INC_RAW_ANGLES		// for debugging only
-
-//#define HAVE_CUTOFF_SW		// Pin11 (RC0) short to ground when landed otherwise 10K pullup.
-
-
 #ifndef BATCHMODE
+//	#define INC_HMC6352
 	//#define EXPERIMENTAL
 	//#define TESTING
 	//#define FULL_TEST			// extended compass test etc.
@@ -45,7 +42,8 @@
 	//#define AILERON
 	//#define ELEVON
 	//#define VTOL
-	//#define HAVE_CUTOFF_SW	// Ground PortC Bit 0 (Pin 11) for landing cutoff otherwise 4K7 pullup.						
+	//#define HAVE_CUTOFF_SW	// Ground PortC Bit 0 (Pin 11) for landing cutoff otherwise 4K7 pullup.
+	#define I2C100KHZ
 #endif // !BATCHMODE
 
 //________________________________________________________________________________________________
@@ -60,27 +58,20 @@
 	//#define FULL_COMPASS_TEST
 #endif // FULL_TEST
 
-#define DEG_TO_ANGLE_UNITS		156L
+#define DEG_TO_ANGLE_UNITS		156L	// approximate!
 
 #define MAX_BANK_ANGLE_DEG		45L
+
+//#define INC_CYCLE_STATS
 
 #define INC_MS5611			// FreeIMU etc.
 #define INC_BMA180			// include BMA180 accelerometer code
 #define INC_ADXL345			// include ADXL345 accelerometer code SF6DOF/9DOF	
 #define INC_HMC58X3			// preferable Honeywell magnetometer
+//#define INC_MPU6050		// include MPU6050 accelerometer/gyros
 
-#ifdef INC_HMC6352
-	#define USE_I2C100KHZ			// uses slow I2C routines because of HMC6352
-#else
-	#define INC_CYCLE_STATS	// tracks actual PID cycle times achieved - view in Setup
-#endif // INC_HMC6352
-
-// Desperate for space!!!!!
-#ifndef VTCOPTER		
-	#define INC_MPU6050		// include MPU6050 accelerometer/gyros
-#endif 
-
-#ifdef INC_HMC6352
+#ifdef I2C100KHZ
+	#define INC_HMC6352		// SLOW 100KHz I2C preferably REPLACE with HMC5883L
 #endif // INC_HMC6352
 
 // Airframe
@@ -121,25 +112,20 @@
 
 // Filters
 
-#define YawFilter		MediumFilter
-#define HeadingFilter	MediumFilter
-
 // Timeouts and Update Intervals
 
 #define SERVO_UPDATE_INTERVAL		18		// mS.
 
-// Rescale angle to accelerometer units 
-// MAGIC numbers assume 5mS for 40MHz and 8mS for 16MHz
+// Magic number to rescale angle to accelerometer units 
 
-#define RESCALE_TO_ACC				26
+#define RESCALE_TO_ACC				51		// 256/5   36 // (256/7.16)
 
 #define ANGLE_LIMIT					28000	// make large otherwise angle estimate latches up!!
-
-#ifdef USE_I2C_ESCS_ONLY
-	#define PID_CYCLE_MS			2		// 500KHz flat chat with I2C ESCs
-#else	
-	#define PID_CYCLE_MS			4		// 250KHz
-#endif // USE_I2C_ESCS_ONLY
+	
+#define PID_BASE_CYCLE_MS			2		// 500KHz flat chat with I2C ESCs
+// Shifts MUST be <=2
+#define PID_40MHZ_I2CESC_SHIFT		0
+#define PID_40MHZ_SHIFT				1
 	
 // DISABLED AS UNSAFE ON BENCH 
 #define ENABLE_STICK_CHANGE_FAILSAFE
@@ -166,7 +152,7 @@
 #define UAVX_MIN_TEL_INTERVAL_MS	500L	// mS. emit minimum data packet for example to FrSky
 #define ARDU_TEL_INTERVAL_MS		200L	// mS. alternating 1:5
 #define UAVX_CONTROL_TEL_INTERVAL_MS 100L	// mS. flight control only
-#define CUSTOM_TEL_INTERVAL_MS		50L	// mS.
+#define CUSTOM_TEL_INTERVAL_MS		100L	// mS.
 
 #define GPS_TIMEOUT_MS				2000L	// mS.
 
@@ -387,13 +373,6 @@ typedef union {
 	};
 } i32u;
 
-typedef struct {
-	i32u v;
-	int16 a;
-	int16 f;
-	uint8 dt;
-	} SensorStruct;
-
 typedef struct { // Tx
 	uint8 Head, Tail;
 	uint8 B[128];
@@ -404,10 +383,18 @@ typedef struct { // PPM
 	int16 B[4][8];
 	} int16x8x4Q;	
 
-typedef struct { // Baro
+typedef struct { 
+	int32 S;
 	uint8 Head, Tail;
-	int24 B[8];
-	} int24x8Q;	
+	int32 B[8];
+	} int32x8Q;
+
+typedef struct { 
+	int32 S;
+	uint8 Head, Tail;
+	int16 B[16];
+	boolean Prime;
+	} int16x16Q;	
 
 #define NAVQ_MASK 3
 #define NAVQ_SHIFT 2
@@ -428,7 +415,7 @@ typedef struct {
 	int16 RawAngle, Angle, AngleE, AngleIntE;	
 	int16 Rate, Ratep, RateEp, RateIntE;
 	int16 Acc, AccADC, AccBias, AccOffset;
-	int8 AngleCorr;
+	int8 DriftCorr;
 	int32 AccCorrAv, AccCorrMean;
 	int16 Control;
 	int16 NavCorr, NavIntE;
@@ -494,16 +481,13 @@ typedef struct {
 #define InterruptsEnabled 	(INTCONbits.GIEH)
 
 // Clock
-
 #define	TMR0_1MS		(65536-640) // actually 1.0248mS to clear PW 
 
 // Parameters for UART port ClockHz/(16*(BaudRate+1))
-
 #define _B9600			65
 #define _B38400			65
 
 // This is messy - trial and error to determine worst case interrupt latency!
-
 #define INT_LATENCY		(uint16)(65536 - 35) // x 1.6uS
 #define FastWriteTimer0(t) Timer0.u16=t;TMR0H=Timer0.b1;TMR0L=Timer0.b0
 #define GetTimer0		{Timer0.b0=TMR0L;Timer0.b1=TMR0H;}	
@@ -626,7 +610,8 @@ typedef union {
 
 		NormalFlightMode:1,
 		MPU6050Initialised:1,
-		UsingAnalogGyros:1;	
+		UsingAnalogGyros:1,
+		NewCompassValue:1;	
 		};
 } Flags;
 
@@ -804,6 +789,8 @@ extern int24 AltCF;
 extern int16 TauCF;
 extern int32 AltF[];
 
+extern int16x16Q BaroROCF;
+
 #ifdef SIMULATE
 extern int24 FakeBaroRelAltitude;
 #endif // SIMULATE
@@ -812,12 +799,12 @@ extern int24 FakeBaroRelAltitude;
 
 // compass.c
 
-#define COMPASS_MAXDEV		30			// maximum yaw compensation of compass heading 
 #define COMPASS_MIDDLE		10			// yaw stick neutral dead zone
 #define COMPASS_TIME_MS		50			// 20Hz
 #define COMPASS_UPDATE_HZ	(1000/COMPASS_TIME_MS)
 
-#define COMPASS_MAX_SLEW	(12L*COMPASS_TIME_MS) //((TW0MILLIPI * COMPASS_TIME_MS)/500)
+#define COMPASS_MAX_SLEW	SIXTHMILLIPI
+#define YAW_COMP_LIMIT		30			// maximum yaw compensation of compass heading 
 
 #define MAG_INIT_RETRIES	10
 
@@ -884,7 +871,7 @@ extern void GainSchedule(void);
 extern void DoControl(void);
 extern void InitControl(void);
 
-extern uint8 PIDCyclemS, ServoInterval;
+extern uint8 PIDCyclemS, PIDCycleShift, ServoInterval;
 extern uint32 LastPIDUpdatemS;
 extern uint32 CycleHist[];
 
@@ -999,6 +986,7 @@ extern boolean InvenSenseGyroActive(void);
 extern uint8 GyroType;
 extern int16 RawGyro[];
 extern int32 NoAccCorr;
+extern int16x16Q YawF;
 
 //______________________________________________________________________________________________
 
@@ -1007,14 +995,11 @@ extern int32 NoAccCorr;
 #define CONTROLS 			10
 
 #define RxFilter			MediumFilterU
-//#define RxFilter			SoftFilterU
-//#define RxFilter			NoFilter
 
 #define	RC_GOOD_BUCKET_MAX	20
 #define RC_GOOD_RATIO		4
 
 #define RC_MINIMUM			0
-
 #define RC_MAXIMUM		240	// adjust for faster arithmetic in RCMap
 
 #define RC_NEUTRAL			((RC_MAXIMUM-RC_MINIMUM+1)/2)
@@ -1074,7 +1059,7 @@ extern void CompensateYawGyro(void);
 extern void DoAttitudeAngles(void);
 extern void GetAttitude(void);
 
-static int16 HEp;
+extern uint8 EffAccTrack;
 
 //______________________________________________________________________________________________
 
@@ -1206,7 +1191,6 @@ extern const rom uint8 RxChMnem[];
 // outputs.c
 
 // The minimum value for PW width is 1 for the pulse generators
-
 #define OUT_MAXIMUM			208	//210 222	//  to reduce Rx capture and servo pulse output interaction
 #define OUT_NEUTRAL			111			//  1.503mS @ 105 16MHz
 
@@ -1513,6 +1497,8 @@ extern int16 AmbientTemperature;
 
 extern void DoLEDs(void);
 extern void ReceiverTest(void);
+extern void PowerOutput(int8);
+extern void LEDsAndBuzzer(void);
 extern void BatteryTest(void);
 
 //______________________________________________________________________________________________
@@ -1532,8 +1518,8 @@ extern void DoStartingBeepsWithOutput(uint8);
 extern int32 SlewLimit(int32, int32, int32);
 extern int32 ProcLimit(int32, int32, int32);
 extern int16 DecayX(int16, int16);
-//extern void LPFilter16(int16*, i32u*, int16);
-//extern void LPFilter24(int24* i, i32u* iF, int16 FilterA);
+void InitSmooth16x16(int16x16Q *);
+int16 Smooth16x16(int16x16Q *, int16);
 extern void CheckBatteries(void);
 extern void CheckAlarms(void);
 extern int32 Abs(int32);
@@ -1554,6 +1540,8 @@ extern void BootStart(void);
 
 extern void DoLEDs(void);
 extern void ReceiverTest(void);
+extern void PowerOutput(int8);
+extern void LEDsAndBuzzer(void);
 extern void BatteryTest(void);
 
 //______________________________________________________________________________________________

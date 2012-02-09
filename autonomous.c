@@ -193,8 +193,7 @@ void DoCompScaling(void)
 
 #endif // !TESTING
 
-void Navigate(int32 NavLatitude, int32 NavLongitude )
-{	// 1.9mS @ 16MHz
+void Navigate(int32 NavLatitude, int32 NavLongitude ) {
 	// 0.8mS @ 40MHz
 
 	// F.GPSValid must be true immediately prior to entry	

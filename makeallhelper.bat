@@ -6,13 +6,10 @@ rem Helper script for makeall.bat
 rem =======================================================
 rem parameters passed are:
 
-set CLOCK=%1
-set PROC=%2
-set DBG=%3
-set RX=%4
-set CFG=%5
-set EXP=%6
-set BRD=%7
+set I2C=%1
+set CFG=%2
+set BRD=%3
+set DBG=%4
 
 for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set year=%%c
 for /f "tokens=2-4 delims=/ " %%a in ('date /T') do set month=%%a
@@ -34,7 +31,11 @@ set D=
 set T=
 set R=
 set B=
+set I=
 set L=
+set X=-40
+
+if "%I2C%" == "I2C100KHZ"     		set I=-I2C100KHZ
 
 if "%DBG%" == "TESTING"     		set D=-TEST
 if "%DBG%" == "SIMULATE"     		set D=-SIMULATOR
@@ -52,21 +53,14 @@ if "%BRD%" == "UAVXLIGHT"			set L=Light
 
 if "%DBG%" == "TESTING"				set C=
 
-if "%RX%" == "RX6CH"				set R=-6CH
-if "%CLOCK%" == "CLOCK_16MHZ"    	set X=-16
-if "%CLOCK%" == "CLOCK_40MHZ"     	set X=-40
-
-
-if "%EXP%" == "EXPERIMENTAL"     		set E=EXP-
-
 set CC="C:\MCC18\bin\mcc18" 
 rem removed integer promotions set CCMD=  -Oi -w1 -Opa- -DBATCHMODE
 set CCMD=  -w3 -Opa- -DBATCHMODE
 
-set ACMD=/q /d%CLOCK% /p%PROC% %%i.asm /l%%i.lst /e%%i.err /o%%i.o
+set ACMD=/q /dCLOCK_40MHZ /p18F2620 %%i.asm /l%%i.lst /e%%i.err /o%%i.o
 set AEXE="C:\MCC18\mpasm\mpasmwin.exe"
 
-set LCMD=/p%PROC% /l"C:\MCC18\lib" /k"C:\MCC18\lkr"
+set LCMD=/p18F2620 /l"C:\MCC18\lib" /k"C:\MCC18\lkr"
 set LEXE="C:\MCC18\bin\mplink.exe"
 
 rem Build the list of expected object files
@@ -74,23 +68,23 @@ set F=
 for %%i in ( %CSRC% ) do set F=!F! %%i.o
 for %%i in ( %ASRC% ) do set F=!F! %%i.o
 
-for %%i in ( %CSRC% ) do %CC% -p=%PROC% /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -D%CLOCK% -D%DBG% -D%RX% -D%CFG% -D%EXP% -D%BRD% >> log.lst
+for %%i in ( %CSRC% ) do %CC% -p=18F2620 /i"C:\MCC18\h" %%i.c -fo=%%i.o %CCMD%  -DCLOCK_40MHZ -D%I2C% -D%CFG% -D%DBG% -D%BRD% >> log.lst
 
 for %%i in ( %ASRC% ) do %AEXE%  %ACMD% >> log.lst
 
-%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVX%L%-V2.1847gke-%E%%PROC%%X%%R%%C%%D%%T%.hex >> log.lst 
+%LEXE% %LCMD% %F% /u_CRUNTIME /z__MPLAB_BUILD=1 /W /o UAVX%L%-V2.941gke-18F2620-40%I%%C%%D%%T%.hex >> log.lst 
 
 
 if %ERRORLEVEL% == 1 goto FAILED
 
-echo compiled - UAVX%L%-V2.1847gke-%E%%PROC%%X%%R%%C%%D%%T%.hex
-echo compiled - UAVX%L%-V2.1847gke-%E%%X%%R%%C%%D%%T%.hex >> gen.lst
+echo compiled - UAVX%L%-V2.941gke-18F2620-40%I%%C%%D%%T%.hex
+echo compiled - UAVX%L%-V2.941gke-18F2620-40%I%%C%%D%%T%.hex >> gen.lst
 call makeclean.bat
 goto FINISH
 
 :FAILED
-echo failed - UAVX%L%-V2.1847gke-%E%%PROC%%X%%R%%C%%D%%T%.hex
-echo failed - UAVX%L%-V2.1847gke-%E%%PROC%%X%%R%%C%%D%%T%.hex >> gen.lst
+echo failed - UAVX%L%-V2.941gke-%E%18F2620-40%I%%C%%D%%T%.hex
+echo failed - UAVX%L%-V2.941gke-%E%18F2620-40%I%%C%%D%%T%.hex >> gen.lst
 rem don't delete working files
 
 :FINISH

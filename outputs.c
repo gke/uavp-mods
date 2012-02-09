@@ -178,10 +178,12 @@ void CheckDemand(int16 CurrThrottle)
 		if ( Scale < 256 )
 		{
 			MotorDemandRescale = true;
-			Temp.i24 = Rl * Scale; 
-			Rl = Temp.i2_1;
+
+			Temp.i24 = Rl * Scale;
+			Rl = Temp.i2_1; 
 			Temp.i24 = Pl * Scale;
 			Pl = Temp.i2_1;
+
 			#ifndef TRICOPTER 
 				Temp.i24 = Yl * Scale;
 				Yl = Temp.i2_1;
@@ -196,8 +198,7 @@ void CheckDemand(int16 CurrThrottle)
 
 #endif // MULTICOPTER
 
-void MixAndLimitMotors(void)
-{ 	// expensive ~160uSec @ 40MHz
+void MixAndLimitMotors(void) { // expensive ~160uSec @ 40MHz
     static int16 Temp, TempElevon, TempElevator;
 	static uint8 m;
 

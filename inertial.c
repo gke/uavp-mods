@@ -27,18 +27,14 @@ void CompensateYawGyro(void);
 void GetAttitude(void);
 void DoAttitudeAngles(void);
 
-static int16 HEp;
+uint8 EffAccTrack;
 
 void CompensateRollPitchGyros(void)
 {
 	// RESCALE_TO_ACC is dependent on cycle time and is defined in uavx.h
 	#define ANGLE_COMP_STEP 6 //25
 
-//	#define AccFilter MediumFilter32
-	#define AccFilter NoFilter // using chip filters
-
 	static int16 AbsAngle, Grav, Dyn, NewAcc, NewCorr;
-	static i32u Temp;
 	static uint8 a;
 	static AxisStruct *C;
 
@@ -46,8 +42,7 @@ void CompensateRollPitchGyros(void)
 	{
 		ReadAccelerations();
 
-		NewAcc = A[Yaw].AccADC - A[Yaw].AccOffset; 
-		A[Yaw].Acc = AccFilter(A[Yaw].Acc, NewAcc);
+		A[Yaw].Acc = A[Yaw].AccADC - A[Yaw].AccOffset; 
 
 		for ( a = Roll; a<(uint8)Yaw; a++ )
 		{
@@ -55,10 +50,8 @@ void CompensateRollPitchGyros(void)
 			AbsAngle = Abs(C->Angle);
 			if ( AbsAngle < (30 * DEG_TO_ANGLE_UNITS) ) // ArcSin approximation holds
 			{	
-				NewAcc = C->AccADC - C->AccOffset; 
-				C->Acc = AccFilter(C->Acc, NewAcc);
-				Temp.i32 = (int32)C->Angle * P[AccTrack]; 
-				Grav = Temp.i3_1;
+				C->Acc = C->AccADC - C->AccOffset; 
+				Grav = SRS32((int32)C->Angle * EffAccTrack, 8); 
 				Dyn = 0; //A[a].Rate;
 		
 			    NewCorr = SRS32(C->Acc + Grav + Dyn, 3); 
@@ -69,12 +62,12 @@ void CompensateRollPitchGyros(void)
 					C->AccCorrMean += NewCorr;
 					NoAccCorr++;
 				}
+				// smoothing filter here?
 	
-				NewCorr = Limit1(NewCorr, ANGLE_COMP_STEP);
-				C->AngleCorr = MediumFilter(C->AngleCorr, NewCorr);
+				C->DriftCorr = Limit1(NewCorr, ANGLE_COMP_STEP);
 			}
 			else
-				C->AngleCorr = 0;
+				C->DriftCorr = 0;
 				
 		}
 	}	
@@ -82,7 +75,7 @@ void CompensateRollPitchGyros(void)
 	{
 		A[Roll].Angle = Decay1(A[Roll].Angle);
 		A[Pitch].Angle = Decay1(A[Pitch].Angle);
-		A[Roll].AngleCorr = A[Roll].Acc = A[Pitch].AngleCorr = A[Pitch].Acc = 0;
+		A[Roll].DriftCorr = A[Roll].Acc = A[Pitch].DriftCorr = A[Pitch].Acc = 0;
 		A[Yaw].Acc = GRAVITY;
 	}
 
@@ -107,7 +100,7 @@ void DoAttitudeAngles(void)
 	
 		Temp = C->Angle + C->Rate;	
 		Temp = Limit1(Temp, ANGLE_LIMIT); // turn off comp above this angle?
-		Temp -= C->AngleCorr;			// last for accelerometer compensation
+		Temp -= C->DriftCorr;			// last for accelerometer compensation
 		C->Angle = Temp;
 	}
 
@@ -123,21 +116,20 @@ void CompensateYawGyro(void)
 		if ( A[Yaw].Hold > COMPASS_MIDDLE ) // acquire new heading
 		{
 			DesiredHeading = Heading;
-			HEp = 0;
 			A[Yaw].Ratep = A[Yaw].Rate;
 		}
 		else
-		{
-		    A[Yaw].Rate = YawFilter(A[Yaw].Ratep, A[Yaw].Rate);
-			A[Yaw].Ratep = A[Yaw].Rate;
-			HE = MinimumTurn(DesiredHeading - Heading);
-			HE = HardFilter(HEp, HE);
-			HEp = HE;
-			HE = Limit1(HE, SIXTHMILLIPI); // 30 deg limit
-			HE = SRS32((int24)HE * (int24)P[CompassKp], 1); 
-			A[Yaw].Rate -= Limit1(HE, COMPASS_MAXDEV); // yaw gyro drift compensation
-		}
+			if ( F.NewCompassValue )
+			{
+				F.NewCompassValue = false;
+				HE = MinimumTurn(DesiredHeading - Heading);
+				HE = Limit1(HE, SIXTHMILLIPI); // 30 deg limit
+				A[Yaw].DriftCorr = SRS32((int24)HE * (int24)P[CompassKp], 7);
+				A[Yaw].DriftCorr = Limit1(A[Yaw].DriftCorr, YAW_COMP_LIMIT); // yaw gyro drift compensation
+			}		
 	}
+
+	A[Yaw].Rate -= A[Yaw].DriftCorr;
 
 } // CompensateYawGyro
 
