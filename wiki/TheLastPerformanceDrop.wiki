@@ -12,15 +12,15 @@ If you fly UAVX with a span of around 600mm or greater as most of us do then 250
 
 The PIC processor spends half its time every control update to generate the 1 to 2 millisecond wide pulses for our PWM ESCs.
 
-As was stated here way way back off the shelf PWM ESCs were geared to how throttles are used on conventional aircraft which means relatively slow changes. This meant that many of them had and still have filters to slow down the rate at which the throttle can be opened or closed regardless of how fast you move the stick.  This is EXACTLY what we do not want for multicopters. 
+As was stated here, way way back, off the shelf PWM ESCs were geared to how throttles are used on conventional aircraft which means relatively slow changes. This meant that many of them had and still have filters to slow down the rate at which the throttle can be opened or closed regardless of how fast you move the stick.  This is EXACTLY what we do not want for multicopters. The filters also limited the current peaks applied to the motors allowing lower current ESCs. Some ESCs had settings to increase the filtering to protect shock loads on gear boxes.
 
-So most of the research now a few years later out there goes into so called Fast PWM ESCs which run at a fraction of a Hz below 500Hz. Just increasing the update rate tricked the ESC filters allowing more rapid changes. So today we are up at a fraction under 500Hz update rate on really cheap ESCs $10-20 for 30A ESCs is normal.
+So most of the research now a few years later out there goes into so called Fast PWM ESCs which run at a fraction of a Hz below 500Hz. Just increasing the update rate tricked the ESC filters allowing more rapid changes. We are now up at a fraction under 500Hz update rate on really cheap ESCs $10-20 for 30A ESCs is normal. Having the 30A headroom can be important even if our motors are only drawing around 10-15A.
 
-We are at 250Hz so what can we do?
+We are at down 250Hz so what can we do if bigger is better is our driver?
 
 === I2C ESCs ===  
 
-I2C ESCs can be updated in a fraction of a millisecond and so run immediately at 500Hz this being automatic with the current UAVX when I2C ESCs are selected.  The PID parameters need to have the I parameter halved as an initial starting point.
+I2C ESCs can be updated in a fraction of a millisecond and so run immediately at 500Hz this being automatic with the current UAVX when I2C ESCs are selected.  
 
 === I Don't Have I2C ESCs ===
 
@@ -35,5 +35,13 @@ One device we use however is the HMC6352 Compass and it can only communicate at 
 The HMC6882L magnetometer communicates at 400KHz and if used allows us to run close to 400KHz with simpler code.  The magnetometer also, in theory, allows us to compensate for the aircraft not being level.
 
 Bottom line consider buying one and select the 40MHz hexfiles without I2C100KHz in their name.
+
+=== Tuning Parameters ===
+
+Not much too this. The PID parameters need to have the I parameter halved as an initial starting point if we go from PWM (250Hz) to I2C (500Hz).
+
+If the I parameter is not halved you will get oscillation caused by the control code driving you back towards level so hard it overshoots.
+
+Remember you need to set ILimit at around the current default or higher if you want strong positive restoration of level flight when you let go the sticks.
 
   
