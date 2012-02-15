@@ -4,15 +4,15 @@
 
 The 40MHz version of UAVX on the 18F2620 is almost as far is it goes for our "Legacy" UAVP board. 
 
-Going from 16MHz to 40MHz using a simple 10MHz crystal upgrade at the cost of a dollar or so is the cheapest performance upgrade in town. It allowed us to go from reading the sensors and updating the motor commands 125 times a second or 125Hz up to 250Hz. That with a workover of the control code gave much crisper control response.
+Going from 16MHz to 40MHz using a simple 10MHz crystal upgrade at the cost of a dollar or so is the cheapest performance upgrade in town. It allows us to go from reading the sensors and updating the motor commands 125 times a second or 125Hz up to 250Hz. That with a workover of the control code gave much crisper control response.
 
-If you fly UAVX with a span of around 600mm or greater as most of us do then 250Hz should be satisfactory for most FPV work.
+If you fly UAVX with a span of around 600mm or greater, as most of us do, then 250Hz should be satisfactory for FPV type work.
 
 === Fast PWM ESCs ===
 
-The PIC processor spends half its time every control update to generate the 1 to 2 millisecond wide pulses for our PWM ESCs.
+The PIC processor spends half its time every control update to generate the 1 to 2 millisecond wide pulses for PWM ESCs.
 
-As was stated here, way way back, off the shelf PWM ESCs were geared to how throttles are used on conventional aircraft which means relatively slow changes. This meant that many of them had and still have filters to slow down the rate at which the throttle can be opened or closed regardless of how fast you move the stick.  This is EXACTLY what we do not want for multicopters. The filters also limited the current peaks applied to the motors allowing lower current ESCs. Some ESCs had settings to increase the filtering to protect shock loads on gear boxes.
+As was stated here, way way back, off the shelf PWM ESCs were geared to how throttles are used on conventional aircraft which means relatively slow changes. This meant that many of them had and still have filters to slow down the rate at which the throttle can be opened or closed regardless of how fast you move the stick.  This is EXACTLY what we do not want for multicopters. The filters also limited the peak current applied to the motors allowing lower current ESCs. Some ESCs had settings to increase the filtering to protect shock loads on gear boxes.
 
 So most of the research now a few years later out there goes into so called Fast PWM ESCs which run at a fraction of a Hz below 500Hz. Just increasing the update rate tricked the ESC filters allowing more rapid changes. We are now up at a fraction under 500Hz update rate on really cheap ESCs $10-20 for 30A ESCs is normal. Having the 30A headroom can be important even if our motors are only drawing around 10-15A.
 
