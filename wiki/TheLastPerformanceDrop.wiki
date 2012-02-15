@@ -34,7 +34,7 @@ One device we use however is the HMC6352 Compass and it can only communicate at 
 
 The HMC6882L magnetometer communicates at 400KHz and if used allows us to run close to 400KHz with simpler code.  The magnetometer also, in theory, allows us to compensate for the aircraft not being level.
 
-Bottom line consider buying one and select the 40MHz hexfiles without I2C100KHz in their name.
+Bottom line consider using a HMC6882L and select the 40MHz hexfiles without I2C100KHz in their name.
 
 === Tuning Parameters ===
 
