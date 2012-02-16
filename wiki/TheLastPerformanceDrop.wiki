@@ -16,7 +16,7 @@ As was stated here, way way back, off the shelf PWM ESCs were geared to how thro
 
 So most of the research now a few years later out there goes into so called Fast PWM ESCs which run at a fraction of a Hz below 500Hz. Just increasing the update rate tricked the ESC filters allowing more rapid changes. We are now up at a fraction under 500Hz update rate on really cheap ESCs $10-20 for 30A ESCs is normal. Having the 30A headroom can be important even if our motors are only drawing around 10-15A.
 
-We are at down 250Hz so what can we do if bigger is better is our driver?
+We are at down 250Hz so what can we do if bigger is better is what turns us on?
 
 === I2C ESCs ===  
 
@@ -37,7 +37,7 @@ Bottom line consider using a HMC5883L and select the 40MHz hexfiles without I2C1
 
 === Tuning Parameters ===
 
-Not much too this. The PID parameters need to have the I parameter halved as an initial starting point if we go from PWM (250Hz) to I2C (500Hz).
+Not much too this. The PID parameters need to have the I parameter halved as an initial starting point if we go from PWM (250Hz) to I2C (500Hz) including I2C to PWM through a converter.
 
 If the I parameter is not halved you will get oscillation caused by the control code driving you back towards level so hard it overshoots.
 
