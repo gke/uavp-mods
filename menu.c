@@ -292,7 +292,7 @@ void ProcessCommand(void)
 				dd = RxNumS();
 				d = Limit(dd, -128, 127);
 				PTemp[p] = d;
-				if ( ( p == (MAX_PARAMETERS-1)) && ( P[RollKp] == 0 ) )
+				if ( ( p == (MAX_PARAMETERS-1)) && ( P[RollKp] != 0 ) )
 				{
 					for (p = 0; p<MAX_PARAMETERS;p++)
 						if( ParamSet == (uint8)1 )

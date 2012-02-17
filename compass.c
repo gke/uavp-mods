@@ -249,6 +249,7 @@ int16 GetHMC58X3Magnetometer(void) {
 			Mag[Z].G = b[Z];
 		}
 
+		#ifndef DISABLE_MAG_CAL
 		for ( a = X; a<=(uint8)Z; a++ ) 
 		{
 			M = &Mag[a];
@@ -258,6 +259,7 @@ int16 GetHMC58X3Magnetometer(void) {
 			M->Max = HardFilter(M->Max, Temp);	
 			M->G -= SRS16(M->Max + M->Min, 1);
 		}
+		#endif // !DISABLE_MAG_CAL
 
 		// Aircraft: Pitch +up, Roll +right
 		// Magnetometer: Theta X away from Z around Y, Phi Y towards Z around X
@@ -267,21 +269,25 @@ int16 GetHMC58X3Magnetometer(void) {
 			MyPhi = A[Pitch].Angle;
 			break;
 		case Drotek: // HMC5883L
-			MxTheta = -A[Pitch].Angle;
-			MyPhi = A[Roll].Angle;
+			MxTheta = A[Pitch].Angle;
+			MyPhi = -A[Roll].Angle;
 			break;
 		case SFDOF9: // HMC5843
 			MxTheta = -A[Pitch].Angle;	
 			MyPhi = A[Roll].Angle;
 			break;
 		default: // New SF 3D HMC5883L
-			MxTheta = -A[Roll].Angle;	
-			MyPhi = -A[Pitch].Angle;
+			MxTheta = A[Roll].Angle;	
+			MyPhi = A[Pitch].Angle; 
 			break;
 		} // switch	
 
-		MxTheta = SRS16(MxTheta, 2); // internal angles to milliradian 78*180/3142 = 4.46
-		MyPhi = SRS16(MyPhi, 2); 
+		
+		MxTheta = SRS16(MxTheta, 3); // internal angles to milliradian 156*180/3142 = 8.92
+		MyPhi = SRS16(MyPhi, 3); 
+
+		MxTheta = Limit1(MxTheta, HALFMILLIPI);
+		MyPhi = Limit1(MyPhi, HALFMILLIPI);
 
 		CosMxTheta = int16cos(MxTheta);
 		SinMxTheta = int16sin(MxTheta);
@@ -296,9 +302,9 @@ int16 GetHMC58X3Magnetometer(void) {
 		Temp32u.i32 = Temp32u.i3_1 + (int32)Mag[Y].G*CosMyPhi;
 		yh = Temp32u.i3_1;
 
-		CompassVal = int32atan2( yh, xh );	
+	    CompassVal = int32atan2( yh, xh );	
 	
-	    // 2D CompassVal = int32atan2( Mag[Y].G, Mag[X].G );
+	   // 2D CompassVal = int32atan2( Mag[Y].G, Mag[X].G );
 	}
 	else
 		Stats[CompassFailS]++;
@@ -643,7 +649,7 @@ void DoTestHMC6352Compass(void)
     TxVal32(ConvertMPiToDDeg(MagHeading), 1, 0);
     TxString(" deg (Compass)\r\n");
     TxVal32(ConvertMPiToDDeg(Heading), 1, 0);
-    TxString(" deg (True)\r\n");
+    TxString(" deg (True) valid for aircraft level only\r\n");
 
 } // DoTestHMC6352Compass
 

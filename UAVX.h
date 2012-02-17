@@ -6,6 +6,8 @@
 
 //#define HAVE_CUTOFF_SW		// Pin11 (RC0) short to ground when landed otherwise 10K pullup.
 
+#define DISABLE_MAG_CAL
+
 // ===============================================================================================
 // =                                UAVX Quadrocopter Controller                                 =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
@@ -43,7 +45,7 @@
 	//#define ELEVON
 	//#define VTOL
 	//#define HAVE_CUTOFF_SW	// Ground PortC Bit 0 (Pin 11) for landing cutoff otherwise 4K7 pullup.
-	#define I2C100KHZ
+	//#define I2C100KHZ
 #endif // !BATCHMODE
 
 //________________________________________________________________________________________________
