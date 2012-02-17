@@ -152,7 +152,7 @@ void ReadParametersEE(void)
 		TauCF = (int16)P[BaroFilt];
 		TauCF = Limit(TauCF, 3, 40);
 
-		CompassOffset = ((((int16)P[CompassOffsetQtr] * 90L - (int16)P[NavMagVar])*MILLIPI)/180L); // changed sign of MagVar AGAIN!
+	CompassOffset = ((((int16)P[CompassOffsetQtr] * 90L - (int16)P[NavMagVar])*MILLIPI)/180L); // changed sign of MagVar AGAIN!
 
 		#ifdef MULTICOPTER
 			Orientation = P[Orient];
