@@ -6,7 +6,7 @@
 
 //#define HAVE_CUTOFF_SW		// Pin11 (RC0) short to ground when landed otherwise 10K pullup.
 
-#define DISABLE_MAG_CAL
+//#define DISABLE_MAG_CAL
 
 // ===============================================================================================
 // =                                UAVX Quadrocopter Controller                                 =
@@ -31,7 +31,7 @@
 #ifndef BATCHMODE
 //	#define INC_HMC6352
 	//#define EXPERIMENTAL
-	//#define TESTING
+	#define TESTING
 	//#define FULL_TEST			// extended compass test etc.
 	//#define FORCE_NAV					
 	//#define SIMULATE

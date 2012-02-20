@@ -234,7 +234,7 @@ int16 GetHMC58X3Magnetometer(void) {
 
 	F.CompassValid = ReadI2Ci16vAtAddr(HMC58X3_ID, HMC58X3_DATA, b, 3, true);
 
-	if( F.CompassValid )//&& !((b[X]==b[Y])&&(b[Y]==b[Z]))) 
+	if( F.CompassValid && !((b[X]==-4096)||(b[Y]==-4096)||(b[Y]==-4096))) 
 	{
 		if ( CompassType == HMC5883Magnetometer ) 
 		{ // HMC5883L Honeywell swapped Y and Z and used same ID - rush job!!!!
@@ -261,50 +261,52 @@ int16 GetHMC58X3Magnetometer(void) {
 		}
 		#endif // !DISABLE_MAG_CAL
 
-		// Aircraft: Pitch +up, Roll +right
-		// Magnetometer: Theta X away from Z around Y, Phi Y towards Z around X
-		switch ( P[SensorHint] ) { 
-		case FreeIMU: // HMC5883L
-			MxTheta = A[Roll].Angle;
-			MyPhi = A[Pitch].Angle;
-			break;
-		case Drotek: // HMC5883L
-			MxTheta = A[Pitch].Angle;
-			MyPhi = -A[Roll].Angle;
-			break;
-		case SFDOF9: // HMC5843
-			MxTheta = -A[Pitch].Angle;	
-			MyPhi = A[Roll].Angle;
-			break;
-		default: // New SF 3D HMC5883L
-			MxTheta = A[Roll].Angle;	
-			MyPhi = A[Pitch].Angle; 
-			break;
-		} // switch	
-
-		
-		MxTheta = SRS16(MxTheta, 3); // internal angles to milliradian 156*180/3142 = 8.92
-		MyPhi = SRS16(MyPhi, 3); 
-
-		MxTheta = Limit1(MxTheta, HALFMILLIPI);
-		MyPhi = Limit1(MyPhi, HALFMILLIPI);
-
-		CosMxTheta = int16cos(MxTheta);
-		SinMxTheta = int16sin(MxTheta);
-		CosMyPhi = int16cos(MyPhi);
-		SinMyPhi = int16sin(MyPhi);	
-
-		// Use normal vector rotations - rotate around Y then X
-		Temp32u.i32 = (int32)Mag[X].G*CosMxTheta + (int32)Mag[Z].G*SinMxTheta;
-		xh = Temp32u.i3_1;
-
-		Temp32u.i32 = (int32)Mag[X].G*SinMxTheta*SinMyPhi - (int32)Mag[Z].G*CosMxTheta*SinMyPhi;
-		Temp32u.i32 = Temp32u.i3_1 + (int32)Mag[Y].G*CosMyPhi;
-		yh = Temp32u.i3_1;
-
-	    CompassVal = int32atan2( yh, xh );	
+		if ( Armed && F.AccelerometersEnabled )
+		{
+			// Aircraft: Pitch +up, Roll +right
+			// Magnetometer: Theta X away from Z around Y, Phi Y towards Z around X
+			switch ( P[SensorHint] ) { 
+			case FreeIMU: // HMC5883L
+				MxTheta = A[Roll].Angle;
+				MyPhi = A[Pitch].Angle;
+				break;
+			case Drotek: // HMC5883L
+				MxTheta = A[Pitch].Angle;
+				MyPhi = -A[Roll].Angle;
+				break;
+			case SFDOF9: // HMC5843
+				MxTheta = -A[Pitch].Angle;	
+				MyPhi = A[Roll].Angle;
+				break;
+			default: // New SF 3D HMC5883L
+				MxTheta = A[Roll].Angle;	
+				MyPhi = A[Pitch].Angle; 
+				break;
+			} // switch	
+				
+			MxTheta = SRS16(MxTheta, 3); // internal angles to milliradian 156*180/3142 = 8.92
+			MyPhi = SRS16(MyPhi, 3); 
 	
-	   // 2D CompassVal = int32atan2( Mag[Y].G, Mag[X].G );
+			MxTheta = Limit1(MxTheta, HALFMILLIPI);
+			MyPhi = Limit1(MyPhi, HALFMILLIPI);
+	
+			CosMxTheta = int16cos(MxTheta);
+			SinMxTheta = int16sin(MxTheta);
+			CosMyPhi = int16cos(MyPhi);
+			SinMyPhi = int16sin(MyPhi);	
+	
+			// Use normal vector rotations - rotate around Y then X
+			Temp32u.i32 = (int32)Mag[X].G*CosMxTheta + (int32)Mag[Z].G*SinMxTheta;
+			xh = Temp32u.i3_1;
+	
+			Temp32u.i32 = (int32)Mag[X].G*SinMxTheta*SinMyPhi - (int32)Mag[Z].G*CosMxTheta*SinMyPhi;
+			Temp32u.i32 = Temp32u.i3_1 + (int32)Mag[Y].G*CosMyPhi;
+			yh = Temp32u.i3_1;
+	
+		    CompassVal = int32atan2( yh, xh );
+		}
+		else
+			CompassVal = int32atan2( Mag[Y].G, Mag[X].G );
 	}
 	else
 		Stats[CompassFailS]++;
@@ -322,15 +324,20 @@ void CalibrateHMC58X3Magnetometer(void) {
 	static int16 b[3];
 	static boolean r;
 	static MagStruct * M;
+	static int16 O;
 
 	TxString("\r\n");
 	ShowCompassType();
 	TxString(" - Reset Bias\r\n");
+	if ( CompassType == HMC5883Magnetometer )
+		O = 700;
+	else
+		O = 500;
 	for ( a = X; a<=(uint8)Z; a++)
 	{
 		M = &Mag[a];
-		M->Max = 500;
-		M->Min = -500;
+		M->Max = O;
+		M->Min = -O;
 	}
 		
 	WriteMagCalEE();
@@ -378,6 +385,8 @@ void DoTestHMC58X3Magnetometer(void)
 	    TxString(" deg (Compass)\r\n");
 	    TxVal32(ConvertMPiToDDeg(Heading), 1, 0);
 	    TxString(" deg (True)\r\n");
+
+		WriteMagCalEE();
 	}
 	else
 		TxString(" Fail\r\n");
@@ -479,8 +488,6 @@ void WriteMagCalEE(void)
 } // WriteMagCalEE
 
 #endif // INC_HMC58X3
-
-
 
 //________________________________________________________________________________________
 
@@ -649,7 +656,7 @@ void DoTestHMC6352Compass(void)
     TxVal32(ConvertMPiToDDeg(MagHeading), 1, 0);
     TxString(" deg (Compass)\r\n");
     TxVal32(ConvertMPiToDDeg(Heading), 1, 0);
-    TxString(" deg (True) valid for aircraft level only\r\n");
+    TxString(" deg (True)\r\n");
 
 } // DoTestHMC6352Compass
 
