@@ -249,17 +249,20 @@ int16 GetHMC58X3Magnetometer(void) {
 			Mag[Z].G = b[Z];
 		}
 
-		#ifndef DISABLE_MAG_CAL
+
+
 		for ( a = X; a<=(uint8)Z; a++ ) 
 		{
 			M = &Mag[a];
-			Temp = Min(M->Min, b[a]);
-			M->Min = HardFilter(M->Min, Temp);
-			Temp = Max(M->Max, b[a]);
-			M->Max = HardFilter(M->Max, Temp);	
+			if ( !Armed )
+			{
+				Temp = Min(M->Min, b[a]);
+				M->Min = SlewLimit(M->Min, Temp, 1);
+				Temp = Max(M->Max, b[a]);
+				M->Max = SlewLimit(M->Max, Temp, 1);
+			}
 			M->G -= SRS16(M->Max + M->Min, 1);
 		}
-		#endif // !DISABLE_MAG_CAL
 
 		if ( Armed && F.AccelerometersEnabled )
 		{
