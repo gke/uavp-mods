@@ -43,6 +43,9 @@ It is assumed you:
 
 http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a3561705-34-UAVP%20top%20board%20jesolins.jpg?d=1288234002
 
+=== Props ===
+http://static.rcgroups.net/forums/attachments/1/4/0/5/4/1/a4655671-204-ccwtractor-cwpusher_jesolins.JPG
+
   * *Tricopter:*
   * Use tri firmware.
   * You must jumper the middle +5v pins from K3 to K4 to power the servo.
