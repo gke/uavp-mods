@@ -211,7 +211,7 @@ void Navigate(int32 NavLatitude, int32 NavLongitude ) {
     static int24 AltE;
 	static int32 MaxDiff, Diff, LongitudeDiff, LatitudeDiff;
 	static int32 SinHeading, CosHeading, NavP, NavI, NavD;
-	static i32u Temp32;
+	static i32u Temp;
 	static i24u Temp24;
 	static int16 NewCorr;
 	static int32 NavPosEp[2];
@@ -228,8 +228,7 @@ void Navigate(int32 NavLatitude, int32 NavLongitude ) {
 	DesiredLatitude = NavLatitude; // for telemetry tracking
 	DesiredLongitude = NavLongitude;
 	
-	Temp32.i32 = (DesiredLongitude - GPSLongitude) * GPSLongitudeCorrection;
-	LongitudeDiff = Temp32.i3_1;
+	LongitudeDiff = SRS32((DesiredLongitude - GPSLongitude) * GPSLongitudeCorrection, 8);
 	LatitudeDiff = DesiredLatitude - GPSLatitude;
 	
 	WayHeading = Make2Pi(int32atan2((int32)LongitudeDiff, (int32)LatitudeDiff));
@@ -262,11 +261,8 @@ void Navigate(int32 NavLatitude, int32 NavLongitude ) {
 		SinHeading = int16sin(Heading);
 		CosHeading = int16cos(Heading);
 
-		Temp32.i32 = -LatitudeDiff * SinHeading + LongitudeDiff * CosHeading;
-		A[Roll].NavPosE = Temp32.i3_1;
-		
-		Temp32.i32 = -LatitudeDiff * CosHeading - LongitudeDiff * SinHeading;
-		A[Pitch].NavPosE = Temp32.i3_1; 
+		A[Roll].NavPosE = SRS32(-LatitudeDiff * SinHeading + LongitudeDiff * CosHeading, 8);		
+		A[Pitch].NavPosE = SRS32(-LatitudeDiff * CosHeading - LongitudeDiff * SinHeading, 8);
 	
 		#ifdef NAV_WING
 			
@@ -294,8 +290,7 @@ void Navigate(int32 NavLatitude, int32 NavLongitude ) {
 				C = &A[a];
 				if ( MaxDiff > NAV_CLOSING_RADIUS )
 				{
-					Temp32.i32 = Sign(C->NavPosE) * NavAttitudeLimit * NavScale[a];
-					NavP = Temp32.i3_1;
+					NavP = SRS32(Sign(C->NavPosE) * NavAttitudeLimit * NavScale[a], 8);
 				}
 				else
 				{
