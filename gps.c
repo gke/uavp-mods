@@ -229,12 +229,10 @@ void ParseGPRMCSentence() {
         	GPSLongitude = -GPSLongitude;
 
         UpdateField();   // Groundspeed (Knots)
-		Temp32.i32 = ((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 13L;//  5.144444 dMPS/Kt
-		GPSVel = Temp32.i3_1;
+		GPSVel = SRS32(((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 13L, 8);//  5.144444 dMPS/Kt
 
         UpdateField();   // True course made good (Degrees)
-		Temp32.i32 = ((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 45L; // MilliRadians 3142/18000; 
-		GPSHeading = Temp32.i3_1;
+		GPSHeading = SRS32(((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 45L, 8); // MilliRadians 3142/18000; 
 
       	/*
         UpdateField();   //UDate
@@ -359,8 +357,7 @@ void ParseGPSSentence(void) {
 
 			#else
 
-//	Temp32.i32 = (DesiredLongitude - GPSLongitude) * GPSLongitudeCorrection;
-//	LongitudeDiff = Temp32.i3_1;
+//	LongitudeDiff = SRS32((DesiredLongitude - GPSLongitude) * GPSLongitudeCorrection, 8);
 	
 				FakeGPSLongitude -= SRS32((int32)A[Pitch].FakeDesired * SinH * 256 / GPSLongitudeCorrection, SCALE_VEL);
 				FakeGPSLatitude -= SRS32((int32)A[Pitch].FakeDesired * CosH, SCALE_VEL);

@@ -136,7 +136,6 @@ int24 AltitudeCF(int24 Alt)
 	const int16 BaroAccScale = 2;
 	const int16 TauCF = 7; // 5 FOR BMP085 increasing value reduces filtering
 
-	static i32u Temp;
 	static int32 AltD;
 	static int24 AltCFp;	
 
@@ -144,12 +143,10 @@ int24 AltitudeCF(int24 Alt)
 	AltCFp = AltCF;
 
     AltF[0] = AltD * Sqr(TauCF);
-   	Temp.i32 = AltF[2] * 256 + AltF[0];
-	AltF[2] = Temp.i3_1;
+   	AltF[2] = SRS32(AltF[2] * 256 + AltF[0], 8);
 
   	AltF[1] = AltF[2] + AltD * 2 * TauCF; // ABANDON ACC TOO NOISY  -(Acc[DU] - 1024) * BaroAccScale; 
- 	Temp.i32 = AltCF * 256 + AltF[1];
-	AltCF = Temp.i3_1;
+ 	AltCF = SRS32(AltCF * 256 + AltF[1], 8);
 
 	BaroROC = ( AltCF - AltCFp) * ALT_UPDATE_HZ; 
 	BaroROC = Smooth16x16(&BaroROCF, BaroROC);

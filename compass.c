@@ -224,8 +224,8 @@ uint8 HMC58X3_ID;
 
 int16 GetHMC58X3Magnetometer(void) {
 
-	static int16 b[3], Temp;
-	static i32u Temp32u;
+	static int16 b[3];
+	static int32 Temp;
     static uint8 a;
     static int16 xh, yh;
     static int16 MxTheta, MyPhi, CosMxTheta, SinMxTheta, CosMyPhi, SinMyPhi;
@@ -249,8 +249,7 @@ int16 GetHMC58X3Magnetometer(void) {
 			Mag[Z].G = b[Z];
 		}
 
-
-
+		/* seems to make things worse!
 		for ( a = X; a<=(uint8)Z; a++ ) 
 		{
 			M = &Mag[a];
@@ -263,6 +262,7 @@ int16 GetHMC58X3Magnetometer(void) {
 			}
 			M->G -= SRS16(M->Max + M->Min, 1);
 		}
+		*/
 
 		if ( Armed && F.AccelerometersEnabled )
 		{
@@ -286,30 +286,28 @@ int16 GetHMC58X3Magnetometer(void) {
 				MyPhi = A[Pitch].Angle; 
 				break;
 			} // switch	
-				
+			
 			MxTheta = SRS16(MxTheta, 3); // internal angles to milliradian 156*180/3142 = 8.92
 			MyPhi = SRS16(MyPhi, 3); 
 	
 			MxTheta = Limit1(MxTheta, HALFMILLIPI);
 			MyPhi = Limit1(MyPhi, HALFMILLIPI);
-	
-			CosMxTheta = int16cos(MxTheta);
-			SinMxTheta = int16sin(MxTheta);
-			CosMyPhi = int16cos(MyPhi);
-			SinMyPhi = int16sin(MyPhi);	
-	
-			// Use normal vector rotations - rotate around Y then X
-			Temp32u.i32 = (int32)Mag[X].G*CosMxTheta + (int32)Mag[Z].G*SinMxTheta;
-			xh = Temp32u.i3_1;
-	
-			Temp32u.i32 = (int32)Mag[X].G*SinMxTheta*SinMyPhi - (int32)Mag[Z].G*CosMxTheta*SinMyPhi;
-			Temp32u.i32 = Temp32u.i3_1 + (int32)Mag[Y].G*CosMyPhi;
-			yh = Temp32u.i3_1;
-	
-		    CompassVal = int32atan2( yh, xh );
 		}
 		else
-			CompassVal = int32atan2( Mag[Y].G, Mag[X].G );
+			MxTheta = MyPhi = 0;
+	
+		CosMxTheta = int16cos(MxTheta);
+		SinMxTheta = int16sin(MxTheta);
+		CosMyPhi = int16cos(MyPhi);
+		SinMyPhi = int16sin(MyPhi);	
+	
+		// Use normal vector rotations - rotate around Y then X
+		xh = SRS32((int32)Mag[X].G*CosMxTheta + (int32)Mag[Z].G*SinMxTheta, 8);
+	
+		Temp = (int32)Mag[X].G*SinMxTheta*SinMyPhi - (int32)Mag[Z].G*CosMxTheta*SinMyPhi;
+		yh = SRS32(SRS32(Temp, 8) + (int32)Mag[Y].G*CosMyPhi, 8);
+	
+		CompassVal = int32atan2( yh, xh );
 	}
 	else
 		Stats[CompassFailS]++;
