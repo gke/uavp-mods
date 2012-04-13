@@ -17,7 +17,7 @@ _13 April 2012_
 
 https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/Lite-1.jpg
 
-=== Original Arm Prototype ===
+=== Original Arm Prototype - SUPERSEDED ===
 
 The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2 hours. 
 
