@@ -3,6 +3,22 @@
 
 == UAVXArm ==
 
+=== UAVXArmLite ===
+
+This is an update NOT an announcement.
+
+We have decided to do a UAVXArmLite board based on the very popular STM32F103 Arm chip. The board is designed at Ken's suggestion, to be used either standalone, or as the final-final-final UAVP update plug into the PIC socket to make use of the various existing sensors on the UAVP board and in particular the analog gyros and accelerometer. The board has a socket into which the baro and a magnetometer assembly may be plugged as the Lite board covers this area. In standalone mode this socket may be used to attach other sensor/imu boards as they become available including the MPU6150. The STM32F407 may follow later in the year but don't hold your breath.
+
+Ken currently intends to make one board without sensors to plug into the UAVP and a second version with all of the sensors these being the MPU6050, HMC5883L magnetometer and the MS5611 Baro. The board with the full range of sensors can still mount on the UAVP board if you want to use the analog gyros.
+
+So NOT an announcement but the code is running in prototype form at around 2KHz on the integer PIC version of UAVX so we just need some boards.
+
+_13 April 2012_
+
+https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/Lite-1.jpg
+
+=== Original Arm Prototype ===
+
 The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2 hours. 
 
 A trial port to Arduino has also been done but the near open-ended Arm high-end performance makes the Arm *FAR* more attractive and not expensive. The mbed used for the prototype is currently (12 Jan 2011) $59US from Mouser. The LPC1768 processor itself is ~$6USD.
