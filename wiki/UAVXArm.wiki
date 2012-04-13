@@ -7,7 +7,7 @@
 
 This is an update NOT an announcement.
 
-We have decided to do a UAVXArmLite board based on the very popular STM32F103 Arm chip. The board is designed at Ken's suggestion, to be used either standalone, or as the final-final-final UAVP update plug into the PIC socket to make use of the various existing sensors on the UAVP board and in particular the analog gyros and accelerometer. The board has a socket into which the baro and a magnetometer assembly may be plugged as the Lite board covers this area. In standalone mode this socket may be used to attach other sensor/imu boards as they become available including the MPU6150. The STM32F407 may follow later in the year but don't hold your breath.
+We have decided to do a UAVXArmLite board based on the very popular STM32F103 Arm chip. The board is designed at Ken's suggestion, to be used either standalone, or as the final-final-final UAVP update plugGING into the PIC socket to make use of the various existing sensors on the UAVP board and in particular the analog gyros and accelerometer. The board has a socket into which the baro and a magnetometer assembly may be plugged as the Lite board covers this area. In standalone mode this socket may be used to attach other sensor/imu boards as they become available including the MPU6150. The STM32F407 may follow later in the year but don't hold your breath.
 
 Ken currently intends to make one board without sensors to plug into the UAVP and a second version with all of the sensors these being the MPU6050, HMC5883L magnetometer and the MS5611 Baro. The board with the full range of sensors can still mount on the UAVP board if you want to use the analog gyros.
 
