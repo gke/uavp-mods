@@ -1,11 +1,11 @@
 #summary Calibration of the HMC5443 Magnetometer.
 
-= Magnetometer Calibration =
+== Magnetometer Calibration ==
 
 The Magnetometer is significantly more complicated to calibrate than the simple compass but it does offer adjustment for flight tilt angles. For the 2 axis compass simply doing a 360 degree rotation is enough. The magnetometer however measures the Earth's magnetic field in 3 axes and so needs to be rotated in "all" directions to determine the maximum and minimum magnetic field strengths. From these we can work out the offset from zero corresponding to no field and thence through some math the direction of of the magnetic north pole which is in fact downwards through the Earth. 
 
 
-= Procedure =
+=== Procedure ===
 
 For the PIC version of UAVX you must load the TEST version of firmware. UAVXArm has all of the tests available in the flight version.
 
