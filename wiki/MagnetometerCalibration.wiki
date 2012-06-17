@@ -2,19 +2,19 @@
 
 == Magnetometer Calibration ==
 
-The Magnetometer is significantly more complicated to calibrate than the simple compass but it does offer adjustment for flight tilt angles. For the 2 axis compass simply doing a 360 degree rotation is enough. The magnetometer however measures the Earth's magnetic field in 3 axes and so needs to be rotated in "all" directions to determine the maximum and minimum magnetic field strengths. From these we can work out the offset from zero corresponding to no field and thence through some math the direction of of the magnetic north pole which is in fact downwards through the Earth. 
+The Magnetometer is significantly more complicated to calibrate than the simple compass but it does offer adjustment for flight tilt angles. For the 2 axis compass simply doing a 360 degree rotation is enough. The magnetometer however measures the Earth's magnetic field in 3 axes and so needs to be rotated in "all" directions to determine the maximum and minimum magnetic field strengths. From these we can work out the offset from zero corresponding to no field and thence through some math the direction of of the magnetic north pole which is in fact downwards through the Earth. From there we can determine the direction of Magnetic North. 
 
 
 === Procedure ===
 
-For the PIC version of UAVX you must load the TEST version of firmware. UAVXArm has all of the tests available in the flight version.
+For the PIC version of UAVX you must first load the TEST version of firmware. UAVXArm has all of the tests available in the flight version.
 
-Run the calibration test under the Tools pulldown in UAVPSet. Unlike the compass calibration for the HMC6352 this simply sets the max/min values to sensible defaults for the HMC5443.
+Run the calibration test under the Tools pulldown in UAVPSet. Unlike the compass calibration for the HMC6352 this simply sets the max/min values to sensible defaults for the HMC5443. If for any reason the process below yields very high values for the max/min values then you can use the calibration test to reset to defaults.
 
-Look at the Compass Test and you will see max/min values generally ending in 00. Some of them may already have been updated already to max/min values closer to what they actually are.  Rotate the aircraft in all possible orientations re-running the compass test. You will see that the max/min values are changing.  Each time you run the test the max/min values are updated in EEPROM on the PIC and used next time you fly.
-
-The compass heading estimate should gradually improve as the max/min values stabilise.
+Look at the Compass Test and you will see max/min values generally ending in 00. Some of them may have been updated already to max/min values closer to what they actually are.  Rotate the aircraft in all possible orientations re-running the compass test after you have done this. You do not need to re-run the test for each new orientation as the max/min values are being updated as you do the rotations but not stored in EEPROM until you run the test. When you do run the test you should see that the max/min values are changing.  Each time you run the test the max/min values are updated in EEPROM on the PIC and used next time you fly.
 
 The max/min values are also updated in flight when the motors are running and again are written to EEPROM when you disarm.
 
-This auto calibration in flight is an ongoing development so persevere. In UAVXArm the magnetometer values are "fused" with the gyro and accelerometer measurements to yield better heading estimates even if the magnetometer is not fully calibrated.  
+The compass heading estimate should gradually improve as the max/min values stabilise.
+
+ In UAVXArm the magnetometer values are "fused" with the gyro and accelerometer measurements to yield better heading estimates even if the magnetometer is not fully calibrated.  
