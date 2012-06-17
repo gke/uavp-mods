@@ -1,4 +1,4 @@
-#summary Calibration of the HMC5443 Magnetometer.
+#summary Calibration of the HMC5883 Magnetometer.
 
 == Magnetometer Calibration ==
 
@@ -9,7 +9,7 @@ The Magnetometer is significantly more complicated to calibrate than the simple 
 
 For the PIC version of UAVX you must first load the TEST version of firmware. UAVXArm has all of the tests available in the flight version.
 
-Run the calibration test under the Tools pulldown in UAVPSet. Unlike the compass calibration for the HMC6352 this simply sets the max/min values to sensible defaults for the HMC5443. If for any reason the process below yields very high values for the max/min values then you can use the calibration test to reset to defaults.
+Run the calibration test under the Tools pulldown in UAVPSet. Unlike the compass calibration for the HMC6352 this simply sets the max/min values to sensible defaults for the HMC5883. If for any reason the process below yields very high values for the max/min values then you can use the calibration test to reset to defaults.
 
 Look at the Compass Test and you will see max/min values generally ending in 00. Some of them may have been updated already to max/min values closer to what they actually are.  Rotate the aircraft in all possible orientations re-running the compass test after you have done this. You do not need to re-run the test for each new orientation as the max/min values are being updated as you do the rotations but not stored in EEPROM until you run the test. When you do run the test you should see that the max/min values are changing.  Each time you run the test the max/min values are updated in EEPROM on the PIC and used next time you fly.
 
