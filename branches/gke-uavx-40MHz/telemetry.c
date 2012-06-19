@@ -126,7 +126,7 @@ void ShowAttitude(void) {
 
 	#endif // INC_RAW_ANGLES
 
-	TxESCi16(A[Yaw].RateEp); // rate error as analogue for heading error
+	TxESCi16(A[Yaw].RateE); // rate error as analogue for heading error
 
 	TxESCi16(A[Roll].Acc);
     TxESCi16(A[Pitch].Acc);
@@ -206,7 +206,7 @@ void SendNavPacket(void){
 	TxESCu8(CurrWP);	
 	
 	TxESCi16(ROC); 	// was BaroROC				// cm/S
-	TxESCi24(BaroRelAltitude);
+	TxESCi24(BaroAltitude);
 	
 	TxESCi16(NewCruiseThrottle); 				
 	TxESCi16(RangefinderAltitude); 				// cm
@@ -218,7 +218,7 @@ void SendNavPacket(void){
 	TxESCi16(GPSVel);
 	TxESCi16(GPSHeading); 						// GPS ROC dm/S
 	
-	TxESCi24(GPSRelAltitude); 					// cm
+	TxESCi24(GPSAltitude); 					// cm
 	TxESCi32(GPSLatitude); 						// 5 decimal minute units
 	TxESCi32(GPSLongitude); 
 	
@@ -281,7 +281,7 @@ void SendMinPacket(void)
 	TxESCi16(A[Roll].Angle);
 	TxESCi16(A[Pitch].Angle);
 		
-	TxESCi24(BaroRelAltitude);
+	TxESCi24(BaroAltitude);
 	TxESCi16(RangefinderAltitude); 		
 
 	TxESCi16(Heading);

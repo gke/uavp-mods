@@ -182,6 +182,7 @@ void GetGyroValues(void)
 		GetAnalogGyroValues();
 		break;
 	} // switch
+
 } // GetGyroValues
 
 void InitGyros(void)

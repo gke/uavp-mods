@@ -110,37 +110,35 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
 MPLINK 4.37, Linker
 Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
-
-MP2HEX 4.37, COFF to HEX File Converter
-Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
+Error - section '.idata_compass.o_i' can not fit the section. Section '.idata_compass.o_i' length=0x00000008
+Errors    : 1
 
 C:\Flight\Code\UAVX-GKE\stats.c:42:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\stats.c:60:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -251,27 +249,28 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -394,27 +393,28 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -537,27 +537,28 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -680,37 +681,35 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
 MPLINK 4.37, Linker
 Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
-
-MP2HEX 4.37, COFF to HEX File Converter
-Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
+Error - section 'paramdefaults_i' can not fit the section. Section 'paramdefaults_i' length=0x00000080
+Errors    : 1
 
 C:\Flight\Code\UAVX-GKE\stats.c:42:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\stats.c:60:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -823,27 +822,28 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -964,27 +964,28 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -1105,27 +1106,28 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -1246,27 +1248,28 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -1389,26 +1392,27 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -1529,168 +1533,27 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
-MPLINK 4.37, Linker
-Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
-
-MP2HEX 4.37, COFF to HEX File Converter
-Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
-
-C:\Flight\Code\UAVX-GKE\stats.c:42:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\stats.c:60:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\stats.c:76:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\stats.c:79:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\stats.c:90:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:94:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:97:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:98:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:102:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:107:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:108:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:109:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:110:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:111:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:112:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:113:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:116:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:118:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:119:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:121:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:122:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:122:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:125:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:126:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:136:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:139:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:140:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:140:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:147:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:153:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:158:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\stats.c:160:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\params.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\params.c:107:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\params.c:223:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\params.c:243:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\params.c:244:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\accel.c:64:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:76:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:83:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:85:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:87:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:90:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:113:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:115:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:117:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:134:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:136:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:139:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:142:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:145:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:148:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:150:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:154:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:156:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:159:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:163:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\menu.c:166:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:168:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:169:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:172:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:175:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:177:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:181:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:184:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:186:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:188:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:191:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:193:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:196:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:198:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:201:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:206:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:213:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:216:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:218:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:221:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:223:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\menu.c:224:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:226:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\menu.c:227:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:230:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:233:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:235:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:238:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:241:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:259:Warning [2058] call of function without prototype
-C:\Flight\Code\UAVX-GKE\menu.c:260:Warning [2058] call of function without prototype
-C:\Flight\Code\UAVX-GKE\menu.c:274:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:277:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\menu.c:279:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:281:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:289:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:291:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:295:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\menu.c:297:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\menu.c:318:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:321:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:324:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:330:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\menu.c:342:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:343:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:344:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:345:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:346:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:347:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -1813,26 +1676,27 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -1955,26 +1819,27 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -2097,26 +1962,170 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
+MPLINK 4.37, Linker
+Copyright (c) 1998-2010 Microchip Technology Inc.
+Errors    : 0
+
+MP2HEX 4.37, COFF to HEX File Converter
+Copyright (c) 1998-2010 Microchip Technology Inc.
+Errors    : 0
+
+C:\Flight\Code\UAVX-GKE\stats.c:42:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\stats.c:60:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\stats.c:76:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\stats.c:79:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\stats.c:90:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:94:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:97:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:98:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:102:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:107:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:108:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:109:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:110:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:111:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:112:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:113:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:116:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:118:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:119:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:121:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:122:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:122:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:125:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:126:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:136:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:139:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:140:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:140:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:147:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:153:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:158:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\stats.c:160:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\params.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\params.c:107:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\params.c:223:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\params.c:243:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\params.c:244:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\accel.c:64:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:76:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:83:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:85:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:87:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:90:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:113:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:115:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:117:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:134:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:136:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:139:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:142:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:145:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:148:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:150:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:154:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:156:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:159:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:163:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\menu.c:166:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:168:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:169:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:172:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:175:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:177:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:181:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:184:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:186:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:188:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:191:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:193:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:196:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:198:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:201:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:206:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:213:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:216:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:218:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:221:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:223:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\menu.c:224:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:226:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\menu.c:227:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:230:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:233:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:235:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:238:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:241:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:259:Warning [2058] call of function without prototype
+C:\Flight\Code\UAVX-GKE\menu.c:260:Warning [2058] call of function without prototype
+C:\Flight\Code\UAVX-GKE\menu.c:274:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:277:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\menu.c:279:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:281:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:289:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:291:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:295:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\menu.c:297:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\menu.c:318:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:321:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:324:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:330:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\menu.c:342:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:343:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:344:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:345:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:346:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:347:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
+C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -2237,26 +2246,27 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -2377,26 +2387,27 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -2517,26 +2528,27 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -2675,6 +2687,7 @@ C:\Flight\Code\UAVX-GKE\menu.c:365:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:367:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:407:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:408:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -2688,38 +2701,44 @@ C:\Flight\Code\UAVX-GKE\compass.c:197:Message [3004] comparison of a signed inte
 C:\Flight\Code\UAVX-GKE\compass.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:202:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:320:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:322:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:351:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:353:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:356:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:328:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:330:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:357:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:359:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:362:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:372:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:374:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:377:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:567:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:644:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:646:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:653:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:660:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:664:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:177:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:181:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:184:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:232:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:234:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:368:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:378:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:380:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:385:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:573:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:650:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:652:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:659:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:666:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:670:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:183:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:219:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:222:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:224:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:231:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\baro.c:236:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:241:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:238:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:240:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:242:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\baro.c:244:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:246:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:250:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:253:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:255:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:43:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:45:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:47:Warning [2054] suspicious pointer conversion
@@ -2730,10 +2749,10 @@ C:\Flight\Code\UAVX-GKE\gyro_analog.h:74:Warning [2054] suspicious pointer conve
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:78:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:84:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\gyro.c:233:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\gyro.c:246:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\gyro.c:234:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro.c:247:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro.c:248:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\gyro.c:249:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:50:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:52:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:54:Warning [2054] suspicious pointer conversion
@@ -2832,6 +2851,8 @@ C:\Flight\Code\UAVX-GKE\params.c:223:Message [3004] comparison of a signed integ
 C:\Flight\Code\UAVX-GKE\params.c:243:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\params.c:244:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\accel.c:64:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\uavx.c:147:Error [1105] symbol 'FakeBaroRelAltitude' has not been defined
+C:\Flight\Code\UAVX-GKE\uavx.c:147:Error [1101] lvalue required
 C:\Flight\Code\UAVX-GKE\menu.c:76:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:83:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:85:Warning [2054] suspicious pointer conversion
@@ -2905,37 +2926,37 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:69:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:523:Error [1105] symbol 'FakeAltitude' has not been defined
+C:\Flight\Code\UAVX-GKE\baro.c:523:Error [1101] lvalue required
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
 MPLINK 4.37, Linker
 Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
-
-MP2HEX 4.37, COFF to HEX File Converter
-Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
+Error - Error reading object file 'uavx.o'
+Errors    : 1
 
 C:\Flight\Code\UAVX-GKE\stats.c:42:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\stats.c:60:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -3064,6 +3085,7 @@ C:\Flight\Code\UAVX-GKE\menu.c:365:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:367:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:407:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:408:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -3074,32 +3096,38 @@ C:\Flight\Code\UAVX-GKE\compass.c:191:Warning [2054] suspicious pointer conversi
 C:\Flight\Code\UAVX-GKE\compass.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:320:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:322:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:351:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:353:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:356:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:328:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:330:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:357:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:359:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:362:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:372:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:374:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:377:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:177:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:181:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:184:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:232:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:234:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:368:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:378:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:380:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:385:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:183:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:219:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:222:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:224:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:231:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\baro.c:236:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:241:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:238:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:240:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:242:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\baro.c:244:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:246:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:250:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:253:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:255:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:43:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:45:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:47:Warning [2054] suspicious pointer conversion
@@ -3110,10 +3138,10 @@ C:\Flight\Code\UAVX-GKE\gyro_analog.h:74:Warning [2054] suspicious pointer conve
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:78:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gyro_analog.h:84:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\gyro.c:233:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\gyro.c:246:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\gyro.c:234:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro.c:247:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gyro.c:248:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\gyro.c:249:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:50:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:52:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:54:Warning [2054] suspicious pointer conversion
@@ -3212,6 +3240,8 @@ C:\Flight\Code\UAVX-GKE\params.c:223:Message [3004] comparison of a signed integ
 C:\Flight\Code\UAVX-GKE\params.c:243:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\params.c:244:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\accel.c:64:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\uavx.c:147:Error [1105] symbol 'FakeBaroRelAltitude' has not been defined
+C:\Flight\Code\UAVX-GKE\uavx.c:147:Error [1101] lvalue required
 C:\Flight\Code\UAVX-GKE\menu.c:76:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:83:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:85:Warning [2054] suspicious pointer conversion
@@ -3285,34 +3315,34 @@ C:\Flight\Code\UAVX-GKE\menu.c:348:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:349:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:350:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\menu.c:351:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\control.c:290:Warning [2056] expression is always true
 C:\Flight\Code\UAVX-GKE\compass.c:58:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:64:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\compass.c:239:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:413:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\compass.c:456:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:170:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\baro.c:385:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:402:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\baro.c:522:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:421:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:450:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\compass.c:464:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:164:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:176:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\baro.c:388:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:405:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\baro.c:523:Error [1105] symbol 'FakeAltitude' has not been defined
+C:\Flight\Code\UAVX-GKE\baro.c:523:Error [1101] lvalue required
 C:\Flight\Code\UAVX-GKE\gyro.c:54:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:108:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:112:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\tests.c:114:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:197:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\autonomous.c:430:Message [3004] comparison of a signed integer to an unsigned integer detected
+C:\Flight\Code\UAVX-GKE\autonomous.c:442:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs.c:55:Warning [2054] suspicious pointer conversion
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:53:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\outputs_i2c.h:63:Message [3004] comparison of a signed integer to an unsigned integer detected
 MPLINK 4.37, Linker
 Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
-
-MP2HEX 4.37, COFF to HEX File Converter
-Copyright (c) 1998-2010 Microchip Technology Inc.
-Errors    : 0
+Error - Error reading object file 'uavx.o'
+Errors    : 1
 

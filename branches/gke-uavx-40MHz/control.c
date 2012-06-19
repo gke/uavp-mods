@@ -98,30 +98,26 @@ void AltitudeHold()
 
 	static int16 ActualThrottle;
 
-	if ( SpareSlotTime && ( F.NormalFlightMode || F.AltHoldEnabled ) )
-	{
+	if (SpareSlotTime && (F.NormalFlightMode || F.AltHoldEnabled)) {
 		GetBaroAltitude();
-		if ( F.NewBaroValue )
-		{
+		if (F.NewBaroValue) {
 			SpareSlotTime = false;
 
 			GetRangefinderAltitude();
 			CheckThrottleMoved();
-			
-			if ( F.UsingRangefinderAlt )
-			{
-				Altitude = RangefinderAltitude;	 
+
+			if (F.UsingRangefinderAlt) {
+				Altitude = RangefinderAltitude;
 				ROC = RangefinderROC;
-			}
-			else
-			{
-				Altitude = BaroRelAltitude;
+			} else {
+				Altitude = BaroAltitude - OriginAltitude;
 				ROC = BaroROC;
 			}
 		}
+	} else {
+		Altitude = BaroAltitude - OriginAltitude;
+		ROC = 0; // for GS display
 	}
-	else
-		Altitude = ROC = 0;	// for GS display
 			
 	if ( F.AltHoldEnabled )
 	{
@@ -183,6 +179,8 @@ void DoOrientationTransform(void) {
 	// PC+RS
 	Temp24.i24 = A[Pitch].Desired * OCO + A[Roll].Desired * OSO;
 	A[Pitch].Control = Temp24.i2_1;
+
+	A[Yaw].Control = (A[Yaw].Desired + A[Yaw].NavCorr);
 
 } // DoOrientationTransform
 
@@ -266,25 +264,41 @@ void Do_PD_P_Angle(AxisStruct *C) {	// with Dr. Ming Liu
 
 } // Do_PD_P_Angle
 
-
 void YawControl(void) { // with Dr. Ming Liu
-	static int16 YawControl, RateE;
-	static int24 Temp;
+	static int16 HE;
+	static int32 Temp;
 
-	RateE = Smooth16x16(&YawF, A[Yaw].Rate);
-	
-	Temp  = SRS32((int24)RateE * (int16)A[Yaw].Kp, 4);
-			
-	Temp = SlewLimit(A[Yaw].Outp, Temp, 1);	
-	A[Yaw].Outp = Temp;
+	if ( true)//F.CompassValid && F.NormalFlightMode )
+	{
+		// + CCW
+		if ( A[Yaw].Hold > COMPASS_MIDDLE ) // acquire new heading
+		{
+			DesiredHeading = Heading;
+			A[Yaw].DriftCorr = 0;
+		}
+		else
+			if ( F.NewCompassValue )
+			{
+				F.NewCompassValue = false;
+				HE = MinimumTurn(DesiredHeading - Heading);
+				HE = Limit1(HE, SIXTHMILLIPI); // 30 deg limit
+				A[Yaw].DriftCorr = SRS32((int24)HE * (int24)P[CompassKp], 7);
+				A[Yaw].DriftCorr = Limit1(A[Yaw].DriftCorr, YAW_COMP_LIMIT); // yaw gyro drift compensation
+			}		
+	}
+	else
+		A[Yaw].DriftCorr = 0;
+
+	A[Yaw].Rate -= A[Yaw].DriftCorr;
+
+	A[Yaw].RateE = Smooth16x16(&YawF, A[Yaw].Rate);	
+	Temp  = SRS32((int24)A[Yaw].RateE * (int16)A[Yaw].Kp, 4);			
 	A[Yaw].Out = Limit1(Temp, (int16)P[YawLimit]);
 
-	YawControl = (A[Yaw].Desired + A[Yaw].NavCorr);
-	if ( Abs(YawControl) > 5 )
-		A[Yaw].Out -= YawControl;
+	if ( Abs(A[Yaw].Control) > 5 )
+		A[Yaw].Out -= A[Yaw].Control;
 
 } // YawControl
-
 
 void DoControl(void)
 {
@@ -349,7 +363,7 @@ void InitControl(void)
 	for ( a = Roll; a<=(uint8)Yaw; a++)
 	{
 		C = &A[a];
-		C->Outp = C->RateEp = C->Ratep = C->RateIntE = 0;
+		C->Outp = C->RateE = C->Ratep = C->RateIntE = 0;
 	}
 
 } // InitControl

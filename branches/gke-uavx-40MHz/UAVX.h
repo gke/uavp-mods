@@ -175,7 +175,6 @@
 #define ALT_RF_DISABLE_CM			400L //600L	// altitude above which the rangefiner is deselected as the altitude source
 
 #define	ALT_UPDATE_HZ				20L		// Hz
-#define FILT_ALT_HZ					(ALT_UPDATE_HZ/2)
 
 #define BARO_SLEW_LIMIT_CMPS		1500L	//500L	// cm/S  
 #define BARO_SANITY_CHANGE_CMPS		3000L	//500L	// cm/S 
@@ -415,7 +414,7 @@ typedef struct {
 	int16 Desired, FakeDesired;
 	int16 FirstGyroADC, GyroADC, GyroBias;
 	int16 RawAngle, Angle, AngleE, AngleIntE;	
-	int16 Rate, Ratep, RateEp, RateIntE;
+	int16 Rate, Ratep, RateE, RateIntE;
 	int16 Acc, AccADC, AccBias, AccOffset;
 	int8 DriftCorr;
 	int32 AccCorrAv, AccCorrMean;
@@ -613,7 +612,9 @@ typedef union {
 		NormalFlightMode:1,
 		MPU6050Initialised:1,
 		UsingAnalogGyros:1,
-		NewCompassValue:1;	
+		NewCompassValue:1,
+		AltitudeCFPrimed:1,
+		OriginAltValid:1;	
 		};
 } Flags;
 
@@ -781,8 +782,9 @@ extern void GetI2CBaroAltitude(void);
 extern const uint8 BaroError[];
 extern int32 OriginBaroTemperature, OriginBaroPressure;
 extern uint32 BaroPressure, BaroTemperature;
+extern int24 OriginAltitude, BaroAltitude, BaroAltitudeP;
 extern boolean AcquiringPressure;
-extern int24 BaroRelAltitude;
+extern int24 BaroAltitude;
 extern i24u	BaroVal;
 extern uint8 BaroType;
 extern int16 AltitudeUpdateRate;
@@ -794,14 +796,14 @@ extern int32 AltF[];
 extern int16x16Q BaroROCF;
 
 #ifdef SIMULATE
-extern int24 FakeBaroRelAltitude;
+extern int24 FakeBaroAltitude;
 #endif // SIMULATE
 
 //______________________________________________________________________________________________
 
 // compass.c
 
-#define COMPASS_MIDDLE		10			// yaw stick neutral dead zone
+#define COMPASS_MIDDLE		8			// yaw stick neutral dead zone
 #define COMPASS_TIME_MS		50			// 20Hz
 #define COMPASS_UPDATE_HZ	(1000/COMPASS_TIME_MS)
 
@@ -942,7 +944,7 @@ extern uint8 GPSPacketTag;
 extern int32 GPSMissionTime, GPSStartTime;
 extern int32 GPSLatitude, GPSLongitude;
 extern int32 OriginLatitude, OriginLongitude;
-extern int24 GPSAltitude, GPSRelAltitude, GPSOriginAltitude;
+extern int24 GPSAltitude, GPSAltitude, GPSOriginAltitude;
 extern int32 DesiredLatitude, DesiredLongitude;
 extern int32 LatitudeP, LongitudeP, HoldLatitude, HoldLongitude;
 extern int16 GPSLongitudeCorrection;
@@ -1443,7 +1445,7 @@ extern void WriteStatsEE(void);
 extern void ShowStats(void);
 
 enum Statistics { 
-	GPSAltitudeS, BaroRelAltitudeS, ESCI2CFailS, GPSMinSatsS, MinROCS, MaxROCS, GPSVelS,  
+	GPSAltitudeS, BaroAltitudeS, ESCI2CFailS, GPSMinSatsS, MinROCS, MaxROCS, GPSVelS,  
 	AccFailS, CompassFailS, BaroFailS, GPSInvalidS, GPSMaxSatsS, NavValidS, 
 	MinHDiluteS, MaxHDiluteS, RCGlitchesS, GPSBaroScaleS, GyroFailS, RCFailsafesS, 
 	I2CFailS, MinTempS, MaxTempS, BadS, BadNumS, RollAccCorrAvS, RollAccCorrMeanS, PitchAccCorrAvS, PitchAccCorrMeanS}; // NO MORE THAN 32 or 64 bytes
