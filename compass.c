@@ -234,7 +234,7 @@ int16 GetHMC58X3Magnetometer(void) {
 
 	F.CompassValid = ReadI2Ci16vAtAddr(HMC58X3_ID, HMC58X3_DATA, b, 3, true);
 
-	if( F.CompassValid && !((b[X]==-4096)||(b[Y]==-4096)||(b[Y]==-4096))) 
+	if( F.CompassValid && !((b[X]==-4096)||(b[Y]==-4096)||(b[Z]==-4096))) 
 	{
 		if ( CompassType == HMC5883Magnetometer ) 
 		{ // HMC5883L Honeywell swapped Y and Z and used same ID - rush job!!!!
@@ -249,7 +249,6 @@ int16 GetHMC58X3Magnetometer(void) {
 			Mag[Z].G = b[Z];
 		}
 
-		/* seems to make things worse!
 		for ( a = X; a<=(uint8)Z; a++ ) 
 		{
 			M = &Mag[a];
@@ -262,7 +261,6 @@ int16 GetHMC58X3Magnetometer(void) {
 			}
 			M->G -= SRS16(M->Max + M->Min, 1);
 		}
-		*/
 
 		if ( Armed && F.AccelerometersEnabled )
 		{
@@ -330,16 +328,10 @@ void CalibrateHMC58X3Magnetometer(void) {
 	TxString("\r\n");
 	ShowCompassType();
 	TxString(" - Reset Bias\r\n");
-	if ( CompassType == HMC5883Magnetometer )
-		O = 700;
-	else
-		O = 500;
-	for ( a = X; a<=(uint8)Z; a++)
-	{
-		M = &Mag[a];
-		M->Max = O;
-		M->Min = -O;
-	}
+
+	Mag[X].Max = 500; Mag[X].Min = -500;
+	Mag[Y].Max = 500; Mag[Y].Min = -500;
+	Mag[Z].Max = 400; Mag[Z].Min = -400;
 		
 	WriteMagCalEE();
 

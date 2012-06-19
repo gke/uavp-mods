@@ -203,7 +203,7 @@ void InitAccelerometers(void)
 			if ( MPU6050AccActive() )
 			{
 				AccType = MPU6050Acc;
-				InitMPU6050Acc();
+			//	InitMPU6050Acc();
 			}
 			break;
 		#endif // INC_MPU6050
@@ -324,24 +324,20 @@ void ReadMPU6050Acc(void)
 
 void InitMPU6050Acc() {
 
-	WriteI2CByteAtAddr(MPU6050_ID,MPU6050_PWR_MGMT_1, 0xc0); // Reset to defaults
-	Delay1mS(50);
-	WriteI2CByteAtAddr(MPU6050_ID,MPU6050_SMPLRT_DIV, 0x00); // continuous update
-	WriteI2CByteAtAddr(MPU6050_ID,MPU6050_GYRO_CONFIG, 0b00011001);	// 188Hz, 2000deg/S
-	WriteI2CByteAtAddr(MPU6050_ID,MPU6050_INT_ENABLE, 0b00000000);	// no interrupts
-	WriteI2CByteAtAddr(MPU6050_ID,MPU6050_PWR_MGMT_1, 0b00000001);	// X Gyro as Clock Ref.
+	WriteI2CByteAtAddr(I2CAcc, MPU_ID, MPU_RA_PWR_MGMT_1, 1<< MPU_RA_PWR1_DEVICE_RESET_BIT);
+	Delay1mS(5);
 
-	WriteI2CByteAtAddr(MPU6050_ID, MPU6050_ACC_CONFIG, 
-				0 // 2G
-				//1 << 3 // 4G
-				//2 << 3 // 8G
-				//3 << 3 // 16G 
-				//| 1 // 2.5Hz
-				//| 2 // 2.5Hz
-				| 3 // 1.25Hz	//zzz
-				//| 4 // 0.63Hz
-				//| 7 // 0.63Hz
-				);
+	WriteI2CByteAtAddr(I2CAcc, MPU_ID, MPU_RA_FIFO_EN, 0); // disable FIFOs
+
+	WriteI2CByteAtAddr(I2CAcc, MPU_ID, MPU_RA_SMPLRT_DIV, 0); 
+	WriteI2CByteAtAddr(I2CAcc, MPU_ID, MPU_RA_PWR_MGMT_1, MPU_RA_CLOCK_PLL_XGYRO); // No sleeping, temperature sensor On, Z ref.
+
+	WriteI2CByteAtAddr(I2CAcc, MPU_ID, MPU_RA_ACC_CONFIG, (MPU_RA_ACC_FS_2 << 3)| MPU6050_DHPF_1P25); //
+	i2cWrite(I2CAcc, MPU_ID, MPU_RA_GYRO_CONFIG, (MPU_RA_GYRO_FS_2000 << 3));
+
+	WriteI2CByteAtAddr(I2CAcc, MPU_ID, MPU_RA_CONFIG, MPU_RA_DLPF_BW_188);
+
+	Delay1mS(100);
 
 } // InitMPU6050Acc
 

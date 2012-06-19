@@ -94,8 +94,25 @@ int16 	NavSensitivity, RollPitchMax;
 
 void DoShutdown(void)
 {
-	State = Shutdown;
 	StopMotors();
+	State = Shutdown;
+	FailState = Terminated;
+	NavState = Touchdown;
+
+	ALL_LEDS_OFF;
+
+	F.LostModel = true;
+	F.HoldingAlt = true; // to enable LED Chaser
+
+	while (true) 
+	{
+		LEDChaser();
+		UpdateGPS();
+		SpareSlotTime = true;
+		CheckTelemetry();
+		CheckAlarms();
+	}
+
 } // DoShutdown
 
 void DecayNavCorr(uint8 d)
@@ -539,7 +556,7 @@ void DoFailsafe(void)
 
 	#ifndef TESTING // not used for testing - make space!
 
-	if ( State == InFlight )
+//	if ( State == InFlight )
 		switch ( FailState ) { // FailStates { MonitoringRx, Aborting, Terminating, Terminated, RxTerminate }
 		case Terminated: // Basic assumption is that aircraft is being flown over a safe area!
 			FailsafeHoldPosition();
@@ -589,14 +606,17 @@ void DoFailsafe(void)
 				else
 					mS[NavStateTimeout] = mSClock() + ABORT_TIMEOUT_NO_GPS_MS;
 				mS[AbortTimeout] = mSClock() + ABORT_UPDATE_MS;
-				FailState = Aborting; 
+				if (( Altitude < LAND_CM ) && F.BaroAltitudeValid )
+					DoShutdown();
+				else
+					FailState = Aborting; 
 			}
 			break;
 		case RxTerminate: break; // invoked if Rx controls are not changing
 		default:;
 		} // Switch FailState
-	else
-		A[Roll].Desired = A[Pitch].Desired = A[Yaw].Desired = DesiredThrottle = 0;
+//	else
+//		A[Roll].Desired = A[Pitch].Desired = A[Yaw].Desired = DesiredThrottle = 0;
 
 	#endif // !TESTING
 			

@@ -52,7 +52,7 @@ int32 	GPSMissionTime, GPSStartTime;
 int32 	GPSLatitude, GPSLongitude, GPSLatitudeP, GPSLongitudeP;
 int16	GPSEastDiff, GPSNorthDiff;
 int32 	OriginLatitude, OriginLongitude;
-int24 	GPSAltitude, GPSRelAltitude, GPSOriginAltitude;
+int24 	GPSAltitude, GPSAltitude, GPSOriginAltitude;
 int32 	DesiredLatitude, DesiredLongitude;
 int32	HoldLatitude, HoldLongitude;
 int16 	GPSLongitudeCorrection;
@@ -342,7 +342,7 @@ void ParseGPSSentence(void) {
 
 		if ( State == InFlight )
 		{  // don't bother with GPS longitude correction for now?
-			GPSRelAltitude = BaroRelAltitude;
+			GPSAltitude = BaroAltitude;
 
 			CosH = int16cos(Heading);
 			SinH = int16sin(Heading);
@@ -386,7 +386,7 @@ void ParseGPSSentence(void) {
 		#else
 		if (F.NavValid )
 		{
-			GPSRelAltitude  = GPSAltitude - GPSOriginAltitude;
+			GPSAltitude  = GPSAltitude - GPSOriginAltitude;
 
 			LatitudeDiff = GPSLatitude - GPSLatitudeP; // do again after slew limit
 			LongitudeDiff = GPSLongitude - GPSLongitudeP;
@@ -411,7 +411,7 @@ void ParseGPSSentence(void) {
 
 		if ( State == InFlight )
 		{
-			StatsMax(GPSRelAltitude, GPSAltitudeS);
+			StatsMax(GPSAltitude, GPSAltitudeS);
 			StatsMax(GPSVel, GPSVelS);
 		}
 	}
@@ -458,7 +458,7 @@ void InitGPS(void) {
 
 	GPSLongitudeCorrection = 256; // 1.0
 	GPSMissionTime = GPSFix = GPSNoOfSats = GPSHDilute = 0;
-	GPSRelAltitude = GPSAltitude = 0;
+	GPSAltitude = GPSAltitude = 0;
 	GPSHeading = GPSVel = GPSVelP = 0;
 
 	OriginLatitude = DesiredLatitude = HoldLatitude = GPSLatitudeP = GPSLatitude = 0;

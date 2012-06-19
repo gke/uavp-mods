@@ -76,6 +76,8 @@ void main(void)
 		LightsAndSirens();	// Check for Rx signal, disarmed on power up, throttle closed, gyros ONLINE
 
 		State = Starting;
+		mS[RxFailsafeTimeout] = mSClock() + FAILSAFE_TIMEOUT_MS;
+		FailState = MonitoringRx;
 		F.FirstArmed = false;
 
 		while ( Armed )
@@ -127,6 +129,7 @@ void main(void)
 				case Landed:
 					DesiredThrottle = 0;
 					GetBaroAltitude();
+					F.OriginAltValid = false;
 					InitHeading();
 					if ( mSClock() > mS[ArmedTimeout] )
 						DoShutdown();
@@ -152,7 +155,10 @@ void main(void)
 							F.ForceFailsafe = F.LostModel = false;
 
 							if ( ParameterSanityCheck() )
+							{
+								F.OriginAltValid = true;
 								State = InFlight;
+							}
 							else
 								ALL_LEDS_ON;	
 						}						
@@ -180,12 +186,7 @@ void main(void)
 						}
 					break;
 				case Shutdown:
-					// wait until arming switch is cycled
-					GetBaroAltitude();
-					A[Roll].NavCorr = A[Pitch].NavCorr = 0;
-					F.LostModel = true;
-					A[Roll].Desired = A[Pitch].Desired = A[Yaw].Desired = AltComp = 0;
-					StopMotors();
+					DoShutdown(); // NO EXIT - REQUIRES POWER CYCLE 
 					break;
 				case InFlight:
 					F.MotorsArmed = true;

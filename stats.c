@@ -119,7 +119,7 @@ void ShowStats(void)
 	TxString("Failsafes:\t");TxVal32((int32)Stats[RCFailsafesS],0,' '); TxNextLine();
 	
 	TxString("\r\nBaro\r\n"); 
-	TxString("Alt:      \t");TxVal32((int32)Stats[BaroRelAltitudeS], 2, ' '); TxString("M \r\n");
+	TxString("Alt:      \t");TxVal32((int32)Stats[BaroAltitudeS], 2, ' '); TxString("M \r\n");
 	if ( Stats[MinROCS] < INIT_MIN )
 	{
 		TxString("ROC:      \t");TxVal32((int32)Stats[MinROCS], 2, ' '); 

@@ -52,21 +52,15 @@ void BlockReadInvenSenseGyro(void)
 
 void InitInvenSenseGyro(void)
 {
-	#ifdef INC_MPU6050
-	if ( GyroType == MPU6050 )		
-		InitMPU6050Acc();
-	else
-	#endif // INC_MPU6050
-	{
-		WriteI2CByteAtAddr(INV_ID,INV_PWR_M, 0x80);			// Reset to defaults
-		WriteI2CByteAtAddr(INV_ID,INV_SMPL, 0x00);			// continuous update
-		WriteI2CByteAtAddr(INV_ID,INV_DLPF, 0b00011001);	// 188Hz, 2000deg/S
-		WriteI2CByteAtAddr(INV_ID,INV_INT_C, 0b00000000);	// no interrupts
-		WriteI2CByteAtAddr(INV_ID,INV_PWR_M, 0b00000001);	// X Gyro as Clock Ref.
-	}
+#ifndef INC_MPU6050
+	WriteI2CByteAtAddr(INV_ID,INV_PWR_M, 0x80);			// Reset to defaults
+	WriteI2CByteAtAddr(INV_ID,INV_SMPL, 0x00);			// continuous update
+	WriteI2CByteAtAddr(INV_ID,INV_INT_C, 0b00000000);	// no interrupts
+	WriteI2CByteAtAddr(INV_ID,INV_PWR_M, 0b00000001);	// X Gyro as Clock Ref.
+	WriteI2CByteAtAddr(INV_ID,INV_DLPF, 0b00011001);	// 188Hz, 2000deg/S
 
 	Delay1mS(50);
-
+#endif
 } // InitInvenSenseGyro
 
 boolean InvenSenseGyroActive(void) 

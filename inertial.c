@@ -106,39 +106,11 @@ void DoAttitudeAngles(void)
 
 } // DoAttitudeAngles
 
-void CompensateYawGyro(void)
-{ 	// Yaw gyro compensation using compass
-	static int16 HE;
-
-	if ( F.CompassValid && F.NormalFlightMode )
-	{
-		// + CCW
-		if ( A[Yaw].Hold > COMPASS_MIDDLE ) // acquire new heading
-		{
-			DesiredHeading = Heading;
-			A[Yaw].Ratep = A[Yaw].Rate;
-		}
-		else
-			if ( F.NewCompassValue )
-			{
-				F.NewCompassValue = false;
-				HE = MinimumTurn(DesiredHeading - Heading);
-				HE = Limit1(HE, SIXTHMILLIPI); // 30 deg limit
-				A[Yaw].DriftCorr = SRS32((int24)HE * (int24)P[CompassKp], 7);
-				A[Yaw].DriftCorr = Limit1(A[Yaw].DriftCorr, YAW_COMP_LIMIT); // yaw gyro drift compensation
-			}		
-	}
-
-	A[Yaw].Rate -= A[Yaw].DriftCorr;
-
-} // CompensateYawGyro
-
 void GetAttitude(void)
 {
 	GetGyroValues();
 	CalculateGyroRates();
 	CompensateRollPitchGyros();
-	CompensateYawGyro();
 	DoAttitudeAngles();
 } // GetAttitude
 
