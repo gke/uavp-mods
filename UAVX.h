@@ -29,9 +29,9 @@
 //    If not, see http://www.gnu.org/licenses/
 
 #ifndef BATCHMODE
-//	#define INC_HMC6352
+	//#define INC_HMC6352
 	//#define EXPERIMENTAL
-	#define TESTING
+	//#define TESTING
 	//#define FULL_TEST			// extended compass test etc.
 	//#define FORCE_NAV					
 	//#define SIMULATE
@@ -45,7 +45,7 @@
 	//#define ELEVON
 	//#define VTOL
 	//#define HAVE_CUTOFF_SW	// Ground PortC Bit 0 (Pin 11) for landing cutoff otherwise 4K7 pullup.
-	//#define I2C100KHZ
+	#define I2C100KHZ
 #endif // !BATCHMODE
 
 //________________________________________________________________________________________________
@@ -69,11 +69,13 @@
 #define INC_MS5611			// FreeIMU etc.
 #define INC_BMA180			// include BMA180 accelerometer code
 #define INC_ADXL345			// include ADXL345 accelerometer code SF6DOF/9DOF	
-#define INC_HMC58X3			// preferable Honeywell magnetometer
+
 //#define INC_MPU6050		// include MPU6050 accelerometer/gyros
 
 #ifdef I2C100KHZ
 	#define INC_HMC6352		// SLOW 100KHz I2C preferably REPLACE with HMC5883L
+#else
+	#define INC_HMC58X3			// preferable Honeywell magnetometer
 #endif // INC_HMC6352
 
 // Airframe

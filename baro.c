@@ -134,8 +134,7 @@ int24 AltitudeCF(int24 Alt)
 	// http://www.rcgroups.com/forums/showpost.php?p=12082524&postcount=1286
 	// adapted for baro compensation by G.K. Egan 2011 
 
-	const int16 BaroAccScale = 2;
-	const int16 TauCF = 7; // 5 FOR BMP085 increasing value reduces filtering
+//	const int16 BaroAccScale = 2;
 
 	static int32 AltD;
 	static int24 AltCFp;	
