@@ -265,34 +265,14 @@ void Do_PD_P_Angle(AxisStruct *C) {	// with Dr. Ming Liu
 } // Do_PD_P_Angle
 
 void YawControl(void) { // with Dr. Ming Liu
-	static int16 HE;
 	static int32 Temp;
 
-	if ( true)//F.CompassValid && F.NormalFlightMode )
-	{
-		// + CCW
-		if ( A[Yaw].Hold > COMPASS_MIDDLE ) // acquire new heading
-		{
-			DesiredHeading = Heading;
-			A[Yaw].DriftCorr = 0;
-		}
-		else
-			if ( F.NewCompassValue )
-			{
-				F.NewCompassValue = false;
-				HE = MinimumTurn(DesiredHeading - Heading);
-				HE = Limit1(HE, SIXTHMILLIPI); // 30 deg limit
-				A[Yaw].DriftCorr = SRS32((int24)HE * (int24)P[CompassKp], 7);
-				A[Yaw].DriftCorr = Limit1(A[Yaw].DriftCorr, YAW_COMP_LIMIT); // yaw gyro drift compensation
-			}		
-	}
-	else
-		A[Yaw].DriftCorr = 0;
-
-	A[Yaw].Rate -= A[Yaw].DriftCorr;
-
 	A[Yaw].RateE = Smooth16x16(&YawF, A[Yaw].Rate);	
-	Temp  = SRS32((int24)A[Yaw].RateE * (int16)A[Yaw].Kp, 4);			
+	Temp  = SRS32((int24)A[Yaw].RateE * (int16)A[Yaw].Kp, 4);
+
+	Temp = SlewLimit(A[Yaw].Outp, Temp, 1);
+	A[Yaw].Outp = Temp;
+			
 	A[Yaw].Out = Limit1(Temp, (int16)P[YawLimit]);
 
 	if ( Abs(A[Yaw].Control) > 5 )

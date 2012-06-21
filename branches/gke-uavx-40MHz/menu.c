@@ -117,6 +117,7 @@ void ShowSetup(void)
 	TxString("\r\nPID Cycle (mS): ");
 	TxVal32(PIDCyclemS,0,' ');
 	TxNextLine();
+
 	#ifndef TESTING
 		#ifdef INC_CYCLE_STATS
 		for (i = 0 ; i <(uint8)15; i++ )
