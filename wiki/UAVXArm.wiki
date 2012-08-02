@@ -18,22 +18,26 @@ Standalone mode:
  * MPU6050 Gyro/Accelerometer
  * HMC5883L Magnetometer
  * MS5611 Barometer
- * I2C at 400KHz
+ * Ultrasonic Rangefinder
+ * Optional external battery voltage and current monitor
+ * Analog and I2C ports for alternative sensors
+
+I2C sensor communications are at 400KHz (sensor limitations).
 
 Additional UAVP Sensors supported in adapter mode:
 
  * All analog gyros
- * HMC6552 Compass (I2C at 100KHz)
+ * HMC6552 Compass (I2C limited to 100KHz)
  * BMP085 Barometer
 
 Receivers:
 
  * Parallel PPM (8 channels)
- * Compound PPM
+ * Compound PPM (FrSky etc or external decoder)
  * Spektrum Satellite (1024b and 2048b resolution)
  * SBus (with external inverter)
 
-A minimum of 4 channels is required for basic flight with 7 channels being required for RTH and Nav functionality. 
+A minimum of 4 channels is required for basic flight control with 7 channels being required for RTH and Nav functionality. 
 
 Drives:
 
@@ -62,7 +66,9 @@ Camera stabilisation:
 
 Navigation and Failsafes:
 
- * as for UAVXPIC.
+ * as for UAVXPIC
+
+Navigation performance is determined by GPS and GPS system intrinsic limitations. 5Hz update rate is a minimum. $GPGGA and $GPRMC sentences are used with other sentences being ignored. UBlox binary input possible if required. UBlox GPS units are popular and appear to give good performance when its various filters are set to pedestrian.
 
 Tools:
 
@@ -71,7 +77,7 @@ Tools:
  * UAVXNav (in progress)
  * STM Flash Programmer
 
-MavLink and MultiWii all possible ;).
+MavLink and MultiWii all possible now we have code space;).
 
 Programming uses serial telemetry port with no special programmer being required.
 
