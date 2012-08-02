@@ -54,6 +54,7 @@ Attitude Estimation Schemes:
  * MultiWii
  * Madgwick
  * Madgwick (2012)
+ * Mahony et al. DCM
 
 Attitude Control:
 
@@ -93,7 +94,7 @@ So in amongst the other usual complications in life we have been making a little
 
 <wiki:video url="http://www.youtube.com/watch?v=fUZlUUwVRLw&feature=player_embedded/>
 
-No delivery times yet.
+No delivery times yet. Price - competitive ;).
 
 ==== April 2012 ====
 
