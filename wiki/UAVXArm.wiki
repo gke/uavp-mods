@@ -14,7 +14,7 @@ UAVXArm32 can be used standalone or as an adapter on "Old Faithful" (UAVP board)
 Standalone mode:
 
  * STM32F405RG6 with FPU (1024Kb Flash/32Kb RAM)
- * 1MBit EEPROM
+ * 512KBit EEPROM
  * MPU6050 Gyro/Accelerometer
  * HMC5883L Magnetometer
  * MS5611 Barometer
