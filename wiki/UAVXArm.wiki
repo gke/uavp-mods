@@ -18,11 +18,12 @@ Standalone mode:
  * MPU6050 Gyro/Accelerometer
  * HMC5883L Magnetometer
  * MS5611 Barometer
+ * I2C at 400KHz
 
 Additional UAVP Sensors supported in adapter mode:
 
  * All analog gyros
- * HMC6552 Compass (I2C reduced to 100KHz)
+ * HMC6552 Compass (I2C at 100KHz)
  * BMP085 Barometer
 
 Receivers:
@@ -43,13 +44,14 @@ All the usual airframe types are supported.
 
 Attitude Estimation Schemes:
 
- * Wolferl ( original UAVP)
+ * Wolferl (original UAVP)
  * MultiWii
  * Madgwick
+ * Madgwick (2012)
 
 Attitude Control:
 
- * Rate
+ * Rate (default)
  * Angle
 
 Camera stabilisation:
@@ -71,15 +73,17 @@ MavLink and MultiWii all possible ;).
 
 Programming uses serial telemetry port with no special programmer being required.
 
-==== August 2012 ====
+==August 2012==
 
 So in amongst the other usual complications in life we have been making a little progress.  
 
-  The sensors on the UAVXArm32 board itself are MPU6050+HMC5883L+MS5611. 
-
-The video is Ken having a fly on a windy day in his local park .
+===UAVP Adapter Mode===
 
 <wiki:video url="http://www.youtube.com/watch?v=gFUiPCce--4/>
+
+===Standalone Mode===
+
+<wiki:video url="http://www.youtube.com/watch?v=fUZlUUwVRLw&feature=player_embedded/>
 
 No delivery times yet.
 
