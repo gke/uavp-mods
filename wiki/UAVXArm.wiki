@@ -1,5 +1,5 @@
 #summary This a progress report for the Arm implementation of UAVX
-#labels UAVX,gke,kisssys,jesolins,UAVXGS,multicopter
+#labels UAVXArm32,gke,kb6mcc,jesolins,multicopter
 
 == UAVXArm ==
 
@@ -7,113 +7,20 @@ This is an update NOT an announcement.
 
 ==== August 2012 ====
 
-So in amongst the other usual life matters we have been making a little progress.  
+So in amongst the other usual complications in life we have been making a little progress.  
 
-UAVXArm32 processor is F4 on the current firmware and it spends most of its time twiddling its thumbs. Control loop and motor updates are at 500Hz.
+UAVXArm32 processor is F4 on the current firmware and it spends most of its time twiddling its thumbs. Control loop and motor updates are at 500Hz with 2KHz possible but why?
 
-UAVXArm32 previously advised can be used standalone or as an adapter on "Old Faithful" - the UAVP board making use of its sensors including the analog gyros which are still hard to beat.  The sensors on the UAVXArm32 board are MPU6050+HMC5883L+MS5611. 
+UAVXArm32 previously advised can be used standalone or as an adapter on "Old Faithful" (UAVP board) making use of its sensors including the analog gyros which are still hard to beat.  The sensors on the UAVXArm32 board itself are MPU6050+HMC5883L+MS5611. 
 
 The video is Ken having a fly on a windy day in his local park .
 
 [url]http://www.youtube.com/watch?v=gFUiPCce--4[/url]
 
-No delivery times yet. We are not in a race - just having fun.
+No delivery times yet.
 
 ==== April 2012 ====
 
 We decided to do a UAVXArmLite board based on the very popular STM32F103 Arm chip. The board is designed at Ken's suggestion, to be used either standalone, or as the final-final-final UAVP update plugging into the PIC socket to make use of the various existing sensors on the UAVP board and in particular the analog gyros and accelerometer. The board has a socket into which the baro and a magnetometer assembly may be plugged as the Lite board covers this area. In standalone mode this socket may be used to attach other sensor/imu boards as they become available including the MPU6150. The STM32F407 may follow later in the year but don't hold your breath.
 
 Ken currently intends to make one board without sensors to plug into the UAVP and a second version with all of the sensors these being the MPU6050, HMC5883L magnetometer and the MS5611 Baro. The board with the full range of sensors can still mount on the UAVP board if you want to use the analog gyros.
-
-
-
-=== Original Arm Prototype - SUPERSEDED ===
-
-The UAVXArm prototype has been running since November 2010 on the mbed which is basically a 40pin DIP with the LPC1768 Arm. The main part of the port to a clean compile from the 18F2620 PIC version took about 2 hours. 
-
-A trial port to Arduino has also been done but the near open-ended Arm high-end performance makes the Arm *FAR* more attractive and not expensive. The mbed used for the prototype is currently (12 Jan 2011) $59US from Mouser. The LPC1768 processor itself is ~$6USD.
-
-The original KISS strategy continues with a minimal-hardware uniprocessor implementation. A simple main polling loop with transparent coding is used with no underlying RTOS. Overt interrupts are confined to capturing RC control PWM input although this will be replaced by I2C comms in due course.
-
-The UAVXArm software is fully plug and play but with a preferred priority order of sensors and will choose the preferred sensors first even if other sensors are connected at the same time. For example the ITG3200 will be chosen rather than the analog gyros or the FMA sensors in this case.
-
-Flight logs are automatically written to the SD card, or if that is not available, to the mbed flash drive. Flight logs can then accompany any bug reports in the future;).
-
-The V1 Boards have now been tested. The schematics and exposure release of the software are in the downloads area as well as the SVN. The software will be updated periodically. 
-
-https://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArmV1-20110216a.JPG
-
-<wiki:video url="http://www.youtube.com/v/n8l9b9XMtJQ?fs=1&amp;hl=en_GB"/>
-
-
- 
-=== Implementation Timescale ===
-
-Probably March 2011.
-
-The design of an initial prototype mother board has almost been completed. The board is anticipated to be around 45x55mm and so smaller than the current UAVP. The lead time for any iterations on the board are a little open-ended but also should be around a month. Getting them fabricated up in quantity has not been addressed yet. 
-
-We are attempting, as far as is possible, to scale the current familiar parameter values to the new parameters required by UAVXArm. This will require a degree of trial and error which is likely to be *time consuming* and may take upwards of a month with the onset of the Northern Hemisphere Winter.
-
-Remember this is a free free-time effort so .... patience.
-
-=== Performance ===
-
-The current UAVX PIC 18F2620 @ 16MHz main loop runs at ~150Hz and uses the entire 32K of available code space and ~1200 bytes of RAM.
-
-The Arm code is running easily at 1KHz+ in the main loop including all of the control and navigation functions. Most of the time is taken up in I2C communications (0.7ms) at 400KHz with the balance for computation 0.3mS unoptimised. 
-
-Unlike the PIC version which was entirely integer arithmetic UAVXArm is all in floating point (FP). To date the code space is about 117Kb (23%) and RAM use is 12Kb (37%) but with a lot of extra stuff compared to the PIC version. The mbed LPC1768 is not equipped with hardware FP. It performs FP arithmetic by software emulation and yet still obtains an entirely satisfactory performance level. Arm processors with FP are available for higher performance levels - if required :). 
-
-=== Algorithms ===
-
-UAVXArm uses the same Navigation and ancilliary algorithms as UAVX. The main departures are in attitude estimation and (later) control
-
-==== Attitude ====
-
-The PIC version of UAVX used a simple gyro drift compensation scheme and relied on the gravity vector from the accelerometers. This scheme worked perfectly well for near level flight on camera platforms and is computationally efficient.
- 
-UAVXArm uses the DCM attitude estimation algorithm, like almost everyone else now does. This formulation is not confined to near level flight and yields good attitude estimation for very high angles found in aerobatic flight. 
-
-The computational requirements for the DCM are more intense pushing simpler processors to their limits. The Arm processor performance is so high that the computations hardly stretch it all.
-
-Thanks for the DCM scheme go to Rob Mahony et al. for the theory and William Premerlani et al. for making it useful.
-
-==== Control ====
-
-UAVXArm continues, for now at least, to use the simple decoupled axis assumptions and with independent PID based controllers on each axis. It is intended to replace this with coupled axis more optimal controllers in the future - as time permits.
-
-=== Sensors ===
-
-Sensors are generally auto-detected (Plug and Play) and include:
-
-  * Analog gyros from UAVX
-  * ITG3200 3-axis Gyro
-  * FMA Co-pilot 3-axis IR Attitude
-
-  * ADXL345 3-axis Accelerometer
-  * LIS3LV02DQ 3-axis Accelerometer
-
-  * HMC6352 Compass
-  * HMC5843 3-axis Magnetometer
-
-  * SMD500 Barometer
-  * BMP085 Barometer
-  * MPX4115 Barometer
-
-  * TMP100 Temperature
-
-  * PCA9551 LED Driver
-  * TPIC68595 LED Driver
-
-  * Maxbotix Rangefinders (inch & cm)
-
-=== ESCs ===
-
-As for UAVX including I2C and PWM and FastPWM up to 500Hz if required. Six motor channels and two for camera stabilisation. All UAVX motor/airframe configurations are supported.
-
-=== Camera Control ===
-
-More precise Roll/Pitch control accompanies the DCM attitude estimation. The servo update rate is independent of the motor updates. 
-
-_G.K. Egan, S. Westerfeld & J. Solinski_
