@@ -15,7 +15,7 @@ UAVXArm32 previously advised can be used standalone or as an adapter on "Old Fai
 
 The video is Ken having a fly on a windy day in his local park .
 
-http://www.youtube.com/watch?v=gFUiPCce--4
+<wiki:video url="http://www.youtube.com/watch?v=gFUiPCce--4/>
 
 No delivery times yet.
 
