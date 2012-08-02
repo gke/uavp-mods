@@ -22,7 +22,7 @@ Standalone mode:
 Additional UAVP Sensors supported in adapter mode:
 
  * All analog gyros
-  * HMC6552 Compass (I2C reduced to 100KHz)
+ * HMC6552 Compass (I2C reduced to 100KHz)
 * BMP085 Barometer
 
 Receivers:
