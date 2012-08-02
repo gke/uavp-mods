@@ -56,7 +56,9 @@ Camera stabilisation:
 
  * Two servo channels tracking pitch and roll
 
-Full Navigation and associated failsafe structures of UAVXPIC.
+Navigation and Failsafes:
+
+ * as for UAVXPIC.
 
 Tools:
 
