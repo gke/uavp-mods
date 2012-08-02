@@ -13,55 +13,57 @@ UAVXArm32 can be used standalone or as an adapter on "Old Faithful" (UAVP board)
 
 Standalone mode:
 
-* STM32F405RG6 with FPU (1024Kb Flash/32Kb RAM)
-* 1MBit EEPROM
-* MPU6050 Gyro/Accelerometer
-* HMC5883L Magnetometer
-* MS5611 Barometer
+ * STM32F405RG6 with FPU (1024Kb Flash/32Kb RAM)
+ * 1MBit EEPROM
+ * MPU6050 Gyro/Accelerometer
+ * HMC5883L Magnetometer
+ * MS5611 Barometer
 
 Additional UAVP Sensors supported in adapter mode:
 
-* All analog gyros
-* HMC6552 Compass (I2C reduced to 100KHz)
+ * All analog gyros
+  * HMC6552 Compass (I2C reduced to 100KHz)
 * BMP085 Barometer
 
 Receivers:
 
-* Parallel PPM (8 channels)
-* Compound PPM
-* Spektrum Satellite (1024b and 2048b)
-* SBus (with external inverter)
+ * Parallel PPM (8 channels)
+ * Compound PPM
+ * Spektrum Satellite (1024b and 2048b)
+ * SBus (with external inverter)
 
 A minimum of 4 channels is required for basic flight with 7 channels being required for RTH and Nav functionality.
 
 Drives:
 
-* Fast PWM (6 channels or 10 without Parallel PPM input)
-* I2C
+ * Fast PWM (6 channels or 10 without Parallel PPM input)
+ * I2C
+
+All the usual airframe types are supported.
 
 Attitude Estimation Schemes:
 
-* Wolferl ( original UAVP)
-* MultiWii
-* Madgwick
+ * Wolferl ( original UAVP)
+ * MultiWii
+ * Madgwick
 
 Attitude Control:
 
-* Rate
-* Angle
+ * Rate
+ * Angle
 
 Camera stabilisation:
 
-* Two servo channels tracking pitch and roll
+ * Two servo channels tracking pitch and roll
 
 Full Navigation and associated failsafe structures of UAVXPIC.
 
 Tools:
 
-* UAVPSet
-* UAVXGS
-* UAVXNav (in progress)
-* STM Flash Programmer
+ * UAVPSet
+ * UAVXGS
+ * UAVXNav (in progress)
+ * STM Flash Programmer
 
 MavLink and MultiWii all possible ;).
 
