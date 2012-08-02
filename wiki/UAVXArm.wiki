@@ -7,7 +7,7 @@
 
 UAVXArm32 processor is an F4 and it spends most of its time twiddling its thumbs. Control loop and motor updates are at ~500Hz with 2KHz possible.
 
-The MPU6050 DMP engine is not used currently and may not be because of update rate limitations (200Hz). 
+The MPU6050 DMP engine is not used currently and may not be because of update rate limitations and documentation(200Hz and lack of..). 
 
 UAVXArm32 can be used standalone or as an adapter on "Old Faithful" (UAVP board) making use of its sensors including the analog gyros which are still hard to beat.
 
@@ -30,17 +30,19 @@ Receivers:
 
  * Parallel PPM (8 channels)
  * Compound PPM
- * Spektrum Satellite (1024b and 2048b)
+ * Spektrum Satellite (1024b and 2048b resolution)
  * SBus (with external inverter)
 
-A minimum of 4 channels is required for basic flight with 7 channels being required for RTH and Nav functionality.
+A minimum of 4 channels is required for basic flight with 7 channels being required for RTH and Nav functionality. 
 
 Drives:
 
  * Fast PWM (6 channels or 10 without Parallel PPM input)
- * I2C
+ * I2C at 400KHz
 
-All the usual airframe types are supported.
+We are using SimonK ESC codes with FastPWM being the sensible minimum for good performance.
+
+All the usual airframe types are supported including conventional. Use of UAVXArm32 for camera gimbal only control is possible.
 
 Attitude Estimation Schemes:
 
@@ -52,7 +54,7 @@ Attitude Estimation Schemes:
 Attitude Control:
 
  * Rate (default)
- * Angle
+ * Angle (commonly called stable mode)
 
 Camera stabilisation:
 
@@ -89,6 +91,6 @@ No delivery times yet.
 
 ==== April 2012 ====
 
-We decided to do a UAVXArmLite board based on the very popular STM32F103 Arm chip. The board is designed at Ken's suggestion, to be used either standalone, or as the final-final-final UAVP update plugging into the PIC socket to make use of the various existing sensors on the UAVP board and in particular the analog gyros and accelerometer. The board has a socket into which the baro and a magnetometer assembly may be plugged as the Lite board covers this area. In standalone mode this socket may be used to attach other sensor/imu boards as they become available including the MPU6150. The STM32F407 may follow later in the year but don't hold your breath.
+We initially decided to do a UAVXArmLite board based on the very popular STM32F103 Arm chip. The board is designed at Ken's suggestion, to be used either standalone, or as the final-final-final UAVP update plugging into the PIC socket to make use of the various existing sensors on the UAVP board and in particular the analog gyros and accelerometer. The board has a socket into which the baro and a magnetometer assembly may be plugged as the Lite board covers this area. In standalone mode this socket may be used to attach other sensor/imu boards as they become available including the MPU6150. The STM32F407 may follow later in the year but don't hold your breath.
 
 Ken currently intends to make one board without sensors to plug into the UAVP and a second version with all of the sensors these being the MPU6050, HMC5883L magnetometer and the MS5611 Baro. The board with the full range of sensors can still mount on the UAVP board if you want to use the analog gyros.
