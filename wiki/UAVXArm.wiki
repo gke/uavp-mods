@@ -5,7 +5,10 @@
 
 === General Specifications ===
 
-UAVXArm32 processor is an F4 and it spends most of its time twiddling its thumbs (doing nothing). Control loop and motor updates are at ~500Hz with 2KHz possible.
+UAVXArm32 processor is an F4 and it spends most of its time twiddling its thumbs (doing nothing). Control loop and motor updates are at ~500Hz with 2KHz possible. The control computations are around 52us (millionths of a second).
+
+
+
 
 The MPU6050 DMP engine is not used currently and may not be because of update rate limitations and documentation (200Hz and lack of..). 
 
