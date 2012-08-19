@@ -3,6 +3,23 @@
 
 == UAVXArm ==
 
+
+===August 2012 ===
+
+Videos first and specifications etc below.
+
+===UAVP Adapter Mode===
+
+<wiki:video url="http://www.youtube.com/watch?v=gFUiPCce--4/>
+
+===Standalone Mode===
+
+<wiki:video url="http://www.youtube.com/watch?v=fUZlUUwVRLw&feature=player_embedded/>
+
+===Delivery===
+
+No delivery times yet. Price - competitive ;).
+
 === General Specifications ===
 
 UAVXArm32 processor is an F4 and it spends most of its time twiddling its thumbs (doing nothing). Control loop and motor updates are at ~500Hz with 2KHz possible. The control computations are around 52us (millionths of a second).
@@ -83,20 +100,9 @@ Tools:
 MavLink and MultiWii all possible now we have code space;).
 
 Programming uses serial telemetry port with no special programmer being required.
+ 
 
-==August 2012==
-
-So in amongst the other usual complications in life we have been making a little progress.  
-
-===UAVP Adapter Mode===
-
-<wiki:video url="http://www.youtube.com/watch?v=gFUiPCce--4/>
-
-===Standalone Mode===
-
-<wiki:video url="http://www.youtube.com/watch?v=fUZlUUwVRLw&feature=player_embedded/>
-
-No delivery times yet. Price - competitive ;).
+==Past Reports==
 
 ==== April 2012 ====
 
