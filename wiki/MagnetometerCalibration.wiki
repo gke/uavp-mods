@@ -15,4 +15,4 @@ The maximum/minimum values are also tracked continously when the aircraft is pow
 
 The compass heading estimate should gradually improve as the max/min values stabilise.
 
- In UAVXArm the magnetometer values are "fused" with the gyro and accelerometer measurements to yield better heading estimates even if the magnetometer is not fully calibrated.  
+In UAVXArm the magnetometer values are "fused" with the gyro and accelerometer measurements to yield better heading estimates even if the magnetometer is not fully calibrated.  
