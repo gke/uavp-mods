@@ -7,9 +7,9 @@ This is the evolving setup page for the Arm version of UAVX. We will try to keep
 
 First UAVXArm32F4 supports many different airframe types from octocopters, through helis out to conventional aircraft. UAVX has done this for several years. 
 
-To keep it simple we will assume you are flying a quadrocopter (4 motors) in plus(+) mode where one arm points forward.
+To keep it simple we will assume you are flying a quadrocopter (4 motors) in plus(+) mode where one arm points forward. 
 
-Pictures and howto video will follow (Ken/Jim;)).
+Pictures and howto video may follow (Ken/Jim;)).
  
 ==== UAVXArm32F4 Board ====
 
@@ -27,7 +27,7 @@ Connect the adapter lead to the board and then to a USB port on your computer.
 
 Start UAVPSet and check that you have the appropriate COM port selected. 
 
-Connect your board to a 12V supply (use your main battery if you wish).  Connect an ESC BEC lead to M1 - do not connect a motor to the ESC. The Red and Yellow LEDs should be on.
+Connect your board to your main battery which is 3-4S LiPo.  Connect an ESC BEC lead to M1 - do not connect a motor to the ESC. The Red and Yellow LEDs should be on.
 
 In UAVPSet select Tools->TestSoftware->D or load defaults. Close the test window and select the Read Config icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust.
 
