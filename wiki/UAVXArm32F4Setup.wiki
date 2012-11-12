@@ -78,7 +78,7 @@ Connect up the Rx and UAVPSet as before.
 
 === Step 4 (Acc/Gyro Temperature Calibration)===
 
-This is the most critical step in the setup and you only need to do it once or until you next bend the aircraft.
+This is the most critical step in the setup and you usually only need to do it once or until you next bend the aircraft.
 
 Put the aircraft on a level surface. If it is on the slightest of angles then this is the way it will fly when you centralise the sticks. Bear in mind the floors of your house will not be level, your best table will not be level nor will your average workbench. Eyeballing it is no good at all.
 
