@@ -5,6 +5,8 @@
 
 This is the evolving setup page for the Arm version of UAVX. We will try to keep explanations concise. 
 
+UAVPandUAVXFlightChecklist contains a wealth of information which you could take the time to read.
+
 First UAVXArm32F4 supports many different airframe types from octocopters, through helis out to conventional aircraft. UAVX has done this for several years. 
 
 To keep it simple we will assume you are flying a quadrocopter (4 motors) in plus(+) mode where one arm points forward. 
@@ -102,7 +104,9 @@ At this point you should run the setup test and see if all of the alarms are cle
 
 === Step 6 (Using UAVXGS) ===
 
-First shut down UAVPSet and start UAVXGS. UAVXGS is the best tool for checking whether the aircraft sensors are behaving.
+We suggest you read the UAVXGS Wiki first.
+
+Shut down UAVPSet and start UAVXGS. UAVXGS is the best tool for checking whether the aircraft sensors are behaving.
 
 You should have a Yellow and Green LED.
 
