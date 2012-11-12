@@ -33,7 +33,7 @@ In UAVPSet select Tools->TestSoftware->D or load defaults. Close the test window
 
 Now use Tools->TestSoftware run the Setup Test.  Read the results and try to make sense of it. At the bottom you will see various alarms. With luck the only alarms will be that you have not calibrated the accelerometer, gyros and magnetometer and the Rx is not working.
  
-==== Step 2 (Rx) ====
+=== Step 2 (Rx) ===
 
 If you have a a Rx (e.g. FrSky) that supports Compound PPM (CPPM) connect it to Rx1. For CPPM you must specify the number of channels your Rx is receiving using UAVPSet.
 
@@ -55,11 +55,11 @@ In writing this an auto configure for the Rx has moved to the top of the list!
 
 === Step 3 ===
 
-Mount the board on your favourite frame. Take the props OFF. 
+Mount the board on your favourite frame - take the props OFF. 
 
 The ARROW on the top of the board must point directly along the forward motor arm. 
 
-Connect up a simple arming switch. The motors should not run even if you have the arming switch on until you get through all of the following steps but think about a Kw of motors all running at around 7000RPM flying around your workshop.
+Connect up a simple arming switch. The motors should not run even if you have the arming switch on until you get through all of the following steps but think about a Kw of motors all running at around 7000RPM flying around your workshop - take the props OFF.
 
 Disconnect the centre lead of all but one of your ESC control leads and make sure it is taped back and insulated. 
 
@@ -74,27 +74,22 @@ Note: If you plan to run camera gimbals then it is worth considering buying a hi
 
 Connect up the Rx and UAVPSet as before.
 
-=== Step 4 ===
+=== Step 4 (Acc/Gyro Temperature Calibration)===
 
-This is the most critical step in the setup.  
+This is the most critical step in the setup and you only need to do it once or until you next bend the aircraft.
 
+Put the aircraft on a level surface. If it is on the slightest of angles then this is the way it will fly when you centralise the sticks. Bear in mind the floors of your house will not be level, your best table will not be level nor will your average workbench. 
 
+Get a decent spirit level and and even then turn it around to make sure it reads level both ways.
 
+Lock the quadrocopter down so it does not move.
 
+Power up with UAVPSet connected.  Select Tests/SoftwareTools/N (Cal Accs/Gyros). Confirm you are ready to go by selecting Continue.   You will see the blue LED start to flash - it has already taken the first set of readings.  Get a hair dryer or a soldering iron tip and GENTLY/SLOWLY warm up the board. You only need to change its temperature in two steps of 5 Celsius or 10 all up so don't melt the board!  There is a delay as the heat gets into the package so slowly slowly. The Blue LED will flash then stop  for about a second while the second set of readings are taken  then start to flash again as the temperature rises to the third measurement point. The LED will stay on  one last time then go off. 
 
-=== Step 3 ===
+Now use the Tools->SoftwareTests->I (acc/gyro test) to check that the Roll/Pitch/Yaw rate are close to zero. Also check the Acc values which should show FB and LR close to zero and UD close to -1. Once again you only need to do this once or when loading the defaults or if you change the gyro selection pulldown.
 
-The convention for UAVX is that the front and back propellors rotate counter clockwise and the left and right propellors clockwise.
+=== Step 3 (Magnetometer Calibration) ===
 
-
-
-
-
-=== Motor Connections ===
-
-The assignments for the various configurations are the same as for UAVX so refer to   
-
- M1-M6 correspond directly with the UAVP K1-K6 motor connections. M5 and M6 are for the camera gimbal. 
 
 
 
@@ -102,3 +97,5 @@ The assignments for the various configurations are the same as for UAVX so refer
 
  
 ==== Loading Firmware ====
+
+Your board will come with the appropriate firmware loaded. To load new firmware you use the STM Flash Loader in the distribution package. Description will follow.
