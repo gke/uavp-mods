@@ -3,6 +3,9 @@
 
 == UAVXArm ==
 
+===November 2012===
+
+Release. See UAVXArm32F4 Setup.
 
 ===August 2012 ===
 
@@ -54,13 +57,13 @@ Receivers:
  * Parallel PPM (8 channels)
  * Compound PPM (FrSky etc or external decoder)
  * Spektrum Satellite (1024b and 2048b resolution)
- * SBus (with external inverter)
+ * maybe SBus (with external inverter)
 
 A minimum of 4 channels is required for basic flight control with 7 channels being required for RTH and Nav functionality. 
 
 Drives:
 
- * Fast PWM (6 channels or 10 without Parallel PPM input)
+ * Fast PWM @ 450Hz(6 channels or 10 without Parallel PPM input)
  * I2C at 400KHz
 
 We are using SimonK ESC codes with FastPWM being the sensible minimum for good performance.
@@ -70,10 +73,9 @@ All the usual airframe types are supported including conventional. Use of UAVXAr
 Attitude Estimation Schemes:
 
  * Wolferl (original UAVP)
- * MultiWii
- * Madgwick
- * Madgwick (2012)
- * Mahony et al. DCM
+ * Madgwick (IMU) 
+ * Madgwick (AHRS)
+ * DMP - eventually
 
 Attitude Control:
 
