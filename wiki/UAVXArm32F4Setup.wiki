@@ -90,14 +90,28 @@ Power up with UAVPSet connected.  Select Tests/SoftwareTools/N (Cal Accs/Gyros).
 
 Now use the Tools->SoftwareTests->I (acc/gyro test) to check that the Roll/Pitch/Yaw rate are close to zero. Also check the Acc values which should show FB and LR close to zero and UD close to -1. Once again you only need to do this once or when loading the defaults or if you change the gyro selection pulldown.
 
-=== Step 3 (Magnetometer Calibration) ===
+=== Step 5 (Magnetometer Calibration) ===
 
 
 
 
 
+At this point you should run the setup test and see if all of the alarms are cleared. If they are you are almost ready to fly but don't put the props on yet.
 
- 
-==== Loading Firmware ====
+=== Step 6 (Using UAVXGS) ===
+
+First shut down UAVPSet and start UAVXGS. UAVXGS is the best tool for checking whether the aircraft sensors are behaving.
+
+You should have a Yellow and Green LED.
+
+....
+
+Increase the throttle slowly and your motors should start.
+
+=== Step 7 (Flight) ===
+
+Expo settings.....
+
+=== Loading Firmware ===
 
 Your board will come with the appropriate firmware loaded. To load new firmware you use the STM Flash Loader in the distribution package. Description will follow.
