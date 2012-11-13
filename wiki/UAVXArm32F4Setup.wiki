@@ -11,8 +11,6 @@ First UAVXArm32F4 supports many different airframe types from octocopters, throu
 
 To keep it simple we will assume you are flying a quadrocopter (4 motors) in plus(+) mode where one arm points forward. 
 
-Pictures and howto video may follow (Ken/Jim;)).
- 
 ==== UAVXArm32F4 Board ====
 
 This is what the board looks like.
@@ -21,15 +19,28 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Connection
 
 === Step 1 ===
 
-Download the software package from the downloads area and install UAVPset and UAVXGS.
+Mount the board on your favourite frame - take the props OFF. 
 
-Take all the the shorting links (if any) off the board EXCEPT a link from the Arming pin to the adjacent ground; you need to replace this with an arming switch later.
+The ARROW on the top of the board must point directly along the forward motor arm. 
+
+Take all the the shorting links (if any) off the board. Connect up a simple arming switch between the Arming pin and the adjacent Ground pin. 
+
+The motors should not run even if you have the arming switch on until you get through all of the following steps but think about a Kw of motors all running at around 7000RPM flying around your workshop - take the props OFF.
+
+
+
+Connect your board to your main battery which is a 3-4S LiPo.
+
+The Red and Yellow LEDs should be on.
+
+=== Step 2 ===
+
+Download the software package from the downloads area and install UAVPset and UAVXGS.
 
 Connect the adapter lead to the board and then to a USB port on your computer.
 
 Start UAVPSet and check that you have the appropriate COM port selected. 
 
-Connect your board to your main battery which is 3-4S LiPo.  Connect an ESC BEC lead to M1 - do not connect a motor to the ESC. The Red and Yellow LEDs should be on.
 
 In UAVPSet select Tools->TestSoftware->D or load defaults. Close the test window and select the Read Config icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust.
 
@@ -49,7 +60,7 @@ You can fly with a minimum of 4 channels Throttle, Aileron, Elevator, Rudder. If
 
 You may re-assign the channels using the selectors in UAVPSet. So if your throttle is on Channel 3 then setup the pulldowns appropriately. 
 
-Your Rx is being powered by the ESC connected to M1 as the centre pins of the Mand Rx pins are connected together. 
+Your Rx is being powered by the ESC connected to M1 as the centre pins of the M and Rx pins are connected together. 
 
 Turn on your Tx and run the Setup Test again. If you got lucky the Rx will be OK but as Clint Eastwood said "are you ....". Select Tools->TestSoftware->P (Rx Test)and it will show you what is failing. The throttle channel should be around 5%, Aileron, Elevator and Rudder about 50% and Gear around 10%. 
 
@@ -57,26 +68,23 @@ If the Rx Test passes then close the test software window and select the Tx/Rx s
 
 In writing this an auto configure for the Rx has moved to the top of the list! 
 
-=== Step 3 ===
-
-Mount the board on your favourite frame - take the props OFF. 
-
-The ARROW on the top of the board must point directly along the forward motor arm. 
-
-Connect up a simple arming switch. The motors should not run even if you have the arming switch on until you get through all of the following steps but think about a Kw of motors all running at around 7000RPM flying around your workshop - take the props OFF.
+=== Step xxx ===
 
 Disconnect the centre lead of all but one of your ESC control leads and make sure it is taped back and insulated. 
 
 Looking down on the aircraft with the front arm pointing away from you. the motors:
 
   * Front M1
+
+Do not connect the other motors yet but their connections will be:
+
   * Left M2
   * Right M3
   * Back M4
 
 Note: If you plan to run camera gimbals then it is worth considering buying a high current UBEC and connecting that to an unused Rx or M. In that case disconnect all of the BEC centre leads.
 
-Connect up the Rx and UAVPSet as before.
+
 
 === Step 4 (Acc/Gyro Temperature Calibration)===
 
