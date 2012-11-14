@@ -1,5 +1,0 @@
-#summary Show me the code!
-
-All released source files for flight and test software may be found off the downloads area. Please make sure you understand the provisions of GNU software as it applies to safety and personal risk.
-
-YOU ARE STRONGLY ADVISED NOT TO USE SOURCE FROM THE SVN AREA AS IT IS CONSTANTLY UNDER DEVELOPMENT AND IS QUITE LIKELY TO BE UNSAFE.  
