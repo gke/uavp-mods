@@ -116,13 +116,15 @@ If everything seems OK you can power down and make your own decision whether it 
 *THIS IS NOT A FLIGHT TUTORIAL SO FROM THIS POINT IT IS UP TO YOU.* 
 
   
-
-
 === Loading Firmware ===
 
 Your board will come with the appropriate firmware loaded. To load new firmware you use the STM Flash Loader in the distribution package.
 
+Put a link on the Boot0 pins.
+
 The following sequence of screen shots is self explanatory. 
+
+Set the baud rate to 115K and the COM port as necessary.
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/STM1.JPG
 
