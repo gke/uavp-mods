@@ -1,4 +1,5 @@
 #summary Hardware in the loop simulation - still waiting for volunteers:).
+#labels de
 
 Hardware in the loop simulation is also known as HIL.
 
