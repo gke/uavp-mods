@@ -25,7 +25,7 @@ Take all the the shorting links (if any) off the board. Connect up an arming swi
 
 The motors should not run even if you have the arming switch on until you get through all of the following steps but think about a Kw of motors all running at around 7000RPM flying around your workshop - take the props OFF.
 
-The board can be connected directly to your main battery (3-4S LiPo).
+The board can be connected directly to your main battery (3S LiPo).
 
 The Red and Yellow LEDs should be on.
 
@@ -63,7 +63,9 @@ Turn on your Tx and run the Setup Test again. If you got lucky the Rx will be OK
 
 If the Rx Test passes then close the test software window and select the Tx/Rx setup icon. Double check the controls are behaving sensibly and the endpoints are under 100%.
 
-In writing this an auto configure for the Rx has moved to the top of the development list but not for the first release! 
+In writing this an auto configure for the Rx has moved to the top of the development list but not for the first release!
+
+You should have Green, Yellow and Red LEDs on.  
 
 === Step 4 (Acc/Gyro Temperature Calibration)===
 
@@ -88,6 +90,8 @@ The maximum/minimum values are also tracked continuously when the aircraft is po
 The compass heading estimate should gradually improve as the max/min values stabilise. 
 
 At this point you should run the setup test and see if all of the alarms are cleared. If they are you are almost ready to fly but don't put the props on yet.
+
+You should have Green and Yellow LEDs on.
 
 === Step 6 (Motors) ===
 
