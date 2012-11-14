@@ -95,8 +95,6 @@ The compass heading estimate should gradually improve as the max/min values stab
 
 At this point you should run the setup test and see if all of the alarms are cleared. If they are you are almost ready to fly but don't put the props on yet.
 
-You should have Green and Yellow LEDs on.
-
 === Step 6 (Motors) ===
 
 Disconnect the centre leads of the rest of your ESC control leads and make sure they are taped back and insulated. 
@@ -113,7 +111,7 @@ Put the aircraft on the ground. Leave the props OFF and switch the arming switch
 
 Advance the throttle and all motors should start. Run the motors more very slowly as you can damage them if you run at high speed without props. Listening carefully move your controls and verify that if you move the aileron right that the left motor increases speed and the right motor slows down. The same for elevator. Rudder left should slow down the front/back motors and speed up the left/right motors by the same amount. 
 
-Now lift the quadrocopter up and tilt it left/right, front/back. It should be obvious what the motors will do. Tipping right should cause the right motor to speed up. Again use very little throttle.
+Now lift the quadrocopter up and tilt it left/right, forward/backwards. It should be obvious what the motors will do. Tipping right should cause the right motor to speed up. Again use very little throttle.
 
 If everything seems OK you can power down and make your own decision whether it is SAFE to fit the propellors and fly.
 
