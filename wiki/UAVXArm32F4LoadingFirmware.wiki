@@ -23,3 +23,5 @@ Select the hex file you wish to load. Set the radio button to "necessary pages".
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/STM4.JPG
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/STM5.JPG
+
+Wait until the verify is complete. Remove power and then remove the Boot0 link. Verify that the new firmware responds using UAVPSet.
