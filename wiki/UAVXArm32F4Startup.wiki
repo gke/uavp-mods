@@ -73,6 +73,8 @@ The Green and Yellow LEDs should be on.
 
 This is the most critical step in the setup and you usually only need to do it once or until you next bend the aircraft.
 
+*YOU MUST CALIBRATE THE GYROS AND ACCELEROMETERS BEFORE ATTEMPTING TO FLY OR START THE MOTORS WITH PROPS ON OTHERWISE THE ATTITUDE ESTIMATES (PITCH/ROLL ANGLES) WILL BE INCORRECT LEADING TO UNPREDICTABLE BEHAVIOUR OF THE MOTOR THROTTLES.*
+
 Put the aircraft on a level surface. If it is on the slightest of angles then this is the way it will fly when you centralise the sticks. Bear in mind the floors of your house will not be level, your best table will not be level nor will your average workbench. Eyeballing it is no good at all.
 
 Get a decent spirit level and even then turn it around to make sure it reads level both ways.
