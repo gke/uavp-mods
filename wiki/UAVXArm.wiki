@@ -5,7 +5,7 @@
 
 ===November 2012===
 
-Release. See UAVXArm32F4 Setup.
+Release. See [http://code.google.com/p/uavp-mods/wiki/UAVXArm32F4Startup].
 
 ===August 2012 ===
 
