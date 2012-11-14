@@ -3,11 +3,11 @@
 
 == Introduction ==
 
-This is the evolving setup page for the Arm version of UAVX. We will try to keep explanations concise. 
+This is the evolving setup page for the Arm version of UAVX. We will try to keep explanations concise.
+ 
+UAVXStartup contains a wealth of information which you could take the time to read. You should pay particular attention to what different patterns of LED behaviour mean (Lights and Sirens). 
 
-UAVPandUAVXFlightChecklist contains a wealth of information which you could take the time to read. You should pay particular attention to what different patterns of LED behaviour mean. 
-
-First UAVXArm32F4 supports many different airframe types from octocopters, through helis out to conventional aircraft. UAVX has done this for several years. 
+First UAVXArm32F4 supports many different airframe types from octocopters, through helis out to conventional aircraft. UAVX has done this for several years. The various configurations are shown in UAVXStartup. 
 
 To keep it simple we will assume you are flying a quadrocopter (4 motors) in plus(+) mode where one arm points forward. 
 
@@ -25,7 +25,7 @@ Take all the the shorting links (if any) off the board. Connect up an arming swi
 
 The motors should not run even if you have the arming switch on until you get through all of the following steps but think about a Kw of motors all running at around 7000RPM flying around your workshop - take the props OFF.
 
-Connect your board to your main battery which is a 3-4S LiPo.
+The board can be connected directly to your main battery (3-4S LiPo).
 
 The Red and Yellow LEDs should be on.
 
@@ -37,7 +37,7 @@ Connect the adapter lead to the board and then to a USB port on your computer.
 
 Start UAVPSet and check that you have the appropriate COM port selected. 
 
-In UAVPSet select Tools->TestSoftware->D (load defaults).  Close the test window and select the *Read Config* icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust. 
+In UAVPSet select Tools->TestSoftware->D (load defaults).  Close the test window and select the *Read Config* icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
 
 Now use Tools->TestSoftware run the Setup Test.  Read the results and try to make sense of it. At the bottom you will see various alarms. With luck the only alarms will be that you have not calibrated the accelerometer, gyros and magnetometer and the Rx is not working.
  
@@ -45,7 +45,7 @@ Now use Tools->TestSoftware run the Setup Test.  Read the results and try to mak
 
 Important - the black or ground pins of your Rx and Motor connections should be connected to the pins closest to the edge of the board. If in doubt double check with a multimeter.
 
-From now on any changes you make to parameters in UAVPSet must be followed by selecting the *Write Config* icon.
+From now on any changes you make to parameters in UAVPSet must be followed by selecting the *Write Config* icon. 
 
 Connect the front motor control lead to M1. This will power your Rx as centre pins of all of the M and Rx pins are connected together. 
 
@@ -75,7 +75,7 @@ Get a decent spirit level and even then turn it around to make sure it reads lev
 
 Lock the quadrocopter down so it does not move and recheck.
 
-Power up with UAVPSet connected.  Select Tests/SoftwareTools/N (Cal Accs/Gyros). Confirm you are ready to go by selecting Continue.   You will see the blue LED start to flash - it has already taken the first set of readings.  Get a hair dryer and GENTLY/SLOWLY warm up the board. You only need to change its temperature in two steps of 10 Celsius or 20 all up so don't melt the board!  There is a delay as the heat gets into the package so slowly slowly. The Blue LED will flash then stop  for about a second while the second set of readings are taken  then start to flash again as the temperature rises to the third measurement point. The LED will stay on  one last time then go off. 
+Power up with UAVPSet connected.  Select Tests/SoftwareTools/N (Cal Accs/Gyros). Confirm you are ready to go by selecting Continue.   You will see the blue LED start to flash - it has already taken the first set of readings.  Get a hair dryer and GENTLY/SLOWLY warm up the board. You only need to change its temperature in two steps of 10 Celsius or 20 all up so don't melt the board!  There is a delay as the heat gets into the package so slowly/slowly. The Blue LED will flash then stop  for about a second while the second set of readings are taken  then start to flash again as the temperature rises to the third measurement point. The LED will stay on  one last time then go off. 
 
 Now use the Tools->SoftwareTests->I (acc/gyro test) to check that the Roll/Pitch/Yaw rate are close to zero. Also check the Acc values which should show Front/Back (FB) and LR close to zero and UD close to -1. Once again you only need to do this once or when loading the defaults or if you change the gyro selection pulldown - it should be on UAVXArm32 unless you are using analog gyros.
 
@@ -89,38 +89,30 @@ The compass heading estimate should gradually improve as the max/min values stab
 
 At this point you should run the setup test and see if all of the alarms are cleared. If they are you are almost ready to fly but don't put the props on yet.
 
-=== Step 6 (Using UAVXGS) ===
-
-We suggest you read the UAVXGS Wiki first.
-
-Shut down UAVPSet and start UAVXGS. UAVXGS is the best tool for checking whether the aircraft sensors are behaving.
-
-You should have a Yellow and Green LED.
-
-....
-
-Increase the throttle slowly and your motors should start.
-
-
-=== Step 6 ===
+=== Step 6 (Motors) ===
 
 Disconnect the centre leads of the rest of your ESC control leads and make sure they are taped back and insulated. 
 
-Looking down on the aircraft with the front arm pointing away from you. the motors:
-
-  * Front M1
-
-Do not connect the other motors yet but their connections will be:
+Connect the other motors:
 
   * Left M2
   * Right M3
   * Back M4
 
-Note: If you plan to run camera gimbals then it is worth considering buying a high current UBEC and connecting that to an unused Rx or M. In that case disconnect all of the BEC centre leads.
+Note: If you plan to run camera gimbals then it is worth considering buying a high current UBEC and connecting that to an unused Rx or M. In that case disconnect all of the BEC centre leads and connect the UBEC to an unused M/Rx connector.
 
-=== Step 7 (Flight) ===
+Put the aircraft on the ground. Leave the props OFF and switch the arming switch on. You should hear three starting beeps.
 
-Expo settings.....
+Advance the throttle and all motors should start. Run the motors more very slowly as you can damage them if you run at high speed without props. Listening carefully move your controls and verify that if you move the aileron right that the left motor increases speed and the right motor slows down. The same for elevator. Rudder left should slow down the front/back motors and speed up the left/right motors by the same amount. 
+
+Now lift the quarocopter up and tilt it left/right, front/back. It should be obvious what the motors will do. Tipping right should cause the right motor to speed up. Again use very little throttle.
+
+If everything seems OK you can power down and make your own decision whether it is SAFE to fit the propellors and fly.
+
+*THIS IS NOT A FLIGHT TUTORIAL SO FROM THIS POINT IT IS UP TO YOU.* 
+
+  
+
 
 === Loading Firmware ===
 
