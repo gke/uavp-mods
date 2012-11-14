@@ -27,7 +27,7 @@ The motors should not run even if you have the arming switch on until you get th
 
 The board can be connected directly to your main battery (3S LiPo).
 
-The Red and Yellow LEDs should be on.
+The Red and Yellow LEDs should be on. Yellow indicates the accelerometers are operating.
 
 === Step 2 ===
 
@@ -37,9 +37,11 @@ Connect the adapter lead to the board and then to a USB port on your computer.
 
 Start UAVPSet and check that you have the appropriate COM port selected. 
 
-In UAVPSet select Tools->TestSoftware->D (load defaults).  Close the test window and select the *Read Config* icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
+Pulldown the Tools menu and select Software. You will see a range of tests.
 
-Now use Tools->TestSoftware run the Setup Test.  Read the results and try to make sense of it. At the bottom you will see various alarms. With luck the only alarms will be that you have not calibrated the accelerometer, gyros and magnetometer and the Rx is not working.
+Select Load defaults).  Close the test window and select the *Read Config* icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
+
+Now select the Setup Test.  Read the results and try to make sense of it. At the bottom you will see various alarms. With luck the only alarms will be that you have not calibrated the accelerometer, gyros and magnetometer and the Rx is not working.
  
 === Step 3 (Rx) ===
 
@@ -65,7 +67,7 @@ If the Rx Test passes then close the test software window and select the Tx/Rx s
 
 In writing this an auto configure for the Rx has moved to the top of the development list but not for the first release!
 
-You should have Green, Yellow and Red LEDs on.  
+The Green and Yellow LEDs should be on.  
 
 === Step 4 (Acc/Gyro Temperature Calibration)===
 
@@ -79,7 +81,7 @@ Lock the quadrocopter down so it does not move and recheck.
 
 Power up with UAVPSet connected.  Select Tests/SoftwareTools/N (Cal Accs/Gyros). Confirm you are ready to go by selecting Continue.   You will see the blue LED start to flash - it has already taken the first set of readings.  Get a hair dryer and GENTLY/SLOWLY warm up the board. You only need to change its temperature in two steps of 10 Celsius or 20 all up so don't melt the board!  There is a delay as the heat gets into the package so slowly/slowly. The Blue LED will flash then stop  for about a second while the second set of readings are taken  then start to flash again as the temperature rises to the third measurement point. The LED will stay on  one last time then go off. 
 
-Now use the Tools->SoftwareTests->I (acc/gyro test) to check that the Roll/Pitch/Yaw rate are close to zero. Also check the Acc values which should show Front/Back (FB) and LR close to zero and UD close to -1. Once again you only need to do this once or when loading the defaults or if you change the gyro selection pulldown - it should be on UAVXArm32 unless you are using analog gyros.
+Now select the Acc/Gyro test) to check that the Roll/Pitch/Yaw rate are close to zero. Also check the Acc values which should show Front/Back (FB) and LR close to zero and UD close to -1. Once again you only need to do this once or when loading the defaults or if you change the gyro selection pulldown - it should be on UAVXArm32 unless you are using analog gyros.
 
 === Step 5 (Magnetometer Calibration) ===
 
@@ -105,11 +107,11 @@ Connect the other motors:
 
 Note: If you plan to run camera gimbals then it is worth considering buying a high current UBEC and connecting that to an unused Rx or M. In that case disconnect all of the BEC centre leads and connect the UBEC to an unused M/Rx connector.
 
-Put the aircraft on the ground. Leave the props OFF and switch the arming switch on. You should hear three starting beeps.
+Put the aircraft on the ground. Leave the props OFF and switch the arming switch on. You should hear three starting beeps with the Red LED flashing briefly. At the end you should have Green and Red LEDs on. The Red LED means that no GPS signals are being received.
 
 Advance the throttle and all motors should start. Run the motors more very slowly as you can damage them if you run at high speed without props. Listening carefully move your controls and verify that if you move the aileron right that the left motor increases speed and the right motor slows down. The same for elevator. Rudder left should slow down the front/back motors and speed up the left/right motors by the same amount. 
 
-Now lift the quarocopter up and tilt it left/right, front/back. It should be obvious what the motors will do. Tipping right should cause the right motor to speed up. Again use very little throttle.
+Now lift the quadrocopter up and tilt it left/right, front/back. It should be obvious what the motors will do. Tipping right should cause the right motor to speed up. Again use very little throttle.
 
 If everything seems OK you can power down and make your own decision whether it is SAFE to fit the propellors and fly.
 
