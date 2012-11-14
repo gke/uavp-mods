@@ -1,4 +1,4 @@
-#summary This a progress report for the Arm implementation of UAVX
+#summary This a progress report for the Arm version of UAVX
 #labels UAVXArm32,gke,kb6mcc,jesolins,multicopter
 
 == UAVXArm ==
