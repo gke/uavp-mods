@@ -45,7 +45,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Params.JPG
 
 Now select the Setup Test.  Read the results and try to make sense of it. At the bottom you will see various alarms. With luck the only alarms will be that you have not calibrated the accelerometer and the Rx is not working.
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Setup.JPG
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Start.JPG
  
 === Step 3 (Rx) ===
 
