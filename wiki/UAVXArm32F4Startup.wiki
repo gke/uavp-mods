@@ -73,7 +73,7 @@ If the Rx Test passes then close the test software window and select the Tx/Rx s
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_RxGraphic.JPG 
 
-As well as adjusting the sensitivity of GPS corrections Channel 7 (normally a potentiometer/knob) is used to enable altitude hold.  Initially you should fly with this off. Altitude hold is switch OFF below 10% and ON above 10%. The knob does not control altitude hold sensitivity. 
+As well as adjusting the navigation sensitivity NavS or Channel 7 (normally a potentiometer/knob) is used to enable altitude hold.  Initially you should fly with altitude hold off. Altitude hold is switch OFF below 10% and ON above 10%. The knob does not control altitude hold sensitivity. 
 
 In writing this an auto configure for the Rx has moved to the top of the development list but not for the first release!
 
