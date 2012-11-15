@@ -71,7 +71,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_RxTest.JPG
 
 If the Rx Test passes then close the test software window and select the Tx/Rx setup icon. Double check the controls are behaving sensibly and the endpoints are under 100%.
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_RxGrapic.JPG 
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_RxGraphic.JPG 
 
 As well as adjusting the sensitivity of GPS corrections Channel 7 (normally a potentiometer/knob) is used to enable altitude hold.  Initially you should fly with this off. Altitude hold is switch OFF below 10% and ON above 10%. The knob does not control altitude hold sensitivity. 
 
