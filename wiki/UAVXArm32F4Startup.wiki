@@ -130,3 +130,7 @@ Now lift the quadrocopter up and tilt it left/right, forward/backwards. It shoul
 If everything seems OK you can power down and make your own decision whether it is SAFE to fit the propellors and fly.
 
 *THIS IS NOT A FLIGHT TUTORIAL SO FROM THIS POINT IT IS UP TO YOU.* 
+
+Join us at:
+
+http://www.rcgroups.com/forums/showthread.php?t=1093510
