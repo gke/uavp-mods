@@ -27,7 +27,7 @@ The motors should not run even if you have the arming switch on until you get th
 
 The board can be connected directly to your main battery (3S LiPo).
 
-The Red and Yellow LEDs should be on. Yellow indicates the accelerometers are operating.
+The Red light should be on and the Yellow LED should be flashing once a second indicating that you have not yet calibrated your accelerometers.
 
 === Step 2 ===
 
@@ -37,9 +37,9 @@ Connect the adapter lead to the board and then to a USB port on your computer.
 
 Start UAVPSet and check that you have the appropriate COM port selected. 
 
-Pulldown the Tools menu and select Software. You will see a range of tests.
+Pulldown the Tools menu and select Software Test. You will see a range of tests.
 
-In the tools elect Load defaults.  Close the test window and select the *Read Config* icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
+In the tools elect Load defaults.  Close the Software Tests window and select the *Read Config* icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
 
 Now select the Setup Test.  Read the results and try to make sense of it. At the bottom you will see various alarms. With luck the only alarms will be that you have not calibrated the accelerometer, gyros and magnetometer and the Rx is not working.
  
@@ -53,9 +53,9 @@ Connect the front motor control lead to M1. This will power your Rx as centre pi
 
 If you have a a Rx (e.g. FrSky) that supports Compound PPM (CPPM) connect it to Rx1. For CPPM you must specify the number of channels your Rx is receiving using UAVPSet.
 
-If you have an Rx that uses Parallel PPM (PPPM) then connect it to Rx1 up to Rx8 in the order Throttle, Aileron, Elevator, Rudder, Gear, Aux1, Aux2, Aux3. You need a minimum of 7 channels for full functionality.
+If you have an Rx that uses parallel PPM then connect it to Rx1 up to Rx8 in the order Throttle, Aileron, Elevator, Rudder, Gear, Aux1, Aux2, Aux3. You need a minimum of 7 channels for full functionality.
 
-For PPPM number of channels you have actually connected using UAVPSet. 
+For parallel PPM using UAVPSet set number of channels you have actually connected.  
 
 You can fly with a minimum of 4 channels Throttle, Aileron, Elevator, Rudder. If you do so then you will have altitude hold but no navigation capability. 
 
@@ -67,13 +67,13 @@ If the Rx Test passes then close the test software window and select the Tx/Rx s
 
 In writing this an auto configure for the Rx has moved to the top of the development list but not for the first release!
 
-The Green and Yellow LEDs should be on.  
+The Green LED should be on and Yellow LEDs be flashing.  
 
 === Step 4 (Acc/Gyro Temperature Calibration)===
 
 This is the most critical step in the setup and you usually only need to do it once or until you next bend the aircraft.
 
-*YOU MUST CALIBRATE THE GYROS AND ACCELEROMETERS BEFORE ATTEMPTING TO FLY OR START THE MOTORS WITH PROPS ON OTHERWISE THE ATTITUDE ESTIMATES (PITCH/ROLL ANGLES) WILL BE INCORRECT LEADING TO UNPREDICTABLE BEHAVIOUR OF THE MOTOR THROTTLES.*
+*YOU MUST CALIBRATE ACCELEROMETERS OTHERWISE THE ATTITUDE ESTIMATES (PITCH/ROLL ANGLES) WILL BE INCORRECT LEADING TO UNPREDICTABLE BEHAVIOUR.*
 
 Put the aircraft on a level surface. If it is on the slightest of angles then this is the way it will fly when you centralise the sticks. Bear in mind the floors of your house will not be level, your best table will not be level nor will your average workbench. Eyeballing it is no good at all.
 
@@ -84,6 +84,8 @@ Lock the quadrocopter down so it does not move and recheck.
 Power up with UAVPSet connected.  Select the Cal Accs/Gyros test. Confirm you are ready to go by selecting Continue.   You will see the blue LED start to flash - it has already taken the first set of readings.  Get a hair dryer and SLOWLY warm up the board - put your hand close to the board to sense how hot the air is. If it is too hot for your hand it is too hot for the board! You only need to change its temperature in two steps of 10 Celsius or 20 all up so don't melt the board!  There is a delay as the heat gets into the package so slowly/slowly. The Blue LED will flash then stop  for about a second while the second set of readings are taken  then start to flash again as the temperature rises to the third measurement point. The LED will stay on  one last time then go off. 
 
 Now select the Acc/Gyro test to check that the Roll/Pitch/Yaw rate are close to zero. Also check the Acc values which should show Front/Back (FB) and LR close to zero and UD close to -1. Once again you only need to do this once or when loading the defaults or if you change the gyro selection pulldown - it should be on UAVXArm32 unless you are using analog gyros.
+
+The Green LED and Yellow LEDs should be on.
 
 === Step 5 (Magnetometer Calibration) ===
 
