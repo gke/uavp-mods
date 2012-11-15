@@ -63,7 +63,7 @@ For parallel PPM using UAVPSet set number of channels you have actually connecte
 
 You can fly with a minimum of 4 channels Throttle, Aileron, Elevator, Rudder. If you do so then you will have altitude hold but no navigation capability. 
 
-You may re-assign the channels using the selectors in UAVPSet. So if your throttle is on Channel 3 then setup the pulldowns appropriately. 
+You may re-assign the channels using the selectors in UAVPSet. So if your throttle is on Channel 3 for example then setup the pulldowns appropriately. 
 
 Turn on your Tx and run the Setup Test again. If you got lucky the Rx will be OK. Select the Rx Test and it will show you which channels are failing. The throttle channel should be around 5%, Aileron, Elevator and Rudder about 50% and Gear around 10%.
 
@@ -87,7 +87,7 @@ Get a decent spirit level and even then turn it around to make sure it reads lev
 
 Lock the quadrocopter down so it does not move and recheck.
 
-Power up with UAVPSet connected.  Select the Cal Accs/Gyros test. Confirm you are ready to go by selecting Continue.   You will see the blue LED start to flash - it has already taken the first set of readings.  Get a hair dryer and SLOWLY warm up the board - put your hand close to the board to sense how hot the air is. If it is too hot for your hand it is too hot for the board! You only need to change its temperature in two steps of 10 Celsius or 20 all up so don't melt the board!  There is a delay as the heat gets into the package so slowly/slowly. The Blue LED will flash then stop  for about a second while the second set of readings are taken  then start to flash again as the temperature rises to the third measurement point. The LED will stay on  one last time then go off. 
+Power up with UAVPSet connected.  Select the Cal Accs/Gyros test. Confirm you are ready to go by selecting Continue.   You will see the blue LED start to flash - it has already taken the first set of readings.  Get a hair dryer and SLOWLY warm up the board - put your hand close to the board to sense how hot the air is. If it is too hot for your hand it is too hot for the board! You only need to change its temperature in two steps of 10 Celsius or 20 all up so don't melt the board!  There is a delay as the heat gets into the package so slowly/slowly. The Blue LED will flash then stop  for about a second while the second set of readings are taken  then start to flash again as the temperature rises to the third measurement point. The LED will stay on one last time then go off. 
 
 Now select the Acc/Gyro test to check that the Roll/Pitch/Yaw rate are close to zero. Also check the Acc values which should show Front/Back (FB) and LR close to zero and UD close to -1. 
 
