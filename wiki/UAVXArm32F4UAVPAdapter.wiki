@@ -1,5 +1,5 @@
+#summary Notes on using the UAVXArm32F4 board without sensors as a UAVP adapter.
 #labels Featured,Phase-Deploy,UAVXArm32F4,gke
-#Notes on using the UAVXArm32F4 board without sensors as a UAVP adapter.
 
 = Introduction =
 
