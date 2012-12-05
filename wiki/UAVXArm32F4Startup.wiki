@@ -42,7 +42,7 @@ Pulldown the Tools menu and select Software Test. You will see a range of tests.
 
 In the tools select Load defaults.  Close the Software Tests window and select the *Read Config* icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
 
-The default parameters were obtained from flights by Ken & Jim. These are a good starting point but you will probably wish to tune the Roll/Pitch and Yaw parameters in particular to suit your flying style and the size/span and weight of your aircraft.
+The default parameters were obtained from flights by Ken & Jim. These are a good starting point but you will probably wish to tune the Roll/Pitch and Yaw parameters in particular to suit your own flying style and the size/span and weight of your aircraft.
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Params.JPG
 
