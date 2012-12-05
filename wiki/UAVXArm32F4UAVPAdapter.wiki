@@ -7,7 +7,7 @@ UAVXArm32F4 board may be used without sensors as a UAVP adapter. The Arm board a
 
 ==== UAVXArm32F4 Board ====
 
-If you look carefully you can see pins marked + down the left side of the board being those that plug into some of the sockets in the old PIC connector. The block of 2x4 pins towards the centro of the board connect to the "K" motor servo pins to stabilise the board.  You may wish to put standoffs on the board to further stabilise it.
+If you look carefully you can see pins marked + down the left side of the board being those that plug into some of the sockets in the old PIC connector. The block of 2x4 pins towards the top right of the board connect to the "K" motor servo pins to stabilise the board.  You may wish to put standoffs on the board to further stabilise it.
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Connections.png
 
