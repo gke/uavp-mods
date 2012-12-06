@@ -1,5 +1,5 @@
 #summary Notes on using the UAVXArm32F4 board without sensors as a replacement for the PIC processor.
-#labels Featured,Phase-Deploy,UAVXArm32F4,gke
+#labels Featured,Phase-Deploy,UAVXArm32F4,gke,kb6mcc,jesolins,Multicopter,uavp
 
 == Introduction ==
 
@@ -21,7 +21,7 @@ The Compass and Baro are stacked together and then soldered to the UAVP board. C
 
 The Arm board comes with pins that connect to the PIC socket and some of the motor servo connectors. These pins are very fine and fragile so be very careful that they are lined up properly before plugging the board in fully.
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Adapter.JPG
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4_Adapter.JPG
 
 Both the UAVP board and the Arm board need to be connected to the main battery. 
 
