@@ -37,6 +37,8 @@ Download the software package from the downloads area and install UAVPset and UA
 
 Connect the adapter lead to the board and then to a USB port on your computer.
 
+http://uavp-mods.googlecode.com/svn/branches/uavxarm32_graphics/ftdi.jpg
+
 Start UAVPSet and check that you have the appropriate COM port selected. 
 
 Pulldown the Tools menu and select Software Test. You will see a range of tests.
