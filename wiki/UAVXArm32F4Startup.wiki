@@ -123,11 +123,11 @@ Disconnect the centre leads of the rest of your ESC control leads and make sure 
 
 Connect the other motors:
 
-  * Left M2
-  * Right M3
-  * Back M4
+  * Left K2
+  * Right K3
+  * Back K4
 
-Note: If you plan to run camera gimbals then it is worth considering buying a high current UBEC and connecting that to an unused Rx or M. In that case disconnect all of the BEC centre leads and connect the UBEC to an unused M/Rx connector.
+Note: If you plan to run camera gimbals then it is worth considering buying a high current UBEC and connecting that to an unused Rx or M connector. In that case disconnect all of the BEC centre leads and connect the UBEC to an unused M/Rx connector.
 
 Put the aircraft on the ground. Leave the props OFF and switch the arming switch on. UAVPSet communications are terminated once armed - you need to disarm to re-establish communications.
 
