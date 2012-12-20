@@ -3,6 +3,8 @@
 
 == Introduction ==
 
+*DEFINITELY UNDER CONSTRUCTION*
+
 Read the UAVXArm32F4Startup Wiki first. This Wiki contains supplementary notes specific to using UAVXArm32F4 on a fixed wing aircraft.  
 
 UAVX has not been regularly used for fixed wing aircraft so congratulations this is new territory and makes you one of the first Alpha Testers.
@@ -35,15 +37,27 @@ Start UAVPSet and check that you have the appropriate COM port selected.
 
 Pulldown the Tools menu and select Software Test. You will see a range of tests.
 
-In the tools select Load defaults.  Close the Software Tests window and select the *Read Config* icon. The default parameter set should populate the various boxes. There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
+In the tools select Load defaults.  Close the Software Tests window and select the *Read Config* icon. The default parameter set should populate the various boxes. 
 
-The default parameters were obtained from flights by Ken & Jim using quadrocopters NOT fixed wing aircraft. You will definitely need to tune the Roll/Pitch and Yaw parameters in particular to suit your own flying style and the size/span and weight of your aircraft.
+There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
 
-As you tune these parameters you can save the results to a parameter file which you can re-read instead of reverting to the multicopter defaults. 
+The default parameters you first see will be for multicopters not fixed wing aircraft so you need to do the following. Some steps involve an electrical reconfiguration of the board so you will occasionally see all LEDs flashing - cycle the power and this should allow the board to complete the reconfiguration.
+
+  * disconnect servos as the motor/servo ports will initially be being updated at 450Hz way too high for most servos.
+  * power up and select your desired fixed wing airframe
+  * load the defaults which are a first guess at what they may be..
+  * connect the servos
+  * check whether the servo sense/direction is correct for the servos which will now respond to stick input even if disarmed. The motor should not start but leave the prop off anyway.
+  * change the sense where required - the sense checkboxes are in the same order as the servo connections
+  * increase/decrease the new "roll to yaw" coupling parameter-steering is by roll which is the ailerons which we do not have so you need to couple the ailerons to the rudder.
+
+At this point there is no automatic control of the surfaces which is enabled only after arming. You should work through the following first.
+
+It is important to note that unlike the multicopter default parameters which were obtained from flights by Ken & Jim using quadrocopters we do not yet have a sensible starting set of default parameters for fixed wing aircraft. You will definitely need to tune the Roll/Pitch and Yaw parameters in particular to suit your own flying style and the size/span and weight of your aircraft.
+
+As you tune these parameters you can save the results to a parameter file which you can re-read. It is a good idea to periodically save your parameter sets.
 
 Immediately change the aircraft pulldown to the fixed wing aircraft type you are using.
-
-Check the *angle based* control check box. Rate based control WILL NOT WORK for fixed wing aircraft.
 
 From now on any changes you make to parameters in UAVPSet must be followed by selecting the *Write Config* icon. 
 
