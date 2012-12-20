@@ -11,7 +11,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Connection
 
 === Step 1 ===
 
-UAVX has not been regularly used for fixed wing aircraft so congratulations this is new territory makes you one of the first Alpha Testers.
+UAVX has not been regularly used for fixed wing aircraft so congratulations this is new territory and makes you one of the first Alpha Testers.
 
 Mount the board as near as possible to the flight level angle with the ARROW on the top of the board must point directly forward. 
 
