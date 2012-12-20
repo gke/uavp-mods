@@ -7,7 +7,7 @@ This is the evolving setup page for the Arm version of UAVX. We will try to keep
  
 UAVXStartup contains a wealth of information which you could take the time to read. You should pay particular attention to what the different patterns of LED behaviour mean (Lights and Sirens). 
 
-UAVXArm32F4 supports many different airframe types from octocopters, through helis out to conventional aircraft. UAVX has done this for several years. Most of the multicopter configurations are shown in UAVXStartup. 
+UAVXArm32F4 supports many different airframe types from octocopters, through helis out to conventional aircraft. UAVX has done this for several years. Most of the multicopter configurations are shown in UAVXStartup. If you are flying a fixed wing aircraft you should read the UAVXArm32F4FixedWingStartup Wiki as well.
 
 To keep it simple we will assume you are flying a quadrocopter (4 motors) in plus(+) mode where one arm points forward. You can change to other orientations very easily later *without* having to change the board orientation relative to the frame. 
 
