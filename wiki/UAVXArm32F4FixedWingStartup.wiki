@@ -3,15 +3,15 @@
 
 == Introduction ==
 
-Read the UAVXArm32F4Startup Wiki first.
+Read the UAVXArm32F4Startup Wiki first. This Wiki contains supplementary notes specific to using UAVXArm32F4 on a fixed wing aircraft.  
+
+UAVX has not been regularly used for fixed wing aircraft so congratulations this is new territory and makes you one of the first Alpha Testers.
 
 ==== UAVXArm32F4 Board ====
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Connections.png
 
 === Step 1 ===
-
-UAVX has not been regularly used for fixed wing aircraft so congratulations this is new territory and makes you one of the first Alpha Testers.
 
 Mount the board as near as possible to the flight level angle with the ARROW on the top of the board must point directly forward. 
 
