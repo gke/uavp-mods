@@ -1,5 +1,5 @@
 #summary The evolving startup page for the Arm version of UAVX.
-#labels Featured,UAVXArm32F4,Multicopter,UAVP
+#labels Featured,Phase-Deploy,UAVXArm32F4,gke,jesolins,UAVP
 
 == Introduction ==
 
