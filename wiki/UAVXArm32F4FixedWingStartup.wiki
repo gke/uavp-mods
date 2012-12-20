@@ -43,17 +43,11 @@ As you tune these parameters you can save the results to a parameter file which 
 
 Immediately change the aircraft pulldown to the fixed wing aircraft type you are using.
 
+Check the *angle based* control check box. Rate based control WILL NOT WORK for fixed wing aircraft.
 
+From now on any changes you make to parameters in UAVPSet must be followed by selecting the *Write Config* icon. 
 
-
-Check the angle based control check box. Rate based control WILL NOT WORK for fixed wing aircraft.
-
-
-
-
-
-
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Params.JPG
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Params_Wing.JPG
 
 Now select the Setup Test.  Read the results and try to make sense of it. At the bottom you will see various alarms. With luck the only alarms will be that you have not calibrated the accelerometer and the Rx is not working.
 
@@ -62,8 +56,6 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Start.JPG
 === Step 3 (Rx) ===
 
 Important - the black or ground pins of your Rx and motor and servo connections should be connected to the pins closest to the edge of the board. If in doubt double check with a multimeter.
-
-From now on any changes you make to parameters in UAVPSet must be followed by selecting the *Write Config* icon. 
 
 Connect the motor throttle control lead to K1. This will power your Rx as centre pins of all of the M and Rx pins are connected together. 
 
@@ -125,11 +117,15 @@ At this point you should run the setup test and see if all of the alarms are cle
 
 === Step 6 (Servos) ===
 
+Connect your servos up for your aircraft type as shown in the Appendix below.
+
 Put the aircraft on the ground. Leave the prop OFF and switch the arming switch on. UAVPSet communications are terminated once armed - you need to disarm to re-establish communications.
 
 You should hear three starting beeps with the Red LED flashing briefly. At the end you should have Green and Red LEDs on. The Red LED means that no GPS signals are being received.
 
-Now lift the aicraft up and tilt it left/right, forward/backwards. It should be obvious what the control surfaces will do. 
+Now lift the aircraft up and tilt it left/right, forward/backwards. It should be obvious what the control surfaces will do. 
+
+You will *definitely* need to adjust the PID parameters until the control surface action seems reasonable. It is better to have too small a control movement and then increase it if it is not enough.
 
 If everything seems OK you can power down and make your own decision whether it is SAFE to fit the propellor and fly.
 
