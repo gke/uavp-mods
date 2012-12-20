@@ -89,11 +89,7 @@ This is the most critical step in the setup and you usually only need to do it o
 
 *YOU MUST CALIBRATE ACCELEROMETERS OTHERWISE THE ATTITUDE ESTIMATES (PITCH/ROLL ANGLES) WILL BE INCORRECT LEADING TO UNPREDICTABLE BEHAVIOUR.*
 
-Put the aircraft on a level surface. If it is on the slightest of angles then this is the way it will fly when you centralise the sticks. Bear in mind the floors of your house will not be level, your best table will not be level nor will your average workbench. Eyeballing it is no good at all.
-
-Get a decent spirit level and even then turn it around to make sure it reads level both ways.
-
-Lock the quadrocopter down so it does not move and recheck it is level.
+Put the aircraft level in the attitude you expect it to fly in cruise. You need to bear in mind that the control system will make every effort to get the aircraft to this attitude when you let go the sticks. 
 
 Power up with UAVPSet connected.  Select the Cal Accs/Gyros test. Confirm you are ready to go by selecting Continue.   You will see the blue LED start to flash - it has already taken the first set of readings and is waiting for the temperature to rise to take the second set.  Get a hair dryer and SLOWLY warm up the board - put your hand close to the board to sense how hot the air is. If it is too hot for your hand it is too hot for the board! You only need to change its temperature by 20 Celsius all up so don't melt the board!  There is a delay as the heat gets into the MPU6050 package so slowly/slowly until the blue LED stops flashing and you are done. Obviously it is better to do the calibration so it covers the range of temperatures you are likely to be flying in.
 
@@ -108,10 +104,6 @@ The Green LED and Yellow LEDs should be on.
 === Step 5 (Magnetometer Calibration) ===
 
 Run the magnetometer calibration test in UAVPSet. Rotate the aircraft in all the directions you can think of including upside down and on edge. This captures the initial maximum and minimum values of the X,Y and Z axes. You do not need to re-run the calibration unless it is clearly giving crazy answers for the computed compass heading. The maximum/minimum values are stored in non-volatile memory where they are retained after disconnecting the battery.
-
-The maximum/minimum values are also tracked continuously when the aircraft is powered including in flight when the motors are running. Unlike the calibration test they are only written to memory when you disarm.
-
-The compass heading estimate should gradually improve as the max/min values stabilise. 
 
 At this point you should run the setup test and see if all of the alarms are cleared. If they are you are almost ready to fly but don't put the props on yet.
 
