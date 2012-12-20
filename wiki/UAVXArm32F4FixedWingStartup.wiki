@@ -41,7 +41,7 @@ In the tools select Load defaults.  Close the Software Tests window and select t
 
 There are a lot of parameters most of which you may never have to adjust. If you highlight any of the parameter boxes explanatory text should be displayed in the text window.
 
-The default parameters you first see will be for multicopters not fixed wing aircraft so you need to do the following. Some steps involve an electrical reconfiguration of the board so you will occasionally see all LEDs flashing - cycle the power and this should allow the board to complete the reconfiguration.
+The default parameters you first see will be for multicopters not fixed wing aircraft so you need to do the following.  Some parameter changes involve an electrical reconfiguration of the board so you will occasionally see all LEDs flashing - cycle the power and this should allow the board to complete the reconfiguration.
 
   * disconnect servos as the motor/servo ports will initially be being updated at 450Hz way too high for most servos.
   * power up and select your desired fixed wing airframe
