@@ -109,11 +109,8 @@ The Green LED and Yellow LEDs should be on.
 
 === Step 5 (Magnetometer Calibration) ===
 
-Run the magnetometer calibration test in UAVPSet. Rotate the aircraft in all the directions you can think of including upside down and on edge. This captures the initial maximum and minimum values of the X,Y and Z axes. You do not need to re-run the calibration unless it is clearly giving crazy answers for the computed compass heading. The maximum/minimum values are stored in non-volatile memory where they are retained after disconnecting the battery.
+Run the magnetometer calibration test in UAVPSet. Rotate the aircraft in all the directions you can think of including upside down and on edge. This captures the sensor offsets for the X,Y and Z axes using a little tricky math including fitting points to a sphere. You do not need to re-run the calibration unless it is clearly giving crazy answers for the computed compass heading. The offsets are stored in non-volatile memory where they are retained after disconnecting the battery. The magnetometer test should show the Neg/Pos values as being roughly equal. These values show how well you have rocked the aircraft around and correspond to visits to the octants around the axes.
 
-The maximum/minimum values are also tracked continuously when the aircraft is powered including in flight when the motors are running. Unlike the calibration test they are only written to memory when you disarm.
-
-The compass heading estimate should gradually improve as the max/min values stabilise. 
 
 At this point you should run the setup test and see if all of the alarms are cleared. If they are you are almost ready to fly but don't put the props on yet.
 
