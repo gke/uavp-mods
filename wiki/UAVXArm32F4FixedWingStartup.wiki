@@ -131,9 +131,9 @@ You should hear three starting beeps with the Red LED flashing briefly. At the e
 
 Now lift the aircraft up and tilt it left/right, forward/backwards. It should be obvious what the control surfaces will do.
 
-*Now some bad news. The Tx sub-trims will not work as, if you think about it, UAVX does not have access to the Rx channels as if they were connected directly to servos. So you need to do is what in theory we all should do and that is set all the sub-trims on your Tx to zero and then mechanically adjust the linkages to all of the control surfaces so that the aircraft will fly even with the Tx off.*  
+*Now some bad news. The Tx sub-trims will not work as, if you think about it, UAVX does not have access to the Rx channels as they are not connected directly to servos. So you need to do, is what in theory we all should do, and that is set all the sub-trims on your Tx to zero and then mechanically adjust the linkages to all of the control surfaces so that the aircraft will fly even with the Tx off.*  
 
-You will *definitely* need to adjust the PID parameters until the control surface deflections seems reasonable. It is better to have too small a control movement and then increase it if it is not enough.
+You will *definitely* need to adjust the PID parameters until the control surface deflections for your particular aircraft seem reasonable. It is better to have too small a control movement and then increase it if it is not enough.
 
 If everything seems OK you can power down and make your own decision whether it is SAFE to fit the propellor and fly.
 
