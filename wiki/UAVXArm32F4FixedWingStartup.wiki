@@ -47,11 +47,6 @@ The default parameters you first see will be for multicopters not fixed wing air
   * power up and select your desired fixed wing airframe
   * load the defaults which are a first guess at what they may be..
   * connect the servos
-  * check whether the servo sense/direction is correct for the servos which will now respond to stick input even if disarmed. The motor should not start but leave the prop off anyway.
-  * change the sense where required - the sense checkboxes are in the same order as the servo connections
-  * increase/decrease the new "roll to yaw" coupling parameter-steering is by roll which is the ailerons which we do not have so you need to couple the ailerons to the rudder.
-
-At this point there is no automatic control of the surfaces which is enabled only after arming. You should work through the following first.
 
 It is important to note that unlike the multicopter default parameters which were obtained from flights by Ken & Jim using quadrocopters we do not yet have a sensible starting set of default parameters for fixed wing aircraft. You will definitely need to tune the Roll/Pitch and Yaw parameters in particular to suit your own flying style and the size/span and weight of your aircraft.
 
@@ -93,7 +88,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_RxGraphic.JPG
 
 As well as adjusting the navigation sensitivity NavS or Channel 7 (normally a potentiometer/knob) is used to enable altitude hold.  Initially you should fly with altitude hold off. Altitude hold is switch OFF below 10% and ON above 10%. The knob does not control altitude hold sensitivity. 
 
-In writing this an auto configure for the Rx has moved to the top of the development list but not for the first release!
+At this point there is no automatic control of the surfaces which is enabled only after arming. 
 
 The Green LED should be on and Yellow LED flashing every second.  
 
@@ -126,13 +121,19 @@ At this point you should run the setup test and see if all of the alarms are cle
 
 Connect your servos up for your aircraft type as shown in the Appendix below.
 
+  * check whether the servo sense/direction is correct for the servos which will now respond to stick input even if disarmed. The motor should not start but leave the prop off anyway.
+  * change the sense where required - the sense checkboxes are in the same order as the servo connections
+  * increase/decrease the new "roll to yaw" coupling parameter-steering is by roll which is the ailerons which we do not have so you need to couple the ailerons to the rudder.
+
 Put the aircraft on the ground. Leave the prop OFF and switch the arming switch on. UAVPSet communications are terminated once armed - you need to disarm to re-establish communications.
 
 You should hear three starting beeps with the Red LED flashing briefly. At the end you should have Green and Red LEDs on. The Red LED means that no GPS signals are being received.
 
-Now lift the aircraft up and tilt it left/right, forward/backwards. It should be obvious what the control surfaces will do. 
+Now lift the aircraft up and tilt it left/right, forward/backwards. It should be obvious what the control surfaces will do.
 
-You will *definitely* need to adjust the PID parameters until the control surface action seems reasonable. It is better to have too small a control movement and then increase it if it is not enough.
+*Now some bad news. The Tx sub-trims will not work as, if you think about it, UAVX does not have access to the Rx channels as if they were connected directly to servos. So you need to do is what in theory we all should do and that is set all the sub-trims on your Tx to zero and then mechanically adjust the linkages to all of the control surfaces so that the aircraft will fly even with the Tx off.*  
+
+You will *definitely* need to adjust the PID parameters until the control surface deflections seems reasonable. It is better to have too small a control movement and then increase it if it is not enough.
 
 If everything seems OK you can power down and make your own decision whether it is SAFE to fit the propellor and fly.
 
