@@ -1,4 +1,4 @@
-#summary Connecting the USB-FTDI to The UAVxARM32 Flight Controller.
+#summary Connecting the USB-FTDI to The UAVXArm32 Flight Controller.
 
 *** Warning ***
 <br>Do Not Connect the +5V Pin From the USB-FTDI Interface Board to the Flight Controller Serial Port +3.3V Pin.
