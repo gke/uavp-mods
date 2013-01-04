@@ -4,7 +4,7 @@
 
 == Introduction ==
 
-*WARNING* - the MultiWii versions have not been test flown as is normally the case for the official release of MultiWii. There are simple too many configurations of aircraft types and sensors to do so. Testing therefore tends to be by those interested in specific configurations.
+*WARNING* - the MultiWii firmware has not been test flown as is normally the case for the official releases of MultiWii. There are simple too many configurations of aircraft types and sensors to do so. Testing therefore tends to rely upon those interested in specific configurations doing their own testing.
 
 Documentation for MultiWii may be found at the MultiWii main site:
 
