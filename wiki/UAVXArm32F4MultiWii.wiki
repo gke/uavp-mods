@@ -1,13 +1,18 @@
+#summary Notes on the MultiWii port to the UAVXArm32F4 board
 #labels Featured,Phase-Deploy,MultiWii,gke,UAVX
-#Notes on the MultiWii port to the UAVXArm32F4 board
-= Introduction =
-
-Add your content here.
 
 
-= Details =
+== Introduction ==
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Documentation for MultiWii may be found at the MultiWii main site:
+
+
+This Wikki describes any differences specific to the port of MultiWii to the UAVXArm32F4 board.
+
+== Appendices ==
+
+=== Motor/Servo Connector Assignments ===
+
+With the exception of the quadrocopter connections the "K" output pin assignments are as follows. The quadrocopter connections have been for the moment made to same as for UAVX.
+
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4_MultiWii_Outputs.JPG
