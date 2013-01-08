@@ -3,9 +3,13 @@
 
 == UAVXArm ==
 
-===November 2012===
+The UAVXArm32F4 Board is available *right now* from QuadroUFO: 
 
-Release. See [http://code.google.com/p/uavp-mods/wiki/UAVXArm32F4Startup].
+  [http://www.quadroufo.com/index.php?cPath=28&osCsid=p7clqph0gaebcfgjok17p59k15]
+
+Startup Wiki:
+
+  [http://code.google.com/p/uavp-mods/wiki/UAVXArm32F4Startup].
 
 ===August 2012 ===
 
@@ -18,12 +22,6 @@ Videos first and specifications etc below.
 ===Standalone Mode===
 
 <wiki:video url="http://www.youtube.com/watch?v=fUZlUUwVRLw&feature=player_embedded/>
-
-===Delivery===
-
-Available right now from QuadroUFO. Price - competitive ;).
-
-  http://www.quadroufo.com/index.php?cPath=28&osCsid=p7clqph0gaebcfgjok17p59k15
 
 === General Specifications ===
 
