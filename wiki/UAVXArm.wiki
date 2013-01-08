@@ -3,7 +3,7 @@
 
 == UAVXArm ==
 
-The UAVXArm32F4 Board is available *right now* from QuadroUFO: 
+The UAVXArm32F4 Board has been available since December 2012 from QuadroUFO: 
 
   [http://www.quadroufo.com/index.php?cPath=28&osCsid=p7clqph0gaebcfgjok17p59k15]
 
