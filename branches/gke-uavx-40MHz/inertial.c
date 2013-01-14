@@ -23,9 +23,9 @@
 #include "uavx.h"
 
 void CompensateRollPitchGyros(void);
-void CompensateYawGyro(void);
 void GetAttitude(void);
 void DoAttitudeAngles(void);
+void GyrosAndAccsTest(void);
 
 uint8 EffAccTrack;
 
@@ -38,11 +38,11 @@ void CompensateRollPitchGyros(void)
 	static uint8 a;
 	static AxisStruct *C;
 
-	if ( F.AccelerationsValid && F.AccelerometersEnabled ) 
+	if ( F.AccelerationsValid ) 
 	{
 		ReadAccelerations();
 
-		A[Yaw].Acc = A[Yaw].AccADC - A[Yaw].AccOffset; 
+		A[Yaw].Acc = A[Yaw].AccADC - A[Yaw].AccBias; 
 
 		for ( a = Roll; a<(uint8)Yaw; a++ )
 		{
@@ -50,7 +50,7 @@ void CompensateRollPitchGyros(void)
 			AbsAngle = Abs(C->Angle);
 			if ( AbsAngle < (30 * DEG_TO_ANGLE_UNITS) ) // ArcSin approximation holds
 			{	
-				C->Acc = C->AccADC - C->AccOffset; 
+				C->Acc = C->AccADC - C->AccBias; 
 				Grav = SRS32((int32)C->Angle * EffAccTrack, 8); 
 				Dyn = 0; //A[a].Rate;
 		
@@ -67,8 +67,7 @@ void CompensateRollPitchGyros(void)
 				C->DriftCorr = Limit1(NewCorr, ANGLE_COMP_STEP);
 			}
 			else
-				C->DriftCorr = 0;
-				
+				C->DriftCorr = 0;			
 		}
 	}	
 	else
@@ -80,35 +79,6 @@ void CompensateRollPitchGyros(void)
 	}
 
 } // CompensateRollPitchGyros
-
-
-void CompensateYawGyro(void) {
-	static int16 HE;
-
-	if ( F.CompassValid && F.NormalFlightMode )
-	{
-		// + CCW
-		if ( A[Yaw].Hold > COMPASS_MIDDLE ) // acquire new heading
-		{
-			DesiredHeading = Heading;
-			A[Yaw].DriftCorr = 0;
-		}
-		else
-			if ( F.NewCompassValue )
-			{
-				F.NewCompassValue = false;
-				HE = MinimumTurn(DesiredHeading - Heading);
-				HE = Limit1(HE, SIXTHMILLIPI); // 30 deg limit
-				A[Yaw].DriftCorr = SRS32((int24)HE * (int24)P[CompassKp], 7);
-				A[Yaw].DriftCorr = Limit1(A[Yaw].DriftCorr, YAW_COMP_LIMIT); // yaw gyro drift compensation
-			}		
-	}
-	else
-		A[Yaw].DriftCorr = 0;
-
-	A[Yaw].Rate -= A[Yaw].DriftCorr;
-
-} // CompensateYawGyro
 
 void DoAttitudeAngles(void)
 {	
@@ -141,11 +111,92 @@ void GetAttitude(void)
 	GetGyroValues();
 	CalculateGyroRates();
 	CompensateRollPitchGyros();
+#ifdef OLD_YAW
 	CompensateYawGyro();
+#endif
 	DoAttitudeAngles();
 } // GetAttitude
 
+#ifdef TESTING
 
+void GyrosAndAccsTest(void)
+{
+	static int16 Mag;
+
+	ReadAccelerations();
+	GetGyroValues();
+
+	TxString("\r\nGyros & Accelerometers test\r\n\r\nAccs: ");
+	ShowAccType();
+	if (F.AccelerationsValid) 
+		TxString(" (OK)"); 
+	else 
+		TxString(" (FAIL)");
+	TxString("\r\nGyros: ");
+	ShowGyroType(GyroType);
+	TxNextLine();
+
+	#ifdef INC_MPU6050
+	if ( AccType == MPU6050Acc ) 
+	{
+		TxString("\r\nDLPF: ");
+		if ((MPU6050DLPF >= MPU_RA_DLPF_BW_256) && (MPU6050DLPF
+						<= MPU_RA_DLPF_BW_5)) 
+		{
+			TxVal32(InertialLPFHz[MPU6050DLPF],0,0);
+			TxString("Hz");
+		} 
+		else
+			TxString("Unknown");
+		
+		TxString(" DHPF: ");
+		if ((MPU6050DHPF >= MPU_RA_DHPF_RESET) && (MPU6050DLPF
+						<= MPU_RA_DHPF_HOLD)) 
+			TxString(DHPFName[MPU6050DHPF]);
+		else
+			TxString("Unknown\r\n");
+		}
+	#endif
+	#ifdef INC_BMA180
+	if ( AccType == BMA180Acc )
+		ShowBMA180State();
+	#endif // INC_BMA180
+	
+	TxString("\r\nAccMag:\t");
+	Mag = int32sqrt(Sqr((int24)A[Roll].AccADC)+Sqr((int24)A[Pitch].AccADC)+Sqr((int24)A[Yaw].AccADC));
+	TxVal32((int32)Mag, 0, 0);
+	
+	TxString("\r\n\r\n\tRoll: \t");
+	TxVal32(A[Roll].GyroADC,0, HT);
+	TxChar('(');
+	TxVal32(A[Roll].GyroBias,0, ')');
+	TxString("\tL->R: \t");
+	TxVal32((int32)A[Roll].AccADC, 0, HT);
+	TxChar('(');
+	TxVal32((int32)A[Roll].AccBias, 0, ')');
+
+	TxString("\r\n\tPitch:\t");
+	TxVal32(A[Pitch].GyroADC,0, HT);
+	TxChar('(');
+	TxVal32(A[Pitch].GyroBias,0, ')');
+	TxString("\tF->B: \t");	
+	TxVal32((int32)A[Pitch].AccADC, 0, HT);
+	TxChar('(');
+	TxVal32((int32)A[Pitch].AccBias, 0, ')');	
+
+	TxString("\r\n\tYaw:  \t");
+	TxVal32(A[Yaw].GyroADC,0, HT);
+	TxChar('(');
+	TxVal32(A[Yaw].GyroBias,0, ')');
+	TxString("\tD->U:    \t");
+	
+	TxVal32((int32)A[Yaw].AccADC, 0, HT);
+	TxChar('(');
+	TxVal32((int32)A[Yaw].AccBias, 0, ')');	
+
+} // GyrosAndAccsTest
+
+#endif // TESTING
 
 
 

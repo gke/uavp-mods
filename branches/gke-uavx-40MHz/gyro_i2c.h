@@ -52,7 +52,6 @@ void BlockReadInvenSenseGyro(void)
 
 void InitInvenSenseGyro(void)
 {
-#ifndef INC_MPU6050
 	WriteI2CByteAtAddr(INV_ID,INV_PWR_M, 0x80);			// Reset to defaults
 	WriteI2CByteAtAddr(INV_ID,INV_SMPL, 0x00);			// continuous update
 	WriteI2CByteAtAddr(INV_ID,INV_INT_C, 0b00000000);	// no interrupts
@@ -60,7 +59,7 @@ void InitInvenSenseGyro(void)
 	WriteI2CByteAtAddr(INV_ID,INV_DLPF, 0b00011001);	// 188Hz, 2000deg/S
 
 	Delay1mS(50);
-#endif
+
 } // InitInvenSenseGyro
 
 boolean InvenSenseGyroActive(void) 

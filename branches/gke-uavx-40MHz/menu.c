@@ -41,18 +41,18 @@ const rom uint8 SerHello[] = "UAVX " Version
 const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	#ifdef TESTING
 
-	"A..Acc test\r\n"
+
 //	"B..Load UAVX hex file\r\n"
-	"C..Compass test\r\n"
-	"D..Load default param set\r\n"
-	"G..Gyro test\r\n"
-	"H..Baro/RF test\r\n"
+	"C..Comp/Mag test\r\n"
+	"D..Load default params\r\n"
+	"G..Gyro & Acc test\r\n"
+	"H..Baro & RF test\r\n"
 	"I..I2C bus scan\r\n"
-	"K..Cal Compass\r\n"
+	"K..Cal Comp/Mag\r\n"
 //	"M..Modify params\r\n"
+	"N..Cal Acc\r\n"
 	"P..Rx test\r\n"
-	"S..Setup\r\n"
-	"T..All LEDs and buzzer test\r\n"
+	"S..Show config\r\n"
 	"V..Battery test\r\n"
 	"X..Flight stats\r\n"
 	"Y..Program YGE I2C ESC\r\n"
@@ -61,7 +61,7 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 
 //	"B..Load UAVX hex file\r\n"
 	"D..Load default param set\r\n"
-	"S..Setup\r\n"
+	"S..Show config\r\n"
 	"V..Battery test\r\n"
 	"X..Flight stats\r\n"
 
@@ -91,9 +91,8 @@ void ShowRxSetup(void)
 } // ShowRxSetup
 
 #pragma idata airframenames
-const rom uint8 * AFName[AFUnknown+1] = {
-		"QUAD","TRI","VT","Y6","HELI","ELEV","AIL","Hexa","VTOL","Unknown"
-		};
+const rom uint8 * AFName[AFUnknown+1] = { "Tri", "Quad", "Hex", "Y6", "Oct",
+		"OctCoax", "Heli", "Elev", "Ail", "V", "VTOL", "Gimbal", "Unknown" };
 #pragma idata
 
 void ShowAFType(void)
@@ -107,8 +106,6 @@ void ShowSetup(void)
 
 	TxNextLine();
 	TxString(SerHello);
-
-	#ifndef MAKE_SPACE
 
 	TxString("\r\nClock: 40MHz");
 
@@ -137,9 +134,6 @@ void ShowSetup(void)
 		TxString("deg CW from K1 motor(s)");
 	#endif // MULTICOPTER
 
-	TxString("\r\nHint: ");
-	ShowGyroType(P[SensorHint]);
-
 	TxString("\r\nAccs: ");
 	ShowAccType();	
 
@@ -150,10 +144,10 @@ void ShowSetup(void)
 
 	TxString("\r\nCompass: ");
 	ShowCompassType();
-	if( F.CompassValid )
+	if(( F.MagnetometerValid) && ( CompassType != HMC6352Compass ))
 	{
 		TxString(" Offset ");
-		TxVal32((int16)P[CompassOffsetQtr] * 90,0,0);
+		TxVal32(COMPASS_OFFSET_QTR * 90,0,0);
 		TxString("deg.");
 	}
 
@@ -162,7 +156,7 @@ void ShowSetup(void)
 	if ( P[ESCType] != ESCPPM )
 	{
 		TxString(" {");
-		for ( i = 0; i < NO_OF_I2C_ESCS; i++ )
+		for ( i = 0; i < (uint8)NO_OF_I2C_ESCS; i++ )
 			if ( ESCI2CFail[i] )
 				TxString(" Fail");
 			else
@@ -176,8 +170,6 @@ void ShowSetup(void)
 		TxString("Tx Mode 2");
 	else
 		TxString("Tx Mode 1");
-
-	#endif 	// MAKE_SPACE
 
 	TxString("\r\nParam set: "); // must be exactly this string as UAVPSet expects it
 	TxChar('0' + ParamSet);	
@@ -227,7 +219,7 @@ void ShowSetup(void)
 	if ( ( AccType == AccUnknown ) || !F.AccelerationsValid )
 		TxString("\tAccs. FAIL\r\n");
 
-	if ( !F.CompassValid )
+	if ( !F.MagnetometerValid)
 		TxString("\tCompass OFFLINE\r\n");
 
 	if ( !F.Signal )
@@ -268,7 +260,16 @@ void ProcessCommand(void)
 					BootStart();		// never comes back!
 				}
 			case 'D':
-				UseDefaultParameters();
+				TxString("\r\nLoad default parameters - ");
+				TxString("Click CONTINUE to confirm or CANCEL\r\n");
+				do {
+					ch = PollRxChar();
+				} while ((ch != 'x') && (ch != 'z'));
+
+				if (ch == 'x')
+					UseDefaultParameters();
+				else
+					TxString("\r\nCancelled");
 				ShowPrompt();
 				break;
 			case 'L'  :	// List parameters
@@ -292,9 +293,15 @@ void ProcessCommand(void)
 				TxString(" = ");
 				dd = RxNumS();
 				d = Limit(dd, -128, 127);
-				PTemp[p] = d;
-				if ( ( p == (MAX_PARAMETERS-1)) && ( P[RollKp] != 0 ) )
+				if ( p == AFType)
+					PTemp[p] = AF_TYPE;
+				else
+					PTemp[p] = d;
+				
+				if ( ( p == (MAX_PARAMETERS-1)) && ( P[RollRateKp] != 0 ) )
 				{
+					PTemp[AFType] = AF_TYPE;
+					PTemp[IMU] = Wolferl;
 					for (p = 0; p<MAX_PARAMETERS;p++)
 						if( ParamSet == (uint8)1 )
 						{
@@ -314,18 +321,6 @@ void ProcessCommand(void)
 				LEDBlue_OFF;
 				ShowPrompt();
 				break;
-			case 'N' :	// neutral values
-				GetNeutralAccelerations();
-				TxString("\r\nNeutral    R:");
-				TxValS(A[Roll].AccBias);
-		
-				TxString("    P:");
-				TxValS(A[Pitch].AccBias);
-		
-				TxString("   V:");	
-				TxValS(A[Yaw].AccBias);
-				ShowPrompt();
-				break;
 			case 'Z' : // set Paramset
 				p = RxNumU();
 				if ( p != (int8)ParamSet )
@@ -340,16 +335,26 @@ void ProcessCommand(void)
 				//ShowPrompt();
 				break;
 			case 'R':	// receiver values
-				TxString("\r\nT:");TxValU(RC[ThrottleRC]);
-				TxString(",R:");TxValU(RC[RollRC]);
-				TxString(",P:");TxValU(RC[PitchRC]);
-				TxString(",Y:");TxValU(RC[YawRC]);
-				TxString(",5:");TxValU(RC[RTHRC]);
-				TxString(",6:");TxValU(RC[CamPitchRC]);
-				TxString(",7:");TxValU(RC[NavGainRC]);
-				TxString(",8:");TxValU(RC[Ch8RC]);
-				TxString(",9:");TxValU(RC[Ch9RC]);
-				TxString(",X:");TxValU(RC_MAXIMUM);
+				TxString("\r\nT:");
+				TxValS(Limit1(((int32)RC[ThrottleRC]*500)/RC_MAXIMUM,999));
+				TxString(",R:");
+				TxValS(Limit1(((int32)RC[RollRC]*500)/RC_MAXIMUM, 999));
+				TxString(",P:");
+				TxValS(Limit1(((int32)RC[PitchRC]*500)/RC_MAXIMUM,999));
+				TxString(",Y:");
+				TxValS(Limit1(((int32)RC[YawRC]*500)/RC_MAXIMUM, 999));
+				TxString(",5:");
+				TxValS(Limit1(((int32)RC[RTHRC]*500)/RC_MAXIMUM, 999));
+				TxString(",6:");
+				TxValS(Limit1(((int32)RC[CamPitchRC]*500)/RC_MAXIMUM, 999));
+				TxString(",7:");
+				TxValS(Limit1(((int32)RC[NavGainRC]*500)/RC_MAXIMUM, 999));
+				TxString(",8:");
+				TxValS(Limit1(((int32)RC[Ch8RC]*500)/RC_MAXIMUM, 999));
+				TxString(",9:");
+				TxValS(Limit1(((int32)RC[Ch9RC]*500)/RC_MAXIMUM, 999));
+				TxString(",X:");
+				TxValS(Limit1(0, 999));
 				ShowPrompt();
 				break;
 			case 'S' :	// show status
@@ -368,10 +373,6 @@ void ProcessCommand(void)
 				TxString(" device(s) found\r\n");
 				ShowPrompt();
 				break;
-			case 'A' :	// linear sensor
-				AccelerometerTest();
-				ShowPrompt();
-				break;
 			case 'C':
 				DoCompassTest();
 				ShowPrompt();
@@ -381,13 +382,17 @@ void ProcessCommand(void)
 				ShowPrompt();
 				break;
 			case 'G':	// gyro
-				GyroTest();
+				GyrosAndAccsTest();
 				ShowPrompt();
 				break;	
 			case 'K':
 				CalibrateCompass();
 				ShowPrompt();
-				break;			
+				break;	
+			case 'N' :	// neutral values
+				GetNeutralAccelerations();
+				ShowPrompt();
+				break;		
 			case 'P'  :	// Receiver test			
 				ReceiverTest();
 				ShowPrompt();
@@ -395,22 +400,6 @@ void ProcessCommand(void)
 
 			case 'Y':	// configure YGE30i EScs
 				ConfigureESCs();
-				ShowPrompt();
-				break;
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-				TxString("\r\nOutput test\r\n");
-				TxString("Test deleted - no space\r\n");
-				ShowPrompt();
-				break;
-			case 'T':
-				LEDsAndBuzzer();
 				ShowPrompt();
 				break;
 			#endif // TESTING

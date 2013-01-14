@@ -44,13 +44,15 @@ void DoI2CESCs(void)
 		ESCI2CFail[0] = r;
 		#endif // QUADROCOPTER | VTCOPTER
 		break;
+	#ifdef INC_LRCI2CESC
 	case ESCLRCI2C:
 		#ifdef QUADROCOPTER
 			T580ESCs(I2CESCLimit(PW[FrontC]), I2CESCLimit(PW[LeftC]), I2CESCLimit(PW[RightC]), I2CESCLimit(PW[BackC]));
 		#endif // QUADROCOPTER
 		break;
+	#endif
 	case ESCYGEI2C:
-		for ( m = 0 ; m < NO_OF_I2C_ESCS ; m++ )
+		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ )
 		{
 			ESCI2CStart();
 				r = WriteESCI2CByte(0x62 + ( m*2 ) ); // one cmd, one data byte per motor
@@ -60,7 +62,7 @@ void DoI2CESCs(void)
 		}
 		break;
  	case ESCHolger:
-		for ( m = 0 ; m < NO_OF_I2C_ESCS ; m++ )
+		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ )
 		{
 			ESCI2CStart();
 				r = WriteESCI2CByte(0x52 + ( m*2 )); // one command, one data byte per motor
@@ -76,6 +78,8 @@ void DoI2CESCs(void)
 } // DoI2CESCs
 
 // LotusRC T580 I2C ESCs
+
+#ifdef INC_LRCI2CESC
 
 enum T580States { T580Starting = 0, T580Stopping = 1, T580Constant = 2 };
 
@@ -145,7 +149,7 @@ void T580ESCs(uint8 f, uint8 l, uint8 r, uint8 b) {
 
 } // T580ESCs
 
-
+#endif // INC_LRCI2CESC
 
 
 

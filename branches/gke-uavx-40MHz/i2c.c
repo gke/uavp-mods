@@ -368,7 +368,6 @@ boolean ReadI2Ci16vAtAddr(uint8 d, uint8 cmd, int16 *v, uint8 l, boolean h) {
 				S[b] = ReadI2CByte(I2C_ACK);
 			else
 				S[b] = ReadI2CByte(I2C_NACK);
-
 		}
 	I2CStop();
 
@@ -499,44 +498,29 @@ void ShowI2CDeviceName(uint8 d) {
 
     TxChar(' ');
     switch ( d  ) {
-        case ADXL345_ID:
-            TxString("ADXL345 (SF-6&9DOF)");
-            break;
         case BMA180_ID_0x82:
             TxString("BMA180 Acc");
             break;
         case BMA180_ID_0x80:
             TxString("BMA180 Acc");
             break;
-        case INV_ID_3DOF:
-            TxString("ITG3200 Gyro (SF-3DOF/MPU6050)");
+#ifdef INC_MPU6050
+        case MPU6050_ID:
+            TxString("MPU6050");
+           break;
+		 case MS5611_ID:
+         	TxString("Bosch/MS  Baro");
             break;
-        case INV_ID_6DOF:
-            TxString("ITG3200 Gyro (SF-6&9DOF)");
+		 case HMC5883L_ID:
+         	TxString("HMC5883L Magnetometer");
             break;
-        case HMC58X3_3DOF:
-            TxString("HMC58X3 Mag");
-            break;
-        case HMC58X3_9DOF:
-            TxString("HMC58X3 Mag (SF-9DOF)");
-            break;
-    //    case MPU6050_ID:
-    //        TxString("MPU6050");
-    //        break;
-        case HMC6352_ID:
-            TxString("HMC6352 Compass");
-            break;
-        case ADS7823_ID:
-            TxString("ADS7823 ADC");
-            break;
-        case MCP4725_ID:
-            TxString("MCP4725 DAC");
-            break;
+#else   
         case BOSCH_ID:
             TxString("Bosch/MS  Baro");
             break;
-        case TMP100_ID:
-            TxString("TMP100 Temp");
+#endif // INC_MPU6050
+		case HMC6352_ID:
+			TxString("HMC6352 Compass");
             break;
         default:
             break;
@@ -636,7 +620,7 @@ void ConfigureESCs(void) {
 	if ( (int8)P[ESCType] == ESCYGEI2C )		
 	{
 		TxString("\r\nProgram YGE ESCs\r\n");
-		for ( m = 0 ; m < NO_OF_I2C_ESCS ; m++ )
+		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ )
 		{
 			TxString("Connect ONLY ");
 			switch( m ) {

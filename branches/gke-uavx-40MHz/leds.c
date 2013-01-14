@@ -31,7 +31,7 @@ near uint8 LEDShadow, LEDShadowp;
 
 uint8 SavedLEDs, LEDPattern = 0;
 boolean PrevHolding = false;
-const uint8 LEDChase[7] = {
+const rom uint8 LEDChase[7] = {
 		AUX1M,	
 		AUX2M,
 		AUX3M,
@@ -132,7 +132,7 @@ void LEDChaser(void)
 		else
 		{
 			RestoreLEDs();
-			if ( F.AccelerationsValid && F.AccelerometersEnabled )
+			if ( F.AccelerationsValid )
 				LEDYellow_ON;
 			else
 				LEDYellow_OFF;

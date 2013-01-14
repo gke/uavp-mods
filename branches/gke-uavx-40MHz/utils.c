@@ -33,6 +33,7 @@ int32 ProcLimit(int32, int32, int32);
 int16 DecayX(int16, int16);
 void InitSmooth16x816(int16x16Q * F);
 int16 Smooth16x16(int16x16Q *, int16);
+void Rotate(int32 * nx, int32 * ny, int32 x, int32 y, int16 A);
 
 int8 BatteryVolts;
 int16 BatteryVoltsADC, BatteryCurrentADC, BatteryVoltsLimitADC, BatteryCurrentADCEstimated, BatteryChargeUsedmAH;
@@ -333,11 +334,6 @@ int32 SlewLimit(int32 Old, int32 New, int32 Slew)
   return(( New < Low ) ? Low : (( New > High ) ? High : New));
 } // SlewLimit
 
-int32 Abs(int32 n)
-{
-	return(n<0 ? -n : n);
-} // Abs
-
 void InitSmooth16x16(int16x16Q * F) {
 	F->Prime = true;
 } // InitSmooth16x16
@@ -372,4 +368,34 @@ int16 Smooth16x16(int16x16Q * F, int16 v) {
 	return ( (int16)(SRS32(F->S, 4))); 
 
 } // Smooth16x16
+
+int16 SlewLimitLPFilter(int16 Old, int16 New, int16 Slew, int16 F,
+		int16 dT) {
+	// set slew to an "impossible" difference between samples
+	int16 r;
+	New = SlewLimit(Old, New, Slew);
+	r = Old + (New - Old) * dT / ((1 / (TWOMILLIPI * F)) + dT);
+
+	return (r);
+} // SlewLimitLPFilter
+
+void Rotate(int32 * nx, int32 * ny, int32 x, int32 y, int16 A) { // A is CW rotation
+	static int16 CosA, SinA;
+
+	CosA = int16cos(A);
+	SinA = int16sin(A);
+
+	*nx = SRS32(x * CosA + y * SinA, 8);
+	*ny = SRS32(-x * SinA + y * CosA, 8);
+} // Rotate
+
+void FastRotate(int16 * nx, int16 * ny, int16 x, int16 y, int8 O) { // O in 7.5deg
+	static int16 OSO, OCO;
+
+	OSO = OSin[O];
+	OCO = OCos[O];
+
+	*nx = SRS32((int32)x * OCO + (int32)y * OSO, 8);
+	*ny = SRS32(-(int32)x *OSO + (int32)y * OCO, 8);
+} // FastRotate
 

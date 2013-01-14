@@ -23,9 +23,9 @@
 #include "uavx.h"
 
 void DoShutdown(void);
-void DecayNavCorr(uint8);
+void DecayNavCorr(void);
 void DoCompScaling(void);
-void Navigate(int32, int32);
+void Navigate(int24 DesiredNorth, int24 DesiredEast);
 void SetDesiredAltitude(int24);
 void DoFailsafeLanding(void);
 void AcquireHoldPosition(void);
@@ -37,17 +37,11 @@ void GetWayPointEE(int8);
 void InitNavigation(void);
 
 #pragma udata nav_vars
-int32 NavScale[2];
-int16 NavSlewLimit;
-boolean NavNotSaturated[2];
+NavStruct Nav;
 #pragma udata
 
 boolean StartingNav = true;
 int16 DescentComp;
-
-#ifdef SIMULATE
-int16 FakeMagHeading;
-#endif // SIMULATE
 
 #pragma udata uavxnav_waypoints
 typedef union { 
@@ -82,7 +76,7 @@ uint8 BufferEE[256];
 		
 uint8 	CurrWP;
 int8 	NoOfWayPoints;
-int16	WPAltitude;
+int24	WPAltitude;
 int32 	WPLatitude, WPLongitude;
 int24 	WPLoiter;
 int16	WayHeading;
@@ -90,7 +84,13 @@ int16	WayHeading;
 int16 	NavProximityRadius, NavNeutralRadius, NavProximityAltitude;
 uint24 	NavRTHTimeoutmS;
 
+int16	NavKpPos, NavKpVel, NavMaxVelocitydMpS;
+
+int24 	NavdT;
+int24	NorthE, EastE;
 int16 	NavSensitivity, RollPitchMax;
+int16 	NavSlewLimit;
+int16	NavYawLimiter;
 
 void DoShutdown(void)
 {
@@ -112,19 +112,13 @@ void DoShutdown(void)
 		CheckTelemetry();
 		CheckAlarms();
 	}
-
 } // DoShutdown
 
-void DecayNavCorr(uint8 d)
+void DecayNavCorr(void)
 {
-	A[Roll].NavCorr = DecayX(A[Roll].NavCorr, d);
-	A[Pitch].NavCorr = DecayX(A[Pitch].NavCorr, d);
-
-	A[Roll].NavIntE = A[Pitch].NavIntE = 0;
-
+	A[Roll].NavCorr = DecayX(A[Roll].NavCorr, 5);
+	A[Pitch].NavCorr = DecayX(A[Pitch].NavCorr, 5);
 	A[Yaw].NavCorr = 0;
-		
-	StartingNav = true;
 } // DecayNavCorr
 
 void SetDesiredAltitude(int24 NewDesiredAltitude) // cm
@@ -138,37 +132,43 @@ void SetDesiredAltitude(int24 NewDesiredAltitude) // cm
 void FailsafeHoldPosition(void)
 {
 	A[Roll].Desired = A[Pitch].Desired = A[Yaw].Desired = 0;
-	if ( F.GPSValid && F.CompassValid && F.AccelerationsValid ) 
-		Navigate(HoldLatitude, HoldLongitude);
+	if ( F.GPSValid && F.MagnetometerValid && F.AccelerationsValid ) 
+		Navigate(0, 0);
 } // FailsafeHoldPosition
 
 void DoFailsafeLanding(void)
 { // InTheAir micro switch RC0 Pin 11 to ground when landed
 
 	SetDesiredAltitude(-200);
-	if ( F.BaroAltitudeValid )
-	{
-		if ( Altitude > LAND_CM )
-			mS[NavStateTimeout] = mSClock() + NAV_RTH_LAND_TIMEOUT_MS;
 
-		if ( !InTheAir || (( mSClock() > mS[NavStateTimeout] ) 
-			&& ( F.ForceFailsafe || ( NavState == Touchdown ) || (FailState == Terminated))) )
-			DoShutdown();
-		else
-			DesiredThrottle = CruiseThrottle;
-	}
-	else
-	{
-		DesiredThrottle = CruiseThrottle - DescentComp;
-		if ( mSClock() > mS[DescentUpdate] )
+	#ifdef NAV_WING
+
+
+	#else
+		if ( F.BaroAltitudeValid )
 		{
-			mS[DescentUpdate] = mSClock() + ALT_DESCENT_UPDATE_MS;
-			if ( DesiredThrottle < IdleThrottle )
+			if ( Altitude > LAND_CM )
+				mS[NavStateTimeout] = mSClock() + NAV_RTH_LAND_TIMEOUT_MS;
+	
+			if ( !InTheAir || (( mSClock() > mS[NavStateTimeout] ) 
+				&& ( F.ForceFailsafe || ( NavState == Touchdown ) || (FailState == Terminated))) )
 				DoShutdown();
 			else
-				DescentComp += ALT_DESCENT_STEP;		
+				DesiredThrottle = CruiseThrottle;
 		}
-	}
+		else
+		{
+			DesiredThrottle = CruiseThrottle - DescentComp;
+			if ( mSClock() > mS[DescentUpdate] )
+			{
+				mS[DescentUpdate] = mSClock() + ALT_DESCENT_UPDATE_MS;
+				if ( DesiredThrottle < IdleThrottle )
+					DoShutdown();
+				else
+					DescentComp += ALT_DESCENT_STEP;		
+			}
+		}
+	#endif // NAV_WING
 
 } // DoFailsafeLanding
 
@@ -184,209 +184,125 @@ void AcquireHoldPosition(void)
 	A[Pitch].NavCorr = A[Roll].NavCorr = A[Yaw].NavCorr =  0;
 	F.NavComputed = false;
 
-	HoldLatitude = GPSLatitude;
-	HoldLongitude = GPSLongitude;
+	Nav.C[NorthC].Desired = Nav.C[NorthC].Pos;
+	Nav.C[EastC].Desired = Nav.C[EastC].Pos;
+
 	F.WayPointAchieved = F.WayPointCentred = F.AcquireNewPosition = false;
 
 	NavState = HoldingStation;
 } // AcquireHoldPosition
 
-
-void DoCompScaling(void)
-{
-	if ( Abs(A[Roll].NavPosE) > Abs(A[Pitch].NavPosE) ) // expensive but gives straight path.
-	{
-		NavScale[Pitch] = (A[Pitch].NavPosE * 256) / A[Roll].NavPosE;
-		NavScale[Pitch] = Abs(NavScale[Pitch]);
-		NavScale[Roll] = 256;
-	}
-	else
-	{
-		NavScale[Roll] = (A[Roll].NavPosE * 256) / A[Pitch].NavPosE;
-		NavScale[Roll] = Abs(NavScale[Roll]);
-		NavScale[Pitch] = 256;
-	}		
-} // DoCompScaling
-
 #endif // !TESTING
 
-void Navigate(int32 NavLatitude, int32 NavLongitude ) {
-	// 0.8mS @ 40MHz
+int16 RelHeading;
+int16 EffNavSensitivity;
 
+void CalculateYawCorr(void) {
+	static int16 NewCorr;
+			
+	NewCorr = -SRS32((int32)RelHeading * EffNavSensitivity, 8);
+	NewCorr = Limit1(NewCorr, A[Yaw].Limiter);
+	if (Sign(A[Yaw].NavCorr) != Sign(NewCorr))
+		A[Yaw].NavCorr = 0;
+	A[Yaw].NavCorr = SlewLimit(A[Yaw].NavCorr, NewCorr, 2);
+} // DoYawCorr
+
+void Navigate(int24 DesiredNorth, int24 DesiredEast) {
 	// F.GPSValid must be true immediately prior to entry	
 	// This routine does not point the quadrocopter at the destination
 	// waypoint. It simply rolls/pitches towards the destination
 	// cos/sin/arctan lookup tables are used for speed.
 	// BEWARE magic numbers for integer arithmetic
 
-	static uint8 a;
-
 	#ifndef TESTING // not used for testing - make space!
 
-	static int16 NavAttitudeLimit, EffNavSensitivity;
-	static int16 RelHeading;
-    static int24 AltE;
-	static int32 MaxDiff, Diff, LongitudeDiff, LatitudeDiff;
-	static int32 SinHeading, CosHeading, NavP, NavI, NavD;
-	static i32u Temp;
-	static i24u Temp24;
+	static uint32 NowmS;
+	static int16 AltE, DistE, VelE, DesiredVel;
 	static int16 NewCorr;
-	static int32 NavPosEp[2];
-	static AxisStruct *C;
 
-	SpareSlotTime = false;
-	
-	EffNavSensitivity = NavSensitivity - NAV_SENS_THRESHOLD;
-	
-	Temp24.i24 = (int24)EffNavSensitivity * NAV_MAX_ROLL_PITCH;
-	NavAttitudeLimit = Temp24.i2_1; //  ~ divide by RC_MAXIMUM
-	NavAttitudeLimit = Limit(NavAttitudeLimit, 0, NAV_MAX_ROLL_PITCH);
-	
-	DesiredLatitude = NavLatitude; // for telemetry tracking
-	DesiredLongitude = NavLongitude;
-	
-	LongitudeDiff = SRS32((DesiredLongitude - GPSLongitude) * GPSLongitudeCorrection, 8);
-	LatitudeDiff = DesiredLatitude - GPSLatitude;
-	
-	WayHeading = Make2Pi(int32atan2((int32)LongitudeDiff, (int32)LatitudeDiff));
-	
-	MaxDiff = Max(Abs(LongitudeDiff), Abs(LatitudeDiff));
-	if ( MaxDiff < NavProximityRadius )
+	static uint8 a;
+
+	NowmS = mSClock();
+	NavdT = NowmS - mS[LastNavUpdate];
+	mS[LastNavUpdate] = NowmS;
+
+	EffNavSensitivity = (NavSensitivity - NAV_SENS_THRESHOLD);
+	EffNavSensitivity = Limit(EffNavSensitivity, 0, 256);
+
+	Nav.C[NorthC].Desired = DesiredNorth; // for telemetry tracking
+	Nav.C[EastC].Desired = DesiredEast;
+
+	for (a = NorthC; a <= EastC; a++)
+		Nav.C[a].PosE = Nav.C[a].Desired - Nav.C[a].Pos;
+
+	WayHeading = int32atan2(Nav.C[EastC].PosE, Nav.C[NorthC].PosE);
+
+	DistE = int32sqrt(Sqr(Nav.C[EastC].PosE) + Sqr(Nav.C[NorthC].PosE));
+
+	if (DistE < NavProximityRadius) 
 	{
 		AltE = DesiredAltitude - Altitude;
-		F.WayPointAchieved =  Abs(AltE) < NavProximityAltitude;
-		F.WayPointCentred = MaxDiff < NavNeutralRadius;
-	}
+		F.WayPointAchieved = Abs(AltE) < NavProximityAltitude;
+		F.WayPointCentred = DistE < NavNeutralRadius;
+	} 
 	else
 		F.WayPointAchieved = F.WayPointCentred = false;
-	
-	if ( F.AttitudeHold && ( NavSensitivity > NAV_SENS_THRESHOLD ) && !F.WayPointCentred )
+
+	if ((EffNavSensitivity > 0) && (DistE > 0) && !F.WayPointCentred
+			&& F.AttitudeHold) 
 	{
-			if ( StartingNav )
-			{
-				A[Roll].NavIntE = NavPosEp[Roll] = 0;
-				A[Pitch].NavIntE = NavPosEp[Pitch] = 0;
-			}
-			else
-			{
-				NavPosEp[Roll] = A[Roll].NavPosE;
-				NavPosEp[Pitch] = A[Pitch].NavPosE;
-			}
+		RelHeading = MakePi(WayHeading - Heading); // make +/- Pi
 
-		StartingNav = false;
-
-		SinHeading = int16sin(Heading);
-		CosHeading = int16cos(Heading);
-
-		A[Roll].NavPosE = SRS32(-LatitudeDiff * SinHeading + LongitudeDiff * CosHeading, 8);		
-		A[Pitch].NavPosE = SRS32(-LatitudeDiff * CosHeading - LongitudeDiff * SinHeading, 8);
-	
 		#ifdef NAV_WING
-			
-			A[Pitch].NavCorr = 0; 
-			// Just use simple rudder only for now.
-			if ( !F.WayPointAchieved )
+			if (!F.WayPointAchieved) 
 			{
-				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
-				A[Yaw].NavCorr = -SRS16(RelHeading, 4); // ~1deg
-				A[Yaw].NavCorr = Limit1(A[Yaw].NavCorr, (int16)P[NavYawLimit]); // gently!
-				//zzz Roll as well at 25%
+				CalculateYawCorr();
+				A[Roll].NavCorr = -A[Yaw].NavCorr;
+				A[Pitch].NavCorr = 0;
 			}
-	
-		#else // MULTICOPTER
-	
-			// revert to original simpler version from UAVP->UAVX transition
-				
-			// Roll & Pitch
-	
-			if ( MaxDiff > NAV_CLOSING_RADIUS )
-				DoCompScaling();
-	
-			for ( a = Roll; a<=(uint8)Pitch ; a++ )
-			{
-				C = &A[a];
-				if ( MaxDiff > NAV_CLOSING_RADIUS )
-				{
-					NavP = SRS32(Sign(C->NavPosE) * NavAttitudeLimit * NavScale[a], 8);
-				}
-				else
-				{
-					NavP = Limit1(C->NavPosE, NAV_CLOSING_RADIUS) * NavAttitudeLimit;  
-					NavP = SRS32(NavP, NAV_CLOSING_RADIUS_SHIFT); // shift is the effective closing radius in GPS units
-				}
-	
-				#ifdef USE_BACK_INT_LIMIT
-	
-					if ( NavNotSaturated[a] )
-					{
-						C->NavIntE += NavP;
-						C->NavIntE = Limit1(C->NavIntE,(int16)P[NavIntLimit]);	
-					}
-					else
-						DecayX(C->NavIntE,1);
-	
-				#else
+		#else
+			DesiredVel = Limit1(DistE * NavKpPos, NavMaxVelocitydMpS);
+			VelE = DesiredVel - GPSVel;
+			NewCorr = SRS32((int32)VelE * NavKpVel * EffNavSensitivity, 9);
+			NewCorr = Limit1(NewCorr, NAV_MAX_ROLL_PITCH);
+			Nav.Corr = SlewLimit(Nav.Corr, NewCorr, NavSlewLimit);
 
-					C->NavIntE += NavP;
-					C->NavIntE = Limit1(C->NavIntE,(int16)P[NavIntLimit]);	
-	
-				#endif // USE_BACK_INT_LIMIT
+			A[Pitch].NavCorr = -SRS32((int32)Nav.Corr * int16cos(RelHeading), 8);
+			A[Roll].NavCorr = SRS32((int32)Nav.Corr * int16sin(RelHeading), 8); 
 
-				NavI = SRS32(C->NavIntE * (int16)P[NavKi], 4);
-
-				// If we are doing a sustained rapid yaw the velocity will not make sense		
-				Diff = C->NavPosE - NavPosEp[a];
-				C->NavVel = MediumFilter((int32)C->NavVel, Diff);
-				NavD = SRS32(C->NavVel * (int16)P[NavKd], 6);
-				NavD = Limit1(NavD, NavAttitudeLimit);
-	
-				NewCorr = NavP + NavI - NavD;
-	
-				NewCorr = SlewLimit(C->NavCorr, NewCorr, NavSlewLimit);
-				C->NavCorr = Limit1(NewCorr, NavAttitudeLimit);
-				NavNotSaturated[a] = C->NavCorr == NewCorr;					
-			}
-		
 			// Yaw
-			if ( F.AllowTurnToWP && !F.WayPointAchieved )
-			{
-				RelHeading = MakePi(WayHeading - Heading); // make +/- MilliPi
-				NewCorr = -SRS16(RelHeading, 4); // ~1deg
-				NewCorr = SlewLimit(A[Yaw].NavCorr, NewCorr, NavSlewLimit);
-				A[Yaw].NavCorr = Limit1(NewCorr, (int16)P[NavYawLimit]); // gently!
-			}
+			if (F.AllowTurnToWP && !F.WayPointAchieved) 
+				CalculateYawCorr();
 			else
 				A[Yaw].NavCorr = 0;
-	
 		#endif // NAV_WING
-	}	
-	else
+
+	} else
 	#endif // !TESTING
-		DecayNavCorr(6);
+		DecayNavCorr();
 
 	F.NavComputed = true;
 
 } // Navigate
 
-
 void DoNavigation(void)
 {
 	#ifndef TESTING // not used for testing - make space!
 
-	F.NavigationActive = F.GPSValid && F.CompassValid && F.AccelerationsValid && ( mSClock() > mS[NavActiveTime]);
-
+	F.NavigationActive = F.GPSValid && F.MagnetometerValid && F.AccelerationsValid && ( mSClock() > mS[NavActiveTime]);
+	
 	if ( F.NavigationActive )
 	{
 		F.LostModel = F.ForceFailsafe = false;
 
-		if (( !F.NavComputed ) && SpareSlotTime )
+		if (( !F.NavComputed ) && SpareSlotTime ) 
 			switch ( NavState ) { // most frequent case last - switches in C18 are IF chains not branch tables!
 			case Touchdown:
-				Navigate(OriginLatitude, OriginLongitude);
+				Navigate(0, 0);
 				DoFailsafeLanding();
 				break;
 			case Descending:
-				Navigate( OriginLatitude, OriginLongitude );
+				Navigate( 0, 0 );
 				if ( F.ReturnHome || F.Navigate )
 				#ifdef NAV_WING
 				{
@@ -404,30 +320,35 @@ void DoNavigation(void)
 					AcquireHoldPosition();
 				break;
 			case AtHome:
-				Navigate(OriginLatitude, OriginLongitude);
+				Navigate(0, 0);
 
 				if ( F.ReturnHome || F.Navigate )
-					if ( F.WayPointAchieved ) // check still @ Home
-					{
-						if ( F.UsingRTHAutoDescend && ( mSClock() > mS[NavStateTimeout] ) )
-						{
-							mS[NavStateTimeout] = mSClock() + NAV_RTH_LAND_TIMEOUT_MS;
-							NavState = Descending;
-						}
-					}
+					if ( F.WayPointAchieved ) { // check still @ Home
+						#ifdef NAV_WING
+							
+							// no automatic landing zzz
+							
+						#else
+							if ( F.UsingRTHAutoDescend && ( mSClock() > mS[NavStateTimeout] ) )
+							{
+								mS[NavStateTimeout] = mSClock() + NAV_RTH_LAND_TIMEOUT_MS;
+								NavState = Descending;
+							}
+						#endif // NAV_WING
+					}		
 					else
 						NavState = ReturningHome;
 				else
 					AcquireHoldPosition();
 				break;
 			case ReturningHome:		
-				Navigate(OriginLatitude, OriginLongitude);				
+				Navigate(0, 0);				
 				if ( F.ReturnHome || F.Navigate ) 
 				{
 					if ( F.WayPointAchieved )
 					{
 						mS[NavStateTimeout] = mSClock() + NavRTHTimeoutmS;
-						SetDesiredAltitude((int16)P[NavRTHAlt]*100);			
+						SetDesiredAltitude(RTHAltitude);			
 						NavState = AtHome;
 					}	
 				}
@@ -442,13 +363,13 @@ void DoNavigation(void)
 						if ( CurrWP == NoOfWayPoints )
 						{
 							CurrWP = 1;
-							SetDesiredAltitude((int16)P[NavRTHAlt]*100);
+							SetDesiredAltitude(RTHAltitude);
 							NavState = ReturningHome;	
 						}
 						else
 						{
 							GetWayPointEE(++CurrWP); 
-							SetDesiredAltitude(WPAltitude*100);	
+							SetDesiredAltitude(WPAltitude);	
 							NavState = Navigating;
 						}
 				}
@@ -462,7 +383,7 @@ void DoNavigation(void)
 					if ( F.WayPointAchieved )
 					{
 						mS[NavStateTimeout] = mSClock() + WPLoiter;
-						SetDesiredAltitude(WPAltitude*100);
+						SetDesiredAltitude(WPAltitude);
 						NavState = Loitering;
 					}		
 				}
@@ -470,47 +391,53 @@ void DoNavigation(void)
 					AcquireHoldPosition();					
 				break;
 			case HoldingStation:
-				if ( F.AttitudeHold )
-				{		
-					if ( F.AcquireNewPosition && !( F.Ch5Active & F.UsingPositionHoldLock ) )
-					{
-						F.AllowTurnToWP = SaveAllowTurnToWP;
-						AcquireHoldPosition();
-						#ifdef NAV_ACQUIRE_BEEPER
-						if ( !F.BeeperInUse )
+				#ifdef NAV_WING
+
+					// no orbit for fixed wing!!!
+
+				#else 
+					if ( F.AttitudeHold )
+					{		
+						if ( F.AcquireNewPosition && !( F.Ch5Active & F.UsingPositionHoldLock ) )
 						{
-							mS[BeeperTimeout] = mSClock() + 500L;
-							Beeper_ON;				
-						} 
-						#endif // NAV_ACQUIRE_BEEPER
-					}	
-				}
-				else
-					F.AcquireNewPosition = true;
-					
-				Navigate(HoldLatitude, HoldLongitude);
+							F.AllowTurnToWP = SaveAllowTurnToWP;
+							AcquireHoldPosition();
+							#ifdef NAV_ACQUIRE_BEEPER
+							if ( !F.BeeperInUse )
+							{
+								mS[BeeperTimeout] = mSClock() + 500L;
+								Beeper_ON;				
+							} 
+							#endif // NAV_ACQUIRE_BEEPER
+						}	
+					}
+					else
+						F.AcquireNewPosition = true;
+						
+					Navigate(Nav.C[NorthC].Desired, Nav.C[EastC].Desired);
+				#endif
 			
 				if ( F.NavValid ) // zzz && F.NearLevel )  // Origin must be valid for ANY navigation!
 				{
 					if ( F.Navigate )
 					{
 						GetWayPointEE(CurrWP); // resume from previous WP
-						SetDesiredAltitude(WPAltitude*100);
+						SetDesiredAltitude(WPAltitude);
 						NavState = Navigating;
 					}
 					else
 						if ( F.ReturnHome )
 						{
-							SetDesiredAltitude((int16)P[NavRTHAlt]*100);
+							SetDesiredAltitude(RTHAltitude);
 							NavState = ReturningHome;
 						}
 				}
 				else
 					if ( F. ReturnHome )
 					{ // force a false origin
-						OriginLatitude = HoldLatitude;
-						OriginLongitude = HoldLongitude;
-						SetDesiredAltitude((int16)P[NavRTHAlt]*100);
+					//zzz	OriginLatitude = Nav.C[NorthC].Desired;
+					//	OriginLongitude = Nav.C[EastC].Desired;
+						SetDesiredAltitude(RTHAltitude);
 						NavState = AtHome;
 					}										
 				break;
@@ -522,15 +449,14 @@ void DoNavigation(void)
 			DoForcedFailsafe();
 	#endif // ENABLE_STICK_CHANGE_FAILSAFE
 		else 
-			DecayNavCorr(6);
+			DecayNavCorr();
 
 	F.NewCommands = false;	// Navigate modifies Desired Roll, Pitch and Yaw values.
 
 	#endif // !TESTING
 } // DoNavigation
 
-void CheckFailsafeAbort(void)
-{
+void CheckFailsafeAbort(void) {
 
 	#ifndef TESTING
 
@@ -571,7 +497,7 @@ void DoFailsafe(void)
 		case Aborting:
 			FailsafeHoldPosition();
 			F.AltHoldEnabled = true;
-			SetDesiredAltitude((int16)P[NavRTHAlt]*100);
+			SetDesiredAltitude(RTHAltitude);
 			if( mSClock() > mS[NavStateTimeout] )
 			{
 				F.LostModel = true;
@@ -601,7 +527,7 @@ void DoFailsafe(void)
 			{
 				// use last "good" throttle
 				Stats[RCFailsafesS]++;
-				if ( F.GPSValid && F.CompassValid && F.AccelerationsValid )
+				if ( F.GPSValid && F.MagnetometerValid && F.AccelerationsValid )
 					mS[NavStateTimeout] = mSClock() + ABORT_TIMEOUT_GPS_MS;
 				else
 					mS[NavStateTimeout] = mSClock() + ABORT_TIMEOUT_NO_GPS_MS;
@@ -703,9 +629,9 @@ void GetWayPointEE(int8 wp)
 		CurrWP = wp = 0;
 	if ( wp == 0 ) 
 	{  // force to Origin
-		WPLatitude = OriginLatitude;
-		WPLongitude = OriginLongitude;
-		WPAltitude = (int16)P[NavRTHAlt];
+		WPLatitude = 0;
+		WPLongitude = 0;
+		WPAltitude = RTHAltitude;
 		WPLoiter = 30000; // mS
 	}
 	else
@@ -713,7 +639,7 @@ void GetWayPointEE(int8 wp)
 		w = NAV_WP_START + (wp-1) * WAYPOINT_REC_SIZE;
 		WPLatitude = Read32EE(w + 0);
 		WPLongitude = Read32EE(w + 4);			
-		WPAltitude = Read16EE(w + 8);
+		WPAltitude = (int24)Read16EE(w + 8) * 100;
 
 		#ifdef NAV_ENFORCE_ALTITUDE_CEILING
 		if ( WPAltitude > NAV_CEILING )
@@ -732,30 +658,27 @@ void InitNavigation(void)
 {
 	static uint8 a;
 
-	HoldLatitude = HoldLongitude = WayHeading = 0;
-	for ( a = Roll; a<=(uint8)Pitch; a++ )
-	{
-		NavNotSaturated[a] = true;			
-		A[a].NavCorr = A[a].NavIntE = 0;
-	}
+	WayHeading = 0;
+	for ( a = Roll; a<=(uint8)Pitch; a++ )		
+		A[a].NavCorr = 0;
 	A[Yaw].NavCorr = 0;
 
+	SetDesiredAltitude(0);
 	NavState = HoldingStation;
 	AttitudeHoldResetCount = 0;
 	CurrMaxRollPitch = 0;
 	F.WayPointAchieved = F.WayPointCentred = false;
-	F.NavComputed = false;
-
+	F.NavComputed = false;
 //	if ( ReadEE(NAV_NO_WP) <= 0 )
 	{
-		NavProximityRadius = ConvertMToGPS(NAV_PROXIMITY_RADIUS); 
+		NavProximityRadius = NAV_PROXIMITY_RADIUS * 10L; 
 		NavProximityAltitude = NAV_PROXIMITY_ALTITUDE * 10L; // Decimetres
 	}
 /* zzz
 	else
 	{
 		// need minimum values in UAVXNav?
-		NavProximityRadius = ConvertMToGPS(ReadEE(NAV_PROX_RADIUS));
+		NavProximityRadius = ReadEE(NAV_PROX_RADIUS) * 10L;
 		NavProximityAltitude = ReadEE(NAV_PROX_ALT) * 10L; // Decimetres
 	}
 */

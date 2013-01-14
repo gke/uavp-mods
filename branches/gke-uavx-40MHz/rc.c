@@ -90,7 +90,11 @@ void MapRC(void) {  // re-maps captured PPM to Rx channel sequence
 
 void CheckSticksHaveChanged(void)
 {
-	#ifndef TESTING
+	#ifdef TESTING
+
+	F.ForceFailsafe = false;
+
+	#else
 
 	static uint32 Now;
 	static boolean Change;
@@ -152,10 +156,6 @@ void CheckSticksHaveChanged(void)
 	else
 		F.ForceFailsafe = false;
 
-	#else
-
-	F.ForceFailsafe = false;
-
 	#endif // ENABLE_STICK_CHANGE_FAILSAFE
 
 } // CheckSticksHaveChanged
@@ -175,7 +175,7 @@ void UpdateControls(void)
 	// Navigation
 
 	F.ReturnHome = F.Navigate = false;
-	NewCh5Active = RC[RTHRC] > RC_NEUTRAL;
+	NewCh5Active = RC[RTHRC] > (RC_MAXIMUM/3L);
 
 	if ( F.UsingPositionHoldLock )
 		if ( NewCh5Active && !F.Ch5Active )
@@ -184,39 +184,22 @@ void UpdateControls(void)
 			F.AllowTurnToWP = SaveAllowTurnToWP;
 	else
 		if ( RC[RTHRC] > ((2L*RC_MAXIMUM)/3L) )
-			#ifdef FORCE_NAV
-				F.Navigate = true;
-			#else
-				F.ReturnHome = true;
-			#endif // FORCE_NAV
+			F.ReturnHome = true;
 		else
-			if ( RC[RTHRC] > (RC_NEUTRAL/3L) )
+			if ( RC[RTHRC] > (RC_MAXIMUM/3L) )
 				F.Navigate = true;
 	
 	F.Ch5Active = NewCh5Active;
 
 	if ( NoOfControls < (uint8)7 )
-	{
 		DesiredCamPitchTrim = RC_NEUTRAL;
 		// NavSensitivity set in ReadParametersEE
-		F.AccelerometersEnabled = true;
-	}
 	else
 	{
 		DesiredCamPitchTrim = RC[CamPitchRC] - RC_NEUTRAL;
 		NavSensitivity = RC[NavGainRC];
 		NavSensitivity = Limit(NavSensitivity, 0, RC_MAXIMUM);
-	
-		if ( F.NormalFlightMode )
-		{
-			F.AccelerometersEnabled = true;
-			F.AltHoldEnabled = NavSensitivity > NAV_SENS_ALTHOLD_THRESHOLD;
-		}
-		else
-		{
-			F.AccelerometersEnabled = NavSensitivity > (RC_MAXIMUM/4);
-			F.AltHoldEnabled = NavSensitivity > RC_NEUTRAL;
-		}
+		F.AltHoldEnabled = NavSensitivity > NAV_SENS_ALTHOLD_THRESHOLD;
 	}
 
 	//_________________________________________________________________________________________

@@ -195,69 +195,68 @@ void high_isr_handler(void)
 		else
 		{ // PollGPS in-lined to avoid EXPENSIVE context save and restore within irq
 			RxCh = RCREG;
-			if ( F.NormalFlightMode )
-				switch ( RxState ) {
-				case WaitCheckSum:
-					if (GPSCheckSumChar < (uint8)2)
-					{
-						GPSTxCheckSum *= 16;
-						if ( RxCh >= 'A' )
-							GPSTxCheckSum += ( RxCh - ('A' - 10) );
-						else
-							GPSTxCheckSum += ( RxCh - '0' );
+			switch ( RxState ) {
+			case WaitCheckSum:
+				if (GPSCheckSumChar < (uint8)2)
+				{
+					GPSTxCheckSum *= 16;
+					if ( RxCh >= 'A' )
+						GPSTxCheckSum += ( RxCh - ('A' - 10) );
+					else
+						GPSTxCheckSum += ( RxCh - '0' );
 			
-						GPSCheckSumChar++;
+					GPSCheckSumChar++;
+				}
+				else
+				{
+					NMEA.length = ll;	
+					F.PacketReceived = GPSTxCheckSum == RxCheckSum;
+					RxState = WaitSentinel;
+				}
+				break;
+			case WaitBody: 
+				if ( RxCh == '*' )      
+				{
+					GPSCheckSumChar = GPSTxCheckSum = 0;
+					RxState = WaitCheckSum;
+				}
+				else         
+					if ( RxCh == '$' ) // abort partial Sentence 
+					{
+						ll = tt = RxCheckSum = 0;
+						RxState = WaitTag;
 					}
 					else
 					{
-						NMEA.length = ll;	
-						F.PacketReceived = GPSTxCheckSum == RxCheckSum;
-						RxState = WaitSentinel;
+						RxCheckSum ^= RxCh;
+						NMEA.s[ll++] = RxCh; 
+						if ( ll > (uint8)( GPSRXBUFFLENGTH-1 ) )
+							RxState = WaitSentinel;
 					}
-					break;
-				case WaitBody: 
-					if ( RxCh == '*' )      
+							
+				break;
+			case WaitTag:
+	           	RxCheckSum ^= RxCh;
+	           	while ( ( RxCh != (uint8)NMEATags[ss][tt] ) && ( ss < (uint8)MAX_NMEA_SENTENCES ) ) ss++;
+	        	if ( RxCh == NMEATags[ss][tt] )
+	               	if ( tt == (uint8)NMEA_TAG_INDEX ) 
 					{
-						GPSCheckSumChar = GPSTxCheckSum = 0;
-						RxState = WaitCheckSum;
-					}
-					else         
-						if ( RxCh == '$' ) // abort partial Sentence 
-						{
-							ll = tt = RxCheckSum = 0;
-							RxState = WaitTag;
-						}
-						else
-						{
-							RxCheckSum ^= RxCh;
-							NMEA.s[ll++] = RxCh; 
-							if ( ll > (uint8)( GPSRXBUFFLENGTH-1 ) )
-								RxState = WaitSentinel;
-						}
-								
-					break;
-				case WaitTag:
-	            	RxCheckSum ^= RxCh;
-	            	while ( ( RxCh != (uint8)NMEATags[ss][tt] ) && ( ss < (uint8)MAX_NMEA_SENTENCES ) ) ss++;
-	           		if ( RxCh == NMEATags[ss][tt] )
-	                	if ( tt == (uint8)NMEA_TAG_INDEX ) 
-						{
-	                    	GPSPacketTag = ss;
-	                    	RxState = WaitBody;
-	                	} 
-						else
-	                    	tt++;
-	            	else
-	                	RxState = WaitSentinel;
-					break;
-				case WaitSentinel: // highest priority skipping unused sentence types
-					if ( RxCh == '$' )
-					{
-						ll = tt = ss = RxCheckSum = 0;
-						RxState = WaitTag;
-					}
-					break;	
-			    } 
+	                   	GPSPacketTag = ss;
+	                   	RxState = WaitBody;
+	               	} 
+					else
+	                   	tt++;
+	           	else
+	               	RxState = WaitSentinel;
+				break;
+			case WaitSentinel: // highest priority skipping unused sentence types
+				if ( RxCh == '$' )
+				{
+					ll = tt = ss = RxCheckSum = 0;
+					RxState = WaitTag;
+				}
+				break;	
+			   } 
 		}
 		if ( Armed && ( P[TelemetryType] == GPSTelemetry) ) // piggyback GPS telemetry on GPS Rx
 			TXREG = RxCh;

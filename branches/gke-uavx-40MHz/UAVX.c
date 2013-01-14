@@ -24,14 +24,11 @@
 
 Flags 	F;
 uint8 p;
-uint32 Now, CyclemS;
+uint32 NowmS, CyclemS;
 #pragma udata access statevars
 int8 near State, NavState, FailState;
 boolean near SpareSlotTime;
 #pragma udata
-
-// general debugging variables printed to a terminal emulator by selecting Custom Telemetry
-int32 aaa,bbb,ccc,ddd, eee, fff, ggg, hhh;
 
 void main(void)
 {
@@ -59,7 +56,6 @@ void main(void)
 	InitRangefinder();
 	InitGPS();
 	InitNavigation();
-	InitTemperature();
 	InitBarometer();
 
 	ShowSetup();
@@ -76,7 +72,7 @@ void main(void)
 		LightsAndSirens();	// Check for Rx signal, disarmed on power up, throttle closed, gyros ONLINE
 
 		State = Starting;
-		mS[RxFailsafeTimeout] = mSClock() + FAILSAFE_TIMEOUT_MS;
+		mS[RxFailsafeTimeout] = NowmS + FAILSAFE_TIMEOUT_MS;
 		FailState = MonitoringRx;
 		F.FirstArmed = false;
 
@@ -84,10 +80,31 @@ void main(void)
 		{ // no command processing while the Quadrocopter is armed
 	
 			ReceivingGPSOnly(true); 
-			SpareSlotTime = true;
+
+			while ( WaitingForSync ) {};
+
+			DisableInterrupts; // protect 1mS clock
+				WaitingForSync = true;
+				NowmS = MilliSec;		
+				PIDUpdate = NowmS + PIDCyclemS;
+			EnableInterrupts;
+
+			SpareSlotTime = true; // token used by nav, compass, baro and telemetry
+
+			DoControl();
+
+			#ifdef INC_CYCLE_STATS
+			if ( State == InFlight )
+			{
+				CyclemS = NowmS - mS[LastPIDUpdate];
+				mS[LastPIDUpdate] = NowmS;
+				CyclemS = Limit(CyclemS, 0, 15);
+				CycleHist[CyclemS]++;
+			}
+			#endif // INC_CYCLE_STATS
 
 			UpdateGPS();
-		
+	
 			if ( F.RCNewValues )
 				UpdateControls();
 
@@ -100,7 +117,7 @@ void main(void)
 
 					if ( !F.FirstArmed )
 					{
-						mS[StartTime] = mSClock();
+						mS[StartTime] = NowmS;
 						F.FirstArmed = true;
 					}
 
@@ -110,53 +127,52 @@ void main(void)
 					InitNavigation();
 
 					DesiredThrottle = 0;
-					ErectGyros();				// DO NOT MOVE AIRCRAFT!
-					InitBarometer(); 			// try to get launch alt as close as possible.
+					ErectGyros(256);				// DO NOT MOVE AIRCRAFT!
 					ZeroStats();
 					WriteMagCalEE();
 
 					DoStartingBeepsWithOutput(3);
 
-					//SendParameters(0);
-					//SendParameters(1);
-
-					mS[ArmedTimeout] = mSClock() + ARMED_TIMEOUT_MS;
-					mS[RxFailsafeTimeout] = mSClock() + RC_NO_CHANGE_TIMEOUT_MS;
+					mS[ArmedTimeout] = NowmS + ARMED_TIMEOUT_MS;
+					mS[RxFailsafeTimeout] = NowmS + RC_NO_CHANGE_TIMEOUT_MS;
 					F.ForceFailsafe = F.LostModel = false;
 
 					State = Landed;
 					break;
 				case Landed:
 					DesiredThrottle = 0;
-					GetBaroAltitude();
 					F.OriginAltValid = false;
 					InitHeading();
-					if ( mSClock() > mS[ArmedTimeout] )
+					if ( NowmS > mS[ArmedTimeout] )
 						DoShutdown();
 					else	
 						if ( StickThrottle < IdleThrottle )
 						{
 							SetGPSOrigin();
-							DecayNavCorr(6);
+							DecayNavCorr();
 	    					if ( F.NewCommands )
 								F.LostModel = F.ForceFailsafe;
 						}
 						else
-						{
-							#ifdef SIMULATE
-							FakeBaroRelAltitude = 0;
-							#endif // SIMULATE						
+						{						
 							LEDPattern = 0;
-							mS[NavActiveTime] = mSClock() + NAV_ACTIVE_DELAY_MS;
+							mS[NavActiveTime] = NowmS + NAV_ACTIVE_DELAY_MS;
 							Stats[RCGlitchesS] = RCGlitches; // start of flight
 							SaveLEDs();
 
-							mS[RxFailsafeTimeout] = mSClock() + RC_NO_CHANGE_TIMEOUT_MS;
+							mS[RxFailsafeTimeout] = NowmS + RC_NO_CHANGE_TIMEOUT_MS;
 							F.ForceFailsafe = F.LostModel = false;
 
 							if ( ParameterSanityCheck() )
 							{
+								#ifndef SIMULATE
+								while ( !F.NewBaroValue )
+									GetBaroAltitude(); 
+								OriginBaroPressure = BaroPressure;
+								OriginBaroTemperature = BaroTemperature;
+								#endif // !SIMULATE
 								F.OriginAltValid = true;
+								F.NewBaroValue = false;
 								State = InFlight;
 							}
 							else
@@ -171,17 +187,17 @@ void main(void)
 						State = InFlight;
 					}
 					else
-						if ( mSClock() < mS[ThrottleIdleTimeout] )
+						if ( NowmS < mS[ThrottleIdleTimeout] )
 							DesiredThrottle = IdleThrottle;
 						else
 						{
-							DecayNavCorr(6);
+							DecayNavCorr();
 							DesiredThrottle = AltComp = 0; // to catch cycles between Rx updates
 							F.MotorsArmed = false;
 							Stats[RCGlitchesS] = RCGlitches - Stats[RCGlitchesS];	
 							WriteStatsEE();
 							WriteMagCalEE();
-							mS[ArmedTimeout] = mSClock() + ARMED_TIMEOUT_MS;
+							mS[ArmedTimeout] = NowmS + ARMED_TIMEOUT_MS;
 							State = Landed;
 						}
 					break;
@@ -195,59 +211,36 @@ void main(void)
 
 					DesiredThrottle = SlewLimit(DesiredThrottle, StickThrottle, 1);
  
-					DoNavigation();				
-					AltitudeHold(); // includes GetBaroAltitude
-
+					DoNavigation();
+		
 					if ( StickThrottle < IdleThrottle )
 					{
 						AltComp = 0;
-						mS[ThrottleIdleTimeout] = mSClock() + THROTTLE_LOW_DELAY_MS;
+						mS[ThrottleIdleTimeout] = NowmS + THROTTLE_LOW_DELAY_MS;
 						RestoreLEDs();
 						State = Landing;
+					} 
+					else 
+					{
+						#ifndef SIMULATE
+							GetBaroAltitude();	
+						#endif // !SIMULATE
+						AltitudeHold(); 
 					}
 					break;
 				} // Switch State
-				mS[FailsafeTimeout] = mSClock() + FAILSAFE_TIMEOUT_MS;
+				mS[FailsafeTimeout] = NowmS + FAILSAFE_TIMEOUT_MS;
 				FailState = MonitoringRx;
 			}
 			else
 				if ( F.FailsafesEnabled )
 					DoFailsafe();
 
-			if ( F.NormalFlightMode )
-				GetHeading();
-	
-			#ifndef TESTING
-			if ( F.AccelerometersEnabled )
-			#endif // !TESTING
-					CheckTelemetry();
+			CheckTelemetry();
 
 			CheckBatteries();
 			CheckAlarms();
-	
-			while ( WaitingForSync ) {};
 
-			DisableInterrupts; // protect 1mS clock
-				WaitingForSync = true;
-				Now = MilliSec;
-				if ( F.NormalFlightMode )		
-					PIDUpdate = Now + PIDCyclemS;
-				else
-					PIDUpdate = Now + 0; // fast as possible but with jitter		
-			EnableInterrupts;
-
-			DoControl();
-
-			#ifdef INC_CYCLE_STATS
-			if ( State == InFlight )
-			{
-				CyclemS = Now - mS[LastPIDUpdate];
-				mS[LastPIDUpdate] = Now;
-				CyclemS = Limit(CyclemS, 0, 15);
-				CycleHist[CyclemS]++;
-			}
-			#endif // INC_CYCLE_STATS
-	
 		} // flight while armed
 	}
 
