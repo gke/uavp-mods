@@ -38,7 +38,7 @@ void GetRangefinderAltitude(void)
 		else
 			RangefinderAltitude = ADC(ADCAltChan); // Centimetres
 
-		RangefinderROC = (RangefinderAltitude - RangefinderAltitudeP) * ALT_UPDATE_HZ;
+		RangefinderROC = (RangefinderAltitude - RangefinderAltitudeP) / ALT_UPDATE_SCALE;
 		RangefinderAltitudeP = RangefinderAltitude;
 
 		if (( RangefinderAltitude < ALT_RF_ENABLE_CM ) && !F.UsingRangefinderAlt)

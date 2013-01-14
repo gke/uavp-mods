@@ -25,7 +25,6 @@
 void DoLEDs(void);
 void ReceiverTest(void);
 void PowerOutput(int8);
-void LEDsAndBuzzer(void);
 void BatteryTest(void);
 
 void DoLEDs(void)
@@ -94,11 +93,6 @@ void ReceiverTest(void)
 
 } // ReceiverTest
 
-void LEDsAndBuzzer(void)
-{
-	TxString("Test deleted - no space\r\n");
-} // LEDsAndBuzzer
-
 #endif // TESTING
 
 void BatteryTest(void)
@@ -118,4 +112,87 @@ void BatteryTest(void)
 	
 } // BatteryTest
 
+#ifdef SIMULATE
+
+#define EMU_DT_MS	100L
+#define EMU_DTR		(1000L/EMU_DT_MS)
+
+int32 HRBaroAltitude = 0;
+
+void DoEmulation(void) {
+	static uint24 UpdatemS = 0;
+	
+	if (Armed && (mSClock() > UpdatemS)) {
+		UpdatemS = mSClock() + EMU_DT_MS;
+
+		BaroROC = (DesiredThrottle - CruiseThrottle + AltComp) * 2;
+		HRBaroAltitude += BaroROC; 
+		BaroAltitude = HRBaroAltitude / EMU_DTR;
+		if ((HRBaroAltitude) < 10)
+			BaroROC = HRBaroAltitude = BaroAltitude = 0;
+
+		GPSAltitude = BaroAltitude;
+		F.NewBaroValue = true;
+
+		A[Roll].Angle = ((int32)A[Roll].Control * DEG_TO_ANGLE_UNITS * 45) / RC_NEUTRAL;
+		A[Pitch].Angle = ((int32)A[Pitch].Control * DEG_TO_ANGLE_UNITS * 45) / RC_NEUTRAL;
+
+		Rl = -A[Roll].Control; 
+		Pl = -A[Pitch].Control; 
+		Yl = -A[Yaw].Control;
+
+		#ifdef NAV_WING
+			Heading += (A[Roll].Control - A[Yaw].Control);// * DegreesToRadians(30) ) / (EMU_DTR * RC_NEUTRAL); // say 180/sec
+		#else
+			Heading -= (A[Yaw].Control);// * DegreesToRadians(180) ) / (EMU_DTR * RC_NEUTRAL);
+		#endif
+
+		Heading = Make2Pi(Heading);
+	}
+
+} // DoEmulation
+
+int32 ConvertdMToGPS(int32 c) {
+	return ( ((int32)c * (int32)10000)/((int32)1855) );
+} // ConvertdMToGPS
+
+void GPSEmulation(void) {
+	
+	#define FAKE_NORTH_WIND 0
+	#define FAKE_EAST_WIND 0
+	#define SIM_CRUISE_DMPS 70L
+	#define SIM_MAX_DMPS 100L
+
+	int32 NorthDiff, EastDiff, PitchDiff, RollDiff, PitchDiffp, RollDiffp;
+
+	#ifdef NAV_WING
+		PitchDiff = SIM_CRUISE_DMPS;
+		RollDiff = ((int32)A[Roll].Control * (SIM_MAX_DMPS/4)) / RC_NEUTRAL; 
+	#else
+		PitchDiff = -((int32)A[Pitch].Control * SIM_MAX_DMPS) / RC_NEUTRAL; 
+		RollDiff = ((int32)A[Roll].Control * SIM_MAX_DMPS) / RC_NEUTRAL; 
+	#endif
+
+	Rotate(&NorthDiff, &EastDiff, PitchDiff, RollDiff, -Heading);
+
+	GPSVel = int32sqrt(Sqr(PitchDiff) + Sqr(RollDiff));
+	F.ValidGPSVel = true;
+
+	NorthDiff += FAKE_NORTH_WIND;
+	EastDiff += FAKE_EAST_WIND;
+
+	GPSLongitudeRaw += ConvertdMToGPS(EastDiff) / GPS_UPDATE_HZ;
+	GPSLatitudeRaw += ConvertdMToGPS(NorthDiff) / GPS_UPDATE_HZ;
+
+	GPSHeading = Heading;
+
+	GPSPacketTag = GPGGAPacketTag;
+	GPSFix = 3;
+	GPSNoOfSats = 10;
+	GPSHDilute = 50;
+	F.GPSValid = true;
+
+} // EmulateGPS
+
+#endif // SIMULATE
 

@@ -45,7 +45,7 @@ near uint8 SHADOWB, PW0, PW1, PW2, PW3, PW4, PW5;
 int16 ESCMax;
 
 #pragma idata escnames
-const rom char * ESCName[ESCUnknown+1] = {
+const rom uint8 * ESCName[ESCUnknown+1] = {
 		"PPM","Holger","X3D I2C","YGE I2C","LRC I2C","Unk"
 		};
 #pragma idata
@@ -267,17 +267,18 @@ void MixAndLimitCam(void)
 		// NO CAMERA
 	#else
 
-	#ifndef SIMULATE
+	#ifdef SIMULATE
+
+	PW[CamPitchC] = PW[CamRollC] = OUT_NEUTRAL;
+
+	#else
 
 	static i24u Temp24;
 	static int32 NewCamRoll, NewCamPitch;
 
 	// use only roll/pitch angle estimates
-
-	Temp24.i24 = A[Pitch].Angle * OSO + A[Roll].Angle * OCO;
-	CameraAngle[Roll] = Temp24.i2_1;
-	Temp24.i24 = A[Pitch].Angle * OCO - A[Roll].Angle * OSO;
-	CameraAngle[Pitch] = Temp24.i2_1;
+	FastRotate(&CameraAngle[Pitch], &CameraAngle[Roll],
+			A[Pitch].Angle, A[Roll].Angle, Orientation);
 
 	// zzz this where we lose the resolution say 20/256 so need camera gimbal gearing if ~12.
 
@@ -290,10 +291,6 @@ void MixAndLimitCam(void)
 	NewCamPitch = Temp24.i2_1 + SRS16(DesiredCamPitchTrim * 3, 1);
 	NewCamPitch = PWSense[CamPitchC] * NewCamPitch + OUT_NEUTRAL; 
 	PW[CamPitchC] = SlewLimit( PW[CamPitchC], NewCamPitch, 2);
-
-	#else
-
-	PW[CamPitchC] = PW[CamRollC] = OUT_NEUTRAL;
 
 	#endif // SIMULATE
 
@@ -319,7 +316,6 @@ void StopMotors(void)
 		PW[ThrottleC] = 0;
 	#endif // MULTICOPTER
 
-	DesiredThrottle = 0;
 	F.MotorsArmed = false;
 } // StopMotors
 

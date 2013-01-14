@@ -26,9 +26,7 @@ void ShowGyroType(uint8);
 void GetGyroValues(void);
 void CalculateGyroRates(void);
 void CheckGyroFault(uint8, uint8, uint8);
-void ErectGyros(void);
-
-void GyroTest(void);
+void ErectGyros(uint16);
 void InitGyros(void);
 
 uint8 GyroType;
@@ -36,17 +34,13 @@ int16 RawGyro[3];
 int32 NoAccCorr;
 int16x16Q YawF;
 
-#include "MPU6050.h"
-
 #include "gyro_i2c.h"
 #include "gyro_analog.h"
 
 #pragma idata gyronames
-const rom char * GyroName[GyroUnknown+1] ={
-		"MLX90609","ADXRS613/150","IDG300 UNSUPPORTED","ST-AY530","ADXRS610/300",
-		"ITG3200","SF-DOF6","SF-9DOF","MPU6050","FreeIMU","Drotek","IR Sensors",
-		"Fail or not supported @ 16MHZ"
-		};
+const rom uint8 * GyroName[GyroUnknown+1] ={
+		 "MPU6050", "MLX90609", "ADXRS613/150",
+		"ST-AY530", "ADXRS610/300", "MPU6050", "ITG3200", "Unsupported", "Failed" };
 #pragma idata
 
 void ShowGyroType(uint8 G)
@@ -63,11 +57,6 @@ void CalculateGyroRates(void)
 	A[Yaw].Rate = A[Yaw].GyroADC - A[Yaw].GyroBias;
 
 	switch ( GyroType ) {
-	case IDG300Gyro:// 500 Deg/Sec 
-		RollT.i24 = 0;
-		PitchT.i24 = 0;
-		YawT.i24 = 0;
-		break;
  	case LY530Gyro:// REFERENCE generically 300deg/S 3.3V
 		RollT.i24 = (int24)A[Roll].Rate * 256;
 		PitchT.i24 = (int24)A[Pitch].Rate * 256;
@@ -83,21 +72,21 @@ void CalculateGyroRates(void)
 		PitchT.i24 = (int24)A[Pitch].Rate * 169;
 		YawT.i24 = (int24)A[Yaw].Rate * 84;
 		break;
-	case MPU6050:
-	case ITG3200Gyro: // Gyro alone or 6&9DOF SF Sensor Stick 73/45
-		RollT.i24 = (int24)A[Roll].Rate * 11; // 18
-		PitchT.i24 = (int24)A[Pitch].Rate * 11;
-		YawT.i24 = (int24)A[Yaw].Rate * 5;
-		break;
-	case IRSensors:// IR Sensors - NOT IMPLEMENTED IN PIC VERSION
-		RollT.i24 = PitchT.i24 = YawT.i24 = 0;
-		break;
 	case ADXRS150Gyro:// ADXRS613/150 or generically 150deg/S 5V
 		RollT.i24 = (int24)A[Roll].Rate * 68;
 		PitchT.i24 = (int24)A[Pitch].Rate * 68;
 		YawT.i24 = (int24)A[Yaw].Rate * 34;
 		break;
-	default:;
+	case FreeIMU:
+	case GY86IMU:
+	case DrotekIMU:
+	case UAVXArm32IMU:
+		RollT.i24 = (int24)A[Roll].Rate * 11; // 18
+		PitchT.i24 = (int24)A[Pitch].Rate * 11;
+		YawT.i24 = (int24)A[Yaw].Rate * 5;
+		break;
+	default:
+		break;
 	} // GyroType
 
 	A[Roll].Rate = RollT.i2_1;
@@ -106,19 +95,21 @@ void CalculateGyroRates(void)
 
 } // CalculateGyroRates
 
-void ErectGyros(void)
+void ErectGyros(uint16 s)
 {
-	static uint8 i, g;
+	static uint8 g;
+	static uint16 i;
 	static int32 Av[3];
 	static AxisStruct *C;
 
 	for ( g = Roll; g <=(uint8)Yaw; g++ )	
 		Av[g] = 0;
 
-    for ( i = 32; i ; i-- )
+    for ( i = 0; i < s; i++ )
 	{
 		LEDRed_TOG;
-		Delay100mSWithOutput(1);
+		Delay1mS(20);
+		OutSignals();
 
 		GetGyroValues();
 
@@ -129,7 +120,7 @@ void ErectGyros(void)
 	for ( g = Roll; g <= (uint8)Yaw; g++ )
 	{
 		C = &A[g];
-		C->GyroBias = (int16)SRS32( Av[g], 5); // InvenSense is signed
+		C->GyroBias = Av[g]/s; // InvenSense is signed
 		C->Rate = C->Ratep = C->Angle = C->RawAngle = 0;
 	}
 
@@ -140,43 +131,32 @@ void ErectGyros(void)
 void GetGyroValues(void)
 {
 	switch ( P[SensorHint] ) {
-	case ITG3200Gyro:
+	case DrotekIMU:
 		BlockReadInvenSenseGyro();
 		A[Roll].GyroADC = -RawGyro[X];
-		A[Pitch].GyroADC = RawGyro[Y];
-		A[Yaw].GyroADC = -RawGyro[Z];
-		break;	
-	case SFDOF6:
-		BlockReadInvenSenseGyro();
-		A[Roll].GyroADC = -RawGyro[X];
-		A[Pitch].GyroADC = RawGyro[Y];
-		A[Yaw].GyroADC = -RawGyro[Z];
-		break;
-	case SFDOF9: 
-		BlockReadInvenSenseGyro();
-		A[Roll].GyroADC = RawGyro[X];
 		A[Pitch].GyroADC = -RawGyro[Y];
-		A[Yaw].GyroADC = -RawGyro[Z];
-		break;
-	case FreeIMU:
-		BlockReadInvenSenseGyro();
-		A[Roll].GyroADC = -RawGyro[Y]; // not done yet
-		A[Pitch].GyroADC = -RawGyro[X];
-		A[Yaw].GyroADC = -RawGyro[Z];
-		break;
-	case Drotek:
-		BlockReadInvenSenseGyro();
-		A[Roll].GyroADC = -RawGyro[X];
-		A[Pitch].GyroADC = RawGyro[Y];
-		A[Yaw].GyroADC = -RawGyro[Z];
+		A[Yaw].GyroADC = RawGyro[Z];
 		break;
 	#ifdef INC_MPU6050
-	case MPU6050:
+	case FreeIMU:
+	case UAVXArm32IMU:
 		BlockReadInvenSenseGyro();
 		A[Roll].GyroADC = -RawGyro[Y];
 		A[Pitch].GyroADC = -RawGyro[X];
 		A[Yaw].GyroADC = RawGyro[Z];
 		break;
+	case GY86IMU:
+		BlockReadInvenSenseGyro();
+		A[Roll].GyroADC = -RawGyro[X];
+		A[Pitch].GyroADC = RawGyro[Y];
+		A[Yaw].GyroADC = RawGyro[Z];
+		break;
+	#else
+	case FreeIMU:
+	case FreeIMU90:
+	case UAVXArm32IMU:
+		A[Roll].GyroADC = A[Pitch].GyroADC = A[Yaw].GyroADC = 0;
+		break;	
 	#endif // INC_MPU6050	
 	default:
 		GetAnalogGyroValues();
@@ -191,34 +171,33 @@ void InitGyros(void)
 	F.UsingAnalogGyros = false;
 
 	switch ( P[SensorHint]){
-	case ITG3200Gyro:
-	case SFDOF6: // ITG3200
-	case SFDOF9:
 	case FreeIMU:
-	case Drotek:
-		INVGyroAddress = INV_GX_H;
-		if (InvenSenseGyroActive())
-		{
-			GyroType = ITG3200Gyro;
-			InitInvenSenseGyro();
-		}
-		break;
+	case GY86IMU:
+	case UAVXArm32IMU:
 	#ifdef INC_MPU6050
-	case MPU6050:
 		INVGyroAddress = MPU6050_GYRO_XOUT_H;
 		if (InvenSenseGyroActive())
 		{
-			GyroType = MPU6050;
+			GyroType = P[SensorHint];
 			InitInvenSenseGyro();
 		}
 		else
 			GyroType = GyroUnknown;
 		break;
 	#else
-	case MPU6050:
-		GyroType = GyroUnknown;
-		break;
+		GyroType = GyroUnsupported;
 	#endif // INC_MPU6050
+		break;	
+	case DrotekIMU:
+		INVGyroAddress = INV_GX_H;
+		if (InvenSenseGyroActive())
+		{
+			GyroType = DrotekIMU;
+			InitInvenSenseGyro();
+		}
+		else
+			GyroType = GyroUnknown;
+		break;
 	default:
 		InitAnalogGyros();
 		GyroType = P[SensorHint];
@@ -228,30 +207,7 @@ void InitGyros(void)
 
 } // InitGyros
 
-#ifdef TESTING
-void GyroTest(void)
-{
-	TxString("\r\nGyro test - ");
-	ShowGyroType(GyroType);
-	TxNextLine();
 
-	if ( F.UsingAnalogGyros )
-		GyroAnalogTest();
-	else
-	{
-
-		GetGyroValues();
-	
-		if ( !F.GyroFailure )
-		{
-			TxString("\tRoll:     \t");TxVal32(A[Roll].GyroADC,0,0);
-			TxString("\r\n\tPitch:\t");TxVal32(A[Pitch].GyroADC,0,0);
-			TxString("\r\n\tYaw:  \t");TxVal32(A[Yaw].GyroADC,0,0);
-			TxNextLine();
-		}
-	}	
-} // GyroTest
-#endif // TESTING
 
 
 

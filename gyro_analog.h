@@ -35,58 +35,7 @@ void InitAnalogGyros(void)
 	F.GyroFailure = false;
 } // InitGyros
 
-#ifdef TESTING
 
-void CheckGyroFault(uint8 v, uint8 lv, uint8 hv)
-{
-	TxVal32(v, 1, 0);
-	TxString(" (");
-	TxVal32(lv,1,0);
-	TxString(" >< ");
-	TxVal32(hv,1,'V');
-	TxString(")");
-	if ( ( v < lv ) || ( v > hv ) )
-		TxString(" Gyro NC or faulty?");
-	TxNextLine();
-} // CheckGyroFault
-
-void GyroAnalogTest(void)
-{
-	int8 c, A[5], lv, hv, v;
-
-	for ( c = 1; c <= 5; c++ )
-		A[c] = ((int24)ADC(c) * 50L + 512L)/1024L;
-
-	if (GyroType == LY530Gyro)  // 3V gyros
-		{ lv = 10; hv = 20;}
-	else
-		{ lv = 15; hv = 35;}
-
-	// Roll
-	v = A[ADCRollChan];
-
-	TxString("Roll: \t"); 
-	CheckGyroFault(v, lv, hv);
-
-	// Pitch
-	v = A[ADCPitchChan]; 
-
-	TxString("Pitch:\t");		
-	CheckGyroFault(v, lv, hv);	
-
-	// Yaw
-	if (GyroType == LY530Gyro) // 3V gyros
-		{ lv = 10; hv = 20;}
-	else
-		{ lv = 15; hv = 35;}
-	
-	v = A[ADCYawChan];
-	TxString("Yaw:  \t");
-	CheckGyroFault(v, lv, hv);	
-	
-} // GyroAnalogTest
-
-#endif // TESTING
 
 
 

@@ -40,34 +40,35 @@ uint8 UAVXCurrPacketTag;
 
 void CheckTelemetry(void) 
 {
-	if ( ( mSClock() >= mS[TelemetryUpdate] ) && SpareSlotTime )
+	static uint24 NowmS;
+
+	NowmS = mSClock();
+	if ( ( NowmS >= mS[TelemetryUpdate] ) && SpareSlotTime )
 	{				
 		switch ( P[TelemetryType] ) {
 		case UAVXTelemetry:
 			SpareSlotTime = false;
-			mS[TelemetryUpdate] = mSClock() + UAVX_TEL_INTERVAL_MS;
+			mS[TelemetryUpdate] = NowmS + UAVX_TEL_INTERVAL_MS;
 			SendCycle(); 	
 			break;
 		case UAVXMinTelemetry:
 			SpareSlotTime = false;
-			mS[TelemetryUpdate] = mSClock() + UAVX_MIN_TEL_INTERVAL_MS; 
+			mS[TelemetryUpdate] = NowmS + UAVX_MIN_TEL_INTERVAL_MS; 
 			SendMinPacket(); 	
 			break;
 		case UAVXControlTelemetry:
 			SpareSlotTime = false;
-			mS[TelemetryUpdate] = mSClock() + UAVX_CONTROL_TEL_INTERVAL_MS; 
+			mS[TelemetryUpdate] = NowmS + UAVX_CONTROL_TEL_INTERVAL_MS; 
 			SendControlPacket(); 	
-			break;
-		case ArduStationTelemetry:	
-			// abandoned
-			mS[TelemetryUpdate] = mSClock() + 0x7fffff;	
 			break;
 		case CustomTelemetry:
 			SpareSlotTime = false; 
-			mS[TelemetryUpdate] = mSClock() + CUSTOM_TEL_INTERVAL_MS;
+			mS[TelemetryUpdate] = NowmS + CUSTOM_TEL_INTERVAL_MS;
 			SendCustom(); 
 			break;
 		case GPSTelemetry: break;
+		default:
+			break;
 		}
 	}
 } // DoTelemetry
@@ -140,7 +141,7 @@ void SendFlightPacket(void) {
 	SendPacketHeader();
 
 	TxESCu8(UAVXFlightPacketTag);
-	TxESCu8(48 + TELEMETRY_FLAG_BYTES);
+	TxESCu8(48 + MAX_DRIVES * 2 + TELEMETRY_FLAG_BYTES);
 	for ( b = 0; b < (uint8)TELEMETRY_FLAG_BYTES; b++ )
 		TxESCu8(F.AllFlags[b]); 
 		
@@ -155,13 +156,15 @@ void SendFlightPacket(void) {
 
 	ShowAttitude();
 
-	TxESCi8((int8)A[Roll].DriftCorr);
-	TxESCi8((int8)A[Pitch].DriftCorr);
-	TxESCi8((int8)AccAltComp);
-	TxESCi8((int8)AltComp);
+	TxESCi16(A[Roll].DriftCorr);
+	TxESCi16(A[Pitch].DriftCorr);
+	TxESCi16(AltFiltComp);
+	TxESCi16(AltComp << 2 );
+	TxESCi8(AccConfidence);
 
-	for ( b = 0; b < (uint8)6; b++ ) // motor/servo channels
-	 	TxESCu8((uint8)Limit(PW[b],0,255));
+	TxESCi8((int8) MAX_DRIVES);
+	for (b = 0; b < (uint8) MAX_DRIVES; b++) // motor/servo channels
+		TxESCi16(PW[b]);
 
 	TxESCi24(mSClock() - mS[StartTime]);
 
@@ -196,7 +199,7 @@ void SendNavPacket(void){
 	SendPacketHeader();
 
 	TxESCu8(UAVXNavPacketTag);
-	TxESCu8(59);
+	TxESCu8(63);
 		
 	TxESCu8(NavState);
 	TxESCu8(FailState);
@@ -216,25 +219,25 @@ void SendNavPacket(void){
 	TxESCi16(WayHeading);
 	
 	TxESCi16(GPSVel);
-	TxESCi16(GPSHeading); 						// GPS ROC dm/S
+	TxESCi16(GPSHeading); 				// GPS ROC dm/S
 	
-	TxESCi24(GPSAltitude); 					// cm
-	TxESCi32(GPSLatitude); 						// 5 decimal minute units
-	TxESCi32(GPSLongitude); 
+	TxESCi24(GPSAltitude); 				// cm
+	TxESCi32(GPSLatitudeRaw); 			// 5 decimal minute units
+	TxESCi32(GPSLongitudeRaw); 
 	
 	TxESCi24(DesiredAltitude);
-	TxESCi32(DesiredLatitude); 
-	TxESCi32(DesiredLongitude);
+	TxESCi32(Nav.C[NorthC].PosE); 
+	TxESCi32(Nav.C[EastC].PosE);
 	
 	TxESCi24(mS[NavStateTimeout] - mSClock());	// mS
 	
-	TxESCi16(AmbientTemperature);			// 0.1C
+	TxESCi16(0);			// 0.1C
 	TxESCi32(GPSMissionTime);
 
-	TxESCu8(NavSensitivity);
-	TxESCi8(A[Roll].NavCorr);
-	TxESCi8(A[Pitch].NavCorr);
-	TxESCi8(A[Yaw].NavCorr);
+	TxESCi16(NavSensitivity << 2);//1000)/RC_MAXIMUM);
+	TxESCi16(A[Roll].NavCorr << 2);
+	TxESCi16(A[Pitch].NavCorr << 2);
+	TxESCi16(A[Yaw].NavCorr << 2);
 
 	SendPacketTrailer();
 
@@ -286,8 +289,8 @@ void SendMinPacket(void)
 
 	TxESCi16(Heading);
 	
-	TxESCi32(GPSLatitude); 					
-	TxESCi32(GPSLongitude);
+	TxESCi32(GPSLatitudeRaw); 					
+	TxESCi32(GPSLongitudeRaw);
 
 	TxESCu8(UAVXAirframe);
 	TxESCu8(Orientation);

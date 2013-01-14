@@ -39,7 +39,7 @@ void ZeroStats(void)
 	A[Pitch].AccCorrAv = A[Pitch].AccCorrMean = 
 	NoAccCorr = 0;
 
-	for (s = 0 ; s < MAX_STATS; s++ )
+	for (s = 0 ; s < (uint8)MAX_STATS; s++ )
 		Stats[s] = 0;
 
 	Stats[MinHDiluteS] = INIT_MIN;
@@ -57,7 +57,7 @@ void ReadStatsEE(void)
 {
 	static uint8 s;
 
-	for (s = 0 ; s < MAX_STATS ; s++ )
+	for (s = 0 ; s < (uint8)MAX_STATS ; s++ )
 		Stats[s] = Read16EE(STATS_ADDR_EE + s*2);
 } // InitStats
 
@@ -76,13 +76,12 @@ void WriteStatsEE()
 		for ( i = 0; i < NO_OF_I2C_ESCS; i++ )
 			Stats[ESCI2CFailS] += ESCI2CFail[i];
 
-	for (s = 0 ; s < MAX_STATS ; s++ )
+	for (s = 0 ; s < (uint8)MAX_STATS ; s++ )
 		Write16EE(STATS_ADDR_EE + s*2, Stats[s]);
 
-	#ifndef SIMULATE
-		Temp = ToPercent(CruiseThrottle, RC_MAXIMUM);
-		WriteEE(PercentCruiseThr, Temp);
-	#endif // !SIMULATE
+	Temp = ToPercent(CruiseThrottle, RC_MAXIMUM);
+	WriteEE(PercentCruiseThr, Temp);
+
 } // WriteStatsEE
 
 void ShowStats(void)
@@ -125,21 +124,11 @@ void ShowStats(void)
 		TxString("ROC:      \t");TxVal32((int32)Stats[MinROCS], 2, ' '); 
 							TxVal32((int32)Stats[MaxROCS], 2, ' '); TxString("M/S\r\n");
 	}
-	
-	#ifdef INC_TEMPERATURE
-	if ( Stats[MinTempS] < INIT_MIN )
-	{
-		TxString("Ambient:  \t");TxVal32((int32)Stats[MinTempS], 1, ' '); 
-							TxVal32((int32)Stats[MaxTempS], 1, ' '); TxString("C\r\n");
-	}
-	#else
-		TxString("Ambient:  \tunknown\r\n");  
-	#endif // INC_TEMPERATURE
 
 	TxString("\r\nGPS\r\n");
 	TxString("Alt:      \t");TxVal32((int32)Stats[GPSAltitudeS], 2, ' '); TxString("M\r\n");
 	#ifdef GPS_INC_GROUNDSPEED 
-	TxString("Vel:      \t");TxVal32(ConvertGPSToM((int32)Stats[GPSVelS]), 1, ' '); TxString("M/S\r\n"); 
+	TxString("Vel:      \t");TxVal32((int32)Stats[GPSVelS], 1, ' '); TxString("M/S\r\n"); 
 	#endif // GPS_INC_GROUNDSPEED
 
 	if ( Stats[GPSMinSatsS] < INIT_MIN )
