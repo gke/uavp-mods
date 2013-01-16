@@ -1,4 +1,4 @@
-#summary I2C sensor board orientations.
+#summary I2C IMU board orientations.
 #labels Featured,Phase-Implementation,UAVX,gke
 
 == Introduction == 
