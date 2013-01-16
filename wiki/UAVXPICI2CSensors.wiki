@@ -3,7 +3,7 @@
 
 == Introduction == 
 
-Some of you will have become fond of your UAVP board given its history being one of the very first flight controllers.  The 18F2620 PIC extended its life quite a lot and the latest I2C sensors or the UAVXArm32F4 daughter board are the final chapter.
+Some of you will have become quite fond of your UAVP boards given their history being amongst the very first multicopter flight controllers.  The 18F2620 PIC extended its life quite a lot and the latest I2C sensors or the UAVXArm32F4 daughter board are the final chapter.
 
 I for one will be keeping my UAVP boards for a while yet although the UAVXArm32F4 boards are my frontline flight controllers.
 
