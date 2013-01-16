@@ -1,0 +1,9 @@
+#summary I2C sensor board orientations.
+#labels Featured,Phase-Implementation,UAVX,gke
+
+= I2C Sensor Boards =
+
+There are a number of single board sensor combinations that are compatible with the UAVP board. One such combination, FreeIMU, uses the same set of sensors as UAVXArm32.
+
+The images below show the expected orientation of these cards. The UAVP board does not need to be modified other than probably adding a socket to the I2C pins previously used by the baro and compass.
+
