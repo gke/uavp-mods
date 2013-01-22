@@ -154,4 +154,4 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4_Outputs.J
 
 These are the Arm processor pin assignments.
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Pinouts.jpg
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Pinout.JPG
