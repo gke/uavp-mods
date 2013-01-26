@@ -127,7 +127,7 @@ Connect your servos up for your aircraft type as shown in the Appendix below.
 
 Put the aircraft on the ground. Leave the prop OFF and switch the arming switch on. UAVPSet communications are terminated once armed - you need to disarm to re-establish communications.
 
-You should hear three starting beeps with the Red LED flashing briefly. At the end you should have Green and Red LEDs on. The Red LED means that no GPS signals are being received.
+You will see a dancing pattern of Yellow and Blue LEDs while the Black Box memory is cleared; this takes about 8 seconds followed by a single beep. You should hear three starting beeps with the Red LED flashing briefly. At the end you should have Green and Red LEDs on. The Red LED means that no GPS signals are being received.
 
 Now lift the aircraft up and tilt it left/right, forward/backwards. It should be obvious what the control surfaces will do.
 
