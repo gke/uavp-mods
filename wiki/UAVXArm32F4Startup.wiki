@@ -128,7 +128,7 @@ Note: If you plan to run camera gimbals then it is worth considering buying a hi
 
 Put the aircraft on the ground. Leave the props OFF and switch the arming switch on. UAVPSet communications are terminated once armed - you need to disarm to re-establish communications.
 
-You should hear three starting beeps with the Red LED flashing briefly. At the end you should have Green and Red LEDs on. The Red LED means that no GPS signals are being received.
+You will see a dancing pattern of Yellow and Blue LEDs while the Black Box memory is cleared; this takes about 8 seconds followed by a single beep. You should hear three starting beeps with the Red LED flashing briefly. At the end you should have Green and Red LEDs on. The Red LED means that no GPS signals are being received.
 
 Advance the throttle and all motors should start. Run the motors more very slowly as you can damage them if you run at high speed without props. Listening carefully move your controls and verify that if you move the aileron right that the left motor increases speed and the right motor slows down. The same for elevator. Rudder left should slow down the front/back motors and speed up the left/right motors by the same amount. 
 
