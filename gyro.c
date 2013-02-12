@@ -32,7 +32,6 @@ void InitGyros(void);
 uint8 GyroType;
 int16 RawGyro[3];
 int32 NoAccCorr;
-int16x16Q YawF;
 
 #include "gyro_i2c.h"
 #include "gyro_analog.h"
@@ -40,7 +39,7 @@ int16x16Q YawF;
 #pragma idata gyronames
 const rom uint8 * GyroName[GyroUnknown+1] ={
 		 "MPU6050", "MLX90609", "ADXRS613/150",
-		"ST-AY530", "ADXRS610/300", "MPU6050", "ITG3200", "Unsupported", "Failed" };
+		"ST-AY530", "ADXRS610/300", "MPU6050", "MPU6050", "ITG3200", "Unsupported", "Failed" };
 #pragma idata
 
 void ShowGyroType(uint8 G)
@@ -105,8 +104,7 @@ void ErectGyros(uint16 s)
 	for ( g = Roll; g <=(uint8)Yaw; g++ )	
 		Av[g] = 0;
 
-    for ( i = 0; i < s; i++ )
-	{
+    for ( i = 0; i < s; i++ ) {
 		LEDRed_TOG;
 		Delay1mS(20);
 		OutSignals();
@@ -117,8 +115,7 @@ void ErectGyros(uint16 s)
 			Av[g] += A[g].GyroADC;
 	}
 	
-	for ( g = Roll; g <= (uint8)Yaw; g++ )
-	{
+	for ( g = Roll; g <= (uint8)Yaw; g++ ) {
 		C = &A[g];
 		C->GyroBias = Av[g]/s; // InvenSense is signed
 		C->Rate = C->Ratep = C->Angle = C->RawAngle = 0;
@@ -153,7 +150,6 @@ void GetGyroValues(void)
 		break;
 	#else
 	case FreeIMU:
-	case FreeIMU90:
 	case UAVXArm32IMU:
 		A[Roll].GyroADC = A[Pitch].GyroADC = A[Yaw].GyroADC = 0;
 		break;	
@@ -167,17 +163,15 @@ void GetGyroValues(void)
 
 void InitGyros(void)
 {
-	InitSmooth16x16(&YawF);
 	F.UsingAnalogGyros = false;
 
-	switch ( P[SensorHint]){
+	switch ( P[SensorHint]) {
 	case FreeIMU:
 	case GY86IMU:
 	case UAVXArm32IMU:
 	#ifdef INC_MPU6050
 		INVGyroAddress = MPU6050_GYRO_XOUT_H;
-		if (InvenSenseGyroActive())
-		{
+		if (InvenSenseGyroActive())	{
 			GyroType = P[SensorHint];
 			InitInvenSenseGyro();
 		}
@@ -190,8 +184,7 @@ void InitGyros(void)
 		break;	
 	case DrotekIMU:
 		INVGyroAddress = INV_GX_H;
-		if (InvenSenseGyroActive())
-		{
+		if (InvenSenseGyroActive()) {
 			GyroType = DrotekIMU;
 			InitInvenSenseGyro();
 		}

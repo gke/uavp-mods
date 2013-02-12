@@ -35,12 +35,10 @@ int16 SRS16(int16 x, uint8 s)
 {
 	static i16u Temp;
 
-	if ( s == (uint8)8 )
-	{
+	if ( s == (uint8)8 ) {
 		Temp.i16 = x;
 		return( (int16) Temp.i1 );
-	}
-	else
+	} else
 		return((x<0) ? -((-x)>>s) : (x>>s));
 } // SRS16
 
@@ -48,24 +46,20 @@ int32 SRS32(int32 x, uint8 s)
 {
 	static i32u Temp;
 
-	if ( s == (uint8)8 )
-	{
+	if ( s == (uint8)8 ) {
 		Temp.i32 = x;
 		return( (int32)Temp.i3_1 );
-	}
-	else
+	} else
 		return((x<0) ? -((-x)>>s) : (x>>s));
 } // SRS32
 
-int16 Make2Pi(int16 A)
-{
+int16 Make2Pi(int16 A) {
 	while ( A < 0 ) A += TWOMILLIPI;
 	while ( A >= TWOMILLIPI ) A -= TWOMILLIPI;
 	return( A );
 } // Make2Pi
 
-int16 MakePi(int16 A)
-{
+int16 MakePi(int16 A) {
 	while ( A < -MILLIPI ) A += TWOMILLIPI;
 	while ( A >= MILLIPI ) A -= TWOMILLIPI;
 	return( A );
@@ -78,8 +72,7 @@ const int16 SineTable[17]={
    };
 #pragma idata
 
-int16 Table16(int16 Val, const int16 *T)
-{
+int16 Table16(int16 Val, const int16 *T) {
 	static uint8 Index,Offset;
 	static int16 Temp, Low, High;
 
@@ -92,8 +85,8 @@ int16 Table16(int16 Val, const int16 *T)
 	return( Low + SRS16(Temp, 4) );
 } // Table16
 
-int16 int16sin(int16 A)
-{	// A is in milliradian 0 to 2000Pi, result is -255 to 255
+int16 int16sin(int16 A) {
+	// A is in milliradian 0 to 2000Pi, result is -255 to 255
 	static int16 	v;
 	static boolean	Negate;
 
@@ -111,10 +104,12 @@ int16 int16sin(int16 A)
 	return(v);
 } // int16sin
 
-int16 int16cos(int16 A)
-{	// A is in milliradian 0 to 2000Pi, result is -255 to 255
+
+int16 int16cos(int16 A) {	
+	// A is in milliradian 0 to 2000Pi, result is -255 to 255
 	return(int16sin(A + HALFMILLIPI));
 } // int16cos
+
 
 #pragma idata arctan
 const int16 ArctanTable[17]={
@@ -123,8 +118,8 @@ const int16 ArctanTable[17]={
    };
 #pragma idata
 
-int16 int32atan2(int32 y, int32 x)
-{	// Result is in milliradian
+int16 int32atan2(int32 y, int32 x) {	
+	// Result is in milliradian
 	// Caution - this routine is intended to be acceptably accurate for 
 	// angles less Pi/4 within a quadrant. Larger angles are directly interpolated
 	// to Pi/2. 
@@ -146,13 +141,11 @@ int16 int32atan2(int32 y, int32 x)
 				A=MILLIPI;
 			else
 				A = 0;
-		else
-		{
+		else {
 			TL = (Absy * 32)/Absx;
 			if ( TL < 256 )
 				A = Table16(TL, ArctanTable);
-			else
-			{  // extrapolate outside table
+			else {  // extrapolate outside table
 				TL -= 256;
 				A =  ArctanTable[16] + (TL >> 2);
 				A = Limit(A, 0, HALFMILLIPI);
@@ -170,15 +163,13 @@ int16 int32atan2(int32 y, int32 x)
 	return(A);
 } // int32atan2
 
-int16 int16sqrt(int16 n)
-// 16 bit numbers 
-{
+int16 int16sqrt(int16 n) {
+	// 16 bit numbers 
   static int16 r, b;
 
   r = 0;
   b = 256;
-  while ( b > 0 ) 
-    {
+  while ( b > 0 ) {
     if ( r*r > n )
       r -= b;
     b >>= 1;
@@ -187,15 +178,13 @@ int16 int16sqrt(int16 n)
   return(r);
 } // int16sqrt
 
-int32 int32sqrt(int32 n)
-// 32 bit numbers 
-{
+int32 int32sqrt(int32 n) {
+	// 32 bit numbers 
   static int32 r, b;
 
   r = 0;
   b = 65536;
-  while (b > 0) 
-    {
+  while (b > 0) {
     if ( r*r > n )
       r -= b;
     b >>= 1;

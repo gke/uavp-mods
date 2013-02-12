@@ -46,6 +46,9 @@ const rom uint8 ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMU
 
 uint8	ParamSet;
 boolean ParametersChanged, SaveAllowTurnToWP;
+int8 Orientation;
+int16 OrientationMRad;
+uint8 UAVXAirframe;
 
 #pragma udata params
 int8 P[MAX_PARAMETERS];
@@ -54,16 +57,13 @@ int8 P[MAX_PARAMETERS];
 #pragma udata orient
 int16 OSin[48], OCos[48];
 #pragma udata
-int8 Orientation;
-uint8 UAVXAirframe;
 
 void ReadParametersEE(void)
 {
 	static uint8 i, b;
 	static uint16 a;
 
-	if ( ParametersChanged )
-	{   // overkill if only a single parameter has changed but is not in flight loop
+	if ( ParametersChanged ) { // overkill if only a single parameter has changed but is not in flight loop
 
 		a = (ParamSet - 1)* MAX_PARAMETERS;	
 		for ( i = 0; i < (uint8)MAX_PARAMETERS; i++)
@@ -91,10 +91,17 @@ void ReadParametersEE(void)
 		A[Yaw].RateKp = P[YawRateKp];
 		A[Yaw].Limiter = P[YawLimit];
 
-		NavYawLimiter = FromPercent(P[NavYawLimit], RC_NEUTRAL); 
+		// Navigation
+		Nav.MaxVelocitydMpS = P[NavMaxVelMpS]*10;
+		Nav.PosKp = 1;
+		Nav.VelKp = 5;
+		Nav.YawKp = 2;
+		Nav.CrossTrackKp = P[NavCrossTrackKp];
 
-		NavKpPos = 1; 
-		NavKpVel = 5;
+		Nav.RollPitchSlewRate = (int16)P[NavRollPitchSlew];
+		Nav.YawSlewRate = (int16)P[NavYawSlew];
+		
+		Nav.MaxVelocitydMpS = P[NavMaxVelMpS] * 10; 
 
 		ReadAccCalEE();
 
@@ -110,9 +117,9 @@ void ReadParametersEE(void)
 		#endif
 
 		InitCompass();
+		InitAccelerometers();
 		InitGyros();
 		ErectGyros(16);
-		InitAccelerometers();
 
 		if ( P[ESCType] == ESCPPM )
 			PIDCycleShift = PID_40MHZ_SHIFT; 
@@ -124,17 +131,13 @@ void ReadParametersEE(void)
 		EffAccTrack = RESCALE_TO_ACC >> (2-PIDCycleShift);
 
 		b = P[ServoSense];
-		for ( i = 0; i < (uint8)6; i++ )
-		{
-			if ( b & 1 )
-				PWSense[i] = -1;
-			else
-				PWSense[i] = 1;
+		for ( i = 0; i < (uint8)6; i++ ) {
+			PWSense[i]  = ((b & 1) ? -1 : 1);
 			b >>=1;
 		}
 
-		F.UsingPositionHoldLock = false; //zzz( (P[ConfigBits] & UsePositionHoldLockMask ) != 0);
 		F.UsingAltControl = ( (P[ConfigBits] & UseAltControlMask ) != 0);
+		RollYawMixFrac = FromPercent(P[RollYawMix], 256);
 
 		#ifdef SIMULATE
 			CruiseThrottle = NewCruiseThrottle = FromPercent(45, RC_MAXIMUM);
@@ -149,22 +152,13 @@ void ReadParametersEE(void)
 		#endif // MULTICOPTER
 
 		IdleThrottle = FromPercent(IdleThrottle, RC_MAXIMUM);
-	 
-		NavSlewLimit = Limit(P[NavSlew], 1, 4); 
-		NavSlewLimit = ConvertMToGPS(NavSlewLimit); 
-
-		NavNeutralRadius = Limit((int16)P[NeutralRadius], 0, 5);
-		NavNeutralRadius = NavNeutralRadius * 10;
-		
-		NavMaxVelocitydMpS = P[NavMaxVelMpS] * 10; 
 
 		MinROCCmpS = -(int16)P[MaxDescentRateDmpS] * 10;
 
 		RTHAltitude = (int24)P[NavRTHAlt]*100;
 
-		TauCF = (int16)P[BaroFilt];
-		TauCF = Limit(TauCF, 3, 40);
-		
+		//zzz AltLPFHz = (int16)P[BaroFilt];
+
 		CompassOffset = - (int16)P[NavMagVar]; // changed sign of MagVar AGAIN!
 		if ( CompassType == HMC6352Compass )
 			CompassOffset += (int16)COMPASS_OFFSET_QTR * 90L; 
@@ -177,39 +171,16 @@ void ReadParametersEE(void)
 			else
 				if (Orientation < 0 )
 					Orientation += 48;
+			OrientationMRad = ((int24)Orientation * MILLIPI)/48;
 		#else
-			Orientation = 0;
+			Orientation = OrientationMRad = 0;
 		#endif // MULTICOPTER
 
-		PPMPosPolarity = (P[ServoSense] & PPMPolarityMask) == 0;	
-		F.UsingSerialPPM = P[RCType]  == CompoundPPM;
-		PIE1bits.CCP1IE = false;
-		DoRxPolarity();
-		PPM_Index = PrevEdge = 0;
-		PIE1bits.CCP1IE = true;
-
-		NoOfControls = P[RCChannels];
-		if ( (( NoOfControls&1 ) != (uint8)1 ) && !F.UsingSerialPPM )
+		NoOfControls = Limit(P[RCChannels], 4, CONTROLS);
+		if ( (( NoOfControls&1 ) != (uint8)1 ) && !F.UsingCompoundPPM )
 			NoOfControls--;
 
-		if ( NoOfControls < (uint8)7 )
-		{
-			NavSensitivity = NAV_SENS_6CH;
-			NavSensitivity = Limit(NavSensitivity, 0, RC_MAXIMUM);
-		}
-
-		Map[ThrottleRC] = P[RxThrottleCh]-1;
-		Map[RollRC] = P[RxRollCh]-1;
-		Map[PitchRC] = P[RxPitchCh]-1;
-		Map[YawRC] = P[RxYawCh]-1;
-		Map[RTHRC] = P[RxGearCh]-1;
-		Map[CamPitchRC] = P[RxAux1Ch]-1;
-		Map[NavGainRC] = P[RxAux2Ch]-1;
-		Map[Ch8RC]= P[RxAux3Ch]-1;
-		Map[Ch9RC] = P[RxAux4Ch]-1;
-
-		for ( i = 0; i < (uint8)NoOfControls; i++) // make reverse map
-			RMap[Map[i]] = i;
+		InitRC();
 
 		F.RFInInches = ((P[ConfigBits] & RFInchesMask) != 0);
 
@@ -256,7 +227,7 @@ void UseDefaultParameters(void)
 
 	WriteEE(NAV_NO_WP, 0); // set NoOfWaypoints to zero
 
-	TxString("\r\nUse READ CONFIG to refresh UAVPSet parameter display\r\n");	
+	TxString("\r\nUse READ CONFIG to refresh UAVPSet display\r\n");	
 } // UseDefaultParameters
 
 void UpdateParamSetChoice(void)
@@ -283,8 +254,7 @@ void UpdateParamSetChoice(void)
 			{ // bottom left
 				NewParamSet = 1;
 				NewAllowNavAltitudeHold = true;
-			}
-			else
+			} else
 				if ( Selector > STICK_WINDOW ) // right
 				{ // bottom right
 					NewParamSet = 2;
@@ -358,15 +328,13 @@ boolean ParameterSanityCheck(void)
 			(P[YawRateKp] != 0) );
 } // ParameterSanityCheck
 
-void InitParameters(void)
-{
+void InitParameters(void) {
 	static uint8 i;
 	static int16 A;
 
 	UAVXAirframe = AF_TYPE;
 
-	for (i = 0; i < (uint8)48; i++)
-	{
+	for (i = 0; i < (uint8)48; i++) {
 		A = (int16)(((int32)i * MILLIPI)/24L);
 		OSin[i] = int16sin(A);
 		OCos[i] = int16cos(A);

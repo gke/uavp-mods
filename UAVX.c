@@ -93,15 +93,17 @@ void main(void)
 
 			DoControl();
 
-			#ifdef INC_CYCLE_STATS
-			if ( State == InFlight )
-			{
-				CyclemS = NowmS - mS[LastPIDUpdate];
-				mS[LastPIDUpdate] = NowmS;
-				CyclemS = Limit(CyclemS, 0, 15);
-				CycleHist[CyclemS]++;
-			}
-			#endif // INC_CYCLE_STATS
+			#ifndef TESTING
+				#ifdef INC_CYCLE_STATS
+				if ( State == InFlight )
+				{
+					CyclemS = NowmS - mS[LastPIDUpdate];
+					mS[LastPIDUpdate] = NowmS;
+					CyclemS = Limit(CyclemS, 0, 15);
+					CycleHist[CyclemS]++;
+				}
+				#endif // INC_CYCLE_STATS
+			#endif // TESTING
 
 			UpdateGPS();
 	
@@ -193,7 +195,7 @@ void main(void)
 						{
 							DecayNavCorr();
 							DesiredThrottle = AltComp = 0; // to catch cycles between Rx updates
-							F.MotorsArmed = false;
+							F.DrivesArmed = false;
 							Stats[RCGlitchesS] = RCGlitches - Stats[RCGlitchesS];	
 							WriteStatsEE();
 							WriteMagCalEE();
@@ -202,10 +204,18 @@ void main(void)
 						}
 					break;
 				case Shutdown:
-					DoShutdown(); // NO EXIT - REQUIRES POWER CYCLE 
+					LEDChaser();
+					GetBaroAltitude(); // may as well!
+					if ((StickThrottle < IdleThrottle) && !(F.ReturnHome || F.Navigate)) {
+						mSTimer(ArmedTimeout, ARMED_TIMEOUT_MS);
+						mSTimer(RxFailsafeTimeout, RC_NO_CHANGE_TIMEOUT_MS);
+						F.ForceFailsafe = F.LostModel = false;
+						DoStartingBeepsWithOutput(3);
+						State = Landed;
+					}
 					break;
 				case InFlight:
-					F.MotorsArmed = true;
+					F.DrivesArmed = true;
 		
 					LEDChaser();
 
@@ -213,19 +223,14 @@ void main(void)
  
 					DoNavigation();
 		
-					if ( StickThrottle < IdleThrottle )
-					{
-						AltComp = 0;
-						mS[ThrottleIdleTimeout] = NowmS + THROTTLE_LOW_DELAY_MS;
-						RestoreLEDs();
-						State = Landing;
-					} 
-					else 
-					{
-						#ifndef SIMULATE
-							GetBaroAltitude();	
-						#endif // !SIMULATE
-						AltitudeHold(); 
+					if (State != Shutdown) {
+						if (StickThrottle < IdleThrottle) {
+							AltComp = 0;
+							mSTimer(ThrottleIdleTimeout, THROTTLE_LOW_DELAY_MS);
+							RestoreLEDs();
+							State = Landing;
+						} else
+							AltitudeHold();
 					}
 					break;
 				} // Switch State

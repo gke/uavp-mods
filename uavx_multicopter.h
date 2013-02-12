@@ -23,7 +23,7 @@
 			{20,0},				// RollRateKp, 				01
 			{10,0},	 			// RollRateKi,				02
 			{20, 0},			// RollAngleKp,				03
-			{1,true},			// NeutralRadius,			04
+			{0,true},			// Unused4,					04
 			{30,0},	 			// RollIntLimit,			05
 
 			{20,0},	 			// PitchRateKp,				06
@@ -45,15 +45,15 @@
 			{45,true}, 			// PercentCruiseThr,		20c
 
 			{8,true}, 			// BaroFilt,				21c // 7 is magic number
-			{0,0}, 				// Unused22,				22c
+			{30,true}, 			// RollYawMix,				22c
 			{5,true}, 			// PercentIdleThr,			23c
 			{15,0}, 			// RollKiAngle,				24c
 			{15,0}, 			// PitchKiAngle,			25c
 			{20,true}, 			// CamPitchKp,				26c
 			{10,0}, 			// YawKpAngle (Compass),	27
 			{0,0},				// PitchRateKd,				28
-			{2,true}, 			// NavSlew,					29
-			{2,true}, 			// ClosingRadius,			30
+			{10,true}, 			// NavRollPitchSlew,		29
+			{0,true}, 			// Unused30,				30
 
 			{0,0}, 				// GSThrottle,	    		31
 			{0,0},				// Acro,	    			32
@@ -75,10 +75,10 @@
 			{4,true},			// RxYawCh,					43
 			{AF_TYPE,true},		// AFType,					44c
 			{UAVXTelemetry, true}, // TelemetryType,		45c
-			{10,true},		    // MaxDescentRateDmpS, 		46
+			{10,true},		    // MaxDescentRatedMpS, 		46
 			{30,true},			// DescentDelayS			47
 			{MPU_RA_DLPF_BW_98, true},	// GyroLPF,			48
-			{0,0},				// Unused49,				49
+			{0,true},			// NavCrossTrackKp,			49
 			{5,true},			// RxGearCh,				50c
 
 			{6,true},			// RxAux1Ch,				51
@@ -93,12 +93,12 @@
 			{0,true},			// Orient					57
 			#endif // TRICOPTER | VTCOPTER | Y6COPTER			
 
-			{12,true},			// NavYawLimit				58
+			{12,true},			// NavYawSlew				58
 			{50,0},				// Balance					59
 			{9,true},			// RxAux4Ch					60
-			{-20,0},			// Unused61					61
+			{50,true},			// DriveFilt				61
 
-			{23,0},				// Unused62					62
+			{0,0},				// Unused62					62
 			{0,true},			// HorizDampKp,				63
 			{0,true}			// VertDampKp,				64
 			};

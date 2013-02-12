@@ -41,7 +41,6 @@ const rom uint8 SerHello[] = "UAVX " Version
 const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	#ifdef TESTING
 
-
 //	"B..Load UAVX hex file\r\n"
 	"C..Comp/Mag test\r\n"
 	"D..Load default params\r\n"
@@ -55,7 +54,9 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"S..Show config\r\n"
 	"V..Battery test\r\n"
 	"X..Flight stats\r\n"
+#ifdef INC_I2C_PROG
 	"Y..Program YGE I2C ESC\r\n"
+#endif
 
 	#else
 
@@ -69,7 +70,9 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 	"1-8..Individual LED/buzzer test\r\n"; // last line must be in this form for UAVPSet
 #pragma idata
 
-const rom uint8 RxChMnem[] = "TAERG12";
+#pragma idata rx_mnem_chars
+const rom uint8 RxChMnem[] = "TAERG12345";
+#pragma idata
 
 void ShowPrompt(void)
 {
@@ -78,15 +81,13 @@ void ShowPrompt(void)
 
 void ShowRxSetup(void)
 {
-	if ( F.UsingSerialPPM )
-	{
+	if ( F.UsingCompoundPPM ) {
 		TxString("Serial PPM frame (");
 		if ( PPMPosPolarity )
 			TxString("Pos. Polarity)");
 		else
 			TxString("Neg. Polarity)");
-	}
-	else
+	} else
 		TxString("Odd Rx Channels PPM");
 } // ShowRxSetup
 
@@ -115,18 +116,15 @@ void ShowSetup(void)
 	TxVal32(PIDCyclemS,0,' ');
 	TxNextLine();
 
-	#ifndef TESTING
-		#ifdef INC_CYCLE_STATS
-		for (i = 0 ; i <(uint8)15; i++ )
-			if (CycleHist[i] > 0)
-			{
-				TxChar(HT);
-				TxVal32(i,0,HT);
-				TxVal32(CycleHist[i],0,0);
-				TxNextLine();
-			}
-		#endif // INC_CYCLE_STATS
-	#endif // TESTING
+	#ifdef INC_CYCLE_STATS
+	for (i = 0 ; i <(uint8)15; i++ )
+		if (CycleHist[i] > 0) {
+			TxChar(HT);
+			TxVal32(i,0,HT);
+			TxVal32(CycleHist[i],0,0);
+			TxNextLine();
+		}
+	#endif // INC_CYCLE_STATS
 
 	#ifdef MULTICOPTER
 		TxString("\r\nForward Flight: ");
@@ -144,8 +142,7 @@ void ShowSetup(void)
 
 	TxString("\r\nCompass: ");
 	ShowCompassType();
-	if(( F.MagnetometerValid) && ( CompassType != HMC6352Compass ))
-	{
+	if(( F.MagnetometerValid) && ( CompassType != HMC6352Compass )) {
 		TxString(" Offset ");
 		TxVal32(COMPASS_OFFSET_QTR * 90,0,0);
 		TxString("deg.");
@@ -153,8 +150,7 @@ void ShowSetup(void)
 
 	TxString("\r\nESCs: ");	
 	ShowESCType();
-	if ( P[ESCType] != ESCPPM )
-	{
+	if ( P[ESCType] != ESCPPM ) {
 		TxString(" {");
 		for ( i = 0; i < (uint8)NO_OF_I2C_ESCS; i++ )
 			if ( ESCI2CFail[i] )
@@ -166,10 +162,8 @@ void ShowSetup(void)
 	
 	TxString("\r\nTx/Rx: ");
 	ShowRxSetup();
-	if ( F.UsingTxMode2 )
-		TxString("Tx Mode 2");
-	else
-		TxString("Tx Mode 1");
+	TxString("Tx Mode ");
+	TxChar('1' + F.UsingTxMode2);
 
 	TxString("\r\nParam set: "); // must be exactly this string as UAVPSet expects it
 	TxChar('0' + ParamSet);	
@@ -189,8 +183,7 @@ void ShowSetup(void)
 		TxString("\tAlt Hold Manual CAUTION\r\n");
 
 	TxString("\r\nALARM (if any):\r\n");
-	if ( (( NoOfControls&1 ) != (uint8)1 ) && !F.UsingSerialPPM )
-	{
+	if ( (( NoOfControls&1 ) != (uint8)1 ) && !F.UsingCompoundPPM ) {
 		TxString("\tODD Ch Inp selected, EVEN number used - reduced to ");
 		TxVal32(NoOfControls,0,0);
 		TxNextLine();
@@ -227,7 +220,7 @@ void ShowSetup(void)
 	if ( Armed && FirstPass ) 
 		TxString("\tUAVX is armed - DISARM!\r\n");
 
-	if ( F.Navigate || F.ReturnHome )
+	if (  F.ReturnHome || F.Navigate )
 		TxString("\tNav/RTH selected - DESELECT!\r\n");
 
 	if ( InitialThrottle >= RC_THRES_START )
@@ -247,13 +240,11 @@ void ProcessCommand(void)
 	if ( !Armed )
 	{
 		ch = PollRxChar();
-		if ( ch != NUL   )
-		{
+		if ( ch != NUL ) {
 			if( islower(ch))							// check lower case
 				ch = toupper(ch);
 			
-			switch( ch )
-			{
+			switch( ch ) {
 			case 'B':	// call bootloader
 				{ // arming switch must be OFF to call bootloader!!!
 					DisableInterrupts;
@@ -276,8 +267,7 @@ void ProcessCommand(void)
 				TxString("\r\nParameter list for set #");	// do not change (UAVPset!)
 				TxChar('0' + ParamSet);
 				ReadParametersEE();
-				for( p = 0; p < MAX_PARAMETERS; p++)
-				{
+				for( p = 0; p < MAX_PARAMETERS; p++) {
 					TxString("\r\nRegister ");
 					TxValU((uint8)(p+1));
 					TxString(" = ");
@@ -298,19 +288,15 @@ void ProcessCommand(void)
 				else
 					PTemp[p] = d;
 				
-				if ( ( p == (MAX_PARAMETERS-1)) && ( P[RollRateKp] != 0 ) )
-				{
+				if ( ( p == (MAX_PARAMETERS-1)) && ( P[RollRateKp] != 0 ) ) {
 					PTemp[AFType] = AF_TYPE;
 					PTemp[IMU] = Wolferl;
 					for (p = 0; p<MAX_PARAMETERS;p++)
-						if( ParamSet == (uint8)1 )
-						{
+						if( ParamSet == (uint8)1 ) {
 							WriteEE(p, PTemp[p]);
 							if ( DefaultParams[p][1] )
 								WriteEE(MAX_PARAMETERS + p, PTemp[p]);
-						}
-						else
-						{
+						} else {
 							if ( !DefaultParams[p][1] )
 								WriteEE(MAX_PARAMETERS + p, PTemp[p]);
 						}
@@ -323,8 +309,7 @@ void ProcessCommand(void)
 				break;
 			case 'Z' : // set Paramset
 				p = RxNumU();
-				if ( p != (int8)ParamSet )
-				{
+				if ( p != (int8)ParamSet ) {
 					ParamSet = p;
 					ParametersChanged = true;
 					ReadParametersEE();
@@ -350,9 +335,9 @@ void ProcessCommand(void)
 				TxString(",7:");
 				TxValS(Limit1(((int32)RC[NavGainRC]*500)/RC_MAXIMUM, 999));
 				TxString(",8:");
-				TxValS(Limit1(((int32)RC[Ch8RC]*500)/RC_MAXIMUM, 999));
+				TxValS(Limit1(((int32)RC[BypassRC]*500)/RC_MAXIMUM, 999));
 				TxString(",9:");
-				TxValS(Limit1(((int32)RC[Ch9RC]*500)/RC_MAXIMUM, 999));
+				TxValS(Limit1(((int32)RC[PolarCoordsRC]*500)/RC_MAXIMUM, 999));
 				TxString(",X:");
 				TxValS(Limit1(0, 999));
 				ShowPrompt();
@@ -397,11 +382,12 @@ void ProcessCommand(void)
 				ReceiverTest();
 				ShowPrompt();
 				break;
-
+#ifdef INC_I2C_PROG
 			case 'Y':	// configure YGE30i EScs
 				ConfigureESCs();
 				ShowPrompt();
 				break;
+#endif
 			#endif // TESTING
 			case 'V' :	// Battery test
 				BatteryTest();

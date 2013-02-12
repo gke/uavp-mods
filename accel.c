@@ -26,6 +26,7 @@
 const rom uint8 MPUDLPFMask[] = { MPU_RA_DLPF_BW_256, MPU_RA_DLPF_BW_188,
 		MPU_RA_DLPF_BW_98, MPU_RA_DLPF_BW_42, MPU_RA_DLPF_BW_20,
 		MPU_RA_DLPF_BW_10, MPU_RA_DLPF_BW_5 };
+
 #ifdef TESTING
 const uint16 InertialLPFHz[] = { 256, 188, 98, 42, 20, 10, 5 };
 const rom uint8 * DHPFName[] = { "Reset/0Hz", "5Hz", "2.5Hz", "1.25Hz", "0.63Hz",
@@ -100,9 +101,7 @@ void ReadAccelerations(void)
 		break;
 	#else
 	case FreeIMU:
-	case FreeIMU90:
 	case UAVXArm32IMU:
-		ReadMPU6050Acc();
 		A[LR].AccADC = 0; 
 		A[DU].AccADC = GRAVITY;
 		A[FB].AccADC = 0;
@@ -151,8 +150,7 @@ void InitAccelerometers(void)
 			{
 				AccType = MPU6050Acc;
 			//	InitMPU6050Acc();
-			}
-			else
+			} else
 				AccType = AccUnknown;
 		#else
 			AccType = AccUnsupported;
@@ -160,12 +158,10 @@ void InitAccelerometers(void)
 			break;
 		case DrotekIMU:
 		#ifdef INC_BMA180
-			if ( BMA180AccActive() )
-			{
+			if ( BMA180AccActive() ) {
 				AccType = BMA180Acc;
 				InitBMA180Acc();
-			}
-			else
+			} else
 				AccType = AccUnknown;
 		#else
 			AccType = AccUnsupported;
@@ -173,12 +169,10 @@ void InitAccelerometers(void)
 			break;
 		default:
 		#ifdef INC_LISL	
-			if ( LISLAccActive() )
-			{
+			if ( LISLAccActive() ) {
 				AccType = LISLAcc;
 				InitLISLAcc();
-			}
-			else
+			} else
 				AccType = AccUnknown;
 		#else
 			AccType = AccUnsupported;
@@ -189,7 +183,7 @@ void InitAccelerometers(void)
 	if( F.AccelerationsValid ) 
 		ReadAccCalEE();
 	else
-		F.AccFailure = true;
+		AccFailure();
 
 	F.AccelerometersEnabled = true;
 
@@ -209,13 +203,10 @@ void GetNeutralAccelerations(void)
 		ch = PollRxChar();
 	} while ((ch != 'x') && (ch != 'z'));
 
-	if (ch == 'x') 
-	{
+	if (ch == 'x') {
 		Temp[LR] = Temp[FB] = Temp[DU] = 0;
-		if ( F.AccelerationsValid` )
-		{
-			for ( i = 16; i; i--)
-			{
+		if ( F.AccelerationsValid` ) {
+			for ( i = 16; i; i--) {
 				ReadAccelerations();
 				for ( a = LR; a<=(uint8)DU; a++ )
 					Temp[a] += A[a].AccADC;
@@ -240,14 +231,11 @@ void GetNeutralAccelerations(void)
 			TxNextLine();
 
 			WriteAccCalEE();	
-		}
-		else
-		{
+		} else {
 			TxString("\r\nAccelerometer read failure\r\n");
 			A[LR].AccBias = A[FB].AccBias = A[DU].AccBias = 0;
 		}
-	}
-	else
+	} else
 		TxString("\r\nCancelled");
 
 } // GetNeutralAccelerations
@@ -410,8 +398,7 @@ boolean BMA180AccActive(void) {
 	BMA180_ID = BMA180_ID_0x80;
     if ( I2CResponse(BMA180_ID) )
 		F.AccelerationsValid = true;
-	else
-	{
+	else {
 		BMA180_ID = BMA180_ID_0x82;
 		if ( I2CResponse(BMA180_ID) )
 			F.AccelerationsValid = true;
@@ -489,8 +476,7 @@ void SendCommand(int8 c)
 
 	SPI_IO = WR_SPI;	
 	SPI_CS = SEL_LISL;	
-	for( s = 8; s; s-- )
-	{
+	for( s = 8; s; s-- ) {
 		SPI_SCL = 0;
 		if( c & 0x80 )
 			SPI_SDA = 1;
@@ -522,8 +508,7 @@ uint8 ReadLISLNext(void)
 	static uint8 s;
 	static uint8 d;
 
-	for( s = 8; s; s-- )
-	{
+	for( s = 8; s; s-- ) {
 		SPI_SCL = 0;
 		SPI_LO_DELAY;
 		d <<= 1;
@@ -540,8 +525,7 @@ void WriteLISL(uint8 d, uint8 c)
 	static uint8 s;
 
 	SendCommand(c);
-	for( s = 8; s; s-- )
-	{
+	for( s = 8; s; s-- ) {
 		SPI_SCL = 0;
 		if( d & 0x80 )
 			SPI_SDA = 1;
@@ -565,8 +549,7 @@ void InitLISLAcc(void)
 	F.AccelerationsValid = false;
 
 	r = ReadLISL(LISL_WHOAMI + LISL_READ);
-	if( r == 0x3A )	// a LIS03L sensor is there!
-	{
+	if( r == 0x3A ) { // a LIS03L sensor is there!
 		WriteLISL(0b11000111, LISL_CTRLREG_1); // on always, 40Hz sampling rate,  10Hz LP cutoff, enable all axes
 		WriteLISL(0b00000000, LISL_CTRLREG_3);
 		WriteLISL(0b01000000, LISL_FF_CFG); // latch, no interrupts; 
@@ -575,8 +558,7 @@ void InitLISLAcc(void)
 		WriteLISL(255, LISL_FF_DUR);
 		WriteLISL(0b00000000, LISL_DD_CFG);
 		F.AccelerationsValid = true;
-	}
-	else
+	} else
 		AccFailure();
 } // InitLISLAcc
 
@@ -597,8 +579,7 @@ void ReadLISLAcc()
 //	while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == (uint8)0 );
 
 	F.AccelerationsValid = ReadLISL(LISL_WHOAMI + LISL_READ) == (uint8)0x3a; // Acc still there?
-	if ( F.AccelerationsValid ) 
-	{
+	if ( F.AccelerationsValid ) {
 		L.c[0] = ReadLISL(LISL_OUTX_L + LISL_INCR_ADDR + LISL_READ);
 		L.c[1] = ReadLISLNext();
 		L.c[2] = ReadLISLNext();
@@ -610,8 +591,7 @@ void ReadLISLAcc()
 		RawAcc[X] = L.i16[X];
 		RawAcc[Y] = L.i16[Y];
 		RawAcc[Z] = L.i16[Z];
-	}
-	else
+	} else
 		AccFailure();
 } // ReadLISLAcc
 

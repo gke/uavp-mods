@@ -18,7 +18,7 @@
 //    You should have received a copy of the GNU General Public License along with this program.  
 //    If not, see http://www.gnu.org/licenses/
 
-// 	GPS routines
+// 	GPS. routines
 
 #include "uavx.h"
 
@@ -47,20 +47,11 @@ NMEAStruct NMEA;
 #pragma udata
 
 #pragma udata gpsvars
-uint8 	GPSPacketTag;
-int32 	GPSMissionTime, GPSStartTime;
-int24 	GPSAltitude, GPSAltitude, GPSOriginAltitude;
-int32	GPSLatitudeRaw, GPSLongitudeRaw;
-int32 	OriginLatitudeRaw, OriginLongitudeRaw;
-int16 	GPSLongitudeCorrection;
-int16	GPSHeading;
-int16 	GPSVel;
-uint8 	GPSNoOfSats;
-uint8 	GPSFix;
-int16 	GPSHDilute;
+gpsstruct GPS;
 #pragma udata
 
 #pragma udata gpsvars1
+uint8 GPSPacketTag;
 uint8 nll, cc, lo, hi;
 boolean EmptyField;
 int16 ValidGPSSentences;
@@ -154,44 +145,44 @@ void ParseGPGGASentence(void) { // full position $GPGGA fix
     UpdateField();
     
     UpdateField();   //UTime
-	GPSMissionTime = ConvertUTime(lo,hi);
+	GPS.MissionTime = ConvertUTime(lo,hi);
 
 	UpdateField();   	//Lat
-    GPSLatitudeRaw = ConvertLatLonM(lo, hi);
+    GPS.LatitudeRaw = ConvertLatLonM(lo, hi);
     UpdateField();   //LatH
-    if (NMEA.s[lo] == 'S') GPSLatitudeRaw = -GPSLatitudeRaw;
+    if (NMEA.s[lo] == 'S') GPS.LatitudeRaw = -GPS.LatitudeRaw;
 
     UpdateField();   	//Lon   
-    GPSLongitudeRaw = ConvertLatLonM(lo, hi);
+    GPS.LongitudeRaw = ConvertLatLonM(lo, hi);
     UpdateField();   	//LonH
-	if (NMEA.s[lo] == 'W') GPSLongitudeRaw = -GPSLongitudeRaw;
+	if (NMEA.s[lo] == 'W') GPS.LongitudeRaw = -GPS.LongitudeRaw;
         
     UpdateField();   	//Fix 
-    GPSFix = (uint8)(ConvertInt(lo,hi));
+    GPS.Fix = (uint8)(ConvertInt(lo,hi));
 
     UpdateField();   	//Sats
-    GPSNoOfSats = (uint8)(ConvertInt(lo,hi));
+    GPS.NoOfSats = (uint8)(ConvertInt(lo,hi));
 
-    UpdateField();   	// HDilute
-	GPSHDilute = ConvertInt(lo, hi-3) * 100 + ConvertInt(hi-1, hi); 
+    UpdateField();   	// HDOP
+	GPS.HDOP = ConvertInt(lo, hi-3) * 10 + ConvertInt(hi-1, hi-1); 
 
     UpdateField();   	// Alt
 
-	GPSAltitude = ConvertInt(lo, hi-2) * 10L + ConvertInt(hi, hi) * 10; // Decimetres
+	GPS.Altitude = ConvertInt(lo, hi-2) * 10L + ConvertInt(hi, hi) * 10; // Decimetres
 
     //UpdateField();   // AltUnit - assume Metres!
 
     //UpdateField();   // GHeight 
     //UpdateField();   // GHeightUnit 
 
-   	F.GPSValid = (GPSFix >= (uint8)GPS_MIN_FIX) && ( GPSNoOfSats >= (uint8)GPS_MIN_SATELLITES );
+   	F.GPSValid = (GPS.Fix >= (uint8)GPS_MIN_FIX) && ( GPS.NoOfSats >= (uint8)GPS_MIN_SATELLITES );
 
 	if ( State == InFlight )
 	{
-		StatsMinMax(GPSHDilute, MinHDiluteS, MaxHDiluteS);
-		StatsMinMax(GPSNoOfSats, GPSMinSatsS, GPSMaxSatsS);
+		StatsMinMax(GPS.HDOP, MinHDOPS, MaxHDOPS);
+		StatsMinMax(GPS.NoOfSats, GPSMinSatsS, GPSMaxSatsS);
 
-		F.GPSFailure = GPSHDilute > 150; 
+		F.GPSFailure = GPS.HDOP > 15; 
 	}
 } // ParseGPGGASentence
 
@@ -211,36 +202,36 @@ void ParseGPRMCSentence() {
 		F.GPSValid = true;
 
         UpdateField();   //Lat
-        GPSLatitudeRaw = ConvertLatLonM(lo,hi);
+        GPS.LatitudeRaw = ConvertLatLonM(lo,hi);
         UpdateField();   //LatH
         if (NMEA.s[lo] == 'S')
-        	GPSLatitudeRaw = -GPSLatitudeRaw;
+        	GPS.LatitudeRaw = -GPS.LatitudeRaw;
 
         UpdateField();   //Lon
-        GPSLongitudeRaw = ConvertLatLonM(lo,hi);
+        GPS.LongitudeRaw = ConvertLatLonM(lo,hi);
 
         UpdateField();   //LonH
         if ( NMEA.s[lo] == 'W' )
-        	GPSLongitudeRaw = -GPSLongitudeRaw;
+        	GPS.LongitudeRaw = -GPS.LongitudeRaw;
 
         UpdateField();   // Groundspeed (Knots)
-		GPSVel = SRS32(((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 13L, 8);//  5.144444 dMPS/Kt
+		GPS.Vel = SRS32(((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 13L, 8);//  5.144444 dMPS/Kt
 
         UpdateField();   // True course made good (Degrees)
-		GPSHeading = SRS32(((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 45L, 8); // MilliRadians 3142/18000; 
+		GPS.Heading = SRS32(((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 45L, 8); // MilliRadians 3142/18000; 
 
       	/*
         UpdateField();   //UDate
 
         UpdateField();   // Magnetic Deviation (Degrees)
-        GPSMagDeviation = ConvertReal(lo, hi) * MILLIRAD;
+        GPS.MagDeviation = ConvertReal(lo, hi) * MILLIRAD;
 
         UpdateField();   // East/West
  
 		if ( NMEA.s[lo] == 'W')
-            GPSMagHeading = GPSHeading - GPSMagDeviation; // need to check sign????
+            GPS.MagHeading = GPS.Heading - GPS.MagDeviation; // need to check sign????
         else
-            GPSMagHeading = GPSHeading +  GPSMagDeviation;
+            GPS.MagHeading = GPS.Heading +  GPS.MagDeviation;
 		*/
         F.ValidGPSVel = true;
     } else
@@ -256,26 +247,26 @@ void SetGPSOrigin(void) {
 		mS[LastGPS] = mSClock();
 
 		#ifdef SIMULATE
-			GPSLatitudeRaw = (-3118333L * 60L);
-			GPSLongitudeRaw = (13680833L * 60L);
+			GPS.LatitudeRaw = (-3118333L * 60L);
+			GPS.LongitudeRaw = (13680833L * 60L);
 		#endif
 
-		GPSStartTime = GPSMissionTime;
-		OriginLatitudeRaw = GPSLatitudeRaw;
-		OriginLongitudeRaw = GPSLongitudeRaw;
+		GPS.StartTime = GPS.MissionTime;
+		GPS.OriginLatitudeRaw = GPS.LatitudeRaw;
+		GPS.OriginLongitudeRaw = GPS.LongitudeRaw;
 		
-		Temp = GPSLatitudeRaw/600000L; // to degrees * 10
+		Temp = GPS.LatitudeRaw/600000L; // to degrees * 10
 		Temp = Abs(Temp);
 		Temp = ConvertDDegToMPi(Temp);
-		GPSLongitudeCorrection = int16cos(Temp);
+		GPS.LongitudeCorrection = int16cos(Temp);
 	
-		GPSOriginAltitude = GPSAltitude;
+		GPS.OriginAltitude = GPS.Altitude;
 
-		GPSVel = 0;
+		GPS.Vel = 0;
 
-		Write16EE(NAV_ORIGIN_ALT, (int16)(GPSAltitude/100));
-		Write32EE(NAV_ORIGIN_LAT, GPSLatitudeRaw);
-		Write32EE(NAV_ORIGIN_LON, GPSLongitudeRaw);
+		Write16EE(NAV_ORIGIN_ALT, (int16)(GPS.Altitude/100));
+		Write32EE(NAV_ORIGIN_LAT, GPS.LatitudeRaw);
+		Write32EE(NAV_ORIGIN_LON, GPS.LongitudeRaw);
 
 		if ( !F.NavValid )
 		{
@@ -289,9 +280,9 @@ void SetGPSOrigin(void) {
 
 
 void ParseGPSSentence(void) {
-	static int24 NowmS;
-	static int16 GPSdT;
-	static int32 EastDiff, NorthDiff;
+	int24 NowmS;
+	int16 GPSdT;
+	int32 EastDiff, NorthDiff;
 
 	cc = 0;
 	nll = NMEA.length;
@@ -317,14 +308,14 @@ void ParseGPSSentence(void) {
 		// There is a lot of jitter in position - could use Kalman Estimator?
 
 		NowmS = mSClock();
-		GPSdT = NowmS - mS[LastGPS];
+		GPSdT = (NowmS - mS[LastGPS]);
 		mS[LastGPS] = NowmS;
 
 	    if ( ValidGPSSentences <  GPS_ORIGIN_SENTENCES )
 		{   // repetition to ensure GPGGA altitude is captured
 			F.GPSValid = false;
 
-			if ( GPSHDilute <= GPS_MIN_HDILUTE )
+			if ( GPS.HDOP <= GPS_MIN_HDOP )
 				ValidGPSSentences++;
 			else
 				ValidGPSSentences = 0;
@@ -332,25 +323,25 @@ void ParseGPSSentence(void) {
 
 		if (F.NavValid)
 		{
-			Nav.C[NorthC].Pos = ConvertGPSTodM(GPSLatitudeRaw - OriginLatitudeRaw);
-			Nav.C[EastC].Pos = ConvertGPSTodM(GPSLongitudeRaw - OriginLongitudeRaw);
-						//	* GPSLongitudeCorrection;
+			Nav.C[NorthC].Pos = ConvertGPSTodM(GPS.LatitudeRaw - GPS.OriginLatitudeRaw);
+			Nav.C[EastC].Pos = SRS32(ConvertGPSTodM(GPS.LongitudeRaw - GPS.OriginLongitudeRaw)
+							* GPS.LongitudeCorrection, 8);
 
 			if (!F.ValidGPSVel) {
 				NorthDiff = Nav.C[NorthC].Pos - Nav.C[NorthC].PosP;
 				EastDiff = Nav.C[EastC].Pos - Nav.C[EastC].PosP;
 
-				GPSVel = int32sqrt(Sqr(NorthDiff) + Sqr(EastDiff)) * GPS_UPDATE_HZ;
-
-				Nav.C[NorthC].PosP = Nav.C[NorthC].Pos;
-				Nav.C[EastC].PosP = Nav.C[EastC].Pos;
+				GPS.Vel = int32sqrt(Sqr(NorthDiff) + Sqr(EastDiff)) * GPS_UPDATE_HZ;
 			}
+
+			Nav.C[NorthC].PosP = Nav.C[NorthC].Pos;
+			Nav.C[EastC].PosP = Nav.C[EastC].Pos;
 		}
 
 		if ( State == InFlight )
 		{
-			StatsMax(GPSAltitude, GPSAltitudeS);
-			StatsMax(GPSVel, GPSVelS);
+			StatsMax(GPS.Altitude, GPSAltitudeS);
+			StatsMax(GPS.Vel, GPSVelS);
 		}
 	}
 	else
@@ -380,10 +371,14 @@ void UpdateGPS(void) {
 		{
 			LEDRed_OFF;
 			F.NavComputed = false;
-			mS[GPSTimeout] = mSClock() + GPS_TIMEOUT_MS;
+			mSTimer(GPSTimeout, GPS_TIMEOUT_MS);
 		}
 		else
+		{
+			F.NavigationActive = false;
 			LEDRed_ON;
+
+		}
 		LEDBlue_OFF;
 	}
 	else
@@ -401,11 +396,11 @@ void UpdateGPS(void) {
 void InitGPS(void) {
 	cc = 0;
 
-	GPSLongitudeCorrection = 256; // =>1.0
-	GPSMissionTime = GPSFix = GPSNoOfSats = GPSHDilute = 0;
-	GPSAltitude = GPSHeading = GPSVel = 0; 
-	OriginLatitudeRaw = GPSLatitudeRaw = 0;
-	OriginLongitudeRaw = GPSLongitudeRaw = 0;
+	GPS.LongitudeCorrection = 256; // =>1.0
+	GPS.MissionTime = GPS.Fix = GPS.NoOfSats = GPS.HDOP = 0;
+	GPS.Altitude = GPS.Heading = GPS.Vel = 0; 
+	GPS.OriginLatitudeRaw = GPS.LatitudeRaw = 0;
+	GPS.OriginLongitudeRaw = GPS.LongitudeRaw = 0;
 
 	Write32EE(NAV_ORIGIN_LAT, 0);
 	Write32EE(NAV_ORIGIN_LON, 0);

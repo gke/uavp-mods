@@ -29,6 +29,8 @@ int16 RangefinderAltitude, RangefinderAltitudeP;
 
 void GetRangefinderAltitude(void)
 {
+	#ifndef SIMULATE
+
 	static int16 Range;
 
 	if ( F.RangefinderAltitudeValid )
@@ -52,6 +54,7 @@ void GetRangefinderAltitude(void)
 		RangefinderAltitude = 0;
 		F.UsingRangefinderAlt = false;
 	}
+	#endif // SIMULATE
 } // GetRangefinderAltitude
 
 void InitRangefinder(void)
@@ -59,7 +62,8 @@ void InitRangefinder(void)
 	static int16 Temp;
 
 	#ifdef SIMULATE
-		F.RangefinderAltitudeValid = false;
+		F.RangefinderAltitudeValid = F.UsingRangefinderAlt = false;
+		RangefinderAltitude = 0;
 	#else
 		Temp = ADC(ADCAltChan);
 		F.RangefinderAltitudeValid = !(Temp > 573) && (Temp < 778); // 2.8-3.8V => supply not RF

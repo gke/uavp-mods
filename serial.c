@@ -50,32 +50,26 @@ uint8 TxCheckSum;
 uint8x128Q TxQ;
 #pragma udata
 
-void TxString(const rom uint8 *pch)
-{
+void TxString(const rom uint8 *pch) {
 	while( *pch != '\0' )
 		TxChar(*pch++);
 } // TxString
 
-void TxChar(uint8 ch)
-{
+void TxChar(uint8 ch) {
 	static uint8 NewTail;
 
-	if ( F.TxToBuffer )
-	{
+	if ( F.TxToBuffer ) {
 		TxCheckSum ^= ch;
 		NewTail=(TxQ.Tail+1) & TX_BUFF_MASK;
 	  	TxQ.B[NewTail]=ch;
 		TxQ.Tail = NewTail;
-	}
-	else
-	{
+	} else {
 		while( !PIR1bits.TXIF ) ;	// wait for transmit ready
 		TXREG = ch;		// put new char
 	}
 } // TxChar
 
-void TxValU(uint16 v)
-{	
+void TxValU(uint16 v) {	
 	// UAVPSet requires 3 digits exactly ( 000 to 999 )
 	TxChar((v / 100) + '0');
 	v %= 100;	
@@ -86,60 +80,48 @@ void TxValU(uint16 v)
 	TxChar(v + '0');
 } // TxValU
 
-void TxValS(int16 v)
-{
+void TxValS(int16 v) {
 	// UAVPSet requires sign and 3 digits exactly (-999 to +999)
-	if( v < 0 )
-	{
+	if( v < 0 ) {
 		TxChar('-');	// send sign
 		v = -v;
-	}
-	else
+	} else
 		TxChar('+');	// send sign
 
 	TxValU(v);
 } // TxValS
 
-void TxNextLine(void)
-{
+void TxNextLine(void) {
 	TxChar(CR);
 	TxChar(LF);
 } // TxNextLine
 
-void TxNibble(uint8 v)
-{
+void TxNibble(uint8 v) {
 	if ( v > (uint8)9)
 		TxChar('A' + v - 10);
 	else
 		TxChar('0' + v);
 } // TxNibble
 
-void TxValH(uint8 v)
-{
+void TxValH(uint8 v) {
 	TxNibble(v >> 4);
 	TxNibble(v & 0x0f);
 } // TxValH
 
-void TxValH16(uint16 v)
-{
+void TxValH16(uint16 v) {
 	TxValH(v >> 8);
 	TxValH(v);
 } // TxValH16
 
-uint8 PollRxChar(void)
-{
+uint8 PollRxChar(void) {
 	static uint8	ch;	
 
-	if( PIR1bits.RCIF )	// a character is waiting in the buffer
-	{
-		if( RCSTAbits.OERR || RCSTAbits.FERR )	// overrun or framing error?
-		{
+	if( PIR1bits.RCIF ) { // a character is waiting in the buffer
+		if( RCSTAbits.OERR || RCSTAbits.FERR ) { // overrun or framing error?
 			RCSTAbits.CREN = false;	// disable, then re-enable port to
 			RCSTAbits.CREN = true;	// reset OERR and FERR bit
 			ch = RCREG;	// dummy read
-		}
-		else
-		{
+		} else {
 			ch = RCREG;	// get the character
 			TxChar(ch);	// echo it for UAVPSet
 			return(ch);		// and return it
@@ -149,33 +131,28 @@ uint8 PollRxChar(void)
 
 } // PollRxChar
 
-uint8 RxChar(void)
-{
+uint8 RxChar(void) {
 	static uint8 ch;	
 
 	while ( !PIR1bits.RCIF );
 
-	if( RCSTAbits.OERR || RCSTAbits.FERR )	// overrun or framing error?
-	{
+	if( RCSTAbits.OERR || RCSTAbits.FERR ) { // overrun or framing error?
 		RCSTAbits.CREN = false;	// disable, then re-enable port to
 		RCSTAbits.CREN = true;	// reset OERR and FERR bit
 		ch = RCREG;	// dummy read
-	}
-	else
+	} else
 		ch = RCREG;	// get the character
 	
 	return(ch);
 } // RxChar
 
 
-uint8 RxNumU(void)
-{
+uint8 RxNumU(void) {
 	// UAVPSet sends 2 digits for parameter tags
 	static uint8 ch, i, n;
 
 	n = 0;
-	for ( i = 0; i<(uint8)2; i++)
-	{
+	for ( i = 0; i<(uint8)2; i++) {
 		do
 			ch = PollRxChar();
 		while( (ch < '0') || (ch > '9') );
@@ -185,8 +162,7 @@ uint8 RxNumU(void)
 	return(n);
 } // RxNumU
 
-int16 RxNumS(void)
-{
+int16 RxNumS(void) {
 	// UAVPSet V7 onwards sends sign and 3 digits
 	static uint8 ch, i;
 	static int16 n;
@@ -197,8 +173,7 @@ int16 RxNumS(void)
 		ch = PollRxChar();
 	while( ((ch < '0') || (ch > '9')) && (ch != '-') );
 
-	if( ch == '-' )
-	{
+	if( ch == '-' ) {
 		Neg = true;
 		do
 			ch = PollRxChar();
@@ -206,8 +181,7 @@ int16 RxNumS(void)
 	}
 	n = ch - '0';
 
-	for ( i = 0; i<(uint8)2; i++ )
-	{
+	for ( i = 0; i<(uint8)2; i++ ) {
 		do
 			ch = PollRxChar();
 		while( (ch < '0') || (ch > '9') );
@@ -219,14 +193,12 @@ int16 RxNumS(void)
 	return(n);
 } // RxNumS
 
-void TxVal32(int32 V, int8 dp, uint8 Separator)
-{
+void TxVal32(int32 V, int8 dp, uint8 Separator) {
 	static uint8 S[16];
 	static int8 c, Rem, zeros, i;
 	static int32 NewV;
 	 
-	if (V<0)
-	{
+	if (V<0) {
 		TxChar('-');
 	    V = -V;
 	}
@@ -234,8 +206,7 @@ void TxVal32(int32 V, int8 dp, uint8 Separator)
 //		TxChar(' ');
 	
 	c=0;
-	do
-	{
+	do {
 	    NewV = V/10;
 	    Rem = V - (NewV * 10);
 	    S[c++] = Rem + '0';
@@ -243,8 +214,7 @@ void TxVal32(int32 V, int8 dp, uint8 Separator)
 	}
 	while (V > 0);
 	  
-	if ((c < ( dp + 1 ) ) && (dp > 0 ))
-	{
+	if ((c < ( dp + 1 ) ) && (dp > 0 )) {
 	    TxChar('0');
 	    TxChar('.');
 	} 
@@ -254,8 +224,7 @@ void TxVal32(int32 V, int8 dp, uint8 Separator)
 		for (i = zeros; i>=0; i--)
 			TxChar('0');
 
-	do
-	{
+	do {
 	    c--;
 	    TxChar(S[c]);
 	    if ((c == dp)&&(c>0)) 
@@ -267,8 +236,7 @@ void TxVal32(int32 V, int8 dp, uint8 Separator)
 		TxChar(Separator);
 } // TxVal32
 
-void TxESCu8(uint8 ch)
-{
+void TxESCu8(uint8 ch) {
   if ((ch == SOH)||(ch == EOT)||(ch == ESC))
 	TxChar(ESC);
   TxChar(ch);
@@ -281,8 +249,7 @@ void TxESCi8(int8 b)
   TxChar(b);
 } // TxESCu8
 
-void Sendi16(int16 v)
-{
+void Sendi16(int16 v) {
 	static i16u Temp;
 
 	Temp.i16 = v;
@@ -290,12 +257,12 @@ void Sendi16(int16 v)
 	TxChar(Temp.b1);
 } // Sendi16
 
-void TxESCi16(int16 v)
-{
+void TxESCi16(int16 v) {
 	static i16u Temp;
 
 	Temp.i16 = v;
 
+#ifdef INLINE_TX
 	if ((Temp.b0 == SOH)||(Temp.b0 == EOT)||(Temp.b0 == ESC))
 		TxChar(ESC);
 	TxChar(Temp.b0);
@@ -303,21 +270,19 @@ void TxESCi16(int16 v)
 	if ((Temp.b1 == SOH)||(Temp.b1 == EOT)||(Temp.b1 == ESC))
 		TxChar(ESC);
 	TxChar(Temp.b1);
-
-/*
+#else
 	TxESCu8(Temp.b0);
 	TxESCu8(Temp.b1);
-	TxESCu8(Temp.b2);
-*/
+#endif
 
 } // Sendi16
 
-void TxESCi24(int24 v)
-{
+void TxESCi24(int24 v) {
 	static i24u Temp;
 
 	Temp.i24 = v;
 
+#ifdef INLINE_TX
 	if ((Temp.b0 == SOH)||(Temp.b0 == EOT)||(Temp.b0 == ESC))
 		TxChar(ESC);
 	TxChar(Temp.b0);
@@ -329,20 +294,19 @@ void TxESCi24(int24 v)
 	if ((Temp.b2 == SOH)||(Temp.b2 == EOT)||(Temp.b2 == ESC))
 		TxChar(ESC);
 	TxChar(Temp.b2);
-
-/*
+#else
 	TxESCu8(Temp.b0);
 	TxESCu8(Temp.b1);
 	TxESCu8(Temp.b2);
-*/
+#endif
 } // Sendi16
 
-void TxESCi32(int32 v)
-{
+void TxESCi32(int32 v) {
 	static i32u Temp;
 
 	Temp.i32 = v;
 
+#ifdef INLINE_TX
 	if ((Temp.b0 == SOH)||(Temp.b0 == EOT)||(Temp.b0 == ESC))
 		TxChar(ESC);
 	TxChar(Temp.b0);
@@ -358,9 +322,9 @@ void TxESCi32(int32 v)
 	if ((Temp.b3 == SOH)||(Temp.b3 == EOT)||(Temp.b3 == ESC))
 		TxChar(ESC);
 	TxChar(Temp.b3);
-/*
+#else
 	TxESCi16(Temp.w0);
 	TxESCi16(Temp.w1);
-*/
+#endif
 } // TxESCi32
 

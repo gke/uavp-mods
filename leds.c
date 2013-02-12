@@ -121,7 +121,7 @@ void LEDChaser(void)
 
 	if ( mSClock() > mS[LEDChaserUpdate] )
 	{
-		mS[LEDChaserUpdate] = mSClock() + 60;
+		mSTimer(LEDChaserUpdate, 60);
 		if ( F.HoldingAlt ) 
 		{
 			LEDShadow ^= LEDChase[LEDPattern];
