@@ -79,7 +79,6 @@ int32	OriginBaroTemperature, OriginBaroPressure;
 int24	BaroAltitude, BaroAltitudeP;
 i32u	BaroVal;
 uint8	BaroType;
-int16	BaroRetries;
 
 int8 	SimulateCycles;
 uint8 	BaroPressureCycles;

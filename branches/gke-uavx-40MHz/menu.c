@@ -200,8 +200,6 @@ void ShowSetup(void)
 	
 	if ( !F.BaroAltitudeValid )
 		TxString("\tBaro. FAIL\r\n");
-	if ( BaroRetries >= BARO_INIT_RETRIES )
-		TxString("\tBaro Init FAILED\r\n");
 
 	if ( !F.RangefinderAltitudeValid )
 		TxString("\tRangefinder OFFLINE\r\n");
