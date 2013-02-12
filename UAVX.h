@@ -22,9 +22,9 @@
 //#define USE_DROTEK
 
 #ifndef BATCHMODE
-	//#define TESTING
+	#define TESTING
 	//#define FULL_TEST			// extended compass test etc.					
-	#define SIMULATE
+	//#define SIMULATE
 	#define QUADROCOPTER
 	//#define TRICOPTER
 	//#define Y6COPTER
@@ -849,7 +849,6 @@ extern int24 BaroAltitude;
 extern i32u	BaroVal;
 extern uint8 BaroType;
 extern int16 AltitudeUpdateRate;
-extern int16 BaroRetries;
 extern int24 AltCF;
 extern int16 TauCF;
 extern int32 AltF[];
