@@ -29,8 +29,7 @@ void GyrosAndAccsTest(void);
 
 uint8 EffAccTrack;
 
-void CompensateRollPitchGyros(void)
-{
+void CompensateRollPitchGyros(void) {
 	// RESCALE_TO_ACC is dependent on cycle time and is defined in uavx.h
 	#define ANGLE_COMP_STEP 6 //25
 
@@ -38,26 +37,22 @@ void CompensateRollPitchGyros(void)
 	static uint8 a;
 	static AxisStruct *C;
 
-	if ( F.AccelerationsValid ) 
-	{
+	if ( F.AccelerationsValid ) {
 		ReadAccelerations();
 
 		A[Yaw].Acc = A[Yaw].AccADC - A[Yaw].AccBias; 
 
-		for ( a = Roll; a<(uint8)Yaw; a++ )
-		{
+		for ( a = Roll; a<(uint8)Yaw; a++ ) {
 			C = &A[a];
 			AbsAngle = Abs(C->Angle);
-			if ( AbsAngle < (30 * DEG_TO_ANGLE_UNITS) ) // ArcSin approximation holds
-			{	
+			if ( AbsAngle < (30 * DEG_TO_ANGLE_UNITS) ) { // ArcSin approximation holds	
 				C->Acc = C->AccADC - C->AccBias; 
 				Grav = SRS32((int32)C->Angle * EffAccTrack, 8); 
 				Dyn = 0; //A[a].Rate;
 		
 			    NewCorr = SRS32(C->Acc + Grav + Dyn, 3); 
 	
-				if ( (State == InFlight) && (AbsAngle > 10 * DEG_TO_ANGLE_UNITS) )
-				{
+				if ( (State == InFlight) && (AbsAngle > 10 * DEG_TO_ANGLE_UNITS) ) {
 					C->AccCorrAv += Abs(NewCorr);
 					C->AccCorrMean += NewCorr;
 					NoAccCorr++;
@@ -65,8 +60,7 @@ void CompensateRollPitchGyros(void)
 				// smoothing filter here?
 	
 				C->DriftCorr = Limit1(NewCorr, ANGLE_COMP_STEP);
-			}
-			else
+			} else
 				C->DriftCorr = 0;			
 		}
 	}	
@@ -89,8 +83,7 @@ void DoAttitudeAngles(void)
 	static int16 Temp;
 	static AxisStruct *C;
 
-	for ( a = Roll; a <= (uint8)Pitch; a++ )
-	{
+	for ( a = Roll; a <= (uint8)Pitch; a++ ) {
 		C = &A[a];
 	
 		#ifdef INC_RAW_ANGLES
@@ -106,21 +99,16 @@ void DoAttitudeAngles(void)
 } // DoAttitudeAngles
 
 
-void GetAttitude(void)
-{
+void GetAttitude(void) {
 	GetGyroValues();
 	CalculateGyroRates();
 	CompensateRollPitchGyros();
-#ifdef OLD_YAW
-	CompensateYawGyro();
-#endif
 	DoAttitudeAngles();
 } // GetAttitude
 
 #ifdef TESTING
 
-void GyrosAndAccsTest(void)
-{
+void GyrosAndAccsTest(void) {
 	static int16 Mag;
 
 	ReadAccelerations();
@@ -137,16 +125,13 @@ void GyrosAndAccsTest(void)
 	TxNextLine();
 
 	#ifdef INC_MPU6050
-	if ( AccType == MPU6050Acc ) 
-	{
+	if ( AccType == MPU6050Acc ) {
 		TxString("\r\nDLPF: ");
 		if ((MPU6050DLPF >= MPU_RA_DLPF_BW_256) && (MPU6050DLPF
-						<= MPU_RA_DLPF_BW_5)) 
-		{
+						<= MPU_RA_DLPF_BW_5)) {
 			TxVal32(InertialLPFHz[MPU6050DLPF],0,0);
 			TxString("Hz");
-		} 
-		else
+		} else
 			TxString("Unknown");
 		
 		TxString(" DHPF: ");

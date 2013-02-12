@@ -27,8 +27,7 @@ void WriteEE(uint16, int8);
 void Write16EE(uint16, int16);
 void Write32EE(uint16, int32);
 
-int8 ReadEE(uint16 a)
-{
+int8 ReadEE(uint16 a) {
 	static int8 b;
 
 	EEADR = a;
@@ -40,8 +39,7 @@ int8 ReadEE(uint16 a)
 	return(b);	
 } // ReadEE
 
-int16 Read16EE(uint16 a)
-{
+int16 Read16EE(uint16 a) {
 	static i16u Temp16;
 
 	Temp16.b0 = ReadEE(a);
@@ -50,8 +48,7 @@ int16 Read16EE(uint16 a)
 	return ( Temp16.i16 );
 } // Read16EE
 
-int32 Read32EE(uint16 a)
-{
+int32 Read32EE(uint16 a) {
 	static i32u Temp32;
 
 	Temp32.b0 = ReadEE(a);
@@ -62,14 +59,12 @@ int32 Read32EE(uint16 a)
 	return ( Temp32.i32 );
 } // Read32EE
 
-void WriteEE(uint16 a, int8 d)
-{
+void WriteEE(uint16 a, int8 d) {
 	static int8 rd;
 	static uint8 IntsWereEnabled;
 	
 	rd = ReadEE(a);
-	if ( rd != d )						// avoid redundant writes
-	{
+	if ( rd != d ) {// avoid redundant writes
 		EEDATA = d;				
 		EEADR = a;
 		EEADRH = a>>8;
@@ -89,19 +84,16 @@ void WriteEE(uint16 a, int8 d)
 	}
 } // WriteEE
 
-void Write16EE(uint16 a, int16 d)
-{
+void Write16EE(uint16 a, int16 d) {
 	static i16u Temp16;
 
 	Temp16.i16 = d;
 	WriteEE(a, Temp16.b0);
 	WriteEE(a + 1, Temp16.b1);
 
-
 } // Write16EE
 
-void Write32EE(uint16 a, int32 d)
-{
+void Write32EE(uint16 a, int32 d) {
 	static i32u Temp32;
 
 	Temp32.i32 = d;

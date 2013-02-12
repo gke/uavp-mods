@@ -50,8 +50,14 @@ void OutSignals(void)
 	static uint24 SaveClockmS;
 	static int8 ServoUpdate;
 
-	if ( !F.MotorsArmed )
+	if ( !F.DrivesArmed )
 		StopMotors();
+
+	if ( F.Bypass || !Armed ) {
+		Rl = (int16) (-A[Roll].Desired);
+		Pl = (int16) (-A[Pitch].Desired);
+		Yl = (int16) (-A[Yaw].Desired);
+	}
 
 	#if ( defined SIMULATE | defined TESTING )
 

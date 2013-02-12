@@ -29,13 +29,10 @@ void BatteryTest(void);
 
 void DoLEDs(void)
 {
-	if( F.Signal )
-	{
+	if( F.Signal ) {
 		LEDRed_OFF;
 		LEDGreen_ON;
-	}
-	else
-	{
+	} else {
 		LEDGreen_OFF;
 		LEDRed_ON;
 	}
@@ -66,19 +63,14 @@ void ReceiverTest(void)
 	// Be wary as new RC frames are being received as this
 	// is being displayed so data may be from overlapping frames
 
-	for ( s = 0; s < NoOfControls; s++ )
-	{
-		TxChar(s+'1');
-		TxString(": ");
+	for ( s = 0; s < NoOfControls; s++ ) {
 		TxChar(RxChMnem[RMap[s]]);
 		TxString(":\t");
- 
 		TxVal32(( PPM[s].i16 * 8L + 5L ) / 10L, 3, 0);
 		TxChar(HT);
 		TxVal32(((int32)PPM[s].i16*100L + 625L ) / 1250L, 0, '%');
 		if ( ( PPM[s].i16 < 0 ) || ( PPM[s].i16 > 1250 ) ) 
 			TxString(" FAIL");
-
 		TxNextLine();
 	}
 
@@ -131,23 +123,25 @@ void DoEmulation(void) {
 		if ((HRBaroAltitude) < 10)
 			BaroROC = HRBaroAltitude = BaroAltitude = 0;
 
-		GPSAltitude = BaroAltitude;
+		GPS.Altitude = BaroAltitude;
 		F.NewBaroValue = true;
+		F.BaroAltitudeValid = true;
 
-		A[Roll].Angle = ((int32)A[Roll].Control * DEG_TO_ANGLE_UNITS * 45) / RC_NEUTRAL;
-		A[Pitch].Angle = ((int32)A[Pitch].Control * DEG_TO_ANGLE_UNITS * 45) / RC_NEUTRAL;
+		A[Roll].Angle = ((int32)A[Roll].Control * 58);//DEG_TO_ANGLE_UNITS * 45) / RC_NEUTRAL;
+		A[Pitch].Angle = ((int32)A[Pitch].Control * 58);//DEG_TO_ANGLE_UNITS * 45) / RC_NEUTRAL;
 
 		Rl = -A[Roll].Control; 
 		Pl = -A[Pitch].Control; 
 		Yl = -A[Yaw].Control;
 
 		#ifdef NAV_WING
-			Heading += (A[Roll].Control - A[Yaw].Control);// * DegreesToRadians(30) ) / (EMU_DTR * RC_NEUTRAL); // say 180/sec
+			MagHeading += (A[Roll].Control - A[Yaw].Control);// * DegreesToRadians(30) ) / (EMU_DTR * RC_NEUTRAL); // say 180/sec
 		#else
-			Heading -= (A[Yaw].Control);// * DegreesToRadians(180) ) / (EMU_DTR * RC_NEUTRAL);
+			MagHeading -= (A[Yaw].Control);// * DegreesToRadians(180) ) / (EMU_DTR * RC_NEUTRAL);
 		#endif
 
-		Heading = Make2Pi(Heading);
+		MagHeading = Make2Pi(MagHeading);
+		Heading = Make2Pi(MagHeading  - CompassOffset );
 	}
 
 } // DoEmulation
@@ -163,33 +157,37 @@ void GPSEmulation(void) {
 	#define SIM_CRUISE_DMPS 70L
 	#define SIM_MAX_DMPS 100L
 
-	int32 NorthDiff, EastDiff, PitchDiff, RollDiff, PitchDiffp, RollDiffp;
+	int16 NorthDiff, EastDiff;
+	int24 PitchDiff, RollDiff;
 
 	#ifdef NAV_WING
 		PitchDiff = SIM_CRUISE_DMPS;
-		RollDiff = ((int32)A[Roll].Control * (SIM_MAX_DMPS/4)) / RC_NEUTRAL; 
+	//	RollDiff = ((int32)A[Roll].Control * (SIM_MAX_DMPS/4)) / RC_NEUTRAL; 
+		RollDiff = SRS16(A[Roll].Control, 2);
 	#else
-		PitchDiff = -((int32)A[Pitch].Control * SIM_MAX_DMPS) / RC_NEUTRAL; 
-		RollDiff = ((int32)A[Roll].Control * SIM_MAX_DMPS) / RC_NEUTRAL; 
+//		PitchDiff = -((int32)A[Pitch].Control * SIM_MAX_DMPS) / RC_NEUTRAL; 
+//		RollDiff = ((int32)A[Roll].Control * SIM_MAX_DMPS) / RC_NEUTRAL; 
+		PitchDiff = -SRS16(A[Pitch].Control, 1); 
+		RollDiff = SRS16(A[Roll].Control, 1); 
 	#endif
 
 	Rotate(&NorthDiff, &EastDiff, PitchDiff, RollDiff, -Heading);
 
-	GPSVel = int32sqrt(Sqr(PitchDiff) + Sqr(RollDiff));
+	GPS.Vel = int32sqrt(Sqr(PitchDiff) + Sqr(RollDiff));
 	F.ValidGPSVel = true;
 
 	NorthDiff += FAKE_NORTH_WIND;
 	EastDiff += FAKE_EAST_WIND;
 
-	GPSLongitudeRaw += ConvertdMToGPS(EastDiff) / GPS_UPDATE_HZ;
-	GPSLatitudeRaw += ConvertdMToGPS(NorthDiff) / GPS_UPDATE_HZ;
+	GPS.LongitudeRaw += ConvertdMToGPS(EastDiff) / GPS_UPDATE_HZ;
+	GPS.LatitudeRaw += ConvertdMToGPS(NorthDiff) / GPS_UPDATE_HZ;
 
-	GPSHeading = Heading;
+	GPS.Heading = Heading;
 
 	GPSPacketTag = GPGGAPacketTag;
-	GPSFix = 3;
-	GPSNoOfSats = 10;
-	GPSHDilute = 50;
+	GPS.Fix = 3;
+	GPS.NoOfSats = 10;
+	GPS.HDOP = 5;
 	F.GPSValid = true;
 
 } // EmulateGPS

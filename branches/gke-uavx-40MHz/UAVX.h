@@ -1,10 +1,3 @@
-
-//#define INC_RAW_ANGLES
-
-//#define HAVE_CUTOFF_SW		// Pin11 (RC0) short to ground when landed otherwise 10K pullup.
-
-//#define DISABLE_MAG_CAL
-
 // ===============================================================================================
 // =                                UAVX Quadrocopter Controller                                 =
 // =                           Copyright (c) 2008 by Prof. Greg Egan                             =
@@ -25,11 +18,12 @@
 //    You should have received a copy of the GNU General Public License along with this program.  
 //    If not, see http://www.gnu.org/licenses/
 
+
+//#define USE_DROTEK
+
 #ifndef BATCHMODE
-	//#define USE_DROTEK
 	//#define TESTING
-	//#define FULL_TEST			// extended compass test etc.
-	//#define FORCE_NAV					
+	//#define FULL_TEST			// extended compass test etc.					
 	#define SIMULATE
 	#define QUADROCOPTER
 	//#define TRICOPTER
@@ -40,6 +34,7 @@
 	//#define AILERON
 	//#define ELEVON
 	//#define VTOL
+	//#define USE_CROSSTRACK	// DAMPING and CYCLE_STATS need to be disabled 
 	//#define HAVE_CUTOFF_SW	// Ground PortC Bit 0 (Pin 11) for landing cutoff otherwise 4K7 pullup.
 	//#define I2C100KHZ
 #endif // !BATCHMODE
@@ -55,27 +50,37 @@
 	#define FULL_ACC_TEST
 	#define FULL_COMPASS_TEST
 #endif // FULL_TEST
-#define INC_CYCLE_STATS
+
+#define INC_POLAR
 
 #define DEG_TO_ANGLE_UNITS		156L	// approximate!
 #define MAX_BANK_ANGLE_DEG		45L
 
-#define INC_LISL
 #define INC_BOSCH_BARO
 
 #ifdef TESTING
-	#define INC_BMA180		// include BMA180 accelerometer code
-//zzz	#define INC_LRCI2CESC
-	#define INC_MPU6050
-	#define INC_MS5611		// FreeIMU etc.
-#else
 	#ifdef USE_DROTEK
 		#define INC_BMA180		// include BMA180 accelerometer code
-		#define INC_LRCI2CESC
 	#else
 		#define INC_MPU6050
+		#define INC_LISL
+	#endif
+	#define INC_MS5611			// FreeIMU etc.
+#else
+	#ifdef USE_DROTEK
+		#define INC_BMA180
+		#define INC_LRCI2CESC
+		#define INC_CYCLE_STATS
+		#define INC_DAMPING
+	#else
+		#define INC_MPU6050
+		#define INC_LISL
 		#define INC_MS5611		// FreeIMU etc.
-//		#define INC_LRCI2CESC
+		#define INC_LRCI2CESC
+		#ifndef INC_LRCI2CESC
+		//	#define INC_CYCLE_STATS
+			#define INC_DAMPING
+		#endif
 	#endif
 #endif
 
@@ -176,7 +181,7 @@
 
 #define LAND_CM						300L	// centimetres deemed to have landed when below this height
 
-#define ALT_MAX_ROC_CMPS			100		// cm/S maximum climb rate
+#define ALT_MAX_ROC_CMPS			500		// cm/S maximum climb rate
 
 #define ALT_MAX_THR_COMP			80L		// Stick units was 40
 
@@ -184,7 +189,9 @@
 #define ALT_RF_DISABLE_CM			400L //600L	// altitude above which the rangefiner is deselected as the altitude source
 
 #define BARO_SLEW_LIMIT_CMPS		1500L	//500L	// cm/S  
-#define BARO_SANITY_CHANGE_CMPS		3000L	//500L	// cm/S 
+#define BARO_SANITY_CHANGE_CMPS		2000L	//500L	// cm/S 
+
+#define BARO_ROC_THRESHOLD_CMPS 	3
 
 // Navigation
 
@@ -204,7 +211,6 @@
 
 #define NAV_ENFORCE_ALTITUDE_CEILING		// limit all autonomous altitudes
 #define NAV_CEILING					120L	// 400 feet
-#define NAV_MAX_NEUTRAL_RADIUS		3L		// Metres also minimum closing radius
 #define NAV_MAX_RADIUS				99L		// Metres
 #define NAV_CLOSING_RADIUS_SHIFT	9		// Using shift to avoid division 
 #define NAV_CLOSING_RADIUS			((int32)1<<NAV_CLOSING_RADIUS_SHIFT) // GPS units ~54 per metre
@@ -232,14 +238,14 @@
 #define	GPS_MIN_SATELLITES			4		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX					1		// must be 1 or 2 
 #define GPS_ORIGIN_SENTENCES 		5L		// Number of sentences needed to obtain reasonable Origin
-#define GPS_MIN_HDILUTE				250L	// HDilute * 100
+#define GPS_MIN_HDOP				25L		// HDilute * 10
 
 #else
 
 #define	GPS_MIN_SATELLITES			6		// preferably > 5 for 3D fix
 #define GPS_MIN_FIX					1		// must be 1 or 2 
 #define GPS_ORIGIN_SENTENCES 		30L		// Number of sentences needed to obtain reasonable Origin
-#define GPS_MIN_HDILUTE				130L	// HDilute * 100
+#define GPS_MIN_HDOP				15L		// HDilute * 10
 
 #endif // SIMULATE
 
@@ -262,7 +268,6 @@
 #define	CURRENT_SENSOR_MAX			50L		// Amps range of current sensor - used for estimated consumption - no actual sensor yet.
 #define	THROTTLE_CURRENT_SCALE		((THROTTLE_MAX_CURRENT * 1024L)/(200L * CURRENT_SENSOR_MAX ))
 
-#define THROTTLE_SLEW_LIMIT			0		// limits the rate at which the throttle can change (=0 no slew limit, 5 OK)
 #define THROTTLE_MIDDLE				10  	// throttle stick dead zone for baro 
 #define THROTTLE_MIN_ALT_HOLD		75		// min throttle stick for altitude lock
 
@@ -402,9 +407,16 @@ typedef struct {
 typedef struct { 
 	int32 S;
 	uint8 Head, Tail;
-	int16 B[16];
+	int16 B[4];
 	boolean Prime;
-	} int16x16Q;	
+	} int16x4Q;
+
+typedef struct {
+	int24 c[3], h[8]; // 8 for rate of change use
+	int24 S;
+	boolean Primed;
+	uint8 Head, Tail;
+} HistStruct;	
 
 #define NAVQ_MASK 3
 #define NAVQ_SHIFT 2
@@ -420,10 +432,10 @@ typedef struct {
 	int16 AngleKp, AngleKi, RateKp, RateKi, RateKd;
 	// run time
 	int16 Trim, Hold; 
-	int16 Desired, FakeDesired;
+	int16 Desired;
 	int16 GyroADC, GyroBias;
-	int16 RawAngle, Angle, AngleE, AngleIntE;	
-	int16 Rate, Ratep, RateE;
+	int16 RawAngle, Angle, AngleE, AngleEInt;	
+	int16 Rate, Ratep, RateD, RateDp;
 	int16 Acc, AccADC, AccBias;
 	int8 DriftCorr;
 	int8 Damping;
@@ -492,6 +504,9 @@ typedef struct {
 #define InterruptsEnabled 	(INTCONbits.GIEH)
 
 // Clock
+
+#define mSTimer(t,p) mS[t]=mSClock()+p
+
 #define	TMR0_1MS		(65536-640) // actually 1.0248mS to clear PW 
 
 // Parameters for UART port ClockHz/(16*(BaudRate+1))
@@ -507,9 +522,9 @@ typedef struct {
 #define Armed			(PORTAbits.RA4)
 
 #ifdef HAVE_CUTOFF_SW
-#define InTheAir		(PORTCbits.RC0) // normally open micro switch to ground
+	#define InTheAir		(PORTCbits.RC0) // normally open micro switch to ground
 #else
-#define InTheAir		true	 
+	#define InTheAir		true	 
 #endif // HAVE_CUTOFF_SW
 
 // EEPROM
@@ -555,77 +570,87 @@ typedef union {
 	uint8 AllFlags[FLAG_BYTES];
 	struct { // Order of these flags subject to change
 		uint8
-		AltHoldEnabled:1,	
-		AllowTurnToWP:1,			// stick programmed
-		GyroFailure:1,
-		LostModel:1,
-		NearLevel:1,
-		LowBatt:1,
-		GPSValid:1,
-		NavValid:1,
+			AltHoldEnabled :1,
+			AllowTurnToWP :1,
+			GyroFailure :1,
+			LostModel :1,
+			NearLevel :1,
+			LowBatt :1,
+			GPSValid :1,
+			NavValid :1,
 
-		BaroFailure:1,
-		AccFailure:1,
-		CompassFailure:1,
-		GPSFailure:1,
-		AttitudeHold:1,
-		ThrottleMoving:1,
-		HoldingAlt:1,
-		Navigate:1,
+			// 1
+			BaroFailure :1,
+			AccFailure :1,
+			MagnetometerFailure :1,
+			GPSFailure :1,
+			AttitudeHold :1,
+			ThrottleMoving :1,
+			HoldingAlt :1,
+			Navigate :1,
 
-		ReturnHome:1,
-		WayPointAchieved:1,
-		WayPointCentred:1,
-		AccelerometersEnabled:1,
-		UsingRTHAutoDescend:1,
-		BaroAltitudeValid:1,
-		RangefinderAltitudeValid:1,
-		UsingRangefinderAlt:1,
+			// 2
+			ReturnHome :1,
+			WayPointAchieved :1,
+			WayPointCentred :1,
+			AccelerometersEnabled :1,
+			UsingRTHAutoDescend :1,
+			BaroAltitudeValid :1,
+			RangefinderAltitudeValid :1,
+			UsingRangefinderAlt :1,
 
-		// internal flags not really useful externally
+			// 3
+			AllowNavAltitudeHold :1,
+			Bypass :1,
+			PolarCoords :1,
+			Simulation :1,
+			AcquireNewPosition :1,
+			DrivesArmed :1,
+			NavigationActive :1,
+			ForceFailsafe :1,
 
-		AllowNavAltitudeHold:1,	// stick programmed
-		UsingPositionHoldLock:1,
-		Ch5Active:1,
-		Simulation:1,
-		AcquireNewPosition:1, 
-		MotorsArmed:1,
-		NavigationActive:1,
-		ForceFailsafe:1,
+			// 4
+			Signal :1, 
+			RCFrameOK :1,
+			ParametersValid :1,
+			RCNewValues :1,
+			NewCommands :1,
+			AccelerationsValid :1,
+			MagnetometerValid :1,
+			NewMagValues :1,
 
-		Signal:1,
-		RCFrameOK:1, 
-		ParametersValid:1,
-		RCNewValues:1,
-		NewCommands:1,
-		AccelerationsValid:1,
-		MagnetometerValid:1,
-		CompassMissRead:1,
+			// 5
+			UsingAltControl :1, 
+			ReceivingGPS :1, 
+			PacketReceived :1,
+			NavComputed :1, 
+			AltitudeValid :1,
+			AccelerometersCalibrated :1,
+			CrossTrackActive :1,
+			FailsafesEnabled :1,
 
-		UsingAltControl:1,
-		ReceivingGPS:1,
-		PacketReceived:1,
-		NavComputed:1,
-		AltitudeValid:1,		
-		UsingSerialPPM:1,
-		UsingTxMode2:1,
-		FailsafesEnabled:1,
+			// 6
+			NewBaroValue :1, 
+			BeeperInUse :1, 
+			RFInInches :1, 
+			FirstArmed :1,
+			ValidGPSVel :1, 
+			RCFrameReceived :1, 
+			UsingAnalogGyros :1,
+			NewMagnetometerValue :1,
 
-		// outside telemetry flags
-
-		UsingTelemetry:1,
-		TxToBuffer:1,
-		NewBaroValue:1,
-		BeeperInUse:1,
-		RFInInches:1,
-		FirstArmed:1,
-		ValidGPSVel:1,
-
-		MPU6050Initialised:1,
-		UsingAnalogGyros:1,
-		NewCompassValue:1,
-		AltitudeCFPrimed:1,
-		OriginAltValid:1;	
+			// 7
+			OriginAltValid :1, 
+			HaveGPS :1, 
+			UsingCompoundPPM :1,
+			UsingTxMode2 :1, 
+			HaveEEPROM :1, 
+			ConfigError :1,
+			AltitudeCFPrimed: 1,
+			TxToBuffer:1 ,
+ 			// 8
+			I2CFatal :1;
+			// 9
 		};
 } Flags;
 
@@ -705,6 +730,10 @@ extern void InitADC(void);
 
 // autonomous.c
 
+#define SetDesiredAltitude(n) DesiredAltitude = n
+#define DoAutoLanding() if(DoLanding())DoShutdown()
+#define DoFailsafeLanding() if(DoLanding())DoFailsafeShutdown()
+
 enum Coords {
 	NorthC, EastC, AltC
 };
@@ -717,7 +746,18 @@ typedef struct {
 
 typedef struct {
 	CoordStruct C[3];
+	int16 Sensitivity;
+	int16 ProximityAltitude, ProximityRadius;
+	int16 MaxVelocitydMpS;
+	int16 RollPitchSlewRate, YawSlewRate;
 	int16 Corr;
+	int24 CrossTrackE;
+	int8 CrossTrackKp;
+	int16 Bearing;
+	int24 Distance;
+	int8 PosKp;
+	int8 VelKp;
+	int8 YawKp;
 } NavStruct;
 
 extern NavStruct Nav;
@@ -732,16 +772,14 @@ typedef struct {
 } WPStruct;
 
 extern void DoShutdown(void);
+extern void DoFailsafeShutdown(void);
 extern void DecayNavCorr(void);
 extern void FailsafeHoldPosition(void);
 extern void DoCompScaling(void);
 extern void Navigate(int24 DesiredNorth, int24 DesiredEast);
-extern void SetDesiredAltitude(int24);
-extern void DoFailsafeLanding(void);
 extern void AcquireHoldPosition(void);
 extern void NavGainSchedule(int16);
-extern void DoNavigation(void);
-extern void FakeFlight(void); 
+extern void DoNavigation(void); 
 extern void DoFailsafe(void);
 extern void WriteWayPointEE(uint8, int32, int32, int16, uint8);
 extern void UAVXNavCommand(void);
@@ -753,27 +791,18 @@ typedef struct { int32 E, N; int16 A; uint8 L; } WayPoint;
 enum NavStates { HoldingStation, ReturningHome, AtHome, Descending, Touchdown, Navigating, Loitering};
 enum FailStates { MonitoringRx, Aborting, Terminating, Terminated, RxTerminate };
 
-#ifdef SIMULATE
-extern int16 FakeMagHeading;
-#endif // SIMULATE
-
 extern WayPoint WP;
 extern uint8 CurrWP;
 extern int8 NoOfWayPoints;
 extern int24 WPAltitude;
 extern int32 WPLatitude, WPLongitude;
-extern int16 WayHeading;
-extern int16 NavProximityRadius, NavNeutralRadius, NavProximityAltitude; 
+extern int16 WayHeading, OriginalWayHeading;
 extern uint24 NavRTHTimeoutmS;
-extern int16 NavSensitivity, RollPitchMax;
 extern int16 DescentComp;
-extern int16 NavSlewLimit;
-extern int24 PitchDiff, RollDiff;
+extern int16 RollYawMixFrac;
+extern int16 EffNavSensitivity;
 
 extern int24 NavdT;
-extern int24 NorthE, EastE;
-extern int16 NavKpPos, NavKpVel, NavMaxVelocitydMpS;
-extern int16 NavYawLimiter;
 
 //______________________________________________________________________________________________
 
@@ -825,14 +854,8 @@ extern int24 AltCF;
 extern int16 TauCF;
 extern int32 AltF[];
 
-extern int16x16Q BaroROCF;
-
 extern uint16 MS5611Constants[];
 extern uint16 BMP085Constants[];
-
-#ifdef SIMULATE
-extern int24 FakeBaroAltitude;
-#endif // SIMULATE
 
 //______________________________________________________________________________________________
 
@@ -917,18 +940,15 @@ extern uint32 CycleHist[];
 extern AxisStruct A[3];
 	
 extern int16 CameraAngle[3];				
-extern int16 Ylp;
 
-extern int16 YawRateIntE;
-extern int16 HoldYaw;
+extern int16 HeadingE;
 
 extern int16 ControlRoll, ControlPitch, CurrMaxRollPitch;
 
 extern int16 AttitudeHoldResetCount;
 extern int24 DesiredAltitude, Altitude, Altitudep; 
-extern int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, ROCIntE, MinROCCmpS;
+extern int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, MinROCCmpS;
 extern int24 RTHAltitude;
-extern int32 GS;
 
 //______________________________________________________________________________________________
 
@@ -944,6 +964,21 @@ extern void Write32EE(uint16, int32);
 //______________________________________________________________________________________________
 
 // gps.c
+
+typedef struct {
+	int32 	MissionTime, StartTime;
+	int24 	Altitude, OriginAltitude;
+	int32	LatitudeRaw, LongitudeRaw;
+	int32 	OriginLatitudeRaw, OriginLongitudeRaw;
+	int16 	LongitudeCorrection;
+	int16	Heading;
+	int16 	Vel;
+	uint8 	NoOfSats;
+	uint8 	Fix;
+	int16 	HDOP;
+} gpsstruct;
+
+extern gpsstruct GPS;
 
 extern void UpdateField(void);
 extern int32 ConvertGPSToM(int32);
@@ -975,23 +1010,9 @@ extern const rom uint8 NMEATags[MAX_NMEA_SENTENCES][5];
 
 extern uint8 GPSPacketTag;
 
-extern int32 GPSMissionTime, GPSStartTime;
-extern int32 GPSLatitudeRaw, GPSLongitudeRaw;
-extern int32 OriginLatitudeRaw, OriginLongitudeRaw;
-extern int24 GPSAltitude, GPSAltitude, GPSOriginAltitude;
-extern int16 GPSLongitudeCorrection;
-extern int16 GPSHeading;
-extern int16 GPSVel;
-extern uint8 GPSNoOfSats;
-extern uint8 GPSFix;
-extern int16 GPSHDilute;
 extern uint8 nll, cc, lo, hi;
 extern boolean EmptyField;
 extern int16 ValidGPSSentences;
-
-#ifdef SIMULATE
-extern int32 FakeGPSLongitude, FakeGPSLatitude;
-#endif // SIMULATE
 
 //______________________________________________________________________________________________
 
@@ -1031,13 +1052,12 @@ extern boolean InvenSenseGyroActive(void);
 extern uint8 GyroType;
 extern int16 RawGyro[];
 extern int32 NoAccCorr;
-extern int16x16Q YawF;
 
 //______________________________________________________________________________________________
 
 // irq.c
 
-#define CONTROLS 			10
+#define CONTROLS 			9
 
 #define RxFilter			MediumFilterU
 
@@ -1306,7 +1326,8 @@ extern void UpdateParamSetChoice(void);
 extern boolean ParameterSanityCheck(void);
 extern void InitParameters(void);
 
-enum RCControls {ThrottleRC, RollRC, PitchRC, YawRC, RTHRC, CamPitchRC, NavGainRC, Ch8RC, Ch9RC, ChDumpRC}; 
+enum RCControls {ThrottleRC, RollRC, PitchRC, YawRC, RTHRC, CamPitchRC, NavGainRC, BypassRC,
+	PolarCoordsRC, ChDumpRC}; 
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C, ESCLRCI2C, ESCUnknown };
 enum AFs {TriAF, QuadAF, HexAF, Y6AF, OctAF, OctCoaxVAF, HeliAF, ElevAF, AilAF, VAF, VTOLAF, GimbalAF, AFUnknown};
 
@@ -1337,7 +1358,7 @@ enum Params { // MAX 64
 	RollRateKp, // 01
 	RollRateKi, // 02
 	RollAngleKp, // 03
-	NeutralRadius, // 04 was HorizDampKp
+	Unused4, // 04 was HorizDampKp
 	RollIntLimit, // 05
 	PitchRateKp, // 06
 	PitchRateKi, // 07
@@ -1357,15 +1378,15 @@ enum Params { // MAX 64
 	PercentCruiseThr, // 20
 
 	BaroFilt, // 21
-	Unused22, // was MiddleDU, // 22
+	RollYawMix, // was MiddleDU, // 22
 	PercentIdleThr, // 23
 	RollAngleKi, // was MiddleLR, // 24
 	PitchAngleKi, // was MiddleFB, // 25
 	CamPitchKp, // 26
 	YawAngleKp, // 27
 	PitchRateKd, // 28 was AltKi
-	NavSlew, // 29 was NavRadius
-	NavClosingRadius, // 30 was NavKi
+	NavRollPitchSlew, // 29 was NavRadius
+	Unused30, // 30 was NavKi
 
 	GSThrottle, // 31
 	Acro, // 32
@@ -1385,7 +1406,7 @@ enum Params { // MAX 64
 	MaxDescentRateDmpS, // 46
 	DescentDelayS, // 47
 	GyroLPF, // 48 was NavIntLimit
-	Unused49, // 49 was AltIntLimit
+	NavCrossTrackKp, // 49 was AltIntLimit
 	RxGearCh, // 50 was GravComp
 	RxAux1Ch, // 51 was CompSteps
 	ServoSense, // 52
@@ -1394,10 +1415,10 @@ enum Params { // MAX 64
 	RxAux2Ch, // 55 was GyroYawType
 	RxAux3Ch, // 56 was AltKd
 	Orient, // 57
-	NavYawLimit, // 58
+	NavYawSlew, // 58
 	Balance, // 59
 	RxAux4Ch, // 60
-	Unused61, // 61
+	DriveFilt, // 61
 	Unused62, // 62
 	HorizDampKp, // 63
 	VertDampKp // 64
@@ -1437,6 +1458,7 @@ extern const rom uint8 ESCLimits [];
 
 extern int16 OSin[], OCos[];
 extern int8 Orientation;
+extern int16 OrientationMRad;
 
 extern uint8 ParamSet;
 extern boolean ParametersChanged, SaveAllowTurnToWP;
@@ -1464,6 +1486,7 @@ extern void CheckSticksHaveChanged(void);
 extern void UpdateControls(void);
 extern void CaptureTrims(void);
 extern void CheckThrottleMoved(void);
+extern void UpdateRCMap(void);
 
 extern uint8 Map[], RMap[];
 extern boolean PPMPosPolarity;
@@ -1513,7 +1536,7 @@ extern void ShowStats(void);
 enum Statistics { 
 	GPSAltitudeS, BaroAltitudeS, ESCI2CFailS, GPSMinSatsS, MinROCS, MaxROCS, GPSVelS,  
 	AccFailS, CompassFailS, BaroFailS, GPSInvalidS, GPSMaxSatsS, NavValidS, 
-	MinHDiluteS, MaxHDiluteS, RCGlitchesS, GPSBaroScaleS, GyroFailS, RCFailsafesS, 
+	MinHDOPS, MaxHDOPS, RCGlitchesS, GPSBaroScaleS, GyroFailS, RCFailsafesS, 
 	I2CFailS, MinTempS, MaxTempS, BadS, BadNumS, RollAccCorrAvS, RollAccCorrMeanS, PitchAccCorrAvS, PitchAccCorrMeanS}; // NO MORE THAN 32 or 64 bytes
 
 extern int16 Stats[];
@@ -1591,15 +1614,14 @@ extern void Delay1mS(int16);
 extern void Delay100mSWithOutput(int16);
 extern void DoBeep100mSWithOutput(uint8, uint8);
 extern void DoStartingBeepsWithOutput(uint8);
-extern int32 SlewLimit(int32, int32, int32);
+extern int32 SlewLimit(int32, int32, int16);
 extern int32 ProcLimit(int32, int32, int32);
 extern int16 DecayX(int16, int16);
-extern void InitSmooth16x16(int16x16Q *);
-extern int16 Smooth16x16(int16x16Q *, int16);
-extern int16 SlewLimitLPFilter(int16 Old, int16 New, int16 Slew, int16 F, int16 dT);
-extern void Rotate(int32 * nx, int32 * ny, int32 x,
-		int32 y, int16 A);
-extern void FastRotate(int16 * nx, int16 * ny, int16 x, int16 y, int8 O);
+extern int16 RateOfChange(HistStruct * F, int16 v);
+extern int32 Threshold(int32 v, int16 t);
+extern void Rotate(int16 * nx, int16 * ny, int24 x,
+		int24 y, int16 A);
+extern void FastRotate(int16 * nx, int16 * ny, int24 x, int24 y, int8 O);
 extern void CheckBatteries(void);
 extern void CheckAlarms(void);
 

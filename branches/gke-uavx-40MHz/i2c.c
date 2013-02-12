@@ -93,8 +93,7 @@ boolean I2CWaitClkHi(void) {
 	I2C_CLK_FLOAT;		// set SCL to input, output a high
 	s = 1;
 	while( !I2C_SCL_SW )	// timeout wraparound through 255 to 0 0.5mS @ 40MHz
-		if( ++s == (uint8)0 )
-		{
+		if( ++s == (uint8)0 ) {
 			Stats[I2CFailS]++;
 			return (false);
 		}
@@ -133,16 +132,13 @@ uint8 ReadI2CByte(uint8 r) {
 	d = 0;
 	s = 8;
 	do {
-		if( I2CWaitClkHi() )
-		{ 
+		if( I2CWaitClkHi() ) { 
 			d <<= 1;
 			if( I2C_SDA_SW ) d |= 1;
 			T_HIGH_R;
 			I2C_CLK_LOW;
 			T_LOW_R;
- 		}
-		else
-		{
+ 		} else {
 			Stats[I2CFailS]++;
 			return(false);
 		}
@@ -151,14 +147,11 @@ uint8 ReadI2CByte(uint8 r) {
 	I2C_SDA_SW = r;
 	I2C_DIO_SW = I2C_OUT;
 										
-	if( I2CWaitClkHi() )
-	{
+	if( I2CWaitClkHi() ) {
 		T_HIGH_ACK_R;
 		I2C_CLK_LOW;
 		return(d);
-	}
-	else
-	{
+	} else {
 		Stats[I2CFailS]++;
 		return(false);
 	}
@@ -176,15 +169,12 @@ uint8 WriteI2CByte(uint8 d) {
 		else
 			I2C_DATA_LOW
 	
-		if( I2CWaitClkHi() )
-		{ 	
+		if( I2CWaitClkHi() ) { 	
 			T_HIGH_W;
 			I2C_CLK_LOW;
 			T_LOW_W;
 			dd <<= 1;
-		}
-		else
-		{
+		} else {
 			Stats[I2CFailS]++;
 			return(I2C_NACK);
 		}
@@ -193,8 +183,7 @@ uint8 WriteI2CByte(uint8 d) {
 	I2C_DATA_FLOAT;
 	if( I2CWaitClkHi() )
 		s = I2C_SDA_SW;
-	else
-	{
+	else {
 		Stats[I2CFailS]++;
 		return(I2C_NACK);
 	}	
@@ -215,8 +204,7 @@ boolean I2CWaitClkHi(void) {
 	I2C_CLK_FLOAT;		// set SCL to input, output a high
 	s = 0;
 	while( !I2C_SCL_SW )	// timeout wraparound through 255 to 0 0.5mS @ 16MHz
-		if( ++s == (uint8)0 )
-		{
+		if( ++s == (uint8)0 ) {
 			Stats[I2CFailS]++;
 			return (false);
 		}
@@ -252,14 +240,11 @@ uint8 ReadI2CByte(uint8 r) {
 	d = 0;
 	s = 8;
 	do {
-		if( I2CWaitClkHi() )
-		{ 
+		if( I2CWaitClkHi() ) { 
 			d <<= 1;
 			if( I2C_SDA_SW ) d |= 1;
 			I2C_CLK_LOW;
- 		}
-		else
-		{
+ 		} else {
 			Stats[I2CFailS]++;
 			return(false);
 		}
@@ -268,13 +253,10 @@ uint8 ReadI2CByte(uint8 r) {
 	I2C_SDA_SW = r;
 	I2C_DIO_SW = I2C_OUT;
 									
-	if( I2CWaitClkHi() )
-	{
+	if( I2CWaitClkHi() ) {
 		I2C_CLK_LOW;
 		return(d);
-	}
-	else
-	{
+	} else {
 		Stats[I2CFailS]++;
 		return(false);
 	}
@@ -292,13 +274,10 @@ uint8 WriteI2CByte(uint8 d) {
 		else
 			I2C_DATA_LOW
 	
-		if( I2CWaitClkHi() )
-		{ 	
+		if( I2CWaitClkHi() ) { 	
 			I2C_CLK_LOW;
 			dd <<= 1;
-		}
-		else
-		{
+		} else {
 			Stats[I2CFailS]++;
 			return(I2C_NACK);
 		}
@@ -307,8 +286,7 @@ uint8 WriteI2CByte(uint8 d) {
 	I2C_DATA_FLOAT;
 	if( I2CWaitClkHi() )
 		s = I2C_SDA_SW;
-	else
-	{
+	else {
 		Stats[I2CFailS]++;
 		return(I2C_NACK);
 	}	
@@ -362,8 +340,7 @@ boolean ReadI2Ci16vAtAddr(uint8 d, uint8 cmd, int16 *v, uint8 l, boolean h) {
 		if( WriteI2CByte(cmd) != I2C_ACK ) goto IRSerror;
 	I2CStart();	
 		if( WriteI2CByte(d | 1) != I2C_ACK ) goto IRSerror;
-		for (b = 0; b < l*2; b++)
-		{
+		for (b = 0; b < l*2; b++) {
 			if ( b < (l*2-1) )
 				S[b] = ReadI2CByte(I2C_ACK);
 			else
@@ -373,8 +350,7 @@ boolean ReadI2Ci16vAtAddr(uint8 d, uint8 cmd, int16 *v, uint8 l, boolean h) {
 
 	// fix endian!
 	c = 0;
-	for ( b = 0; b < l; b++)
-	{
+	for ( b = 0; b < l; b++) {
 		if ( h )
 			v[b] = ((int16)(S[c])<<8) | S[c+1];
 		else
@@ -508,17 +484,24 @@ void ShowI2CDeviceName(uint8 d) {
         case MPU6050_ID:
             TxString("MPU6050");
            break;
+#else
+		case INV_ID_3DOF:
+		case INV_ID_6DOF:
+			TxString("ITG3200");
+           break;
+#endif
+#ifdef INC_MS5611 
 		 case MS5611_ID:
          	TxString("Bosch/MS  Baro");
-            break;
-		 case HMC5883L_ID:
-         	TxString("HMC5883L Magnetometer");
             break;
 #else   
         case BOSCH_ID:
             TxString("Bosch/MS  Baro");
             break;
-#endif // INC_MPU6050
+#endif 
+		 case HMC5883L_ID:
+         	TxString("HMC5883L Magnetometer");
+            break;
 		case HMC6352_ID:
 			TxString("HMC6352 Compass");
             break;
@@ -579,6 +562,8 @@ uint8 ScanI2CBus(void) {
 
 	return(d);
 } // ScanI2CBus
+
+#ifdef INC_I2C_PROG
 
 void ProgramSlaveAddress(uint8 addr) {
 	static uint8 s;
@@ -662,6 +647,8 @@ void ConfigureESCs(void) {
 	else
 		TxString("\r\nYGEI2C not selected as ESC?\r\n");
 } // ConfigureESCs
+
+#endif // INC_I2C_PROG
 
 #endif // TESTING
 

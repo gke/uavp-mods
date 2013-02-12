@@ -37,55 +37,87 @@ int16 ThrLow, ThrHigh, ThrNeutral;
 
 void DoRxPolarity(void)
 {
-	if ( F.UsingSerialPPM  ) // serial PPM frame from within an Rx
+	if ( F.UsingCompoundPPM  ) // serial PPM frame from within an Rx
 		CCP1CONbits.CCP1M0 = PPMPosPolarity;
 	else
 		CCP1CONbits.CCP1M0 = true;	
 }  // DoRxPolarity
 
-void InitRC(void)
-{
+
+void UpdateRCMap(void) {
+	static uint8 i;
+
+	for (i = 0; i < (uint8) CONTROLS; i++)
+		Map[i] = i;
+
+	Map[ThrottleRC] = P[RxThrottleCh];
+	Map[RollRC] = P[RxRollCh];
+	Map[PitchRC] = P[RxPitchCh];
+	Map[YawRC] = P[RxYawCh];
+	Map[RTHRC] = P[RxGearCh];
+	Map[CamPitchRC] = P[RxAux1Ch];
+	Map[NavGainRC] = P[RxAux2Ch];
+	Map[BypassRC]= P[RxAux3Ch];
+	Map[PolarCoordsRC] = P[RxAux4Ch];
+
+	for (i = ThrottleRC; i <= (uint8) PolarCoordsRC; i++)
+		Map[i] -= 1;
+
+	for ( i = 0; i < (uint8)CONTROLS; i++) // make reverse map
+		RMap[Map[i]] = i;
+
+} // UpdateRCMap
+
+void InitRC(void) {
 	static uint8 c;
+	
+	for (c = 0; c < (uint8)CONTROLS; c++)
+		PPM[c].i16 = RC[c] = RCp[c] = 0;
 
+	for (c = RollRC; c <= YawRC; c++)
+		RC[c] = RCp[c] = RC_NEUTRAL;
+	RC[CamPitchRC] = RCp[CamPitchRC] = RC_NEUTRAL;
+
+	PPMPosPolarity = (P[ServoSense] & PPMPolarityMask) == 0;	
+	F.UsingCompoundPPM = P[RCType] == CompoundPPM;
+	PIE1bits.CCP1IE = false;
 	DoRxPolarity();
-
- 	mS[StickChangeUpdate] = mSClock();
-	mS[RxFailsafeTimeout] = mSClock() + RC_NO_CHANGE_TIMEOUT_MS;
-	F.ForceFailsafe = false;
+	PPM_Index = PrevEdge = RCGlitches = 0;
+	PIE1bits.CCP1IE = true;
 
 	SignalCount = -RC_GOOD_BUCKET_MAX;
 	F.Signal = F.RCNewValues = false;
-	
-	for (c = 0; c < (uint8)CONTROLS; c++)
-	{
-		PPM[c].i16 = 0;
-		RC[c] = RCp[c] = 0;
-		Map[c] = RMap[c] = c;
-	}
-	RC[ThrottleRC] = RCp[ThrottleRC] = 0; 
-	A[Roll].Desired = A[Pitch].Desired = A[Yaw].Desired = DesiredThrottle = StickThrottle = 0;
-	A[Roll].Trim = A[Pitch].Trim = A[Yaw].Trim = 0; 
-	PPM_Index = PrevEdge = RCGlitches = 0;
+
+	UpdateRCMap();
+
+	for (c = Roll; c<=Yaw; c++)
+		A[c].Desired = A[c].Trim = A[c].Hold = 0;
+ 
+	DesiredThrottle = StickThrottle = 0; 
+	DesiredCamPitchTrim = 0;
+	Nav.Sensitivity = 0;
+	F.ReturnHome = F.Navigate = F.AltHoldEnabled = false;
+
+	mS[StickChangeUpdate] = mSClock();
+	mSTimer(RxFailsafeTimeout, RC_NO_CHANGE_TIMEOUT_MS);
+	SignalCount = -RC_GOOD_BUCKET_MAX;
+	F.ForceFailsafe = false;
+
 } // InitRC
 
 void MapRC(void) {  // re-maps captured PPM to Rx channel sequence
-	static uint8 c, i;
+	static uint8 c, cc;
 	static int16 LastThrottle, Temp;
 	static i32u Temp2;
 
 	LastThrottle = RC[ThrottleRC];
 
-	for (c = 0 ; c < (uint8)NoOfControls ; c++) 
-	{
-		i = Map[c];
+	for (c = 0 ; c < (uint8)NoOfControls ; c++) {
+		cc = RMap[c];
 		//Temp = ((int32)PPM[i].i16 * RC_MAXIMUM + 625L)/1250L; // scale to 4uS res. for now
-		Temp2.i32 = ((int32)PPM[i].i16 * (RC_MAXIMUM*53L)  );
-		RC[c] = RxFilter(RC[c], Temp2.iw1);			
+		Temp2.i32 = ((int32)PPM[c].i16 * (RC_MAXIMUM*53L)  );
+		RC[cc] = RxFilter(RC[cc], Temp2.iw1);					
 	}
-
-	if ( THROTTLE_SLEW_LIMIT > 0 )
-		RC[ThrottleRC] = SlewLimit(LastThrottle, RC[ThrottleRC], THROTTLE_SLEW_LIMIT);
-
 } // MapRC
 
 void CheckSticksHaveChanged(void)
@@ -103,45 +135,35 @@ void CheckSticksHaveChanged(void)
 	if ( F.FailsafesEnabled )
 	{
 		Now = mSClock();
-		if ( F.ReturnHome || F.Navigate  )
-		{
+		if ( F.ReturnHome || F.Navigate  ) {
 			Change = true;
 			mS[RxFailsafeTimeout] = Now + RC_NO_CHANGE_TIMEOUT_MS;			
 			F.ForceFailsafe = false;
-		}
-		else
-		{
-			if ( Now > mS[StickChangeUpdate] )
-			{
+		} else {
+			if ( Now > mS[StickChangeUpdate] ) {
 				mS[StickChangeUpdate] = Now + 500;
 		
 				Change = false;
-				for ( c = ThrottleC; c <= (uint8)RTHRC; c++ )
-				{
+				for ( c = ThrottleC; c <= (uint8)RTHRC; c++ ) {
 					Change |= Abs( RC[c] - RCp[c]) > RC_STICK_MOVEMENT;
 					RCp[c] = RC[c];
 				}
 			}
 		
-			if ( Change )
-			{
+			if ( Change ) {
 				mS[RxFailsafeTimeout] = Now + RC_NO_CHANGE_TIMEOUT_MS;
 				mS[NavStateTimeout] = Now;
 				F.ForceFailsafe = false;
 	
-				if ( FailState == MonitoringRx )
-				{
-					if ( F.LostModel )
-					{
+				if ( FailState == MonitoringRx ) {
+					if ( F.LostModel ) {
 						Beeper_OFF;
 						F.LostModel = false;
 						DescentComp = 1;
 					}
 				}
-			}
-			else
-				if ( Now > mS[RxFailsafeTimeout] )
-				{
+			} else
+				if ( Now > mS[RxFailsafeTimeout] ) {
 					if ( !F.ForceFailsafe && ( State == InFlight ) )
 					{
 						//Stats[RCFailsafesS]++;
@@ -152,60 +174,67 @@ void CheckSticksHaveChanged(void)
 					}
 				}
 		}
-	}
-	else
+	} else
 		F.ForceFailsafe = false;
 
 	#endif // ENABLE_STICK_CHANGE_FAILSAFE
 
 } // CheckSticksHaveChanged
 
-void UpdateControls(void)
-{
-	static boolean NewCh5Active;
+void UpdateControls(void) {
+	static int16 Temp;
+	static uint8 c;
 
 	F.RCNewValues = false;
-
 	MapRC();								// remap channel order for specific Tx/Rx
-
 	StickThrottle = RC[ThrottleRC];
 
 	//_________________________________________________________________________________________
 
-	// Navigation
+	// Stick Processing
 
 	F.ReturnHome = F.Navigate = false;
-	NewCh5Active = RC[RTHRC] > (RC_MAXIMUM/3L);
-
-	if ( F.UsingPositionHoldLock )
-		if ( NewCh5Active && !F.Ch5Active )
-			F.AllowTurnToWP = true;
-		else
-			F.AllowTurnToWP = SaveAllowTurnToWP;
-	else
-		if ( RC[RTHRC] > ((2L*RC_MAXIMUM)/3L) )
+	if (NoOfControls > Map[RTHRC]) {
+		if (RC[RTHRC] > ((2L*RC_MAXIMUM)/3L))
 			F.ReturnHome = true;
-		else
-			if ( RC[RTHRC] > (RC_MAXIMUM/3L) )
-				F.Navigate = true;
-	
-	F.Ch5Active = NewCh5Active;
-
-	if ( NoOfControls < (uint8)7 )
-		DesiredCamPitchTrim = RC_NEUTRAL;
-		// NavSensitivity set in ReadParametersEE
-	else
-	{
-		DesiredCamPitchTrim = RC[CamPitchRC] - RC_NEUTRAL;
-		NavSensitivity = RC[NavGainRC];
-		NavSensitivity = Limit(NavSensitivity, 0, RC_MAXIMUM);
-		F.AltHoldEnabled = NavSensitivity > NAV_SENS_ALTHOLD_THRESHOLD;
+		else if (RC[RTHRC] > ((RC_MAXIMUM)/3L))
+			F.Navigate = true;
 	}
+
+	if (NoOfControls > Map[NavGainRC]) {
+		Nav.Sensitivity = RC[NavGainRC];
+		Nav.Sensitivity = Limit(Nav.Sensitivity, 0, RC_MAXIMUM);
+		F.AltHoldEnabled = Nav.Sensitivity > FromPercent(NAV_SENS_ALTHOLD_THRESHOLD, RC_MAXIMUM);	
+	} else {
+		Nav.Sensitivity = FromPercent(50, RC_MAXIMUM);
+		F.AltHoldEnabled = true;
+	}
+
+	if (NoOfControls > Map[CamPitchRC])
+		DesiredCamPitchTrim = RC[CamPitchRC] - RC_NEUTRAL;
+	else
+		DesiredCamPitchTrim = RC_NEUTRAL;
+
+	#ifdef INC_POLAR
+		#if defined(MULTICOPTER) | defined(HELICOPTER)
+		F.PolarCoords = (NoOfControls > Map[PolarCoordsRC]) && (RC[PolarCoordsRC]
+				> (RC_MAXIMUM/2L));
+		#else
+		F.PolarCoords = false;
+		#endif
+	#else
+		F.PolarCoords = false;
+	#endif
+
+	#ifdef MULTICOPTER
+		F.Bypass = false;
+	#else
+		F.Bypass = (NoOfControls > Map[BypassRC]) && (RC[BypassRC] > (RC_MAXIMUM/2L));
+	#endif
 
 	//_________________________________________________________________________________________
 
 	// Altitude Hold
-
 
 	if ( NavState == HoldingStation )
 	{ // Manual
@@ -216,7 +245,7 @@ void UpdateControls(void)
 		if ( F.AllowNavAltitudeHold &&  F.AltHoldEnabled )
 			StickThrottle = CruiseThrottle;
 
-	if ( (! F.HoldingAlt) && (!(F.Navigate || F.ReturnHome )) ) // cancel any current altitude hold setting 
+	if ( (! F.HoldingAlt) && !(F.ReturnHome || F.Navigate) ) // cancel any current altitude hold setting 
 		SetDesiredAltitude(Altitude);	
 
 	//_________________________________________________________________________________________
@@ -226,29 +255,23 @@ void UpdateControls(void)
 	A[Roll].Desired = RC[RollRC] - RC_NEUTRAL;
 	A[Pitch].Desired = RC[PitchRC] - RC_NEUTRAL;		
 	A[Yaw].Desired = RC[YawRC] - RC_NEUTRAL;
-
-						
-	A[Roll].Hold = A[Roll].Desired - A[Roll].Trim;
-	A[Roll].Hold = Abs(A[Roll].Hold);
-	A[Pitch].Hold = A[Pitch].Desired - A[Pitch].Trim;
-	A[Pitch].Hold = Abs(A[Pitch].Hold);
-	A[Yaw].Hold = A[Yaw].Desired - A[Yaw].Trim;
-	A[Yaw].Hold = Abs(A[Yaw].Hold);
+	
+	for (c = Roll; c <= Yaw; c++) {				
+		Temp = A[c].Desired - A[c].Trim;
+		A[c].Hold = Abs(Temp);
+	}
 	CurrMaxRollPitch = Max(A[Roll].Hold, A[Pitch].Hold);
 		
 	if ( CurrMaxRollPitch > ATTITUDE_HOLD_LIMIT )
 		if ( AttitudeHoldResetCount > ATTITUDE_HOLD_RESET_INTERVAL )
 			F.AttitudeHold = false;
-		else
-		{
+		else {
 			AttitudeHoldResetCount++;
 			F.AttitudeHold = true;
-		}
-	else
-	{
-		F.AttitudeHold = true;	
-		if ( AttitudeHoldResetCount > 1 )
-			AttitudeHoldResetCount -= 2;		// Faster decay
+		} else {
+			F.AttitudeHold = true;	
+			if ( AttitudeHoldResetCount > 1 )
+				AttitudeHoldResetCount -= 2; // Faster decay
 	}
 
 	//_________________________________________________________________________________________
@@ -261,33 +284,29 @@ void UpdateControls(void)
 
 } // UpdateControls
 
-void CaptureTrims(void)
-{ 	// only used in detecting movement from neutral in hold GPS position
+void CaptureTrims(void) { 
+	// only used in detecting movement from neutral in hold GPS position
 	// Trims are invalidated if Nav sensitivity is changed - Answer do not use trims ?
 	#ifndef TESTING
-	A[Roll].Trim = Limit1(A[Roll].Desired, NAV_MAX_TRIM);
-	A[Pitch].Trim = Limit1(A[Pitch].Desired, NAV_MAX_TRIM);
-	A[Yaw].Trim = Limit1(A[Yaw].Desired, NAV_MAX_TRIM);
-	#endif // TESTING
+	static uint8 c;
 
-	HoldYaw = 0;
+	for (c = Roll; c <= Yaw; c++)
+		A[c].Trim = Limit1(A[c].Desired, NAV_MAX_TRIM);
+	#endif // TESTING
 } // CaptureTrims
 
 void CheckThrottleMoved(void)
 {
 	if( mSClock() < mS[ThrottleUpdate] )
 		ThrNeutral = DesiredThrottle;
-	else
-	{
+	else {
 		ThrLow = ThrNeutral - THROTTLE_MIDDLE;
 		ThrLow = Max(ThrLow, THROTTLE_MIN_ALT_HOLD);
 		ThrHigh = ThrNeutral + THROTTLE_MIDDLE;
-		if ( ( DesiredThrottle <= ThrLow ) || ( DesiredThrottle >= ThrHigh ) )
-		{
-			mS[ThrottleUpdate] = mSClock() + THROTTLE_UPDATE_MS;
+		if ( ( DesiredThrottle <= ThrLow ) || ( DesiredThrottle >= ThrHigh ) ) {
+			mSTimer(ThrottleUpdate, THROTTLE_UPDATE_MS);
 			F.ThrottleMoving = true;
-		}
-		else
+		} else
 			F.ThrottleMoving = false;
 	}
 } // CheckThrottleMoved

@@ -42,8 +42,8 @@ void ZeroStats(void)
 	for (s = 0 ; s < (uint8)MAX_STATS; s++ )
 		Stats[s] = 0;
 
-	Stats[MinHDiluteS] = INIT_MIN;
-	Stats[MaxHDiluteS] = 0;
+	Stats[MinHDOPS] = INIT_MIN;
+	Stats[MaxHDOPS] = 0;
 	Stats[MinROCS] = INIT_MIN;
 	Stats[MaxROCS] = 0;
 	Stats[GPSMinSatsS] = INIT_MIN;
@@ -137,10 +137,10 @@ void ShowStats(void)
 		TxVal32((int32)Stats[GPSMaxSatsS], 0, 0); TxNextLine();
 	}
 
-	if ( Stats[MinHDiluteS] < INIT_MIN )
+	if ( Stats[MinHDOPS] < INIT_MIN )
 	{
-		TxString("HDilute:  \t");TxVal32((int32)Stats[MinHDiluteS], 2, ' ');
-		TxVal32((int32)Stats[MaxHDiluteS], 2, 0); TxNextLine();
+		TxString("HDOP:  \t");TxVal32((int32)Stats[MinHDOPS], 2, ' ');
+		TxVal32((int32)Stats[MaxHDOPS], 2, 0); TxNextLine();
 	}
 
 	if ( Stats[NavValidS] )

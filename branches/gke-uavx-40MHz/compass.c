@@ -45,13 +45,15 @@ void InitHMC6352Compass(void);
 boolean HMC6352CompassActive(void);
 
 i24u 	Compass;
-int16 	MagHeading, FakeMagHeading, Heading, DesiredHeading, CompassOffset;
+int16 	MagHeading, Heading, DesiredHeading, CompassOffset;
 uint8 	CompassType;
 uint8 	MagRetries;
 
+#pragma idata compass_strings
 const rom uint8 * CompassName[CompassUnknown+1] = {
 		"HMC6352", "HMC5883L","Unsupported", "Failed"
 		};
+#pragma idata
 
 void ShowCompassType(void)
 {
@@ -82,7 +84,7 @@ void GetHeading(void)
 	if ( SpareSlotTime && ( NowmS >= mS[CompassUpdate] ))
 	{
 		mS[CompassUpdate] = NowmS + COMPASS_TIME_MS;
-		F.NewCompassValue = true;
+		F.NewMagValues = true;
 		SpareSlotTime = false;
 
 		if( F.MagnetometerValid ) // continuous mode but Compass only updates avery 50mS
@@ -190,7 +192,6 @@ MagStruct Mag[3];
 #define HMC5883L_STATUS		0x09
 
 int16 GetHMC5883LMagnetometer(void) {
-
 	static int16 b[3];
 	static int32 Temp;
     static uint8 a;
@@ -201,8 +202,7 @@ int16 GetHMC5883LMagnetometer(void) {
 
 	F.MagnetometerValid = ReadI2Ci16vAtAddr(HMC5883L_ID, HMC5883L_DATA, b, 3, true);
 
-	if( F.MagnetometerValid && !((b[MX]==-4096)||(b[MY]==-4096)||(b[MZ]==-4096))) 
-	{
+	if( F.MagnetometerValid && !((b[MX]==-4096)||(b[MY]==-4096)||(b[MZ]==-4096))) {
 		switch ( P[SensorHint] ) {
 		case GY86IMU: 
 			Mag[X].G = -b[MX];
@@ -222,8 +222,7 @@ int16 GetHMC5883LMagnetometer(void) {
 			break;
 		} // switch
 	
-		for ( a = X; a<=(uint8)Z; a++ ) 
-		{
+		for ( a = X; a<=(uint8)Z; a++ ) {
 			M = &Mag[a];
 
 			Temp = Min(M->Min,  M->G);
@@ -234,8 +233,7 @@ int16 GetHMC5883LMagnetometer(void) {
 		    M->G -= SRS16(M->Max + M->Min, 1);
 		}
 
-		if ( Armed )
-		{
+		if ( Armed ) {
 			// various sources including:
 			// "Applications of Magnetoresistive Sensors in Navigation Systems", 
 			// M.J. Caruso, Honeywell Inc.	
@@ -258,11 +256,9 @@ int16 GetHMC5883LMagnetometer(void) {
 			yh = SRS32((int32)Mag[Y].G*CosTheta + (int32)Mag[Z].G*SinTheta, 8);
 
 			CompassVal = -int32atan2( yh, xh );
-		}
-		else 
+		} else 
 			CompassVal = -int32atan2( Mag[Y].G, Mag[X].G );
-	}
-	else
+	} else
 		Stats[CompassFailS]++;
 
 	return ( CompassVal );
@@ -303,8 +299,7 @@ void CalibrateHMC5883LMagnetometer(void) {
 } // CalibrateHMC5883Magnetometer
 
 
-void DoTestHMC5883LMagnetometer(void) 
-{
+void DoTestHMC5883LMagnetometer(void) {
 	static int32 Temp;
 	static uint8 a, i, status;
 	static MagStruct * M;
@@ -312,20 +307,18 @@ void DoTestHMC5883LMagnetometer(void)
 	ShowCompassType();
 
 	status = ReadI2CByteAtAddr(HMC5883L_ID,HMC5883L_STATUS);
-	MagHeading = GetCompass();
+	MagHeading = Make2Pi(GetCompass());
 	WriteMagCalEE();
 	Heading = Make2Pi( MagHeading - CompassOffset );
 
-	if ( F.MagnetometerValid )
-	{
+	if ( F.MagnetometerValid ) {
 		TxString("\r\n\r\nStatus:\t0x");
 		TxValH(status);
 		TxString("\r\nRetries:\t");
 		TxVal32(MagRetries - 1 ,0,0);
 		
 	    TxString("\r\n\t\tMag \tMin \tMax \tBias \tRef.\r\n");
-		for ( a = X; a<=(uint8)Z; a++ )
-		{
+		for ( a = X; a<=(uint8)Z; a++ ) {
 			M = &Mag[a];
 			TxChar(HT);
 			TxChar(a+'X');
@@ -344,16 +337,14 @@ void DoTestHMC5883LMagnetometer(void)
 	    TxString(" deg (True)\r\n");
 
 		WriteMagCalEE();
-	}
-	else
+	} else
 		TxString(" Fail\r\n");
 
 } // DoHMC5883LTest
 
 #endif // TESTING
 
-void InitHMC5883LMagnetometer(void) 
-{
+void InitHMC5883LMagnetometer(void) {
 	static uint8 a;
 	static int16 C[3];
 	static boolean r;
@@ -419,8 +410,7 @@ void ReadMagCalEE(void)
 	static MagStruct * M;
 
 	if ( CompassType == HMC5883LMagnetometer) 
-		for ( a = X; a<=(uint8)Z; a++)
-		{
+		for ( a = X; a<=(uint8)Z; a++) {
 			M = &Mag[a];
 			M->Min = Read16EE(MAG_BIAS_ADDR_EE + (a*4));
 			M->Max = Read16EE(MAG_BIAS_ADDR_EE + (a*4+2));
@@ -461,7 +451,7 @@ int16 GetHMC6352Compass(void)
 
 	UseI2C100KHz = true;
 	I2CStart();
-		F.CompassMissRead = WriteI2CByte(HMC6352_ID+1) != I2C_ACK; 
+		WriteI2CByte(HMC6352_ID+1) != I2C_ACK; 
 		CompassVal.b1 = ReadI2CByte(I2C_ACK);
 		CompassVal.b0 = ReadI2CByte(I2C_NACK);
 	I2CStop();

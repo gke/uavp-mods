@@ -178,7 +178,7 @@ void high_isr_handler(void)
 				}
 			}
 
-		if ( !F.UsingSerialPPM )						
+		if ( !F.UsingCompoundPPM )						
 			CCP1CONbits.CCP1M0 ^= 1;
 
 		PIR1bits.CCP1IF = false;

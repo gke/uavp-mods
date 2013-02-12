@@ -20,36 +20,26 @@
 
 #include "uavx.h"
 
-void LightsAndSirens(void);
-void InitPortsAndUSART(void);
-void InitMisc(void);
-void Delay1mS(int16);
-void Delay100mSWithOutput(int16);
-void DoBeep100mSWithOutput(uint8, uint8);
-void DoStartingBeepsWithOutput(uint8);
-void CheckAlarms(void);
-int32 SlewLimit(int32, int32, int32);
-int32 ProcLimit(int32, int32, int32);
-int16 DecayX(int16, int16);
-void InitSmooth16x816(int16x16Q * F);
-int16 Smooth16x16(int16x16Q *, int16);
-void Rotate(int32 * nx, int32 * ny, int32 x, int32 y, int16 A);
-
+#pragma udata battery_vars
 int8 BatteryVolts;
 int16 BatteryVoltsADC, BatteryCurrentADC, BatteryVoltsLimitADC, BatteryCurrentADCEstimated, BatteryChargeUsedmAH;
 int32 BatteryChargeADC, BatteryCurrent;
+#pragma udata
 
-int8 RCStart = RC_INIT_FRAMES;
 boolean	FirstPass;
 
 void LightsAndSirens(void)
 {
+	static int8 RCStart = RC_INIT_FRAMES;
 	static uint32 NowmS;
 	static int24 Ch5Timeout;
 	static uint8 s;
 
 	LEDYellow_TOG;
-	if ( F.Signal ) LEDGreen_ON; else LEDGreen_OFF;
+	if ( F.Signal ) 
+		LEDGreen_ON; 
+	else 
+		LEDGreen_OFF;
 
 	Beeper_OFF;
 	Ch5Timeout = mSClock() + 500; // mS.
@@ -74,16 +64,13 @@ void LightsAndSirens(void)
 				InitialThrottle = StickThrottle;
 				StickThrottle = DesiredThrottle = 0; 
 				OutSignals(); // synced to New RC signals
-				if( mSClock() > (uint24)Ch5Timeout )
-				{
-					if ( F.Ch5Active || !F.ParametersValid )
-					{
+				if(( mSClock() > (uint24)Ch5Timeout ) && !F.Bypass) {
+					F.ParametersValid = ParameterSanityCheck();
+					if (  F.ReturnHome || F.Navigate || !F.ParametersValid ){
 						Beeper_TOG;					
 						LEDRed_TOG;
-					}
-					else
-						if ( Armed )
-							LEDRed_TOG;
+					} else
+						LEDRed_OFF;
 							
 					Ch5Timeout += 500;
 				}	
@@ -96,7 +83,7 @@ void LightsAndSirens(void)
 		}	
 		ReadParametersEE();	
 	}
-	while( (!F.Signal) || (Armed && FirstPass) || F.Ch5Active || F.GyroFailure || 
+	while( (!F.Signal) || (Armed && FirstPass) ||  F.ReturnHome || F.Navigate || F.GyroFailure || 
 		( InitialThrottle >= RC_THRES_START ) || (!F.ParametersValid)  );
 			
 	FirstPass = false;
@@ -280,13 +267,13 @@ void CheckAlarms(void)
 			if ( mSClock() > mS[BeeperUpdate] )
 				if ( BEEPER_IS_ON )
 				{
-					mS[BeeperUpdate] = mSClock() + BeeperOffTime;
+					mSTimer(BeeperUpdate, BeeperOffTime);
 					Beeper_OFF;
 					LEDRed_OFF;					
 				}
 				else
 				{
-					mS[BeeperUpdate] = mSClock() + BeeperOnTime;
+					mSTimer(BeeperUpdate, BeeperOnTime);
 					Beeper_ON;
 					LEDRed_ON;		
 				}	
@@ -309,93 +296,97 @@ int32 ProcLimit(int32 i, int32 l, int32 u)
 
 int16 DecayX(int16 i, int16 d)
 {
-	if ( i < 0 )
-	{
+	if ( i < 0 ) {
 		i += d;
 		if ( i >0 )
 			i = 0;
-	}
-	else
-	if ( i > 0 )
-	{
-		i -= d;
-		if ( i < 0 )
-			i = 0;
-	}
+	} else if ( i > 0 ) {
+			i -= d;
+			if ( i < 0 )
+				i = 0;
+		}
 	return (i);
 } // DecayX
 
-int32 SlewLimit(int32 Old, int32 New, int32 Slew)
+
+int16 RateOfChange(HistStruct * F, int16 v) 
 {
+	static uint8 i;
+	static int24 r;
+
+	if (!F->Primed) {
+		for (i = 1; i < 8; i++)
+			F->h[i] = v;
+		F->Primed = true;
+	}
+
+	for (i = 1; i < 8; i++) // move makes indexing less complicated
+		F->h[i] = F->h[i - 1];
+	F->h[0] = v;
+
+	r = 0;
+	for (i = 0; i < (8 >> 1); i++)
+		r += F->h[i];
+	for (i = (8 >> 1); i < 8; i++)
+		r -= F->h[i];
+
+	return (r);
+} // RateOfChange
+
+int32 Threshold(int32 v, int16 t) {
+
+	if (v > 0)
+		if (v > t)
+			v -= t;
+		else
+			v = 0;
+	else if (v < -t)
+		v += t;
+	else
+		v = 0;
+
+	return (v);
+} // Threshold
+
+int32 SlewLimit(int32 Old, int32 New, int16 Slew){
   static int32 Low, High;
   
+  Slew = Abs(Slew);
+
   Low = Old - Slew;
   High = Old + Slew; 
   return(( New < Low ) ? Low : (( New > High ) ? High : New));
 } // SlewLimit
 
-void InitSmooth16x16(int16x16Q * F) {
-	F->Prime = true;
-} // InitSmooth16x16
+void Rotate(int16 * nx, int16 * ny, int24 x, int24 y, int16 A) { // A is CW rotation
+	static int16 CosA, SinA, Temp;
 
-int16 Smooth16x16(int16x16Q * F, int16 v) {
-	static uint8 i;
-	static uint8 p;
-
-	if ( F->Prime )
-	{
-		for ( i = 0; i < (uint8)16; i++ )
-			F->B[i] = v;
-
-		F->Head = 0;
-		F->Tail = 15;
-
-		F->S = (int32)v * 16;
-		F->Prime = false;
+	if (A == 0) { // Angle is integer so OK
+		*nx = x;
+		*ny = y;
+	} else {
+		CosA = int16cos(A);
+		SinA = int16sin(A);
+	
+		Temp = SRS32(x * CosA + y * SinA, 8);
+		*ny = SRS32(-x * SinA + y * CosA, 8);
+		*nx = Temp;
 	}
-	else
-	{
-		p = F->Head;
-		F->S -= F->B[p];
-		F->Head = (p + 1) & 15;
-		p = F->Tail;
-		p = (p + 1) & 15;
-		F->B[p] = v;
-		F->Tail = p;
-		F->S += v;
-	}
-
-	return ( (int16)(SRS32(F->S, 4))); 
-
-} // Smooth16x16
-
-int16 SlewLimitLPFilter(int16 Old, int16 New, int16 Slew, int16 F,
-		int16 dT) {
-	// set slew to an "impossible" difference between samples
-	int16 r;
-	New = SlewLimit(Old, New, Slew);
-	r = Old + (New - Old) * dT / ((1 / (TWOMILLIPI * F)) + dT);
-
-	return (r);
-} // SlewLimitLPFilter
-
-void Rotate(int32 * nx, int32 * ny, int32 x, int32 y, int16 A) { // A is CW rotation
-	static int16 CosA, SinA;
-
-	CosA = int16cos(A);
-	SinA = int16sin(A);
-
-	*nx = SRS32(x * CosA + y * SinA, 8);
-	*ny = SRS32(-x * SinA + y * CosA, 8);
 } // Rotate
 
-void FastRotate(int16 * nx, int16 * ny, int16 x, int16 y, int8 O) { // O in 7.5deg
-	static int16 OSO, OCO;
+void FastRotate(int16 * nx, int16 * ny, int24 x, int24 y, int8 O) { // O in 7.5deg
+	static int16 OSO, OCO, Temp;
 
-	OSO = OSin[O];
-	OCO = OCos[O];
-
-	*nx = SRS32((int32)x * OCO + (int32)y * OSO, 8);
-	*ny = SRS32(-(int32)x *OSO + (int32)y * OCO, 8);
+	if (O == 0) {
+		*nx = x;
+		*ny = y;
+	} else {
+		OSO = OSin[O];
+		OCO = OCos[O];
+	
+		Temp = SRS32(x * OCO + y * OSO, 8);
+		*ny = SRS32(-x *OSO + y * OCO, 8);
+		*nx = Temp;
+	}
 } // FastRotate
 

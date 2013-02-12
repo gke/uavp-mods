@@ -39,53 +39,47 @@ uint32 CycleHist[16];
 
 uint8 PIDCyclemS, PIDCycleShift;
 		
-int16 CameraAngle[3];
+int16 CameraAngle[3];				
 
-int16 Ylp;				
-
-int32 AngleE, RateE;
-int16 YawRateIntE;
-int16 HoldYaw;
+int16 HeadingE;
 
 int16 CurrMaxRollPitch;
 
 int16 AttitudeHoldResetCount;
 int24 DesiredAltitude, Altitude, Altitudep; 
-int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, ROCIntE, MinROCCmpS;
+int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, MinROCCmpS;
 int24 RTHAltitude;
-int32 GS;
 
 int8 BeepTick = 0;
 
-void DoAltitudeHold(void) { 	// Syncronised to baro intervals independant of active altitude source
-	
+void DoAltitudeHold(void) { 	// Syncronised to baro intervals independant of active altitude source	
 	static int24 AltE;
-	static int16 ROCE, pROC, iROC, DesiredROC;
-	static int16 NewAltComp;
+	static int16 ROCE, DesiredROC;
+	static int16 NewComp;
 
 	#ifdef ALT_SCRATCHY_BEEPER
 	if ( (--BeepTick <= 0) && !F.BeeperInUse ) 
 		Beeper_TOG;
 	#endif
-					
-	AltE = DesiredAltitude - Altitude;
 
+	AltE = DesiredAltitude - Altitude;
+	AltE = Threshold(AltE, 10);
 	DesiredROC = Limit(AltE, MinROCCmpS, ALT_MAX_ROC_CMPS);
-		
-	ROCE = DesiredROC - ROC;		
-	pROC = ROCE * (int16)P[AltKp]; 
-		
-//zzz	ROCIntE += ROCE  * (int16)P[AltKi];
-//zzz	ROCIntE = Limit1(ROCIntE, (int16)P[AltIntLimit]);
-//zzz	iROC = ROCIntE;
-	iROC = 0;
-				
-	NewAltComp = SRS16(pROC + iROC, 6);
-	AltComp = Limit1(NewAltComp, ALT_MAX_THR_COMP);
+
+	ROCE = DesiredROC - ROC;
+
+	NewComp = SRS16(ROCE * P[AltKp], 6);
+
+	#ifdef NAV_WING
+
+		// Elevator/Airspeed control here later?
+
+	#endif // NAV_WING
+
+	AltComp = Limit1(NewComp, ALT_MAX_THR_COMP);
 				
 	#ifdef ALT_SCRATCHY_BEEPER
-	if ( (BeepTick <= 0) && !F.BeeperInUse) 
-	{
+	if ( (BeepTick <= 0) && !F.BeeperInUse) {
 		Beeper_TOG;
 		BeepTick = 5;
 	}
@@ -140,146 +134,99 @@ void AltitudeHold() {  // relies upon good cross calibration of baro and rangefi
 	}
 } // AltitudeHold
 
+
+void DoInertialDamping(void) {
+	#ifdef INC_DAMPING
+	static int16 Temp;
+	static uint8 a;
+
+	if (F.NearLevel && !F.NavigationActive)
+		for (a = LR; a<=FB; a++) {
+			Temp = -SRS32(Threshold(A[a].Acc, (GRAVITY/10)) * P[HorizDampKp], 3);
+			A[a].Damping = Limit1(Temp, FromPercent(10,RC_MAXIMUM));
+		} 
+	else
+		A[Roll].Damping = A[Pitch].Damping = 0;
+	#endif // INC_DAMPING
+} // DoInertialDamping
+
+
 void DoOrientationTransform(void) {
 
+	#ifdef INC_POLAR
+	static int16 Polar;
+
+	if (F.PolarCoords && F.NavigationActive && (Nav.Distance > 150)) {
+		Polar = Make2Pi(Nav.Bearing - Heading);
+		Rotate(&A[Pitch].Control, &A[Roll].Control, A[Pitch].Desired,
+				A[Roll].Desired, Polar);
+	} 
+	else
+	#endif // INC_POLAR
+		FastRotate(&A[Pitch].Control, &A[Roll].Control, A[Pitch].Desired,
+			A[Roll].Desired, Orientation);
+
 	if ( !F.NavigationActive )
-		A[Roll].NavCorr = A[Pitch].NavCorr = A[Yaw].NavCorr = 0;
+		DecayNavCorr();
 
-	FastRotate(&A[Pitch].Control, &A[Roll].Control, A[Pitch].Desired
-			+ A[Pitch].NavCorr, A[Roll].Desired + A[Roll].NavCorr, Orientation);
-
-	A[Pitch].Control = A[Pitch].Desired + A[Pitch].NavCorr;
-	A[Roll].Control = A[Roll].Desired + A[Roll].NavCorr;
-
-	//A[Pitch].Control -= A[FB].Damping;
-	//A[Roll].Control += A[LR].Damping;
-
+	A[Pitch].Control += A[Pitch].NavCorr - A[FB].Damping;
+	A[Roll].Control += A[Roll].NavCorr + A[LR].Damping;
 	A[Yaw].Control = A[Yaw].Desired + A[Yaw].NavCorr;
 
 } // DoOrientationTransform
 
-#ifdef TESTING
 
-void GainSchedule(void) {
-	GS = 256;
-} // GainSchedule
+void ComputeRateDerivative(AxisStruct *C, int16 Rate) {
+	static int32 r;
 
-#else
+	r = MediumFilter32(C->Ratep, Rate);
+	C->RateD =  r - C->Ratep;
+	C->Ratep = r;
 
-void GainSchedule(void)
-{  // rudimentary gain scheduling (linear)
-	static int16 AttDiff, ThrDiff;
+	C->RateD = MediumFilter32(C->RateDp, C->RateD);
+	C->RateDp = C->RateD;
+} // ComputeRateDerivative
 
-	GS = 256;
+void DoWolfControl(AxisStruct *C) { // Origins Dr. Wolfgang Mahringer
+	static int32 Temp, pd, i;
 
-	if ( (!F.NavigationActive) || ( F.NavigationActive && (NavState == HoldingStation ) ) )
-	{
-		// also density altitude?
-	
-		if ( P[Acro] > 0) // due to Foliage 2009 and Alexinparis 2010
-		{
-		 	AttDiff = CurrMaxRollPitch  - ATTITUDE_HOLD_LIMIT;
-			GS = (int32)GS * ( 2048L - (AttDiff * (int16)P[Acro]) );
-			GS = SRS32(GS, 11);
-			GS = Limit(GS, 0, 256);
-		}
-	
-		if ( P[GSThrottle] > 0 ) 
-		{
-		 	ThrDiff = DesiredThrottle - CruiseThrottle;
-			GS = (int32)GS * ( 2048L + (ThrDiff * (int16)P[GSThrottle]) );
-			GS = SRS32(GS, 11);
-		}	
-	}
-	
-} // GainSchedule
-
-#endif // TESTING
-
-void Do_Wolf_Rate(AxisStruct *C) { // Origins Dr. Wolfgang Mahringer
-	static int32 Temp, r;
-	static i24u Temp24;
-
-	r =  SRS32((int32)C->Rate * C->RateKp - (int32)(C->Rate - C->Ratep) * C->RateKd, 5);
+	ComputeRateDerivative(C, C->Rate);
+	pd =  SRS32((int32)C->Rate * C->RateKp - C->RateD * C->RateKd, 5);
 
     Temp = SRS32((int32)C->Angle * C->RateKi , 9);
-	r += Limit1(Temp, C->IntLimit);
+	i = Limit1(Temp, C->IntLimit);
 
-	Temp24.i24 = r * GS;
-	r = Temp24.i2_1;
-
-	C->Out = r - C->Control;
-
-	C->Ratep = C->Rate;
+	C->Out = (pd + i) - C->Control;
 	
-} // Do_Wolf_Rate
+} // DoWolfControl
 
-#define D_LIMIT 32*32
 
-void Do_PD_P_Angle(AxisStruct *C) {	// with Dr. Ming Liu
-	static int32 p, d, DesRate, AngleE, AngleEp, RateE;
+void DoAngleControl(AxisStruct *C) { // PI_PD with Dr. Ming Liu
+	static int32 p, i, d, DesRate, AngleE, AngleEp, RateE;
 
 	AngleEp = C->AngleE;
 	AngleE = C->Control * RC_STICK_ANGLE_SCALE - C->Angle;
-	AngleE = Limit1(AngleE, MAX_BANK_ANGLE_DEG * DEG_TO_ANGLE_UNITS); // limit maximum demanded angle
 
-	DesRate = SRS32(AngleE * C->RateKp, 10);
+	p = AngleE * C->RateKp;
+
+	if (Sign(AngleE) != Sign(C->AngleEInt))
+		C->AngleEInt = 0;
+	C->AngleEInt += AngleE;
+	C->AngleEInt = Limit1(C->AngleEInt, C->IntLimit);
+	i = C->AngleEInt * C->AngleKi;
+
+	DesRate = SRS32(p + i, 10);
+ 	DesRate = Limit1(DesRate, MAX_BANK_ANGLE_DEG * DEG_TO_ANGLE_UNITS);
 
 	RateE = DesRate - C->Rate; 	
 
-	C->Out = -SRS32(RateE * C->AngleKp, 5);
+	ComputeRateDerivative(C, C->Rate); // ignore set point change RateE);
+	C->Out = -SRS32(RateE * C->RateKp - C->RateD * C->RateKd, 5);
 
 	C->AngleE = AngleE;
 
-} // Do_PD_P_Angle
+} // DoAngleControl
 
-#ifdef OLD_YAW
-
-void CompensateYawGyro(void) {
-	static int16 HE;
-
-	if ( F.MagnetometerValid )
-	{
-		// + CCW
-		if ( A[Yaw].Hold > COMPASS_MIDDLE ) // acquire new heading
-		{
-			DesiredHeading = Heading;
-			A[Yaw].DriftCorr = 0;
-		}
-		else
-			if ( F.NewCompassValue )
-			{
-				F.NewCompassValue = false;
-				HE = MinimumTurn(DesiredHeading - Heading);
-				HE = Limit1(HE, SIXTHMILLIPI); // 30 deg limit
-				A[Yaw].DriftCorr = SRS32((int24)HE * (int24)P[YawAngleKp], 7);
-				A[Yaw].DriftCorr = Limit1(A[Yaw].DriftCorr, YAW_COMP_LIMIT); // yaw gyro drift compensation
-			}		
-	}
-	else
-		A[Yaw].DriftCorr = 0;
-
-	A[Yaw].Rate -= A[Yaw].DriftCorr;
-
-} // CompensateYawGyro
-
-void YawControl(void) { // with Dr. Ming Liu
-	static int32 Temp;
-
-	A[Yaw].RateE = Smooth16x16(&YawF, A[Yaw].Rate);	
-	Temp  = -SRS32((int24)A[Yaw].RateE * (int16)A[Yaw].RateKp, 4);
-
-	Temp = SlewLimit(A[Yaw].Outp, Temp, 1);
-	A[Yaw].Outp = Temp;
-			
-	A[Yaw].Out = Limit1(Temp, (int16)P[YawLimit]);
-
-	if ( Abs(A[Yaw].Control) > 5 )
-		A[Yaw].Out -= A[Yaw].Control;
-
-} // YawControl
-
-#else
 
 void UpdateDesiredHeading(void) {
 
@@ -291,60 +238,45 @@ void UpdateDesiredHeading(void) {
 } // UpdateDesiredHeading
 
 void YawControl(void) {
-	int24 r, HeadingE;
+	static int24 r;
 
 	UpdateDesiredHeading();
 
 	HeadingE = MinimumTurn(DesiredHeading - Heading);
 	HeadingE = Limit1(HeadingE, DegreesToRadians(30));
-	A[Yaw].RateE =HeadingE;
 	r = SRS32((int24)HeadingE * A[Yaw].AngleKp, 7);
 
 	r -= A[Yaw].Rate;
 	r  = SRS32((int24)r * A[Yaw].RateKp, 4);
 	r = Limit1(r, A[Yaw].Limiter);
 
-	if (Abs(A[Yaw].Control) > FromPercent(2, RC_NEUTRAL))
+	if ((Abs(A[Yaw].Control) > FromPercent(2, RC_NEUTRAL))|| (NavState
+			!= HoldingStation))
 		r -= A[Yaw].Control;
 
 	A[Yaw].Out = r;
 
 } // YawControl
 
-#endif //OLD_YAW
-
 void DoControl(void){
 
 	#ifdef SIMULATE
-
 		DoOrientationTransform();
-		GainSchedule();
-
 		DoEmulation();
-
 	#else
-
 		static uint8 a;
-		static AxisStruct *C;
 	
 		GetAttitude();
-
+		DoInertialDamping();
+		GetBaroAltitude();
 		GetHeading();
-
 		DoOrientationTransform();
 	
-			GainSchedule();
-	
-			for ( a = Roll; a<=(uint8)Pitch; a++)
-			{
-				C = &A[a];
-				C->Control += C->NavCorr;
-				
-				if ( F.UsingAltControl )	
-					Do_PD_P_Angle(C);
-				else
-					Do_Wolf_Rate(C);
-			}			
+		for ( a = Roll; a<=(uint8)Pitch; a++) 
+			if ( F.UsingAltControl )	
+				DoAngleControl(&A[a]);
+			else
+				DoWolfControl(&A[a]);		
 				
 		YawControl();
 			
@@ -358,18 +290,16 @@ void DoControl(void){
 
 } // DoControl
 
-void InitControl(void)
-{
+void InitControl(void) {
 	static uint8 a;
 	static AxisStruct *C;
 
-	Ylp = AltComp = ROCIntE = 0;
-	YawRateIntE = 0;
+	AltComp = A[FB].Damping = A[LR].Damping = 0;
 
-	for ( a = Roll; a<=(uint8)Yaw; a++)
-	{
+	for ( a = Roll; a<=(uint8)Yaw; a++) {
 		C = &A[a];
-		C->Outp = C->Ratep = C->RateE = 0;
+		C->Outp = C->Ratep = 0;
+		C->RateDp = C->RateD = C->Angle = 0;
 	}
 
 } // InitControl

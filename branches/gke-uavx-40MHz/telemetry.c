@@ -115,19 +115,10 @@ void ShowAttitude(void) {
 
 	TxESCi16(A[Yaw].Rate);
 
-	#ifdef INC_RAW_ANGLES
-
-	TxESCi16(A[Roll].RawAngle);
-	TxESCi16(A[Pitch].RawAngle);
-
-	#else
-
 	TxESCi16(A[Roll].Angle);
 	TxESCi16(A[Pitch].Angle);
 
-	#endif // INC_RAW_ANGLES
-
-	TxESCi16(A[Yaw].RateE); // rate error as analogue for heading error
+	TxESCi16(HeadingE); 
 
 	TxESCi16(A[Roll].Acc);
     TxESCi16(A[Pitch].Acc);
@@ -141,7 +132,7 @@ void SendFlightPacket(void) {
 	SendPacketHeader();
 
 	TxESCu8(UAVXFlightPacketTag);
-	TxESCu8(48 + MAX_DRIVES * 2 + TELEMETRY_FLAG_BYTES);
+	TxESCu8(55 + MAX_DRIVES * 2 + TELEMETRY_FLAG_BYTES);
 	for ( b = 0; b < (uint8)TELEMETRY_FLAG_BYTES; b++ )
 		TxESCu8(F.AllFlags[b]); 
 		
@@ -156,8 +147,14 @@ void SendFlightPacket(void) {
 
 	ShowAttitude();
 
-	TxESCi16(A[Roll].DriftCorr);
-	TxESCi16(A[Pitch].DriftCorr);
+	TxESCi16(ROC); 			// cm/S
+	TxESCi24(BaroAltitude);
+	
+	TxESCi16(NewCruiseThrottle); 				
+	TxESCi16(RangefinderAltitude); 				// cm
+
+	TxESCi16(Make2Pi(Heading + OrientationMRad));
+
 	TxESCi16(AltFiltComp);
 	TxESCi16(AltComp << 2 );
 	TxESCi8(AccConfidence);
@@ -199,31 +196,26 @@ void SendNavPacket(void){
 	SendPacketHeader();
 
 	TxESCu8(UAVXNavPacketTag);
-	TxESCu8(63);
+	TxESCu8(54);
 		
 	TxESCu8(NavState);
 	TxESCu8(FailState);
-	TxESCu8(GPSNoOfSats);
-	TxESCu8(GPSFix);
+	TxESCu8(GPS.NoOfSats);
+	TxESCu8(GPS.Fix);
 	
 	TxESCu8(CurrWP);	
 	
-	TxESCi16(ROC); 	// was BaroROC				// cm/S
-	TxESCi24(BaroAltitude);
+	TxESCi16(GPS.HDOP * 10);
+
+	TxESCi16(Make2Pi(WayHeading + OrientationMRad));
+	TxESCi16(Nav.CrossTrackE);	// cross track error
+
+	TxESCi16(GPS.Vel);
+	TxESCi16(Make2Pi(GPS.Heading + OrientationMRad)); 				// GPS ROC dm/S
 	
-	TxESCi16(NewCruiseThrottle); 				
-	TxESCi16(RangefinderAltitude); 				// cm
-	
-	TxESCi16(GPSHDilute);
-	TxESCi16(Heading);
-	TxESCi16(WayHeading);
-	
-	TxESCi16(GPSVel);
-	TxESCi16(GPSHeading); 				// GPS ROC dm/S
-	
-	TxESCi24(GPSAltitude); 				// cm
-	TxESCi32(GPSLatitudeRaw); 			// 5 decimal minute units
-	TxESCi32(GPSLongitudeRaw); 
+	TxESCi24(GPS.Altitude); 				// cm
+	TxESCi32(GPS.LatitudeRaw); 			// 5 decimal minute units
+	TxESCi32(GPS.LongitudeRaw); 
 	
 	TxESCi24(DesiredAltitude);
 	TxESCi32(Nav.C[NorthC].PosE); 
@@ -232,9 +224,9 @@ void SendNavPacket(void){
 	TxESCi24(mS[NavStateTimeout] - mSClock());	// mS
 	
 	TxESCi16(0);			// 0.1C
-	TxESCi32(GPSMissionTime);
+	TxESCi32(GPS.MissionTime);
 
-	TxESCi16(NavSensitivity << 2);//1000)/RC_MAXIMUM);
+	TxESCi16(Nav.Sensitivity << 2);//1000)/RC_MAXIMUM);
 	TxESCi16(A[Roll].NavCorr << 2);
 	TxESCi16(A[Pitch].NavCorr << 2);
 	TxESCi16(A[Yaw].NavCorr << 2);
@@ -289,8 +281,8 @@ void SendMinPacket(void)
 
 	TxESCi16(Heading);
 	
-	TxESCi32(GPSLatitudeRaw); 					
-	TxESCi32(GPSLongitudeRaw);
+	TxESCi32(GPS.LatitudeRaw); 					
+	TxESCi32(GPS.LongitudeRaw);
 
 	TxESCu8(UAVXAirframe);
 	TxESCu8(Orientation);
@@ -301,27 +293,6 @@ void SendMinPacket(void)
 
 } // SendMinPacket
 
-void SendParamPacket(uint8 s, uint8 p) {
-
-    SendPacketHeader();
-
-    TxESCu8(UAVXParamPacketTag);
-    TxESCu8(3);
-    TxESCu8(s);
-	TxESCu8(p);
-    TxESCi8( ReadEE( (s-1) * MAX_PARAMETERS + p ) );
-	SendPacketTrailer();
- 
-} // SendParamPacket
-
-void SendParameters(uint8 s) {
-
-	static uint8 p;
-
-	for ( p = 0; p < (uint8)MAX_PARAMETERS; p++ )
-		SendParamPacket(s, p );
-	SendParamPacket(0, MAX_PARAMETERS);
-} // SendParameters
 
 void SendCycle(void) { // 0.8mS at 40MHz
 	
@@ -349,7 +320,7 @@ void SendCycle(void) { // 0.8mS at 40MHz
 
 void SendCustom(void) {
  	// user defined telemetry human readable OK for small amounts of data < 1mS
-
+/*
 	F.TxToBuffer = true;
 	
 	// insert values here using TxVal32(n, dp, separator)
@@ -373,6 +344,8 @@ void SendCustom(void) {
 	TxChar(LF);
 
 	F.TxToBuffer = false;
+*/
+
 } // SendCustom
 
 

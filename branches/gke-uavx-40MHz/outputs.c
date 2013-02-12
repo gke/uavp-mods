@@ -50,25 +50,21 @@ const rom uint8 * ESCName[ESCUnknown+1] = {
 		};
 #pragma idata
 
-void ShowESCType(void)
-{
+void ShowESCType(void) {
 	TxString(ESCName[P[ESCType]]);
 } // ShowESCType
 
-uint8 PWLimit(int16 T)
-{
+uint8 PWLimit(int16 T) {
 	return((uint8)Limit(T,1,OUT_MAXIMUM));
 } // PWLimit
 
-uint8 I2CESCLimit(int16 T)
-{
+uint8 I2CESCLimit(int16 T) {
 	return((uint8)Limit(T,0,ESCMax));
 } // I2CESCLimit
 
 #ifdef MULTICOPTER
 
-void DoMulticopterMix(int16 CurrThrottle)
-{
+void DoMulticopterMix(int16 CurrThrottle) {
 	static int16 Temp, B;
 
 	#if ( defined Y6COPTER ) | ( defined HEXACOPTER )
@@ -84,8 +80,7 @@ void DoMulticopterMix(int16 CurrThrottle)
 		PW[RightC] += (Temp + Rl);
 	
 		PW[BackC] = PWSense[RudderC] * Yl + OUT_NEUTRAL;	// yaw servo
-		if ( P[Balance] != 0 )
-		{
+		if ( P[Balance] != 0 ) {
 			B = 128 + P[Balance];
 			PW[FrontC] =  SRS32((int32)PW[FrontC] * B, 7);
 		}
@@ -97,8 +92,7 @@ void DoMulticopterMix(int16 CurrThrottle)
 	
 		PW[FrontLeftC] -= Pl + PWSense[RudderC] * Yl; 
 		PW[FrontRightC] -= Pl - PWSense[RudderC] * Yl;
-		if ( P[Balance] != 0 )
-		{
+		if ( P[Balance] != 0 ) {
 			B = 128 + P[Balance];
 			PW[FrontLeftC] = SRS32((int32)PW[FrontLeftC] * B, 7);
 			PW[FrontRightC] = SRS32((int32)PW[FrontRightC] * B, 7);
@@ -148,8 +142,7 @@ void DoMulticopterMix(int16 CurrThrottle)
 
 boolean MotorDemandRescale;
 
-void CheckDemand(int16 CurrThrottle)
-{
+void CheckDemand(int16 CurrThrottle) {
 	static int24 Scale, ScaleHigh, ScaleLow, MaxMotor, DemandSwing;
 	static i24u Temp;
 
@@ -169,14 +162,14 @@ void CheckDemand(int16 CurrThrottle)
 
 	DemandSwing = MaxMotor - CurrThrottle;
 
-	if ( DemandSwing > 0 )
-	{		
+	if ( DemandSwing > 0 ) {		
 		ScaleHigh = Abs((( OUT_MAXIMUM - (int24)CurrThrottle) * 256 )/ DemandSwing);	 
 		ScaleLow = Abs((( (int24)CurrThrottle - IdleThrottle) * 256 )/ DemandSwing);
 		Scale = Min(ScaleHigh, ScaleLow); // just in case!
-		if ( Scale <= 0 ) Scale = 1;
-		if ( Scale < 256 )
-		{
+		if ( Scale <= 0 ) 
+			Scale = 1;
+
+		if ( Scale < 256 ) {
 			MotorDemandRescale = true;
 
 			Temp.i24 = Rl * Scale;
@@ -188,11 +181,9 @@ void CheckDemand(int16 CurrThrottle)
 				Temp.i24 = Yl * Scale;
 				Yl = Temp.i2_1;
 			#endif // TRICOPTER 
-		}
-		else
+		} else
 			MotorDemandRescale = false;	
-	}
-	else
+	} else
 		MotorDemandRescale = false;	
 } // CheckDemand
 
@@ -261,8 +252,7 @@ void MixAndLimitMotors(void) { // expensive ~160uSec @ 40MHz
 } // MixAndLimitMotors
 
 
-void MixAndLimitCam(void)
-{
+void MixAndLimitCam(void) {
 	#if ( defined Y6COPTER ) | ( defined HEXACOPTER )
 		// NO CAMERA
 	#else
@@ -301,8 +291,7 @@ void MixAndLimitCam(void)
 #include "outputs_i2c.h"
 #include "outputs_40.h"
 
-void StopMotors(void)
-{
+void StopMotors(void) {
 	#if defined MULTICOPTER
 		#if ( defined Y6COPTER ) | ( defined HEXACOPTER )
 			PW[K1] = PW[K2] = PW[K3] = PW[K4] = PW[K5] = PW[K6] = 0;
@@ -316,12 +305,11 @@ void StopMotors(void)
 		PW[ThrottleC] = 0;
 	#endif // MULTICOPTER
 
-	F.MotorsArmed = false;
+	F.DrivesArmed = false;
 } // StopMotors
 
 
-void InitMotors(void)
-{
+void InitMotors(void) {
 	StopMotors();
 
 	#ifndef Y6COPTER
