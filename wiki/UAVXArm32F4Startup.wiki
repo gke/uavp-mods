@@ -142,6 +142,27 @@ Join us at:
 
 http://www.rcgroups.com/forums/showthread.php?t=1093510
 
+
+=== GPS ===
+
+The GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins.  If you are using Ublox or MTK GPS units and wish to have UAVXArm initialise them connect The GPS Rx pin to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is used for downlink telemetry.
+
+The initialisation sequences are from MultiWii and ArduPirates and may need tuning. You can use Generic NMEA if you set your GPS units up using the manufacturers tools or or select one of the binary or NMEA options applicable to your needs. Bear in mind when selecting GPS options yourself that multicopters behave more like pedestrians as far as there movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
+
+If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at a minimum update rate of 5Hz. Communications is at 115KBaud.
+
+You will need a DPDT arming switch if you intend to use GPS. The switch is arranged such that the GPS Tx is connected to the Com port Rx only when armed otherwise Com Port Rx is connected to the PC via the FTDI adapter. If the GPS is accidentally connected when UAVX is disarmed then the NMEA or binary transmission from the GPS will be interpreted as commands coming from UAVPSet with quite unpredictable results!
+
+== Accelerometer Neutrals ===
+  
+If you have to trim in flight to get a drift free hover then the aircraft was not perfectly level during the thermal calibration. Keep the Tx trims as they were when you got to the drift free hover and then with UAVPSet using the new "A test" you can bump the accelerometer offset in the direction of the trims. 
+
+This will not adjust the offset completely in one try will require a few times to get it right. Unfortunately it is not a straightforward relationship between stick deflection and angle for rate based control.
+
+Of course if you a have a PC at the field you can do it quickly. So trim then adjust, flay and re-trim adjust etc until you require no trim. After that you should not have to do it again as long as you don't bend the aircraft or there is a huge temperature change (20C+).
+
+It is important to tune the aircraft to require no roll/pitch trim offset in your Tx otherwise the control system is working against what is a mis-calibration of the accelerometers. This will degrade hovering performance. You should never need yaw trim.
+
 == Appendices ==
 
 === Motor/Servo Connector Assignments ===
