@@ -155,13 +155,13 @@ You will need a DPDT arming switch if you intend to use GPS. The switch is arran
 
 == Accelerometer Neutrals ===
   
-If you have to trim in flight to get a drift free hover then the aircraft was not perfectly level during the thermal calibration. Keep the Tx trims as they were when you got to the drift free hover and then with UAVPSet using the new "A test" you can bump the accelerometer offset in the direction of the trims. 
+If you have to trim in flight to get a drift free hover then the aircraft was not perfectly level during the thermal calibration. Keep the Tx trims as they were when you got to the drift free hover and then with UAVPSet using the new "A" test you can bump the accelerometer offset in the direction of the trims. 
 
 This will not adjust the offset completely in one try will require a few times to get it right. Unfortunately it is not a straightforward relationship between stick deflection and angle for rate based control.
 
-Of course if you a have a PC at the field you can do it quickly. So trim then adjust, flay and re-trim adjust etc until you require no trim. After that you should not have to do it again as long as you don't bend the aircraft or there is a huge temperature change (20C+).
+Of course if you a have a PC at the field you can do it quickly. So trim then adjust, fly and re-trim adjust etc until you require no trim. After that you should not have to do this again as long as you don't bend the aircraft or there is a huge temperature change (20C+).
 
-It is important to tune the aircraft to require no roll/pitch trim offset in your Tx otherwise the control system is working against what is a mis-calibration of the accelerometers. This will degrade hovering performance. You should never need yaw trim.
+Although there is a temptation to use trims is important to tune the aircraft to require no roll/pitch trim offset in your Tx otherwise the control system is working against what is a mis-calibration of the accelerometers. This will degrade hovering performance. You should never need yaw trim.
 
 == Appendices ==
 
