@@ -145,7 +145,7 @@ Join us at:
 http://www.rcgroups.com/forums/showthread.php?t=1093510
 
 
-=== GPS ===
+=== GPS Connection and Initialisation ===
 
 The GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins.  If you are using Ublox or MTK GPS units and wish to have UAVXArm initialise them connect the GPS Rx pin to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is used for downlink telemetry.
 
