@@ -74,7 +74,7 @@ boolean InvenSenseGyroActive(void)
 		F.GyroFailure = !I2CResponse(INV_ID);
 		if ( F.GyroFailure )
 		{	
-			INV_ID = INV_ID_MPU6050;
+			INV_ID = MPU6050_ID;
 			F.GyroFailure = !I2CResponse(INV_ID);
 		}		
 	}

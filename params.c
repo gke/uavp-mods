@@ -113,7 +113,8 @@ void ReadParametersEE(void)
 				ESCI2CFail[i] = 0;
 
 		#ifdef INC_MPU6050
-		InitMPU6050Acc();
+			MPU6050AccActive();
+			InitMPU6050Acc();
 		#endif
 
 		InitCompass();

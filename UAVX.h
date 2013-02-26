@@ -19,7 +19,7 @@
 //    If not, see http://www.gnu.org/licenses/
 
 
-//#define USE_DROTEK
+//#define USE_DROTEK_V1
 
 #ifndef BATCHMODE
 	#define TESTING
@@ -59,7 +59,7 @@
 #define INC_BOSCH_BARO
 
 #ifdef TESTING
-	#ifdef USE_DROTEK
+	#ifdef USE_DROTEK_V1
 		#define INC_BMA180		// include BMA180 accelerometer code
 	#else
 		#define INC_MPU6050
@@ -67,7 +67,7 @@
 	#endif
 	#define INC_MS5611			// FreeIMU etc.
 #else
-	#ifdef USE_DROTEK
+	#ifdef USE_DROTEK_V1
 		#define INC_BMA180
 		#define INC_LRCI2CESC
 		#define INC_CYCLE_STATS
@@ -674,7 +674,8 @@ extern void InitAccelerometers(void);
 extern void ReadAccCalEE(void); 
 extern void WriteAccCalEE(void); 
 
-#define MPU6050_ID     		0xd0		//0x68
+#define MPU6050_0xD0_ID     0xd0		//0x68
+#define MPU6050_0xD2_ID     0xd2		//0x69
 
 extern void ReadMPU6050Acc(void);
 extern void InitMPU6050Acc(void);
@@ -684,6 +685,7 @@ extern boolean MPU6050AccActive(void);
 #define BMA180_ID_0x82          	0x82
 
 extern uint8 BMA180_ID;
+extern uint8 MPU6050_ID;
 
 extern void ReadBMA180Acc(void);
 extern void InitBMA180Acc(void);
@@ -963,6 +965,10 @@ extern void Write32EE(uint16, int32);
 //______________________________________________________________________________________________
 
 // gps.c
+
+enum GPSProtcols {
+	NMEAGPS, UBXNMEAGPS, UBXBinGPS, MTKNMEAGPS, MTKBinGPS, UnknownGPS
+};
 
 typedef struct {
 	int32 	MissionTime, StartTime;
@@ -1418,7 +1424,7 @@ enum Params { // MAX 64
 	Balance, // 59
 	RxAux4Ch, // 60
 	DriveFilt, // 61
-	Unused62, // 62
+	GPSProtocol, // 62
 	HorizDampKp, // 63
 	VertDampKp // 64
 };

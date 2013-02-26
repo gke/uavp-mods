@@ -39,7 +39,8 @@ int32 NoAccCorr;
 #pragma idata gyronames
 const rom uint8 * GyroName[GyroUnknown+1] ={
 		 "MPU6050", "MLX90609", "ADXRS613/150",
-		"ST-AY530", "ADXRS610/300", "MPU6050", "MPU6050", "ITG3200", "Unsupported", "Failed" };
+		"ST-AY530", "ADXRS610/300", "MPU6050", "MPU6050", "ITG3200", 
+		"Unsupported", "Failed" };
 #pragma idata
 
 void ShowGyroType(uint8 G)

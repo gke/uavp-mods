@@ -209,12 +209,11 @@ int16 GetHMC5883LMagnetometer(void) {
 			Mag[Y].G = b[MY];
 			Mag[Z].G = -b[MZ];
 			break;
-		case DrotekIMU: // board is upside down
+		case DrotekIMU: 
 			Mag[X].G = -b[MX];
 			Mag[Y].G = -b[MY];
 			Mag[Z].G = b[MZ];
 			break;
-		case FreeIMU:
 		default:
 			Mag[X].G = -b[MY];
 			Mag[Y].G = -b[MX];
