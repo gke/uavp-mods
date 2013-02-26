@@ -107,6 +107,8 @@ Once again you only need to do this once or when loading the defaults or if you 
 
 The Green LED and Yellow LEDs should be on.
 
+_Note: See Accelerometer Neutral Fine Tuning below._
+
 === Step 5 (Magnetometer Calibration) ===
 
 Run the magnetometer calibration test in UAVPSet. Rotate the aircraft in all the directions you can think of including upside down and on edge. This captures the sensor offsets for the X,Y and Z axes using a little tricky math including fitting points to a sphere. You do not need to re-run the calibration unless it is clearly giving crazy answers for the computed compass heading. The offsets are stored in non-volatile memory where they are retained after disconnecting the battery. The magnetometer test should show the Neg/Pos values as being roughly equal. These values show how well you have rocked the aircraft around and correspond to visits to the octants around the axes.
@@ -153,7 +155,7 @@ If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at 
 
 You will need a DPDT arming switch if you intend to use GPS. The switch is arranged such that the GPS Tx is connected to the Com port Rx only when armed otherwise Com Port Rx is connected to the PC via the FTDI adapter. If the GPS is accidentally connected when UAVX is disarmed then the NMEA or binary transmission from the GPS will be interpreted as commands coming from UAVPSet with quite unpredictable results!
 
-== Accelerometer Neutrals ===
+== Accelerometer Neutral Fine Tuning ===
   
 If you have to trim in flight to get a drift free hover then the aircraft was not perfectly level during the thermal calibration. Keep the Tx trims as they were when you got to the drift free hover and then with UAVPSet using the new "A" test you can bump the accelerometer offset in the direction of the trims. 
 
