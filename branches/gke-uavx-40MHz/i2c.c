@@ -481,7 +481,8 @@ void ShowI2CDeviceName(uint8 d) {
             TxString("BMA180 Acc");
             break;
 #ifdef INC_MPU6050
-        case MPU6050_ID:
+        case MPU6050_0xD0_ID:
+        case MPU6050_0xD2_ID:
             TxString("MPU6050");
            break;
 #else

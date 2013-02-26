@@ -59,6 +59,7 @@ void ReadLISLAcc(void);
 
 int16 RawAcc[3];
 uint8 AccType;
+uint8 MPU6050_ID;
 uint8 BMA180_ID;
 uint8 AccConfidence;
 
@@ -103,7 +104,7 @@ void ReadAccelerations(void)
 	case FreeIMU:
 	case UAVXArm32IMU:
 		A[LR].AccADC = 0; 
-		A[DU].AccADC = GRAVITY;
+		A[DU].AccADC = -GRAVITY;
 		A[FB].AccADC = 0;
 		break;
 	#endif // INC_MPU6050	
@@ -145,13 +146,8 @@ void InitAccelerometers(void)
 		case GY86IMU:
 		case UAVXArm32IMU:
 		#ifdef INC_MPU6050
-			INV_ID = INV_ID_MPU6050;
-			if ( MPU6050AccActive() )
-			{
-				AccType = MPU6050Acc;
-			//	InitMPU6050Acc();
-			} else
-				AccType = AccUnknown;
+		F.AccelerationsValid = true;
+			AccType = MPU6050Acc;
 		#else
 			AccType = AccUnsupported;
 		#endif // INC_MPU6050
@@ -315,7 +311,13 @@ void InitMPU6050Acc() {
 
 boolean MPU6050AccActive(void) 
 {
+	MPU6050_ID = MPU6050_0xD0_ID;
     F.AccelerationsValid = I2CResponse(MPU6050_ID);
+	if (!F.AccelerationsValid)
+	{
+		MPU6050_ID = MPU6050_0xD2_ID;
+		F.AccelerationsValid = I2CResponse(MPU6050_ID);
+	}
     return( F.AccelerationsValid );
 } // MPU6050AccActive
 

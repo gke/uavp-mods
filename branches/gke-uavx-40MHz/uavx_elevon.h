@@ -98,7 +98,7 @@
 			{9,true},			// RxAux4Ch					60
 			{50,true},			// DriveFilt				61
 
-			{23,0},				// Unused62					62
+			{NMEAGPS,true},		// GPSProtocol,				62
 			{0,true},			// HorizDampKp,				63
 			{0,true}			// VertDampKp,				64
 			};
