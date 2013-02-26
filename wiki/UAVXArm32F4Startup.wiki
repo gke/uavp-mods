@@ -149,7 +149,7 @@ http://www.rcgroups.com/forums/showthread.php?t=1093510
 
 The GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins.  If you are using Ublox or MTK GPS units and wish to have UAVXArm initialise them connect the GPS Rx pin to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is used for downlink telemetry.
 
-The initialisation sequences are from MultiWii and ArduPirates and may need tuning. You can use Generic NMEA if you set your GPS units up using the manufacturers tools or or select one of the binary or NMEA options applicable to your needs. Bear in mind when selecting GPS options yourself that multicopters behave more like pedestrians as far as there movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
+The initialisation sequences are from MultiWii and ArduPirates and may not suit your preferences. If this should be the case you can use Generic NMEA set your GPS unit's parameters using the manufacturer's tools. The Arm processor is very fast and so there is no particular performance advantage to using a binary format protocol. Bear in mind when selecting GPS options yourself that multicopters behave more like pedestrians as far as their movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
 
 If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at a minimum update rate of 5Hz. Communications is at 115KBaud.
 
