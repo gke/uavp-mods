@@ -144,6 +144,11 @@ Join us at:
 
 http://www.rcgroups.com/forums/showthread.php?t=1093510
 
+== Next Steps ==
+
+=== Flying X mode or Other Pilot Orientations ===
+
+UAVX changes the forward direction as seen by the pilot using a bit of simple mathematics. The arrow on the board must always point down the arm connected to Motor 1 regardless of where you want forward direction to be. If you want X-Mode simply change the "Forward" parameter to 6  which gives 6x7.5 = 45 degrees CW relative to the Motor 1 arm. Simple.
 
 === GPS Connection and Initialisation ===
 
@@ -155,7 +160,7 @@ If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at 
 
 You will need a DPDT arming switch if you intend to use GPS. The switch is arranged such that the GPS Tx is connected to the Com port Rx only when armed otherwise Com Port Rx is connected to the PC via the FTDI adapter. If the GPS is accidentally connected when UAVX is disarmed then the NMEA or binary transmission from the GPS will be interpreted as commands coming from UAVPSet with quite unpredictable results!
 
-== Accelerometer Neutral Fine Tuning ===
+=== Accelerometer Neutral Fine Tuning ===
   
 If you have to trim in flight to get a drift free hover then the aircraft was not perfectly level during the thermal calibration. Keep the Tx trims as they were when you got to the drift free hover and then with UAVPSet using the new "A" test you can bump the accelerometer offset in the direction of the trims. 
 
