@@ -1,4 +1,4 @@
-#summary Brief procedures on how to use UAVX for the first time.
+#summary Brief procedures on how to use UAVXPIC for the first time.  For the latest UAVXArm32F4 please use http://code.google.com/p/uavp-mods/wiki/UAVXArm32F4Startup
 #labels Featured,UAVX,GPS,UAVP,UAVPSet,gke,jesolins,TXRXsetup,checklist
 
 === Introduction ===
