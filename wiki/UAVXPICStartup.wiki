@@ -2,7 +2,7 @@
 
 === Introduction ===
 
-_If you have the UAVXArm32F4  version you should read UAVXArm32F4Startup. This Wiki is for the version of UAVX which uses the original UAVP board based on PIC microprocessors._  
+*If you have the UAVXArm32F4  version you should read UAVXArm32F4Startup. This Wiki is for the version of UAVX which uses the original UAVP board based on PIC microprocessors.* 
 
 UAVX using the original UAVP board was released for Beta testing on the 15 August 2009 Australian EST. The normal caveats apply in that use of UAVX and these instructions is entirely at your own risk - see the GNU License. 
 
