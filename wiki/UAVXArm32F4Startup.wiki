@@ -113,7 +113,6 @@ _Note: See Accelerometer Neutral Fine Tuning below._
 
 Run the magnetometer calibration test in UAVPSet. Rotate the aircraft in all the directions you can think of including upside down and on edge. This captures the sensor offsets for the X,Y and Z axes using a little tricky math including fitting points to a sphere. You do not need to re-run the calibration unless it is clearly giving crazy answers for the computed compass heading. The offsets are stored in non-volatile memory where they are retained after disconnecting the battery. The magnetometer test should show the Neg/Pos values as being roughly equal. These values show how well you have rocked the aircraft around and correspond to visits to the octants around the axes.
 
-
 At this point you should run the setup test and see if all of the alarms are cleared. If they are you are almost ready to fly but don't put the props on yet.
 
 === Step 6 (Motors) ===
@@ -159,6 +158,8 @@ The initialisation sequences are from MultiWii and ArduPirates and may not suit 
 If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at a minimum update rate of 5Hz. Communications is at 115KBaud.
 
 You will need a DPDT arming switch if you intend to use GPS. The switch is arranged such that the GPS Tx is connected to the Com port Rx only when armed otherwise Com Port Rx is connected to the PC via the FTDI adapter. If the GPS is accidentally connected when UAVX is disarmed then the NMEA or binary transmission from the GPS will be interpreted as commands coming from UAVPSet with quite unpredictable results!
+
+You must have a solid Green LED and a Blue LED flashing at the GPS rate which is normally 5Hz. If you have a RED LED flashing intermittently *do not fly using GPS navigation* as you have poor GPS reception or there is some other fault.
 
 === Accelerometer Neutral Fine Tuning ===
   
