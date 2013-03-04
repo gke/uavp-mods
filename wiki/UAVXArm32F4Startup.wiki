@@ -159,7 +159,7 @@ If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at 
 
 You will need a DPDT arming switch if you intend to use GPS. The switch is arranged such that the GPS Tx is connected to the Com port Rx only when armed otherwise Com Port Rx is connected to the PC via the FTDI adapter. If the GPS is accidentally connected when UAVX is disarmed then the NMEA or binary transmission from the GPS will be interpreted as commands coming from UAVPSet with quite unpredictable results!
 
-You must have a solid Green LED and a Blue LED flashing at the GPS rate which is normally 5Hz. If you have a RED LED flashing intermittently *do not fly using GPS navigation* as you have poor GPS reception or there is some other fault.
+You must have a solid Green LED and a Blue LED flashing at the GPS rate which is normally 5Hz to fly. If you have a Red LED flashing intermittently *do not fly using GPS navigation* as you have poor GPS reception or there is some other fault.
 
 === Accelerometer Neutral Fine Tuning ===
   
