@@ -44,14 +44,15 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 //	"B..Load UAVX hex file\r\n"
 	"C..Comp/Mag test\r\n"
 	"D..Load default params\r\n"
-	"G..Gyro & Acc test\r\n"
+//	"G..Dump black box\r\n"
 	"H..Baro & RF test\r\n"
-	"I..I2C bus scan\r\n"
+	"I..Gyro & Acc test\r\n"
 	"K..Cal Comp/Mag\r\n"
 //	"M..Modify params\r\n"
 	"N..Cal Acc\r\n"
 	"P..Rx test\r\n"
 	"S..Show config\r\n"
+	"T..I2C bus scan\r\n"
 	"V..Battery test\r\n"
 	"X..Flight stats\r\n"
 #ifdef INC_I2C_PROG
@@ -347,10 +348,12 @@ void ProcessCommand(void)
 				ShowStats();
 				ShowPrompt();
 				break;
-
 			#ifdef TESTING
-
-			case 'I':
+			case 'G':
+				DumpBlackBox();
+				ShowPrompt();
+				break;
+			case 'T':
 				TxString("\r\nI2C devices ...\r\n");
 				TxVal32(ScanI2CBus(),0,0);
 				TxString(" device(s) found\r\n");
@@ -364,7 +367,7 @@ void ProcessCommand(void)
 				BaroTest();
 				ShowPrompt();
 				break;
-			case 'G':	// gyro
+			case 'I':	// gyro
 				GyrosAndAccsTest();
 				ShowPrompt();
 				break;	
@@ -380,12 +383,17 @@ void ProcessCommand(void)
 				ReceiverTest();
 				ShowPrompt();
 				break;
-#ifdef INC_I2C_PROG
+			#ifdef INC_I2C_PROG
 			case 'Y':	// configure YGE30i EScs
 				ConfigureESCs();
 				ShowPrompt();
 				break;
-#endif
+			#endif
+			#else
+			case 'G':
+				TxString("Use TEST firmware\r\n");;
+				ShowPrompt();
+				break;
 			#endif // TESTING
 			case 'V' :	// Battery test
 				BatteryTest();

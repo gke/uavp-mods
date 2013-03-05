@@ -520,13 +520,15 @@ uint8 ScanI2CBus(void) {
 	d = 0;
 
 	UseI2C100KHz = true;
-	TxString("Sensor Bus\r\n");
+	TxString("I2C Bus\r\n");
 	for ( s = 0x10 ; s <= 0xf6 ; s += 2 )
 	{
 		if( I2CResponse(s) )
 		{
 			d++;
 			TxString("\t0x");
+			TxValH(s>>1);
+			TxString("/0x");
 			TxValH(s);
 			ShowI2CDeviceName(s);
 			TxNextLine();

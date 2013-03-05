@@ -33,7 +33,7 @@
 			{30,0},	 			// PitchIntLimit,			10
 
 			{25,0},	 			// YawKpRate, 				11
-			{0,0},	 			// RollRateKd was YawKi,	12
+			{25,0},	 			// RollRateKd was YawKi,	12
 			{Wolferl, true},	// IMU,						13
 			{20,0},	 			// YawLimit,				14
 			{CompoundPPM, true},// RCType,					15
@@ -51,7 +51,7 @@
 			{15,0}, 			// PitchKiAngle,			25c
 			{20,true}, 			// CamPitchKp,				26c
 			{10,0}, 			// YawKpAngle (Compass),	27
-			{0,0},				// PitchRateKd,				28
+			{25,0},				// PitchRateKd,				28
 			{10,true}, 			// NavRollPitchSlew,		29
 			{0,true}, 			// Unused30,				30
 
