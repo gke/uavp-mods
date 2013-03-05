@@ -106,6 +106,40 @@ void LightsAndSirens(void)
 
 } // LightsAndSirens
 
+#ifdef TESTING
+
+void DumpBlackBox(void) {
+	uint8 i;
+ 
+	TxString("\r\nNo inflight logs for UAVXPIC\r\n");
+
+	ShowSetup();
+	ScanI2CBus();
+	GyrosAndAccsTest();
+	DoCompassTest();
+	BaroTest();
+	ReceiverTest();
+	BatteryTest();
+	ShowStats();
+
+	TxString("\r\nParameters:");
+	for (i = 0; i < MAX_PARAMETERS; i++) {
+		TxString("\r\n ");
+		TxValU(i + 1);
+		TxString(" = ");
+		TxValS(P[i]);
+		if (DefaultParams[i][1])
+			TxString(" .");
+		else {
+			TxChar(' ');
+			TxValS(ReadEE(MAX_PARAMETERS + i));
+		}
+	}
+
+} // DumpBlackBox
+
+#endif // TESTING
+
 void InitPortsAndUSART(void)
 {
 	// general ports setup

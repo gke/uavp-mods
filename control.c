@@ -191,7 +191,7 @@ void DoWolfControl(AxisStruct *C) { // Origins Dr. Wolfgang Mahringer
 	static int32 Temp, pd, i;
 
 	ComputeRateDerivative(C, C->Rate);
-	pd =  SRS32((int32)C->Rate * C->RateKp - C->RateD * C->RateKd, 5);
+	pd =  SRS32((int32)C->Rate * C->RateKp + C->RateD * C->RateKd, 5);
 
     Temp = SRS32((int32)C->Angle * C->RateKi , 9);
 	i = Limit1(Temp, C->IntLimit);

@@ -22,7 +22,7 @@
 //#define USE_DROTEK_V1
 
 #ifndef BATCHMODE
-	#define TESTING
+	//#define TESTING
 	//#define FULL_TEST			// extended compass test etc.					
 	//#define SIMULATE
 	#define QUADROCOPTER
@@ -621,8 +621,8 @@ typedef union {
 
 			// 5
 			UsingAltControl :1, 
-			ReceivingGPS :1, 
-			PacketReceived :1,
+			ReceivingGPS :1,
+			MagnetometerCalibrated:1, 
 			NavComputed :1, 
 			AltitudeValid :1,
 			AccelerometersCalibrated :1,
@@ -641,15 +641,16 @@ typedef union {
 
 			// 7
 			OriginAltValid :1, 
+			UpdateHeading :1, 
 			HaveGPS :1, 
 			UsingCompoundPPM :1,
 			UsingTxMode2 :1, 
 			HaveEEPROM :1, 
 			ConfigError :1,
-			AltitudeCFPrimed: 1,
 			TxToBuffer:1 ,
+			I2CFatal :1, 
  			// 8
-			I2CFatal :1;
+			PacketReceived :1;
 			// 9
 		};
 } Flags;
@@ -1615,6 +1616,7 @@ extern void LightsAndSirens(void);
 extern void InitPorts(void);
 extern void InitPortsAndUSART(void);
 extern void InitMisc(void);
+extern void DumpBlackBox(void);
 extern void Delay1mS(int16);
 extern void Delay100mSWithOutput(int16);
 extern void DoBeep100mSWithOutput(uint8, uint8);
