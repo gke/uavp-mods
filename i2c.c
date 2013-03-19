@@ -464,6 +464,7 @@ uint8 WriteESCI2CByte(uint8 d) { // ~320KHz @ 40MHz
 	ESC_CLK_LOW;
 
 	return( s);
+
 } // WriteESCI2CByte
 
 #ifdef TESTING

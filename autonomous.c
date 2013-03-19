@@ -190,7 +190,7 @@ int16 CompensateCrossTrackError(int16 WayHeading) {
 			&& (Abs(MakePi(HeadingDiff))< DegreesToRadians(45))) {
 		Nav.CrossTrackE = SRS32((int32)int16sin(HeadingDiff) * (Nav.Distance
 				* Nav.CrossTrackKp),12);
-		CorrectedHeading = WayHeading + Limit1(Nav.CrossTrackE, DegreesToRadians(30));
+		CorrectedHeading = WayHeading + Limit1(Nav.CrossTrackE, (30*MILLIRAD)));
 		return (Make2Pi(CorrectedHeading));
 	} else
 #endif  // USE_CROSSTRACK
