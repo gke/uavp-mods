@@ -243,10 +243,10 @@ void YawControl(void) {
 	UpdateDesiredHeading();
 
 	HeadingE = MinimumTurn(DesiredHeading - Heading);
-	HeadingE = Limit1(HeadingE, DegreesToRadians(30));
-	r = SRS32((int24)HeadingE * A[Yaw].AngleKp, 7);
+	HeadingE = Limit1(HeadingE, (30*18));
+	r = -SRS32((int24)HeadingE * A[Yaw].AngleKp, 7);
 
-	r -= A[Yaw].Rate;
+	r += A[Yaw].Rate; 
 	r  = SRS32((int24)r * A[Yaw].RateKp, 4);
 	r = Limit1(r, A[Yaw].Limiter);
 

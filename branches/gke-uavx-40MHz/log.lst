@@ -1748,7 +1748,7 @@ C:\Flight\Code\UAVX-GKE\gps.c:183:Message [3004] comparison of a signed integer 
 C:\Flight\Code\UAVX-GKE\autonomous.c:379:Message [3004] comparison of a signed integer to an unsigned integer detected
 MPLINK 4.37, Linker
 Copyright (c) 1998-2010 Microchip Technology Inc.
-Error - section 'sintable_i' can not fit the section. Section 'sintable_i' length=0x00000022
+Error - section '.romdata_accel.o' can not fit the section. Section '.romdata_accel.o' length=0x00000007
 Errors    : 1
 
 C:\Flight\Code\UAVX-GKE\stats.c:76:Message [3004] comparison of a signed integer to an unsigned integer detected
@@ -2443,15 +2443,15 @@ C:\Flight\Code\UAVX-GKE\utils.c:362:Message [3004] comparison of a signed intege
 C:\Flight\Code\UAVX-GKE\utils.c:364:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:183:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:183:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\i2c.c:478:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:481:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:486:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:496:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:504:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:507:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:523:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:529:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:531:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:479:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:482:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:487:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:497:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:505:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:508:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:524:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:530:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:532:Warning [2054] suspicious pointer conversion
 MPLINK 4.37, Linker
 Copyright (c) 1998-2010 Microchip Technology Inc.
 Errors    : 0
@@ -2774,15 +2774,15 @@ C:\Flight\Code\UAVX-GKE\utils.c:362:Message [3004] comparison of a signed intege
 C:\Flight\Code\UAVX-GKE\utils.c:364:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:183:Message [3004] comparison of a signed integer to an unsigned integer detected
 C:\Flight\Code\UAVX-GKE\gps.c:183:Message [3004] comparison of a signed integer to an unsigned integer detected
-C:\Flight\Code\UAVX-GKE\i2c.c:478:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:481:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:486:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:496:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:504:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:507:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:523:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:529:Warning [2054] suspicious pointer conversion
-C:\Flight\Code\UAVX-GKE\i2c.c:531:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:479:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:482:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:487:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:497:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:505:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:508:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:524:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:530:Warning [2054] suspicious pointer conversion
+C:\Flight\Code\UAVX-GKE\i2c.c:532:Warning [2054] suspicious pointer conversion
 MPLINK 4.37, Linker
 Copyright (c) 1998-2010 Microchip Technology Inc.
 Errors    : 0

@@ -96,7 +96,7 @@ void WriteT580ESC(uint8 a, uint8 s, uint8 d2) {
 
 } // WriteT580ESC
 
-void WriteT580ESCs(int8 s, uint8 f, uint8 l, uint8 r, uint8 b) {
+void WriteT580ESCs(int8 s, uint8 f, uint8 r, uint8 l, uint8 b) {
 
     if ( ( s == T580Starting ) || ( s == T580Stopping ) ) {
         WriteT580ESC(0xd0, s, 0);
@@ -104,10 +104,10 @@ void WriteT580ESCs(int8 s, uint8 f, uint8 l, uint8 r, uint8 b) {
         WriteT580ESC(0xd4, s, 0);
         WriteT580ESC(0xd6, s, 0);
     } else {
-        WriteT580ESC(0xd0, s, l);
+        WriteT580ESC(0xd0, s, r);
         WriteT580ESC(0xd2, s, f);
         WriteT580ESC(0xd4, s, b);
-        WriteT580ESC(0xd6, s, r);
+        WriteT580ESC(0xd6, s, l);
     }
 
 } // WriteT580ESCs
@@ -121,7 +121,7 @@ void T580ESCs(uint8 f, uint8 l, uint8 r, uint8 b) {
 
     if ( T580Running )
         if ( Run )
-            WriteT580ESCs(T580Constant, f, l, r, b);
+            WriteT580ESCs(T580Constant, f, r, l, b);
         else 
 		{
             WriteT580ESCs(T580Stopping, 0, 0, 0, 0);
@@ -143,7 +143,7 @@ void T580ESCs(uint8 f, uint8 l, uint8 r, uint8 b) {
             WriteT580ESCs(T580Starting, 0, 0, 0, 0);
         }
         else
-            WriteT580ESCs(T580Constant, f, l, r, b);
+            WriteT580ESCs(T580Constant, f, r, l, b);
 
     T580Running = Run;
 
