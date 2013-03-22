@@ -175,9 +175,11 @@ Although there is a temptation to use trims is important to tune the aircraft to
 
 === GPS Wiring Harness ===
 
-The schematic shows how the GPS and arming switch are combined into a single DPDT switch. The schematic pin to pin connections may be taken literally to assist in forming wiring bundles.
+If you are using a CPPM capable receiver you can connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The arming switch remains a simple connection between the arming pin and the adjacent ground.
 
-The Aux2 pin is used to program the GPS unit if require however it may be omitted if the manufacturer's programmer is used.
+For all other receiver connections the schematic shows how the GPS and arming switch are combined into a single DPDT switch. The schematic pin to pin connections may be taken literally to assist in forming wiring bundles.
+
+The Aux2 pin is used to program the GPS unit if you wish UAVX to initialise Ublox/MTK parameters. The connection may be omitted if the manufacturer's programmer is used.
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4GPSHarness.JPG
 
