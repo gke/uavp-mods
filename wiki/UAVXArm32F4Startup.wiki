@@ -151,7 +151,11 @@ UAVX changes the forward direction as seen by the pilot using a bit of simple ma
 
 === GPS Connection and Initialisation ===
 
-The GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins.  If you are using Ublox or MTK GPS units and wish to have UAVXArm initialise them connect the GPS Rx pin to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is used for downlink telemetry.
+If you are using a CPPM capable RC receiver you can connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The arming switch remains a simple connection between the arming pin and the adjacent ground.
+
+If you are using a receiver other than CPPM then the GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins.  
+
+If you are using Ublox or MTK GPS units and wish to have UAVXArm initialise them connect the GPS Rx pin to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is used for downlink telemetry. A schematic for the combined Arming and GPS connections is in the Appendices.
 
 The initialisation sequences are from MultiWii and ArduPirates and may not suit your preferences. If this should be the case you can use Generic NMEA set your GPS unit's parameters using the manufacturer's tools. The Arm processor is very fast and so there is no particular performance advantage to using a binary format protocol. Bear in mind when selecting GPS options yourself that multicopters behave more like pedestrians as far as their movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
 
@@ -173,11 +177,9 @@ Although there is a temptation to use trims is important to tune the aircraft to
 
 == Appendices ==
 
-=== GPS Wiring Harness ===
+=== GPS Wiring Harness For Non-CPPM Receivers ===
 
-If you are using a CPPM capable receiver you can connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The arming switch remains a simple connection between the arming pin and the adjacent ground.
-
-For all other receiver connections the schematic shows how the GPS and arming switch are combined into a single DPDT switch. The schematic pin to pin connections may be taken literally to assist in forming wiring bundles.
+The schematic shows how the GPS and arming switch are combined into a single DPDT switch. The schematic pin to pin connections may be taken literally to assist in forming wiring bundles.
 
 The Aux2 pin is used to program the GPS unit if you wish UAVX to initialise Ublox/MTK parameters. The connection may be omitted if the manufacturer's programmer is used.
 
