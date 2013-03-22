@@ -151,7 +151,7 @@ UAVX changes the forward direction as seen by the pilot using a bit of simple ma
 
 === GPS Connection and Initialisation ===
 
-If you are using a CPPM capable RC receiver you can connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The arming switch remains a simple connection between the arming pin and the adjacent ground.
+If you are using a CPPM capable RC receiver you can connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The Arming Switch remains a simple connection between the arming pin and the adjacent ground.
 
 If you are using a receiver other than CPPM then the GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins.  
 
