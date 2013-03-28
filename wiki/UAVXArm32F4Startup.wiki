@@ -151,17 +151,17 @@ UAVX changes the forward direction as seen by the pilot using a bit of simple ma
 
 === GPS Connection and Initialisation ===
 
-If you are using a CPPM capable RC receiver you can connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The Arming Switch remains a simple connection between the arming pin and the adjacent ground.
+In what follows ou may wish to set your GPS unit's parameters using the manufacturer's tools. In this case leave the GPS Rx pin disconnected.
 
-If you are using a receiver other than CPPM then the GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins.  
+If you are using a CPPM capable RC receiver you connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The Arming Switch remains a simple connection between the arming pin and the adjacent ground.
 
-If you are using Ublox or MTK GPS units and wish to have UAVXArm initialise them connect the GPS Rx pin to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is used for downlink telemetry. A schematic for the combined Arming and GPS connections is in the Appendices.
+If you are using a receiver other than CPPM then the GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins. The GPS Rx pin should be connected to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is always used for downlink telemetry. A schematic for the combined Arming and GPS connections is in the Appendices.
 
-The initialisation sequences are from MultiWii and ArduPirates and may not suit your preferences. If this should be the case you can use Generic NMEA set your GPS unit's parameters using the manufacturer's tools. The Arm processor is very fast and so there is no particular performance advantage to using a binary format protocol. Bear in mind when selecting GPS options yourself that multicopters behave more like pedestrians as far as their movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
+The Arm processor is very fast and so there is no particular performance advantage to using a binary format protocol. Bear in mind when selecting GPS options yourself that multicopters behave more like *pedestrians* as far as their movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
 
 If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at a minimum update rate of 5Hz. Communications is at 115KBaud.
 
-You will need a DPDT arming switch if you intend to use GPS. The switch is arranged such that the GPS Tx is connected to the Com port Rx only when armed otherwise Com Port Rx is connected to the PC via the FTDI adapter. If the GPS is accidentally connected when UAVX is disarmed then the NMEA or binary transmission from the GPS will be interpreted as commands coming from UAVPSet with quite unpredictable results!
+The DPDT switch is arranged such that the GPS Tx is connected to the Com port Rx only when armed otherwise Com Port Rx is connected to the PC via the FTDI adapter. If the GPS is accidentally connected when UAVX is disarmed then the NMEA or binary transmission from the GPS will be interpreted as commands coming from UAVPSet with quite unpredictable results!
 
 You must have a solid Green LED and a Blue LED flashing at the GPS rate which is normally 5Hz to fly. If you have a Red LED flashing intermittently *do not fly using GPS navigation* as you have poor GPS reception or there is some other fault.
 
