@@ -31,7 +31,7 @@ void OutSignals(void);
 void StopMotors(void);
 void InitMotors(void);
 
-int16 PW[6];
+int16 PW[MAX_DRIVES], PWp[MAX_DRIVES];
 int16 PWSense[6];
 int16 ESCI2CFail[NO_OF_I2C_ESCS];
 int16 CurrThrottle;
@@ -195,11 +195,9 @@ void MixAndLimitMotors(void) { // expensive ~160uSec @ 40MHz
 
 	if ( DesiredThrottle < IdleThrottle )
 		CurrThrottle = 0;
-	else
-	{
+	else {
 		CurrThrottle = DesiredThrottle;
-		if ( State == InFlight )
-		{
+		if ( State == InFlight ) {
 			CurrThrottle += AltComp; 
 			CurrThrottle = Limit(CurrThrottle, IdleThrottle, (OUT_MAXIMUM * 9)/10 );
 		}
@@ -207,15 +205,12 @@ void MixAndLimitMotors(void) { // expensive ~160uSec @ 40MHz
 
 	#if defined MULTICOPTER
 			
-		if ( CurrThrottle > IdleThrottle )
-		{
+		if ( CurrThrottle > IdleThrottle ) {
 			DoMulticopterMix(CurrThrottle);			
 			CheckDemand(CurrThrottle);			
 			if ( MotorDemandRescale )
 				DoMulticopterMix(CurrThrottle);
-		}
-		else
-		{
+		} else {
 			#if ( defined Y6COPTER ) | ( defined HEXACOPTER )
 				for ( m = 0; m < (uint8)6; m++ )
 					PW[m] = CurrThrottle;
@@ -292,6 +287,8 @@ void MixAndLimitCam(void) {
 #include "outputs_40.h"
 
 void StopMotors(void) {
+	static uint8 m;
+
 	#if defined MULTICOPTER
 		#if ( defined Y6COPTER ) | ( defined HEXACOPTER )
 			PW[K1] = PW[K2] = PW[K3] = PW[K4] = PW[K5] = PW[K6] = 0;
@@ -310,6 +307,11 @@ void StopMotors(void) {
 
 
 void InitMotors(void) {
+	static uint8 m;
+
+	for (m = 0; m <MAX_DRIVES; m++)
+		PW[m] = PWp[m] = 0;
+
 	StopMotors();
 
 	#ifndef Y6COPTER

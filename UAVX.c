@@ -30,8 +30,7 @@ int8 near State, NavState, FailState;
 boolean near SpareSlotTime;
 #pragma udata
 
-void main(void)
-{
+void main(void) {
 	DisableInterrupts;
 
 	InitPortsAndUSART();
@@ -62,8 +61,7 @@ void main(void)
 
 	FirstPass = true;
 	
-	while( true )
-	{
+	while( true ) {
 		StopMotors();
 
 		ReceivingGPSOnly(false);
@@ -76,8 +74,7 @@ void main(void)
 		FailState = MonitoringRx;
 		F.FirstArmed = false;
 
-		while ( Armed )
-		{ // no command processing while the Quadrocopter is armed
+		while ( Armed ) { // no command processing while the Quadrocopter is armed
 	
 			ReceivingGPSOnly(true); 
 
@@ -95,8 +92,7 @@ void main(void)
 
 			#ifndef TESTING
 				#ifdef INC_CYCLE_STATS
-				if ( State == InFlight )
-				{
+				if ( State == InFlight ) {
 					CyclemS = NowmS - mS[LastPIDUpdate];
 					mS[LastPIDUpdate] = NowmS;
 					CyclemS = Limit(CyclemS, 0, 15);
@@ -110,15 +106,13 @@ void main(void)
 			if ( F.RCNewValues )
 				UpdateControls();
 
-			if ( ( F.Signal ) && ( FailState == MonitoringRx ) )
-			{
+			if ( ( F.Signal ) && ( FailState == MonitoringRx ) ) {
 				switch ( State  ) {
 				case Starting:	// this state executed once only after arming
 
 					LEDYellow_OFF;
 
-					if ( !F.FirstArmed )
-					{
+					if ( !F.FirstArmed ) {
 						mS[StartTime] = NowmS;
 						F.FirstArmed = true;
 					}
@@ -143,20 +137,19 @@ void main(void)
 					break;
 				case Landed:
 					DesiredThrottle = 0;
+					DesiredHeading = Heading;
+					AltMinThrCompStick = -ALT_MAX_THR_COMP;
 					F.OriginAltValid = false;
 					InitHeading();
 					if ( NowmS > mS[ArmedTimeout] )
 						DoShutdown();
 					else	
-						if ( StickThrottle < IdleThrottle )
-						{
+						if ( StickThrottle < IdleThrottle ) {
 							SetGPSOrigin();
 							DecayNavCorr();
 	    					if ( F.NewCommands )
 								F.LostModel = F.ForceFailsafe;
-						}
-						else
-						{						
+						} else {						
 							LEDPattern = 0;
 							mS[NavActiveTime] = NowmS + NAV_ACTIVE_DELAY_MS;
 							Stats[RCGlitchesS] = RCGlitches; // start of flight
@@ -165,8 +158,7 @@ void main(void)
 							mS[RxFailsafeTimeout] = NowmS + RC_NO_CHANGE_TIMEOUT_MS;
 							F.ForceFailsafe = F.LostModel = false;
 
-							if ( ParameterSanityCheck() )
-							{
+							if ( ParameterSanityCheck() ) {
 								#ifndef SIMULATE
 								while ( !F.NewBaroValue )
 									GetBaroAltitude(); 
@@ -176,25 +168,22 @@ void main(void)
 								F.OriginAltValid = true;
 								F.NewBaroValue = false;
 								State = InFlight;
-							}
-							else
+							} else
 								ALL_LEDS_ON;	
 						}						
 					break;
 				case Landing:
 					GetBaroAltitude();
-					if ( StickThrottle > IdleThrottle )
-					{
+					if ( StickThrottle > IdleThrottle ) {
 						DesiredThrottle = 0;
 						State = InFlight;
-					}
-					else
+					} else
 						if ( NowmS < mS[ThrottleIdleTimeout] )
 							DesiredThrottle = IdleThrottle;
-						else
-						{
+						else {
 							DecayNavCorr();
 							DesiredThrottle = AltComp = 0; // to catch cycles between Rx updates
+							AltMinThrCompStick = -ALT_MAX_THR_COMP;
 							F.DrivesArmed = false;
 							Stats[RCGlitchesS] = RCGlitches - Stats[RCGlitchesS];	
 							WriteStatsEE();
@@ -236,8 +225,7 @@ void main(void)
 				} // Switch State
 				mS[FailsafeTimeout] = NowmS + FAILSAFE_TIMEOUT_MS;
 				FailState = MonitoringRx;
-			}
-			else
+			} else
 				if ( F.FailsafesEnabled )
 					DoFailsafe();
 
@@ -247,6 +235,8 @@ void main(void)
 			CheckAlarms();
 
 		} // flight while armed
+	
+		Delay1mS(1); // zzz to prevent a fast loop around through startup
 	}
 
 } // main

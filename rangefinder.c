@@ -27,14 +27,12 @@ void InitRangefinder(void);
 
 int16 RangefinderAltitude, RangefinderAltitudeP;
 
-void GetRangefinderAltitude(void)
-{
+void GetRangefinderAltitude(void) {
 	#ifndef SIMULATE
 
 	static int16 Range;
 
-	if ( F.RangefinderAltitudeValid )
-	{
+	if ( F.RangefinderAltitudeValid ) {
 		if ( F.RFInInches )
 			RangefinderAltitude = (int16)(((int24)ADC(ADCAltChan) * 254L)/100L);
 		else
@@ -48,17 +46,14 @@ void GetRangefinderAltitude(void)
 		else
 			if (( RangefinderAltitude > ALT_RF_DISABLE_CM ) && F.UsingRangefinderAlt)
 				F.UsingRangefinderAlt = false;		
-	}
-	else
-	{
+	} else {
 		RangefinderAltitude = 0;
 		F.UsingRangefinderAlt = false;
 	}
 	#endif // SIMULATE
 } // GetRangefinderAltitude
 
-void InitRangefinder(void)
-{
+void InitRangefinder(void) {
 	static int16 Temp;
 
 	#ifdef SIMULATE

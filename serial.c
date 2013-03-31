@@ -46,8 +46,11 @@ void TxESCi32(int32);
 void SendPacket(uint8, uint8, uint8 *, boolean);
 
 #pragma udata txbuffer
-uint8 TxCheckSum;
-uint8x128Q TxQ;
+uint8 TxQ[((uint8)TX_BUFF_MASK+1)];
+#pragma udata
+
+#pragma udata rxbuffer
+uint8 	RxQ[((uint8)RX_BUFF_MASK+1)];
 #pragma udata
 
 void TxString(const rom uint8 *pch) {
@@ -60,9 +63,9 @@ void TxChar(uint8 ch) {
 
 	if ( F.TxToBuffer ) {
 		TxCheckSum ^= ch;
-		NewTail=(TxQ.Tail+1) & TX_BUFF_MASK;
-	  	TxQ.B[NewTail]=ch;
-		TxQ.Tail = NewTail;
+		NewTail=(TxQTail+1) & TX_BUFF_MASK;
+	  	TxQ[NewTail]=ch;
+		TxQTail = NewTail;
 	} else {
 		while( !PIR1bits.TXIF ) ;	// wait for transmit ready
 		TXREG = ch;		// put new char
@@ -261,19 +264,8 @@ void TxESCi16(int16 v) {
 	static i16u Temp;
 
 	Temp.i16 = v;
-
-#ifdef INLINE_TX
-	if ((Temp.b0 == SOH)||(Temp.b0 == EOT)||(Temp.b0 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b0);
-	
-	if ((Temp.b1 == SOH)||(Temp.b1 == EOT)||(Temp.b1 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b1);
-#else
 	TxESCu8(Temp.b0);
 	TxESCu8(Temp.b1);
-#endif
 
 } // Sendi16
 
@@ -281,50 +273,18 @@ void TxESCi24(int24 v) {
 	static i24u Temp;
 
 	Temp.i24 = v;
-
-#ifdef INLINE_TX
-	if ((Temp.b0 == SOH)||(Temp.b0 == EOT)||(Temp.b0 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b0);
-	
-	if ((Temp.b1 == SOH)||(Temp.b1 == EOT)||(Temp.b1 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b1);
-
-	if ((Temp.b2 == SOH)||(Temp.b2 == EOT)||(Temp.b2 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b2);
-#else
 	TxESCu8(Temp.b0);
 	TxESCu8(Temp.b1);
 	TxESCu8(Temp.b2);
-#endif
+
 } // Sendi16
 
 void TxESCi32(int32 v) {
 	static i32u Temp;
 
 	Temp.i32 = v;
-
-#ifdef INLINE_TX
-	if ((Temp.b0 == SOH)||(Temp.b0 == EOT)||(Temp.b0 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b0);
-	
-	if ((Temp.b1 == SOH)||(Temp.b1 == EOT)||(Temp.b1 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b1);
-
-	if ((Temp.b2 == SOH)||(Temp.b2 == EOT)||(Temp.b2 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b2);
-	
-	if ((Temp.b3 == SOH)||(Temp.b3 == EOT)||(Temp.b3 == ESC))
-		TxChar(ESC);
-	TxChar(Temp.b3);
-#else
 	TxESCi16(Temp.w0);
 	TxESCi16(Temp.w1);
-#endif
+
 } // TxESCi32
 

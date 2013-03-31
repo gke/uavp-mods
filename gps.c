@@ -32,7 +32,7 @@ int32 ConvertUTime(uint8, uint8);
 void ParseGPRMCSentence(void);
 void ParseGPGGASentence(void);
 void SetGPSOrigin(void);
-void ParseGPSSentence(void);
+void UpdateGPSSolution(void);
 void InitGPS(void);
 void UpdateGPS(void);
 
@@ -57,17 +57,155 @@ boolean EmptyField;
 int16 ValidGPSSentences;
 #pragma udata
 
-int32 ConvertGPSToM(int32 c)
-{	// approximately 1.8553257183 cm per NMEA LSD with 5 decimal minutes at the Equator
+int32 ConvertGPSTodM(int32 c) {
+	// conversion max is 21Km
+	return ( ((int32)c * (int32)1855)/((int32)10000) );
+} // ConvertGPSTodM
+
+#ifdef USE_UBLOX_BIN
+
+#define DEFAULT_BAUD_RATES 6
+const uint32 DefaultBaud[] = { 4800, 9600, 19200, 38400, 57600, 115200 };
+
+void TxGPSString(const rom uint8 * pch) {
+	while (*pch != (char) 0) {
+		TxChar(*pch++);
+		Delay1mS(5);
+	}
+} // TxGPSString
+
+//______________________________________________________________________________
+
+// UBlox Code rewritten from AQ (C) Bill Nesbitt
+
+#pragma udata ubxvars
+ubxstruct ubx;
+#pragma udata
+
+void ParseUbxPacket(void) {
+
+	enum UbxFixTypes {
+		FixNone = 0,
+		FixDeadReckoning = 1,
+		Fix2D = 2,
+		Fix3D = 3,
+		FixGPSDeadReckoning = 4,
+		FixTime = 5
+	};
+
+	switch (ubx.class) {
+	case UBX_NAV_CLASS:
+		switch (ubx.id) {
+		case UBX_NAV_STATUS:
+			GPS.Fix = ubx.payload.status.fixtype;
+			F.GPSValid = (ubx.payload.status.fix_status & 1)
+					&& ((ubx.payload.status.fixtype == Fix3D
+							|| ubx.payload.status.fixtype == Fix2D));
+			break;
+		case UBX_NAV_SOL:
+			GPS.NoOfSats = ubx.payload.sol.satellites;
+			break;
+		case UBX_NAV_POSLLH:
+			GPS.MissionTime = ubx.payload.posllh.iTOW;
+			GPS.LatitudeRaw = ubx.payload.posllh.lat - 2 * (ubx.payload.posllh.lat / 5);
+			GPS.LongitudeRaw = ubx.payload.posllh.lon - 2 * (ubx.payload.posllh.lon / 5);
+			GPS.Altitude = ubx.payload.posllh.hMSL / 10; // mm => cm
+			break;
+		case UBX_NAV_VELNED:
+			GPS.Vel = ubx.payload.valned.gSpeed / 10; // cm/s => dm/s
+			GPS.Heading = ubx.payload.valned.heading * 3142 / 100000;
+			break;
+		case UBX_NAV_DOP:
+			GPS.HDOP = ubx.payload.dop.hDOP / 10;
+			break;
+		default:
+			break;
+		}
+		break;
+	case UBX_TIM_CLASS:
+		switch (ubx.id) {
+		case UBX_TIM_TP:
+			//GPS.TPtowMS = ubx.payload.tp.towMS;
+			break;
+		default:
+			break;
+		}
+	}
+
+} // ParseUbxPacket
+
+void RxUbxPacket(uint8 RxCh) {
+
+	switch (RxState) {
+	case WaitSentinel:
+		if (RxCh == UBX_PREAMBLE1)
+			RxState = WaitSentinel2;
+		break;
+	case WaitSentinel2:
+		if (RxCh == UBX_PREAMBLE2)
+			RxState = WaitClass;
+		else
+			RxState = WaitSentinel;
+		break;
+	case WaitClass:
+		ubx.class = RxCh;
+		ubx.RxCK_A = ubx.RxCK_B = 0;
+		ubx.RxCK_A+=RxCh;ubx.RxCK_B+=ubx.RxCK_A;
+		RxState = WaitID;
+		break;
+	case WaitID:
+		ubx.id = RxCh;
+		ubx.RxCK_A+=RxCh;ubx.RxCK_B+=ubx.RxCK_A;
+		RxState = WaitLength;
+		break;
+	case WaitLength:
+		ubx.length = RxCh;
+		ubx.RxCK_A+=RxCh;ubx.RxCK_B+=ubx.RxCK_A;
+		RxState = WaitLength2;
+		break;
+	case WaitLength2:
+		ubx.length += (RxCh << 8);
+		ubx.RxCK_A+=RxCh;ubx.RxCK_B+=ubx.RxCK_A;
+		if (ubx.length > 0) {
+			ubx.count = 0;
+			RxState = WaitBody;
+		} else
+			RxState = WaitCheckSum;
+		break;
+	case WaitBody:
+		*((uint8 *) (&ubx.payload) + ubx.count) = RxCh;
+		if (++ubx.count == ubx.length)
+			RxState = WaitCheckSum;
+		ubx.RxCK_A+=RxCh;ubx.RxCK_B+=ubx.RxCK_A;
+		break;
+	case WaitCheckSum:
+		if (RxCh == ubx.RxCK_A)
+			RxState = WaitCheckSum2;
+		else
+			RxState = WaitSentinel;
+		break;
+	case WaitCheckSum2:
+		RxState = WaitSentinel;
+		F.PacketReceived = RxCh == ubx.RxCK_B;
+		if ( F.PacketReceived )
+			ParseUbxPacket();
+		break;
+	default:
+		RxState = WaitSentinel;
+		break;
+	}	
+} // RxUbxPacket
+
+//______________________________________________________________________________
+
+#else
+
+int32 ConvertGPSToM(int32 c) {
+	// approximately 1.8553257183 cm per NMEA LSD with 5 decimal minutes at the Equator
 	// 32bit is 0.933 cm less than a factor of 2
 	// conversion max is 21Km
 	return ( ((int32)c * (int32)1855)/((int32)100000) );
 } // ConvertGPSToM
-
-int32 ConvertGPSTodM(int32 c) {	
-	// conversion max is 21Km
-	return ( ((int32)c * (int32)1855)/((int32)10000) );
-} // ConvertGPSTodM
 
 int32 ConvertMToGPS(int32 c) {
 	return ( ((int32)c * (int32)100000)/((int32)1855) );
@@ -94,8 +232,7 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi) {
 	static uint8 dp;	
 	
 	r = 0;
-	if ( !EmptyField )
-	{
+	if ( !EmptyField ) {
 		dp = lo + 4; // could do this in initialisation for Lat and Lon?
 		while ( NMEA.s[dp] != '.') dp++;
 
@@ -107,8 +244,8 @@ int32 ConvertLatLonM(uint8 lo, uint8 hi) {
 			dm = ConvertInt(dp + 1, dp + 4) * 10L;
 			
 	    r = dd * 6000000 + mm * 100000 + dm;
-	}
-	
+		// r = r * 2 - r / 3;
+	}	
 	return(r);
 } // ConvertLatLonM
 
@@ -124,12 +261,10 @@ int32 ConvertUTime(uint8 lo, uint8 hi) {
 	return(ival);
 } // ConvertUTime
 
-void UpdateField(void)
-{
+void UpdateField(void) {
 	static uint8 ch;
 
 	lo = cc;
-
 	ch = NMEA.s[cc];
 	while (( ch != ',' ) && ( ch != '*' ) && ( cc < nll )) 
 		ch = NMEA.s[++cc];
@@ -139,8 +274,7 @@ void UpdateField(void)
 	EmptyField = hi < lo;
 } // UpdateField
 
-void ParseGPGGASentence(void) { // full position $GPGGA fix
-	// 0.29mS @ 40MHz 
+void ParseGPGGASentence(void) { 
 
     UpdateField();
     
@@ -166,19 +300,12 @@ void ParseGPGGASentence(void) { // full position $GPGGA fix
     UpdateField();   	// HDOP
 	GPS.HDOP = ConvertInt(lo, hi-3) * 10 + ConvertInt(hi-1, hi-1); 
 
-    UpdateField();   	// Alt
-
+    UpdateField();   	// Alt assume metres!
 	GPS.Altitude = ConvertInt(lo, hi-2) * 10L + ConvertInt(hi, hi) * 10; // Decimetres
-
-    //UpdateField();   // AltUnit - assume Metres!
-
-    //UpdateField();   // GHeight 
-    //UpdateField();   // GHeightUnit 
 
    	F.GPSValid = (GPS.Fix >= (uint8)GPS_MIN_FIX) && ( GPS.NoOfSats >= (uint8)GPS_MIN_SATELLITES );
 
-	if ( State == InFlight )
-	{
+	if ( State == InFlight ) {
 		StatsMinMax(GPS.HDOP, MinHDOPS, MaxHDOPS);
 		StatsMinMax(GPS.NoOfSats, GPSMinSatsS, GPSMaxSatsS);
 
@@ -188,8 +315,6 @@ void ParseGPGGASentence(void) { // full position $GPGGA fix
 
 void ParseGPRMCSentence() { 	
 	// main current position and heading
-	// 0.1mS @ 40MHz
-
 	static i32u Temp32;
 
     UpdateField();
@@ -220,30 +345,83 @@ void ParseGPRMCSentence() {
         UpdateField();   // True course made good (Degrees)
 		GPS.Heading = SRS32(((int32)ConvertInt(lo, hi-3) * 100L + ConvertInt(hi-1, hi)) * 45L, 8); // MilliRadians 3142/18000; 
 
-      	/*
-        UpdateField();   //UDate
-
-        UpdateField();   // Magnetic Deviation (Degrees)
-        GPS.MagDeviation = ConvertReal(lo, hi) * MILLIRAD;
-
-        UpdateField();   // East/West
- 
-		if ( NMEA.s[lo] == 'W')
-            GPS.MagHeading = GPS.Heading - GPS.MagDeviation; // need to check sign????
-        else
-            GPS.MagHeading = GPS.Heading +  GPS.MagDeviation;
-		*/
         F.ValidGPSVel = true;
     } else
         F.ValidGPSVel = false;
 
 } // ParseGPRMCSentence
 
+
+void RxNMEASentence(uint8 RxCh) {
+
+	switch ( RxState ) {
+	case WaitCheckSum:
+		if (GPSCheckSumChar < (uint8)2) {
+			GPSTxCheckSum *= 16;
+			if ( RxCh >= 'A' )
+				GPSTxCheckSum += ( RxCh - ('A' - 10) );
+			else
+				GPSTxCheckSum += ( RxCh - '0' );
+			GPSCheckSumChar++;
+		} else {
+			NMEA.length = ll;	
+			F.PacketReceived = GPSTxCheckSum == RxCheckSum;
+			if ( F.PacketReceived ) 	
+				switch ( GPSPacketTag ) {
+			    case GPGGAPacketTag:
+					ParseGPGGASentence();
+					break;
+				case GPRMCPacketTag:
+					ParseGPRMCSentence();
+					break;
+				default:
+					break;
+				}
+			RxState = WaitSentinel;
+		}
+		break;
+	case WaitBody: 
+		if ( RxCh == '*' ) {
+			GPSCheckSumChar = GPSTxCheckSum = 0;
+			RxState = WaitCheckSum;
+		} else         
+			if ( RxCh == '$' ) { // abort partial Sentence 
+				ll = tt = RxCheckSum = 0;
+				RxState = WaitID;
+			} else {
+				RxCheckSum ^= RxCh;
+				NMEA.s[ll++] = RxCh; 
+				if ( ll > (uint8)( GPSRXBUFFLENGTH-1 ) )
+					RxState = WaitSentinel;
+			}					
+			break;
+	case WaitID:
+		RxCheckSum ^= RxCh;
+		while ( ( RxCh != (uint8)NMEATags[ss][tt] ) && ( ss < (uint8)MAX_NMEA_SENTENCES ) ) ss++;
+		if ( RxCh == NMEATags[ss][tt] )
+	        if ( tt == (uint8)NMEA_TAG_INDEX ) {
+				GPSPacketTag = ss;
+				RxState = WaitBody;
+			} else
+				tt++;
+		else
+			RxState = WaitSentinel;
+		break;
+	case WaitSentinel: // highest priority skipping unused sentence types
+		if ( RxCh == '$' ) {
+			ll = tt = ss = RxCheckSum = 0;
+			RxState = WaitID;
+		}
+		break;	
+	} 
+} // RxNMEASentence
+
+#endif // USE_UBLOX_BIN
+
 void SetGPSOrigin(void) {
 	static int32 Temp;
 
-	if ( ( ValidGPSSentences == GPS_ORIGIN_SENTENCES ) && F.GPSValid )
-	{
+	if ( ( ValidGPSSentences == GPS_ORIGIN_SENTENCES ) && F.GPSValid ) {
 		mS[LastGPS] = mSClock();
 
 		#ifdef SIMULATE
@@ -268,9 +446,8 @@ void SetGPSOrigin(void) {
 		Write32EE(NAV_ORIGIN_LAT, GPS.LatitudeRaw);
 		Write32EE(NAV_ORIGIN_LON, GPS.LongitudeRaw);
 
-		if ( !F.NavValid )
-		{
-			DoBeep100mSWithOutput(2,0);
+		if ( !F.NavValid ) {
+			DoBeep100mSWithOutput(8,0);
 			Stats[NavValidS] = true;
 			F.NavValid = true;
 		}
@@ -279,31 +456,11 @@ void SetGPSOrigin(void) {
 } // SetGPSOrigin
 
 
-void ParseGPSSentence(void) {
-	int24 NowmS;
-	int16 GPSdT;
-	int32 EastDiff, NorthDiff;
+void UpdateGPSSolution(void) {
+	static int24 NowmS;
+	static int16 GPSdT;
 
-	cc = 0;
-	nll = NMEA.length;
-
-#ifdef SIMULATE
-
-	GPSEmulation();
-
-#else
-	switch ( GPSPacketTag ) {
-    case GPGGAPacketTag:
-		ParseGPGGASentence();
-		break;
-	case GPRMCPacketTag:
-		ParseGPRMCSentence();
-		break;
-	} 
-#endif
-
-	if ( F.GPSValid )
-	{
+	if ( F.GPSValid ) {
 		// all coordinates in 0.00001 Minutes or ~1.8553cm relative to Origin
 		// There is a lot of jitter in position - could use Kalman Estimator?
 
@@ -311,80 +468,67 @@ void ParseGPSSentence(void) {
 		GPSdT = (NowmS - mS[LastGPS]);
 		mS[LastGPS] = NowmS;
 
-	    if ( ValidGPSSentences <  GPS_ORIGIN_SENTENCES )
-		{   // repetition to ensure GPGGA altitude is captured
+	    if ( ValidGPSSentences <  GPS_ORIGIN_SENTENCES ) {   
 			F.GPSValid = false;
-
 			if ( GPS.HDOP <= GPS_MIN_HDOP )
 				ValidGPSSentences++;
 			else
 				ValidGPSSentences = 0;
 		}
 
-		if (F.NavValid)
-		{
+		if (F.NavValid) {
 			Nav.C[NorthC].Pos = ConvertGPSTodM(GPS.LatitudeRaw - GPS.OriginLatitudeRaw);
 			Nav.C[EastC].Pos = SRS32(ConvertGPSTodM(GPS.LongitudeRaw - GPS.OriginLongitudeRaw)
 							* GPS.LongitudeCorrection, 8);
-
-			if (!F.ValidGPSVel) {
-				NorthDiff = Nav.C[NorthC].Pos - Nav.C[NorthC].PosP;
-				EastDiff = Nav.C[EastC].Pos - Nav.C[EastC].PosP;
-
-				GPS.Vel = int32sqrt(Sqr(NorthDiff) + Sqr(EastDiff)) * GPS_UPDATE_HZ;
-			}
 
 			Nav.C[NorthC].PosP = Nav.C[NorthC].Pos;
 			Nav.C[EastC].PosP = Nav.C[EastC].Pos;
 		}
 
-		if ( State == InFlight )
-		{
+		if ( State == InFlight ) {
 			StatsMax(GPS.Altitude, GPSAltitudeS);
 			StatsMax(GPS.Vel, GPSVelS);
 		}
-	}
-	else
+	} else
 		if ( State == InFlight ) 
 			Stats[GPSInvalidS]++;
 
-} // ParseGPSSentence
+} // UpdateGPSSolution
 
 void UpdateGPS(void) {
+	static uint8 ch;
 
 	#ifdef SIMULATE
-	static uint24 NextGPS = 0;
+		GPSEmulation();
+	#else
+		while ( (!F.PacketReceived) && (RxQTail != RxQHead)) {
+			ch = RxQ[RxQHead];
+			RxQHead = (RxQHead + 1) & RX_BUFF_MASK;
+			#ifdef USE_UBLOX_BIN
+				RxUbxPacket(ch);
+			#else
+				RxNMEASentence(ch);
+			#endif
+		}
+	#endif // SIMULATE
 
-	if ( mSClock( )> NextGPS ) {
-		NextGPS += 1000/ GPS_UPDATE_HZ ;
-		F.PacketReceived = true;
-	}
-	#endif
-
-	if ( F.PacketReceived )
-	{
+	if ( F.PacketReceived ) {
 		LEDBlue_ON;
 		LEDRed_OFF;
-		F.PacketReceived = false;  
-		ParseGPSSentence(); // 3mS 18f2620 @ 40MHz
-		if ( F.GPSValid )
-		{
+		F.PacketReceived = false; 
+		UpdateGPSSolution(); // 3mS 18f2620 @ 40MHz
+		if ( F.GPSValid ) {
 			LEDRed_OFF;
 			F.NavComputed = false;
 			mSTimer(GPSTimeout, GPS_TIMEOUT_MS);
-		}
-		else
-		{
+		} else {
 			F.NavigationActive = false;
 			LEDRed_ON;
 
 		}
 		LEDBlue_OFF;
-	}
-	else
-	{
-		if( mSClock() > mS[GPSTimeout] )
-		{
+	} else {
+		if( mSClock() > mS[GPSTimeout] ) {
 			F.GPSValid = false;
 			LEDRed_ON;
 		}
@@ -409,6 +553,6 @@ void InitGPS(void) {
 	ValidGPSSentences = 0;
 
 	F.NavValid = F.GPSValid = F.PacketReceived = false;
-  	RxState = WaitSentinel; 
+  	RxState = WaitSentinel;
 
 } // InitGPS

@@ -51,7 +51,7 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 //	"M..Modify params\r\n"
 	"N..Cal Acc\r\n"
 	"P..Rx test\r\n"
-	"S..Show config\r\n"
+	"S..Setup\r\n"
 	"T..I2C bus scan\r\n"
 	"V..Battery test\r\n"
 	"X..Flight stats\r\n"
@@ -63,7 +63,7 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 
 //	"B..Load UAVX hex file\r\n"
 	"D..Load default param set\r\n"
-	"S..Show config\r\n"
+	"S..Setup\r\n"
 	"V..Battery test\r\n"
 	"X..Flight stats\r\n"
 
@@ -75,19 +75,19 @@ const rom uint8 SerHelp[] = "\r\nCommands:\r\n"
 const rom uint8 RxChMnem[] = "TAERG12345";
 #pragma idata
 
-void ShowPrompt(void)
-{
+void ShowPrompt(void) {
 	TxString("\r\n>");
 } // ShowPrompt
 
-void ShowRxSetup(void)
-{
+void ShowRxSetup(void) {
 	if ( F.UsingCompoundPPM ) {
 		TxString("Serial PPM frame (");
+/*
 		if ( PPMPosPolarity )
 			TxString("Pos. Polarity)");
 		else
 			TxString("Neg. Polarity)");
+*/
 	} else
 		TxString("Odd Rx Channels PPM");
 } // ShowRxSetup
@@ -97,13 +97,11 @@ const rom uint8 * AFName[AFUnknown+1] = { "Tri", "Quad", "Hex", "Y6", "Oct",
 		"OctCoax", "Heli", "Elev", "Ail", "V", "VTOL", "Gimbal", "Unknown" };
 #pragma idata
 
-void ShowAFType(void)
-{
+void ShowAFType(void) {
 	TxString(AFName[AF_TYPE]);
 } // ShowAFType
 
-void ShowSetup(void)
-{
+void ShowSetup(void) {
 	static uint8 i;
 
 	TxNextLine();
@@ -228,16 +226,13 @@ void ShowSetup(void)
 	ShowPrompt();
 } // ShowSetup
 
-void ProcessCommand(void)
-{
+void ProcessCommand(void) {
 	static uint8 ch;
 	static uint8 p;
 	static int8 d;
 	static int16 dd;
 
-
-	if ( !Armed )
-	{
+	if ( !Armed ) {
 		ch = PollRxChar();
 		if ( ch != NUL ) {
 			if( islower(ch))							// check lower case

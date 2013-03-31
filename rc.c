@@ -19,7 +19,7 @@
 //    If not, see http://www.gnu.org/licenses/
 #include "uavx.h"
 
-void DoRxPolarity(void);
+//zzzvoid DoRxPolarity(void);
 void InitRC(void);
 void MapRC(void);
 void CheckSticksHaveChanged(void);
@@ -28,13 +28,14 @@ void CaptureTrims(void);
 void CheckThrottleMoved(void);
 
 uint8 Map[CONTROLS], RMap[CONTROLS];
-boolean PPMPosPolarity;
+//zzzboolean PPMPosPolarity;
 
 int16 RC[CONTROLS], RCp[CONTROLS];
 int16 CruiseThrottle, NewCruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
 int16 DesiredCamPitchTrim;
 int16 ThrLow, ThrHigh, ThrNeutral;
 
+/*zzz
 void DoRxPolarity(void)
 {
 	if ( F.UsingCompoundPPM  ) // serial PPM frame from within an Rx
@@ -42,7 +43,7 @@ void DoRxPolarity(void)
 	else
 		CCP1CONbits.CCP1M0 = true;	
 }  // DoRxPolarity
-
+*/
 
 void UpdateRCMap(void) {
 	static uint8 i;
@@ -78,10 +79,10 @@ void InitRC(void) {
 		RC[c] = RCp[c] = RC_NEUTRAL;
 	RC[CamPitchRC] = RCp[CamPitchRC] = RC_NEUTRAL;
 
-	PPMPosPolarity = (P[ServoSense] & PPMPolarityMask) == 0;	
+//	PPMPosPolarity = (P[ServoSense] & PPMPolarityMask) == 0;	
 	F.UsingCompoundPPM = P[RCType] == CompoundPPM;
 	PIE1bits.CCP1IE = false;
-	DoRxPolarity();
+	CCP1CONbits.CCP1M0 = true; //DoRxPolarity();
 	PPM_Index = PrevEdge = RCGlitches = 0;
 	PIE1bits.CCP1IE = true;
 

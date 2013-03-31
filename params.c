@@ -45,7 +45,7 @@ const rom uint8 ESCLimits [] = { OUT_MAXIMUM, OUT_HOLGER_MAXIMUM, OUT_X3D_MAXIMU
 
 
 uint8	ParamSet;
-boolean ParametersChanged, SaveAllowTurnToWP;
+boolean ParametersChanged;
 int8 Orientation;
 int16 OrientationMRad;
 uint8 UAVXAirframe;
@@ -69,7 +69,6 @@ void ReadParametersEE(void)
 		for ( i = 0; i < (uint8)MAX_PARAMETERS; i++)
 			P[i] = ReadEE(a + i);
 
-
 		A[Roll].AngleKp = P[RollAngleKp];
 		A[Roll].AngleKi = P[RollAngleKi];
 
@@ -92,6 +91,12 @@ void ReadParametersEE(void)
 		A[Yaw].Limiter = P[YawLimit];
 
 		// Navigation
+		#if (defined  TRICOPTER) | (defined  Y6COPTER) | (defined HELICOPTER) | (defined VTCOPTER)
+			F.AllowTurnToWP = true;
+		#else
+			F.AllowTurnToWP = false;	
+		#endif
+
 		Nav.MaxVelocitydMpS = P[NavMaxVelMpS]*10;
 		Nav.PosKp = 1;
 		Nav.VelKp = 5;
@@ -247,39 +252,32 @@ void UpdateParamSetChoice(void)
 	else
 		Selector = -A[Yaw].Desired;
 
-	if ( (Abs(A[Pitch].Desired) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) )
-	{
-		if ( A[Pitch].Desired > STICK_WINDOW ) // bottom
-		{
+	if ( (Abs(A[Pitch].Desired) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) ) {
+		if ( A[Pitch].Desired > STICK_WINDOW ) { // bottom
 			if ( Selector < -STICK_WINDOW ) // left
 			{ // bottom left
 				NewParamSet = 1;
 				NewAllowNavAltitudeHold = true;
 			} else
-				if ( Selector > STICK_WINDOW ) // right
-				{ // bottom right
+				if ( Selector > STICK_WINDOW ) { // right
+ 					// bottom right
 					NewParamSet = 2;
 					NewAllowNavAltitudeHold = true;
 				}
 		}		
 		else
-			if ( A[Pitch].Desired < -STICK_WINDOW ) // top
-			{		
-				if ( Selector < -STICK_WINDOW ) // left
-				{
+			if ( A[Pitch].Desired < -STICK_WINDOW ) { // top		
+				if ( Selector < -STICK_WINDOW ) { // left
 					NewAllowNavAltitudeHold = false;
 					NewParamSet = 1;
-				}
-				else 
-					if ( Selector > STICK_WINDOW ) // right
-					{
+				} else 
+					if ( Selector > STICK_WINDOW ) { // right
 						NewAllowNavAltitudeHold = false;
 						NewParamSet = 2;
 					}
 			}
 
-		if ( ( NewParamSet != ParamSet ) || ( NewAllowNavAltitudeHold != F.AllowNavAltitudeHold ) )
-		{	
+		if ( ( NewParamSet != ParamSet ) || ( NewAllowNavAltitudeHold != F.AllowNavAltitudeHold ) ) {
 			ParamSet = NewParamSet;
 			F.AllowNavAltitudeHold = NewAllowNavAltitudeHold;
 			LEDBlue_ON;
@@ -299,16 +297,14 @@ void UpdateParamSetChoice(void)
 	else
 		Selector = A[Roll].Desired;
 
-	if ( (Abs(RC[ThrottleRC]) < STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW ) )
-	{
+	if ( (Abs(RC[ThrottleRC]) < STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW ) ) {
 		if ( Selector < -STICK_WINDOW ) // left
 			NewAllowTurnToWP = false;
 		else
 			if ( Selector > STICK_WINDOW ) // left
 				NewAllowTurnToWP = true; // right
 			
-		if ( NewAllowTurnToWP != F.AllowTurnToWP )
-		{		
+		if ( NewAllowTurnToWP != F.AllowTurnToWP ) {		
 			F.AllowTurnToWP = NewAllowTurnToWP;
 			LEDBlue_ON;
 		//	if ( F.AllowTurnToWP )
@@ -317,8 +313,6 @@ void UpdateParamSetChoice(void)
 			LEDBlue_OFF;
 		}
 	}
-	
-	SaveAllowTurnToWP = F.AllowTurnToWP;
 
 } // UpdateParamSetChoice
 

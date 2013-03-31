@@ -68,22 +68,18 @@ uint8 MPU6050DLPF, MPU6050DHPF;
 const rom uint8 * AccName[AccUnknown+1] = 
 		{"LIS3L", "MPU6050","BMA180", "Not supported", "No response"};
 
-void ShowAccType(void)
-{
+void ShowAccType(void) {
 	TxString(AccName[AccType]);
 } // ShowAccType
 
-void AccFailure(void)
-{
-	if ( State == InFlight )
-	{
+void AccFailure(void){
+	if ( State == InFlight ) {
 		Stats[AccFailS]++;	
 		F.AccFailure = true;
 	}
 } // AccFailure
 
-void ReadAccelerations(void)
-{
+void ReadAccelerations(void) {
 	// X/Forward FB Acc sense to simplify gyro comp code
 	switch ( P[SensorHint] ) {
 	#ifdef INC_MPU6050
@@ -187,8 +183,7 @@ void InitAccelerometers(void)
 
 #ifdef TESTING
 
-void GetNeutralAccelerations(void)
-{
+void GetNeutralAccelerations(void) {
 	static uint8 i, a, ch;
 	static int16 Temp[3], b;
 
@@ -206,7 +201,6 @@ void GetNeutralAccelerations(void)
 				ReadAccelerations();
 				for ( a = LR; a<=(uint8)DU; a++ )
 					Temp[a] += A[a].AccADC;
-	
 				Delay1mS(10);
 			}	
 		
@@ -236,8 +230,7 @@ void GetNeutralAccelerations(void)
 
 } // GetNeutralAccelerations
 
-void WriteAccCalEE(void) 
-{
+void WriteAccCalEE(void) {
 	uint8 a;
 
 	for ( a = LR; a<=(uint8)DU; a++ ) 
@@ -247,8 +240,7 @@ void WriteAccCalEE(void)
 
 #endif // TESTING
 
-void ReadAccCalEE(void) 
-{
+void ReadAccCalEE(void) {
 	uint8 a;
 
 	for ( a = LR; a<=(uint8)DU; a++ ) 
@@ -263,8 +255,7 @@ void ReadAccCalEE(void)
 boolean MPU6050AccActive(void);
 
 
-void ReadMPU6050Acc(void) 
-{
+void ReadMPU6050Acc(void) {
 	if ( !ReadI2Ci16vAtAddr(MPU6050_ID, MPU6050_ACC_XOUT_H, RawAcc, 3, true) ) 
 		AccFailure();
 
@@ -309,12 +300,10 @@ void InitMPU6050Acc() {
 
 } // InitMPU6050Acc
 
-boolean MPU6050AccActive(void) 
-{
+boolean MPU6050AccActive(void) {
 	MPU6050_ID = MPU6050_0xD0_ID;
     F.AccelerationsValid = I2CResponse(MPU6050_ID);
-	if (!F.AccelerationsValid)
-	{
+	if (!F.AccelerationsValid) {
 		MPU6050_ID = MPU6050_0xD2_ID;
 		F.AccelerationsValid = I2CResponse(MPU6050_ID);
 	}
@@ -332,7 +321,7 @@ boolean MPU6050AccActive(void)
 // 0 1g, 1 1.5g, 2 2g, 3 3g, 4 4g, 5 8g, 6 16g
 // 0 19Hz, 1 20, 2 40, 3 75, 4 150, 5 300, 6 600, 7 1200Hz 
 
-#define BMA180_RANGE	2
+#define BMA180_RANGE	2 // 2g
 #define BMA180_BW 		1 // 4
 
 #define BMA180_Version 0x01
@@ -362,8 +351,7 @@ boolean MPU6050AccActive(void)
 
 boolean BMA180AccActive(void);
 
-void ReadBMA180Acc(void) 
-{
+void ReadBMA180Acc(void) {
 	if ( !ReadI2Ci16vAtAddr(BMA180_ID, BMA180_ACCXLSB, RawAcc, 3, false) )
 		AccFailure();
 
@@ -414,8 +402,7 @@ boolean BMA180AccActive(void) {
 
 #ifdef TESTING
 
-void ShowBMA180State(void)
-{
+void ShowBMA180State(void) {
 	#ifdef FULL_ACC_TEST
 
 	static uint8 bw, range;
@@ -472,8 +459,7 @@ void ShowBMA180State(void)
 #define LISL_INCR_ADDR	(uint8)(0x40)
 #define LISL_READ		(uint8)(0x80)
 
-void SendCommand(int8 c)
-{
+void SendCommand(int8 c) {
 	static uint8 s;
 
 	SPI_IO = WR_SPI;	
@@ -491,8 +477,7 @@ void SendCommand(int8 c)
 	}
 } // SendCommand
 
-uint8 ReadLISL(uint8 c)
-{
+uint8 ReadLISL(uint8 c) {
 	static uint8 d;
 
 	SPI_SDA = 1; // very important!! really!! LIS3L likes it
@@ -505,8 +490,7 @@ uint8 ReadLISL(uint8 c)
 	return(d);
 } // ReadLISL
 
-uint8 ReadLISLNext(void)
-{
+uint8 ReadLISLNext(void) {
 	static uint8 s;
 	static uint8 d;
 
@@ -522,8 +506,7 @@ uint8 ReadLISLNext(void)
 	return(d);
 } // ReadLISLNext
 
-void WriteLISL(uint8 d, uint8 c)
-{
+void WriteLISL(uint8 d, uint8 c) {
 	static uint8 s;
 
 	SendCommand(c);
@@ -542,8 +525,7 @@ void WriteLISL(uint8 d, uint8 c)
 	SPI_IO = RD_SPI;	// IO is input (to allow RS232 reception)
 } // WriteLISL
 
-void InitLISLAcc(void)
-{
+void InitLISLAcc(void) {
 	static int8 r;
 
 	Delay1mS(500);
@@ -564,8 +546,7 @@ void InitLISLAcc(void)
 		AccFailure();
 } // InitLISLAcc
 
-boolean LISLAccActive(void)
-{
+boolean LISLAccActive(void) {
 	SPI_CS = DSEL_LISL;
 	WriteLISL(0b01001010, LISL_CTRLREG_2); // enable 3-wire, BDU=1, +/-2g
 
@@ -574,8 +555,7 @@ boolean LISLAccActive(void)
 	return ( F.AccelerationsValid );
 } // LISLAccActive
 
-void ReadLISLAcc()
-{
+void ReadLISLAcc() {
 	static charint16x4u L;
 
 //	while( (ReadLISL(LISL_STATUS + LISL_READ) & 0x08) == (uint8)0 );

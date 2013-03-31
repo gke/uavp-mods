@@ -52,8 +52,7 @@ void DoI2CESCs(void)
 		break;
 	#endif
 	case ESCYGEI2C:
-		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ )
-		{
+		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ ) {
 			ESCI2CStart();
 				r = WriteESCI2CByte(0x62 + ( m*2 ) ); // one cmd, one data byte per motor
 				r += WriteESCI2CByte( I2CESCLimit(PW[m]) >> 1 );
@@ -62,8 +61,7 @@ void DoI2CESCs(void)
 		}
 		break;
  	case ESCHolger:
-		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ )
-		{
+		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ ) {
 			ESCI2CStart();
 				r = WriteESCI2CByte(0x52 + ( m*2 )); // one command, one data byte per motor
 				r += WriteESCI2CByte( I2CESCLimit(PW[m]) );
@@ -113,7 +111,6 @@ void WriteT580ESCs(int8 s, uint8 f, uint8 r, uint8 l, uint8 b) {
 } // WriteT580ESCs
 
 void T580ESCs(uint8 f, uint8 l, uint8 r, uint8 b) {
-
     static boolean Run;
     static uint8 i;
 
@@ -122,27 +119,22 @@ void T580ESCs(uint8 f, uint8 l, uint8 r, uint8 b) {
     if ( T580Running )
         if ( Run )
             WriteT580ESCs(T580Constant, f, r, l, b);
-        else 
-		{
+        else {
             WriteT580ESCs(T580Stopping, 0, 0, 0, 0);
 			Delay1mS(2);
-            for ( i = 0; i < (uint8)50; i++ ) 
-			{
+            for ( i = 0; i < (uint8)50; i++ ) {
 				WriteT580ESCs(T580Constant, 0, 0, 0, 0);
 				Delay1mS(2);
 			}
         }
     else
-        if ( Run ) 
-		{
-        	for ( i = 0; i < (uint8)50; i++ )
-			{ 
+        if ( Run ) {
+        	for ( i = 0; i < (uint8)50; i++ ) { 
 				WriteT580ESCs(T580Constant, 0, 0, 0, 0);
 				Delay1mS(2);
 			}
             WriteT580ESCs(T580Starting, 0, 0, 0, 0);
-        }
-        else
+        } else
             WriteT580ESCs(T580Constant, f, r, l, b);
 
     T580Running = Run;

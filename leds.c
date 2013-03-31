@@ -41,21 +41,18 @@ const rom uint8 LEDChase[7] = {
 		BlueM
 	};
 
-void SaveLEDs(void)
-{ // one level only
+void SaveLEDs(void) { // one level only
 	SavedLEDs = LEDShadow;
 } // SaveLEDs
 
-void RestoreLEDs(void)
-{
+void RestoreLEDs(void) {
 	LEDShadow = SavedLEDs;
 	SendLEDs();
 } // RestoreLEDs
 
 #ifdef UAVX_HW
 
-void SendLEDs(void)
-{	
+void SendLEDs(void) {	
 	PORTBbits.RB6 = (LEDShadow &  YellowM ) != (uint8)0;
 	PORTBbits.RB7 = (LEDShadow &  BlueM ) != (uint8)0;
 	PORTCbits.RC0 = (LEDShadow &  RedM ) != (uint8)0;
@@ -66,19 +63,16 @@ void SendLEDs(void)
 
 #else // UAVX_HW
 
-void SendLEDs(void) // 39.3 uS @ 40MHz 
-{
+void SendLEDs(void) { // 39.3 uS @ 40MHz 
 	static uint8	i, s;
 
-	if ( LEDShadow != LEDShadowp )
-	{
+	if ( LEDShadow != LEDShadowp ) {
 		i = LEDShadow;
 		SPI_CS = DSEL_LISL;	
 		SPI_IO = WR_SPI;	// SDA is output
 		SPI_SCL = 0;		// because shift is on positive edge
 		
-		for(s = 8; s ; s--)
-		{
+		for(s = 8; s ; s--) {
 			if( i & 0x80 )
 				SPI_SDA = 1;
 			else
@@ -97,40 +91,35 @@ void SendLEDs(void) // 39.3 uS @ 40MHz
 		
 		LEDShadowp = LEDShadow;
 	}
-
 } // SendLEDs
 
 #endif // UAVX_HW
 
-void LEDsOn(uint8 l)
-{
+void LEDsOn(uint8 l) {
 	LEDShadow |= l;
 	SendLEDs();
 } // LEDsOn
 
-void LEDsOff(uint8 l)
-{
+void LEDsOff(uint8 l) {
 	LEDShadow &= ~l;
 	SendLEDs();
 } // LEDsOff
 
-void LEDChaser(void)
-{
+void LEDChaser(void) {
 //	#define LED_NO 		(uint8)2	// just AUX LEDs
 	#define LED_NO		(uint8)6	// all LEDs
 
-	if ( mSClock() > mS[LEDChaserUpdate] )
-	{
+	if ( mSClock() > mS[LEDChaserUpdate] ) {
 		mSTimer(LEDChaserUpdate, 60);
-		if ( F.HoldingAlt ) 
-		{
+		if ( F.HoldingAlt ) {
 			LEDShadow ^= LEDChase[LEDPattern];
-			if ( LEDPattern < LED_NO ) LEDPattern++; else LEDPattern = 0;
+			if ( LEDPattern < LED_NO )
+	 			LEDPattern++; 
+			else 
+				LEDPattern = 0;
 			LEDShadow |= LEDChase[LEDPattern];
 			SendLEDs();
-		}
-		else
-		{
+		} else {
 			RestoreLEDs();
 			if ( F.AccelerationsValid )
 				LEDYellow_ON;

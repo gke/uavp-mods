@@ -88,8 +88,7 @@ void ShowStats(void)
 {
 	TxString("\r\nFlight Stats\r\n");
 
-	if ( Stats[BadS] != 0 )
-	{
+	if ( Stats[BadS] != 0 ) {
 		TxString("Misc(gke):     \t");TxVal32((int32)Stats[BadS],0,' '); TxVal32((int32)Stats[BadNumS],0,' ');TxNextLine();
 	}
 
@@ -110,8 +109,7 @@ void ShowStats(void)
 	TxString("Gyro:  \t");TxVal32((int32)Stats[GyroFailS], 0, 0); TxNextLine();
 	TxString("Comp:  \t");TxVal32((int32)Stats[CompassFailS], 0, 0); TxNextLine();
 	TxString("Baro:  \t");TxVal32((int32)Stats[BaroFailS],0 , 0); TxNextLine();
-	if ( P[ESCType] != ESCPPM )
-	{
+	if ( P[ESCType] != ESCPPM ) {
 		TxString("I2CESC:   \t");TxVal32((int32)Stats[ESCI2CFailS],0 , 0); TxNextLine();
 	}
 	TxString("Rx:       \t");TxVal32((int32)Stats[RCGlitchesS],0,' '); TxNextLine(); 
@@ -119,8 +117,7 @@ void ShowStats(void)
 	
 	TxString("\r\nBaro\r\n"); 
 	TxString("Alt:      \t");TxVal32((int32)Stats[BaroAltitudeS], 2, ' '); TxString("M \r\n");
-	if ( Stats[MinROCS] < INIT_MIN )
-	{
+	if ( Stats[MinROCS] < INIT_MIN ) {
 		TxString("ROC:      \t");TxVal32((int32)Stats[MinROCS], 2, ' '); 
 							TxVal32((int32)Stats[MaxROCS], 2, ' '); TxString("M/S\r\n");
 	}
@@ -131,14 +128,12 @@ void ShowStats(void)
 	TxString("Vel:      \t");TxVal32((int32)Stats[GPSVelS], 1, ' '); TxString("M/S\r\n"); 
 	#endif // GPS_INC_GROUNDSPEED
 
-	if ( Stats[GPSMinSatsS] < INIT_MIN )
-	{
+	if ( Stats[GPSMinSatsS] < INIT_MIN ) {
 		TxString("Sats:     \t");TxVal32((int32)Stats[GPSMinSatsS], 0, ' ');
 		TxVal32((int32)Stats[GPSMaxSatsS], 0, 0); TxNextLine();
 	}
 
-	if ( Stats[MinHDOPS] < INIT_MIN )
-	{
+	if ( Stats[MinHDOPS] < INIT_MIN ) {
 		TxString("HDOP:  \t");TxVal32((int32)Stats[MinHDOPS], 2, ' ');
 		TxVal32((int32)Stats[MaxHDOPS], 2, 0); TxNextLine();
 	}

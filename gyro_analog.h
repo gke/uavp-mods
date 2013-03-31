@@ -20,8 +20,7 @@
 
 // Analog Gyros
 
-void GetAnalogGyroValues(void)
-{
+void GetAnalogGyroValues(void) {
 	// change of sign to get to normal aircraft sense 
 	A[Roll].GyroADC = -ADC(ADCRollChan);
 	A[Pitch].GyroADC = -ADC(ADCPitchChan);
@@ -29,11 +28,11 @@ void GetAnalogGyroValues(void)
 
 } // GetAnalogGyroValues
 
-void InitAnalogGyros(void)
-{
+void InitAnalogGyros(void) {
 	// nothing to be done for analog gyros - could check nominal midpoints?
 	F.GyroFailure = false;
 } // InitGyros
+
 
 
 

@@ -99,11 +99,13 @@ boolean DoLanding(void) { // InTheAir micro switch RC0 Pin 11 to ground when lan
 		HasLanded = Altitude < LAND_CM;
 
 	#else
-		SetDesiredAltitude(-200);
+		SetDesiredAltitude(-2000);
 		if (F.BaroAltitudeValid) {
 			DesiredThrottle = CruiseThrottle;
 			if (Altitude > LAND_CM)
 				mSTimer(NavStateTimeout, NAV_RTH_LAND_TIMEOUT_MS);
+			else
+				AltMinThrCompStick = -RC_MAXIMUM; // all the way
 
 			//TODO: bump detection for landing
 			//|| ((AccVertical < (-GRAVITY * 3) && (Altitude <= LAND_M)))
@@ -165,8 +167,8 @@ void DoFailsafeShutdown(void) {
 void AcquireHoldPosition(void) {
 	F.NavComputed = false;
 
-	Nav.C[NorthC].Desired = Nav.C[NorthC].Pos;
-	Nav.C[EastC].Desired = Nav.C[EastC].Pos;
+	Nav.C[NorthC].Hold = Nav.C[NorthC].Pos;
+	Nav.C[EastC].Hold = Nav.C[EastC].Pos;
 
 	F.CrossTrackActive = F.WayPointAchieved = F.WayPointCentred = F.AcquireNewPosition = false;
 
@@ -244,7 +246,7 @@ void Navigate(int24 DesiredNorth, int24 DesiredEast) {
 	AbsEastE = Abs(Nav.C[EastC].PosE);
 
 	DistE = Max(AbsNorthE, AbsEastE);
-	if (DistE < 2896L)
+	if (DistE < 2896L) // dM
 		DistE = int32sqrt(Sqr(AbsEastE) + Sqr(AbsNorthE));
 
 	WayHeading = CompensateCrossTrackError(int32atan2(Nav.C[EastC].PosE, Nav.C[NorthC].PosE));
@@ -273,7 +275,7 @@ void Navigate(int24 DesiredNorth, int24 DesiredEast) {
 
 			A[Pitch].NavCorr = 0;
 		#else
-			DesiredVel = Limit1(DistE * Nav.PosKp, Nav.MaxVelocitydMpS);
+			DesiredVel = Limit(DistE * Nav.PosKp, 0, Nav.MaxVelocitydMpS);
 			VelE = DesiredVel - GPS.Vel;
 
 			NewCorr = SRS32((int32)VelE * Nav.VelKp * EffNavSensitivity, 9); 
@@ -300,8 +302,7 @@ void Navigate(int24 DesiredNorth, int24 DesiredEast) {
 
 } // Navigate
 
-void DoNavigation(void)
-{
+void DoNavigation(void) {
 	#ifndef TESTING // not used for testing - make space!
 
 	F.NavigationActive = F.GPSValid && F.NavValid && F.MagnetometerValid && F.AccelerationsValid && ( mSClock() > mS[NavActiveTime]);
@@ -400,18 +401,7 @@ void DoNavigation(void)
 				} else
 					AcquireHoldPosition();					
 				break;
-			case HoldingStation:
-				#ifdef NAV_WING
-
-					// no orbit for fixed wing!!!
-
-				#else 
-					if ( F.AttitudeHold )		
-						Navigate(Nav.C[NorthC].Desired, Nav.C[EastC].Desired);
-					else
-						AcquireHoldPosition();					
-				#endif
-			
+			case HoldingStation:	
 				if ( F.Navigate ) {
 					GetWayPointEE(CurrWP); // resume from previous WP
 					SetDesiredAltitude(WPAltitude);
@@ -421,7 +411,17 @@ void DoNavigation(void)
 						SetDesiredAltitude(RTHAltitude);
 						F.CrossTrackActive;
 						NavState = ReturningHome;
-					}										
+					} 
+					#ifdef NAV_WING
+					else
+						AcquireHoldPosition();
+					#else
+					else {
+						if ( !F.AttitudeHold )		
+							AcquireHoldPosition();
+						Navigate(Nav.C[NorthC].Hold, Nav.C[EastC].Hold);
+					}
+					#endif										
 				break;
 			} // switch NavState
 		}
@@ -483,13 +483,11 @@ void DoFailsafe(void) { // only relevant to PPM Rx or Quad NOT synchronising wit
 				mSTimer(NavStateTimeout, NAV_RTH_LAND_TIMEOUT_MS);
 				NavState = Descending;
 				FailState = Terminating;
-			} 
-			else
+			} else
 				CheckFailsafeAbort();		
 			break;
 		case MonitoringRx:
-			if ( mSClock() > mS[FailsafeTimeout] ) 
-			{
+			if ( mSClock() > mS[FailsafeTimeout] ) {
 				Stats[RCFailsafesS]++;
 				if ( F.GPSValid && F.MagnetometerValid && F.AccelerationsValid )
 					mSTimer(NavStateTimeout, ABORT_TIMEOUT_GPS_MS);
@@ -610,6 +608,7 @@ void InitNavigation(void) {
 
 	WayHeading = 0;		
 	A[Roll].NavCorr = A[Pitch].NavCorr = A[Yaw].NavCorr = 0;
+	Nav.C[NorthC].PosE = Nav.C[EastC].PosE = 0;
 
 	SetDesiredAltitude(0);
 	NavState = HoldingStation;

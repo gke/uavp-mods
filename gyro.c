@@ -43,13 +43,11 @@ const rom uint8 * GyroName[GyroUnknown+1] ={
 		"Unsupported", "Failed" };
 #pragma idata
 
-void ShowGyroType(uint8 G)
-{
+void ShowGyroType(uint8 G) {
 	TxString(GyroName[G]);
 } // ShowGyroType
 
-void CalculateGyroRates(void)
-{
+void CalculateGyroRates(void) {
 	static i24u RollT, PitchT, YawT;
 
 	A[Roll].Rate = A[Roll].GyroADC - A[Roll].GyroBias;
@@ -81,9 +79,9 @@ void CalculateGyroRates(void)
 	case GY86IMU:
 	case DrotekIMU:
 	case UAVXArm32IMU:
-		RollT.i24 = (int24)A[Roll].Rate * 11; // 18
-		PitchT.i24 = (int24)A[Pitch].Rate * 11;
-		YawT.i24 = (int24)A[Yaw].Rate * 5;
+		RollT.i24 = (int24)A[Roll].Rate * 18; // 11
+		PitchT.i24 = (int24)A[Pitch].Rate * 18;
+		YawT.i24 = (int24)A[Yaw].Rate * 9;
 		break;
 	default:
 		break;
@@ -95,8 +93,7 @@ void CalculateGyroRates(void)
 
 } // CalculateGyroRates
 
-void ErectGyros(uint16 s)
-{
+void ErectGyros(uint16 s) {
 	static uint8 g;
 	static uint16 i;
 	static int32 Av[3];
@@ -126,8 +123,7 @@ void ErectGyros(uint16 s)
 
 } // ErectGyros
 
-void GetGyroValues(void)
-{
+void GetGyroValues(void) {
 	switch ( P[SensorHint] ) {
 	case DrotekIMU:
 		BlockReadInvenSenseGyro();
@@ -162,8 +158,8 @@ void GetGyroValues(void)
 
 } // GetGyroValues
 
-void InitGyros(void)
-{
+void InitGyros(void) {
+
 	F.UsingAnalogGyros = false;
 
 	switch ( P[SensorHint]) {

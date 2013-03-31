@@ -235,8 +235,7 @@ void SendNavPacket(void){
 
 } // SendNavPacket
 
-void SendStatsPacket(void) 
-{
+void SendStatsPacket(void) {
 	static uint8 i;
 
 	SendPacketHeader();
@@ -254,8 +253,7 @@ void SendStatsPacket(void)
 
 } // SendStatsPacket
 
-void SendMinPacket(void)
-{
+void SendMinPacket(void) {
 	static uint8 b;
 
 	SendPacketHeader();
