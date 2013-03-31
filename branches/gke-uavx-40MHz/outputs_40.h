@@ -38,14 +38,14 @@ void OutSignals(void);
 	#endif
 #endif
 
-void OutSignals(void)
-{	// The PW pulses are in two parts these being a 1mS preamble followed by a 0-1mS part. 
+void OutSignals(void) {	
+	// The PW pulses are in two parts these being a 1mS preamble followed by a 0-1mS part. 
 	// Interrupts are enabled during the first part which uses TMR0.  TMR0 is monitored until 
 	// there is just sufficient time for one remaining interrupt latency before disabling 
 	// interrupts.  We do this because there appears to be no atomic method of detecting the 
 	// remaining time AND conditionally disabling the interrupt. 
 
-	static uint8 d;
+	static uint8 m;
 	static i16u SaveTimer0;
 	static uint24 SaveClockmS;
 	static int8 ServoUpdate;
@@ -66,8 +66,7 @@ void OutSignals(void)
 
 	#else
 
-	if ( P[ESCType] == ESCPPM )
-	{
+	if ( P[ESCType] == ESCPPM ) {
 		DisableInterrupts;
 	
 		SaveClockmS = MilliSec;
@@ -80,8 +79,7 @@ void OutSignals(void)
 	
 		EnableInterrupts;
 
-		if ( ServoUpdate <= 0 )
-		{
+		if ( ServoUpdate <= 0 ) {
 			PORTB = (MOTOR_MASK | SERVO_MASK);
 	
 			_asm
@@ -90,9 +88,7 @@ void OutSignals(void)
 			MOVWF	SHADOWB,1
 			_endasm	
 			ServoUpdate = ServoInterval;
-		}
-		else
-		{
+		} else {
 			PORTB |= MOTOR_MASK;
 	
 			_asm
@@ -108,12 +104,16 @@ void OutSignals(void)
 		MixAndLimitMotors();
 		MixAndLimitCam();
 
-		PW0 = PWLimit(PW[K1]);
-		PW1 = PWLimit(PW[K2]);
-		PW2 = PWLimit(PW[K3]);
-		PW3 = PWLimit(PW[K4]);	
-		PW4 = PWLimit(PW[K5]);
-		PW5 = PWLimit(PW[K6]);
+		if ( P[DriveFilt] > 0 )
+			for (m = 0; m < MAX_DRIVES; m++) 
+				PWp[m] = SRS16(PWp[m] + PW[m], 1);
+
+		PW0 = PWLimit(PWp[K1]);
+		PW1 = PWLimit(PWp[K2]);
+		PW2 = PWLimit(PWp[K3]);
+		PW3 = PWLimit(PWp[K4]);	
+		PW4 = PWLimit(PWp[K5]);
+		PW5 = PWLimit(PWp[K6]);
 
 		SyncToTimer0AndDisableInterrupts();
 	
@@ -178,9 +178,7 @@ OS006:
 		// <-
 	
 		EnableInterrupts;
-	}
-	else
-	{
+	} else {
 		MixAndLimitMotors();
 		MixAndLimitCam();
 	

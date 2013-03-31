@@ -48,7 +48,8 @@ near int24 	PauseTime;
 near uint8 	RxState;
 
 near uint8 	ll, ss, tt, RxCh;
-near uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+near uint8 	RxCheckSum, TxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+near uint8 	RxQTail, RxQHead, TxQTail, TxQHead;
 near boolean WaitingForSync;
 
 #pragma udata
@@ -68,18 +69,21 @@ void SyncToTimer0AndDisableInterrupts(void)
 
 void ReceivingGPSOnly(boolean r)
 {
-	if ( r != F.ReceivingGPS )
-	{
+	if ( r != F.ReceivingGPS ) {
 		PIE1bits.RCIE = false;
 		F.ReceivingGPS = r;
 
-		if ( F.ReceivingGPS )			
+		if ( F.ReceivingGPS )		
 			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_LOW, _B9600);
 		else
 			OpenUSART(USART_TX_INT_OFF&USART_RX_INT_OFF&USART_ASYNCH_MODE&
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
    		PIE1bits.RCIE = r;
+
+		DisableInterrupts;
+		RxQTail = RxQHead = 0;
+		EnableInterrupts;
 	}
 } // ReceivingGPSOnly
 
@@ -92,9 +96,9 @@ void InitTimersAndInterrupts(void)
 	OpenTimer1(T1_16BIT_RW&TIMER_INT_OFF&T1_PS_1_8&T1_SYNC_EXT_ON&T1_SOURCE_CCP&T1_SOURCE_INT);
 	OpenCapture1(CAPTURE_INT_ON & C1_EVERY_FALL_EDGE); 	// capture mode every falling edge
 
-	DoRxPolarity();
+	CCP1CONbits.CCP1M0 = true; //DoRxPolarity(); 
 
-	TxQ.Head = TxQ.Tail = RxCheckSum = 0;
+	RxQHead = RxQTail = TxQHead = TxQTail = RxCheckSum = 0;
 
 	MilliSec = 0;
 	for (i = StartTime; i<= (uint8)CompassUpdate; i++)
@@ -106,8 +110,7 @@ void InitTimersAndInterrupts(void)
    	ReceivingGPSOnly(false);
 } // InitTimersAndInterrupts
 
-uint24 mSClock(void)
-{ // MUST make locked accesses to the millisecond clock
+uint24 mSClock(void) { // MUST make locked accesses to the millisecond clock
 	static int24 m;
 
 	DisableInterrupts;
@@ -117,16 +120,14 @@ uint24 mSClock(void)
 } // mSClock
 
 #pragma interrupt low_isr_handler
-void low_isr_handler(void)
-{
+void low_isr_handler(void) {
 	return;
 } // low_isr_handler
 
 #pragma interrupt high_isr_handler
-void high_isr_handler(void)
-{
-	if( PIR1bits.CCP1IF ) 						// An Rx PPM pulse edge has been detected
-	{
+void high_isr_handler(void) {
+
+	if( PIR1bits.CCP1IF ) {	// An Rx PPM pulse edge has been detected
 		CurrEdge = CCPR1;
 		if ( CurrEdge < PrevEdge )
 			PrevEdge -= (int24)0x00ffff;		// Deal with wraparound
@@ -134,37 +135,29 @@ void high_isr_handler(void)
 		Width.i16 = (int16)(CurrEdge - PrevEdge);
 		PrevEdge = CurrEdge;		
 
-		if ( Width.i16 > MIN_PPM_SYNC_PAUSE ) 	// A pause  > 5ms
-		{
+		if ( Width.i16 > MIN_PPM_SYNC_PAUSE ) {	// A pause  > 5ms
 			PPM_Index = 0;						// Sync pulse detected - next CH is CH1
 			F.RCFrameOK = true;
 			F.RCNewValues = false;
 			PauseTime = Width.i16;	
-		}
-		else 
-			if (PPM_Index < NoOfControls)
-			{
-				if ( (Width.i16 >= 1250 ) && (Width.i16 <= 2500) ) // Width in 0.8uS ticks 	
+		} else 
+			if (PPM_Index < NoOfControls) {
+		//		if ( (Width.i16 >= 1250 ) && (Width.i16 <= 2500) ) // Width in 0.8uS ticks 	
 					PPM[PPM_Index].i16 = (int16) Width.i16 - 1250;		
-				else
-				{
+		//		else {
 					// preserve old value i.e. default hold
-					RCGlitches++;
-					F.RCFrameOK = false;
-				}
+		//			RCGlitches++;
+		//			F.RCFrameOK = false;
+		//		}
 				
 				PPM_Index++;
 				// MUST demand rock solid RC frames for autonomous functions not
 				// to be cancelled by noise-generated partially correct frames
-				if ( PPM_Index == NoOfControls )
-				{
-					if ( F.RCFrameOK )
-					{
+				if ( PPM_Index == NoOfControls ) {
+					if ( F.RCFrameOK ) {
 						F.RCNewValues = true;
  						SignalCount++;
-					}
-					else
-					{
+					} else {
 						F.RCNewValues = false;
 						SignalCount -= RC_GOOD_RATIO;
 					}
@@ -184,79 +177,14 @@ void high_isr_handler(void)
 		PIR1bits.CCP1IF = false;
 	}
 
-	if ( PIR1bits.RCIF & PIE1bits.RCIE )			// RCIE enabled for GPS
-	{
-		if ( RCSTAbits.OERR | RCSTAbits.FERR )
-		{
+	if ( PIR1bits.RCIF & PIE1bits.RCIE ) { // RCIE enabled for GPS
+		if ( RCSTAbits.OERR | RCSTAbits.FERR ) {
 			RxCh = RCREG; // flush
 			RCSTAbits.CREN = false;
 			RCSTAbits.CREN = true;
-		}
-		else
-		{ // PollGPS in-lined to avoid EXPENSIVE context save and restore within irq
-			RxCh = RCREG;
-			switch ( RxState ) {
-			case WaitCheckSum:
-				if (GPSCheckSumChar < (uint8)2)
-				{
-					GPSTxCheckSum *= 16;
-					if ( RxCh >= 'A' )
-						GPSTxCheckSum += ( RxCh - ('A' - 10) );
-					else
-						GPSTxCheckSum += ( RxCh - '0' );
-			
-					GPSCheckSumChar++;
-				}
-				else
-				{
-					NMEA.length = ll;	
-					F.PacketReceived = GPSTxCheckSum == RxCheckSum;
-					RxState = WaitSentinel;
-				}
-				break;
-			case WaitBody: 
-				if ( RxCh == '*' )      
-				{
-					GPSCheckSumChar = GPSTxCheckSum = 0;
-					RxState = WaitCheckSum;
-				}
-				else         
-					if ( RxCh == '$' ) // abort partial Sentence 
-					{
-						ll = tt = RxCheckSum = 0;
-						RxState = WaitTag;
-					}
-					else
-					{
-						RxCheckSum ^= RxCh;
-						NMEA.s[ll++] = RxCh; 
-						if ( ll > (uint8)( GPSRXBUFFLENGTH-1 ) )
-							RxState = WaitSentinel;
-					}
-							
-				break;
-			case WaitTag:
-	           	RxCheckSum ^= RxCh;
-	           	while ( ( RxCh != (uint8)NMEATags[ss][tt] ) && ( ss < (uint8)MAX_NMEA_SENTENCES ) ) ss++;
-	        	if ( RxCh == NMEATags[ss][tt] )
-	               	if ( tt == (uint8)NMEA_TAG_INDEX ) 
-					{
-	                   	GPSPacketTag = ss;
-	                   	RxState = WaitBody;
-	               	} 
-					else
-	                   	tt++;
-	           	else
-	               	RxState = WaitSentinel;
-				break;
-			case WaitSentinel: // highest priority skipping unused sentence types
-				if ( RxCh == '$' )
-				{
-					ll = tt = ss = RxCheckSum = 0;
-					RxState = WaitTag;
-				}
-				break;	
-			   } 
+		} else { // PollGPS in-lined to avoid EXPENSIVE context save and restore within irq
+			RxQTail = (RxQTail + 1) & RX_BUFF_MASK;
+			RxQ[RxQTail] = RCREG; 		
 		}
 		if ( Armed && ( P[TelemetryType] == GPSTelemetry) ) // piggyback GPS telemetry on GPS Rx
 			TXREG = RxCh;
@@ -264,8 +192,7 @@ void high_isr_handler(void)
 		PIR1bits.RCIF = false;
 	}
 
-	if ( INTCONbits.T0IF )  
-	{
+	if ( INTCONbits.T0IF ) {
 		Timer0.u16 = TMR0_1MS;
 		TMR0H = Timer0.b1;
 		TMR0L = Timer0.b0;
@@ -274,17 +201,15 @@ void high_isr_handler(void)
 
 		WaitingForSync = MilliSec < PIDUpdate;
 
-		if ( F.Signal && (MilliSec > mS[RCSignalTimeout]) ) 
-		{
+		if ( F.Signal && (MilliSec > mS[RCSignalTimeout]) ) {
 			F.Signal = false;
 			SignalCount = -RC_GOOD_BUCKET_MAX;
 		}
 
 		if ( Armed  && ( P[TelemetryType] !=  GPSTelemetry ) )
-			if (( TxQ.Head != TxQ.Tail) && PIR1bits.TXIF )
-			{
-				TXREG = TxQ.B[TxQ.Head];
-				TxQ.Head = (TxQ.Head + 1) & TX_BUFF_MASK;
+			if (( TxQHead != TxQTail) && PIR1bits.TXIF ) {
+				TXREG = TxQ[TxQHead];
+				TxQHead = (TxQHead + 1) & TX_BUFF_MASK;
 			}
  
 		INTCONbits.TMR0IF = false;	
@@ -293,15 +218,13 @@ void high_isr_handler(void)
 } // high_isr_handler
 	
 #pragma code high_isr = 0x08
-void high_isr (void)
-{
+void high_isr (void) {
   _asm goto high_isr_handler _endasm
 } // high_isr
 #pragma code
 
 #pragma code low_isr = 0x18
-void low_isr (void)
-{
+void low_isr (void) {
   _asm goto low_isr_handler _endasm
 } // low_isr
 #pragma code

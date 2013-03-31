@@ -33,11 +33,12 @@
 			{30,0},	 			// PitchIntLimit,			10
 
 			{25,0},	 			// YawKpRate, 				11
-			{25,0},	 			// RollRateKd was YawKi,	12
+			{50,0},	 			// RollRateKd was YawKi,	12
 			{Wolferl, true},	// IMU,						13
 			{20,0},	 			// YawLimit,				14
 			{CompoundPPM, true},// RCType,					15
 
+	
 			{2,true}, 			// ConfigBits,				16c
 			{1,true},			// RxThrottleCh,			17
 			{51,true}, 			// LowVoltThres,			18c 
@@ -51,7 +52,7 @@
 			{15,0}, 			// PitchKiAngle,			25c
 			{20,true}, 			// CamPitchKp,				26c
 			{10,0}, 			// YawKpAngle (Compass),	27
-			{25,0},				// PitchRateKd,				28
+			{50,0},				// PitchRateKd,				28
 			{10,true}, 			// NavRollPitchSlew,		29
 			{0,true}, 			// Unused30,				30
 
@@ -74,7 +75,7 @@
 			{3,true},			// RxPitchCh,				42
 			{4,true},			// RxYawCh,					43
 			{AF_TYPE,true},		// AFType,					44c
-			{UAVXTelemetry, true}, // TelemetryType,		45c
+			{NoTelemetry, true}, // TelemetryType,		45c
 			{10,true},		    // MaxDescentRatedMpS, 		46
 			{30,true},			// DescentDelayS			47
 			{MPU_RA_DLPF_BW_98, true},	// GyroLPF,			48
@@ -84,7 +85,7 @@
 			{6,true},			// RxAux1Ch,				51
 			{0,true},			// ServoSense				52c
 			{2,true},			// AccConfSD,				53c
-			{49,true},			// BatteryCapacity			54c
+			{22,true},			// BatteryCapacity			54c
 			{7,true},			// RxAux2Ch,				55c
 			{8,true},			// RxAux3Ch,				56
 			#if (defined  TRICOPTER) | (defined VTCOPTER ) | (defined Y6COPTER )

@@ -64,7 +64,7 @@ void WriteEE(uint16 a, int8 d) {
 	static uint8 IntsWereEnabled;
 	
 	rd = ReadEE(a);
-	if ( rd != d ) {// avoid redundant writes
+	if ( rd != d ) { // avoid redundant writes
 		EEDATA = d;				
 		EEADR = a;
 		EEADRH = a>>8;
@@ -82,6 +82,7 @@ void WriteEE(uint16 a, int8 d) {
 
 		EECON1bits.WREN = false;
 	}
+
 } // WriteEE
 
 void Write16EE(uint16 a, int16 d) {

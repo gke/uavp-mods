@@ -428,8 +428,7 @@ boolean IsMS5611BaroActive(void) { // check for MS Barometer
 
 #ifdef INC_BOSCH_BARO
 
-void ReadBoschBaro(void)
-{
+void ReadBoschBaro(void) {
 	// Possible I2C protocol error - split read of ADC
 	BaroVal.b3 = BaroVal.b2 = 0;
 	BaroVal.b1 = ReadI2CByteAtAddr(BOSCH_ID, BOSCH_ADC_MSB);

@@ -447,12 +447,10 @@ uint8 WriteESCI2CByte(uint8 d) { // ~320KHz @ 40MHz
 		else
 			ESC_DATA_LOW
 	
-		if( ESCWaitClkHi() )
-		{ 	
+		if( ESCWaitClkHi() ) { 	
 			ESC_CLK_LOW;
 			dd <<= 1;
-		}
-		else
+		} else
 			return(I2C_NACK);	
 	} while ( --s );
 
@@ -522,10 +520,8 @@ uint8 ScanI2CBus(void) {
 
 	UseI2C100KHz = true;
 	TxString("I2C Bus\r\n");
-	for ( s = 0x10 ; s <= 0xf6 ; s += 2 )
-	{
-		if( I2CResponse(s) )
-		{
+	for ( s = 0x10 ; s <= 0xf6 ; s += 2 ) {
+		if( I2CResponse(s) ) {
 			d++;
 			TxString("\t0x");
 			TxValH(s>>1);
@@ -538,32 +534,6 @@ uint8 ScanI2CBus(void) {
 	}
 	UseI2C100KHz = false;
 
-/*
-
-	TxString("\r\nESC Bus\r\n");
-
-	d = 0;
-
-	if ( (P[ESCType] == ESCHolger)||(P[ESCType] == ESCX3D)||(P[ESCType] == ESCYGEI2C)||(P[ESCType] == ESCLRCI2C))
-		for ( s = 0x10 ; s <= 0xf6 ; s += 2 )
-		{
-			ESCI2CStart();
-			if( WriteESCI2CByte(s) == I2C_ACK )
-			{
-				d++;
-				TxString("\t0x");
-				TxValH(s);
-				TxNextLine();
-			}
-			ESCI2CStop();
-	
-			Delay1mS(2);
-		}
-	else
-		TxString("\tinactive - I2C ESCs not selected..\r\n");
-	TxNextLine();
-*/
-
 	return(d);
 } // ScanI2CBus
 
@@ -572,22 +542,18 @@ uint8 ScanI2CBus(void) {
 void ProgramSlaveAddress(uint8 addr) {
 	static uint8 s;
 
-	for (s = 0x10 ; s < 0xf0 ; s += 2 )
-	{
+	for (s = 0x10 ; s < 0xf0 ; s += 2 ) {
 		ESCI2CStart();
 		if( WriteESCI2CByte(s) == I2C_ACK )
-			if( s == addr )
-			{	// ESC is already programmed OK
+			if( s == addr ) { // ESC is already programmed OK
 				ESCI2CStop();
 				TxString("\tESC at SLA 0x");
 				TxValH(addr);
 				TxString(" is already programmed OK\r\n");
 				return;
-			}
-			else
+			} else
 				if( WriteESCI2CByte(0x87) == I2C_ACK ) // select register 0x07
-					if( WriteESCI2CByte( addr ) == I2C_ACK ) // new slave address
-					{
+					if( WriteESCI2CByte( addr ) == I2C_ACK ) { // new slave address
 						ESCI2CStop();
 						TxString("\tESC at SLA 0x");
 						TxValH(s);
@@ -606,11 +572,9 @@ void ProgramSlaveAddress(uint8 addr) {
 void ConfigureESCs(void) {
 	static uint8 m;
 
-	if ( (int8)P[ESCType] == ESCYGEI2C )		
-	{
+	if ( (int8)P[ESCType] == ESCYGEI2C ) {
 		TxString("\r\nProgram YGE ESCs\r\n");
-		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ )
-		{
+		for ( m = 0 ; m < (uint8)NO_OF_I2C_ESCS ; m++ ) {
 			TxString("Connect ONLY ");
 			switch( m ) {
 			#ifdef Y6COPTER
@@ -647,8 +611,7 @@ void ConfigureESCs(void) {
 			ProgramSlaveAddress( 0x62 + ( m*2 ));
 		}
 		TxString("\r\nConnect ALL ESCs and power-cycle the Quadrocopter\r\n");
-	}
-	else
+	} else
 		TxString("\r\nYGEI2C not selected as ESC?\r\n");
 } // ConfigureESCs
 

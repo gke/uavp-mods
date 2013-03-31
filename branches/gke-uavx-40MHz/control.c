@@ -48,6 +48,7 @@ int16 CurrMaxRollPitch;
 int16 AttitudeHoldResetCount;
 int24 DesiredAltitude, Altitude, Altitudep; 
 int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, MinROCCmpS;
+int16 AltMinThrCompStick;
 int24 RTHAltitude;
 
 int8 BeepTick = 0;
@@ -76,7 +77,7 @@ void DoAltitudeHold(void) { 	// Syncronised to baro intervals independant of act
 
 	#endif // NAV_WING
 
-	AltComp = Limit1(NewComp, ALT_MAX_THR_COMP);
+	AltComp = Limit(NewComp, AltMinThrCompStick, ALT_MAX_THR_COMP);
 				
 	#ifdef ALT_SCRATCHY_BEEPER
 	if ( (BeepTick <= 0) && !F.BeeperInUse) {
@@ -179,11 +180,11 @@ void DoOrientationTransform(void) {
 void ComputeRateDerivative(AxisStruct *C, int16 Rate) {
 	static int32 r;
 
-	r = MediumFilter32(C->Ratep, Rate);
+	r = SoftFilter32(C->Ratep, Rate);
 	C->RateD =  r - C->Ratep;
 	C->Ratep = r;
 
-	C->RateD = MediumFilter32(C->RateDp, C->RateD);
+	C->RateD = SoftFilter32(C->RateDp, C->RateD);
 	C->RateDp = C->RateD;
 } // ComputeRateDerivative
 
@@ -295,6 +296,7 @@ void InitControl(void) {
 	static AxisStruct *C;
 
 	AltComp = A[FB].Damping = A[LR].Damping = 0;
+	AltMinThrCompStick = -ALT_MAX_THR_COMP;
 
 	for ( a = Roll; a<=(uint8)Yaw; a++) {
 		C = &A[a];

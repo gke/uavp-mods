@@ -22,7 +22,8 @@
 //#define USE_DROTEK_V1
 
 #ifndef BATCHMODE
-	//#define TESTING
+	//#define USE_UBLOX_BIN
+	#define TESTING
 	//#define FULL_TEST			// extended compass test etc.					
 	//#define SIMULATE
 	#define QUADROCOPTER
@@ -69,14 +70,14 @@
 #else
 	#ifdef USE_DROTEK_V1
 		#define INC_BMA180
-		#define INC_LRCI2CESC
+		// FORGET IT #define INC_LRCI2CESC
 		#define INC_CYCLE_STATS
 		#define INC_DAMPING
 	#else
 		#define INC_MPU6050
 		#define INC_LISL
 		#define INC_MS5611		// FreeIMU etc.
-		#define INC_LRCI2CESC
+		// FORGET IT #define INC_LRCI2CESC
 		#ifndef INC_LRCI2CESC
 		//	#define INC_CYCLE_STATS
 			#define INC_DAMPING
@@ -229,7 +230,7 @@
 #define GPS_OUTLIER_LIMIT			(10*M_TO_GPS)	// maximum lat/lon change in one GPS update
 
 #define	GPS_UPDATE_HZ				5		// Hz - can obtain from GPS updates
-
+#define GPS_UPDATE_MS				(1000/GPS_UPDATE_HZ)
 #ifdef SIMULATE
 
 #define	SIM_WING_YAW_RATE_DPS		30		// Deg/S
@@ -487,6 +488,7 @@ typedef struct {
 #define VerySoftFilter(O,N) 	(SRS16((O)+(N)*3, 2))
 #define SoftFilter(O,N) 		(SRS16((O)+(N), 1))
 #define MediumFilter(O,N) 		(SRS16((O)*3+(N), 2))
+#define SoftFilter32(O,N) 		(SRS32((O)+(N), 1))
 #define MediumFilter32(O,N) 	(SRS32((int32)(O)*3+(N), 2))
 #define HardFilter(O,N) 		(SRS16((O)*7+(N), 3))
 #define HardFilter32(O,N) 		(SRS32((int32)(O)*7+(N), 3))
@@ -743,6 +745,7 @@ enum Coords {
 
 typedef struct {
 	int24 Desired;
+	int24 Hold;
 	int24 Pos, PosE, PosP;
 	int16 Corr;
 } CoordStruct;
@@ -951,6 +954,7 @@ extern int16 AttitudeHoldResetCount;
 extern int24 DesiredAltitude, Altitude, Altitudep; 
 extern int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, MinROCCmpS;
 extern int24 RTHAltitude;
+extern int16 AltMinThrCompStick;
 
 //______________________________________________________________________________________________
 
@@ -967,9 +971,173 @@ extern void Write32EE(uint16, int32);
 
 // gps.c
 
+enum WaitStates {
+	WaitSentinel,
+	WaitSentinel2,
+	WaitID,
+	WaitClass,
+	WaitLength,
+	WaitLength2,
+	WaitBody,
+	WaitCheckSum,
+	WaitCheckSum2
+};
 enum GPSProtcols {
 	NMEAGPS, UBXNMEAGPS, UBXBinGPS, MTKNMEAGPS, MTKBinGPS, UnknownGPS
 };
+
+#ifdef USE_UBLOX_BIN
+
+#define UBX_PREAMBLE1	    	0xB5	// u
+#define UBX_PREAMBLE2	    	0x62	// b
+#define UBX_NAV_CLASS	    0x01
+#define UBX_RXM_CLASS	    0x02
+#define UBX_INF_CLASS		0x04
+#define UBX_ACK_CLASS		0x05
+#define UBX_CFG_CLASS		0x06
+#define UBX_MON_CLASS		0x0a
+#define UBX_AID_CLASS	    0x0b
+#define UBX_TIM_CLASS	    0x0d
+#define UBX_ESF_CLASS		0x10
+
+#define UBX_AID_REQ	    	0x00
+#define UBX_TIM_TP	    	0x01
+
+#define UBX_NAV_POSLLH	    0x02
+#define UBX_NAV_STATUS	    0x03
+#define UBX_NAV_DOP	    	0x04
+#define UBX_NAV_SOL	    	0x06
+#define UBX_NAV_VELNED	    0x12
+#define UBX_NAV_TIMEUTC		0x21
+#define UBX_NAV_SVINFO	    0x30
+
+#define UBX_CFG_MSG			0x01
+#define UBX_CFG_DAT			0x09
+#define UBX_CFG_TP			0x07
+#define UBX_CFG_RATE		0X08
+#define UBX_CFG_CFG			0X09
+#define UBX_CFG_EKF			0x12
+#define UBX_CFG_NAV5		0x24
+
+#define UBX_RXM_RAW	    	0x10
+
+#define UBX_SFRB_RAW	    0x11
+
+#define UBX_MAX_PAYLOAD   	64 //zzz 384
+
+#define GPS_LATENCY	    75000	// us (comment out to use Ubx timepulse)
+
+typedef struct { // 28
+	uint32 iTOW; // GPS Millisecond Time of Week (ms)
+	int32 lon; // Longitude (deg * 1e-7)
+	int32 lat; // Latitude (deg * 1e-7)
+	int32 height; // Height above Ellipsoid (mm)
+	int32 hMSL; // Height above mean sea level (mm)
+	uint32 hAcc; // Horizontal Accuracy Estimate (mm)
+	uint32 vAcc; // Vertical Accuracy Estimate (mm)
+} UbxStructPOSLLH;
+
+typedef struct { // 18
+	uint32 iTOW; // ms GPS Millisecond Time of Week
+	uint16 gDOP; // Geometric DOP
+	uint16 pDOP; // Position DOP
+	uint16 tDOP; // Time DOP
+	uint16 vDOP; // Vertical DOP
+	uint16 hDOP; // Horizontal DOP
+	uint16 nDOP; // Northing DOP
+	uint16 eDOP; // Easting DOP
+} UbxStructDOP;
+
+typedef struct { // 52
+	uint32 time;
+	int32 time_nsec;
+	int16 week;
+	uint8 fixtype;
+	uint8 fix_status;
+	int32 ecef_x; // cm
+	int32 ecef_y; // cm
+	int32 ecef_z; // cm
+	uint32 position_accuracy_3d; // cm
+	int32 ecef_x_velocity; // cm/S
+	int32 ecef_y_velocity; // cm/S
+	int32 ecef_z_velocity; // cm/S
+	uint32 speed_accuracy; // cm/S
+	uint16 position_DOP;
+	uint8 res;
+	uint8 satellites;
+	uint32 res2;
+} UbxStructSOL;
+
+typedef struct { // 15
+	uint32 iTOW;
+	uint8 fixtype;
+	uint8 fix_status;
+	uint8 flags2;
+	uint32 ttff;
+	uint32 msss;
+} UbxStructSTATUS;
+
+typedef struct { // 36
+	uint32 iTOW; // GPS Millisecond Time of Week (ms)
+	int32 velN; // NED north velocity (cm/s)
+	int32 velE; // NED east velocity (cm/s)
+	int32 velD; // NED down velocity (cm/s)
+	uint32 speed; // Speed (3-D) (cm/s)
+	uint32 gSpeed; // Ground Speed (2-D) (cm/s)
+	int32 heading; // Heading 2-D (deg * 1e-5)
+	uint32 sAcc; // Speed Accuracy Estimate (cm/s)
+	uint32 cAcc; // Course / Heading Accuracy Estimate (deg * 1e-5)
+} UbxStructVALNED;
+
+typedef struct { // 16
+	uint32 towMS;
+	uint32 towSubMS;
+	int32 qErr;
+	uint16 week;
+	uint8 flags;
+	uint8 res;
+} UbxStructTP;
+
+typedef struct { // 20
+	uint32 iTOW; // GPS Millisecond Time of Week (ms)
+	uint32 tAcc; // Time Accuracy Estimate
+	int32 nano; // Nanosecond of second (UTC)
+	uint16 year; // Year, range 1999..2099 (UTC)
+	uint8 month; // Month, range 1..12 (UTC)
+	uint8 day; // Day of Month, range 1..31 (UTC)
+	uint8 hour; // Hour of Day, range 0..23 (UTC)
+	uint8 min; // Minute of Hour, range 0..59 (UTC)
+	uint8 sec; // Second of Minute, range 0..59 (UTC)
+	uint8 valid; // Validity Flags
+} UbxStructTIMEUTC;
+
+typedef struct {
+	uint8 state;
+	uint8 count;
+	uint8 class;
+	uint8 id;
+	uint8 length;
+	union {
+		UbxStructPOSLLH posllh;
+		UbxStructVALNED valned;
+		UbxStructSOL sol;
+		UbxStructSTATUS status;
+		UbxStructDOP dop;
+		UbxStructTP tp;
+		UbxStructTIMEUTC timeutc;
+		char other[UBX_MAX_PAYLOAD];
+	} payload;
+
+	uint8 RxCK_A;
+	uint8 RxCK_B;
+
+	uint8 TxUbxCK_A;
+	uint8 TxUbxCK_B;
+} ubxstruct;
+
+extern ubxstruct ubx;
+
+#endif // USE_UBLOX_BIN
 
 typedef struct {
 	int32 	MissionTime, StartTime;
@@ -996,7 +1164,7 @@ extern int32 ConvertUTime(uint8, uint8);
 extern void ParseGPRMCSentence(void);
 extern void ParseGPGGASentence(void);
 extern void SetGPSOrigin(void);
-extern void ParseGPSSentence(void);
+extern void UpdateGPSSolution(void);
 extern void UpdateGPS(void);
 extern void InitGPS(void);
 
@@ -1101,8 +1269,6 @@ enum { StartTime, GeneralCountdown, LastPIDUpdate, UpdateTimeout, RCSignalTimeou
   	TelemetryUpdate, NavActiveTime, BeeperUpdate, ArmedTimeout,
 	ThrottleUpdate, BaroUpdate, CompassUpdate};
 
-enum WaitStates { WaitSentinel, WaitTag, WaitBody, WaitCheckSum};
-
 extern volatile uint24 mS[];
 extern volatile uint24 PIDUpdate;
 
@@ -1114,8 +1280,9 @@ extern near i16u 	Width, Timer0;
 extern near int24 	PauseTime;
 extern near uint8 	RxState;
 
-extern near uint8 	ll, ss, tt, RxCh;
-extern near uint8 	RxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+extern near uint8 	ll, ss, tt;
+extern near uint8 	RxCheckSum, TxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
+extern near uint8 	RxQTail, RxQHead, TxQTail, TxQHead;
 extern near boolean WaitingForSync;
 
 extern int8	SignalCount;
@@ -1265,7 +1432,7 @@ extern const rom uint8 RxChMnem[];
 
 // outputs.c
 
-#define MAX_DRIVES	6
+#define MAX_DRIVES	10	// 6
 
 // The minimum value for PW width is 1 for the pulse generators
 #define OUT_MAXIMUM			208	//210 222	//  to reduce Rx capture and servo pulse output interaction
@@ -1311,7 +1478,7 @@ enum PWTags {K1=0, K2, K3, K4, K5, K6};
 	#endif
 #endif
 
-extern int16 PW[6];
+extern int16 PW[], PWp[];
 extern int16 PWSense[6];
 extern int16 ESCI2CFail[NO_OF_I2C_ESCS];
 extern int16 CurrThrottle;
@@ -1447,17 +1614,13 @@ enum Params { // MAX 64
 
 // bit 4 is pulse polarity for 3.15
 
-#define UseFailsafe 			5
-#define	UseFailsafeMask		0x20
-
-#define UseAltControl 			6
-#define	UseAltControlMask		0x40
+#define	UseFailsafeMask		(1<<5)
+#define	UseAltControlMask		(1<<6)
 
 // bit 7 unusable in UAVPSet
 
 // In Servo Sense Byte
-#define Polarity 			6
-#define	PPMPolarityMask		0x40
+#define	MagicMask		(1<<6)
 
 extern const rom int8 DefaultParams[MAX_PARAMETERS][2];
 extern const rom uint8 ESCLimits [];
@@ -1467,7 +1630,7 @@ extern int8 Orientation;
 extern int16 OrientationMRad;
 
 extern uint8 ParamSet;
-extern boolean ParametersChanged, SaveAllowTurnToWP;
+extern boolean ParametersChanged;
 extern int8 P[];
 
 extern uint8 UAVXAirframe;
@@ -1485,7 +1648,7 @@ extern int16 RangefinderAltitude, RangefinderAltitudeP;
 
 // rc.c
 
-extern void DoRxPolarity(void);
+//zzzextern void DoRxPolarity(void);
 extern void InitRC(void);
 extern void MapRC(void);
 extern void CheckSticksHaveChanged(void);
@@ -1495,7 +1658,7 @@ extern void CheckThrottleMoved(void);
 extern void UpdateRCMap(void);
 
 extern uint8 Map[], RMap[];
-extern boolean PPMPosPolarity;
+//zzzextern boolean PPMPosPolarity;
 extern int16 RC[], RCp[], Trim[];
 extern int16 CruiseThrottle, NewCruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
 extern int16 DesiredCamPitchTrim;
@@ -1527,8 +1690,10 @@ extern void TxESCi32(int32);
 extern void SendPacket(uint8, uint8, uint8 *, boolean);
 
 #define TX_BUFF_MASK	127
-extern uint8 	TxCheckSum;
-extern uint8x128Q 	TxQ;
+extern uint8 	TxQ[];
+
+#define RX_BUFF_MASK	127
+extern uint8 	RxQ[];
 
 //______________________________________________________________________________________________
 

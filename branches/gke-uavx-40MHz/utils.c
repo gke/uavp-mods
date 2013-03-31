@@ -28,8 +28,7 @@ int32 BatteryChargeADC, BatteryCurrent;
 
 boolean	FirstPass;
 
-void LightsAndSirens(void)
-{
+void LightsAndSirens(void) {
 	static int8 RCStart = RC_INIT_FRAMES;
 	static uint32 NowmS;
 	static int24 Ch5Timeout;
@@ -43,21 +42,17 @@ void LightsAndSirens(void)
 
 	Beeper_OFF;
 	Ch5Timeout = mSClock() + 500; // mS.
-	do
-	{
+	do {
 		ProcessCommand();
 		SpareSlotTime = true; // for "tests"
 		GetHeading();
 		SpareSlotTime = true; // for "tests"
 		GetBaroAltitude();
-		if( F.Signal )
-		{
+		if( F.Signal ) {
 			LEDGreen_ON;
-			if( F.RCNewValues )
-			{
+			if( F.RCNewValues ) {
 				UpdateControls();
-				if ( --RCStart == 0 ) // wait until RC filters etc. have settled
-				{
+				if ( --RCStart == 0 ) { // wait until RC filters etc. have settled
 					UpdateParamSetChoice();
 					RCStart = 1;
 				}
@@ -75,9 +70,7 @@ void LightsAndSirens(void)
 					Ch5Timeout += 500;
 				}	
 			}
-		}
-		else
-		{
+		} else {
 			LEDRed_ON;
 			LEDGreen_OFF;
 		}	
@@ -109,7 +102,7 @@ void LightsAndSirens(void)
 #ifdef TESTING
 
 void DumpBlackBox(void) {
-	uint8 i;
+	static uint8 i;
  
 	TxString("\r\nNo inflight logs for UAVXPIC\r\n");
 
@@ -140,8 +133,7 @@ void DumpBlackBox(void) {
 
 #endif // TESTING
 
-void InitPortsAndUSART(void)
-{
+void InitPortsAndUSART(void) {
 	// general ports setup
 	TRISA = 0b00111111;				// all inputs
 	ADCON1 = 0b00000010;			// Vref used for Rangefinder
@@ -170,8 +162,7 @@ void InitPortsAndUSART(void)
 				USART_EIGHT_BIT&USART_CONT_RX&USART_BRGH_HIGH, _B38400);
 } // InitPortsAndUSART
 
-void InitMisc(void)
-{
+void InitMisc(void) {
 	static uint8 i;
 
 	State = Starting;				// For trace preconditions
@@ -203,8 +194,7 @@ void InitMisc(void)
 	Beeper_OFF;
 } // InitMisc
 
-void Delay1mS(int16 d)
-{ 
+void Delay1mS(int16 d) { 
 	static uint24 Timeout;
 
 	Timeout = mSClock() + d + 1;
@@ -212,30 +202,27 @@ void Delay1mS(int16 d)
 
 } // Delay1mS
 
-void Delay100mSWithOutput(int16 dur)
-{  // Motor and servo pulses are still output
+void Delay100mSWithOutput(int16 dur) {
+  // Motor and servo pulses are still output
 
 	static uint24 Timeout;
 
 	Timeout = mSClock() + dur * 100;
-	while ( mSClock() < Timeout )
-	{
+	while ( mSClock() < Timeout ) {
 		Delay1mS(PIDCyclemS - 2);		
 		OutSignals(); // 1-3 ms Duration
 	}
 
 } // Delay100mSWithOutput
 
-void DoBeep100mSWithOutput(uint8 t, uint8 d)
-{
+void DoBeep100mSWithOutput(uint8 t, uint8 d) {
 	Beeper_ON;
 	Delay100mSWithOutput(t);
 	Beeper_OFF;
 	Delay100mSWithOutput(d);
 } // DoBeep100mSWithOutput
 
-void DoStartingBeepsWithOutput(uint8 b)
-{
+void DoStartingBeepsWithOutput(uint8 b) {
 	static uint8 i;
 
 	for ( i = 0; i < b; i++ )
@@ -244,15 +231,13 @@ void DoStartingBeepsWithOutput(uint8 b)
 	DoBeep100mSWithOutput(8,0);
 } // DoStartingBeeps
 
-void CheckBatteries(void)
-{
+void CheckBatteries(void) {
 	static uint24 Now;
 	static int16 Temp;
 
 	Now = mSClock();
 
-	if (( Now >= mS[BatteryUpdate] ) && SpareSlotTime )
-	{
+	if (( Now >= mS[BatteryUpdate] ) && SpareSlotTime ) {
 		mS[BatteryUpdate] = Now + BATTERY_UPDATE_MS;
 		SpareSlotTime = false;
 		//No spare ADC channels yet. Temp = ADC(ADCBattCurrentChan);
@@ -271,42 +256,31 @@ void CheckBatteries(void)
 static int16 BeeperOffTime = 100;
 static int16 BeeperOnTime = 100;
 
-void CheckAlarms(void)
-{
-	if ( SpareSlotTime )
-	{
+void CheckAlarms(void) {
+	if ( SpareSlotTime ) {
 		SpareSlotTime = false;
 		F.BeeperInUse = F.LowBatt || F.LostModel  || (State == Shutdown);
 	
-		if ( F.BeeperInUse )
-		{
-			if( F.LowBatt ) 
-			{
+		if ( F.BeeperInUse ) {
+			if( F.LowBatt ) {
 				BeeperOffTime = 600;
 				BeeperOnTime = 600;
-			}	
-			else
-				if ( State == Shutdown )
-				{
+			} else
+				if ( State == Shutdown ) {
 					BeeperOffTime = 4750;
 					BeeperOnTime = 250;
-				}
-				else
-					if ( F.LostModel )
-					{
+				} else
+					if ( F.LostModel ) {
 						BeeperOffTime = 125;
 						BeeperOnTime = 125;		
 					}		
 	
 			if ( mSClock() > mS[BeeperUpdate] )
-				if ( BEEPER_IS_ON )
-				{
+				if ( BEEPER_IS_ON ) {
 					mSTimer(BeeperUpdate, BeeperOffTime);
 					Beeper_OFF;
 					LEDRed_OFF;					
-				}
-				else
-				{
+				} else {
 					mSTimer(BeeperUpdate, BeeperOnTime);
 					Beeper_ON;
 					LEDRed_ON;		
@@ -322,19 +296,18 @@ void CheckAlarms(void)
 } // CheckAlarms
 
 #ifndef USE_LIMIT_MACRO
-int32 ProcLimit(int32 i, int32 l, int32 u)
-{
+int32 ProcLimit(int32 i, int32 l, int32 u) {
 	return ((i<l) ? l : ((i>u) ? u : i));	
 } // ProcLimit
 #endif // USE_LIMIT_MACRO
 
-int16 DecayX(int16 i, int16 d)
-{
+int16 DecayX(int16 i, int16 d) {
 	if ( i < 0 ) {
 		i += d;
 		if ( i >0 )
 			i = 0;
-	} else if ( i > 0 ) {
+	} else 
+		if ( i > 0 ) {
 			i -= d;
 			if ( i < 0 )
 				i = 0;
@@ -343,8 +316,7 @@ int16 DecayX(int16 i, int16 d)
 } // DecayX
 
 
-int16 RateOfChange(HistStruct * F, int16 v) 
-{
+int16 RateOfChange(HistStruct * F, int16 v) {
 	static uint8 i;
 	static int24 r;
 

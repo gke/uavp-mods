@@ -23,7 +23,7 @@
 			{20,0},				// RollRateKp, 				01
 			{10,0},	 			// RollRateKi,				02
 			{20, 0},			// RollAngleKp,				03
-			{0,true},			// Unused4,			04
+			{0,true},			// Unused4,					04
 			{30,0},	 			// RollIntLimit,			05
 
 			{20,0},	 			// PitchRateKp,				06
@@ -33,11 +33,12 @@
 			{30,0},	 			// PitchIntLimit,			10
 
 			{25,0},	 			// YawKpRate, 				11
-			{0,0},	 			// RollRateKd was YawKi,	12
+			{50,0},	 			// RollRateKd was YawKi,	12
 			{Wolferl, true},	// IMU,						13
 			{20,0},	 			// YawLimit,				14
 			{CompoundPPM, true},// RCType,					15
 
+	
 			{2,true}, 			// ConfigBits,				16c
 			{1,true},			// RxThrottleCh,			17
 			{51,true}, 			// LowVoltThres,			18c 
@@ -51,8 +52,8 @@
 			{15,0}, 			// PitchKiAngle,			25c
 			{20,true}, 			// CamPitchKp,				26c
 			{10,0}, 			// YawKpAngle (Compass),	27
-			{0,0},				// PitchRateKd,				28
-			{2,true}, 			// NavSlew,					29
+			{50,0},				// PitchRateKd,				28
+			{10,true}, 			// NavRollPitchSlew,		29
 			{0,true}, 			// Unused30,				30
 
 			{0,0}, 				// GSThrottle,	    		31
@@ -74,7 +75,7 @@
 			{3,true},			// RxPitchCh,				42
 			{4,true},			// RxYawCh,					43
 			{AF_TYPE,true},		// AFType,					44c
-			{UAVXTelemetry, true}, // TelemetryType,		45c
+			{NoTelemetry, true}, // TelemetryType,		45c
 			{10,true},		    // MaxDescentRatedMpS, 		46
 			{30,true},			// DescentDelayS			47
 			{MPU_RA_DLPF_BW_98, true},	// GyroLPF,			48
@@ -84,7 +85,7 @@
 			{6,true},			// RxAux1Ch,				51
 			{0,true},			// ServoSense				52c
 			{2,true},			// AccConfSD,				53c
-			{49,true},			// BatteryCapacity			54c
+			{22,true},			// BatteryCapacity			54c
 			{7,true},			// RxAux2Ch,				55c
 			{8,true},			// RxAux3Ch,				56
 			#if (defined  TRICOPTER) | (defined VTCOPTER ) | (defined Y6COPTER )
@@ -93,7 +94,7 @@
 			{0,true},			// Orient					57
 			#endif // TRICOPTER | VTCOPTER | Y6COPTER			
 
-			{12,true},			// NavYawLimit				58
+			{12,true},			// NavYawSlew				58
 			{50,0},				// Balance					59
 			{9,true},			// RxAux4Ch					60
 			{50,true},			// DriveFilt				61
@@ -103,3 +104,4 @@
 			{0,true}			// VertDampKp,				64
 			};
 	#pragma idata
+
