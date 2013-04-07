@@ -81,7 +81,7 @@ void CalculateGyroRates(void) {
 	case UAVXArm32IMU:
 		RollT.i24 = (int24)A[Roll].Rate * 18; // 11
 		PitchT.i24 = (int24)A[Pitch].Rate * 18;
-		YawT.i24 = (int24)A[Yaw].Rate * 9;
+		YawT.i24 = -(int24)A[Yaw].Rate * 9;
 		break;
 	default:
 		break;

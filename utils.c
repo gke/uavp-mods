@@ -99,21 +99,25 @@ void LightsAndSirens(void) {
 
 } // LightsAndSirens
 
-#ifdef TESTING
-
 void DumpBlackBox(void) {
 	static uint8 i;
  
 	TxString("\r\nNo inflight logs for UAVXPIC\r\n");
 
-	ShowSetup();
-	ScanI2CBus();
-	GyrosAndAccsTest();
-	DoCompassTest();
-	BaroTest();
-	ReceiverTest();
-	BatteryTest();
-	ShowStats();
+	#ifdef TESTING	
+		ShowSetup();
+		ScanI2CBus();
+		GyrosAndAccsTest();
+		DoCompassTest();
+		BaroTest();
+		ReceiverTest();
+		BatteryTest();
+		ShowStats();
+	#else
+		ShowSetup();
+		ShowStats();
+		BatteryTest();
+	#endif // TESTING
 
 	TxString("\r\nParameters:");
 	for (i = 0; i < MAX_PARAMETERS; i++) {
@@ -130,8 +134,6 @@ void DumpBlackBox(void) {
 	}
 
 } // DumpBlackBox
-
-#endif // TESTING
 
 void InitPortsAndUSART(void) {
 	// general ports setup
@@ -315,29 +317,6 @@ int16 DecayX(int16 i, int16 d) {
 	return (i);
 } // DecayX
 
-
-int16 RateOfChange(HistStruct * F, int16 v) {
-	static uint8 i;
-	static int24 r;
-
-	if (!F->Primed) {
-		for (i = 1; i < 8; i++)
-			F->h[i] = v;
-		F->Primed = true;
-	}
-
-	for (i = 1; i < 8; i++) // move makes indexing less complicated
-		F->h[i] = F->h[i - 1];
-	F->h[0] = v;
-
-	r = 0;
-	for (i = 0; i < (8 >> 1); i++)
-		r += F->h[i];
-	for (i = (8 >> 1); i < 8; i++)
-		r -= F->h[i];
-
-	return (r);
-} // RateOfChange
 
 int32 Threshold(int32 v, int16 t) {
 

@@ -280,10 +280,10 @@ void Navigate(int24 DesiredNorth, int24 DesiredEast) {
 
 			NewCorr = SRS32((int32)VelE * Nav.VelKp * EffNavSensitivity, 9); 
 			NewCorr = Limit1(NewCorr, NAV_MAX_ROLL_PITCH);
-			Nav.Corr = SlewLimit(Nav.Corr, NewCorr, Nav.RollPitchSlewRate);
+			Nav.CorrP = SlewLimit(Nav.CorrP, NewCorr, Nav.RollPitchSlewRate);
 
-			A[Pitch].NavCorr = -SRS32((int32)Nav.Corr * int16cos(RelHeading), 8);
-			A[Roll].NavCorr = SRS32((int32)Nav.Corr * int16sin(RelHeading), 8); 
+			A[Pitch].NavCorr = -SRS32((int32)Nav.CorrP * int16cos(RelHeading), 8);
+			A[Roll].NavCorr = SRS32((int32)Nav.CorrP * int16sin(RelHeading), 8); 
 
 			if (F.AllowTurnToWP && (DistE > Nav.ProximityRadius)) {
 				NewCorr = -CalculateTurnCorr();
@@ -461,7 +461,7 @@ void DoFailsafe(void) { // only relevant to PPM Rx or Quad NOT synchronising wit
 
 	#ifndef TESTING // not used for testing - make space!
 
-		AltitudeHold();
+		DoAltitudeHold();
 
 		switch ( FailState ) { // FailStates { MonitoringRx, Aborting, Terminating, Terminated, RxTerminate }
 		case Terminated: // Basic assumption is that aircraft is being flown over a safe area!
@@ -606,8 +606,8 @@ void GetWayPointEE(int8 wp) {
 
 void InitNavigation(void) {
 
-	WayHeading = 0;		
-	A[Roll].NavCorr = A[Pitch].NavCorr = A[Yaw].NavCorr = 0;
+	WayHeading = 0;	
+	Nav.CorrP = A[Roll].NavCorr = A[Pitch].NavCorr = A[Yaw].NavCorr = 0;
 	Nav.C[NorthC].PosE = Nav.C[EastC].PosE = 0;
 
 	SetDesiredAltitude(0);

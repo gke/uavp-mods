@@ -273,7 +273,11 @@ void MixAndLimitCam(void) {
 	PW[CamRollC] = SlewLimit( PW[CamRollC], NewCamRoll, 2);
 
 	Temp24.i24 = (int24)CameraAngle[Pitch] * P[CamPitchKp];
-	NewCamPitch = Temp24.i2_1 + SRS16(DesiredCamPitchTrim * 3, 1);
+	#ifdef GKE_TUNE
+		NewCamPitch = Temp24.i2_1;
+	#else
+		NewCamPitch = Temp24.i2_1 + SRS16(DesiredCamPitchTrim * 3, 1);
+	#endif
 	NewCamPitch = PWSense[CamPitchC] * NewCamPitch + OUT_NEUTRAL; 
 	PW[CamPitchC] = SlewLimit( PW[CamPitchC], NewCamPitch, 2);
 
