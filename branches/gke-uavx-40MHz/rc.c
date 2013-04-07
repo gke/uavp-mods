@@ -19,7 +19,6 @@
 //    If not, see http://www.gnu.org/licenses/
 #include "uavx.h"
 
-//zzzvoid DoRxPolarity(void);
 void InitRC(void);
 void MapRC(void);
 void CheckSticksHaveChanged(void);
@@ -28,22 +27,10 @@ void CaptureTrims(void);
 void CheckThrottleMoved(void);
 
 uint8 Map[CONTROLS], RMap[CONTROLS];
-//zzzboolean PPMPosPolarity;
-
 int16 RC[CONTROLS], RCp[CONTROLS];
 int16 CruiseThrottle, NewCruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
 int16 DesiredCamPitchTrim;
 int16 ThrLow, ThrHigh, ThrNeutral;
-
-/*zzz
-void DoRxPolarity(void)
-{
-	if ( F.UsingCompoundPPM  ) // serial PPM frame from within an Rx
-		CCP1CONbits.CCP1M0 = PPMPosPolarity;
-	else
-		CCP1CONbits.CCP1M0 = true;	
-}  // DoRxPolarity
-*/
 
 void UpdateRCMap(void) {
 	static uint8 i;
@@ -78,11 +65,10 @@ void InitRC(void) {
 	for (c = RollRC; c <= YawRC; c++)
 		RC[c] = RCp[c] = RC_NEUTRAL;
 	RC[CamPitchRC] = RCp[CamPitchRC] = RC_NEUTRAL;
-
-//	PPMPosPolarity = (P[ServoSense] & PPMPolarityMask) == 0;	
+	
 	F.UsingCompoundPPM = P[RCType] == CompoundPPM;
 	PIE1bits.CCP1IE = false;
-	CCP1CONbits.CCP1M0 = true; //DoRxPolarity();
+	CCP1CONbits.CCP1M0 = true;
 	PPM_Index = PrevEdge = RCGlitches = 0;
 	PIE1bits.CCP1IE = true;
 
@@ -215,6 +201,10 @@ void UpdateControls(void) {
 		DesiredCamPitchTrim = RC[CamPitchRC] - RC_NEUTRAL;
 	else
 		DesiredCamPitchTrim = RC_NEUTRAL;
+
+	#ifdef GKE_TUNE
+		TuneTrim = SRS16(DesiredCamPitchTrim, 4);
+	#endif
 
 	#ifdef INC_POLAR
 		#if defined(MULTICOPTER) | defined(HELICOPTER)

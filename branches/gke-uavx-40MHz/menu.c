@@ -80,15 +80,9 @@ void ShowPrompt(void) {
 } // ShowPrompt
 
 void ShowRxSetup(void) {
-	if ( F.UsingCompoundPPM ) {
-		TxString("Serial PPM frame (");
-/*
-		if ( PPMPosPolarity )
-			TxString("Pos. Polarity)");
-		else
-			TxString("Neg. Polarity)");
-*/
-	} else
+	if ( F.UsingCompoundPPM )
+		TxString("Serial PPM frame");
+	else
 		TxString("Odd Rx Channels PPM");
 } // ShowRxSetup
 
@@ -283,6 +277,9 @@ void ProcessCommand(void) {
 					PTemp[p] = d;
 				
 				if ( ( p == (MAX_PARAMETERS-1)) && ( P[RollRateKp] != 0 ) ) {
+					#ifdef GKE_TUNE
+						PTemp[CamPitchKp] = TuneTrim;
+					#endif	
 					PTemp[AFType] = AF_TYPE;
 					PTemp[IMU] = Wolferl;
 					for (p = 0; p<MAX_PARAMETERS;p++)
@@ -343,11 +340,11 @@ void ProcessCommand(void) {
 				ShowStats();
 				ShowPrompt();
 				break;
-			#ifdef TESTING
 			case 'G':
 				DumpBlackBox();
 				ShowPrompt();
 				break;
+			#ifdef TESTING
 			case 'T':
 				TxString("\r\nI2C devices ...\r\n");
 				TxVal32(ScanI2CBus(),0,0);
@@ -384,11 +381,6 @@ void ProcessCommand(void) {
 				ShowPrompt();
 				break;
 			#endif
-			#else
-			case 'G':
-				TxString("Use TEST firmware\r\n");;
-				ShowPrompt();
-				break;
 			#endif // TESTING
 			case 'V' :	// Battery test
 				BatteryTest();

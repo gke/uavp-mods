@@ -20,16 +20,16 @@
 	
 	#pragma idata paramdefaults
 	const rom int8 DefaultParams[MAX_PARAMETERS][2] = {
-			{20,0},				// RollRateKp, 				01
-			{10,0},	 			// RollRateKi,				02
-			{20, 0},			// RollAngleKp,				03
+			{17,0},				// RollRateKp, 				01
+			{8,0},	 			// RollRateKi,				02
+			{15, 0},			// RollAngleKp,				03
 			{0,true},			// Unused4,					04
 			{30,0},	 			// RollIntLimit,			05
 
-			{20,0},	 			// PitchRateKp,				06
-			{10,0},	 			// PitchRateKi,				07
-			{20,0},	 			// PitchAngleKp,			08
-			{5,true},	 		// AltKp,					09
+			{17,0},	 			// PitchRateKp,				06
+			{8,0},	 			// PitchRateKi,				07
+			{15,0},	 			// PitchAngleKp,			08
+			{17,true},	 		// AltKp,					09
 			{30,0},	 			// PitchIntLimit,			10
 
 			{25,0},	 			// YawKpRate, 				11
@@ -48,8 +48,8 @@
 			{8,true}, 			// BaroFilt,				21c // 7 is magic number
 			{30,true}, 			// RollYawMix,				22c
 			{5,true}, 			// PercentIdleThr,			23c
-			{15,0}, 			// RollKiAngle,				24c
-			{15,0}, 			// PitchKiAngle,			25c
+			{15,0}, 			// RollAngleKi,				24c
+			{15,0}, 			// PitchAngleKi,			25c
 			{20,true}, 			// CamPitchKp,				26c
 			{10,0}, 			// YawKpAngle (Compass),	27
 			{50,0},				// PitchRateKd,				28

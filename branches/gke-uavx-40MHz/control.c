@@ -51,25 +51,27 @@ int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, MinROCCmpS;
 int16 AltMinThrCompStick;
 int24 RTHAltitude;
 
-int8 BeepTick = 0;
+//zzzint8 BeepTick = 0;
 
-void DoAltitudeHold(void) { 	// Syncronised to baro intervals independant of active altitude source	
+#ifdef GKE_TUNE
+	int16 TuneTrim;
+#endif
+
+void AcquireAltitude(void) { 	// Syncronised to baro intervals independant of active altitude source	
 	static int24 AltE;
 	static int16 ROCE, DesiredROC;
 	static int16 NewComp;
-
-	#ifdef ALT_SCRATCHY_BEEPER
-	if ( (--BeepTick <= 0) && !F.BeeperInUse ) 
-		Beeper_TOG;
-	#endif
 
 	AltE = DesiredAltitude - Altitude;
 	AltE = Threshold(AltE, 10);
 	DesiredROC = Limit(AltE, MinROCCmpS, ALT_MAX_ROC_CMPS);
 
 	ROCE = DesiredROC - ROC;
-
-	NewComp = SRS16(ROCE * P[AltKp], 6);
+#ifdef GKE_TUNE
+	NewComp = SRS16(ROCE * (P[AltKp] + TuneTrim), 8);
+#else
+	NewComp = SRS16(ROCE * P[AltKp], 8);
+#endif
 
 	#ifdef NAV_WING
 
@@ -79,16 +81,9 @@ void DoAltitudeHold(void) { 	// Syncronised to baro intervals independant of act
 
 	AltComp = Limit(NewComp, AltMinThrCompStick, ALT_MAX_THR_COMP);
 				
-	#ifdef ALT_SCRATCHY_BEEPER
-	if ( (BeepTick <= 0) && !F.BeeperInUse) {
-		Beeper_TOG;
-		BeepTick = 5;
-	}
-	#endif
+} // AcquireAltitude	
 
-} // DoAltitudeHold	
-
-void AltitudeHold() {  // relies upon good cross calibration of baro and rangefinder!!!!!!
+void DoAltitudeHold() {  // relies upon good cross calibration of baro and rangefinder!!!!!!
 	static int16 ActualThrottle;
 
 	if (F.NewBaroValue) {
@@ -106,14 +101,14 @@ void AltitudeHold() {  // relies upon good cross calibration of baro and rangefi
 			if (F.ForceFailsafe || ((NavState != HoldingStation)
 					&& F.AllowNavAltitudeHold)) { // Navigating - using CruiseThrottle
 				F.HoldingAlt = true;
-				DoAltitudeHold();
+				AcquireAltitude();
 			} else if (F.ThrottleMoving) {
 				F.HoldingAlt = false;
 				SetDesiredAltitude(Altitude);
 				AltComp = Decay1(AltComp);
 			} else {
 				F.HoldingAlt = true;
-				DoAltitudeHold(); // not using cruise throttle
+				AcquireAltitude(); // not using cruise throttle
 				#ifndef SIMULATE
 					ActualThrottle = DesiredThrottle + AltComp;
 					if ((Abs(ROC) < ALT_HOLD_MAX_ROC_CMPS) && (ActualThrottle
@@ -133,7 +128,7 @@ void AltitudeHold() {  // relies upon good cross calibration of baro and rangefi
 			F.HoldingAlt = false;
 		}
 	}
-} // AltitudeHold
+} // DoAltitudeHold
 
 
 void DoInertialDamping(void) {
@@ -193,7 +188,6 @@ void DoWolfControl(AxisStruct *C) { // Origins Dr. Wolfgang Mahringer
 
 	ComputeRateDerivative(C, C->Rate);
 	pd =  SRS32((int32)C->Rate * C->RateKp + C->RateD * C->RateKd, 5);
-
     Temp = SRS32((int32)C->Angle * C->RateKi , 9);
 	i = Limit1(Temp, C->IntLimit);
 
@@ -203,28 +197,29 @@ void DoWolfControl(AxisStruct *C) { // Origins Dr. Wolfgang Mahringer
 
 
 void DoAngleControl(AxisStruct *C) { // PI_PD with Dr. Ming Liu
-	static int32 p, i, d, DesRate, AngleE, AngleEp, RateE;
+	static int32 Pa, Ia, PDr, DesRate, AngleE, RateE;
 
-	AngleEp = C->AngleE;
 	AngleE = C->Control * RC_STICK_ANGLE_SCALE - C->Angle;
 
-	p = AngleE * C->RateKp;
+	Pa = AngleE * C->RateKp;
 
-	if (Sign(AngleE) != Sign(C->AngleEInt))
-		C->AngleEInt = 0;
-	C->AngleEInt += AngleE;
-	C->AngleEInt = Limit1(C->AngleEInt, C->IntLimit);
-	i = C->AngleEInt * C->AngleKi;
+	#ifdef USE_ANGLE_I
+		if (Sign(AngleE) != Sign(C->AngleEInt))
+			C->AngleEInt = 0;
+		C->AngleEInt += AngleE;
+		C->AngleEInt = Limit1(C->AngleEInt, C->IntLimit);
+		Ia = C->AngleEInt * C->AngleKi;
+	#else
+		Ia = 0;
+	#endif // USE_ANGLE_I
 
-	DesRate = SRS32(p + i, 10);
- 	DesRate = Limit1(DesRate, MAX_BANK_ANGLE_DEG * DEG_TO_ANGLE_UNITS);
-
+	DesRate = SRS32(Pa + Ia, 10);
 	RateE = DesRate - C->Rate; 	
 
-	ComputeRateDerivative(C, C->Rate); // ignore set point change RateE);
-	C->Out = -SRS32(RateE * C->RateKp - C->RateD * C->RateKd, 5);
+	ComputeRateDerivative(C, RateE); // ignore set point change RateE
+	PDr = -SRS32(RateE * C->RateKp + C->RateD * C->RateKd, 5);
 
-	C->AngleE = AngleE;
+	C->Out = PDr;
 
 } // DoAngleControl
 
@@ -244,20 +239,26 @@ void YawControl(void) {
 	UpdateDesiredHeading();
 
 	HeadingE = MinimumTurn(DesiredHeading - Heading);
-	HeadingE = Limit1(HeadingE, (30*18));
-	r = -SRS32((int24)HeadingE * A[Yaw].AngleKp, 7);
+	HeadingE = Limit1(HeadingE, DegreesToRadians(30));
 
-	r += A[Yaw].Rate; 
-	r  = SRS32((int24)r * A[Yaw].RateKp, 4);
+	r = SRS32((int24)HeadingE * A[Yaw].AngleKp, 6);
+	r -= A[Yaw].Rate;
+	r  = SRS32((int24)r * A[Yaw].RateKp, 5);
+
 	r = Limit1(r, A[Yaw].Limiter);
 
-	if ((Abs(A[Yaw].Control) > FromPercent(2, RC_NEUTRAL))|| (NavState
+	if ((Abs(A[Yaw].Control) > FromPercent(2, RC_NEUTRAL)) || (NavState
 			!= HoldingStation))
 		r -= A[Yaw].Control;
 
 	A[Yaw].Out = r;
 
 } // YawControl
+
+void ZeroPIDIntegrals(void) {
+	A[Roll].AngleEInt = 0;
+	A[Pitch].AngleEInt = 0;
+} // ZeroPIDIntegrals
 
 void DoControl(void){
 
@@ -303,6 +304,7 @@ void InitControl(void) {
 		C->Outp = C->Ratep = 0;
 		C->RateDp = C->RateD = C->Angle = 0;
 	}
+	ZeroPIDIntegrals();
 
 } // InitControl
 

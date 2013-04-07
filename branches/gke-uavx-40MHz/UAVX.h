@@ -21,9 +21,12 @@
 
 //#define USE_DROTEK_V1
 
+//#define USE_ANGLE_I // not convinced that the angle noise estimate is low enough?
+
 #ifndef BATCHMODE
+	#define GKE_TUNE
 	//#define USE_UBLOX_BIN
-	#define TESTING
+	//#define TESTING
 	//#define FULL_TEST			// extended compass test etc.					
 	//#define SIMULATE
 	#define QUADROCOPTER
@@ -756,7 +759,7 @@ typedef struct {
 	int16 ProximityAltitude, ProximityRadius;
 	int16 MaxVelocitydMpS;
 	int16 RollPitchSlewRate, YawSlewRate;
-	int16 Corr;
+	int16 CorrP;
 	int24 CrossTrackE;
 	int8 CrossTrackKp;
 	int16 Bearing;
@@ -814,7 +817,7 @@ extern int24 NavdT;
 
 // baro.c
 
-#define ALT_UPDATE_MS				100
+#define ALT_UPDATE_MS				25
 #define ALT_UPDATE_SCALE			(1000/ALT_UPDATE_MS)
 
 #define BARO_SANITY_CHECK_CM	((BARO_SANITY_CHANGE_CMPS*ALT_UPDATE_MS)/1000L)
@@ -849,7 +852,7 @@ extern void GetI2CBaroAltitude(void);
 extern const rom uint8 BaroError[];
 extern int32 OriginBaroTemperature, OriginBaroPressure;
 extern uint32 BaroPressure, BaroTemperature;
-extern int24 BaroAltitude, BaroAltitudeP;
+extern int24 BaroAltitude;
 extern boolean AcquiringPressure;
 extern int24 BaroAltitude;
 extern i32u	BaroVal;
@@ -866,7 +869,7 @@ extern uint16 BMP085Constants[];
 
 // compass.c
 
-#define COMPASS_MIDDLE		8			// yaw stick neutral dead zone
+#define COMPASS_MIDDLE		20 // 8			// yaw stick neutral dead zone
 #define COMPASS_TIME_MS		50			// 20Hz
 #define COMPASS_UPDATE_HZ	(1000/COMPASS_TIME_MS)
 #define COMPASS_OFFSET_QTR	3
@@ -927,14 +930,13 @@ enum MagSensors {MX, MZ, MY};
 enum Directions { LR, FB, DU }; // Roll, Pitch & Yaw
 
 extern void DoAltitudeHold(void);
-extern void UpdateAltitudeSource(void);
-extern void AltitudeHold(void);
-
+extern void AcquireAltitude(void);
 extern void DoAttitudeAngle(AxisStruct *);
 extern void CompensateYawGyro(void);
 extern void DoYawControl(void);
 extern void DoOrientationTransform(void);
 extern void GainSchedule(void);
+extern void ZeroPIDIntegrals(void);
 extern void DoControl(void);
 extern void InitControl(void);
 
@@ -944,7 +946,10 @@ extern uint32 CycleHist[];
 
 extern AxisStruct A[3];
 	
-extern int16 CameraAngle[3];				
+extern int16 CameraAngle[3];
+#ifdef GKE_TUNE
+	extern int16 TuneTrim;
+#endif				
 
 extern int16 HeadingE;
 
@@ -1597,23 +1602,11 @@ enum Params { // MAX 64
 	VertDampKp // 64
 };
 
-#define UsePositionHoldLock 0
-#define UsePositionHoldLockMask 	0x01
-
-#define UseRTHDescend 		1
-#define	UseRTHDescendMask	0x02
-
-#define TxMode2 			2
-#define TxMode2Mask 		0x04
-
-#define RxSerialPPM 		3
-#define RxSerialPPMMask		0x08 
-
-#define RFInches 		4
-#define RFInchesMask		0x10
-
-// bit 4 is pulse polarity for 3.15
-
+#define UsePositionHoldLockMask 	(1)
+#define	UseRTHDescendMask	(1<<1)
+#define TxMode2Mask 		(1<<2)
+#define RxSerialPPMMask		(1<<3) 
+#define RFInchesMask		(1<<4)
 #define	UseFailsafeMask		(1<<5)
 #define	UseAltControlMask		(1<<6)
 
@@ -1648,7 +1641,6 @@ extern int16 RangefinderAltitude, RangefinderAltitudeP;
 
 // rc.c
 
-//zzzextern void DoRxPolarity(void);
 extern void InitRC(void);
 extern void MapRC(void);
 extern void CheckSticksHaveChanged(void);
@@ -1658,7 +1650,6 @@ extern void CheckThrottleMoved(void);
 extern void UpdateRCMap(void);
 
 extern uint8 Map[], RMap[];
-//zzzextern boolean PPMPosPolarity;
 extern int16 RC[], RCp[], Trim[];
 extern int16 CruiseThrottle, NewCruiseThrottle, MaxCruiseThrottle, DesiredThrottle, IdleThrottle, InitialThrottle, StickThrottle;
 extern int16 DesiredCamPitchTrim;
@@ -1789,7 +1780,6 @@ extern void DoStartingBeepsWithOutput(uint8);
 extern int32 SlewLimit(int32, int32, int16);
 extern int32 ProcLimit(int32, int32, int32);
 extern int16 DecayX(int16, int16);
-extern int16 RateOfChange(HistStruct * F, int16 v);
 extern int32 Threshold(int32 v, int16 t);
 extern void Rotate(int16 * nx, int16 * ny, int24 x,
 		int24 y, int16 A);

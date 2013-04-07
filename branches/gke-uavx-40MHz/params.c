@@ -87,6 +87,7 @@ void ReadParametersEE(void)
 
 		A[Pitch].IntLimit = P[PitchIntLimit];
 		
+		A[Yaw].AngleKp = P[YawAngleKp];
 		A[Yaw].RateKp = P[YawRateKp];
 		A[Yaw].Limiter = P[YawLimit];
 

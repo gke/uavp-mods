@@ -137,6 +137,7 @@ void main(void) {
 					break;
 				case Landed:
 					DesiredThrottle = 0;
+					ZeroPIDIntegrals();
 					DesiredHeading = Heading;
 					AltMinThrCompStick = -ALT_MAX_THR_COMP;
 					F.OriginAltValid = false;
@@ -207,11 +208,8 @@ void main(void) {
 					F.DrivesArmed = true;
 		
 					LEDChaser();
-
 					DesiredThrottle = SlewLimit(DesiredThrottle, StickThrottle, 1);
- 
-					DoNavigation();
-		
+					DoNavigation();	
 					if (State != Shutdown) {
 						if (StickThrottle < IdleThrottle) {
 							AltComp = 0;
@@ -219,7 +217,7 @@ void main(void) {
 							RestoreLEDs();
 							State = Landing;
 						} else
-							AltitudeHold();
+							DoAltitudeHold();
 					}
 					break;
 				} // Switch State
