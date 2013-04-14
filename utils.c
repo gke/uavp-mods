@@ -320,16 +320,13 @@ int16 DecayX(int16 i, int16 d) {
 
 int32 Threshold(int32 v, int16 t) {
 
-	if (v > 0)
-		if (v > t)
-			v -= t;
+	if (v > t)
+		v -= t;
+	else
+		if (v < -t)
+			v += t;
 		else
 			v = 0;
-	else if (v < -t)
-		v += t;
-	else
-		v = 0;
-
 	return (v);
 } // Threshold
 

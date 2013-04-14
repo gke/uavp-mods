@@ -100,16 +100,11 @@ boolean DoLanding(void) { // InTheAir micro switch RC0 Pin 11 to ground when lan
 
 	#else
 		SetDesiredAltitude(-2000);
+		AltMinThrCompStick = -RC_MAXIMUM;
 		if (F.BaroAltitudeValid) {
 			DesiredThrottle = CruiseThrottle;
 			if (Altitude > LAND_CM)
 				mSTimer(NavStateTimeout, NAV_RTH_LAND_TIMEOUT_MS);
-			else
-				AltMinThrCompStick = -RC_MAXIMUM; // all the way
-
-			//TODO: bump detection for landing
-			//|| ((AccVertical < (-GRAVITY * 3) && (Altitude <= LAND_M)))
-			// AltComp ALT_MAX_THR_COMP_STICK
 
 			HasLanded = !InTheAir || ((mSClock() > mS[NavStateTimeout])
 					&& (F.ForceFailsafe || (NavState == Touchdown)
@@ -428,7 +423,7 @@ void DoNavigation(void) {
 	}
 	#ifdef ENABLE_STICK_CHANGE_FAILSAFE
 	else 
-    	if ( F.ForceFailsafe ) //&& F.NewCommands  && ( StickThrottle >= IdleThrottle ) )
+    	if ( F.ForceFailsafe || F.ReturnHome || F.Navigate )//&& F.NewCommands  && ( StickThrottle >= IdleThrottle ) )
 			DoFailsafeLanding();
 	#endif // ENABLE_STICK_CHANGE_FAILSAFE
 		else 

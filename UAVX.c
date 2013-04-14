@@ -101,8 +101,9 @@ void main(void) {
 				#endif // INC_CYCLE_STATS
 			#endif // TESTING
 
+			GetBaroAltitude();
 			UpdateGPS();
-	
+
 			if ( F.RCNewValues )
 				UpdateControls();
 
@@ -138,6 +139,7 @@ void main(void) {
 				case Landed:
 					DesiredThrottle = 0;
 					ZeroPIDIntegrals();
+					PrimeROC = true;
 					DesiredHeading = Heading;
 					AltMinThrCompStick = -ALT_MAX_THR_COMP;
 					F.OriginAltValid = false;
@@ -158,23 +160,14 @@ void main(void) {
 
 							mS[RxFailsafeTimeout] = NowmS + RC_NO_CHANGE_TIMEOUT_MS;
 							F.ForceFailsafe = F.LostModel = false;
-
 							if ( ParameterSanityCheck() ) {
-								#ifndef SIMULATE
-								while ( !F.NewBaroValue )
-									GetBaroAltitude(); 
-								OriginBaroPressure = BaroPressure;
-								OriginBaroTemperature = BaroTemperature;
-								#endif // !SIMULATE
 								F.OriginAltValid = true;
-								F.NewBaroValue = false;
 								State = InFlight;
 							} else
 								ALL_LEDS_ON;	
 						}						
 					break;
 				case Landing:
-					GetBaroAltitude();
 					if ( StickThrottle > IdleThrottle ) {
 						DesiredThrottle = 0;
 						State = InFlight;
@@ -183,7 +176,7 @@ void main(void) {
 							DesiredThrottle = IdleThrottle;
 						else {
 							DecayNavCorr();
-							DesiredThrottle = AltComp = 0; // to catch cycles between Rx updates
+							DesiredThrottle = AltComp = HRAltComp = 0; // to catch cycles between Rx updates
 							AltMinThrCompStick = -ALT_MAX_THR_COMP;
 							F.DrivesArmed = false;
 							Stats[RCGlitchesS] = RCGlitches - Stats[RCGlitchesS];	
@@ -195,7 +188,6 @@ void main(void) {
 					break;
 				case Shutdown:
 					LEDChaser();
-					GetBaroAltitude(); // may as well!
 					if ((StickThrottle < IdleThrottle) && !(F.ReturnHome || F.Navigate)) {
 						mSTimer(ArmedTimeout, ARMED_TIMEOUT_MS);
 						mSTimer(RxFailsafeTimeout, RC_NO_CHANGE_TIMEOUT_MS);
@@ -205,8 +197,7 @@ void main(void) {
 					}
 					break;
 				case InFlight:
-					F.DrivesArmed = true;
-		
+					F.DrivesArmed = true;		
 					LEDChaser();
 					DesiredThrottle = SlewLimit(DesiredThrottle, StickThrottle, 1);
 					DoNavigation();	
