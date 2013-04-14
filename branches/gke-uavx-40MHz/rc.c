@@ -164,8 +164,7 @@ void CheckSticksHaveChanged(void)
 	} else
 		F.ForceFailsafe = false;
 
-	#endif // ENABLE_STICK_CHANGE_FAILSAFE
-
+	#endif 
 } // CheckSticksHaveChanged
 
 void UpdateControls(void) {

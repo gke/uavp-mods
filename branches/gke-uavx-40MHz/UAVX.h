@@ -186,24 +186,19 @@
 #define LAND_CM						300L	// centimetres deemed to have landed when below this height
 
 #define ALT_MAX_ROC_CMPS			500		// cm/S maximum climb rate
+#define ALT_MAX_THR_COMP			FromPercent(5,RC_MAXIMUM)  // simulation says 7	
 
-#define ALT_MAX_THR_COMP			80L		// Stick units was 40
+#define ALT_RF_ENABLE_CM			300L //500L	// altitude below which the rangefinder is selected as the altitude source
+#define ALT_RF_DISABLE_CM			400L //600L	// altitude above which the rangefinder is deselected as the altitude source
 
-#define ALT_RF_ENABLE_CM			300L //500L	// altitude below which the rangefiner is selected as the altitude source
-#define ALT_RF_DISABLE_CM			400L //600L	// altitude above which the rangefiner is deselected as the altitude source
-
-#define BARO_SLEW_LIMIT_CMPS		1500L	//500L	// cm/S  
-#define BARO_SANITY_CHANGE_CMPS		2000L	//500L	// cm/S 
-
-#define BARO_ROC_THRESHOLD_CMPS 	3
+#define ALT_SLEW_LIMIT_CMPS		500L	// cm/S  
+#define ALT_SANITY_CHANGE_CMPS		1000L	// cm/S 
 
 // Navigation
 
 #define	M_TO_GPS					54L		// approximate for constant folding
 
 #define NAV_ACQUIRE_BEEPER
-
-//#define ATTITUDE_NO_LIMITS				// full stick range is available otherwise it is scaled to Nav sensitivity
 
 #define NAV_RTH_LOCKOUT				1000L	// ~100 ~ angle units per degree
 
@@ -817,11 +812,13 @@ extern int24 NavdT;
 
 // baro.c
 
-#define ALT_UPDATE_MS				25
-#define ALT_UPDATE_SCALE			(1000/ALT_UPDATE_MS)
+#define AltFilter32(o,n)	(SRS32(o*7+n,3))	// ~1Hz
 
-#define BARO_SANITY_CHECK_CM	((BARO_SANITY_CHANGE_CMPS*ALT_UPDATE_MS)/1000L)
-#define BARO_SLEW_LIMIT_CM		((BARO_SLEW_LIMIT_CMPS*ALT_UPDATE_MS)/1000L)
+#define ALT_UPDATE_MS				25
+#define ALT_UPDATE_HZ			(1000/ALT_UPDATE_MS)
+
+#define ALT_SANITY_CHECK_CM	((ALT_SANITY_CHANGE_CMPS*ALT_UPDATE_MS)/1000L)
+#define ALT_SLEW_LIMIT_CM		((ALT_SLEW_LIMIT_CMPS*ALT_UPDATE_MS)/1000L)
 
 #define BARO_INIT_RETRIES		100	// max number of initialisation retries
 
@@ -852,15 +849,13 @@ extern void GetI2CBaroAltitude(void);
 extern const rom uint8 BaroError[];
 extern int32 OriginBaroTemperature, OriginBaroPressure;
 extern uint32 BaroPressure, BaroTemperature;
-extern int24 BaroAltitude;
+extern int24 OriginAltitude, BaroAltitude;
+extern int16 BaroROC;
 extern boolean AcquiringPressure;
 extern int24 BaroAltitude;
 extern i32u	BaroVal;
 extern uint8 BaroType;
-extern int16 AltitudeUpdateRate;
-extern int24 AltCF;
-extern int16 TauCF;
-extern int32 AltF[];
+extern boolean PrimeROC;
 
 extern uint16 MS5611Constants[];
 extern uint16 BMP085Constants[];
@@ -869,7 +864,7 @@ extern uint16 BMP085Constants[];
 
 // compass.c
 
-#define COMPASS_MIDDLE		20 // 8			// yaw stick neutral dead zone
+#define COMPASS_MIDDLE		FromPercent(20, RC_NEUTRAL) // 8			// yaw stick neutral dead zone
 #define COMPASS_TIME_MS		50			// 20Hz
 #define COMPASS_UPDATE_HZ	(1000/COMPASS_TIME_MS)
 #define COMPASS_OFFSET_QTR	3
@@ -956,8 +951,8 @@ extern int16 HeadingE;
 extern int16 ControlRoll, ControlPitch, CurrMaxRollPitch;
 
 extern int16 AttitudeHoldResetCount;
-extern int24 DesiredAltitude, Altitude, Altitudep; 
-extern int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, MinROCCmpS;
+extern int24 DesiredAltitude, Altitude; 
+extern int16 AltFiltComp, AltComp, HRAltComp, ROC, MinROCCmpS;
 extern int24 RTHAltitude;
 extern int16 AltMinThrCompStick;
 
@@ -1635,7 +1630,7 @@ extern uint8 UAVXAirframe;
 extern void GetRangefinderAltitude(void);
 extern void InitRangefinder(void);
 
-extern int16 RangefinderAltitude, RangefinderAltitudeP;
+extern int16 RangefinderAltitude, RangefinderROC;
 
 //__________________________________________________________________________________________
 

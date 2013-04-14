@@ -148,7 +148,7 @@ void SendFlightPacket(void) {
 	ShowAttitude();
 
 	TxESCi16(ROC); 			// cm/S
-	TxESCi24(BaroAltitude);
+	TxESCi24(BaroAltitude - OriginAltitude);
 	
 	TxESCi16(NewCruiseThrottle); 				
 	TxESCi16(RangefinderAltitude); 				// cm
@@ -274,7 +274,7 @@ void SendMinPacket(void) {
 	TxESCi16(A[Roll].Angle);
 	TxESCi16(A[Pitch].Angle);
 		
-	TxESCi24(BaroAltitude);
+	TxESCi24(BaroAltitude - OriginAltitude);
 	TxESCi16(RangefinderAltitude); 		
 
 	TxESCi16(Heading);

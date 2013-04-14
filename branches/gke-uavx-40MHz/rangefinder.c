@@ -25,27 +25,37 @@
 void GetRangefinderAltitude(void);
 void InitRangefinder(void);
 
-int16 RangefinderAltitude, RangefinderAltitudeP;
+int16 RangefinderAltitude, RangefinderROC;
 
 void GetRangefinderAltitude(void) {
+static int16 RangefinderAltitudep, RangefinderROCp;
 	#ifndef SIMULATE
 
 	static int16 Range;
 
 	if ( F.RangefinderAltitudeValid ) {
+		RangefinderAltitudep = RangefinderAltitude;
+		RangefinderROCp = RangefinderROC;
+
 		if ( F.RFInInches )
 			RangefinderAltitude = (int16)(((int24)ADC(ADCAltChan) * 254L)/100L);
 		else
 			RangefinderAltitude = ADC(ADCAltChan); // Centimetres
 
-		RangefinderROC = (RangefinderAltitude - RangefinderAltitudeP) / ALT_UPDATE_SCALE;
-		RangefinderAltitudeP = RangefinderAltitude;
+		AltFiltComp = RangefinderAltitude;
+		RangefinderAltitude = SlewLimit(RangefinderAltitudep, RangefinderAltitude, ALT_SANITY_CHECK_CM);
+		RangefinderAltitude = AltFilter32(RangefinderAltitudep, RangefinderAltitude);
+		AltFiltComp -= RangefinderAltitude;
+
+		RangefinderROC = (RangefinderAltitude - RangefinderAltitudep) * ALT_UPDATE_HZ;
+		RangefinderROC = SoftFilter(RangefinderROCp, RangefinderROC);
 
 		if (( RangefinderAltitude < ALT_RF_ENABLE_CM ) && !F.UsingRangefinderAlt)
 			F.UsingRangefinderAlt = true;
 		else
 			if (( RangefinderAltitude > ALT_RF_DISABLE_CM ) && F.UsingRangefinderAlt)
-				F.UsingRangefinderAlt = false;		
+				F.UsingRangefinderAlt = false;	
+	
 	} else {
 		RangefinderAltitude = 0;
 		F.UsingRangefinderAlt = false;
@@ -58,11 +68,11 @@ void InitRangefinder(void) {
 
 	#ifdef SIMULATE
 		F.RangefinderAltitudeValid = F.UsingRangefinderAlt = false;
-		RangefinderAltitude = 0;
+		RangefinderAltitude = RangefinderROC = 0;
 	#else
 		Temp = ADC(ADCAltChan);
 		F.RangefinderAltitudeValid = !(Temp > 573) && (Temp < 778); // 2.8-3.8V => supply not RF
-		RangefinderAltitudeP =0;
+		RangefinderAltitude = RangefinderROC = 0;
 		GetRangefinderAltitude();
 	#endif // SIMULATE
 

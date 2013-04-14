@@ -46,8 +46,8 @@ int16 HeadingE;
 int16 CurrMaxRollPitch;
 
 int16 AttitudeHoldResetCount;
-int24 DesiredAltitude, Altitude, Altitudep; 
-int16 AltFiltComp, AltComp, BaroROC, BaroROCp, RangefinderROC, ROC, MinROCCmpS;
+int24 DesiredAltitude, Altitude; 
+int16 AltFiltComp, AltComp, HRAltComp, ROC, MinROCCmpS;
 int16 AltMinThrCompStick;
 int24 RTHAltitude;
 
@@ -57,20 +57,19 @@ int24 RTHAltitude;
 	int16 TuneTrim;
 #endif
 
-void AcquireAltitude(void) { 	// Syncronised to baro intervals independant of active altitude source	
+void AcquireAltitude(void) { // Syncronised to baro intervals independant of active altitude source	
 	static int24 AltE;
 	static int16 ROCE, DesiredROC;
 	static int16 NewComp;
 
 	AltE = DesiredAltitude - Altitude;
-	AltE = Threshold(AltE, 10);
 	DesiredROC = Limit(AltE, MinROCCmpS, ALT_MAX_ROC_CMPS);
 
 	ROCE = DesiredROC - ROC;
 #ifdef GKE_TUNE
-	NewComp = SRS16(ROCE * (P[AltKp] + TuneTrim), 8);
+	NewComp = ROCE * Limit(P[AltKp] + TuneTrim, 0, 90);
 #else
-	NewComp = SRS16(ROCE * P[AltKp], 8);
+	NewComp = ROCE * P[AltKp],;
 #endif
 
 	#ifdef NAV_WING
@@ -79,6 +78,7 @@ void AcquireAltitude(void) { 	// Syncronised to baro intervals independant of ac
 
 	#endif // NAV_WING
 
+	NewComp = SRS16(NewComp, 8);
 	AltComp = Limit(NewComp, AltMinThrCompStick, ALT_MAX_THR_COMP);
 				
 } // AcquireAltitude	
@@ -90,14 +90,15 @@ void DoAltitudeHold() {  // relies upon good cross calibration of baro and range
 		F.NewBaroValue = false;
 		GetRangefinderAltitude();
 		CheckThrottleMoved();
-		if (F.AltHoldEnabled) {
-			if (F.UsingRangefinderAlt) {
-				Altitude = RangefinderAltitude;
-				ROC = RangefinderROC;
-			} else {
-				Altitude = BaroAltitude;
-				ROC = BaroROC;
-			}
+
+		if (F.UsingRangefinderAlt) {
+			Altitude = RangefinderAltitude;
+			ROC = RangefinderROC;
+		} else {
+			Altitude = BaroAltitude - OriginAltitude;
+			ROC = BaroROC;
+		}
+		if (F.AltHoldEnabled) {				
 			if (F.ForceFailsafe || ((NavState != HoldingStation)
 					&& F.AllowNavAltitudeHold)) { // Navigating - using CruiseThrottle
 				F.HoldingAlt = true;
@@ -123,7 +124,7 @@ void DoAltitudeHold() {  // relies upon good cross calibration of baro and range
 			}
 		} else {
 			Altitude = BaroAltitude;
-			ROC = 0;
+			//zzz ROC = 0;
 			AltComp = Decay1(AltComp);
 			F.HoldingAlt = false;
 		}
@@ -188,8 +189,14 @@ void DoWolfControl(AxisStruct *C) { // Origins Dr. Wolfgang Mahringer
 
 	ComputeRateDerivative(C, C->Rate);
 	pd =  SRS32((int32)C->Rate * C->RateKp + C->RateD * C->RateKd, 5);
-    Temp = SRS32((int32)C->Angle * C->RateKi , 9);
-	i = Limit1(Temp, C->IntLimit);
+
+	if (C->RateKi == 0) { 
+		i = 0;
+		C->Angle = 0;
+	} else {
+   		Temp = SRS32((int32)C->Angle * C->RateKi , 9);
+		i = Limit1(Temp, C->IntLimit);
+	}
 
 	C->Out = (pd + i) - C->Control;
 	
@@ -241,7 +248,7 @@ void YawControl(void) {
 	HeadingE = MinimumTurn(DesiredHeading - Heading);
 	HeadingE = Limit1(HeadingE, DegreesToRadians(30));
 
-	r = SRS32((int24)HeadingE * A[Yaw].AngleKp, 6);
+	r = SRS32((int24)HeadingE * A[Yaw].AngleKp, 6); 
 	r -= A[Yaw].Rate;
 	r  = SRS32((int24)r * A[Yaw].RateKp, 5);
 
@@ -296,7 +303,7 @@ void InitControl(void) {
 	static uint8 a;
 	static AxisStruct *C;
 
-	AltComp = A[FB].Damping = A[LR].Damping = 0;
+	AltComp = HRAltComp = A[FB].Damping = A[LR].Damping = 0;
 	AltMinThrCompStick = -ALT_MAX_THR_COMP;
 
 	for ( a = Roll; a<=(uint8)Yaw; a++) {

@@ -26,7 +26,7 @@
 			{0,true},			// Unused4,					04
 			{30,0},	 			// RollIntLimit,			05
 
-			{17,0},	 			// PitchRateKp,				06
+			{12,0},	 			// PitchRateKp,				06
 			{8,0},	 			// PitchRateKi,				07
 			{15,0},	 			// PitchAngleKp,			08
 			{17,true},	 		// AltKp,					09
@@ -51,7 +51,7 @@
 			{15,0}, 			// RollAngleKi,				24c
 			{15,0}, 			// PitchAngleKi,			25c
 			{20,true}, 			// CamPitchKp,				26c
-			{10,0}, 			// YawKpAngle (Compass),	27
+			{12,0}, 			// YawKpAngle (Compass),	27
 			{50,0},				// PitchRateKd,				28
 			{10,true}, 			// NavRollPitchSlew,		29
 			{0,true}, 			// Unused30,				30
