@@ -69,7 +69,7 @@ void AcquireAltitude(void) { // Syncronised to baro intervals independant of act
 #ifdef GKE_TUNE
 	NewComp = ROCE * Limit(P[AltKp] + TuneTrim, 0, 90);
 #else
-	NewComp = ROCE * P[AltKp],;
+	NewComp = ROCE * P[AltKp];
 #endif
 
 	#ifdef NAV_WING
