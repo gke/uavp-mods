@@ -83,7 +83,7 @@ void InitRC(void) {
 	DesiredThrottle = StickThrottle = 0; 
 	DesiredCamPitchTrim = 0;
 	Nav.Sensitivity = 0;
-	F.ReturnHome = F.Navigate = F.AltHoldEnabled = false;
+	F.ReturnHome = F.Navigate = F.AltControlEnabled = false;
 
 	mS[StickChangeUpdate] = mSClock();
 	mSTimer(RxFailsafeTimeout, RC_NO_CHANGE_TIMEOUT_MS);
@@ -190,10 +190,10 @@ void UpdateControls(void) {
 	if (NoOfControls > Map[NavGainRC]) {
 		Nav.Sensitivity = RC[NavGainRC];
 		Nav.Sensitivity = Limit(Nav.Sensitivity, 0, RC_MAXIMUM);
-		F.AltHoldEnabled = Nav.Sensitivity > FromPercent(NAV_SENS_ALTHOLD_THRESHOLD, RC_MAXIMUM);	
+		F.AltControlEnabled = Nav.Sensitivity > FromPercent(NAV_SENS_ALTHOLD_THRESHOLD, RC_MAXIMUM);	
 	} else {
 		Nav.Sensitivity = FromPercent(50, RC_MAXIMUM);
-		F.AltHoldEnabled = true;
+		F.AltControlEnabled = true;
 	}
 
 	if (NoOfControls > Map[CamPitchRC])
@@ -232,7 +232,7 @@ void UpdateControls(void) {
 			StickThrottle = 0;
 	}
 	else // Autonomous
-		if ( F.AllowNavAltitudeHold &&  F.AltHoldEnabled )
+		if ( F.AllowNavAltitudeHold &&  F.AltControlEnabled )
 			StickThrottle = CruiseThrottle;
 
 	if ( (! F.HoldingAlt) && !(F.ReturnHome || F.Navigate) ) // cancel any current altitude hold setting 

@@ -51,7 +51,7 @@ gpsstruct GPS;
 #pragma udata
 
 #pragma udata gpsvars1
-uint8 GPSPacketTag;
+uint8 GPSPacketTag, NMEAPacketTag;
 uint8 nll, cc, lo, hi;
 boolean EmptyField;
 int16 ValidGPSSentences;
@@ -276,6 +276,9 @@ void UpdateField(void) {
 
 void ParseGPGGASentence(void) { 
 
+	cc = 0;
+	nll = NMEA.length;
+
     UpdateField();
     
     UpdateField();   //UTime
@@ -316,6 +319,9 @@ void ParseGPGGASentence(void) {
 void ParseGPRMCSentence() { 	
 	// main current position and heading
 	static i32u Temp32;
+
+	cc = 0;
+	nll = NMEA.length;
 
     UpdateField();
 
@@ -489,9 +495,11 @@ void UpdateGPSSolution(void) {
 			StatsMax(GPS.Altitude, GPSAltitudeS);
 			StatsMax(GPS.Vel, GPSVelS);
 		}
-	} else
+	} else {
+		GPS.NoOfSats = ValidGPSSentences;
 		if ( State == InFlight ) 
 			Stats[GPSInvalidS]++;
+	}
 
 } // UpdateGPSSolution
 
@@ -514,7 +522,7 @@ void UpdateGPS(void) {
 
 	if ( F.PacketReceived ) {
 		LEDBlue_ON;
-		LEDRed_OFF;
+		LEDRed_OFF;		
 		F.PacketReceived = false; 
 		UpdateGPSSolution(); // 3mS 18f2620 @ 40MHz
 		if ( F.GPSValid ) {

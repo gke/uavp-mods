@@ -23,20 +23,20 @@
 			{17,0},				// RollRateKp, 				01
 			{8,0},	 			// RollRateKi,				02
 			{15, 0},			// RollAngleKp,				03
-			{0,true},			// Unused4,					04
+			{ModeUnknown,true},	// TxMode,					04
 			{30,0},	 			// RollIntLimit,			05
 
-			{12,0},	 			// PitchRateKp,				06
+			{17,0},	 			// PitchRateKp,				06
 			{8,0},	 			// PitchRateKi,				07
 			{15,0},	 			// PitchAngleKp,			08
-			{17,true},	 		// AltKp,					09
+			{0, 0},	 			// Unused9,					09
 			{30,0},	 			// PitchIntLimit,			10
 
 			{25,0},	 			// YawKpRate, 				11
 			{50,0},	 			// RollRateKd was YawKi,	12
 			{Wolferl, true},	// IMU,						13
 			{20,0},	 			// YawLimit,				14
-			{CompoundPPM, true},// RCType,					15
+			{RCUnknown, true},// RCType,					15
 
 	
 			{2,true}, 			// ConfigBits,				16c
@@ -54,7 +54,7 @@
 			{12,0}, 			// YawKpAngle (Compass),	27
 			{50,0},				// PitchRateKd,				28
 			{10,true}, 			// NavRollPitchSlew,		29
-			{0,true}, 			// Unused30,				30
+			{19,true}, 			// ROCKp,					30
 
 			{0,0}, 				// GSThrottle,	    		31
 			{0,0},				// Acro,	    			32

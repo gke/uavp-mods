@@ -58,16 +58,16 @@ boolean IsMS5611BaroActive(void);
 #define BOSCH_ID_BMP085		((uint8)(0x55))
 #define BOSCH_TEMP_BMP085	0x2e
 #define BOSCH_TEMP_SMD500	0x6e
-#define BOSCH_PRESS			0xf4
-#define BOSCH_CTL			0xf4				// OSRS=3 for BMP085 25.5mS, SMD500 34mS				
+#define BOSCH_PRESS			0xb4				// OSRS=2 for BMP085 13.5mS	
+#define BOSCH_CTL			0xf4					
 #define BOSCH_ADC_MSB		0xf6
 #define BOSCH_ADC_LSB		0xf7
 #define BOSCH_ADC_XLSB		0xf8				// BMP085
 #define BOSCH_TYPE			0xd0
-#define BOSCH_BMP085_OSS	0					// 0 4.5mS, 1 7.5mS, 2 13.5mS, 3 25.5mS
+#define BOSCH_BMP085_OSS	3					// 0 4.5mS, 1 7.5mS, 2 13.5mS, 3 25.5mS
 
 // BMP085 4.5mS (T) 25.5mS (P) OSRS=3
-#define BOSCH_TEMP_TIME_MS			11			// 10 increase to make P+T acq time ~100mS
+#define BOSCH_TEMP_TIME_MS			5		// 10 increase to make P+T acq time ~50mS		
 #define BOSCH_PRESS_TIME_MS			(ALT_UPDATE_MS - BOSCH_TEMP_TIME_MS)	// 
 		
 void ReadBoschBaro(void);
@@ -97,6 +97,7 @@ real32 AltitudeFilter(int32 Alt) {
 		AltFiltComp = Alt;
 		NewAlt = SlewLimit(Altp, Alt, ALT_SANITY_CHECK_CM);
 		NewAlt = AltFilter32(Altp, NewAlt);
+		AltFiltComp -= NewAlt;
 
 		BaroROC = (NewAlt - Altp) * ALT_UPDATE_HZ; // simple filter
 		BaroROC = SlewLimit(BaroROCp, BaroROC, ALT_SLEW_LIMIT_CM);
@@ -392,7 +393,7 @@ void ReadMS5611Baro(void) {
 
 boolean IsMS5611BaroActive(void) { // check for MS Barometer
 
-	F.BaroAltitudeValid = true; //zzzI2CResponse(MS5611_ID);
+	F.BaroAltitudeValid = I2CResponse(MS5611_ID);
 	return (F.BaroAltitudeValid);
 
 } // IsMS5611BaroActive
@@ -401,17 +402,24 @@ boolean IsMS5611BaroActive(void) { // check for MS Barometer
 
 // -----------------------------------------------------------
 
-// Bosch SMD500 and BMP085 Barometers
+// Bosch BMP085 Barometer
 
 #ifdef INC_BOSCH_BARO
 
 void ReadBoschBaro(void) {
+
+
 	// Possible I2C protocol error - split read of ADC
-	BaroVal.b3 = BaroVal.b2 = 0;
-	BaroVal.b1 = ReadI2CByteAtAddr(BOSCH_ID, BOSCH_ADC_MSB);
+	BaroVal.b3 = 0;
+	BaroVal.b2 = 0;
+
 	BaroVal.b0 = ReadI2CByteAtAddr(BOSCH_ID, BOSCH_ADC_LSB);
+	BaroVal.b1 = ReadI2CByteAtAddr(BOSCH_ID, BOSCH_ADC_MSB);
+
+
 
 } // ReadBoschBaro
+
 
 boolean IsBoschBaroActive(void) { 
 	F.BaroAltitudeValid = ReadI2CByteAtAddr(BOSCH_ID, BOSCH_TYPE)

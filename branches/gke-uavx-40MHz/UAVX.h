@@ -24,9 +24,10 @@
 //#define USE_ANGLE_I // not convinced that the angle noise estimate is low enough?
 
 #ifndef BATCHMODE
-	#define GKE_TUNE
+//	#define GKE_TUNE
+	#define ALT_SCRATCHY_BEEPER
 	//#define USE_UBLOX_BIN
-	//#define TESTING
+	#define TESTING
 	//#define FULL_TEST			// extended compass test etc.					
 	//#define SIMULATE
 	#define QUADROCOPTER
@@ -40,10 +41,11 @@
 	//#define VTOL
 	//#define USE_CROSSTRACK	// DAMPING and CYCLE_STATS need to be disabled 
 	//#define HAVE_CUTOFF_SW	// Ground PortC Bit 0 (Pin 11) for landing cutoff otherwise 4K7 pullup.
-	//#define I2C100KHZ
+	#define I2C100KHZ
 #endif // !BATCHMODE
 
 //________________________________________________________________________________________________
+
 
 #if ( defined SIMULATE | defined TESTING )
 	#define USE_LIMIT_MACRO		// squeek some more space
@@ -178,7 +180,6 @@
 
 // Altitude Hold
 
-//#define ALT_SCRATCHY_BEEPER					// Scratchy beeper noise on altitude hold
 #define ALT_HOLD_MAX_ROC_CMPS		50L		// Must be changing altitude at less than this for alt. hold to be detected
 
 // Altitude Hold
@@ -197,8 +198,6 @@
 // Navigation
 
 #define	M_TO_GPS					54L		// approximate for constant folding
-
-#define NAV_ACQUIRE_BEEPER
 
 #define NAV_RTH_LOCKOUT				1000L	// ~100 ~ angle units per degree
 
@@ -248,7 +247,7 @@
 
 #endif // SIMULATE
 
-#define	NAV_SENS_THRESHOLD 			40L		// Navigation disabled if Ch7 is less than this
+#define	NAV_SENS_THRESHOLD 			30L		// Navigation disabled if Ch7 is less than this
 #define	NAV_SENS_ALTHOLD_THRESHOLD 	20L		// Altitude hold disabled if Ch7 is less than this
 #define NAV_SENS_6CH				80L		// Low GPS gain for 6ch Rx
 
@@ -570,7 +569,7 @@ typedef union {
 	uint8 AllFlags[FLAG_BYTES];
 	struct { // Order of these flags subject to change
 		uint8
-			AltHoldEnabled :1,
+			AltControlEnabled :1,
 			AllowTurnToWP :1,
 			GyroFailure :1,
 			LostModel :1,
@@ -644,7 +643,7 @@ typedef union {
 			UpdateHeading :1, 
 			HaveGPS :1, 
 			UsingCompoundPPM :1,
-			UsingTxMode2 :1, 
+			UsingAltHoldBeeper :1, 
 			HaveEEPROM :1, 
 			ConfigError :1,
 			TxToBuffer:1 ,
@@ -814,7 +813,7 @@ extern int24 NavdT;
 
 #define AltFilter32(o,n)	(SRS32(o*7+n,3))	// ~1Hz
 
-#define ALT_UPDATE_MS				25
+#define ALT_UPDATE_MS			25
 #define ALT_UPDATE_HZ			(1000/ALT_UPDATE_MS)
 
 #define ALT_SANITY_CHECK_CM	((ALT_SANITY_CHANGE_CMPS*ALT_UPDATE_MS)/1000L)
@@ -1182,7 +1181,7 @@ enum GPSPackeType { GPGGAPacketTag, GPRMCPacketTag,  GPSUnknownPacketTag };
 extern NMEAStruct NMEA;
 extern const rom uint8 NMEATags[MAX_NMEA_SENTENCES][5];
 
-extern uint8 GPSPacketTag;
+extern uint8 GPSPacketTag, NMEAPacketTag;
 
 extern uint8 nll, cc, lo, hi;
 extern boolean EmptyField;
@@ -1282,7 +1281,7 @@ extern near uint8 	RxState;
 
 extern near uint8 	ll, ss, tt;
 extern near uint8 	RxCheckSum, TxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
-extern near uint8 	RxQTail, RxQHead, TxQTail, TxQHead;
+extern near uint16	RxQTail, RxQHead, TxQTail, TxQHead;
 extern near boolean WaitingForSync;
 
 extern int8	SignalCount;
@@ -1504,6 +1503,8 @@ enum RCControls {ThrottleRC, RollRC, PitchRC, YawRC, RTHRC, CamPitchRC, NavGainR
 enum ESCTypes { ESCPPM, ESCHolger, ESCX3D, ESCYGEI2C, ESCLRCI2C, ESCUnknown };
 enum AFs {TriAF, QuadAF, HexAF, Y6AF, OctAF, OctCoaxVAF, HeliAF, ElevAF, AilAF, VAF, VTOLAF, GimbalAF, AFUnknown};
 
+enum TxModes {TxMode1, TxMode2, ModeUnknown};
+
 enum RCTypes {
 	CompoundPPM, Spektrum1024, Spektrum2048, FutabaSBUS, ParallelPPM, RCUnknown
 };
@@ -1531,12 +1532,12 @@ enum Params { // MAX 64
 	RollRateKp, // 01
 	RollRateKi, // 02
 	RollAngleKp, // 03
-	Unused4, // 04 was HorizDampKp
+	TxMode, // 04 was HorizDampKp
 	RollIntLimit, // 05
 	PitchRateKp, // 06
 	PitchRateKi, // 07
 	PitchAngleKp, // 08
-	AltKp, // 09
+	Unused9, // 09
 	PitchIntLimit, // 10
 
 	YawRateKp, // 11
@@ -1559,7 +1560,7 @@ enum Params { // MAX 64
 	YawAngleKp, // 27
 	PitchRateKd, // 28 was AltKi
 	NavRollPitchSlew, // 29 was NavRadius
-	Unused30, // 30 was NavKi
+	ROCKp, // 30 was NavKi
 
 	GSThrottle, // 31
 	Acro, // 32
@@ -1597,9 +1598,9 @@ enum Params { // MAX 64
 	VertDampKp // 64
 };
 
-#define UsePositionHoldLockMask 	(1)
+#define UseAltHoldBeeperMask 	(1)
 #define	UseRTHDescendMask	(1<<1)
-#define TxMode2Mask 		(1<<2)
+#define UnusedMask 		(1<<2)
 #define RxSerialPPMMask		(1<<3) 
 #define RFInchesMask		(1<<4)
 #define	UseFailsafeMask		(1<<5)
@@ -1675,10 +1676,10 @@ extern void TxESCi24(int24);
 extern void TxESCi32(int32);
 extern void SendPacket(uint8, uint8, uint8 *, boolean);
 
-#define TX_BUFF_MASK	127
+#define TX_BUFF_MASK	255
 extern uint8 	TxQ[];
 
-#define RX_BUFF_MASK	127
+#define RX_BUFF_MASK	255
 extern uint8 	RxQ[];
 
 //______________________________________________________________________________________________
