@@ -48,6 +48,7 @@ void LightsAndSirens(void) {
 		GetHeading();
 		SpareSlotTime = true; // for "tests"
 		GetBaroAltitude();
+		F.HoldingAlt = false;
 		if( F.Signal ) {
 			LEDGreen_ON;
 			if( F.RCNewValues ) {
@@ -76,8 +77,15 @@ void LightsAndSirens(void) {
 		}	
 		ReadParametersEE();	
 	}
-	while( (!F.Signal) || (Armed && FirstPass) ||  F.ReturnHome || F.Navigate || F.GyroFailure || 
-		( InitialThrottle >= RC_THRES_START ) || (!F.ParametersValid)  );
+	while( (!F.Signal) 
+		|| (Armed && FirstPass) 
+		|| (F.ConfigError)
+		|| F.ReturnHome 
+		|| F.Navigate 
+		|| F.GyroFailure 
+		|| ( InitialThrottle >= RC_THRES_START ) 
+		|| (!F.ParametersValid)  
+	);
 			
 	FirstPass = false;
 
@@ -261,21 +269,25 @@ static int16 BeeperOnTime = 100;
 void CheckAlarms(void) {
 	if ( SpareSlotTime ) {
 		SpareSlotTime = false;
-		F.BeeperInUse = F.LowBatt || F.LostModel  || (State == Shutdown);
+		F.BeeperInUse = F.LowBatt || F.LostModel  || (F.AltControlEnabled && F.HoldingAlt && F.UsingAltHoldBeeper) || (State == Shutdown);
 	
 		if ( F.BeeperInUse ) {
 			if( F.LowBatt ) {
 				BeeperOffTime = 600;
 				BeeperOnTime = 600;
 			} else
-				if ( State == Shutdown ) {
-					BeeperOffTime = 4750;
-					BeeperOnTime = 250;
+				if (F.AltControlEnabled && F.HoldingAlt && F.UsingAltHoldBeeper) {
+					BeeperOffTime = 200;
+					BeeperOnTime = 20;
 				} else
-					if ( F.LostModel ) {
-						BeeperOffTime = 125;
-						BeeperOnTime = 125;		
-					}		
+					if ( State == Shutdown ) {
+						BeeperOffTime = 4750;
+						BeeperOnTime = 250;
+					} else
+						if ( F.LostModel ) {
+							BeeperOffTime = 125;
+							BeeperOnTime = 125;		
+						}		
 	
 			if ( mSClock() > mS[BeeperUpdate] )
 				if ( BEEPER_IS_ON ) {
@@ -288,11 +300,9 @@ void CheckAlarms(void) {
 					LEDRed_ON;		
 				}	
 		}	
-		#ifdef NAV_ACQUIRE_BEEPER
-		else
-			if ( (State == InFlight) && (!F.AcquireNewPosition) && (mSClock() > mS[BeeperTimeout]) )
+		 else 
+			if (mSClock() > mS[BeeperTimeout])
 				Beeper_OFF;
-		#endif // NAV_ACQUIRE_BEEPER 
 	}
 
 } // CheckAlarms

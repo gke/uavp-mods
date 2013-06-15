@@ -91,7 +91,7 @@ boolean DoLanding(void) { // InTheAir micro switch RC0 Pin 11 to ground when lan
 	static boolean HasLanded;
 
 	HasLanded = false;
-	F.AltHoldEnabled = F.AllowNavAltitudeHold = true;
+	F.AltControlEnabled = F.AllowNavAltitudeHold = true;
 
 	#ifdef NAV_WING
 
@@ -471,7 +471,7 @@ void DoFailsafe(void) { // only relevant to PPM Rx or Quad NOT synchronising wit
 			break;
 		case Aborting:
 			FailsafeHoldPosition();
-			F.AltHoldEnabled = true;
+			F.AltControlEnabled = true;
 			SetDesiredAltitude(RTHAltitude);
 			if (mSClock() > mS[NavStateTimeout]) {
 				F.LostModel = true;
@@ -604,6 +604,7 @@ void InitNavigation(void) {
 	WayHeading = 0;	
 	Nav.CorrP = A[Roll].NavCorr = A[Pitch].NavCorr = A[Yaw].NavCorr = 0;
 	Nav.C[NorthC].PosE = Nav.C[EastC].PosE = 0;
+	Nav.CrossTrackE = 0;
 
 	SetDesiredAltitude(0);
 	NavState = HoldingStation;

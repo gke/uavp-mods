@@ -46,11 +46,11 @@ void TxESCi32(int32);
 void SendPacket(uint8, uint8, uint8 *, boolean);
 
 #pragma udata txbuffer
-uint8 TxQ[((uint8)TX_BUFF_MASK+1)];
+uint8 TxQ[((uint16)TX_BUFF_MASK+1)];
 #pragma udata
 
 #pragma udata rxbuffer
-uint8 	RxQ[((uint8)RX_BUFF_MASK+1)];
+uint8 	RxQ[((uint16)RX_BUFF_MASK+1)];
 #pragma udata
 
 void TxString(const rom uint8 *pch) {
@@ -59,7 +59,7 @@ void TxString(const rom uint8 *pch) {
 } // TxString
 
 void TxChar(uint8 ch) {
-	static uint8 NewTail;
+	static uint16 NewTail;
 
 	if ( F.TxToBuffer ) {
 		TxCheckSum ^= ch;

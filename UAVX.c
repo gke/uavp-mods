@@ -142,6 +142,7 @@ void main(void) {
 					PrimeROC = true;
 					DesiredHeading = Heading;
 					AltMinThrCompStick = -ALT_MAX_THR_COMP;
+					F.HoldingAlt = false;
 					F.OriginAltValid = false;
 					InitHeading();
 					if ( NowmS > mS[ArmedTimeout] )

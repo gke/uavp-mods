@@ -51,26 +51,36 @@ int16 AltFiltComp, AltComp, HRAltComp, ROC, MinROCCmpS;
 int16 AltMinThrCompStick;
 int24 RTHAltitude;
 
-//zzzint8 BeepTick = 0;
-
 #ifdef GKE_TUNE
 	int16 TuneTrim;
 #endif
 
 void AcquireAltitude(void) { // Syncronised to baro intervals independant of active altitude source	
-	static int24 AltE;
+	const int16 AltFC = 883; // 3.45;
+	const int16 AltKd = 374; // 1.46;
+	const int16 AltKop = 256;
+
+	static int24 p, d, pd, AltE;
+
+	static int16 AltKdF = 0;
+
 	static int16 ROCE, DesiredROC;
 	static int16 NewComp;
 
 	AltE = DesiredAltitude - Altitude;
-	DesiredROC = Limit(AltE, MinROCCmpS, ALT_MAX_ROC_CMPS);
+
+	p = AltE * AltKop;
+	d = (AltE * AltKd - AltKdF) * AltFC;
+	AltKdF += AltKdF * AltFC; // need limiting?
+
+	pd = p + d;
+	pd = SRS16(pd, 8);
+
+	DesiredROC = Limit(pd, MinROCCmpS, ALT_MAX_ROC_CMPS);
 
 	ROCE = DesiredROC - ROC;
-#ifdef GKE_TUNE
-	NewComp = ROCE * Limit(P[AltKp] + TuneTrim, 0, 90);
-#else
-	NewComp = ROCE * P[AltKp];
-#endif
+
+	NewComp = ROCE * P[ROCKp];
 
 	#ifdef NAV_WING
 
@@ -78,13 +88,14 @@ void AcquireAltitude(void) { // Syncronised to baro intervals independant of act
 
 	#endif // NAV_WING
 
-	NewComp = SRS16(NewComp, 8);
+	NewComp = SRS16(NewComp, 9);
 	AltComp = Limit(NewComp, AltMinThrCompStick, ALT_MAX_THR_COMP);
-				
+	
 } // AcquireAltitude	
 
 void DoAltitudeHold() {  // relies upon good cross calibration of baro and rangefinder!!!!!!
 	static int16 ActualThrottle;
+	static int16 ROCF = 0;
 
 	if (F.NewBaroValue) {
 		F.NewBaroValue = false;
@@ -98,17 +109,22 @@ void DoAltitudeHold() {  // relies upon good cross calibration of baro and range
 			Altitude = BaroAltitude - OriginAltitude;
 			ROC = BaroROC;
 		}
-		if (F.AltHoldEnabled) {				
+		ROCF = HardFilter(ROCF, ROC);
+
+		if (F.AltControlEnabled) {				
 			if (F.ForceFailsafe || ((NavState != HoldingStation)
 					&& F.AllowNavAltitudeHold)) { // Navigating - using CruiseThrottle
 				F.HoldingAlt = true;
 				AcquireAltitude();
-			} else if (F.ThrottleMoving) {
+			} else if (F.ThrottleMoving || 
+				((Abs(ROCF) > (ALT_MAX_ROC_CMPS >> 3)) && 
+				!F.HoldingAlt)) {
 				F.HoldingAlt = false;
 				SetDesiredAltitude(Altitude);
 				AltComp = Decay1(AltComp);
 			} else {
 				F.HoldingAlt = true;
+				ROCF = 0;
 				AcquireAltitude(); // not using cruise throttle
 				#ifndef SIMULATE
 					ActualThrottle = DesiredThrottle + AltComp;

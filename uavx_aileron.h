@@ -45,7 +45,7 @@
 			{20,true}, 			// CamRollKp,				19c
 			{45,true}, 			// PercentCruiseThr,		20c
 
-			{8,true}, 			// BaroFilt,				21c // 7 is magic number
+			{0,0}, 				// Unused21,				21c // 7 is magic number
 			{30,true}, 			// RollYawMix,				22c
 			{5,true}, 			// PercentIdleThr,			23c
 			{15,0}, 			// RollKiAngle,				24c

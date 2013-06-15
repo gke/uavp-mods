@@ -49,7 +49,7 @@ near uint8 	RxState;
 
 near uint8 	ll, ss, tt, RxCh;
 near uint8 	RxCheckSum, TxCheckSum, GPSCheckSumChar, GPSTxCheckSum;
-near uint8 	RxQTail, RxQHead, TxQTail, TxQHead;
+near uint16 RxQTail, RxQHead, TxQTail, TxQHead;
 near boolean WaitingForSync;
 
 #pragma udata
@@ -183,11 +183,14 @@ void high_isr_handler(void) {
 			RCSTAbits.CREN = false;
 			RCSTAbits.CREN = true;
 		} else { // PollGPS in-lined to avoid EXPENSIVE context save and restore within irq
+
+			RxCh = RCREG;
 			RxQTail = (RxQTail + 1) & RX_BUFF_MASK;
-			RxQ[RxQTail] = RCREG; 		
+			RxQ[RxQTail] = RxCh;
+
+			if ( Armed && ( P[TelemetryType] == GPSTelemetry) ) // piggyback GPS telemetry on GPS Rx
+				TXREG = RxCh;
 		}
-		if ( Armed && ( P[TelemetryType] == GPSTelemetry) ) // piggyback GPS telemetry on GPS Rx
-			TXREG = RxCh;
 	
 		PIR1bits.RCIF = false;
 	}

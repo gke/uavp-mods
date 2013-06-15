@@ -156,7 +156,17 @@ void ShowSetup(void) {
 	TxString("\r\nTx/Rx: ");
 	ShowRxSetup();
 	TxString("Tx Mode ");
-	TxChar('1' + F.UsingTxMode2);
+	switch (P[TxMode]) {
+	case TxMode1:
+		TxChar('1' + P[TxMode]); 
+		break;
+	case TxMode2:
+		TxChar('1' + P[TxMode]); 
+		break;
+	default: 
+		TxString("unknown"); 
+		break;
+	}
 
 	TxString("\r\nParam set: "); // must be exactly this string as UAVPSet expects it
 	TxChar('0' + ParamSet);	
@@ -190,6 +200,9 @@ void ShowSetup(void) {
 
 	if ( !F.ParametersValid )
 		TxString("\tINVALID flight params (PID)!\r\n");
+
+	if ( F.ConfigError )
+		TxString("\tRx or Rx Mode NOT DEFINED\r\n");
 	
 	if ( !F.BaroAltitudeValid )
 		TxString("\tBaro. FAIL\r\n");

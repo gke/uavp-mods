@@ -58,12 +58,20 @@ int8 P[MAX_PARAMETERS];
 int16 OSin[48], OCos[48];
 #pragma udata
 
+void CheckConfig(void) {
+
+	F.ConfigError = (P[TxMode] == ModeUnknown)
+		|| (P[RCType] == RCUnknown);
+} // CheckConfig
+
 void ReadParametersEE(void)
 {
 	static uint8 i, b;
 	static uint16 a;
 
 	if ( ParametersChanged ) { // overkill if only a single parameter has changed but is not in flight loop
+
+		CheckConfig();
 
 		a = (ParamSet - 1)* MAX_PARAMETERS;	
 		for ( i = 0; i < (uint8)MAX_PARAMETERS; i++)
@@ -164,8 +172,6 @@ void ReadParametersEE(void)
 
 		RTHAltitude = (int24)P[NavRTHAlt]*100;
 
-		//zzz AltLPFHz = (int16)P[BaroFilt];
-
 		CompassOffset = - (int16)P[NavMagVar]; // changed sign of MagVar AGAIN!
 		if ( CompassType == HMC6352Compass )
 			CompassOffset += (int16)COMPASS_OFFSET_QTR * 90L; 
@@ -193,9 +199,10 @@ void ReadParametersEE(void)
 
 		F.FailsafesEnabled = ((P[ConfigBits] & UseFailsafeMask) == 0);
 
-		F.UsingTxMode2 = ((P[ConfigBits] & TxMode2Mask) != 0);
 		F.UsingRTHAutoDescend = ((P[ConfigBits] & UseRTHDescendMask) != 0);
 		NavRTHTimeoutmS = (uint24)P[DescentDelayS]*1000L;
+
+		F.UsingAltHoldBeeper = ((P[ConfigBits] & UseAltHoldBeeperMask) != 0);
 
 		BatteryVoltsLimitADC = BatteryVoltsADC = ((int24)P[LowVoltThres] * 1024 + 70L) / 139L; // UAVPSet 0.2V units
 		BatteryCurrentADC = 0;
@@ -248,7 +255,7 @@ void UpdateParamSetChoice(void)
 	NewAllowNavAltitudeHold = F.AllowNavAltitudeHold;
 	NewAllowTurnToWP = F.AllowTurnToWP;
 
-	if ( F.UsingTxMode2 )
+	if ( P[TxMode] == TxMode2 )
 		Selector = A[Roll].Desired;
 	else
 		Selector = -A[Yaw].Desired;
@@ -293,7 +300,7 @@ void UpdateParamSetChoice(void)
 		}
 	}
 
-	if ( F.UsingTxMode2 )
+	if ( P[TxMode] == TxMode2 )
 		Selector = -A[Yaw].Desired;
 	else
 		Selector = A[Roll].Desired;
