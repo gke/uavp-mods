@@ -113,7 +113,7 @@ void DoAltitudeHold() {  // relies upon good cross calibration of baro and range
 
 		if (F.AltControlEnabled) {				
 			if (F.ForceFailsafe || ((NavState != HoldingStation)
-					&& F.AllowNavAltitudeHold)) { // Navigating - using CruiseThrottle
+					&& F.AllowNavAltitudeControl)) { // Navigating - using CruiseThrottle
 				F.HoldingAlt = true;
 				AcquireAltitude();
 			} else if (F.ThrottleMoving || 

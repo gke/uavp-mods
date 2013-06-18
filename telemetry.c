@@ -254,6 +254,9 @@ void SendStatsPacket(void) {
 } // SendStatsPacket
 
 void SendMinPacket(void) {
+
+#ifdef INC_MIN_PACKET
+
 	static uint8 b;
 
 	SendPacketHeader();
@@ -288,6 +291,8 @@ void SendMinPacket(void) {
 	TxESCi24(mSClock() - mS[StartTime]);
 
 	SendPacketTrailer();
+
+#endif
 
 } // SendMinPacket
 

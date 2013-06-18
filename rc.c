@@ -232,7 +232,7 @@ void UpdateControls(void) {
 			StickThrottle = 0;
 	}
 	else // Autonomous
-		if ( F.AllowNavAltitudeHold &&  F.AltControlEnabled )
+		if ( F.AllowNavAltitudeControl &&  F.AltControlEnabled )
 			StickThrottle = CruiseThrottle;
 
 	if ( (! F.HoldingAlt) && !(F.ReturnHome || F.Navigate) ) // cancel any current altitude hold setting 

@@ -182,7 +182,7 @@ void ShowSetup(void) {
 	else
 		TxString("\tHold heading\r\n");
 
-	if ( !F.AllowNavAltitudeHold )
+	if ( !F.AllowNavAltitudeControl )
 		TxString("\tAlt Hold Manual CAUTION\r\n");
 
 	TxString("\r\nALARM (if any):\r\n");

@@ -230,6 +230,8 @@ void GetNeutralAccelerations(void) {
 
 } // GetNeutralAccelerations
 
+#endif // TESTING
+
 void WriteAccCalEE(void) {
 	uint8 a;
 
@@ -237,8 +239,6 @@ void WriteAccCalEE(void) {
 		WriteEE(ACC_BIAS_ADDR_EE + a, A[a].AccBias);
 
 } // WriteAccCalEE
-
-#endif // TESTING
 
 void ReadAccCalEE(void) {
 	uint8 a;

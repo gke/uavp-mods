@@ -103,7 +103,7 @@ void ReadParametersEE(void)
 		#if (defined  TRICOPTER) | (defined  Y6COPTER) | (defined HELICOPTER) | (defined VTCOPTER)
 			F.AllowTurnToWP = true;
 		#else
-			F.AllowTurnToWP = false;	
+			F.AllowTurnToWP = true;//false;	
 		#endif
 
 		Nav.MaxVelocitydMpS = P[NavMaxVelMpS]*10;
@@ -244,85 +244,164 @@ void UseDefaultParameters(void)
 	TxString("\r\nUse READ CONFIG to refresh UAVPSet display\r\n");	
 } // UseDefaultParameters
 
-void UpdateParamSetChoice(void)
-{
-	#define STICK_WINDOW 30
+#define THR_LO  (1<<(2*ThrottleRC))
+#define THR_CE  (3<<(2*ThrottleRC))
+#define THR_HI  (2<<(2*ThrottleRC))
+#define ROL_LO  (1<<(2*RollRC))
+#define ROL_CE  (3<<(2*RollRC))
+#define ROL_HI  (2<<(2*RollRC))
+#define PIT_LO  (1<<(2*PitchRC))
+#define PIT_CE  (3<<(2*PitchRC))
+#define PIT_HI  (2<<(2*PitchRC))
+#define YAW_LO  (1<<(2*YawRC))
+#define YAW_CE  (3<<(2*YawRC))
+#define YAW_HI  (2<<(2*YawRC))
 
-	static uint8 NewParamSet, NewAllowNavAltitudeHold, NewAllowTurnToWP;
-	static int16 Selector;
+#pragma idata stick
+static uint8 StickHoldState = 0;
+static uint8 StickPattern = 0;
+static uint32 StickTimermS = 0;
+#pragma idata
 
-	NewParamSet = ParamSet;
-	NewAllowNavAltitudeHold = F.AllowNavAltitudeHold;
-	NewAllowTurnToWP = F.AllowTurnToWP;
+void CreateStickPattern(void) {
+	// pattern scheme from MultiWii
+	uint8 pattern = 0;
+	uint8 i;
 
-	if ( P[TxMode] == TxMode2 )
-		Selector = A[Roll].Desired;
-	else
-		Selector = -A[Yaw].Desired;
+	for (i = 0; i < 4; i++) {
+		pattern >>= 2;
+		if (RC[i] > 30)
+			pattern |= 0x80; // check for MIN
+		if (RC[i] < 170)
+			pattern |= 0x40; // check for MAX
+	}
 
-	if ( (Abs(A[Pitch].Desired) > STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW) ) {
-		if ( A[Pitch].Desired > STICK_WINDOW ) { // bottom
-			if ( Selector < -STICK_WINDOW ) // left
-			{ // bottom left
+	switch (StickHoldState) {
+	case 0:
+		if (StickPattern != pattern) {
+			StickPattern = pattern;
+			StickTimermS = mSClock() + 2000;
+			StickHoldState = 1;
+		}
+		break;
+	case 1:
+		if (StickPattern == pattern) {
+			if (mSClock() > StickTimermS)
+				StickHoldState = 2;
+		} else
+			StickHoldState = 0;
+		break;
+	default:
+		break;
+	}// switch
+
+} // CreatStickPattern
+
+void DoStickProgramming(void) {
+	uint8 NewParamSet, i;
+	boolean EEChanged, NewAllowNavAltitudeControl, NewAllowTurnToWP;
+
+	if (!Armed) {
+
+		CreateStickPattern();
+
+		if (StickHoldState == 2) {
+
+			NewParamSet = ParamSet;
+			NewAllowNavAltitudeControl = F.AllowNavAltitudeControl;
+			NewAllowTurnToWP = F.AllowTurnToWP;
+
+			switch (StickPattern) {
+			case THR_LO + YAW_CE + PIT_CE + ROL_HI:
+				// BR
+				NewAllowTurnToWP = true;
+				break;
+			case THR_LO + YAW_CE + PIT_CE + ROL_LO:
+				// BL
+				NewAllowTurnToWP = false;
+				break;
+
+			case THR_LO + YAW_HI + PIT_LO + ROL_CE:
+				// TR
 				NewParamSet = 1;
-				NewAllowNavAltitudeHold = true;
-			} else
-				if ( Selector > STICK_WINDOW ) { // right
- 					// bottom right
-					NewParamSet = 2;
-					NewAllowNavAltitudeHold = true;
-				}
-		}		
-		else
-			if ( A[Pitch].Desired < -STICK_WINDOW ) { // top		
-				if ( Selector < -STICK_WINDOW ) { // left
-					NewAllowNavAltitudeHold = false;
-					NewParamSet = 1;
-				} else 
-					if ( Selector > STICK_WINDOW ) { // right
-						NewAllowNavAltitudeHold = false;
-						NewParamSet = 2;
-					}
+				NewAllowNavAltitudeControl = false;
+				break;
+			case THR_LO + YAW_LO + PIT_LO + ROL_CE:
+				// TL
+				NewParamSet = 2;
+				NewAllowNavAltitudeControl = false;
+				break;
+			case THR_LO + YAW_HI + PIT_HI + ROL_CE:
+				// BR
+				NewParamSet = 1;
+				NewAllowNavAltitudeControl = true;
+				break;
+			case THR_LO + YAW_LO + PIT_HI + ROL_CE:
+				// BL
+				NewParamSet = 2;
+				NewAllowNavAltitudeControl = true;
+				break;
+			default:
+				break;
+			} // switch
+
+			if ((NewAllowNavAltitudeControl != F.AllowNavAltitudeControl)
+					|| (NewAllowTurnToWP != F.AllowTurnToWP)) {
+				LEDBlue_ON;
+				F.AllowNavAltitudeControl = NewAllowNavAltitudeControl;
+				F.AllowTurnToWP = NewAllowTurnToWP;
+				DoBeep100mSWithOutput(4, 1);
+				LEDBlue_OFF;
 			}
 
-		if ( ( NewParamSet != ParamSet ) || ( NewAllowNavAltitudeHold != F.AllowNavAltitudeHold ) ) {
-			ParamSet = NewParamSet;
-			F.AllowNavAltitudeHold = NewAllowNavAltitudeHold;
-			LEDBlue_ON;
-			DoBeep100mSWithOutput(2, 2);
-			if ( ParamSet == (uint8)2 )
-				DoBeep100mSWithOutput(2, 2);
-			if ( F.AllowNavAltitudeHold )
-				DoBeep100mSWithOutput(4, 4);
-			ParametersChanged |= true;
-			Beeper_OFF;
-			LEDBlue_OFF;
+			if (NewParamSet != ParamSet) {
+				LEDBlue_ON;
+				ParamSet = NewParamSet;
+				for (i = 0; i<=ParamSet; i++)
+					DoBeep100mSWithOutput(1, 1);
+				ParametersChanged = true;
+				LEDBlue_OFF;
+			}
+			StickHoldState = 0;
 		}
-	}
+	} else if (State == Landed) {
 
-	if ( P[TxMode] == TxMode2 )
-		Selector = -A[Yaw].Desired;
-	else
-		Selector = A[Roll].Desired;
+		CreateStickPattern();
 
-	if ( (Abs(RC[ThrottleRC]) < STICK_WINDOW) && (Abs(Selector) > STICK_WINDOW ) ) {
-		if ( Selector < -STICK_WINDOW ) // left
-			NewAllowTurnToWP = false;
-		else
-			if ( Selector > STICK_WINDOW ) // left
-				NewAllowTurnToWP = true; // right
-			
-		if ( NewAllowTurnToWP != F.AllowTurnToWP ) {		
-			F.AllowTurnToWP = NewAllowTurnToWP;
-			LEDBlue_ON;
-		//	if ( F.AllowTurnToWP )
-				DoBeep100mSWithOutput(4, 2);
+		if (StickHoldState == 2) {
 
-			LEDBlue_OFF;
+			EEChanged = true;
+			switch (StickPattern) {
+			case THR_LO + YAW_CE + PIT_HI + ROL_CE:
+				A[FB].AccBias -= ACC_TRIM_STEP;
+				break;
+			case THR_LO + YAW_CE + PIT_LO + ROL_CE:
+				A[FB].AccBias += ACC_TRIM_STEP;
+				break;
+			case THR_LO + YAW_CE + PIT_CE + ROL_HI:
+				A[LR].AccBias -= ACC_TRIM_STEP;
+				break;
+			case THR_LO + YAW_CE + PIT_CE + ROL_LO:
+				A[LR].AccBias += ACC_TRIM_STEP;
+				break;
+			default:
+				EEChanged = false;
+				break;
+			} // switch
+
+			if (EEChanged) {
+				WriteAccCalEE();
+			//	UpdateMPU6050AccAndGyroBias();
+				DoBeep100mSWithOutput(1, 0);
+				StickHoldState = 1;
+				StickTimermS = mSClock() + 100;
+			} else
+				StickHoldState = 0;
 		}
-	}
+	} else
+		StickHoldState = 0;
+} // DoStickProgramming
 
-} // UpdateParamSetChoice
 
 boolean ParameterSanityCheck(void)
 {

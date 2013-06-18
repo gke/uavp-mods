@@ -91,7 +91,7 @@ boolean DoLanding(void) { // InTheAir micro switch RC0 Pin 11 to ground when lan
 	static boolean HasLanded;
 
 	HasLanded = false;
-	F.AltControlEnabled = F.AllowNavAltitudeHold = true;
+	F.AltControlEnabled = F.AllowNavAltitudeControl = true;
 
 	#ifdef NAV_WING
 
