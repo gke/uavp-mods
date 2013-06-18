@@ -599,7 +599,7 @@ typedef union {
 			UsingRangefinderAlt :1,
 
 			// 3
-			AllowNavAltitudeHold :1,
+			AllowNavAltitudeControl :1,
 			Bypass :1,
 			PolarCoords :1,
 			Simulation :1,
@@ -664,6 +664,8 @@ extern boolean near SpareSlotTime;
 // accel.c
 
 #define GRAVITY 1024
+
+#define ACC_TRIM_STEP 2
 
 enum AccTypes { LISLAcc, MPU6050Acc, BMA180Acc, AccUnsupported, AccUnknown };
 
@@ -1494,7 +1496,7 @@ extern int16 ESCMax;
 extern void ReadParametersEE(void);
 extern void WriteParametersEE(uint8);
 extern void UseDefaultParameters(void);
-extern void UpdateParamSetChoice(void);
+extern void DoStickProgramming(void);
 extern boolean ParameterSanityCheck(void);
 extern void InitParameters(void);
 

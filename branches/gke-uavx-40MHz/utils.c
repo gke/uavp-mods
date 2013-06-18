@@ -53,10 +53,7 @@ void LightsAndSirens(void) {
 			LEDGreen_ON;
 			if( F.RCNewValues ) {
 				UpdateControls();
-				if ( --RCStart == 0 ) { // wait until RC filters etc. have settled
-					UpdateParamSetChoice();
-					RCStart = 1;
-				}
+			
 				InitialThrottle = StickThrottle;
 				StickThrottle = DesiredThrottle = 0; 
 				OutSignals(); // synced to New RC signals
@@ -69,6 +66,10 @@ void LightsAndSirens(void) {
 						LEDRed_OFF;
 							
 					Ch5Timeout += 500;
+				}
+				if ( --RCStart == 0 ) { // wait until RC filters etc. have settled
+					DoStickProgramming();
+					RCStart = 1;
 				}	
 			}
 		} else {
@@ -180,7 +181,7 @@ void InitMisc(void) {
 	for ( i = 0; i < (uint8)FLAG_BYTES ; i++ )
 		F.AllFlags[i] = false;
 
-	F.ParametersValid = F.AcquireNewPosition = F.AllowNavAltitudeHold = true;
+	F.ParametersValid = F.AcquireNewPosition = F.AllowNavAltitudeControl = true;
 
         #ifdef INC_CYCLE_STATS
         for (i = 0 ; i <(uint8)16; i++ )

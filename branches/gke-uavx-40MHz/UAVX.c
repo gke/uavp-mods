@@ -144,6 +144,7 @@ void main(void) {
 					AltMinThrCompStick = -ALT_MAX_THR_COMP;
 					F.HoldingAlt = false;
 					F.OriginAltValid = false;
+					DoStickProgramming();
 					InitHeading();
 					if ( NowmS > mS[ArmedTimeout] )
 						DoShutdown();

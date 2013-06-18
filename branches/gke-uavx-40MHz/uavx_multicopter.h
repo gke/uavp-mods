@@ -36,7 +36,7 @@
 			{50,0},	 			// RollRateKd was YawKi,	12
 			{Wolferl, true},	// IMU,						13
 			{20,0},	 			// YawLimit,				14
-			{RCUnknown, true},// RCType,					15
+			{RCUnknown, true},	// RCType,					15
 
 	
 			{2,true}, 			// ConfigBits,				16c
