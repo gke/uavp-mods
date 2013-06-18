@@ -1,5 +1,5 @@
 #summary The tx sticks may be used to change some parameters in the field.
-#labels Featured
+#labels Featured,gke,UAVX
 
 == Stick Programming ==
 
@@ -7,7 +7,7 @@
 
 Configuration is done when disarmed.
 
-Rudder and Elevator are used in combination with the Rudder selecting the parameter set and Elevator enabling or disabling altitude hold when returning to home or navigating.
+Rudder and Elevator are used together with the Rudder selecting the parameter set and Elevator enabling or disabling altitude hold when returning to home or navigating. Both sticks must be moved for these programming steps.
 
   * Rudder stick left parameter set 1 and right parameter set 2
   * Elevator stick down enable altitude hold up disable
