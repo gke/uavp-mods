@@ -324,22 +324,22 @@ void DoStickProgramming(void) {
 			case THR_LO + YAW_HI + PIT_LO + ROL_CE:
 				// TR
 				NewParamSet = 1;
-				NewAllowNavAltitudeControl = false;
+				NewAllowNavAltitudeControl = true;
 				break;
 			case THR_LO + YAW_LO + PIT_LO + ROL_CE:
 				// TL
 				NewParamSet = 2;
-				NewAllowNavAltitudeControl = false;
+				NewAllowNavAltitudeControl = true;
 				break;
 			case THR_LO + YAW_HI + PIT_HI + ROL_CE:
 				// BR
 				NewParamSet = 1;
-				NewAllowNavAltitudeControl = true;
+				NewAllowNavAltitudeControl = false;
 				break;
 			case THR_LO + YAW_LO + PIT_HI + ROL_CE:
 				// BL
 				NewParamSet = 2;
-				NewAllowNavAltitudeControl = true;
+				NewAllowNavAltitudeControl = false;
 				break;
 			default:
 				break;
