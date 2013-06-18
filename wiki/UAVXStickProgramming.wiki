@@ -3,7 +3,9 @@
 
 == Stick Programming ==
 
-=== Disarmed ===
+The Tx sticks may be used to change some parameters or adjust the accelerometer neutrals in the field.
+
+=== When Disarmed ===
 
 Configuration is done when disarmed.
 
@@ -18,12 +20,13 @@ The Aileron can set the aircraft to hold current heading when navigating or to t
 
 The blue LED will flash accompanied by the beeper when you have changed a setting.
 
-=== Armed ===
+=== When Armed ===
 
-It is inevitable that the accelerometer neutrals will require small adjustments regardless of how well you leveled the aircraft during setup. You should not use the Tx trims which should be set to zero (no trims).
+It is inevitable that the accelerometer neutrals will require small adjustments regardless of how well you leveled the aircraft during setup. 
+
+You should not use the Tx trims which should be set to zero (no trims). Choose a day when there is no wind. You only need to do this once unless you have a major crash as there is very little in the accelerometer neutral values.
 
   * fly the aircraft pointing away from you and note the directions that it drifts.
   * land and, with the throttle closed but still armed, hold the aileron or elevator stick at maximum in direction opposite to the drift until you hear a beep.
   * Fly again repeating until there is no drift.
 
-You only need to do this once unless you have a major crash as there is very little in the accelerometer neutral values.
