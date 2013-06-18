@@ -171,7 +171,7 @@ It is inevitable that the accelerometer neutrals will require small adjustments 
 
   * set you Tx aileron and elevator trims to centre (no trim).
   * fly the aircraft pointing away from you and note the directions that it drifts.
-  * land and, with the throttle closed but still armed, hold the aileron or elevator stick at maximum in direction opposite to the drift until you hear a beep.
+  * land and, with the throttle closed but still armed, hold the aileron or elevator stick at maximum in direction opposite to the drift until you hear a beep - there is a delay of 2 seconds to the first beep.
   * Fly again repeating until there is no drift.
 
 You should do this when there is no wind and you only need to do it once. It is always better to adjust the neutrals rather than use the Tx trims if you want the flight controller to work properly.
