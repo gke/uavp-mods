@@ -16,9 +16,11 @@ The Aileron can set the aircraft to hold current heading when navigating or to t
 
   * Aileron stick left selects hold heading right turn to waypoint or home.
 
+The blue LED will flash accompanied by the beeper when you have changed a setting.
+
 === Armed ===
 
-It is inevitable that the accelerometer neutrals will require small adjustments regardless of how well you leveled the aircraft. You should not use the Tx trims which should be set to zero (no trims).
+It is inevitable that the accelerometer neutrals will require small adjustments regardless of how well you leveled the aircraft during setup. You should not use the Tx trims which should be set to zero (no trims).
 
   * fly the aircraft pointing away from you and note the directions that it drifts.
   * land and, with the throttle closed but still armed, hold the aileron or elevator stick at maximum in direction opposite to the drift until you hear a beep.
