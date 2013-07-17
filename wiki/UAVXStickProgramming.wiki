@@ -11,14 +11,10 @@ The blue LED will flash accompanied by the beeper when you have changed a settin
 
 Configuration is done when disarmed.
 
-Rudder and Elevator are used together with the Rudder selecting the parameter set and Elevator enabling or disabling altitude hold when returning to home or navigating. Both sticks must be moved for these programming steps.
+Rudder and Elevator are used together with the Rudder selecting the parameter set and Elevator enabling hold heading or turn to waypoint/home when returning to home or navigating. Both sticks must be moved for these programming steps.
 
   * Rudder stick left parameter set 1 and right parameter set 2
-  * Elevator stick down enable altitude hold up disable
-
-The Aileron can set the aircraft to hold current heading when navigating or to turn towards the next waypoint or home.
-
-  * Aileron stick left selects hold heading right turn to waypoint or home.
+  * Elevator stick down for hold heading (default) up for turn to waypoint/home
 
 === When Armed ===
 
