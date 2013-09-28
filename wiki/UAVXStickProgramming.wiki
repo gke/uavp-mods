@@ -28,4 +28,4 @@ You should not use the Tx trims which should be set to zero (no trims). Choose a
   * land and, with the throttle closed but still armed, hold the aileron or elevator stick at maximum in direction opposite to the drift until you hear a beep.
   * Fly again repeating until there is no drift.
 
-If you hold the stick at the extreme after the first LED flash and beep the change will be repeated every quarter of a second accompanied by another beep and flash.
+If you continue tohold the stick at the extreme after the first LED flash and beep, the change will be repeated every quarter of a second accompanied by another beep and flash.
