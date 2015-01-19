@@ -19,9 +19,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Connection
 
 === Step 1 ===
 
-Mount the board on your favourite frame - take the props OFF. 
-
-The ARROW on the top of the board must point directly along the forward motor arm. 
+Mount the board on your favourite frame oriented in the direction of forward flight. So if you are flying +Mode point the board along the K1 motor arm. If you are flying XMode point the board between the K1 and K3 motor arms. Select the desired configuration in UAVPSet using the airframe pulldown.
 
 Take all the the shorting links (if any) off the board. Connect up an arming switch between the Arming pin and the adjacent Ground pin. 
 
@@ -145,19 +143,15 @@ http://www.rcgroups.com/forums/showthread.php?t=1093510
 
 == Next Steps ==
 
-=== Flying X mode or Other Pilot Orientations ===
-
-UAVX changes the forward direction as seen by the pilot using a bit of simple mathematics. The arrow on the board must always point down the arm connected to Motor 1 regardless of where you want forward direction to be. If you want X-Mode simply change the "Forward" parameter to 6  which gives 6x7.5 = 45 degrees CW relative to the Motor 1 arm. Simple.
-
 === GPS Connection and Initialisation ===
 
 In what follows ou may wish to set your GPS unit's parameters using the manufacturer's tools. In this case leave the GPS Rx pin disconnected.
 
 If you are using a CPPM capable RC receiver you connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The Arming Switch remains a simple connection between the arming pin and the adjacent ground.
 
-If you are using a receiver other than CPPM then the GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins. The GPS Rx pin should be connected to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is always used for downlink telemetry. A schematic for the combined Arming and GPS connections is in the Appendices.
+If you are using a receiver other than CPPM then the GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins. The GPS Rx pin should be connected to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is always used for downlink telemetry. A schematic for the combined Arming and GPS connections is in the Appendices but it is recommended that you use RC3 & 4 for GPS if at all possible as UAVXNav requires full bi-directional telemetry.
 
-The Arm processor is very fast and so there is no particular performance advantage to using a binary format protocol. Bear in mind when selecting GPS options yourself that multicopters behave more like *pedestrians* as far as their movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
+Bear in mind when selecting GPS options yourself that multicopters behave more like *pedestrians* as far as their movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
 
 If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at a minimum update rate of 5Hz. Communications is at 115KBaud.
 
