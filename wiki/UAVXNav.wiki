@@ -40,7 +40,8 @@ Try selecting RTH then reselecting Navigate. Note you must go to Hold then back 
 Most of the usual features you would expect are available:
 
   * The types of waypoints and some edits are available with right mouse click - the position of the mouse when you click will be the position of the waypoint.
-  * The up/down buttons in the mission data box may be used to change the waypoint sequence or delete individual waypoints.
+  * The up/down buttons in the mission data box may be used to edit default values, change the waypoint sequence or delete individual waypoints.
+  * Conditional waypoint sequences/loops are not currently available.
 
 The waypoint types are currently:
 
