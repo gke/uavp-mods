@@ -1,6 +1,8 @@
 #summary UAVXNav is a navigation mission planner with an inbuilt ground-station.
 #labels Featured,UAVXNav,UAVX,UAVPSet,gke,jesolins,UAVP,quadrocopter
 
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXNav3.JPG
+
 = UAVXNav =
 
 UAVXNav is a navigation mission planner with an inbuilt ground-station. 
