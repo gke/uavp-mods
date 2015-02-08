@@ -7,7 +7,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXNav3.JPG
 
 UAVXNav is a navigation mission planner with an inbuilt ground-station. 
 
-If you have GPS connected to the COM port inflight then you will have full downlink telemetry but the mission will remain fixed for the flight. If you use RC3&4 for your GPS connection and the Rx uses CPPM then full bi-directional telemetry capability is available on the COM port. If this is the case you will have full inflight mission modification capability.
+If you have GPS connected to the COM port Rx pin then you will have full downlink telemetry but the mission will remain fixed for the flight. If your Rx uses CPPM you will be using RC3&4 for your GPS connection. In this case you will have full bi-directional telemetry and can change mission parameters in flight.
 
 Selectable voice feedback is available for those who like to look at the aircraft in flight rather than hopefully where it is on a screen. 
 
@@ -17,11 +17,13 @@ By default the functions selected by Tx Channel 5 are PIC, Hold assist and RTH. 
 
 == Emulation ==
 
-If you select Emulation Mode on the Flight Mode checkbox in UAVPSet UAVX will use representative physics to display what the aircraft is likely to do in flight; this includes GPS.  The emulation has a light breeze blowing to the NE and you will see the effect of this. You should use Emulation Mode to help you become familiar with the mission planning and the effect of Channel 5 switch positions.
+You should use Emulation Mode to help you become familiar with the mission planning and the effect of Channel 5 switch positions.
+
+You select Emulation Mode using the Flight Mode checkbox in UAVPSet. UAVX will then use representative physics to display what the aircraft is likely to do in flight; this includes GPS.  The emulation has a light breeze blowing to the NE and you will see the effect of this. 
 
 To get you started Emulation Mode generates a representative mission plan which you may change.
 
-*REMOVE YOUR PROPELLORS WHEN USING EMULATION*. The software should disarm motor function when emulation is selected but I don't trust software so neither should you.
+*REMOVE YOUR PROPELlORS WHEN USING EMULATION*. The software should disarm motor function when emulation is selected but I don't trust software so neither should you.
 
 == First Flight ==
 
@@ -33,7 +35,7 @@ When UAVX starts to send telemetry select the Read button or select  Read in the
 
 Increase throttle and "fly" to around 15M. Slowly reduce the throttle to 45% which is hover. You should see the ROC drop to close to zero at which point the altitude hold will engage. 
 
-Select Navigate on Channel 5. You should now see the aircraft start to traverse the mission.  
+Select Navigate on Channel 5. You should now see (and hear) the aircraft start to traverse the mission.  
 
 Try selecting RTH then reselecting Navigate. Note you must go to Hold then back to Navigate otherwise RTH will continue.  Currently the mission is restarted not resumed where it left off.
 
