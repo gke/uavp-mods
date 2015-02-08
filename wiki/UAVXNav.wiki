@@ -7,7 +7,9 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXNav3.JPG
 
 UAVXNav is a navigation mission planner with an inbuilt ground-station. 
 
-If you have GPS connected to the COM port inflight then you will have full downlink telemetry but the mission will remain fixed for the flight. If you use RC3&4 for your GPS connection and the Rx uses CPPM then full bi-directional telemetry capability is available on the COM port. If this is the case you will have full inflight mission modification capability. 
+If you have GPS connected to the COM port inflight then you will have full downlink telemetry but the mission will remain fixed for the flight. If you use RC3&4 for your GPS connection and the Rx uses CPPM then full bi-directional telemetry capability is available on the COM port. If this is the case you will have full inflight mission modification capability.
+
+Selectable voice feedback is available for those who like to look at the aircraft in flight rather than hopefully where it is on a screen. 
 
 == Tx setup ==
 
