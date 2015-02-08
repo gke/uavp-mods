@@ -15,7 +15,7 @@ By default the functions selected by Tx Channel 5 are PIC, Hold assist and RTH. 
 
 == Emulation ==
 
-If you select Emulation mode on the Flight Mode checkbox in UAVPSet UAVX will use representative physics to display what the aircraft is likely to do in flight; this includes GPS.  The emulation has a light breeze blowing to the NE and you will see the effect of this. You should use Emulation Mode to help you become familiar with the mission planning and the effect of Channel 5 switch positions.
+If you select Emulation Mode on the Flight Mode checkbox in UAVPSet UAVX will use representative physics to display what the aircraft is likely to do in flight; this includes GPS.  The emulation has a light breeze blowing to the NE and you will see the effect of this. You should use Emulation Mode to help you become familiar with the mission planning and the effect of Channel 5 switch positions.
 
 To get you started Emulation Mode generates a representative mission plan which you may change.
 
