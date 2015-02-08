@@ -23,7 +23,7 @@ To get you started Emulation Mode generates a representative mission plan which 
 
 == First Flight ==
 
-The aircraft must be *armed* for UAVXNav to work. 
+Just as with UAVXGS the aircraft must be *armed* for UAVXNav to work. 
 
 When UAVX starts to send telemetry select the Read button or select  Read in the mouse right click menu. This should upload any mission currently stored in UAVX. In Emulation Mode you should see a simple mission displayed.
 
