@@ -81,5 +81,8 @@ Northern Summer 2010.
 
 === Acknowledgements ===
 
-2015 mission editing based on that from MultiWiiWinGUI by Andras Schaffer (EOSBandi) (C) 2014. Avionics Instrument Controls written by Guillaume Chouteau. Originally inspired by Jordi Muñoz from ArduPilotConfigTool.
- 
+As of 2015 mission editing is based on that from MultiWiiWinGUI by Andras Schaffer (EOSBandi) (C) 2014. Avionics Instrument Controls were written by Guillaume Chouteau. UAVXNav was originally inspired by Jordi Muñoz from ArduPilotConfigTool.
+
+UAVXNav now uses GMap.NET and allows selection of maps from a variety of sources in addition to the original Google Maps.
+
+_G.K. Egan 2015_
