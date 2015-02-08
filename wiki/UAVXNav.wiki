@@ -49,7 +49,7 @@ The waypoint types are currently:
   * ORBIT - orbits the waypoint at the radius (R) with a velocity (V). UAVX will point an camera at the waypoint - not implemented as at Feb 8 2015 so reverts to VIA. 
   * PERCH - lands at the waypoint then takes off and resumes mission. 
   * Set POI - this is not a waypoint as such just a point that the aircraft will point to for the rest of the mission or until another Set POI is encountered.
-  * RTH is the default last waypoint. If there is no mission then selecting Navigate results in RTH.
+  * Although not displayed RTH is always the default last waypoint. If there is no mission then selecting Navigate results in RTH.
 
 If you do not designate a POI then the normal Turn To WP or hold heading configuration applies.
 
