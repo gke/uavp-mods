@@ -25,7 +25,7 @@ To get you started Emulation Mode generates a representative mission plan which 
 
 *REMOVE YOUR PROPELlORS WHEN USING EMULATION*. The software should disarm motor function when emulation is selected but I don't trust software so neither should you.
 
-== First Flight ==
+== First Emulated Flight ==
 
 Just as with UAVXGS the aircraft must be *armed* for UAVXNav to work. 
 
@@ -57,7 +57,9 @@ The waypoint types are currently:
 
 If you do not designate a POI then the normal Turn To WP or hold heading configuration applies.
 
-Any changes to the mission do not become effective until you *select Write*. You should always select Read immediately after to satisfy yourself that the mission appears OK.  
+Any changes to the mission do not become effective until you *select Write*. You should always select Read immediately after to satisfy yourself that the mission appears OK.
+
+Note: UAVXSet also allows you to check whether a current mission is loaded in the *Setup Test*.  
 
 == Go To ==
 
