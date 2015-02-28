@@ -27,7 +27,6 @@ Selectable voice feedback is available for those who like to look at the aircraf
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUIMain.JPG
 
-
 The main Ground Station window has the main instrumentation and replaces the test functions of UAVXSet. 
 
 The buttons to the top right select the Parameter and navigation windows. Magnetometer and IMU (Gyros/Accs) calibration are below the Flags Box.  They are click to commence and are reset automatically (Green) when calibration is complete. If they are Red then the sensors are uncalibrated. This group of buttons also includes Spektrum and SBus loopback tests. All of these buttons are available only when disarmed.
@@ -35,6 +34,8 @@ The buttons to the top right select the Parameter and navigation windows. Magnet
 = Parameters =
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUIParams.JPG
+
+Open this page using the button top right of the Ground Station page. You may close and reopen this page as you desire.
 
 There is now only one page for parameters with the parameter set number being changed using the selector in the toolbar. As with UAVXSet the Read and Write buttons must be used to update the aircraft's values. Currently there are two parameter sets available but there is no real limit.
 
@@ -46,6 +47,14 @@ IMPORTANT: Some changes to the aircraft type, Rx type/mode or Emulation mode etc
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUINav.JPG
 
+Open this page using the button top right of the Ground Station page. You may close and reopen this page as you desire.
+
+== General ==
+
+Missions may be accessed as files using the Load and Save buttons. An image of the current map is also saved when using the Save button. 
+
+Changes to the mission on the map must be uploaded to the aircraft using the Write button. The current mission stored in the aircraft (if any) is downloaded using the Read button.
+
 == Tx setup ==
 
 By default the functions selected by Tx Channel 5 are PIC, Hold assist and RTH. If you check the WP navigation enabled checkbox the functions become Hold assist, Navigate and RTH. 
@@ -56,7 +65,7 @@ You should use *Emulation Mode* to help you become familiar with the mission pla
 
 You select Emulation Mode using the Flight Mode checkbox. UAVX will then use representative physics to display what the aircraft is likely to do in flight; this includes GPS.  The emulation has a light breeze blowing to the NE and you will see the effect of this. 
 
-To get you started Emulation Mode generates a representative mission plan which you may change. This mission is NOT DELETED when you switch out of Emulation mode and must be deleted by loading an empty mission (no waypoints).
+To get you started Emulation Mode generates a representative mission plan which you may change. This mission is NOT DELETED when you switch out of Emulation mode and must be deleted by uploading an empty mission (no waypoints) using the Write button. 
 
 *REMOVE YOUR PROPELLORS WHEN USING EMULATION*. The software should disarm motor function when emulation is selected but I don't trust software so neither should you.
 
@@ -70,7 +79,7 @@ Increase throttle and "fly" to around 15M. Slowly reduce the throttle to 45% whi
 
 Select Navigate on Channel 5. You should now see (and hear) the aircraft start to traverse the mission.  
 
-Try selecting RTH then reselecting Navigate. Note you must go to Hold then back to Navigate otherwise RTH will continue.  Currently the mission is restarted not resumed where it left off.
+Try selecting RTH then re-selecting Navigate. Note you must go to Hold then back to Navigate otherwise RTH will continue.  Currently the mission is restarted not resumed where it left off.
 
 == More Advanced ==
 
