@@ -21,7 +21,7 @@ If your Rx uses CPPM you should definitely be using RC3&4 for your GPS connectio
 
 == Voice Feedback == 
 
-Selectable voice feedback is available for those who like to look at the aircraft in flight rather than hopefully where it is on a screen. You may enable/disable reporting.
+Selectable voice feedback is available for those who like to look at the aircraft in flight rather than hopefully where it is on a screen. You may enable/disable reporting - bottom right of the main Ground Station window.
 
 = Groundstation =
 
