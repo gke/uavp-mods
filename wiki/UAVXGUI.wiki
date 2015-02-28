@@ -36,9 +36,9 @@ The buttons to the top right select the Parameter and navigation windows. Magnet
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUIParams.JPG
 
-There is now only one page for parameters with the parameter set number being changed using the selector in the toolbar. As with UAVXSet Read and Write buttons must be used to update the aircraft's values. Currently there are two parameter sets available but there is no effective limit.
+There is now only one page for parameters with the parameter set number being changed using the selector in the toolbar. As with UAVXSet the Read and Write buttons must be used to update the aircraft's values. Currently there are two parameter sets available but there is no real limit.
 
-Parameter sets may be saved or loaded from file as required.
+Parameter sets may also be saved or loaded from file as required.
 
 IMPORTANT: Some changes to the aircraft type, Rx type/mode or Emulation mode etc. may require a reset so that the hardware can be reconfigured SAFELY. If there is no response to UAVXGUI commands then check the LEDs to see if they are all flashing. If they are then power cycle the board. You will appreciate the safety aspects of switching say from a fixed wing aircraft to a multicopter where the previous midpoint servo setting will be interpreted by a multicopter as half throttle.
 
@@ -56,7 +56,7 @@ You should use *Emulation Mode* to help you become familiar with the mission pla
 
 You select Emulation Mode using the Flight Mode checkbox. UAVX will then use representative physics to display what the aircraft is likely to do in flight; this includes GPS.  The emulation has a light breeze blowing to the NE and you will see the effect of this. 
 
-To get you started Emulation Mode generates a representative mission plan which you may change.
+To get you started Emulation Mode generates a representative mission plan which you may change. This mission is NOT DELETED when you switch out of Emulation mode and must be deleted by loading an empty mission (no waypoints).
 
 *REMOVE YOUR PROPELLORS WHEN USING EMULATION*. The software should disarm motor function when emulation is selected but I don't trust software so neither should you.
 
