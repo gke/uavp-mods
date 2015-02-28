@@ -5,7 +5,7 @@
 
 The original UAVPSet used an ad hoc serial communication protocol whilst UAVXGS and UAVXNav have used packet based communications from the outset. UAVXGUI replaces UAVXSet and binds the three tools into one.
 
-To use UAVXGUI you must use flight code with a *P* in the version e.g. UAVXArm32F4_V3*P*.
+To use UAVXGUI you must use flight code with a *P* in the version e.g. UAVXArm32F4_V3P.
 
 UAVXSet, UAVXGS and UAVXNav will be maintained for a while but not too long!
 
