@@ -13,7 +13,7 @@ Full telemetry is available at all times regardless of whether the aircraft is a
 
 You should also refer to the Wikis for the old separate tools.
 
-= GPS Connected to COM or Telemetry Port =
+== GPS Connected to COM or Telemetry Port ==
 
 If you have GPS connected to the COM port Rx pin then you will have full downlink telemetry but you will not be able to change any parameters in flight including navigation missions. You arming switch needs to switch the between the Tx line from the GPS and the Tx line from your PC or RF link. UAVXGUI assumes this will be the case and will be looking for GPS packets when the aircraft is armed.  
 
