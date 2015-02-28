@@ -1,5 +1,5 @@
+#summary Combines the functions of UAVXSet, UAVXGS and UAVXNav into one GUI.
 #labels UAVXArm,UAVPSet,UAVXGS,UAVXNav,gke
-#Summary Combines the functions of UAVXSet, UAVXGS and UAVXNav into one GUI.
 
 = Introduction =
 
