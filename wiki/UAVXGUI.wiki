@@ -1,5 +1,5 @@
 #labels UAVXArm,UAVPSet,UAVXGS,UAVXNav,gke
-#Combines the functions of UAVXSet, UAVXGS and UAVXNav into one GUI.
+#Summary Combines the functions of UAVXSet, UAVXGS and UAVXNav into one GUI.
 
 = Introduction =
 
@@ -7,10 +7,25 @@ The original UAVPSet used an ad hoc serial communication protocol whilst UAVXGS 
 
 You should refer to the Wikis for the old separate tools.
 
+= Groundstation =
 
-= Details =
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUIMain.JPG
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+
+The main Ground Station window has the main instrumentation and replaces the test functions of UAVXSet. 
+
+The buttons to the top right select the Parameter and navigation windows. Magnetometer and IMU (Gyros/Accs) calibration are below the Flags Box.  They are click to commence (Red) and are reset automatically (Green) when calibration is complete. This group of buttons also includes Spektrum and SBus loopback tests. All of these buttons are available only when disarmed.
+
+= Parameters =
+
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUIParams.JPG
+
+There is now only one page for parameters with the parameter set number being selected being selected using the selector in the toolbar. As with UAVXSet Read and Write buttons must be used to update the aircraft's values.
+
+Parameter sets may be saved or loaded from file as required.
+
+IMPORTANT: Some changes to the aircraft type, Rx type or Emulation mode etc. may require a reset so that the hardware can be reconfigured. If there is no response then check the LEDs to see if they are all flashing. If they are then power cycle the board. You will appreciate the safety aspects of switching say from a fixed wing aircraft to a multicopter where the previous midpoint servo setting will be interpreted by a multicopter as half throttle.
+
+= Navigation =
+
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUINav.JPG
