@@ -1,5 +1,5 @@
 #summary Combines the functions of UAVXSet, UAVXGS and UAVXNav into one GUI.
-#labels UAVXArm,UAVPSet,UAVXGS,UAVXNav,gke
+#labels UAVXArm,UAVPSet,UAVXGS,UAVXNav,gke,Featured
 
 = Introduction =
 
@@ -7,7 +7,7 @@ The original UAVPSet used an ad hoc serial communication protocol whilst UAVXGS 
 
 To use UAVXGUI you must use flight code with a *P* in the version e.g. UAVXArm32F4_V3P.
 
-UAVXSet, UAVXGS and UAVXNav will be maintained for a while but not too long!
+UAVXSet and UAVXGS will be maintained for a while but not too long ... UAVXNav has been retired.
 
 Full telemetry is available at all times regardless of whether the aircraft is armed or not except where you use the main COM port for GPS - see below.
 
