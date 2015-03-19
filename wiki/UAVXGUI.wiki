@@ -77,7 +77,7 @@ If you check the WP navigation enabled checkbox the Nav Mode selected becomes:
 
   * Hold assist, Navigate and RTH. 
 
-For the first approximately 15 seconds of navigation including hold is disabled and selecting Nav Mode other than PIC will result in an autoland. You can abort this by reversing the switch action.
+Navigation including hold is disabled for the first approximately 15 seconds of flight.  Selecting Nav Mode other than PIC will result in an autoland. You can abort this by reversing the switch action. This has been adopted to reduce the possibility of engaging waypoint navigation while standing close to or over the aircraft immediately after arming.
 
 == Emulation ==
 
