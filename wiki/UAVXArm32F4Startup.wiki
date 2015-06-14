@@ -125,11 +125,13 @@ http://www.rcgroups.com/forums/showthread.php?t=1093510
 
 === GPS Connection and Initialisation ===
 
-In what follows ou may wish to set your GPS unit's parameters using the manufacturer's tools. In this case leave the GPS Rx pin disconnected.
+The GPS is connected to the I2C/Rangefinder connector. The connector is configured for serial communication at 115KBaud. The GPS Rx line should be connected to xxx and the Tx to yyy. Ask if you intend connecting an I2C capable GPS.
 
-If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at a minimum update rate of 5Hz. Communications is at 115KBaud.
+In what follows you may wish to set your GPS unit's parameters using the manufacturer's tools. In this case leave the GPS Rx pin disconnected so that UAVX does not use its default configuration.
 
-You must have a solid Green LED and a Blue LED flashing at the GPS rate which is normally 5Hz to fly. If you have a Red LED flashing intermittently *do not fly using GPS navigation* as you have poor GPS reception or there is some other fault.
+If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at a minimum update rate of 5Hz. 
+
+You must have a solid Green LED and a Blue LED flashing at the GPS rate which is normally 5Hz to fly. If you have a Red LED flashing intermittently *do not fly using GPS navigation* as you have poor GPS reception or there is some other fault. 
 
 === Accelerometer Neutral Fine Tuning ===
   
@@ -157,4 +159,3 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4_Outputs.J
 These are the Arm processor pin assignments.
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Pinout.JPG
-
