@@ -125,7 +125,7 @@ http://www.rcgroups.com/forums/showthread.php?t=1093510
 
 === GPS Connection and Initialisation ===
 
-The GPS is connected to the I2C/Rangefinder connector. The connector is configured for serial communication at 115KBaud. The GPS Rx line should be connected to xxx and the Tx to yyy. Ask if you intend connecting an I2C capable GPS.
+The GPS is connected to the I2C/Rangefinder connector. The connector is configured for serial communication at 115KBaud. The GPS Rx line should be connected to SDA and the Tx to CLK. If you intend connecting an I2C capable GPS then we will try to get it done.
 
 In what follows you may wish to set your GPS unit's parameters using the manufacturer's tools. In this case leave the GPS Rx pin disconnected so that UAVX does not use its default configuration.
 
@@ -158,4 +158,4 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4_Outputs.J
 
 These are the Arm processor pin assignments.
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Pinout.JPG
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4_V4Pinouts.JPG
