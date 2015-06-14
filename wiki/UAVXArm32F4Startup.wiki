@@ -13,7 +13,7 @@ If you are using UAVXArm32F4 board without sensors as an adapter for the old UAV
 
 ==== UAVXArm32F4 Board ====
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Connections.png
+http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/Uavx-nanoV4.png
 
 === Step 1 ===
 
