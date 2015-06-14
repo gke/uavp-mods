@@ -29,11 +29,9 @@ The Red light should be on and the Yellow LED should be flashing once a second i
 
 === Step 2 ===
 
-Download the software package from the downloads area and install UAVPset and UAVXGS.
+Download the software package from the downloads area and install UAVXSet. Later you will most likely change to using UAVXGUI.
 
 Connect the adapter lead to the board and then to a USB port on your computer.
-
-http://uavp-mods.googlecode.com/svn/branches/uavxarm32_graphics/ftdi.jpg
 
 Start UAVPSet and check that you have the appropriate COM port selected. 
 
