@@ -127,15 +127,7 @@ http://www.rcgroups.com/forums/showthread.php?t=1093510
 
 In what follows ou may wish to set your GPS unit's parameters using the manufacturer's tools. In this case leave the GPS Rx pin disconnected.
 
-If you are using a CPPM capable RC receiver you connect the GPS Tx directly to RC3 and the GPS Rx to RC4. The Arming Switch remains a simple connection between the arming pin and the adjacent ground.
-
-If you are using a receiver other than CPPM then the GPS Tx pin is connected to the Rx pin on the Com port along with the 3V and Ground pins. The GPS Rx pin should be connected to Aux2. Aux2 has some associated code that allows it to act as a serial Tx port for the brief time required to initialise the GPS. We do this as the Tx port on the serial connector is always used for downlink telemetry. A schematic for the combined Arming and GPS connections is in the Appendices but it is recommended that you use RC3 & 4 for GPS if at all possible as UAVXNav requires full bi-directional telemetry.
-
-Bear in mind when selecting GPS options yourself that multicopters behave more like *pedestrians* as far as their movements are concerned so choosing this in the GPS filter options is likely to give better performance when hovering.
-
 If using the NMEA protocol you should choose the $GPGGA and $GPRMC sentences at a minimum update rate of 5Hz. Communications is at 115KBaud.
-
-The DPDT switch is arranged such that the GPS Tx is connected to the Com port Rx only when armed otherwise Com Port Rx is connected to the PC via the FTDI adapter. If the GPS is accidentally connected when UAVX is disarmed then the NMEA or binary transmission from the GPS will be interpreted as commands coming from UAVPSet with quite unpredictable results!
 
 You must have a solid Green LED and a Blue LED flashing at the GPS rate which is normally 5Hz to fly. If you have a Red LED flashing intermittently *do not fly using GPS navigation* as you have poor GPS reception or there is some other fault.
 
@@ -154,14 +146,6 @@ You should never need yaw trim.
 
 == Appendices ==
 
-=== GPS Wiring Harness For Non-CPPM Receivers ===
-
-The schematic shows how the GPS and arming switch are combined into a single DPDT switch. The schematic pin to pin connections may be taken literally to assist in forming wiring bundles.
-
-The Aux2 pin is used to program the GPS unit if you wish UAVX to initialise Ublox/MTK parameters. The connection may be omitted if the manufacturer's programmer is used.
-
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4GPSHarness.JPG
-
 === Motor/Servo Connector Assignments ===
 
 The "K" output pin assignments which you should test with care are currently:
@@ -173,3 +157,4 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4_Outputs.J
 These are the Arm processor pin assignments.
 
 http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Pinout.JPG
+
