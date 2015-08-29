@@ -22,7 +22,7 @@ Selectable voice feedback is available for those who like to look at the aircraf
 
 # Groundstation #
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUIMain.JPG
+https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVXGUIMain.JPG
 
 The main Ground Station window has the main instrumentation and replaces the test functions of UAVXSet.
 
@@ -30,7 +30,7 @@ The buttons to the top right select the Parameter and navigation windows. Magnet
 
 # Parameters #
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUIParams.JPG
+https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVXGUIParams.JPG
 
 Open this page using the button top right of the Ground Station page. You may close and reopen this page as you desire.
 
@@ -54,7 +54,7 @@ Low battery and sticks not moving are ignored. If your Tx has failed the aircraf
 
 # Navigation #
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXGUINav.JPG
+https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVXGUINav.JPG
 
 Open this page using the button top right of the Ground Station page. You may close and reopen this page as you desire.
 
