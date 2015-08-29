@@ -15,7 +15,7 @@ The firmware update process is quite easy. You will need:
 
 ## Process ##
 
-![http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSky.jpg](http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSky.jpg)
+![https://github.com/gke/uavp-mods/blob/uavx_graphics/FrSky.jpg](https://github.com/gke/uavp-mods/blob/uavx_graphics/FrSky.jpg)
 
   * Make up a cable as shown in the photo due to "RENATOA". Note that the Tx pin is mislabelled on the D8R V2 as +5V. This is to be corrected by [FrSky](http://www.frsky-rc.com/) in later releases.
 
@@ -37,7 +37,7 @@ The firmware update process is quite easy. You will need:
 
 # That's it! #
 
-![http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSkyD8RComposite.png](http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/FrSkyD8RComposite.png)
+![https://github.com/gke/uavp-mods/blob/uavx_graphics/FrSkyD8RComposite.png](https://github.com/gke/uavp-mods/blob/uavx_graphics/FrSkyD8RComposite.png)
 
 
 Reference: http://www.rcgroups.com/forums/showpost.php?p=17169119&postcount=2827
