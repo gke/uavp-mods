@@ -5,7 +5,7 @@
 What follows is not a recommendation of the [FrSky](http://www.frsky-rc.com/) products in general but is intended to put in one place information that is currently difficult to find.
 
 ## Composite Output ##
-While the D8R Rx is not directly compatible with UAVX a recent firmaware release allows it to directly generate composite PPM signals where "All Channels" come out on Ch 8. The function of channels 1 to 7 are preserved.
+While the D8R Rx is not directly compatible with UAVX a recent firmware release allows it to directly generate composite PPM signals where "All Channels" come out on Ch 8. The function of channels 1 to 7 are preserved.
 
 The firmware update process is quite easy. You will need:
 
