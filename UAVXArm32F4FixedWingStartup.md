@@ -8,7 +8,7 @@ UAVX has not been regularly used for fixed wing aircraft so congratulations this
 
 #### UAVXArm32F4 Board ####
 
-![http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Connections.png](http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4Connections.png)
+![https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVXArm32F4Connections.png](https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVXArm32F4Connections.png)
 
 ### Step 1 ###
 
@@ -28,7 +28,7 @@ Download the software package from the downloads area and install UAVPset and UA
 
 Connect the adapter lead to the board and then to a USB port on your computer.
 
-![http://uavp-mods.googlecode.com/svn/branches/uavxarm32_graphics/ftdi.jpg](http://uavp-mods.googlecode.com/svn/branches/uavxarm32_graphics/ftdi.jpg)
+![https://github.com/gke/uavp-mods/blob/uavxarm32_graphics/ftdi.jpg](https://github.com/gke/uavp-mods/blob/uavxarm32_graphics/ftdi.jpg)
 
 Start UAVPSet and check that you have the appropriate COM port selected.
 
@@ -57,7 +57,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Params_Wing.J
 
 Now select the Setup Test.  Read the results and try to make sense of it. At the bottom you will see various alarms. With luck the only alarms will be that you have not calibrated the accelerometer and the Rx is not working.
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Start.JPG
+https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVPSet_Start.JPG
 
 ### Step 3 (Rx) ###
 
@@ -81,7 +81,7 @@ http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_RxTest.JPG
 
 If the Rx Test passes then close the test software window and select the Tx/Rx setup icon. Double check the controls are behaving sensibly and the endpoints are under 100%.
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_RxGraphic.JPG
+https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVPSet_RxGraphic.JPG
 
 As well as adjusting the navigation sensitivity NavS or Channel 7 (normally a potentiometer/knob) is used to enable altitude hold.  Initially you should fly with altitude hold off. Altitude hold is switch OFF below 10% and ON above 10%. The knob does not control altitude hold sensitivity.
 
@@ -101,7 +101,7 @@ Power up with UAVPSet connected.  Select the Cal Accs/Gyros test. Confirm you ar
 
 Now select the Acc/Gyro test to check that the Roll/Pitch/Yaw rate are close to zero. Also check the Acc values which should show Front/Back (FB) and LR close to zero and UD close to -1.
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVPSet_Cal.JPG
+https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVPSet_Cal.JPG
 
 Once again you only need to do this once or when loading the defaults or if you change the gyro selection pulldown - it should be on UAVXArm32 unless you are using analog gyros.
 
@@ -146,4 +146,4 @@ http://www.rcgroups.com/forums/showthread.php?t=1093510
 
 The "K" output pin assignments which you should test with care are currently:
 
-http://uavp-mods.googlecode.com/svn/branches/uavx_graphics/UAVXArm32F4_Outputs.JPG
+https://github.com/gke/uavp-mods/blob/uavx_graphics/UAVXArm32F4_Outputs.JPG
